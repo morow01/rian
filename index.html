@@ -74,7 +74,7 @@
 // ============================================================
 // CONFIG
 // ============================================================
-const VERSION = '0.4';
+const VERSION = '0.5';
 const API_URL = 'https://script.google.com/macros/s/AKfycbwHbuuctWpT1QWqQc8C1fINQyBJhssIIeh3duuQgAHiCpGBRUVnPEmUnDlEDu5mQbZk/exec';
 const DAY_NAMES = ['Friday','Saturday','Sunday','Monday','Tuesday','Wednesday','Thursday'];
 const DB_NAME = 'timesheet-db';
@@ -660,19 +660,12 @@ function renderActivity(act, di) {
           data-field="overtime" data-act="${act.id}" data-day="${di}" oninput="updateField(this)">
       </div>
     </div>
-    <div class="grid grid-cols-3 gap-2">
-      <div class="bg-gray-50 rounded-xl p-2">
-        <label class="text-xs text-gray-400 block mb-1">Tasks</label>
-        <div class="w-full text-center font-bold text-lg text-blue-900 border-b border-gray-200 py-0.5">${numTasks}</div>
-      </div>
-      <div class="bg-gray-50 rounded-xl p-2">
-        <label class="text-xs text-gray-400 block mb-1">Hrs/Task</label>
-        <div data-calc="hrsPerTask" data-act="${act.id}" class="w-full text-center font-semibold text-gray-700 border-b border-gray-200 py-0.5">${hrsPerTask}</div>
-      </div>
-      <div class="bg-amber-50 rounded-xl p-2">
-        <label class="text-xs text-amber-300 block mb-1">OT/Task</label>
-        <div data-calc="otPerTask" data-act="${act.id}" class="w-full text-center font-semibold text-amber-600 border-b border-amber-200 py-0.5">${otPerTask}</div>
-      </div>
+    <div class="flex items-center gap-3 px-1 pt-1 pb-0.5 text-xs text-gray-400">
+      <span>Tasks: <strong class="text-gray-600">${numTasks}</strong></span>
+      <span class="text-gray-200">|</span>
+      <span>Hrs/Task: <strong data-calc="hrsPerTask" data-act="${act.id}" class="text-gray-600">${hrsPerTask}</strong></span>
+      <span class="text-gray-200">|</span>
+      <span>OT/Task: <strong data-calc="otPerTask" data-act="${act.id}" class="text-amber-400">${otPerTask}</strong></span>
     </div>
   </div>`;
 }
