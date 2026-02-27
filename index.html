@@ -74,6 +74,7 @@
 // ============================================================
 // CONFIG
 // ============================================================
+const VERSION = '0.2';
 const API_URL = 'https://script.google.com/macros/s/AKfycbwHbuuctWpT1QWqQc8C1fINQyBJhssIIeh3duuQgAHiCpGBRUVnPEmUnDlEDu5mQbZk/exec';
 const DAY_NAMES = ['Friday','Saturday','Sunday','Monday','Tuesday','Wednesday','Thursday'];
 const DB_NAME = 'timesheet-db';
@@ -504,9 +505,10 @@ function renderHeader() {
       <button onclick="prevWeek()" class="text-blue-200 text-xl px-1 py-1 min-w-[36px]">‹</button>
       <div class="flex-1 text-center">
         <div class="font-bold text-base leading-tight">${state.weekStart ? formatWeekRange(state.weekStart) : '—'}</div>
-        <div class="text-blue-300 text-xs mt-0.5">
+        <div class="text-blue-300 text-xs mt-0.5 flex items-center justify-center gap-2">
           ${syncIcons[state.syncStatus] || ''}
           <span title="${syncTitles[state.syncStatus]}">${syncTitles[state.syncStatus]}</span>
+          <span class="text-blue-600 text-xs">v${VERSION}</span>
         </div>
       </div>
       <button onclick="nextWeek()" class="text-blue-200 text-xl px-1 py-1 min-w-[36px]">›</button>
@@ -607,6 +609,10 @@ function renderDaySection(day, di) {
 
 function renderActivity(act, di) {
   const numTasks = act.codes.length || 1;
+  const ordinary = parseFloat(act.ordinary) || 0;
+  const overtime = parseFloat(act.overtime) || 0;
+  const hrsPerTask = ordinary > 0 ? (ordinary / numTasks).toFixed(2) : '—';
+  const otPerTask  = overtime > 0 ? (overtime / numTasks).toFixed(2) : '—';
   const codesSection = act.codes.length
     ? `<div class="flex flex-wrap gap-1 mb-2 px-1">
         ${act.codes.map(c => `
@@ -659,15 +665,11 @@ function renderActivity(act, di) {
       </div>
       <div class="bg-gray-50 rounded-xl p-2">
         <label class="text-xs text-gray-400 block mb-1">Hrs/Task</label>
-        <input type="number" step="0.01" min="0" placeholder="auto" value="${act.timePerTask}"
-          class="w-full text-center text-gray-600 bg-transparent outline-none border-b border-gray-200 focus:border-blue-400"
-          data-field="timePerTask" data-act="${act.id}" data-day="${di}" oninput="updateField(this)">
+        <div class="w-full text-center font-semibold text-gray-700 border-b border-gray-200 py-0.5">${hrsPerTask}</div>
       </div>
       <div class="bg-amber-50 rounded-xl p-2">
         <label class="text-xs text-amber-300 block mb-1">OT/Task</label>
-        <input type="number" step="0.01" min="0" placeholder="auto" value="${act.otPerTask}"
-          class="w-full text-center text-amber-600 bg-transparent outline-none border-b border-amber-200 focus:border-amber-400"
-          data-field="otPerTask" data-act="${act.id}" data-day="${di}" oninput="updateField(this)">
+        <div class="w-full text-center font-semibold text-amber-600 border-b border-amber-200 py-0.5">${otPerTask}</div>
       </div>
     </div>
   </div>`;
