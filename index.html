@@ -378,11 +378,20 @@
     // ============================================================
     // CONFIG
     // ============================================================
-    const VERSION = '0.8.2';
+    // ============================================================
+    // EMERGENCY RESET (Runs before anything else)
+    // ============================================================
+    if (window.location.search.includes('reset=1')) {
+      indexedDB.deleteDatabase('timesheet-db');
+      localStorage.clear();
+      window.location.href = window.location.origin + window.location.pathname;
+    }
+
+    const VERSION = '0.8.3';
     const API_URL = 'https://script.google.com/macros/s/AKfycbwHbuuctWpT1QWqQc8C1fINQyBJhssIIeh3duuQgAHiCpGBRUVnPEmUnDlEDu5mQbZk/exec';
     const DAY_NAMES = ['Friday', 'Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday'];
     const DB_NAME = 'timesheet-db';
-    const DB_VERSION = 3;
+    const DB_VERSION = 4;
 
     // ============================================================
     // WORK CODES
