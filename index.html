@@ -378,7 +378,7 @@
     // ============================================================
     // CONFIG
     // ============================================================
-    const VERSION = '0.8.2';
+    const VERSION = '0.8.3';
     const API_URL = 'https://script.google.com/macros/s/AKfycbwHbuuctWpT1QWqQc8C1fINQyBJhssIIeh3duuQgAHiCpGBRUVnPEmUnDlEDu5mQbZk/exec';
     const DAY_NAMES = ['Friday', 'Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday'];
     const DB_NAME = 'timesheet-db';
@@ -923,7 +923,7 @@
       const hasHours = ord > 0 || ot > 0;
       const actCount = day.activities.filter(a => a.description || a.codes.length || parseFloat(a.ordinary) > 0).length;
       return `
-  <div class="mx-3 mb-5 rounded-2xl shadow-sm overflow-visible day-card ${isWeekend ? 'day-weekend' : ''}">
+  <div class="mx-3 mb-5 rounded-2xl shadow-sm overflow-hidden day-card ${isWeekend ? 'day-weekend' : ''}">
     <div class="day-header flex items-center justify-between px-4 py-3 rounded-t-2xl" onclick="toggleDay(${di})">
       <div class="flex items-center gap-2 flex-wrap">
         <span class="expand-arrow ${isExpanded ? '' : 'collapsed'} text-lg leading-none" style="color:var(--text-day)">▼</span>
@@ -980,7 +980,7 @@
       class="w-full text-left border border-dashed rounded-xl px-3 py-2 mb-2 text-sm font-medium" style="background:var(--bg-code-btn);color:var(--accent);border-color:var(--accent)">
       ${act.codes.length ? '✎ Edit codes' : '+ Tap to add code'}
     </button>
-    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-1">
+    <div class="grid grid-cols-2 gap-2 mb-1">
       <div class="rounded-2xl p-2" style="background:var(--bg-hours);border:1px solid var(--border)">
         <label class="text-[10px] font-semibold block mb-2 uppercase tracking-tight" style="color:var(--text-muted);opacity:0.7">Ordinary Hrs</label>
         <div class="flex items-center bg-black/5 dark:bg-white/5 rounded-xl p-0.5 gap-1">
