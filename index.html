@@ -15,8 +15,19 @@
     body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; overscroll-behavior: none; }
     input, select, textarea { font-size: 16px !important; }
     .code-chip { display: inline-flex; align-items: center; gap: 4px; background: #dbeafe; color: #1e40af; border-radius: 9999px; padding: 3px 10px; font-size: 12px; margin: 2px; }
-    .day-card { border-left: 4px solid #1e3a8a; }
+    .day-card { border-left: 6px solid #1e3a8a; transition: box-shadow 0.2s ease; }
+    .day-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
     .day-weekend { border-left-color: #9ca3af; }
+    .day-header { cursor: pointer; user-select: none; position: sticky; top: 68px; z-index: 5; }
+    .day-header .expand-arrow { transition: transform 0.3s ease; display: inline-block; }
+    .day-header .expand-arrow.collapsed { transform: rotate(-90deg); }
+    .day-activities { overflow: hidden; transition: max-height 0.35s ease, opacity 0.25s ease; }
+    .day-activities.collapsed { max-height: 0 !important; opacity: 0; }
+    .day-activities.expanded { opacity: 1; }
+    .activity-item { position: relative; }
+    .activity-item:not(:last-child) { border-bottom: 2px dashed #e2e8f0; }
+    .activity-item:nth-child(even) { background: #f8fafc; }
+    .activity-number { position: absolute; left: 8px; top: 8px; width: 22px; height: 22px; border-radius: 50%; background: #1e3a8a; color: white; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
     @keyframes spin { to { transform: rotate(360deg); } }
     .spin { animation: spin 1s linear infinite; }
     .activity-row { border-left: 3px solid #e5e7eb; padding-left: 8px; }
@@ -74,7 +85,7 @@
 // ============================================================
 // CONFIG
 // ============================================================
-const VERSION = '0.5';
+const VERSION = '0.6';
 const API_URL = 'https://script.google.com/macros/s/AKfycbwHbuuctWpT1QWqQc8C1fINQyBJhssIIeh3duuQgAHiCpGBRUVnPEmUnDlEDu5mQbZk/exec';
 const DAY_NAMES = ['Friday','Saturday','Sunday','Monday','Tuesday','Wednesday','Thursday'];
 const DB_NAME = 'timesheet-db';
@@ -262,6 +273,7 @@ let state = {
   syncStatus: 'idle',   // 'idle' | 'pending' | 'syncing' | 'synced' | 'error'
   historyWeeks: [],
   showSummary: false,
+  expandedDays: new Set(),  // track which day indices are expanded
 };
 
 let codeModalCtx = { dayIndex: null, activityId: null, selected: [] };
@@ -389,6 +401,18 @@ function createEmptyWeek(weekStart) {
   return { weekStart, days };
 }
 
+function autoExpandToday() {
+  state.expandedDays.clear();
+  if (!state.weekData) return;
+  const today = dateToStr(new Date());
+  const idx = state.weekData.days.findIndex(d => d.date === today);
+  if (idx >= 0) {
+    state.expandedDays.add(idx);
+  } else {
+    state.expandedDays.add(0); // default expand first day
+  }
+}
+
 function createActivity() {
   return { id: uid(), ticket: '', description: '', location: '', codes: [], ordinary: '', overtime: '', tasks: '', timePerTask: '', otPerTask: '' };
 }
@@ -430,6 +454,7 @@ async function loadWeek(weekStart) {
   // Load from local DB
   const local = await dbGet('weeks', weekStart);
   state.weekData = local ? local.data : createEmptyWeek(weekStart);
+  autoExpandToday();
 
   render();
 
@@ -586,30 +611,43 @@ function calcDayTotals(day) {
   return { ord, ot };
 }
 
+function toggleDay(di) {
+  if (state.expandedDays.has(di)) {
+    state.expandedDays.delete(di);
+  } else {
+    state.expandedDays.add(di);
+  }
+  render();
+}
+
 function renderDaySection(day, di) {
   const isWeekend = di === 1 || di === 2;
-  const activitiesHtml = day.activities.map(act => renderActivity(act, di)).join('');
+  const isExpanded = state.expandedDays.has(di);
+  const activitiesHtml = day.activities.map((act, ai) => renderActivity(act, di, ai, day.activities.length)).join('');
   const { ord, ot } = calcDayTotals(day);
   const hasHours = ord > 0 || ot > 0;
+  const actCount = day.activities.filter(a => a.description || a.codes.length || parseFloat(a.ordinary) > 0).length;
   return `
-  <div class="mx-3 mb-3 bg-white rounded-2xl shadow-sm overflow-hidden day-card ${isWeekend ? 'day-weekend' : ''}">
-    <div class="flex items-center justify-between px-4 py-2.5 ${isWeekend ? 'bg-gray-50' : 'bg-blue-50'}">
+  <div class="mx-3 mb-5 bg-white rounded-2xl shadow-sm overflow-visible day-card ${isWeekend ? 'day-weekend' : ''}">
+    <div class="day-header flex items-center justify-between px-4 py-3 ${isWeekend ? 'bg-gray-50' : 'bg-blue-50'} rounded-t-2xl" onclick="toggleDay(${di})">
       <div class="flex items-center gap-2 flex-wrap">
+        <span class="expand-arrow ${isExpanded ? '' : 'collapsed'} text-lg leading-none ${isWeekend ? 'text-gray-400' : 'text-blue-700'}">▼</span>
         <span class="font-bold text-sm ${isWeekend ? 'text-gray-500' : 'text-blue-900'}">${day.dayName}</span>
         <span class="text-xs text-gray-400">${formatDate(day.date)}</span>
         ${hasHours ? `<span class="text-xs font-bold text-blue-700 bg-blue-100 px-2 py-0.5 rounded-full">${ord.toFixed(1)}h${ot > 0 ? ` <span class="text-amber-500">+${ot.toFixed(1)} OT</span>` : ''}</span>` : ''}
+        ${!isExpanded && actCount > 0 ? `<span class="text-xs text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">${actCount} task${actCount !== 1 ? 's' : ''}</span>` : ''}
       </div>
-      <button onclick="addActivity(${di})" class="text-blue-600 text-sm font-semibold flex items-center gap-1 py-1 px-2 rounded-lg bg-blue-100 active:bg-blue-200 flex-shrink-0">
+      ${isExpanded ? `<button onclick="event.stopPropagation(); addActivity(${di})" class="text-blue-600 text-sm font-semibold flex items-center gap-1 py-1 px-2 rounded-lg bg-blue-100 active:bg-blue-200 flex-shrink-0">
         <span class="text-base leading-none">+</span> Add
-      </button>
+      </button>` : ''}
     </div>
-    <div class="divide-y divide-gray-100" id="day-${di}-activities">
+    <div class="day-activities ${isExpanded ? 'expanded' : 'collapsed'}" ${isExpanded ? '' : 'style="max-height:0"'} id="day-${di}-activities">
       ${activitiesHtml}
     </div>
   </div>`;
 }
 
-function renderActivity(act, di) {
+function renderActivity(act, di, actIndex, totalActivities) {
   const numTasks = act.codes.length || 1;
   const ordinary = parseFloat(act.ordinary) || 0;
   const overtime = parseFloat(act.overtime) || 0;
@@ -626,7 +664,8 @@ function renderActivity(act, di) {
     : '';
 
   return `
-  <div class="p-3" data-act-id="${act.id}" data-day="${di}">
+  <div class="activity-item p-3 pl-10" data-act-id="${act.id}" data-day="${di}">
+    <div class="activity-number">${actIndex + 1}</div>
     <div class="flex gap-2 mb-2">
       <input type="text" placeholder="Description of work" value="${esc(act.description)}"
         class="flex-1 border border-gray-200 rounded-lg px-3 py-2 text-sm bg-gray-50 focus:bg-white focus:border-blue-400 outline-none"
@@ -716,6 +755,7 @@ function updateField(el) {
 
 function addActivity(di) {
   state.weekData.days[di].activities.push(createActivity());
+  state.expandedDays.add(di);
   render();
 }
 

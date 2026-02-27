@@ -1,4 +1,4 @@
-const CACHE = 'timesheet-v1';
+const CACHE = 'timesheet-v2';
 const ASSETS = ['/', '/index.html'];
 
 self.addEventListener('install', e => {
