@@ -380,7 +380,7 @@
     // ============================================================
     // CONFIG
     // ============================================================
-    const VERSION = '0.8.6';
+    const VERSION = '0.8.7';
     const API_URL = 'https://script.google.com/macros/s/AKfycbwHbuuctWpT1QWqQc8C1fINQyBJhssIIeh3duuQgAHiCpGBRUVnPEmUnDlEDu5mQbZk/exec';
     const DAY_NAMES = ['Friday', 'Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday'];
     const DB_NAME = 'timesheet-db';
@@ -942,12 +942,15 @@
         ${hasHours ? `<span class="text-xs font-bold px-2 py-0.5 rounded-full" style="background:var(--accent-light);color:var(--accent)">${ord.toFixed(1)}h${ot > 0 ? ` <span style="color:var(--text-ot)">+${ot.toFixed(1)} OT</span>` : ''}</span>` : ''}
         ${!isExpanded && actCount > 0 ? `<span class="text-xs px-2 py-0.5 rounded-full" style="background:var(--bg-card-alt);color:var(--text-muted)">${actCount} task${actCount !== 1 ? 's' : ''}</span>` : ''}
       </div>
-      ${isExpanded ? `<button onclick="event.stopPropagation(); addActivity(${di})" class="text-sm font-semibold flex items-center gap-1 py-1 px-2 rounded-lg flex-shrink-0" style="background:var(--btn-add-bg);color:var(--btn-add-text)">
-        <span class="text-base leading-none">+</span> Add
-      </button>` : ''}
     </div>
     <div class="day-activities ${isExpanded ? 'expanded' : 'collapsed'}" ${isExpanded ? '' : 'style="max-height:0"'} id="day-${di}-activities">
       ${activitiesHtml}
+      ${isExpanded ? `
+      <div class="flex justify-center px-4 py-3">
+        <button onclick="addActivity(${di})" class="flex items-center gap-2 text-sm font-semibold px-6 py-2 rounded-xl" style="background:var(--btn-add-bg);color:var(--btn-add-text)">
+          <span class="text-lg leading-none">+</span> Add Activity
+        </button>
+      </div>` : ''}
     </div>
   </div>`;
     }
