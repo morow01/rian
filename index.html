@@ -378,183 +378,15 @@
     // ============================================================
     // CONFIG
     // ============================================================
-    const VERSION = '0.8.2';
+    const VERSION = '0.9';
     const API_URL = 'https://script.google.com/macros/s/AKfycbwHbuuctWpT1QWqQc8C1fINQyBJhssIIeh3duuQgAHiCpGBRUVnPEmUnDlEDu5mQbZk/exec';
     const DAY_NAMES = ['Friday', 'Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday'];
     const DB_NAME = 'timesheet-db';
-    const DB_VERSION = 1;
+    const DB_VERSION = 2;
 
     // ============================================================
-    // WORK CODES
-    // ============================================================
-    const WORK_CODES = [
-      // COW & Escort
-      { a: 'COW & Escort', d: 'COW-Escort; Meteor', c: 'RLB0002A10' },
-      { a: 'COW & Escort', d: 'COW-Escort; ESAT', c: 'RLB0003A10' },
-      { a: 'COW & Escort', d: 'COW-Escort Vodafone', c: 'RLB0004A10' },
-      { a: 'COW & Escort', d: 'COW-Escort Hutchinson', c: 'RLB0005A10' },
-      { a: 'COW & Escort', d: 'COW-Escort O2', c: 'RLB0006A10' },
-      { a: 'COW & Escort', d: 'COW-Escort Sigma', c: 'RLB0007A10' },
-      { a: 'COW & Escort', d: 'COW-Escort Magnet', c: 'RLB0008A10' },
-      { a: 'COW & Escort', d: 'COW-Escort Irish Broadband', c: 'RLB0009A10' },
-      { a: 'COW & Escort', d: 'COW-Escort Obelisk Communications', c: 'RLB0010A10' },
-      { a: 'COW & Escort', d: 'COW-Escort Smart Telecom', c: 'RLB0011A10' },
-      { a: 'COW & Escort', d: 'COW-Escort Chorus', c: 'RLB0012A10' },
-      { a: 'COW & Escort', d: 'COW-Escort IAA', c: 'RLB0013A10' },
-      { a: 'COW & Escort', d: 'COW-Escort TowerCom', c: 'RLB0014A10' },
-      { a: 'COW & Escort', d: 'COW-Escort ClearWire', c: 'RLB0015A10' },
-      { a: 'COW & Escort', d: 'COW-Escort 3 PlayPlus', c: 'RLB0016A10' },
-      { a: 'COW & Escort', d: 'COW-Escort Colt', c: 'RLB0017A10' },
-      { a: 'COW & Escort', d: 'COW-Escort Irish Coast Guards', c: 'RLB0018A10' },
-      { a: 'COW & Escort', d: 'COW-Escort Imagine', c: 'RLB0019A10' },
-      // Indirect A99
-      { a: 'Indirect', d: 'Annual Leave COps FE BankHoliday', c: 'UWA0001A99' },
-      { a: 'Indirect', d: 'Time in Lieu COps FE', c: 'UWL0001A99' },
-      { a: 'Indirect', d: 'Sick Leave COps FE', c: 'UWS0001A99' },
-      { a: 'Indirect', d: 'Union Business COps FE', c: 'UWU0001A99' },
-      { a: 'Indirect', d: 'Training COps FE', c: 'WTT0001A99' },
-      { a: 'Indirect', d: 'General Admin COps FE', c: 'WWO0001A99' },
-      { a: 'Indirect', d: 'Van Maintenance COps FE', c: 'WVM0001A99' },
-      { a: 'Indirect', d: 'Flexible Extended Working Hours COps FE', c: 'UWF0001A99' },
-      { a: 'Indirect', d: 'Other Unworked Leave; Meetings', c: 'UWO0001A99' },
-      { a: 'Indirect', d: 'Supervisory Time of Team Leaders COps FE', c: 'WST0001A99' },
-      { a: 'Indirect', d: 'For Scheduled Day Off', c: 'UWR0001A99' },
-      { a: 'Indirect', d: 'Used in Conjunction with UWL for TIL Time Off', c: 'UWR0002A99' },
-      // Indirect H99
-      { a: 'Indirect', d: 'Annual Leave COps FE', c: 'UWA0001H99' },
-      { a: 'Indirect', d: 'Time in Lieu COps FE', c: 'UWL0001H99' },
-      { a: 'Indirect', d: 'Sick Leave COps FE', c: 'UWS0001H99' },
-      { a: 'Indirect', d: 'Union Business COps FE', c: 'UWU0001H99' },
-      { a: 'Indirect', d: 'Training COps FE', c: 'WTT0001H99' },
-      { a: 'Indirect', d: 'General Admin COps FE', c: 'WWO0001H99' },
-      { a: 'Indirect', d: 'Van Maintenance COps FE', c: 'WVM0001H99' },
-      { a: 'Indirect', d: 'Flexible Extended Working Hours COps FE', c: 'UWF0001H99' },
-      { a: 'Indirect', d: 'Supervisory Time of Team Leaders COps FE', c: 'WST0001H99' },
-      // Maintenance
-      { a: 'Maintenance', d: 'Maintenance E10 RSU (Line Terminations)', c: 'MLB0002A10' },
-      { a: 'Maintenance', d: 'Maintenance AXE RSU (Line Terminations)', c: 'MLE0002A10' },
-      { a: 'Maintenance', d: 'Maintenance Power RSU', c: 'MXY0002A10' },
-      { a: 'Maintenance', d: 'Maintenance SDH', c: 'MTX0002A10' },
-      { a: 'Maintenance', d: 'Maintenance Radio', c: 'MRX0002A10' },
-      { a: 'Maintenance', d: 'Maintenance E10 LSU (Line Terminations)', c: 'MLB0003A10' },
-      { a: 'Maintenance', d: 'Maintenance PCM', c: 'MTX0003A10' },
-      { a: 'Maintenance', d: 'Maintenance AXE LSU (Line Terminations)', c: 'MLE0003A10' },
-      { a: 'Maintenance', d: 'Maintenance Rurtel', c: 'MLC0002A10' },
-      { a: 'Maintenance', d: 'Maintenance Martis', c: 'MDS0002A10' },
-      { a: 'Maintenance', d: 'Maintenance Power Core', c: 'MXY0003A10' },
-      { a: 'Maintenance', d: 'Maintenance DSL', c: 'MCY0002A10' },
-      { a: 'Maintenance', d: 'Maintenance NGA Card Fill', c: 'CNA1009H14' },
-      { a: 'Maintenance', d: 'Maintenance NGA Cabinets', c: 'MGB9002A14' },
-      { a: 'Maintenance', d: 'Maintenance BAS', c: 'MMY0002A10' },
-      { a: 'Maintenance', d: 'Maintenance BIP', c: 'MDW0002A10' },
-      { a: 'Maintenance', d: 'Maintenance Power Radio', c: 'MXY0004A10' },
-      { a: 'Maintenance', d: 'Maintenance FWA', c: 'MLR0002A10' },
-      { a: 'Maintenance', d: 'Maintenance ASAM', c: 'MMY0003A10' },
-      { a: 'Maintenance', d: 'Maintenance ATM Core & Circuits', c: 'MBX0002A10' },
-      { a: 'Maintenance', d: 'Maintenance NGN CPE', c: 'MGC7001A10' },
-      { a: 'Maintenance', d: 'Maintenance NGN Core', c: 'MNG7002A10' },
-      { a: 'Maintenance', d: 'Maintenance Submarine Cable', c: 'MIC0002A10' },
-      { a: 'Maintenance', d: 'Maintenance E10 Core (All except Line Term.)', c: 'MTD9002A10' },
-      { a: 'Maintenance', d: 'Maintenance of VoIP Orders', c: 'MDW0004A10' },
-      { a: 'Maintenance', d: 'Maintenance of Tetra Network', c: 'RET3002A10' },
-      { a: 'Maintenance', d: 'Maintenance of DWDM Network', c: 'MGN3002A10' },
-      { a: 'Maintenance', d: 'Maintenance of Interconnect Network', c: 'MIZ3002A10' },
-      { a: 'Maintenance', d: 'Maintenance AXE Core (All except Line Term.)', c: 'MTD9002A11' },
-      { a: 'Maintenance', d: 'Clerk of Works from ALECK', c: 'MMB9002A16' },
-      { a: 'Maintenance', d: 'Maintenance (Escorting Cleaners)', c: 'MMB3002A10' },
-      { a: 'Maintenance', d: 'Maintenance (Alarms / Security)', c: 'MMS3002A10' },
-      { a: 'Maintenance', d: 'Maintenance of AXE PCB Board Repairs', c: 'MLE0006A10' },
-      { a: 'Maintenance', d: 'Maintenance of E10 PCB Board Repairs', c: 'MLB0006A10' },
-      { a: 'Maintenance', d: 'Maintenance of VERIZON Equipment', c: 'ROC2000E11' },
-      // Routines
-      { a: 'Routines', d: 'Routine Power RSU', c: 'MXY0005A10' },
-      { a: 'Routines', d: 'Routine Power Core', c: 'MXY0006A10' },
-      { a: 'Routines', d: 'Routine E10 LSU', c: 'MLB0004A10' },
-      { a: 'Routines', d: 'Routine Radio', c: 'MRX0003A10' },
-      { a: 'Routines', d: 'Routine E10 RSU', c: 'MLB0005A10' },
-      { a: 'Routines', d: 'Routine AXE RSU', c: 'MLE0004A10' },
-      { a: 'Routines', d: 'Routine Power Radio', c: 'MXY0007A10' },
-      { a: 'Routines', d: 'Routine DSL', c: 'MCY0003A10' },
-      { a: 'Routines', d: 'Routine SDH', c: 'MTX0005A10' },
-      { a: 'Routines', d: 'Routine AXE LSU', c: 'MLE0005A10' },
-      { a: 'Routines', d: 'Routine Martis', c: 'MDS0003A10' },
-      { a: 'Routines', d: 'Routine FWA', c: 'MLR0003A10' },
-      { a: 'Routines', d: 'Routine ATM Core', c: 'MBX0003A10' },
-      { a: 'Routines', d: 'Routine ASAM', c: 'MMY0004A10' },
-      { a: 'Routines', d: 'Routine PCM', c: 'MTX0006A10' },
-      { a: 'Routines', d: 'Routine Rurtel', c: 'MLC0003A10' },
-      { a: 'Routines', d: 'Routine BAS', c: 'MMY0005A10' },
-      { a: 'Routines', d: 'Routine Submarine Cable', c: 'MIC0003A10' },
-      { a: 'Routines', d: 'Routine BIP', c: 'MDW0003A10' },
-      { a: 'Routines', d: 'NECC', c: 'MCC2002A11' },
-      { a: 'Routines', d: 'Rad Replacement', c: 'MGC9002A13' },
-      { a: 'Routines', d: 'Tape Management Dundrum/4050', c: 'MPX2000A14' },
-      // PCU / WM
-      { a: 'PCU / WM', d: 'Works Management Assurance Task Allocation', c: 'WWO0005A10' },
-      { a: 'PCU / WM', d: 'Works Management Delivery Task Allocation', c: 'WWO0003H14' },
-      { a: 'PCU / WM', d: 'DDD - Validation - Forecast Management Delivery', c: 'WWO0004H14' },
-      { a: 'PCU / WM', d: 'Scheduling of Customer Appointments for Upgrades', c: 'CBU6001U23' },
-      // Cease / Cancel
-      { a: 'Cease / Cancel', d: 'Cease/Cancel - Martis Trunks & Cards', c: 'IBT0002H14' },
-      { a: 'Cease / Cancel', d: 'Cease/Cancel - 2Mbit Orders', c: 'IBT0003H14' },
-      { a: 'Cease / Cancel', d: 'Cease/Cancel - PDH/SDH Offload Orders', c: 'INB0002H14' },
-      { a: 'Cease / Cancel', d: 'Cease/Cancel - PRA Orders', c: 'IPA0002H14' },
-      { a: 'Cease / Cancel', d: 'Cease/Cancel - BIP Orders', c: 'IDW0002H14' },
-      { a: 'Cease / Cancel', d: 'Cease/Cancel - Analogue Orders', c: 'IAA0002H14' },
-      { a: 'Cease / Cancel', d: 'Cease/Cancel - >2Mbit Orders', c: 'IBW0002H14' },
-      { a: 'Cease / Cancel', d: 'Cease/Cancel - Interconnect Orders', c: 'IND0002H14' },
-      { a: 'Cease / Cancel', d: 'Cease/Cancel - PCM Offload Orders', c: 'INB0003H14' },
-      { a: 'Cease / Cancel', d: 'Cease/Cancel - PSTN Orders', c: 'INE0002H14' },
-      { a: 'Cease / Cancel', d: 'Cease/Cancel - Metro Ethernet Orders', c: 'IBT0004H14' },
-      { a: 'Cease / Cancel', d: 'Cease/Cancel - VC4 Orders', c: 'INC0002H14' },
-      { a: 'Cease / Cancel', d: 'Cease/Cancel - PPC Orders', c: 'IBT0005H14' },
-      { a: 'Cease / Cancel', d: 'Cease/Cancel - ATM Orders', c: 'IBW0003H14' },
-      { a: 'Cease / Cancel', d: 'Cease/Cancel - DSL Core Orders', c: 'ICW0002H14' },
-      { a: 'Cease / Cancel', d: 'Cease/Cancel - National Ethernet Orders', c: 'IBT0006H14' },
-      { a: 'Cease / Cancel', d: 'Cease/Cancel - IP Core Orders', c: 'IBT0007H14' },
-      { a: 'Cease / Cancel', d: 'Cease/Cancel - Frame Related Orders', c: 'ICD0002H14' },
-      { a: 'Cease / Cancel', d: 'Cease/Cancel - Meteor 3G Project Orders', c: 'IBW0004H14' },
-      { a: 'Cease / Cancel', d: 'Cease/Cancel - ICR (International) Orders', c: 'INC0003H14' },
-      { a: 'Cease / Cancel', d: 'Cease/Cancel - NGN Customer Circuits', c: 'ICD0004H14' },
-      { a: 'Cease / Cancel', d: 'Cease/Cancel - Sub 2Mbit Orders', c: 'ICD0003H14' },
-      { a: 'Cease / Cancel', d: 'Cease/Cancel - VoIP Orders', c: 'IBT0008H14' },
-      { a: 'Cease / Cancel', d: 'Cease/Cancel - 1G/10G Customer Orders', c: 'IDW3002U19' },
-      // Provide / Move
-      { a: 'Provide / Move', d: 'Field - PRA Orders (P/M)', c: 'CBP6001U23' },
-      { a: 'Provide / Move', d: 'Field - MARTIS Trunks & Cards (P/M)', c: 'CDB6001U23' },
-      { a: 'Provide / Move', d: 'Provision/Move - PDH/SDH Offload Orders', c: 'INB0004H14' },
-      { a: 'Provide / Move', d: 'Field - Sub 2Mbit Orders (P/M)', c: 'CBU6002U23' },
-      { a: 'Provide / Move', d: 'Field - 2Mbit Orders (P/M)', c: 'CBT6001U23' },
-      { a: 'Provide / Move', d: 'Field - BIP Orders (P/M)', c: 'CBW6001U23' },
-      { a: 'Provide / Move', d: 'Provision/Move - Metro Ethernet Orders', c: 'CDN6003U13' },
-      { a: 'Provide / Move', d: 'Field - VC4 Orders (P/M)', c: 'CGS6002U23' },
-      { a: 'Provide / Move', d: 'IP Networks - NGA SD Field - FTTH 16/17', c: 'CYA7009H16' },
-      { a: 'Provide / Move', d: 'IP Networks - SD Field (NGN) - BAU 18/19', c: 'CYA2004H22' },
-      { a: 'Provide / Move', d: 'SD - TX for DSLAM NT Upgrades', c: 'CDC7007H14' },
-      { a: 'Provide / Move', d: 'Provision/Move - Tetra Orders', c: 'CDB9002H10' },
-      { a: 'Provide / Move', d: 'Provision/Move - Meteor 3G Project', c: 'CGS9003H10' },
-      { a: 'Provide / Move', d: 'Provision/Move - >2Mbit Orders', c: 'CBS9002H11' },
-      { a: 'Provide / Move', d: 'Field - High B/W Non-NGN Orders (P/M)', c: 'CBS6001U23' },
-      { a: 'Provide / Move', d: 'Field - 1G/10G Customer Orders (P/M)', c: 'CGN6001U23' },
-      { a: 'Provide / Move', d: 'Provision/Move - BLACKWATER (BAOE) Orders', c: 'CBW6004U20' },
-      { a: 'Provide / Move', d: 'Field - PSTN Orders (P/M)', c: 'CGS6004U23' },
-      { a: 'Provide / Move', d: 'Provision/Move - PCM Offload Orders', c: 'INB0005H14' },
-      { a: 'Provide / Move', d: 'Field - National Ethernet Orders (P/M)', c: 'CBT6003U23' },
-      { a: 'Provide / Move', d: 'Field - Interconnect Orders (P/M)', c: 'CGS6006U23' },
-      { a: 'Provide / Move', d: 'Field - ICR (International) (P/M)', c: 'CIT6001U23' },
-      { a: 'Provide / Move', d: 'Provision/Move - Analogue Orders', c: 'IAA0003H14' },
-      { a: 'Provide / Move', d: 'Field - PPC Orders (P/M)', c: 'CBT6005U23' },
-      { a: 'Provide / Move', d: 'Provision/Move - ATM Orders', c: 'CBX6002U13' },
-      { a: 'Provide / Move', d: 'Provision/Move - VoIP Orders', c: 'CBX6003U13' },
-      { a: 'Provide / Move', d: 'Field - NGN Access Orders (P/M)', c: 'CYP6011U24' },
-      { a: 'Provide / Move', d: 'Field - OGCIO Customer Orders (P/M)', c: 'CGN6004U23' },
-      { a: 'Provide / Move', d: 'APEX Phase 2 Migrations', c: 'CYE6000H19' },
-      { a: 'Provide / Move', d: 'CES Project - Mobile Managed Backhaul', c: 'CYG7004H14' },
-      { a: 'Provide / Move', d: 'Verizon Smart Hands', c: 'ROC2000E13' },
-      { a: 'Provide / Move', d: 'Project Titan Offloads', c: 'CGN7012H13' },
-      { a: 'Provide / Move', d: 'Fujitsu Offloads', c: 'CGN7014H14' },
-      { a: 'Provide / Move', d: 'Capital Offload Field', c: 'CGN7012H14' },
-    ];
+    // Dynamic work codes are now fetched from GAS and stored in IndexedDB.
+    // The list is loaded into state.workCodes on init.
 
     // ============================================================
     // STATE
@@ -567,6 +399,7 @@
       historyWeeks: [],
       showSummary: false,
       expandedDays: new Set(),  // track which day indices are expanded
+      workCodes: [],           // dynamic work codes from server
     };
 
     let codeModalCtx = { dayIndex: null, activityId: null, selected: [] };
@@ -583,8 +416,18 @@
         req.onupgradeneeded = e => {
           const d = e.target.result;
           if (!d.objectStoreNames.contains('weeks')) d.createObjectStore('weeks', { keyPath: 'weekStart' });
+          if (!d.objectStoreNames.contains('config')) d.createObjectStore('config', { keyPath: 'id' });
         };
         req.onsuccess = e => { db = e.target.result; res(); };
+        req.onerror = rej;
+      });
+    }
+
+    function dbPut(store, data) {
+      return new Promise((res, rej) => {
+        const tx = db.transaction(store, 'readwrite');
+        const req = tx.objectStore(store).put(data);
+        req.onsuccess = () => res();
         req.onerror = rej;
       });
     }
@@ -593,6 +436,15 @@
       return new Promise((res, rej) => {
         const tx = db.transaction(store, 'readonly');
         const req = tx.objectStore(store).get(key);
+        req.onsuccess = () => res(req.result);
+        req.onerror = rej;
+      });
+    }
+
+    function dbGetAll(store) {
+      return new Promise((res, rej) => {
+        const tx = db.transaction(store, 'readonly');
+        const req = tx.objectStore(store).getAll();
         req.onsuccess = () => res(req.result);
         req.onerror = rej;
       });
@@ -740,6 +592,27 @@
     // ============================================================
     // LOAD / SAVE
     // ============================================================
+    async function loadCodes() {
+      const cached = await dbGet('config', 'workCodes');
+      if (cached && Array.isArray(cached.data)) {
+        state.workCodes = cached.data;
+      }
+    }
+
+    async function fetchCodes() {
+      if (!navigator.onLine) return;
+      try {
+        const codes = await apiGet('getCodes');
+        if (Array.isArray(codes) && codes.length > 0) {
+          state.workCodes = codes;
+          await dbPut('config', { id: 'workCodes', data: codes, updated: Date.now() });
+          render(); // Refresh modal if open
+        }
+      } catch (e) {
+        console.warn('Failed to fetch codes:', e);
+      }
+    }
+
     async function loadWeek(weekStart) {
       state.weekStart = weekStart;
       state.syncStatus = 'idle';
@@ -1156,12 +1029,12 @@
     // ============================================================
     // CODE MODAL
     // ============================================================
-    let filteredCodes = [...WORK_CODES];
+    let filteredCodes = [];
 
     function openCodeModal(di, actId) {
       const act = state.weekData.days[di].activities.find(a => a.id === actId);
       codeModalCtx = { dayIndex: di, activityId: actId, selected: act ? [...act.codes] : [] };
-      filteredCodes = [...WORK_CODES];
+      filteredCodes = [...state.workCodes];
       document.getElementById('code-modal').classList.remove('hidden');
       document.getElementById('code-search').value = '';
       renderCodeList();
@@ -1187,7 +1060,7 @@
 
     function filterCodes(q) {
       const ql = q.toLowerCase();
-      filteredCodes = q ? WORK_CODES.filter(c => c.d.toLowerCase().includes(ql) || c.c.toLowerCase().includes(ql) || c.a.toLowerCase().includes(ql)) : [...WORK_CODES];
+      filteredCodes = q ? state.workCodes.filter(c => c.d.toLowerCase().includes(ql) || c.c.toLowerCase().includes(ql) || (c.a && c.a.toLowerCase().includes(ql))) : [...state.workCodes];
       renderCodeList();
     }
 
@@ -1331,6 +1204,8 @@
       }
 
       await initDB();
+      await loadCodes();
+      fetchCodes(); // Background fetch
 
       const friday = getCurrentFriday();
       await loadWeek(dateToStr(friday));
