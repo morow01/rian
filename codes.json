@@ -1,0 +1,792 @@
+[
+  {
+    "category": "COW & Escort",
+    "description": "COW-Escort; Meteor",
+    "code": "RLB0002A10"
+  },
+  {
+    "category": "COW & Escort",
+    "description": "COW-Escort; ESAT",
+    "code": "RLB0003A10"
+  },
+  {
+    "category": "COW & Escort",
+    "description": "COW-Escort Vodafone",
+    "code": "RLB0004A10"
+  },
+  {
+    "category": "COW & Escort",
+    "description": "COW-Escort Hutchinson",
+    "code": "RLB0005A10"
+  },
+  {
+    "category": "COW & Escort",
+    "description": "COW-Escort O2",
+    "code": "RLB0006A10"
+  },
+  {
+    "category": "COW & Escort",
+    "description": "COW-Escort Sigma",
+    "code": "RLB0007A10"
+  },
+  {
+    "category": "COW & Escort",
+    "description": "COW-Escort Magnet",
+    "code": "RLB0008A10"
+  },
+  {
+    "category": "COW & Escort",
+    "description": "COW-Escort Irish Broadband",
+    "code": "RLB0009A10"
+  },
+  {
+    "category": "COW & Escort",
+    "description": "COW-Escort Obelisk Communications",
+    "code": "RLB0010A10"
+  },
+  {
+    "category": "COW & Escort",
+    "description": "COW-Escort Smart Telecom",
+    "code": "RLB0011A10"
+  },
+  {
+    "category": "COW & Escort",
+    "description": "COW-Escort Chorus",
+    "code": "RLB0012A10"
+  },
+  {
+    "category": "COW & Escort",
+    "description": "COW-Escort IAA",
+    "code": "RLB0013A10"
+  },
+  {
+    "category": "COW & Escort",
+    "description": "COW-Escort TowerCom",
+    "code": "RLB0014A10"
+  },
+  {
+    "category": "COW & Escort",
+    "description": "COW-Escort ClearWire",
+    "code": "RLB0015A10"
+  },
+  {
+    "category": "COW & Escort",
+    "description": "COW-Escort 3 PlayPlus",
+    "code": "RLB0016A10"
+  },
+  {
+    "category": "COW & Escort",
+    "description": "COW-Escort Colt",
+    "code": "RLB0017A10"
+  },
+  {
+    "category": "COW & Escort",
+    "description": "COW-Escort Irish Coast Guards",
+    "code": "RLB0018A10"
+  },
+  {
+    "category": "COW & Escort",
+    "description": "COW-Escort Imagine",
+    "code": "RLB0019A10"
+  },
+  {
+    "category": "Indirect",
+    "description": "Annual Leave COps FE BankHoliday",
+    "code": "UWA0001A99"
+  },
+  {
+    "category": "Indirect",
+    "description": "Time in Lieu COps FE",
+    "code": "UWL0001A99"
+  },
+  {
+    "category": "Indirect",
+    "description": "Sick Leave COps FE",
+    "code": "UWS0001A99"
+  },
+  {
+    "category": "Indirect",
+    "description": "Union Business COps FE",
+    "code": "UWU0001A99"
+  },
+  {
+    "category": "Indirect",
+    "description": "Training COps FE",
+    "code": "WTT0001A99"
+  },
+  {
+    "category": "Indirect",
+    "description": "General Admin COps FE",
+    "code": "WWO0001A99"
+  },
+  {
+    "category": "Indirect",
+    "description": "Van Maintenance COps FE",
+    "code": "WVM0001A99"
+  },
+  {
+    "category": "Indirect",
+    "description": "Flexible Extended Working Hours COps FE",
+    "code": "UWF0001A99"
+  },
+  {
+    "category": "Indirect",
+    "description": "Other Unworked Leave; Meetings",
+    "code": "UWO0001A99"
+  },
+  {
+    "category": "Indirect",
+    "description": "Supervisory Time of Team Leaders COps FE",
+    "code": "WST0001A99"
+  },
+  {
+    "category": "Indirect",
+    "description": "For Scheduled Day Off",
+    "code": "UWR0001A99"
+  },
+  {
+    "category": "Indirect",
+    "description": "Used in Conjunction with UWL for TIL Time Off",
+    "code": "UWR0002A99"
+  },
+  {
+    "category": "Indirect",
+    "description": "Annual Leave COps FE",
+    "code": "UWA0001H99"
+  },
+  {
+    "category": "Indirect",
+    "description": "Time in Lieu COps FE",
+    "code": "UWL0001H99"
+  },
+  {
+    "category": "Indirect",
+    "description": "Sick Leave COps FE",
+    "code": "UWS0001H99"
+  },
+  {
+    "category": "Indirect",
+    "description": "Union Business COps FE",
+    "code": "UWU0001H99"
+  },
+  {
+    "category": "Indirect",
+    "description": "Training COps FE",
+    "code": "WTT0001H99"
+  },
+  {
+    "category": "Indirect",
+    "description": "General Admin COps FE",
+    "code": "WWO0001H99"
+  },
+  {
+    "category": "Indirect",
+    "description": "Van Maintenance COps FE",
+    "code": "WVM0001H99"
+  },
+  {
+    "category": "Indirect",
+    "description": "Flexible Extended Working Hours COps FE",
+    "code": "UWF0001H99"
+  },
+  {
+    "category": "Indirect",
+    "description": "Supervisory Time of Team Leaders COps FE",
+    "code": "WST0001H99"
+  },
+  {
+    "category": "Maintenance",
+    "description": "Maintenance E10 RSU (Line Terminations)",
+    "code": "MLB0002A10"
+  },
+  {
+    "category": "Maintenance",
+    "description": "Maintenance AXE RSU (Line Terminations)",
+    "code": "MLE0002A10"
+  },
+  {
+    "category": "Maintenance",
+    "description": "Maintenance Power RSU",
+    "code": "MXY0002A10"
+  },
+  {
+    "category": "Maintenance",
+    "description": "Maintenance SDH",
+    "code": "MTX0002A10"
+  },
+  {
+    "category": "Maintenance",
+    "description": "Maintenance Radio",
+    "code": "MRX0002A10"
+  },
+  {
+    "category": "Maintenance",
+    "description": "Maintenance E10 LSU (Line Terminations)",
+    "code": "MLB0003A10"
+  },
+  {
+    "category": "Maintenance",
+    "description": "Maintenance PCM",
+    "code": "MTX0003A10"
+  },
+  {
+    "category": "Maintenance",
+    "description": "Maintenance AXE LSU (Line Terminations)",
+    "code": "MLE0003A10"
+  },
+  {
+    "category": "Maintenance",
+    "description": "Maintenance Rurtel",
+    "code": "MLC0002A10"
+  },
+  {
+    "category": "Maintenance",
+    "description": "Maintenance Martis",
+    "code": "MDS0002A10"
+  },
+  {
+    "category": "Maintenance",
+    "description": "Maintenance Power Core",
+    "code": "MXY0003A10"
+  },
+  {
+    "category": "Maintenance",
+    "description": "Maintenance DSL",
+    "code": "MCY0002A10"
+  },
+  {
+    "category": "Maintenance",
+    "description": "Maintenance NGA Card Fill",
+    "code": "CNA1009H14"
+  },
+  {
+    "category": "Maintenance",
+    "description": "Maintenance NGA Cabinets",
+    "code": "MGB9002A14"
+  },
+  {
+    "category": "Maintenance",
+    "description": "Maintenance BAS",
+    "code": "MMY0002A10"
+  },
+  {
+    "category": "Maintenance",
+    "description": "Maintenance BIP",
+    "code": "MDW0002A10"
+  },
+  {
+    "category": "Maintenance",
+    "description": "Maintenance Power Radio",
+    "code": "MXY0004A10"
+  },
+  {
+    "category": "Maintenance",
+    "description": "Maintenance FWA",
+    "code": "MLR0002A10"
+  },
+  {
+    "category": "Maintenance",
+    "description": "Maintenance ASAM",
+    "code": "MMY0003A10"
+  },
+  {
+    "category": "Maintenance",
+    "description": "Maintenance ATM Core & Circuits",
+    "code": "MBX0002A10"
+  },
+  {
+    "category": "Maintenance",
+    "description": "Maintenance NGN CPE",
+    "code": "MGC7001A10"
+  },
+  {
+    "category": "Maintenance",
+    "description": "Maintenance NGN Core",
+    "code": "MNG7002A10"
+  },
+  {
+    "category": "Maintenance",
+    "description": "Maintenance Submarine Cable",
+    "code": "MIC0002A10"
+  },
+  {
+    "category": "Maintenance",
+    "description": "Maintenance E10 Core (All except Line Term.)",
+    "code": "MTD9002A10"
+  },
+  {
+    "category": "Maintenance",
+    "description": "Maintenance of VoIP Orders",
+    "code": "MDW0004A10"
+  },
+  {
+    "category": "Maintenance",
+    "description": "Maintenance of Tetra Network",
+    "code": "RET3002A10"
+  },
+  {
+    "category": "Maintenance",
+    "description": "Maintenance of DWDM Network",
+    "code": "MGN3002A10"
+  },
+  {
+    "category": "Maintenance",
+    "description": "Maintenance of Interconnect Network",
+    "code": "MIZ3002A10"
+  },
+  {
+    "category": "Maintenance",
+    "description": "Maintenance AXE Core (All except Line Term.)",
+    "code": "MTD9002A11"
+  },
+  {
+    "category": "Maintenance",
+    "description": "Clerk of Works from ALECK",
+    "code": "MMB9002A16"
+  },
+  {
+    "category": "Maintenance",
+    "description": "Maintenance (Escorting Cleaners)",
+    "code": "MMB3002A10"
+  },
+  {
+    "category": "Maintenance",
+    "description": "Maintenance (Alarms / Security)",
+    "code": "MMS3002A10"
+  },
+  {
+    "category": "Maintenance",
+    "description": "Maintenance of AXE PCB Board Repairs",
+    "code": "MLE0006A10"
+  },
+  {
+    "category": "Maintenance",
+    "description": "Maintenance of E10 PCB Board Repairs",
+    "code": "MLB0006A10"
+  },
+  {
+    "category": "Maintenance",
+    "description": "Maintenance of VERIZON Equipment",
+    "code": "ROC2000E11"
+  },
+  {
+    "category": "Routines",
+    "description": "Routine Power RSU",
+    "code": "MXY0005A10"
+  },
+  {
+    "category": "Routines",
+    "description": "Routine Power Core",
+    "code": "MXY0006A10"
+  },
+  {
+    "category": "Routines",
+    "description": "Routine E10 LSU",
+    "code": "MLB0004A10"
+  },
+  {
+    "category": "Routines",
+    "description": "Routine Radio",
+    "code": "MRX0003A10"
+  },
+  {
+    "category": "Routines",
+    "description": "Routine E10 RSU",
+    "code": "MLB0005A10"
+  },
+  {
+    "category": "Routines",
+    "description": "Routine AXE RSU",
+    "code": "MLE0004A10"
+  },
+  {
+    "category": "Routines",
+    "description": "Routine Power Radio",
+    "code": "MXY0007A10"
+  },
+  {
+    "category": "Routines",
+    "description": "Routine DSL",
+    "code": "MCY0003A10"
+  },
+  {
+    "category": "Routines",
+    "description": "Routine SDH",
+    "code": "MTX0005A10"
+  },
+  {
+    "category": "Routines",
+    "description": "Routine AXE LSU",
+    "code": "MLE0005A10"
+  },
+  {
+    "category": "Routines",
+    "description": "Routine Martis",
+    "code": "MDS0003A10"
+  },
+  {
+    "category": "Routines",
+    "description": "Routine FWA",
+    "code": "MLR0003A10"
+  },
+  {
+    "category": "Routines",
+    "description": "Routine ATM Core",
+    "code": "MBX0003A10"
+  },
+  {
+    "category": "Routines",
+    "description": "Routine ASAM",
+    "code": "MMY0004A10"
+  },
+  {
+    "category": "Routines",
+    "description": "Routine PCM",
+    "code": "MTX0006A10"
+  },
+  {
+    "category": "Routines",
+    "description": "Routine Rurtel",
+    "code": "MLC0003A10"
+  },
+  {
+    "category": "Routines",
+    "description": "Routine BAS",
+    "code": "MMY0005A10"
+  },
+  {
+    "category": "Routines",
+    "description": "Routine Submarine Cable",
+    "code": "MIC0003A10"
+  },
+  {
+    "category": "Routines",
+    "description": "Routine BIP",
+    "code": "MDW0003A10"
+  },
+  {
+    "category": "Routines",
+    "description": "NECC",
+    "code": "MCC2002A11"
+  },
+  {
+    "category": "Routines",
+    "description": "Rad Replacement",
+    "code": "MGC9002A13"
+  },
+  {
+    "category": "Routines",
+    "description": "Tape Management Dundrum/4050",
+    "code": "MPX2000A14"
+  },
+  {
+    "category": "PCU / WM",
+    "description": "Works Management Assurance Task Allocation",
+    "code": "WWO0005A10"
+  },
+  {
+    "category": "PCU / WM",
+    "description": "Works Management Delivery Task Allocation",
+    "code": "WWO0003H14"
+  },
+  {
+    "category": "PCU / WM",
+    "description": "DDD - Validation - Forecast Management Delivery",
+    "code": "WWO0004H14"
+  },
+  {
+    "category": "PCU / WM",
+    "description": "Scheduling of Customer Appointments for Upgrades",
+    "code": "CBU6001U23"
+  },
+  {
+    "category": "Cease / Cancel",
+    "description": "Cease/Cancel - Martis Trunks & Cards",
+    "code": "IBT0002H14"
+  },
+  {
+    "category": "Cease / Cancel",
+    "description": "Cease/Cancel - 2Mbit Orders",
+    "code": "IBT0003H14"
+  },
+  {
+    "category": "Cease / Cancel",
+    "description": "Cease/Cancel - PDH/SDH Offload Orders",
+    "code": "INB0002H14"
+  },
+  {
+    "category": "Cease / Cancel",
+    "description": "Cease/Cancel - PRA Orders",
+    "code": "IPA0002H14"
+  },
+  {
+    "category": "Cease / Cancel",
+    "description": "Cease/Cancel - BIP Orders",
+    "code": "IDW0002H14"
+  },
+  {
+    "category": "Cease / Cancel",
+    "description": "Cease/Cancel - Analogue Orders",
+    "code": "IAA0002H14"
+  },
+  {
+    "category": "Cease / Cancel",
+    "description": "Cease/Cancel - >2Mbit Orders",
+    "code": "IBW0002H14"
+  },
+  {
+    "category": "Cease / Cancel",
+    "description": "Cease/Cancel - Interconnect Orders",
+    "code": "IND0002H14"
+  },
+  {
+    "category": "Cease / Cancel",
+    "description": "Cease/Cancel - PCM Offload Orders",
+    "code": "INB0003H14"
+  },
+  {
+    "category": "Cease / Cancel",
+    "description": "Cease/Cancel - PSTN Orders",
+    "code": "INE0002H14"
+  },
+  {
+    "category": "Cease / Cancel",
+    "description": "Cease/Cancel - Metro Ethernet Orders",
+    "code": "IBT0004H14"
+  },
+  {
+    "category": "Cease / Cancel",
+    "description": "Cease/Cancel - VC4 Orders",
+    "code": "INC0002H14"
+  },
+  {
+    "category": "Cease / Cancel",
+    "description": "Cease/Cancel - PPC Orders",
+    "code": "IBT0005H14"
+  },
+  {
+    "category": "Cease / Cancel",
+    "description": "Cease/Cancel - ATM Orders",
+    "code": "IBW0003H14"
+  },
+  {
+    "category": "Cease / Cancel",
+    "description": "Cease/Cancel - DSL Core Orders",
+    "code": "ICW0002H14"
+  },
+  {
+    "category": "Cease / Cancel",
+    "description": "Cease/Cancel - National Ethernet Orders",
+    "code": "IBT0006H14"
+  },
+  {
+    "category": "Cease / Cancel",
+    "description": "Cease/Cancel - IP Core Orders",
+    "code": "IBT0007H14"
+  },
+  {
+    "category": "Cease / Cancel",
+    "description": "Cease/Cancel - Frame Related Orders",
+    "code": "ICD0002H14"
+  },
+  {
+    "category": "Cease / Cancel",
+    "description": "Cease/Cancel - Meteor 3G Project Orders",
+    "code": "IBW0004H14"
+  },
+  {
+    "category": "Cease / Cancel",
+    "description": "Cease/Cancel - ICR (International) Orders",
+    "code": "INC0003H14"
+  },
+  {
+    "category": "Cease / Cancel",
+    "description": "Cease/Cancel - NGN Customer Circuits",
+    "code": "ICD0004H14"
+  },
+  {
+    "category": "Cease / Cancel",
+    "description": "Cease/Cancel - Sub 2Mbit Orders",
+    "code": "ICD0003H14"
+  },
+  {
+    "category": "Cease / Cancel",
+    "description": "Cease/Cancel - VoIP Orders",
+    "code": "IBT0008H14"
+  },
+  {
+    "category": "Cease / Cancel",
+    "description": "Cease/Cancel - 1G/10G Customer Orders",
+    "code": "IDW3002U19"
+  },
+  {
+    "category": "Provide / Move",
+    "description": "Field - PRA Orders (P/M)",
+    "code": "CBP6001U23"
+  },
+  {
+    "category": "Provide / Move",
+    "description": "Field - MARTIS Trunks & Cards (P/M)",
+    "code": "CDB6001U23"
+  },
+  {
+    "category": "Provide / Move",
+    "description": "Provision/Move - PDH/SDH Offload Orders",
+    "code": "INB0004H14"
+  },
+  {
+    "category": "Provide / Move",
+    "description": "Field - Sub 2Mbit Orders (P/M)",
+    "code": "CBU6002U23"
+  },
+  {
+    "category": "Provide / Move",
+    "description": "Field - 2Mbit Orders (P/M)",
+    "code": "CBT6001U23"
+  },
+  {
+    "category": "Provide / Move",
+    "description": "Field - BIP Orders (P/M)",
+    "code": "CBW6001U23"
+  },
+  {
+    "category": "Provide / Move",
+    "description": "Provision/Move - Metro Ethernet Orders",
+    "code": "CDN6003U13"
+  },
+  {
+    "category": "Provide / Move",
+    "description": "Field - VC4 Orders (P/M)",
+    "code": "CGS6002U23"
+  },
+  {
+    "category": "Provide / Move",
+    "description": "IP Networks - NGA SD Field - FTTH 16/17",
+    "code": "CYA7009H16"
+  },
+  {
+    "category": "Provide / Move",
+    "description": "IP Networks - SD Field (NGN) - BAU 18/19",
+    "code": "CYA2004H22"
+  },
+  {
+    "category": "Provide / Move",
+    "description": "SD - TX for DSLAM NT Upgrades",
+    "code": "CDC7007H14"
+  },
+  {
+    "category": "Provide / Move",
+    "description": "Provision/Move - Tetra Orders",
+    "code": "CDB9002H10"
+  },
+  {
+    "category": "Provide / Move",
+    "description": "Provision/Move - Meteor 3G Project",
+    "code": "CGS9003H10"
+  },
+  {
+    "category": "Provide / Move",
+    "description": "Provision/Move - >2Mbit Orders",
+    "code": "CBS9002H11"
+  },
+  {
+    "category": "Provide / Move",
+    "description": "Field - High B/W Non-NGN Orders (P/M)",
+    "code": "CBS6001U23"
+  },
+  {
+    "category": "Provide / Move",
+    "description": "Field - 1G/10G Customer Orders (P/M)",
+    "code": "CGN6001U23"
+  },
+  {
+    "category": "Provide / Move",
+    "description": "Provision/Move - BLACKWATER (BAOE) Orders",
+    "code": "CBW6004U20"
+  },
+  {
+    "category": "Provide / Move",
+    "description": "Field - PSTN Orders (P/M)",
+    "code": "CGS6004U23"
+  },
+  {
+    "category": "Provide / Move",
+    "description": "Provision/Move - PCM Offload Orders",
+    "code": "INB0005H14"
+  },
+  {
+    "category": "Provide / Move",
+    "description": "Field - National Ethernet Orders (P/M)",
+    "code": "CBT6003U23"
+  },
+  {
+    "category": "Provide / Move",
+    "description": "Field - Interconnect Orders (P/M)",
+    "code": "CGS6006U23"
+  },
+  {
+    "category": "Provide / Move",
+    "description": "Field - ICR (International) (P/M)",
+    "code": "CIT6001U23"
+  },
+  {
+    "category": "Provide / Move",
+    "description": "Provision/Move - Analogue Orders",
+    "code": "IAA0003H14"
+  },
+  {
+    "category": "Provide / Move",
+    "description": "Field - PPC Orders (P/M)",
+    "code": "CBT6005U23"
+  },
+  {
+    "category": "Provide / Move",
+    "description": "Provision/Move - ATM Orders",
+    "code": "CBX6002U13"
+  },
+  {
+    "category": "Provide / Move",
+    "description": "Provision/Move - VoIP Orders",
+    "code": "CBX6003U13"
+  },
+  {
+    "category": "Provide / Move",
+    "description": "Field - NGN Access Orders (P/M)",
+    "code": "CYP6011U24"
+  },
+  {
+    "category": "Provide / Move",
+    "description": "Field - OGCIO Customer Orders (P/M)",
+    "code": "CGN6004U23"
+  },
+  {
+    "category": "Provide / Move",
+    "description": "APEX Phase 2 Migrations",
+    "code": "CYE6000H19"
+  },
+  {
+    "category": "Provide / Move",
+    "description": "CES Project - Mobile Managed Backhaul",
+    "code": "CYG7004H14"
+  },
+  {
+    "category": "Provide / Move",
+    "description": "Verizon Smart Hands",
+    "code": "ROC2000E13"
+  },
+  {
+    "category": "Provide / Move",
+    "description": "Project Titan Offloads",
+    "code": "CGN7012H13"
+  },
+  {
+    "category": "Provide / Move",
+    "description": "Fujitsu Offloads",
+    "code": "CGN7014H14"
+  },
+  {
+    "category": "Provide / Move",
+    "description": "Capital Offload Field",
+    "code": "CGN7012H14"
+  }
+]

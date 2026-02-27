@@ -1,5 +1,9 @@
-const CACHE = 'timesheet-v5';
-const ASSETS = ['/Time-Sheet---Claude-Cowork/', '/Time-Sheet---Claude-Cowork/index.html'];
+const CACHE = 'timesheet-v6';
+const ASSETS = [
+  '/Time-Sheet---Claude-Cowork/',
+  '/Time-Sheet---Claude-Cowork/index.html',
+  '/Time-Sheet---Claude-Cowork/codes.json',
+];
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)));

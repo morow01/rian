@@ -380,17 +380,32 @@
     // ============================================================
     // CONFIG
     // ============================================================
-    const VERSION = '0.8.5';
+    const VERSION = '0.8.6';
     const API_URL = 'https://script.google.com/macros/s/AKfycbwHbuuctWpT1QWqQc8C1fINQyBJhssIIeh3duuQgAHiCpGBRUVnPEmUnDlEDu5mQbZk/exec';
     const DAY_NAMES = ['Friday', 'Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday'];
     const DB_NAME = 'timesheet-db';
     const DB_VERSION = 1;
 
     // ============================================================
-    // WORK CODES
+    // WORK CODES  — loaded from codes.json; embedded list is fallback
+    // Edit codes.xlsx, run update-codes.py, then push to deploy changes
     // ============================================================
-    const WORK_CODES = [
-      // COW & Escort
+    let WORK_CODES = [];
+
+    async function loadCodes() {
+      try {
+        const res = await fetch('codes.json?v=' + VERSION);
+        if (!res.ok) throw new Error('fetch failed');
+        const data = await res.json();
+        WORK_CODES = data.map(e => ({ a: e.category, d: e.description, c: e.code }));
+      } catch (_) {
+        // offline or missing — use embedded fallback so the app still works
+        WORK_CODES = FALLBACK_CODES;
+      }
+    }
+
+    // Fallback embedded codes (used when offline and codes.json not yet cached)
+    const FALLBACK_CODES = [
       { a: 'COW & Escort', d: 'COW-Escort; Meteor', c: 'RLB0002A10' },
       { a: 'COW & Escort', d: 'COW-Escort; ESAT', c: 'RLB0003A10' },
       { a: 'COW & Escort', d: 'COW-Escort Vodafone', c: 'RLB0004A10' },
@@ -409,7 +424,6 @@
       { a: 'COW & Escort', d: 'COW-Escort Colt', c: 'RLB0017A10' },
       { a: 'COW & Escort', d: 'COW-Escort Irish Coast Guards', c: 'RLB0018A10' },
       { a: 'COW & Escort', d: 'COW-Escort Imagine', c: 'RLB0019A10' },
-      // Indirect A99
       { a: 'Indirect', d: 'Annual Leave COps FE BankHoliday', c: 'UWA0001A99' },
       { a: 'Indirect', d: 'Time in Lieu COps FE', c: 'UWL0001A99' },
       { a: 'Indirect', d: 'Sick Leave COps FE', c: 'UWS0001A99' },
@@ -422,7 +436,6 @@
       { a: 'Indirect', d: 'Supervisory Time of Team Leaders COps FE', c: 'WST0001A99' },
       { a: 'Indirect', d: 'For Scheduled Day Off', c: 'UWR0001A99' },
       { a: 'Indirect', d: 'Used in Conjunction with UWL for TIL Time Off', c: 'UWR0002A99' },
-      // Indirect H99
       { a: 'Indirect', d: 'Annual Leave COps FE', c: 'UWA0001H99' },
       { a: 'Indirect', d: 'Time in Lieu COps FE', c: 'UWL0001H99' },
       { a: 'Indirect', d: 'Sick Leave COps FE', c: 'UWS0001H99' },
@@ -432,7 +445,6 @@
       { a: 'Indirect', d: 'Van Maintenance COps FE', c: 'WVM0001H99' },
       { a: 'Indirect', d: 'Flexible Extended Working Hours COps FE', c: 'UWF0001H99' },
       { a: 'Indirect', d: 'Supervisory Time of Team Leaders COps FE', c: 'WST0001H99' },
-      // Maintenance
       { a: 'Maintenance', d: 'Maintenance E10 RSU (Line Terminations)', c: 'MLB0002A10' },
       { a: 'Maintenance', d: 'Maintenance AXE RSU (Line Terminations)', c: 'MLE0002A10' },
       { a: 'Maintenance', d: 'Maintenance Power RSU', c: 'MXY0002A10' },
@@ -468,7 +480,6 @@
       { a: 'Maintenance', d: 'Maintenance of AXE PCB Board Repairs', c: 'MLE0006A10' },
       { a: 'Maintenance', d: 'Maintenance of E10 PCB Board Repairs', c: 'MLB0006A10' },
       { a: 'Maintenance', d: 'Maintenance of VERIZON Equipment', c: 'ROC2000E11' },
-      // Routines
       { a: 'Routines', d: 'Routine Power RSU', c: 'MXY0005A10' },
       { a: 'Routines', d: 'Routine Power Core', c: 'MXY0006A10' },
       { a: 'Routines', d: 'Routine E10 LSU', c: 'MLB0004A10' },
@@ -491,12 +502,10 @@
       { a: 'Routines', d: 'NECC', c: 'MCC2002A11' },
       { a: 'Routines', d: 'Rad Replacement', c: 'MGC9002A13' },
       { a: 'Routines', d: 'Tape Management Dundrum/4050', c: 'MPX2000A14' },
-      // PCU / WM
       { a: 'PCU / WM', d: 'Works Management Assurance Task Allocation', c: 'WWO0005A10' },
       { a: 'PCU / WM', d: 'Works Management Delivery Task Allocation', c: 'WWO0003H14' },
       { a: 'PCU / WM', d: 'DDD - Validation - Forecast Management Delivery', c: 'WWO0004H14' },
       { a: 'PCU / WM', d: 'Scheduling of Customer Appointments for Upgrades', c: 'CBU6001U23' },
-      // Cease / Cancel
       { a: 'Cease / Cancel', d: 'Cease/Cancel - Martis Trunks & Cards', c: 'IBT0002H14' },
       { a: 'Cease / Cancel', d: 'Cease/Cancel - 2Mbit Orders', c: 'IBT0003H14' },
       { a: 'Cease / Cancel', d: 'Cease/Cancel - PDH/SDH Offload Orders', c: 'INB0002H14' },
@@ -521,7 +530,6 @@
       { a: 'Cease / Cancel', d: 'Cease/Cancel - Sub 2Mbit Orders', c: 'ICD0003H14' },
       { a: 'Cease / Cancel', d: 'Cease/Cancel - VoIP Orders', c: 'IBT0008H14' },
       { a: 'Cease / Cancel', d: 'Cease/Cancel - 1G/10G Customer Orders', c: 'IDW3002U19' },
-      // Provide / Move
       { a: 'Provide / Move', d: 'Field - PRA Orders (P/M)', c: 'CBP6001U23' },
       { a: 'Provide / Move', d: 'Field - MARTIS Trunks & Cards (P/M)', c: 'CDB6001U23' },
       { a: 'Provide / Move', d: 'Provision/Move - PDH/SDH Offload Orders', c: 'INB0004H14' },
@@ -1332,7 +1340,7 @@
         navigator.serviceWorker.register('sw.js').catch(() => { });
       }
 
-      await initDB();
+      await Promise.all([initDB(), loadCodes()]);
 
       const friday = getCurrentFriday();
       await loadWeek(dateToStr(friday));
