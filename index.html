@@ -74,7 +74,7 @@
 // ============================================================
 // CONFIG
 // ============================================================
-const VERSION = '0.3';
+const VERSION = '0.4';
 const API_URL = 'https://script.google.com/macros/s/AKfycbwHbuuctWpT1QWqQc8C1fINQyBJhssIIeh3duuQgAHiCpGBRUVnPEmUnDlEDu5mQbZk/exec';
 const DAY_NAMES = ['Friday','Saturday','Sunday','Monday','Tuesday','Wednesday','Thursday'];
 const DB_NAME = 'timesheet-db';
@@ -451,14 +451,14 @@ async function loadWeek(weekStart) {
       state.syncStatus = 'error';
     }
   }
-  renderHeader();
+  updateHeaderStatus();
 }
 
 function scheduleAutoSave() {
   clearTimeout(saveTimer);
   clearTimeout(syncTimer);
   state.syncStatus = 'pending';
-  renderHeader();
+  updateHeaderStatus();
   saveTimer = setTimeout(async () => {
     await dbPut('weeks', { weekStart: state.weekStart, data: state.weekData, updatedAt: Date.now() });
     if (navigator.onLine) {
@@ -468,9 +468,9 @@ function scheduleAutoSave() {
 }
 
 async function syncNow() {
-  if (!navigator.onLine) { state.syncStatus = 'pending'; renderHeader(); return; }
+  if (!navigator.onLine) { state.syncStatus = 'pending'; updateHeaderStatus(); return; }
   state.syncStatus = 'syncing';
-  renderHeader();
+  updateHeaderStatus();
   try {
     const payload = { ...state.weekData, _updatedAt: Date.now() };
     await apiPost({ action: 'saveWeek', weekStart: state.weekStart, weekData: payload });
@@ -478,7 +478,7 @@ async function syncNow() {
   } catch (e) {
     state.syncStatus = 'error';
   }
-  renderHeader();
+  updateHeaderStatus();
 }
 
 // ============================================================
@@ -499,7 +499,7 @@ function renderHeader() {
     error: '<span class="text-red-300 text-xs">✗</span>',
   };
   const syncTitles = { idle: '', pending: 'Unsaved changes', syncing: 'Syncing…', synced: 'Synced', error: 'Sync failed – tap to retry' };
-  const header = `
+  return `
   <header class="bg-blue-900 text-white sticky top-0 z-10 shadow-lg">
     <div class="flex items-center px-4 py-3 gap-2">
       <button onclick="prevWeek()" class="text-blue-200 text-xl px-1 py-1 min-w-[36px]">‹</button>
@@ -520,9 +520,11 @@ function renderHeader() {
       <button onclick="setView('history')" class="flex-1 py-2 text-sm font-medium ${state.view==='history'?'text-white border-b-2 border-amber-400':'text-blue-300'}">History</button>
     </div>
   </header>`;
+}
+
+function updateHeaderStatus() {
   const el = document.querySelector('header');
-  if (el) { el.outerHTML = header; return ''; }
-  return header;
+  if (el) el.outerHTML = renderHeader();
 }
 
 function renderWeekView() {
@@ -941,7 +943,7 @@ window.addEventListener('online', () => {
 
 window.addEventListener('offline', () => {
   state.syncStatus = 'pending';
-  renderHeader();
+  updateHeaderStatus();
 });
 
 // ============================================================
