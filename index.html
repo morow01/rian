@@ -322,9 +322,22 @@
 <body class="min-h-screen">
 
   <div id="app" class="max-w-2xl mx-auto">
-    <div class="flex flex-col items-center justify-center min-h-[50vh] text-slate-400">
-      <div class="w-10 h-10 border-4 border-slate-300 border-t-blue-600 rounded-full animate-spin mb-4"></div>
-      <p class="animate-pulse">Loading TimeSheet...</p>
+    <div class="flex flex-col items-center justify-center min-h-[80vh] text-slate-400 p-6 text-center">
+      <div id="loading-spinner"
+        class="w-12 h-12 border-4 border-slate-300 border-t-blue-600 rounded-full animate-spin mb-6"></div>
+      <h2 class="text-xl font-bold text-slate-600 dark:text-slate-300 mb-2">Loading TimeSheet...</h2>
+      <p class="text-sm mb-8 animate-pulse">Initializing database and syncing codes...</p>
+
+      <div id="loading-trouble"
+        class="hidden mt-8 p-4 bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-2xl w-full max-w-sm">
+        <p class="text-sm text-orange-800 dark:text-orange-300 mb-4">Taking longer than usual?</p>
+        <button onclick="emergencyReset()"
+          class="w-full py-3 bg-orange-600 hover:bg-orange-700 text-white rounded-xl font-bold transition-colors">
+          Clear Local Data & Reset
+        </button>
+        <p class="text-[10px] mt-2 text-orange-700/60 dark:text-orange-400/60">Warning: This will clear local unsynced
+          data.</p>
+      </div>
     </div>
   </div>
 
@@ -383,7 +396,7 @@
     // ============================================================
     // CONFIG
     // ============================================================
-    const VERSION = '0.9.2';
+    const VERSION = '0.9.3';
     const API_URL = 'https://script.google.com/macros/s/AKfycbwHbuuctWpT1QWqQc8C1fINQyBJhssIIeh3duuQgAHiCpGBRUVnPEmUnDlEDu5mQbZk/exec';
     const DAY_NAMES = ['Friday', 'Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday'];
     const DB_NAME = 'timesheet-db';
@@ -417,7 +430,16 @@
     // ============================================================
     function initDB() {
       console.info('DB: Initializing v' + DB_VERSION);
+      // Show emergency reset if it takes too long
+      setTimeout(() => {
+        const troublePanel = document.getElementById('loading-trouble');
+        if (troublePanel && !db) {
+          troublePanel.classList.remove('hidden');
+          console.warn('DB: Initialization timed out, showing emergency reset');
+        }
+      }, 5000);
       return new Promise((res, rej) => {
+        const timeout = setTimeout(() => rej(new Error('IndexedDB open timed out after 10s')), 10000);
         try {
           const req = indexedDB.open(DB_NAME, DB_VERSION);
 
@@ -434,6 +456,7 @@
           };
 
           req.onsuccess = e => {
+            clearTimeout(timeout);
             console.info('DB: Ready');
             db = e.target.result;
             db.onversionchange = () => {
@@ -445,14 +468,29 @@
           };
 
           req.onerror = e => {
+            clearTimeout(timeout);
             console.error('DB: Open Error', e.target.error);
             rej(e.target.error);
           };
         } catch (err) {
+          clearTimeout(timeout);
           console.error('DB: Fatal Open Error', err);
           rej(err);
         }
       });
+    }
+
+    async function emergencyReset() {
+      if (!confirm('This will wipe all local data and reload the app. Unsynced data will be lost. Continue?')) return;
+      if (db) db.close();
+      const req = indexedDB.deleteDatabase(DB_NAME);
+      req.onsuccess = () => {
+        localStorage.clear();
+        location.href = location.origin + location.pathname + '?reset=' + Date.now();
+      };
+      req.onerror = () => {
+        alert('Failed to delete database. Please clear your browser data manually.');
+      };
     }
 
     function dbPut(store, data) {
