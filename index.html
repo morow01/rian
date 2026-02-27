@@ -107,6 +107,119 @@
       --overlay: rgba(0, 0, 0, 0.75);
     }
 
+    [data-theme="slate"] {
+      --bg-page: #eef2f7;
+      --bg-card: #ffffff;
+      --bg-card-alt: #f5f7fa;
+      --bg-input: #f5f7fa;
+      --bg-header: #1a2535;
+      --bg-header-tab: #141d2b;
+      --bg-day-header: #f5f7fa;
+      --bg-day-header-we: #f0f3f8;
+      --bg-hours: #f5f7fa;
+      --bg-ot: #fef9ee;
+      --bg-code-btn: #eef2f7;
+      --bg-modal: #ffffff;
+      --bg-modal-search: #f5f7fa;
+      --bg-code-group: #f0f3f8;
+      --bg-code-item: #ffffff;
+      --bg-code-item-sel: #eef2f7;
+      --text-primary: #1a2535;
+      --text-secondary: #4a5568;
+      --text-muted: #a0aec0;
+      --text-header: #ffffff;
+      --text-header-sub: #a0aec0;
+      --text-day: #2d3748;
+      --text-day-we: #718096;
+      --text-hours: #2b6cb0;
+      --text-ot: #c05621;
+      --accent: #2b6cb0;
+      --accent-light: #ebf8ff;
+      --accent-chip-bg: #ebf8ff;
+      --accent-chip-text: #2c5282;
+      --border: #e2e8f0;
+      --border-input: #e2e8f0;
+      --border-day: #4a6fa5;
+      --border-day-we: #a0aec0;
+      --border-dashed: #e2e8f0;
+      --shadow-card: 0 1px 4px rgba(0,0,0,0.07);
+      --shadow-card-hover: 0 4px 16px rgba(0,0,0,0.1);
+      --act-number-bg: #2b6cb0;
+      --act-number-text: #ffffff;
+      --summary-even: #f5f7fa;
+      --tab-active: #f6ad55;
+      --tab-inactive: #a0aec0;
+      --btn-add-bg: #ebf8ff;
+      --btn-add-text: #2b6cb0;
+      --overlay: rgba(0,0,0,0.5);
+    }
+
+    /* ===== THEME DROPDOWN ===== */
+    .theme-menu-wrap {
+      position: relative;
+    }
+    .theme-menu-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 16px;
+      padding: 5px 8px;
+      border-radius: 8px;
+      color: var(--text-header-sub);
+      transition: background 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .theme-menu-btn:hover {
+      background: rgba(255,255,255,0.1);
+    }
+    .theme-dropdown {
+      position: absolute;
+      right: 0;
+      top: calc(100% + 6px);
+      background: var(--bg-modal);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+      overflow: hidden;
+      z-index: 100;
+      min-width: 150px;
+      display: none;
+    }
+    .theme-dropdown.open {
+      display: block;
+    }
+    .theme-option {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+      padding: 10px 14px;
+      border: none;
+      background: none;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-primary);
+      text-align: left;
+      transition: background 0.15s;
+    }
+    .theme-option:hover {
+      background: var(--bg-card-alt);
+    }
+    .theme-option.active {
+      color: var(--accent);
+      font-weight: 700;
+    }
+    .theme-swatch {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      border: 2px solid var(--border);
+      flex-shrink: 0;
+    }
+
     /* ===== BASE STYLES ===== */
     * {
       -webkit-tap-highlight-color: transparent;
@@ -380,7 +493,7 @@
     // ============================================================
     // CONFIG
     // ============================================================
-    const VERSION = '0.8.7';
+    const VERSION = '0.8.8';
     const API_URL = 'https://script.google.com/macros/s/AKfycbwHbuuctWpT1QWqQc8C1fINQyBJhssIIeh3duuQgAHiCpGBRUVnPEmUnDlEDu5mQbZk/exec';
     const DAY_NAMES = ['Friday', 'Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday'];
     const DB_NAME = 'timesheet-db';
@@ -827,7 +940,16 @@
         error: '<span class="text-red-300 text-xs">✗</span>',
       };
       const syncTitles = { idle: '', pending: 'Unsaved changes', syncing: 'Syncing…', synced: 'Synced', error: 'Sync failed – tap to retry' };
-      const themeIcon = document.documentElement.getAttribute('data-theme') === 'dark' ? '☀️' : '🌙';
+      const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+      const themes = [
+        { id: 'light', label: 'Light',  swatch: '#1e3a8a' },
+        { id: 'dark',  label: 'Dark',   swatch: '#0c1425' },
+        { id: 'slate', label: 'Slate',  swatch: '#1a2535' },
+      ];
+      const themeOptionsHtml = themes.map(t => `
+        <button class="theme-option ${currentTheme === t.id ? 'active' : ''}" onclick="setTheme('${t.id}')">
+          <span class="theme-swatch" style="background:${t.swatch}"></span>${t.label}
+        </button>`).join('');
       return `
   <header class="sticky top-0 z-10 shadow-lg" style="background:var(--bg-header);color:var(--text-header)">
     <div class="flex items-center px-4 py-3 gap-2">
@@ -842,7 +964,10 @@
       </div>
       <button onclick="nextWeek()" style="color:var(--text-header-sub)" class="text-xl px-1 py-1 min-w-[36px]">›</button>
       <button onclick="openDateModal()" style="color:var(--text-header-sub);border-color:var(--border)" class="text-sm px-2 py-1 border rounded-lg ml-1">📅</button>
-      <button onclick="toggleTheme()" class="theme-toggle" title="Toggle theme">${themeIcon}</button>
+      <div class="theme-menu-wrap">
+        <button class="theme-menu-btn" onclick="toggleThemeMenu(event)" title="Choose theme">🎨 ▾</button>
+        <div class="theme-dropdown" id="theme-dropdown">${themeOptionsHtml}</div>
+      </div>
     </div>
     <div class="flex" style="border-top:1px solid var(--border)">
       <button onclick="setView('week')" class="flex-1 py-2 text-sm font-medium" style="color:${state.view === 'week' ? 'var(--text-header)' : 'var(--tab-inactive)'};${state.view === 'week' ? 'border-bottom:2px solid var(--tab-active)' : ''}">Week</button>
@@ -1312,27 +1437,37 @@
     // ============================================================
     // THEME LOGIC
     // ============================================================
+    const THEME_META = { light: '#1e3a8a', dark: '#0c1425', slate: '#1a2535' };
+
     function initTheme() {
       const saved = localStorage.getItem('theme');
       const meta = document.getElementById('meta-theme');
-      if (saved) {
-        document.documentElement.setAttribute('data-theme', saved);
-        if (meta) meta.setAttribute('content', saved === 'dark' ? '#0c1425' : '#1e3a8a');
-      } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-        document.documentElement.setAttribute('data-theme', 'dark');
-        if (meta) meta.setAttribute('content', '#0c1425');
-      }
+      const theme = saved || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      document.documentElement.setAttribute('data-theme', theme);
+      if (meta) meta.setAttribute('content', THEME_META[theme] || '#1e3a8a');
     }
 
-    function toggleTheme() {
-      const current = document.documentElement.getAttribute('data-theme');
-      const next = current === 'dark' ? 'light' : 'dark';
-      document.documentElement.setAttribute('data-theme', next);
-      localStorage.setItem('theme', next);
+    function setTheme(theme) {
+      document.documentElement.setAttribute('data-theme', theme);
+      localStorage.setItem('theme', theme);
       const meta = document.getElementById('meta-theme');
-      if (meta) meta.setAttribute('content', next === 'dark' ? '#0c1425' : '#1e3a8a');
-      render(); // Refresh header icons
+      if (meta) meta.setAttribute('content', THEME_META[theme] || '#1e3a8a');
+      closeThemeMenu();
+      render();
     }
+
+    function toggleThemeMenu(e) {
+      e.stopPropagation();
+      const dd = document.getElementById('theme-dropdown');
+      if (dd) dd.classList.toggle('open');
+    }
+
+    function closeThemeMenu() {
+      const dd = document.getElementById('theme-dropdown');
+      if (dd) dd.classList.remove('open');
+    }
+
+    document.addEventListener('click', closeThemeMenu);
 
     // ============================================================
     // INIT
