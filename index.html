@@ -380,7 +380,7 @@
     // ============================================================
     // CONFIG
     // ============================================================
-    const VERSION = '0.8.4';
+    const VERSION = '0.8.5';
     const API_URL = 'https://script.google.com/macros/s/AKfycbwHbuuctWpT1QWqQc8C1fINQyBJhssIIeh3duuQgAHiCpGBRUVnPEmUnDlEDu5mQbZk/exec';
     const DAY_NAMES = ['Friday', 'Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday'];
     const DB_NAME = 'timesheet-db';
@@ -988,7 +988,7 @@
         <div class="flex items-center bg-black/5 dark:bg-white/5 rounded-xl p-0.5 gap-1">
           <button onclick="adjHrs(this, -0.5)" class="stepper-btn stepper-btn-minus flex-none" data-target="ordinary" data-act="${act.id}" data-day="${di}">−</button>
           <input type="number" step="0.5" min="0" placeholder="0" value="${act.ordinary}"
-            class="flex-1 text-center font-bold text-lg bg-transparent outline-none" style="color:var(--text-hours)"
+            class="flex-1 text-center font-bold text-lg bg-transparent outline-none" style="color:var(--text-hours);min-width:0"
             data-field="ordinary" data-act="${act.id}" data-day="${di}" oninput="updateField(this)">
           <button onclick="adjHrs(this, 0.5)" class="stepper-btn stepper-btn-plus flex-none" data-target="ordinary" data-act="${act.id}" data-day="${di}">+</button>
         </div>
@@ -998,7 +998,7 @@
         <div class="flex items-center bg-black/5 dark:bg-white/5 rounded-xl p-0.5 gap-1">
           <button onclick="adjHrs(this, -0.5)" class="stepper-btn stepper-btn-minus flex-none" data-target="overtime" data-act="${act.id}" data-day="${di}">−</button>
           <input type="number" step="0.5" min="0" placeholder="0" value="${act.overtime}"
-            class="flex-1 text-center font-bold text-lg bg-transparent outline-none" style="color:var(--text-ot)"
+            class="flex-1 text-center font-bold text-lg bg-transparent outline-none" style="color:var(--text-ot);min-width:0"
             data-field="overtime" data-act="${act.id}" data-day="${di}" oninput="updateField(this)">
           <button onclick="adjHrs(this, 0.5)" class="stepper-btn stepper-btn-plus flex-none" data-target="overtime" data-act="${act.id}" data-day="${di}">+</button>
         </div>
