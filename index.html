@@ -1,0 +1,938 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#1e3a8a">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="TimeSheet">
+  <title>TimeSheet</title>
+  <link rel="manifest" href="manifest.json">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    * { -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; overscroll-behavior: none; }
+    input, select, textarea { font-size: 16px !important; }
+    .code-chip { display: inline-flex; align-items: center; gap: 4px; background: #dbeafe; color: #1e40af; border-radius: 9999px; padding: 3px 10px; font-size: 12px; margin: 2px; }
+    .day-card { border-left: 4px solid #1e3a8a; }
+    .day-weekend { border-left-color: #9ca3af; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spin { animation: spin 1s linear infinite; }
+    .activity-row { border-left: 3px solid #e5e7eb; padding-left: 8px; }
+    .summary-row:nth-child(even) { background: #f9fafb; }
+    input[type=number]::-webkit-inner-spin-button { opacity: 1; }
+  </style>
+</head>
+<body class="bg-gray-100 min-h-screen">
+
+<div id="app" class="max-w-2xl mx-auto"></div>
+
+<!-- ===== CODE SEARCH MODAL ===== -->
+<div id="code-modal" class="hidden fixed inset-0 z-50 bg-white flex flex-col">
+  <div class="bg-blue-900 text-white px-4 py-3 flex items-center gap-3 safe-top">
+    <button onclick="closeCodeModal()" class="text-white p-1 text-xl leading-none">✕</button>
+    <h2 class="text-base font-semibold flex-1">Select Code(s)</h2>
+    <button onclick="confirmCodeSelection()" class="bg-amber-500 text-white px-4 py-1.5 rounded-full text-sm font-bold">Done</button>
+  </div>
+  <div class="p-3 border-b bg-white sticky top-0 z-10">
+    <input id="code-search" type="text" placeholder="Search description or code..."
+      class="w-full border border-gray-300 rounded-xl px-4 py-2.5 text-base bg-gray-50"
+      oninput="filterCodes(this.value)">
+    <p class="text-xs text-gray-500 mt-1.5 px-1">Tap to select. Multiple allowed for routines.</p>
+  </div>
+  <div id="code-list" class="flex-1 overflow-y-auto pb-6"></div>
+</div>
+
+<!-- ===== DATE PICKER MODAL ===== -->
+<div id="date-modal" class="hidden fixed inset-0 z-50 bg-black bg-opacity-60 flex items-center justify-center p-4">
+  <div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl">
+    <h2 class="text-lg font-bold mb-1 text-gray-900">Set Week Start</h2>
+    <p class="text-sm text-gray-500 mb-4">Pick the Friday that starts your week</p>
+    <input id="week-date-input" type="date" class="w-full border-2 border-gray-200 rounded-xl px-4 py-3 text-base mb-4 focus:border-blue-500 outline-none">
+    <div id="date-warning" class="hidden text-amber-600 text-sm mb-3 bg-amber-50 px-3 py-2 rounded-lg">⚠️ That's not a Friday. The week will start from the Friday before that date.</div>
+    <div class="flex gap-3">
+      <button onclick="closeDateModal()" class="flex-1 py-3 border-2 border-gray-200 rounded-xl text-gray-600 font-medium">Cancel</button>
+      <button onclick="confirmDateSelection()" class="flex-1 py-3 bg-blue-900 text-white rounded-xl font-bold">Set Week</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== CONFIRM MODAL ===== -->
+<div id="confirm-modal" class="hidden fixed inset-0 z-50 bg-black bg-opacity-60 flex items-center justify-center p-4">
+  <div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl">
+    <h2 id="confirm-title" class="text-lg font-bold mb-2 text-gray-900"></h2>
+    <p id="confirm-msg" class="text-gray-600 mb-6 text-sm"></p>
+    <div class="flex gap-3">
+      <button onclick="closeConfirm()" class="flex-1 py-3 border-2 border-gray-200 rounded-xl text-gray-600 font-medium">Cancel</button>
+      <button id="confirm-ok" class="flex-1 py-3 bg-red-600 text-white rounded-xl font-bold">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// CONFIG
+// ============================================================
+const API_URL = 'https://script.google.com/macros/s/AKfycbwHbuuctWpT1QWqQc8C1fINQyBJhssIIeh3duuQgAHiCpGBRUVnPEmUnDlEDu5mQbZk/exec';
+const DAY_NAMES = ['Friday','Saturday','Sunday','Monday','Tuesday','Wednesday','Thursday'];
+const DB_NAME = 'timesheet-db';
+const DB_VERSION = 1;
+
+// ============================================================
+// WORK CODES
+// ============================================================
+const WORK_CODES = [
+  // COW & Escort
+  {a:'COW & Escort', d:'COW-Escort; Meteor', c:'RLB0002A10'},
+  {a:'COW & Escort', d:'COW-Escort; ESAT', c:'RLB0003A10'},
+  {a:'COW & Escort', d:'COW-Escort Vodafone', c:'RLB0004A10'},
+  {a:'COW & Escort', d:'COW-Escort Hutchinson', c:'RLB0005A10'},
+  {a:'COW & Escort', d:'COW-Escort O2', c:'RLB0006A10'},
+  {a:'COW & Escort', d:'COW-Escort Sigma', c:'RLB0007A10'},
+  {a:'COW & Escort', d:'COW-Escort Magnet', c:'RLB0008A10'},
+  {a:'COW & Escort', d:'COW-Escort Irish Broadband', c:'RLB0009A10'},
+  {a:'COW & Escort', d:'COW-Escort Obelisk Communications', c:'RLB0010A10'},
+  {a:'COW & Escort', d:'COW-Escort Smart Telecom', c:'RLB0011A10'},
+  {a:'COW & Escort', d:'COW-Escort Chorus', c:'RLB0012A10'},
+  {a:'COW & Escort', d:'COW-Escort IAA', c:'RLB0013A10'},
+  {a:'COW & Escort', d:'COW-Escort TowerCom', c:'RLB0014A10'},
+  {a:'COW & Escort', d:'COW-Escort ClearWire', c:'RLB0015A10'},
+  {a:'COW & Escort', d:'COW-Escort 3 PlayPlus', c:'RLB0016A10'},
+  {a:'COW & Escort', d:'COW-Escort Colt', c:'RLB0017A10'},
+  {a:'COW & Escort', d:'COW-Escort Irish Coast Guards', c:'RLB0018A10'},
+  {a:'COW & Escort', d:'COW-Escort Imagine', c:'RLB0019A10'},
+  // Indirect A99
+  {a:'Indirect', d:'Annual Leave COps FE BankHoliday', c:'UWA0001A99'},
+  {a:'Indirect', d:'Time in Lieu COps FE', c:'UWL0001A99'},
+  {a:'Indirect', d:'Sick Leave COps FE', c:'UWS0001A99'},
+  {a:'Indirect', d:'Union Business COps FE', c:'UWU0001A99'},
+  {a:'Indirect', d:'Training COps FE', c:'WTT0001A99'},
+  {a:'Indirect', d:'General Admin COps FE', c:'WWO0001A99'},
+  {a:'Indirect', d:'Van Maintenance COps FE', c:'WVM0001A99'},
+  {a:'Indirect', d:'Flexible Extended Working Hours COps FE', c:'UWF0001A99'},
+  {a:'Indirect', d:'Other Unworked Leave; Meetings', c:'UWO0001A99'},
+  {a:'Indirect', d:'Supervisory Time of Team Leaders COps FE', c:'WST0001A99'},
+  {a:'Indirect', d:'For Scheduled Day Off', c:'UWR0001A99'},
+  {a:'Indirect', d:'Used in Conjunction with UWL for TIL Time Off', c:'UWR0002A99'},
+  // Indirect H99
+  {a:'Indirect', d:'Annual Leave COps FE', c:'UWA0001H99'},
+  {a:'Indirect', d:'Time in Lieu COps FE', c:'UWL0001H99'},
+  {a:'Indirect', d:'Sick Leave COps FE', c:'UWS0001H99'},
+  {a:'Indirect', d:'Union Business COps FE', c:'UWU0001H99'},
+  {a:'Indirect', d:'Training COps FE', c:'WTT0001H99'},
+  {a:'Indirect', d:'General Admin COps FE', c:'WWO0001H99'},
+  {a:'Indirect', d:'Van Maintenance COps FE', c:'WVM0001H99'},
+  {a:'Indirect', d:'Flexible Extended Working Hours COps FE', c:'UWF0001H99'},
+  {a:'Indirect', d:'Supervisory Time of Team Leaders COps FE', c:'WST0001H99'},
+  // Maintenance
+  {a:'Maintenance', d:'Maintenance E10 RSU (Line Terminations)', c:'MLB0002A10'},
+  {a:'Maintenance', d:'Maintenance AXE RSU (Line Terminations)', c:'MLE0002A10'},
+  {a:'Maintenance', d:'Maintenance Power RSU', c:'MXY0002A10'},
+  {a:'Maintenance', d:'Maintenance SDH', c:'MTX0002A10'},
+  {a:'Maintenance', d:'Maintenance Radio', c:'MRX0002A10'},
+  {a:'Maintenance', d:'Maintenance E10 LSU (Line Terminations)', c:'MLB0003A10'},
+  {a:'Maintenance', d:'Maintenance PCM', c:'MTX0003A10'},
+  {a:'Maintenance', d:'Maintenance AXE LSU (Line Terminations)', c:'MLE0003A10'},
+  {a:'Maintenance', d:'Maintenance Rurtel', c:'MLC0002A10'},
+  {a:'Maintenance', d:'Maintenance Martis', c:'MDS0002A10'},
+  {a:'Maintenance', d:'Maintenance Power Core', c:'MXY0003A10'},
+  {a:'Maintenance', d:'Maintenance DSL', c:'MCY0002A10'},
+  {a:'Maintenance', d:'Maintenance NGA Card Fill', c:'CNA1009H14'},
+  {a:'Maintenance', d:'Maintenance NGA Cabinets', c:'MGB9002A14'},
+  {a:'Maintenance', d:'Maintenance BAS', c:'MMY0002A10'},
+  {a:'Maintenance', d:'Maintenance BIP', c:'MDW0002A10'},
+  {a:'Maintenance', d:'Maintenance Power Radio', c:'MXY0004A10'},
+  {a:'Maintenance', d:'Maintenance FWA', c:'MLR0002A10'},
+  {a:'Maintenance', d:'Maintenance ASAM', c:'MMY0003A10'},
+  {a:'Maintenance', d:'Maintenance ATM Core & Circuits', c:'MBX0002A10'},
+  {a:'Maintenance', d:'Maintenance NGN CPE', c:'MGC7001A10'},
+  {a:'Maintenance', d:'Maintenance NGN Core', c:'MNG7002A10'},
+  {a:'Maintenance', d:'Maintenance Submarine Cable', c:'MIC0002A10'},
+  {a:'Maintenance', d:'Maintenance E10 Core (All except Line Term.)', c:'MTD9002A10'},
+  {a:'Maintenance', d:'Maintenance of VoIP Orders', c:'MDW0004A10'},
+  {a:'Maintenance', d:'Maintenance of Tetra Network', c:'RET3002A10'},
+  {a:'Maintenance', d:'Maintenance of DWDM Network', c:'MGN3002A10'},
+  {a:'Maintenance', d:'Maintenance of Interconnect Network', c:'MIZ3002A10'},
+  {a:'Maintenance', d:'Maintenance AXE Core (All except Line Term.)', c:'MTD9002A11'},
+  {a:'Maintenance', d:'Clerk of Works from ALECK', c:'MMB9002A16'},
+  {a:'Maintenance', d:'Maintenance (Escorting Cleaners)', c:'MMB3002A10'},
+  {a:'Maintenance', d:'Maintenance (Alarms / Security)', c:'MMS3002A10'},
+  {a:'Maintenance', d:'Maintenance of AXE PCB Board Repairs', c:'MLE0006A10'},
+  {a:'Maintenance', d:'Maintenance of E10 PCB Board Repairs', c:'MLB0006A10'},
+  {a:'Maintenance', d:'Maintenance of VERIZON Equipment', c:'ROC2000E11'},
+  // Routines
+  {a:'Routines', d:'Routine Power RSU', c:'MXY0005A10'},
+  {a:'Routines', d:'Routine Power Core', c:'MXY0006A10'},
+  {a:'Routines', d:'Routine E10 LSU', c:'MLB0004A10'},
+  {a:'Routines', d:'Routine Radio', c:'MRX0003A10'},
+  {a:'Routines', d:'Routine E10 RSU', c:'MLB0005A10'},
+  {a:'Routines', d:'Routine AXE RSU', c:'MLE0004A10'},
+  {a:'Routines', d:'Routine Power Radio', c:'MXY0007A10'},
+  {a:'Routines', d:'Routine DSL', c:'MCY0003A10'},
+  {a:'Routines', d:'Routine SDH', c:'MTX0005A10'},
+  {a:'Routines', d:'Routine AXE LSU', c:'MLE0005A10'},
+  {a:'Routines', d:'Routine Martis', c:'MDS0003A10'},
+  {a:'Routines', d:'Routine FWA', c:'MLR0003A10'},
+  {a:'Routines', d:'Routine ATM Core', c:'MBX0003A10'},
+  {a:'Routines', d:'Routine ASAM', c:'MMY0004A10'},
+  {a:'Routines', d:'Routine PCM', c:'MTX0006A10'},
+  {a:'Routines', d:'Routine Rurtel', c:'MLC0003A10'},
+  {a:'Routines', d:'Routine BAS', c:'MMY0005A10'},
+  {a:'Routines', d:'Routine Submarine Cable', c:'MIC0003A10'},
+  {a:'Routines', d:'Routine BIP', c:'MDW0003A10'},
+  {a:'Routines', d:'NECC', c:'MCC2002A11'},
+  {a:'Routines', d:'Rad Replacement', c:'MGC9002A13'},
+  {a:'Routines', d:'Tape Management Dundrum/4050', c:'MPX2000A14'},
+  // PCU / WM
+  {a:'PCU / WM', d:'Works Management Assurance Task Allocation', c:'WWO0005A10'},
+  {a:'PCU / WM', d:'Works Management Delivery Task Allocation', c:'WWO0003H14'},
+  {a:'PCU / WM', d:'DDD - Validation - Forecast Management Delivery', c:'WWO0004H14'},
+  {a:'PCU / WM', d:'Scheduling of Customer Appointments for Upgrades', c:'CBU6001U23'},
+  // Cease / Cancel
+  {a:'Cease / Cancel', d:'Cease/Cancel - Martis Trunks & Cards', c:'IBT0002H14'},
+  {a:'Cease / Cancel', d:'Cease/Cancel - 2Mbit Orders', c:'IBT0003H14'},
+  {a:'Cease / Cancel', d:'Cease/Cancel - PDH/SDH Offload Orders', c:'INB0002H14'},
+  {a:'Cease / Cancel', d:'Cease/Cancel - PRA Orders', c:'IPA0002H14'},
+  {a:'Cease / Cancel', d:'Cease/Cancel - BIP Orders', c:'IDW0002H14'},
+  {a:'Cease / Cancel', d:'Cease/Cancel - Analogue Orders', c:'IAA0002H14'},
+  {a:'Cease / Cancel', d:'Cease/Cancel - >2Mbit Orders', c:'IBW0002H14'},
+  {a:'Cease / Cancel', d:'Cease/Cancel - Interconnect Orders', c:'IND0002H14'},
+  {a:'Cease / Cancel', d:'Cease/Cancel - PCM Offload Orders', c:'INB0003H14'},
+  {a:'Cease / Cancel', d:'Cease/Cancel - PSTN Orders', c:'INE0002H14'},
+  {a:'Cease / Cancel', d:'Cease/Cancel - Metro Ethernet Orders', c:'IBT0004H14'},
+  {a:'Cease / Cancel', d:'Cease/Cancel - VC4 Orders', c:'INC0002H14'},
+  {a:'Cease / Cancel', d:'Cease/Cancel - PPC Orders', c:'IBT0005H14'},
+  {a:'Cease / Cancel', d:'Cease/Cancel - ATM Orders', c:'IBW0003H14'},
+  {a:'Cease / Cancel', d:'Cease/Cancel - DSL Core Orders', c:'ICW0002H14'},
+  {a:'Cease / Cancel', d:'Cease/Cancel - National Ethernet Orders', c:'IBT0006H14'},
+  {a:'Cease / Cancel', d:'Cease/Cancel - IP Core Orders', c:'IBT0007H14'},
+  {a:'Cease / Cancel', d:'Cease/Cancel - Frame Related Orders', c:'ICD0002H14'},
+  {a:'Cease / Cancel', d:'Cease/Cancel - Meteor 3G Project Orders', c:'IBW0004H14'},
+  {a:'Cease / Cancel', d:'Cease/Cancel - ICR (International) Orders', c:'INC0003H14'},
+  {a:'Cease / Cancel', d:'Cease/Cancel - NGN Customer Circuits', c:'ICD0004H14'},
+  {a:'Cease / Cancel', d:'Cease/Cancel - Sub 2Mbit Orders', c:'ICD0003H14'},
+  {a:'Cease / Cancel', d:'Cease/Cancel - VoIP Orders', c:'IBT0008H14'},
+  {a:'Cease / Cancel', d:'Cease/Cancel - 1G/10G Customer Orders', c:'IDW3002U19'},
+  // Provide / Move
+  {a:'Provide / Move', d:'Field - PRA Orders (P/M)', c:'CBP6001U23'},
+  {a:'Provide / Move', d:'Field - MARTIS Trunks & Cards (P/M)', c:'CDB6001U23'},
+  {a:'Provide / Move', d:'Provision/Move - PDH/SDH Offload Orders', c:'INB0004H14'},
+  {a:'Provide / Move', d:'Field - Sub 2Mbit Orders (P/M)', c:'CBU6002U23'},
+  {a:'Provide / Move', d:'Field - 2Mbit Orders (P/M)', c:'CBT6001U23'},
+  {a:'Provide / Move', d:'Field - BIP Orders (P/M)', c:'CBW6001U23'},
+  {a:'Provide / Move', d:'Provision/Move - Metro Ethernet Orders', c:'CDN6003U13'},
+  {a:'Provide / Move', d:'Field - VC4 Orders (P/M)', c:'CGS6002U23'},
+  {a:'Provide / Move', d:'IP Networks - NGA SD Field - FTTH 16/17', c:'CYA7009H16'},
+  {a:'Provide / Move', d:'IP Networks - SD Field (NGN) - BAU 18/19', c:'CYA2004H22'},
+  {a:'Provide / Move', d:'SD - TX for DSLAM NT Upgrades', c:'CDC7007H14'},
+  {a:'Provide / Move', d:'Provision/Move - Tetra Orders', c:'CDB9002H10'},
+  {a:'Provide / Move', d:'Provision/Move - Meteor 3G Project', c:'CGS9003H10'},
+  {a:'Provide / Move', d:'Provision/Move - >2Mbit Orders', c:'CBS9002H11'},
+  {a:'Provide / Move', d:'Field - High B/W Non-NGN Orders (P/M)', c:'CBS6001U23'},
+  {a:'Provide / Move', d:'Field - 1G/10G Customer Orders (P/M)', c:'CGN6001U23'},
+  {a:'Provide / Move', d:'Provision/Move - BLACKWATER (BAOE) Orders', c:'CBW6004U20'},
+  {a:'Provide / Move', d:'Field - PSTN Orders (P/M)', c:'CGS6004U23'},
+  {a:'Provide / Move', d:'Provision/Move - PCM Offload Orders', c:'INB0005H14'},
+  {a:'Provide / Move', d:'Field - National Ethernet Orders (P/M)', c:'CBT6003U23'},
+  {a:'Provide / Move', d:'Field - Interconnect Orders (P/M)', c:'CGS6006U23'},
+  {a:'Provide / Move', d:'Field - ICR (International) (P/M)', c:'CIT6001U23'},
+  {a:'Provide / Move', d:'Provision/Move - Analogue Orders', c:'IAA0003H14'},
+  {a:'Provide / Move', d:'Field - PPC Orders (P/M)', c:'CBT6005U23'},
+  {a:'Provide / Move', d:'Provision/Move - ATM Orders', c:'CBX6002U13'},
+  {a:'Provide / Move', d:'Provision/Move - VoIP Orders', c:'CBX6003U13'},
+  {a:'Provide / Move', d:'Field - NGN Access Orders (P/M)', c:'CYP6011U24'},
+  {a:'Provide / Move', d:'Field - OGCIO Customer Orders (P/M)', c:'CGN6004U23'},
+  {a:'Provide / Move', d:'APEX Phase 2 Migrations', c:'CYE6000H19'},
+  {a:'Provide / Move', d:'CES Project - Mobile Managed Backhaul', c:'CYG7004H14'},
+  {a:'Provide / Move', d:'Verizon Smart Hands', c:'ROC2000E13'},
+  {a:'Provide / Move', d:'Project Titan Offloads', c:'CGN7012H13'},
+  {a:'Provide / Move', d:'Fujitsu Offloads', c:'CGN7014H14'},
+  {a:'Provide / Move', d:'Capital Offload Field', c:'CGN7012H14'},
+];
+
+// ============================================================
+// STATE
+// ============================================================
+let state = {
+  view: 'week',         // 'week' | 'history'
+  weekStart: null,      // 'YYYY-MM-DD'
+  weekData: null,       // { weekStart, days: [...] }
+  syncStatus: 'idle',   // 'idle' | 'pending' | 'syncing' | 'synced' | 'error'
+  historyWeeks: [],
+  showSummary: false,
+};
+
+let codeModalCtx = { dayIndex: null, activityId: null, selected: [] };
+let saveTimer = null;
+let syncTimer = null;
+let db = null;
+
+// ============================================================
+// INDEXEDDB
+// ============================================================
+function initDB() {
+  return new Promise((res, rej) => {
+    const req = indexedDB.open(DB_NAME, DB_VERSION);
+    req.onupgradeneeded = e => {
+      const d = e.target.result;
+      if (!d.objectStoreNames.contains('weeks')) d.createObjectStore('weeks', { keyPath: 'weekStart' });
+    };
+    req.onsuccess = e => { db = e.target.result; res(); };
+    req.onerror = rej;
+  });
+}
+
+function dbGet(store, key) {
+  return new Promise((res, rej) => {
+    const tx = db.transaction(store, 'readonly');
+    const req = tx.objectStore(store).get(key);
+    req.onsuccess = () => res(req.result);
+    req.onerror = rej;
+  });
+}
+
+function dbPut(store, val) {
+  return new Promise((res, rej) => {
+    const tx = db.transaction(store, 'readwrite');
+    const req = tx.objectStore(store).put(val);
+    req.onsuccess = res;
+    req.onerror = rej;
+  });
+}
+
+function dbGetAll(store) {
+  return new Promise((res, rej) => {
+    const tx = db.transaction(store, 'readonly');
+    const req = tx.objectStore(store).getAll();
+    req.onsuccess = () => res(req.result);
+    req.onerror = rej;
+  });
+}
+
+// ============================================================
+// API
+// ============================================================
+async function apiGet(action, params = {}) {
+  const url = new URL(API_URL);
+  url.searchParams.set('action', action);
+  Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, v));
+  const res = await fetch(url.toString(), { redirect: 'follow' });
+  return res.json();
+}
+
+async function apiPost(body) {
+  const res = await fetch(API_URL, {
+    method: 'POST',
+    redirect: 'follow',
+    body: JSON.stringify(body),
+  });
+  return res.json();
+}
+
+// ============================================================
+// DATE UTILS
+// ============================================================
+function dateToStr(d) {
+  return d.toISOString().split('T')[0];
+}
+
+function strToDate(s) {
+  return new Date(s + 'T00:00:00');
+}
+
+function getCurrentFriday() {
+  const today = new Date();
+  const day = today.getDay(); // 0=Sun..6=Sat
+  const back = [2, 3, 4, 5, 6, 0, 1][day];
+  const d = new Date(today);
+  d.setDate(d.getDate() - back);
+  return d;
+}
+
+function getNearestFriday(dateStr) {
+  const d = strToDate(dateStr);
+  const day = d.getDay();
+  if (day === 5) return dateStr;
+  const back = [2, 3, 4, 5, 6, 0, 1][day];
+  const fri = new Date(d);
+  fri.setDate(d.getDate() - back);
+  return dateToStr(fri);
+}
+
+function formatDate(dateStr) {
+  const d = strToDate(dateStr);
+  return d.toLocaleDateString('en-IE', { day: 'numeric', month: 'short' });
+}
+
+function formatWeekRange(weekStart) {
+  const start = strToDate(weekStart);
+  const end = new Date(start);
+  end.setDate(start.getDate() + 6);
+  return `${formatDate(weekStart)} – ${formatDate(dateToStr(end))}`;
+}
+
+function uid() {
+  return Date.now().toString(36) + Math.random().toString(36).slice(2);
+}
+
+// ============================================================
+// WEEK DATA
+// ============================================================
+function createEmptyWeek(weekStart) {
+  const days = DAY_NAMES.map((name, i) => {
+    const d = new Date(weekStart + 'T00:00:00');
+    d.setDate(d.getDate() + i);
+    return { date: dateToStr(d), dayName: name, activities: [createActivity()] };
+  });
+  return { weekStart, days };
+}
+
+function createActivity() {
+  return { id: uid(), ticket: '', description: '', location: '', codes: [], ordinary: '', overtime: '', tasks: '', timePerTask: '', otPerTask: '' };
+}
+
+function calcSummary(weekData) {
+  const map = {};
+  if (!weekData) return [];
+  weekData.days.forEach(day => {
+    day.activities.forEach(act => {
+      if (!act.codes.length) return;
+      const ordinary = parseFloat(act.ordinary) || 0;
+      const overtime = parseFloat(act.overtime) || 0;
+      const n = act.codes.length;
+      const timePerTask = parseFloat(act.timePerTask) || (n > 0 ? ordinary / n : 0);
+      const otPerTask = parseFloat(act.otPerTask) || (n > 1 ? overtime / n : overtime);
+      act.codes.forEach(code => {
+        const key = code.c;
+        if (!map[key]) map[key] = { code: code.c, description: code.d, ordinary: 0, overtime: 0 };
+        if (n === 1) {
+          map[key].ordinary += ordinary;
+          map[key].overtime += overtime;
+        } else {
+          map[key].ordinary += timePerTask;
+          map[key].overtime += otPerTask;
+        }
+      });
+    });
+  });
+  return Object.values(map).sort((a, b) => b.ordinary - a.ordinary);
+}
+
+// ============================================================
+// LOAD / SAVE
+// ============================================================
+async function loadWeek(weekStart) {
+  state.weekStart = weekStart;
+  state.syncStatus = 'idle';
+
+  // Load from local DB
+  const local = await dbGet('weeks', weekStart);
+  state.weekData = local ? local.data : createEmptyWeek(weekStart);
+
+  render();
+
+  // Try to sync from API (non-blocking)
+  if (navigator.onLine) {
+    try {
+      const remote = await apiGet('getWeek', { date: weekStart });
+      if (remote && remote.days) {
+        const localTime = local ? (local.updatedAt || 0) : 0;
+        const remoteTime = remote._updatedAt || 0;
+        if (!local || remoteTime > localTime) {
+          state.weekData = remote;
+          await dbPut('weeks', { weekStart, data: remote, updatedAt: remoteTime });
+          render();
+        }
+      }
+      state.syncStatus = 'synced';
+    } catch (e) {
+      state.syncStatus = 'error';
+    }
+  }
+  renderHeader();
+}
+
+function scheduleAutoSave() {
+  clearTimeout(saveTimer);
+  clearTimeout(syncTimer);
+  state.syncStatus = 'pending';
+  renderHeader();
+  saveTimer = setTimeout(async () => {
+    await dbPut('weeks', { weekStart: state.weekStart, data: state.weekData, updatedAt: Date.now() });
+    if (navigator.onLine) {
+      syncTimer = setTimeout(syncNow, 3000);
+    }
+  }, 500);
+}
+
+async function syncNow() {
+  if (!navigator.onLine) { state.syncStatus = 'pending'; renderHeader(); return; }
+  state.syncStatus = 'syncing';
+  renderHeader();
+  try {
+    const payload = { ...state.weekData, _updatedAt: Date.now() };
+    await apiPost({ action: 'saveWeek', weekStart: state.weekStart, weekData: payload });
+    state.syncStatus = 'synced';
+  } catch (e) {
+    state.syncStatus = 'error';
+  }
+  renderHeader();
+}
+
+// ============================================================
+// RENDER
+// ============================================================
+function render() {
+  const app = document.getElementById('app');
+  app.innerHTML = renderHeader() + (state.view === 'week' ? renderWeekView() : renderHistoryView());
+  attachEvents();
+}
+
+function renderHeader() {
+  const syncIcons = {
+    idle: '',
+    pending: '<span class="text-amber-300 text-xs">●</span>',
+    syncing: '<span class="spin inline-block text-blue-300 text-xs">↻</span>',
+    synced: '<span class="text-green-300 text-xs">✓</span>',
+    error: '<span class="text-red-300 text-xs">✗</span>',
+  };
+  const syncTitles = { idle: '', pending: 'Unsaved changes', syncing: 'Syncing…', synced: 'Synced', error: 'Sync failed – tap to retry' };
+  const header = `
+  <header class="bg-blue-900 text-white sticky top-0 z-10 shadow-lg">
+    <div class="flex items-center px-4 py-3 gap-2">
+      <button onclick="prevWeek()" class="text-blue-200 text-xl px-1 py-1 min-w-[36px]">‹</button>
+      <div class="flex-1 text-center">
+        <div class="font-bold text-base leading-tight">${state.weekStart ? formatWeekRange(state.weekStart) : '—'}</div>
+        <div class="text-blue-300 text-xs mt-0.5">
+          ${syncIcons[state.syncStatus] || ''}
+          <span title="${syncTitles[state.syncStatus]}">${syncTitles[state.syncStatus]}</span>
+        </div>
+      </div>
+      <button onclick="nextWeek()" class="text-blue-200 text-xl px-1 py-1 min-w-[36px]">›</button>
+      <button onclick="openDateModal()" class="text-blue-200 text-sm px-2 py-1 border border-blue-700 rounded-lg ml-1">📅</button>
+    </div>
+    <div class="flex border-t border-blue-800">
+      <button onclick="setView('week')" class="flex-1 py-2 text-sm font-medium ${state.view==='week'?'text-white border-b-2 border-amber-400':'text-blue-300'}">Week</button>
+      <button onclick="syncNow()" class="flex-1 py-2 text-sm font-medium text-blue-300" title="Sync now">☁ Sync</button>
+      <button onclick="setView('history')" class="flex-1 py-2 text-sm font-medium ${state.view==='history'?'text-white border-b-2 border-amber-400':'text-blue-300'}">History</button>
+    </div>
+  </header>`;
+  const el = document.querySelector('header');
+  if (el) { el.outerHTML = header; return ''; }
+  return header;
+}
+
+function renderWeekView() {
+  if (!state.weekData) return '<div class="p-8 text-center text-gray-400">Loading…</div>';
+  const summary = calcSummary(state.weekData);
+  const totalOrd = summary.reduce((s, r) => s + r.ordinary, 0);
+  const totalOT = summary.reduce((s, r) => s + r.overtime, 0);
+
+  const daysHtml = state.weekData.days.map((day, di) => renderDaySection(day, di)).join('');
+
+  const summaryHtml = `
+  <div class="mx-3 mb-4 bg-white rounded-2xl shadow-sm overflow-hidden">
+    <button onclick="toggleSummary()" class="w-full flex items-center justify-between px-4 py-3 bg-blue-900 text-white">
+      <span class="font-bold text-sm">Weekly Summary</span>
+      <span class="text-blue-200 text-sm">
+        <span class="font-mono">${totalOrd.toFixed(2)}</span> hrs &nbsp;
+        <span class="font-mono text-amber-300">${totalOT.toFixed(2)}</span> OT
+        <span class="ml-2">${state.showSummary ? '▲' : '▼'}</span>
+      </span>
+    </button>
+    ${state.showSummary ? `
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="bg-gray-50 text-gray-500 text-xs uppercase">
+            <th class="px-3 py-2 text-left">Code</th>
+            <th class="px-3 py-2 text-left">Description</th>
+            <th class="px-3 py-2 text-right">Ord</th>
+            <th class="px-3 py-2 text-right">OT</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${summary.map((row, i) => `
+          <tr class="${i%2===0?'bg-white':'bg-gray-50'} summary-row">
+            <td class="px-3 py-2 font-mono text-xs text-blue-700 whitespace-nowrap">${row.code}</td>
+            <td class="px-3 py-2 text-gray-700 text-xs">${row.description}</td>
+            <td class="px-3 py-2 text-right font-semibold text-gray-900">${row.ordinary.toFixed(2)}</td>
+            <td class="px-3 py-2 text-right font-semibold text-amber-600">${row.overtime > 0 ? row.overtime.toFixed(2) : '—'}</td>
+          </tr>`).join('')}
+          <tr class="bg-blue-50 font-bold text-sm">
+            <td colspan="2" class="px-3 py-2 text-blue-900">TOTAL</td>
+            <td class="px-3 py-2 text-right text-blue-900">${totalOrd.toFixed(2)}</td>
+            <td class="px-3 py-2 text-right text-amber-600">${totalOT.toFixed(2)}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>` : ''}
+  </div>`;
+
+  return `<main class="pb-6 pt-2">${daysHtml}${summaryHtml}</main>`;
+}
+
+function renderDaySection(day, di) {
+  const isWeekend = di === 1 || di === 2;
+  const activitiesHtml = day.activities.map(act => renderActivity(act, di)).join('');
+  return `
+  <div class="mx-3 mb-3 bg-white rounded-2xl shadow-sm overflow-hidden day-card ${isWeekend ? 'day-weekend' : ''}">
+    <div class="flex items-center justify-between px-4 py-2.5 ${isWeekend ? 'bg-gray-50' : 'bg-blue-50'}">
+      <div>
+        <span class="font-bold text-sm ${isWeekend ? 'text-gray-500' : 'text-blue-900'}">${day.dayName}</span>
+        <span class="text-xs text-gray-400 ml-2">${formatDate(day.date)}</span>
+      </div>
+      <button onclick="addActivity(${di})" class="text-blue-600 text-sm font-semibold flex items-center gap-1 py-1 px-2 rounded-lg bg-blue-100 active:bg-blue-200">
+        <span class="text-base leading-none">+</span> Add
+      </button>
+    </div>
+    <div class="divide-y divide-gray-100" id="day-${di}-activities">
+      ${activitiesHtml}
+    </div>
+  </div>`;
+}
+
+function renderActivity(act, di) {
+  const codesHtml = act.codes.length
+    ? act.codes.map(c => `<span class="code-chip">${c.d} <span class="text-blue-400 font-mono">${c.c}</span> <button onclick="removeCode('${act.id}',${di},'${c.c}')" class="text-blue-400 hover:text-red-500 ml-1 text-xs">✕</button></span>`).join('')
+    : `<span class="text-gray-400 text-sm italic">Tap to add code</span>`;
+
+  return `
+  <div class="p-3" data-act-id="${act.id}" data-day="${di}">
+    <div class="flex gap-2 mb-2">
+      <input type="text" placeholder="Description of work" value="${esc(act.description)}"
+        class="flex-1 border border-gray-200 rounded-lg px-3 py-2 text-sm bg-gray-50 focus:bg-white focus:border-blue-400 outline-none"
+        data-field="description" data-act="${act.id}" data-day="${di}" oninput="updateField(this)">
+      <button onclick="removeActivity('${act.id}', ${di})" class="text-gray-300 hover:text-red-500 px-2 text-lg leading-none flex-shrink-0">🗑</button>
+    </div>
+    <div class="flex gap-2 mb-2">
+      <input type="text" placeholder="Location" value="${esc(act.location)}"
+        class="flex-1 border border-gray-200 rounded-lg px-3 py-2 text-sm bg-gray-50 focus:bg-white focus:border-blue-400 outline-none"
+        data-field="location" data-act="${act.id}" data-day="${di}" oninput="updateField(this)">
+      <input type="text" placeholder="Ticket #" value="${esc(act.ticket)}"
+        class="w-28 border border-gray-200 rounded-lg px-3 py-2 text-sm bg-gray-50 focus:bg-white focus:border-blue-400 outline-none"
+        data-field="ticket" data-act="${act.id}" data-day="${di}" oninput="updateField(this)">
+    </div>
+    <button onclick="openCodeModal(${di},'${act.id}')"
+      class="w-full text-left border border-dashed border-blue-300 rounded-xl px-3 py-2 mb-2 bg-blue-50 min-h-[38px] flex flex-wrap items-center gap-1">
+      ${codesHtml}
+    </button>
+    <div class="grid grid-cols-2 gap-2 mb-1">
+      <div class="bg-gray-50 rounded-xl p-2">
+        <label class="text-xs text-gray-400 block mb-1">Ordinary Hrs</label>
+        <input type="number" step="0.5" min="0" placeholder="0" value="${act.ordinary}"
+          class="w-full text-center font-bold text-lg text-blue-900 bg-transparent outline-none border-b border-gray-200 focus:border-blue-400"
+          data-field="ordinary" data-act="${act.id}" data-day="${di}" oninput="updateField(this)">
+      </div>
+      <div class="bg-amber-50 rounded-xl p-2">
+        <label class="text-xs text-amber-400 block mb-1">Overtime Hrs</label>
+        <input type="number" step="0.5" min="0" placeholder="0" value="${act.overtime}"
+          class="w-full text-center font-bold text-lg text-amber-600 bg-transparent outline-none border-b border-amber-200 focus:border-amber-400"
+          data-field="overtime" data-act="${act.id}" data-day="${di}" oninput="updateField(this)">
+      </div>
+    </div>
+    <div class="grid grid-cols-3 gap-2">
+      <div class="bg-gray-50 rounded-xl p-2">
+        <label class="text-xs text-gray-400 block mb-1">Tasks</label>
+        <input type="number" step="1" min="0" placeholder="1" value="${act.tasks}"
+          class="w-full text-center font-semibold text-gray-700 bg-transparent outline-none border-b border-gray-200 focus:border-blue-400"
+          data-field="tasks" data-act="${act.id}" data-day="${di}" oninput="updateField(this)">
+      </div>
+      <div class="bg-gray-50 rounded-xl p-2">
+        <label class="text-xs text-gray-400 block mb-1">Hrs/Task</label>
+        <input type="number" step="0.01" min="0" placeholder="auto" value="${act.timePerTask}"
+          class="w-full text-center text-gray-600 bg-transparent outline-none border-b border-gray-200 focus:border-blue-400"
+          data-field="timePerTask" data-act="${act.id}" data-day="${di}" oninput="updateField(this)">
+      </div>
+      <div class="bg-amber-50 rounded-xl p-2">
+        <label class="text-xs text-amber-300 block mb-1">OT/Task</label>
+        <input type="number" step="0.01" min="0" placeholder="auto" value="${act.otPerTask}"
+          class="w-full text-center text-amber-600 bg-transparent outline-none border-b border-amber-200 focus:border-amber-400"
+          data-field="otPerTask" data-act="${act.id}" data-day="${di}" oninput="updateField(this)">
+      </div>
+    </div>
+  </div>`;
+}
+
+function renderHistoryView() {
+  if (!state.historyWeeks.length) {
+    return `<main class="p-6 text-center text-gray-400"><p class="text-4xl mb-3">📋</p><p>No past weeks yet</p></main>`;
+  }
+  const rows = state.historyWeeks.map(w => `
+    <button onclick="loadWeek('${w.weekStart}');setView('week')"
+      class="flex items-center justify-between px-4 py-3 hover:bg-blue-50 active:bg-blue-100 border-b border-gray-100 w-full text-left">
+      <div>
+        <div class="font-semibold text-gray-900 text-sm">${formatWeekRange(w.weekStart)}</div>
+        <div class="text-xs text-gray-400 mt-0.5">Last updated: ${w.lastUpdated ? new Date(w.lastUpdated).toLocaleDateString('en-IE') : 'unknown'}</div>
+      </div>
+      <span class="text-blue-400 text-lg">›</span>
+    </button>`).join('');
+  return `<main class="pb-6"><div class="mx-3 mt-3 bg-white rounded-2xl shadow-sm overflow-hidden">${rows}</div></main>`;
+}
+
+function esc(s) {
+  return (s || '').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+}
+
+// ============================================================
+// ACTIONS
+// ============================================================
+function updateField(el) {
+  const { field, act: actId, day: di } = el.dataset;
+  const day = state.weekData.days[parseInt(di)];
+  const act = day.activities.find(a => a.id === actId);
+  if (!act) return;
+  act[field] = el.value;
+
+  // Auto-set tasks from code count if tasks is empty
+  if (field === 'ordinary' || field === 'tasks' || field === 'timePerTask') {
+    // Update summary display without full re-render
+    updateSummaryDisplay();
+  }
+  scheduleAutoSave();
+}
+
+function addActivity(di) {
+  state.weekData.days[di].activities.push(createActivity());
+  render();
+}
+
+function removeActivity(actId, di) {
+  const day = state.weekData.days[di];
+  if (day.activities.length <= 1) {
+    day.activities = [createActivity()];
+  } else {
+    day.activities = day.activities.filter(a => a.id !== actId);
+  }
+  scheduleAutoSave();
+  render();
+}
+
+function removeCode(actId, di, code) {
+  const act = state.weekData.days[di].activities.find(a => a.id === actId);
+  if (!act) return;
+  act.codes = act.codes.filter(c => c.c !== code);
+  scheduleAutoSave();
+  render();
+}
+
+function updateSummaryDisplay() {
+  // lightweight re-render of just the summary section
+  const summary = calcSummary(state.weekData);
+  const totalOrd = summary.reduce((s, r) => s + r.ordinary, 0);
+  const totalOT = summary.reduce((s, r) => s + r.overtime, 0);
+  const btn = document.querySelector('button[onclick="toggleSummary()"] span.font-mono');
+  if (btn) {
+    btn.textContent = totalOrd.toFixed(2);
+    const otEl = btn.parentElement.querySelector('.text-amber-300');
+    if (otEl) otEl.textContent = totalOT.toFixed(2);
+  }
+}
+
+function toggleSummary() {
+  state.showSummary = !state.showSummary;
+  render();
+}
+
+function prevWeek() {
+  if (!state.weekStart) return;
+  const d = strToDate(state.weekStart);
+  d.setDate(d.getDate() - 7);
+  loadWeek(dateToStr(d));
+}
+
+function nextWeek() {
+  if (!state.weekStart) return;
+  const d = strToDate(state.weekStart);
+  d.setDate(d.getDate() + 7);
+  loadWeek(dateToStr(d));
+}
+
+function setView(v) {
+  state.view = v;
+  if (v === 'history') loadHistory();
+  else render();
+}
+
+async function loadHistory() {
+  state.historyWeeks = [];
+  render();
+  // Load from local DB
+  const all = await dbGetAll('weeks');
+  state.historyWeeks = all.sort((a, b) => b.weekStart.localeCompare(a.weekStart));
+  // Also try API
+  if (navigator.onLine) {
+    try {
+      const remote = await apiGet('getWeeks');
+      if (Array.isArray(remote)) {
+        const local = new Set(state.historyWeeks.map(w => w.weekStart));
+        remote.forEach(r => { if (!local.has(r.weekStart)) state.historyWeeks.push(r); });
+        state.historyWeeks.sort((a, b) => b.weekStart.localeCompare(a.weekStart));
+      }
+    } catch (e) {}
+  }
+  render();
+}
+
+// ============================================================
+// CODE MODAL
+// ============================================================
+let filteredCodes = [...WORK_CODES];
+
+function openCodeModal(di, actId) {
+  const act = state.weekData.days[di].activities.find(a => a.id === actId);
+  codeModalCtx = { dayIndex: di, activityId: actId, selected: act ? [...act.codes] : [] };
+  filteredCodes = [...WORK_CODES];
+  document.getElementById('code-modal').classList.remove('hidden');
+  document.getElementById('code-search').value = '';
+  renderCodeList();
+  setTimeout(() => document.getElementById('code-search').focus(), 100);
+}
+
+function closeCodeModal() {
+  document.getElementById('code-modal').classList.add('hidden');
+}
+
+function confirmCodeSelection() {
+  const { dayIndex: di, activityId: actId, selected } = codeModalCtx;
+  const act = state.weekData.days[di].activities.find(a => a.id === actId);
+  if (act) {
+    act.codes = selected;
+    // Auto-set tasks count
+    if (selected.length > 1 && !act.tasks) act.tasks = String(selected.length);
+    scheduleAutoSave();
+    render();
+  }
+  closeCodeModal();
+}
+
+function filterCodes(q) {
+  const ql = q.toLowerCase();
+  filteredCodes = q ? WORK_CODES.filter(c => c.d.toLowerCase().includes(ql) || c.c.toLowerCase().includes(ql) || c.a.toLowerCase().includes(ql)) : [...WORK_CODES];
+  renderCodeList();
+}
+
+function renderCodeList() {
+  const el = document.getElementById('code-list');
+  const selected = new Set(codeModalCtx.selected.map(c => c.c));
+
+  // Group by activity
+  const groups = {};
+  filteredCodes.forEach(c => { (groups[c.a] = groups[c.a] || []).push(c); });
+
+  el.innerHTML = Object.entries(groups).map(([grp, codes]) => `
+    <div>
+      <div class="px-4 py-2 bg-gray-100 text-xs font-bold text-gray-500 uppercase tracking-wide sticky top-0">${grp}</div>
+      ${codes.map(c => {
+        const isSelected = selected.has(c.c);
+        return `<button onclick="toggleCode('${c.c}','${esc(c.d)}','${esc(c.a)}')"
+          class="w-full flex items-center gap-3 px-4 py-3 border-b border-gray-50 text-left active:bg-gray-100 ${isSelected ? 'bg-blue-50' : 'bg-white'}">
+          <span class="flex-shrink-0 w-5 h-5 rounded border-2 flex items-center justify-center ${isSelected ? 'bg-blue-600 border-blue-600 text-white' : 'border-gray-300'}">
+            ${isSelected ? '✓' : ''}
+          </span>
+          <span class="flex-1 min-w-0">
+            <span class="block text-sm text-gray-900">${c.d}</span>
+            <span class="text-xs font-mono text-blue-500">${c.c}</span>
+          </span>
+        </button>`;
+      }).join('')}
+    </div>`).join('');
+}
+
+function toggleCode(code, desc, activity) {
+  const sel = codeModalCtx.selected;
+  const idx = sel.findIndex(c => c.c === code);
+  if (idx >= 0) sel.splice(idx, 1);
+  else sel.push({ c: code, d: desc, a: activity });
+  renderCodeList();
+}
+
+// ============================================================
+// DATE MODAL
+// ============================================================
+function openDateModal() {
+  document.getElementById('week-date-input').value = state.weekStart || '';
+  document.getElementById('date-warning').classList.add('hidden');
+  document.getElementById('date-modal').classList.remove('hidden');
+}
+
+function closeDateModal() {
+  document.getElementById('date-modal').classList.add('hidden');
+}
+
+document.addEventListener('input', e => {
+  if (e.target.id === 'week-date-input') {
+    const val = e.target.value;
+    if (!val) return;
+    const d = strToDate(val);
+    const isFri = d.getDay() === 5;
+    document.getElementById('date-warning').classList.toggle('hidden', isFri);
+  }
+});
+
+function confirmDateSelection() {
+  const val = document.getElementById('week-date-input').value;
+  if (!val) return;
+  const friday = getNearestFriday(val);
+  closeDateModal();
+  loadWeek(friday);
+}
+
+// ============================================================
+// CONFIRM MODAL
+// ============================================================
+let confirmCallback = null;
+
+function showConfirm(title, msg, onOk) {
+  document.getElementById('confirm-title').textContent = title;
+  document.getElementById('confirm-msg').textContent = msg;
+  confirmCallback = onOk;
+  document.getElementById('confirm-modal').classList.remove('hidden');
+}
+
+function closeConfirm() {
+  document.getElementById('confirm-modal').classList.add('hidden');
+  confirmCallback = null;
+}
+
+document.getElementById('confirm-ok').addEventListener('click', () => {
+  if (confirmCallback) confirmCallback();
+  closeConfirm();
+});
+
+// ============================================================
+// EVENT DELEGATION
+// ============================================================
+function attachEvents() {
+  // Handled via inline handlers — no additional setup needed
+}
+
+// Online / offline handling
+window.addEventListener('online', () => {
+  if (state.syncStatus === 'pending' || state.syncStatus === 'error') syncNow();
+});
+
+window.addEventListener('offline', () => {
+  state.syncStatus = 'pending';
+  renderHeader();
+});
+
+// ============================================================
+// INIT
+// ============================================================
+async function init() {
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+  }
+
+  await initDB();
+
+  const friday = getCurrentFriday();
+  await loadWeek(dateToStr(friday));
+}
+
+init();
+</script>
+</body>
+</html>
