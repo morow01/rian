@@ -270,6 +270,38 @@
     .theme-toggle:hover {
       background: rgba(255, 255, 255, 0.1);
     }
+
+    /* Stepper Buttons */
+    .stepper-btn {
+      width: 44px;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      font-weight: bold;
+      border-radius: 12px;
+      transition: all 0.2s;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    .stepper-btn:active {
+      transform: scale(0.92);
+      opacity: 0.8;
+    }
+
+    .stepper-btn-minus {
+      background: var(--bg-page);
+      color: var(--text-secondary);
+      border: 1px solid var(--border);
+    }
+
+    .stepper-btn-plus {
+      background: var(--accent-light);
+      color: var(--accent);
+      border: 1px solid var(--accent);
+    }
   </style>
 </head>
 
@@ -332,7 +364,7 @@
     // ============================================================
     // CONFIG
     // ============================================================
-    const VERSION = '0.7';
+    const VERSION = '0.8';
     const API_URL = 'https://script.google.com/macros/s/AKfycbwHbuuctWpT1QWqQc8C1fINQyBJhssIIeh3duuQgAHiCpGBRUVnPEmUnDlEDu5mQbZk/exec';
     const DAY_NAMES = ['Friday', 'Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday'];
     const DB_NAME = 'timesheet-db';
@@ -937,15 +969,23 @@
     <div class="grid grid-cols-2 gap-2 mb-1">
       <div class="rounded-xl p-2" style="background:var(--bg-hours)">
         <label class="text-xs block mb-1" style="color:var(--text-muted)">Ordinary Hrs</label>
-        <input type="number" step="0.5" min="0" placeholder="0" value="${act.ordinary}"
-          class="w-full text-center font-bold text-lg bg-transparent outline-none border-b" style="color:var(--text-hours);border-color:var(--border-input)"
-          data-field="ordinary" data-act="${act.id}" data-day="${di}" oninput="updateField(this)">
+        <div class="flex items-center gap-2">
+          <button onclick="adjHrs(this, -0.5)" class="stepper-btn stepper-btn-minus" data-target="ordinary" data-act="${act.id}" data-day="${di}">−</button>
+          <input type="number" step="0.5" min="0" placeholder="0" value="${act.ordinary}"
+            class="flex-1 text-center font-bold text-lg bg-transparent outline-none border-b" style="color:var(--text-hours);border-color:var(--border-input)"
+            data-field="ordinary" data-act="${act.id}" data-day="${di}" oninput="updateField(this)">
+          <button onclick="adjHrs(this, 0.5)" class="stepper-btn stepper-btn-plus" data-target="ordinary" data-act="${act.id}" data-day="${di}">+</button>
+        </div>
       </div>
       <div class="rounded-xl p-2" style="background:var(--bg-ot)">
         <label class="text-xs block mb-1" style="color:var(--text-ot);opacity:0.8">Overtime Hrs</label>
-        <input type="number" step="0.5" min="0" placeholder="0" value="${act.overtime}"
-          class="w-full text-center font-bold text-lg bg-transparent outline-none border-b" style="color:var(--text-ot);border-color:var(--text-ot);border-opacity:0.3"
-          data-field="overtime" data-act="${act.id}" data-day="${di}" oninput="updateField(this)">
+        <div class="flex items-center gap-2">
+          <button onclick="adjHrs(this, -0.5)" class="stepper-btn stepper-btn-minus" data-target="overtime" data-act="${act.id}" data-day="${di}">−</button>
+          <input type="number" step="0.5" min="0" placeholder="0" value="${act.overtime}"
+            class="flex-1 text-center font-bold text-lg bg-transparent outline-none border-b" style="color:var(--text-ot);border-color:var(--text-ot);border-opacity:0.3"
+            data-field="overtime" data-act="${act.id}" data-day="${di}" oninput="updateField(this)">
+          <button onclick="adjHrs(this, 0.5)" class="stepper-btn stepper-btn-plus" data-target="overtime" data-act="${act.id}" data-day="${di}">+</button>
+        </div>
       </div>
     </div>
     <div class="flex items-center gap-3 px-1 pt-1 pb-0.5 text-xs" style="color:var(--text-muted)">
@@ -986,7 +1026,9 @@
       const day = state.weekData.days[parseInt(di)];
       const act = day.activities.find(a => a.id === actId);
       if (!act) return;
-      act[field] = el.value;
+
+      const val = el.value;
+      act[field] = val;
 
       // Live-update calculated displays when hours change
       if (field === 'ordinary' || field === 'overtime') {
@@ -1000,6 +1042,17 @@
         updateSummaryDisplay();
       }
       scheduleAutoSave();
+    }
+
+    function adjHrs(btn, delta) {
+      const { target, act: actId, day: di } = btn.dataset;
+      const input = document.querySelector(`input[data-field="${target}"][data-act="${actId}"][data-day="${di}"]`);
+      if (!input) return;
+
+      let val = parseFloat(input.value) || 0;
+      val = Math.max(0, val + delta);
+      input.value = val;
+      updateField(input);
     }
 
     function addActivity(di) {
