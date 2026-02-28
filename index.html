@@ -1582,11 +1582,12 @@
       border-color: var(--border-input);
     }
     .tbl-codes-cell { min-width: 160px; }
-    .tbl-codes-inner { display: flex; flex-wrap: wrap; gap: 3px; align-items: center; padding: 2px 0; }
-    .tbl-codes-inner .code-chip { white-space: nowrap; max-width: 240px; display: inline-flex; align-items: center; overflow: hidden; }
+    .tbl-codes-inner { display: flex; flex-direction: column; gap: 3px; align-items: stretch; padding: 2px 0; }
+    .tbl-codes-inner .code-chip { white-space: nowrap; width: 100%; display: inline-flex; align-items: center; overflow: hidden; box-sizing: border-box; }
     .tbl-codes-inner .code-chip .chip-desc { overflow: hidden; text-overflow: ellipsis; min-width: 0; flex: 1 1 auto; }
     .tbl-codes-inner .code-chip .chip-code { flex-shrink: 0; }
     .tbl-codes-inner .code-chip .chip-x { flex-shrink: 0; }
+    .tbl-codes-inner .tbl-add-code-btn { align-self: flex-start; }
     .tbl-add-code-btn {
       font-size: 11px;
       padding: 2px 7px;
@@ -1706,7 +1707,7 @@
     // ============================================================
     // CONFIG
     // ============================================================
-    const VERSION = '1.3.2';
+    const VERSION = '1.3.3';
     const API_URL = 'https://script.google.com/macros/s/AKfycbwHbuuctWpT1QWqQc8C1fINQyBJhssIIeh3duuQgAHiCpGBRUVnPEmUnDlEDu5mQbZk/exec';
     const DAY_NAMES = ['Friday', 'Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday'];
     const DB_NAME = 'timesheet-db';
