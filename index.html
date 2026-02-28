@@ -1479,7 +1479,7 @@
     // ============================================================
     // CONFIG
     // ============================================================
-    const VERSION = '1.1.0';
+    const VERSION = '1.1.1';
     const API_URL = 'https://script.google.com/macros/s/AKfycbwHbuuctWpT1QWqQc8C1fINQyBJhssIIeh3duuQgAHiCpGBRUVnPEmUnDlEDu5mQbZk/exec';
     const DAY_NAMES = ['Friday', 'Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday'];
     const DB_NAME = 'timesheet-db';
@@ -1996,17 +1996,22 @@
 
     function getEmailTheme() {
       const t = localStorage.getItem('theme') || document.documentElement.getAttribute('data-theme') || 'light';
+      // Each theme: hdr=header bg, hdrSub=header subtitle, chip=code badge bg, chipTxt=badge text,
+      // ord=ordinary hrs colour, ot=overtime colour, totBg=totals banner bg, totOrd/totOT=totals text,
+      // foot=footer bg, footTxt=footer text,
+      // outerBg=email outer bg, bodyBg=content area bg, cardBg=table/card bg,
+      // border=table border, labelTxt=section label, rowAlt=alternating row tint, txt=body text
       const map = {
-        light:        { hdr: '#1e3a8a', hdrSub: '#93c5fd', chip: '#1e3a8a', chipTxt: '#ffffff', ord: '#1e3a8a', ot: '#c2410c', totBg: '#1e3a8a', totOrd: '#ffffff', totOT: '#fbbf24', totSub: '#93c5fd', foot: '#e2e8f0', footTxt: '#94a3b8' },
-        dark:         { hdr: '#0c1425', hdrSub: '#60a5fa', chip: '#1e40af', chipTxt: '#ffffff', ord: '#3b82f6', ot: '#f97316', totBg: '#0c1425', totOrd: '#ffffff', totOT: '#fbbf24', totSub: '#60a5fa', foot: '#1e293b', footTxt: '#64748b' },
-        slate:        { hdr: '#1a2535', hdrSub: '#63b3ed', chip: '#2b6cb0', chipTxt: '#ffffff', ord: '#2b6cb0', ot: '#c2410c', totBg: '#1a2535', totOrd: '#ffffff', totOT: '#63b3ed', totSub: '#63b3ed', foot: '#cbd5e1', footTxt: '#64748b' },
-        'slate-dark': { hdr: '#0a1018', hdrSub: '#60a5fa', chip: '#1e3a5f', chipTxt: '#ffffff', ord: '#60a5fa', ot: '#f97316', totBg: '#0a1018', totOrd: '#ffffff', totOT: '#60a5fa', totSub: '#60a5fa', foot: '#1e293b', footTxt: '#64748b' },
-        lcd:          { hdr: '#4a6741', hdrSub: '#c8e6c0', chip: '#4a6741', chipTxt: '#d4e6c8', ord: '#3d5c36', ot: '#8b4513', totBg: '#3d5c36', totOrd: '#d4e6c8', totOT: '#c8e6c0', totSub: '#c8e6c0', foot: '#c8e6c0', footTxt: '#4a6741' },
-        gameboy:      { hdr: '#0F380F', hdrSub: '#9BBC0F', chip: '#0F380F', chipTxt: '#9BBC0F', ord: '#0F380F', ot: '#306230', totBg: '#0F380F', totOrd: '#9BBC0F', totOT: '#8BAC0F', totSub: '#9BBC0F', foot: '#9BBC0F', footTxt: '#0F380F' },
-        win31:        { hdr: '#000080', hdrSub: '#aaaaff', chip: '#000080', chipTxt: '#ffffff', ord: '#000080', ot: '#800000', totBg: '#000080', totOrd: '#ffffff', totOT: '#ffff00', totSub: '#aaaaff', foot: '#c0c0c0', footTxt: '#000000' },
-        gray:         { hdr: '#222222', hdrSub: '#aaaaaa', chip: '#333333', chipTxt: '#ffffff', ord: '#333333', ot: '#666666', totBg: '#222222', totOrd: '#ffffff', totOT: '#cccccc', totSub: '#aaaaaa', foot: '#dddddd', footTxt: '#666666' },
-        spectrum:     { hdr: '#0000D7', hdrSub: '#FFFF00', chip: '#0000D7', chipTxt: '#ffffff', ord: '#0000D7', ot: '#D70000', totBg: '#0000D7', totOrd: '#ffffff', totOT: '#FFFF00', totSub: '#FFFF00', foot: '#D7D7D7', footTxt: '#0000D7' },
-        apple:        { hdr: '#1D1D1F', hdrSub: '#86868b', chip: '#007AFF', chipTxt: '#ffffff', ord: '#007AFF', ot: '#FF3B30', totBg: '#1D1D1F', totOrd: '#ffffff', totOT: '#30D158', totSub: '#86868b', foot: '#f5f5f7', footTxt: '#86868b' },
+        light:        { hdr:'#1e3a8a', hdrSub:'#93c5fd', chip:'#1e3a8a', chipTxt:'#ffffff', ord:'#1e3a8a', ot:'#c2410c', totBg:'#1e3a8a', totOrd:'#ffffff', totOT:'#fbbf24', foot:'#e2e8f0', footTxt:'#94a3b8', outerBg:'#f1f5f9', bodyBg:'#f8fafc', cardBg:'#ffffff', border:'#e2e8f0', labelTxt:'#475569', rowAlt:'#f8fafc', txt:'#1a1a1a' },
+        dark:         { hdr:'#0c1425', hdrSub:'#60a5fa', chip:'#1e40af', chipTxt:'#ffffff', ord:'#60a5fa', ot:'#f97316', totBg:'#0c1425', totOrd:'#ffffff', totOT:'#fbbf24', foot:'#1e293b', footTxt:'#64748b', outerBg:'#0f1e2e', bodyBg:'#1a2a3a', cardBg:'#162032', border:'#2d4a6a', labelTxt:'#93c5fd', rowAlt:'#1e3048', txt:'#e2e8f0' },
+        slate:        { hdr:'#1a2535', hdrSub:'#63b3ed', chip:'#2b6cb0', chipTxt:'#ffffff', ord:'#2b6cb0', ot:'#c2410c', totBg:'#1a2535', totOrd:'#ffffff', totOT:'#63b3ed', foot:'#cbd5e1', footTxt:'#64748b', outerBg:'#e8eef5', bodyBg:'#f0f4f8', cardBg:'#ffffff', border:'#c8d8e8', labelTxt:'#2b6cb0', rowAlt:'#f0f4f8', txt:'#1a2535' },
+        'slate-dark': { hdr:'#0a1018', hdrSub:'#60a5fa', chip:'#1e3a5f', chipTxt:'#ffffff', ord:'#60a5fa', ot:'#f97316', totBg:'#0a1018', totOrd:'#ffffff', totOT:'#60a5fa', foot:'#1e293b', footTxt:'#64748b', outerBg:'#0a1018', bodyBg:'#0d1520', cardBg:'#111f30', border:'#1e3a5f', labelTxt:'#60a5fa', rowAlt:'#152033', txt:'#cbd5e1' },
+        lcd:          { hdr:'#4a6741', hdrSub:'#c8e6c0', chip:'#4a6741', chipTxt:'#d4e6c8', ord:'#3d5c36', ot:'#8b4513', totBg:'#3d5c36', totOrd:'#d4e6c8', totOT:'#c8e6c0', foot:'#c8e6c0', footTxt:'#4a6741', outerBg:'#b8d4b0', bodyBg:'#cce0c4', cardBg:'#ddeedd', border:'#8aab80', labelTxt:'#3d5c36', rowAlt:'#d4e8cc', txt:'#1a2e18' },
+        gameboy:      { hdr:'#0F380F', hdrSub:'#9BBC0F', chip:'#306230', chipTxt:'#9BBC0F', ord:'#306230', ot:'#0F380F', totBg:'#0F380F', totOrd:'#9BBC0F', totOT:'#8BAC0F', foot:'#8BAC0F', footTxt:'#0F380F', outerBg:'#9BBC0F', bodyBg:'#8BAC0F', cardBg:'#9BBC0F', border:'#306230', labelTxt:'#0F380F', rowAlt:'#8BAC0F', txt:'#0F380F' },
+        win31:        { hdr:'#000080', hdrSub:'#ffffff', chip:'#000080', chipTxt:'#ffffff', ord:'#000080', ot:'#800000', totBg:'#000080', totOrd:'#ffffff', totOT:'#ffff00', foot:'#c0c0c0', footTxt:'#000000', outerBg:'#008080', bodyBg:'#c0c0c0', cardBg:'#ffffff', border:'#808080', labelTxt:'#000080', rowAlt:'#e8e8e8', txt:'#000000' },
+        gray:         { hdr:'#222222', hdrSub:'#aaaaaa', chip:'#555555', chipTxt:'#ffffff', ord:'#333333', ot:'#888888', totBg:'#222222', totOrd:'#ffffff', totOT:'#cccccc', foot:'#dddddd', footTxt:'#666666', outerBg:'#e0e0e0', bodyBg:'#eeeeee', cardBg:'#ffffff', border:'#cccccc', labelTxt:'#444444', rowAlt:'#f5f5f5', txt:'#222222' },
+        spectrum:     { hdr:'#0000D7', hdrSub:'#FFFF00', chip:'#0000D7', chipTxt:'#ffffff', ord:'#0000D7', ot:'#D70000', totBg:'#0000D7', totOrd:'#ffffff', totOT:'#FFFF00', foot:'#D7D7D7', footTxt:'#0000D7', outerBg:'#D7D7D7', bodyBg:'#e8e8e8', cardBg:'#ffffff', border:'#0000D7', labelTxt:'#0000D7', rowAlt:'#f0f0f8', txt:'#000000' },
+        apple:        { hdr:'#1D1D1F', hdrSub:'#86868b', chip:'#007AFF', chipTxt:'#ffffff', ord:'#007AFF', ot:'#FF3B30', totBg:'#1D1D1F', totOrd:'#ffffff', totOT:'#30D158', foot:'#f5f5f7', footTxt:'#86868b', outerBg:'#f5f5f7', bodyBg:'#ffffff', cardBg:'#ffffff', border:'#d2d2d7', labelTxt:'#1D1D1F', rowAlt:'#f9f9fb', txt:'#1D1D1F' },
       };
       return map[t] || map.light;
     }
@@ -2026,9 +2031,9 @@
           <td style="padding:8px 12px;border-bottom:1px solid #f0f0f0;font-size:12px;">
             <span style="background:${C.chip};color:${C.chipTxt};padding:2px 8px;border-radius:8px;font-size:11px;font-weight:600;">${esc(r.code)}</span>
           </td>
-          <td style="padding:8px 12px;border-bottom:1px solid #f0f0f0;font-size:13px;color:#333;">${esc(r.description)}</td>
-          <td style="padding:8px 12px;border-bottom:1px solid #f0f0f0;font-size:13px;text-align:right;color:${C.ord};font-weight:700;">${r.ordinary.toFixed(2)}</td>
-          <td style="padding:8px 12px;border-bottom:1px solid #f0f0f0;font-size:13px;text-align:right;color:${C.ot};font-weight:700;">${r.overtime.toFixed(2)}</td>
+          <td style="padding:8px 12px;border-bottom:1px solid ${C.border};font-size:13px;color:${C.txt};">${esc(r.description)}</td>
+          <td style="padding:8px 12px;border-bottom:1px solid ${C.border};font-size:13px;text-align:right;color:${C.ord};font-weight:700;">${r.ordinary.toFixed(2)}</td>
+          <td style="padding:8px 12px;border-bottom:1px solid ${C.border};font-size:13px;text-align:right;color:${C.ot};font-weight:700;">${r.overtime.toFixed(2)}</td>
         </tr>`).join('');
 
       // Daily sections
@@ -2045,30 +2050,30 @@
           ).join('');
           actsHtml += `
             <tr>
-              <td style="padding:10px 14px;border-bottom:1px solid #f0f0f0;vertical-align:top;">
-                <div style="font-weight:600;font-size:14px;color:#1a1a1a;">${esc(act.description||'(no description)')}${act.location ? `<span style="color:#666;font-weight:400;"> &mdash; ${esc(act.location)}</span>` : ''}</div>
+              <td style="padding:10px 14px;border-bottom:1px solid ${C.border};vertical-align:top;">
+                <div style="font-weight:600;font-size:14px;color:${C.txt};">${esc(act.description||'(no description)')}${act.location ? `<span style="color:${C.labelTxt};font-weight:400;"> &mdash; ${esc(act.location)}</span>` : ''}</div>
                 ${act.codes.length ? `<div style="margin-top:5px;">${codesHtml}</div>` : ''}
-                ${act.notes ? `<div style="margin-top:5px;font-size:12px;color:#555;font-style:italic;">${esc(act.notes)}</div>` : ''}
+                ${act.notes ? `<div style="margin-top:5px;font-size:12px;color:${C.labelTxt};font-style:italic;">${esc(act.notes)}</div>` : ''}
               </td>
               <td style="padding:10px 14px;border-bottom:1px solid #f0f0f0;text-align:right;white-space:nowrap;vertical-align:top;">
                 <span style="font-size:13px;color:${C.ord};font-weight:600;">${ord}h</span>
               </td>
-              <td style="padding:10px 14px;border-bottom:1px solid #f0f0f0;text-align:right;white-space:nowrap;vertical-align:top;">
+              <td style="padding:10px 14px;border-bottom:1px solid ${C.border};text-align:right;white-space:nowrap;vertical-align:top;">
                 <span style="font-size:13px;color:${C.ot};font-weight:600;">${ot}h</span>
               </td>
             </tr>`;
         });
         daysHtml += `
-          <div style="margin-bottom:16px;border-radius:8px;overflow:hidden;border:1px solid #e2e8f0;">
-            <div style="background:${C.hdr};color:#fff;padding:9px 14px;font-size:13px;font-weight:700;letter-spacing:0.5px;">
-              ${esc(day.dayName.toUpperCase())} &nbsp;<span style="opacity:0.75;font-weight:400;">${esc(formatDate(day.date))}</span>
+          <div style="margin-bottom:16px;border-radius:8px;overflow:hidden;border:1px solid ${C.border};">
+            <div style="background:${C.hdr};color:${C.hdrSub};padding:9px 14px;font-size:13px;font-weight:700;letter-spacing:0.5px;">
+              ${esc(day.dayName.toUpperCase())} &nbsp;<span style="opacity:0.8;font-weight:400;">${esc(formatDate(day.date))}</span>
             </div>
-            <table width="100%" cellpadding="0" cellspacing="0" style="background:#fff;">
+            <table width="100%" cellpadding="0" cellspacing="0" style="background:${C.cardBg};">
               <thead>
-                <tr style="background:#f8fafc;">
-                  <th style="padding:7px 14px;text-align:left;font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;">Activity</th>
-                  <th style="padding:7px 14px;text-align:right;font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;">Ord</th>
-                  <th style="padding:7px 14px;text-align:right;font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;">OT</th>
+                <tr style="background:${C.rowAlt};">
+                  <th style="padding:7px 14px;text-align:left;font-size:11px;color:${C.labelTxt};text-transform:uppercase;letter-spacing:0.5px;">Activity</th>
+                  <th style="padding:7px 14px;text-align:right;font-size:11px;color:${C.labelTxt};text-transform:uppercase;letter-spacing:0.5px;">Ord</th>
+                  <th style="padding:7px 14px;text-align:right;font-size:11px;color:${C.labelTxt};text-transform:uppercase;letter-spacing:0.5px;">OT</th>
                 </tr>
               </thead>
               <tbody>${actsHtml}</tbody>
@@ -2076,35 +2081,35 @@
           </div>`;
       });
 
-      return `<!DOCTYPE html><html><body style="margin:0;padding:0;background:#f1f5f9;font-family:Arial,Helvetica,sans-serif;">
-        <table width="100%" cellpadding="0" cellspacing="0" style="background:#f1f5f9;padding:24px 0;">
+      return `<!DOCTYPE html><html><body style="margin:0;padding:0;background:${C.outerBg};font-family:Arial,Helvetica,sans-serif;">
+        <table width="100%" cellpadding="0" cellspacing="0" style="background:${C.outerBg};padding:24px 0;">
           <tr><td align="center">
             <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;">
 
               <!-- Header -->
               <tr><td style="background:${C.hdr};border-radius:10px 10px 0 0;padding:24px 28px;">
-                <div style="color:#fff;font-size:20px;font-weight:700;">Weekly Timesheet</div>
-                <div style="color:${C.hdrSub};font-size:14px;margin-top:4px;">${esc(range)}</div>
+                <div style="color:${C.hdrSub};font-size:20px;font-weight:700;">Weekly Timesheet</div>
+                <div style="color:${C.hdrSub};opacity:0.75;font-size:14px;margin-top:4px;">${esc(range)}</div>
               </td></tr>
 
               <!-- Body -->
-              <tr><td style="background:#f8fafc;padding:20px 28px;">
+              <tr><td style="background:${C.bodyBg};padding:20px 28px;">
 
                 <!-- Summary by Code — FIRST for easy copy-paste -->
-                <div style="font-size:13px;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">Summary by Code</div>
-                <table width="100%" cellpadding="0" cellspacing="0" style="background:#fff;border-radius:8px;border:1px solid #e2e8f0;overflow:hidden;margin-bottom:20px;">
+                <div style="font-size:13px;font-weight:700;color:${C.labelTxt};text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">Summary by Code</div>
+                <table width="100%" cellpadding="0" cellspacing="0" style="background:${C.cardBg};border-radius:8px;border:1px solid ${C.border};overflow:hidden;margin-bottom:20px;">
                   <thead>
-                    <tr style="background:#f8fafc;">
-                      <th style="padding:8px 12px;text-align:left;font-size:11px;color:#64748b;text-transform:uppercase;">Code</th>
-                      <th style="padding:8px 12px;text-align:left;font-size:11px;color:#64748b;text-transform:uppercase;">Description</th>
-                      <th style="padding:8px 12px;text-align:right;font-size:11px;color:#64748b;text-transform:uppercase;">Ordinary</th>
-                      <th style="padding:8px 12px;text-align:right;font-size:11px;color:#64748b;text-transform:uppercase;">Overtime</th>
+                    <tr style="background:${C.rowAlt};">
+                      <th style="padding:8px 12px;text-align:left;font-size:11px;color:${C.labelTxt};text-transform:uppercase;">Code</th>
+                      <th style="padding:8px 12px;text-align:left;font-size:11px;color:${C.labelTxt};text-transform:uppercase;">Description</th>
+                      <th style="padding:8px 12px;text-align:right;font-size:11px;color:${C.labelTxt};text-transform:uppercase;">Ordinary</th>
+                      <th style="padding:8px 12px;text-align:right;font-size:11px;color:${C.labelTxt};text-transform:uppercase;">Overtime</th>
                     </tr>
                   </thead>
                   <tbody>${summaryRows}</tbody>
                   <tfoot>
-                    <tr style="background:#f8fafc;">
-                      <td colspan="2" style="padding:10px 12px;font-size:13px;font-weight:700;color:#333;">TOTAL</td>
+                    <tr style="background:${C.rowAlt};">
+                      <td colspan="2" style="padding:10px 12px;font-size:13px;font-weight:700;color:${C.txt};">TOTAL</td>
                       <td style="padding:10px 12px;text-align:right;font-size:14px;font-weight:700;color:${C.ord};">${totalOrd.toFixed(2)}</td>
                       <td style="padding:10px 12px;text-align:right;font-size:14px;font-weight:700;color:${C.ot};">${totalOT.toFixed(2)}</td>
                     </tr>
@@ -2112,7 +2117,7 @@
                 </table>
 
                 <!-- Daily Breakdown -->
-                <div style="font-size:13px;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;">Daily Breakdown</div>
+                <div style="font-size:13px;font-weight:700;color:${C.labelTxt};text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;">Daily Breakdown</div>
                 ${daysHtml}
 
               </td></tr>
