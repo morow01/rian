@@ -1479,7 +1479,7 @@
     // ============================================================
     // CONFIG
     // ============================================================
-    const VERSION = '1.0.9';
+    const VERSION = '1.1.0';
     const API_URL = 'https://script.google.com/macros/s/AKfycbwHbuuctWpT1QWqQc8C1fINQyBJhssIIeh3duuQgAHiCpGBRUVnPEmUnDlEDu5mQbZk/exec';
     const DAY_NAMES = ['Friday', 'Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday'];
     const DB_NAME = 'timesheet-db';
@@ -1995,7 +1995,7 @@
     }
 
     function getEmailTheme() {
-      const t = document.documentElement.getAttribute('data-theme') || 'light';
+      const t = localStorage.getItem('theme') || document.documentElement.getAttribute('data-theme') || 'light';
       const map = {
         light:        { hdr: '#1e3a8a', hdrSub: '#93c5fd', chip: '#1e3a8a', chipTxt: '#ffffff', ord: '#1e3a8a', ot: '#c2410c', totBg: '#1e3a8a', totOrd: '#ffffff', totOT: '#fbbf24', totSub: '#93c5fd', foot: '#e2e8f0', footTxt: '#94a3b8' },
         dark:         { hdr: '#0c1425', hdrSub: '#60a5fa', chip: '#1e40af', chipTxt: '#ffffff', ord: '#3b82f6', ot: '#f97316', totBg: '#0c1425', totOrd: '#ffffff', totOT: '#fbbf24', totSub: '#60a5fa', foot: '#1e293b', footTxt: '#64748b' },
