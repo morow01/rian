@@ -1,4 +1,4 @@
-const CACHE = 'timesheet-v8';
+const CACHE = 'timesheet-v9';
 const ASSETS = [
   '/Time-Sheet---Claude-Cowork/',
   '/Time-Sheet---Claude-Cowork/index.html',
@@ -7,7 +7,12 @@ const ASSETS = [
 ];
 
 self.addEventListener('install', e => {
-  e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)));
+  e.waitUntil(
+    caches.open(CACHE).then(async c => {
+      // Cache each asset individually — one failure won't abort the whole install
+      await Promise.allSettled(ASSETS.map(url => c.add(url)));
+    })
+  );
   self.skipWaiting();
 });
 
