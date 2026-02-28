@@ -12,7 +12,7 @@
   <link rel="manifest" href="manifest.json">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link
-    href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&family=Share+Tech+Mono&family=Press+Start+2P&family=Silkscreen&family=VT323&family=Pixelify+Sans:wght@400..700&display=swap"
+    href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&family=Share+Tech+Mono&family=Press+Start+2P&family=Silkscreen&family=VT323&family=Pixelify+Sans:wght@400..700&family=Bitcount+Single+Mono&display=swap"
     rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
@@ -692,7 +692,7 @@
       --btn-add-bg: #c0d8ff;
       --btn-add-text: #0000e0;
       --overlay: rgba(0, 0, 0, 0.6);
-      --font-body: 'Pixelify Sans', sans-serif;
+      --font-body: 'Bitcount Single Mono', 'Pixelify Sans', sans-serif;
       --btn-danger-color: #ffffff;
       --btn-danger-bg: #ff0000;
       --btn-danger-border: #000000;
@@ -728,42 +728,26 @@
       border-radius: 0 !important;
     }
 
+    /* Entire Day Card is the main bordered box again */
     [data-theme="retro"] .day-card {
-      border-radius: 0 !important;
-      overflow: hidden !important;
-      /* Forces children (like headers) to not bleed out */
-      background: transparent !important;
-      /* Transparent so headers sit directly on page bg */
-      box-shadow: none !important;
-      /* Move shadow to the header / body */
-      border: none !important;
-      /* Move border to the header / body */
+      border: 2px solid #000000 !important;
+      box-shadow: 4px 4px 0 #000000 !important;
+      background: #f0f0f0 !important;
+      padding: 0 !important;
+      margin-bottom: 24px !important;
     }
 
     [data-theme="retro"] .day-header {
-      border-radius: 0 !important;
-      border: 2px solid #000000 !important;
-      box-shadow: 4px 4px 0 #000000 !important;
-      margin-bottom: 2px;
-      /* tiny gap if unexpanded */
+      border-bottom: 2px solid #000000 !important;
+      margin: 0 !important;
     }
 
-    /* When expanded, the day header loses its shadow to blend with the body */
-    [data-theme="retro"] .day-activities.expanded {
-      margin-top: -2px;
-      /* pull up to connect */
-    }
-
-    [data-theme="retro"] .day-header:has(+ .day-activities.expanded) {
-      box-shadow: none !important;
+    /* When collapsed, we don't need the bottom border on the header since the card itself has a border */
+    [data-theme="retro"] .day-activities.collapsed+.day-header,
+    [data-theme="retro"] .day-card:not(:has(.day-activities.expanded)) .day-header {
       border-bottom: none !important;
     }
 
-    [data-theme="retro"] .day-weekend .day-header {
-      border-radius: 0 !important;
-    }
-
-    [data-theme="retro"] .day-card,
     [data-theme="retro"] input[type="text"],
     [data-theme="retro"] textarea,
     [data-theme="retro"] .code-chip,
@@ -774,14 +758,11 @@
     }
 
     [data-theme="retro"] .day-activities {
-      border-left: 2px solid #000000;
-      border-right: 2px solid #000000;
-      border-bottom: 2px solid #000000;
-      border-top: none !important;
-      border-radius: 0 !important;
-      background: #f0f0f0 !important;
-      /* Ensure the card body itself has the proper background */
-      box-shadow: 4px 4px 0 #000000 !important;
+      border: none !important;
+      background: transparent !important;
+      box-shadow: none !important;
+      padding-top: 8px;
+      /* Give some breathing room when expanded */
     }
 
     [data-theme="retro"] .stepper-btn {
@@ -801,10 +782,6 @@
 
     [data-theme="retro"] .stepper-divider {
       display: none !important;
-    }
-
-    [data-theme="retro"] .day-header {
-      border-bottom: 2px solid #000000 !important;
     }
 
     /* Rainbow headers correctly ordered starting from Friday (di=0) */
