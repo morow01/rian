@@ -157,25 +157,87 @@
       --overlay: rgba(0,0,0,0.5);
     }
 
+    [data-theme="lcd"] {
+      /* Old-school Game Boy / LCD display aesthetic */
+      --bg-page: #718410;
+      --bg-card: #8bac0f;
+      --bg-card-alt: #7fa00c;
+      --bg-input: #82a20b;
+      --bg-header: #0f380f;
+      --bg-header-tab: #0a2808;
+      --bg-day-header: #9aba12;
+      --bg-day-header-we: #87a40e;
+      --bg-hours: #7fa00c;
+      --bg-ot: #6a8c08;
+      --bg-code-btn: rgba(15,56,15,0.22);
+      --bg-modal: #8bac0f;
+      --bg-modal-search: #7fa00c;
+      --bg-code-group: #718410;
+      --bg-code-item: #8bac0f;
+      --bg-code-item-sel: #9aba12;
+      --text-primary: #0f380f;
+      --text-secondary: #1a4a10;
+      --text-muted: #2a5a18;
+      --text-header: #8bac0f;
+      --text-header-sub: #4a6a08;
+      --text-day: #0f380f;
+      --text-day-we: #2a5a18;
+      --text-hours: #0f380f;
+      --text-ot: #1e4a00;
+      --text-input: #0f380f;
+      --accent: #0f380f;
+      --accent-light: rgba(15,56,15,0.2);
+      --accent-chip-bg: rgba(15,56,15,0.25);
+      --accent-chip-text: #0f380f;
+      --border: #306230;
+      --border-input: #3a6a20;
+      --border-day: #0f380f;
+      --border-day-we: #306230;
+      --border-dashed: #306230;
+      --shadow-card: 0 1px 4px rgba(0,0,0,0.2);
+      --shadow-card-hover: 0 4px 12px rgba(0,0,0,0.3);
+      --act-number-bg: #0f380f;
+      --act-number-text: #8bac0f;
+      --summary-even: #82a20b;
+      --tab-active: #8bac0f;
+      --tab-inactive: #3a6a20;
+      --btn-add-bg: rgba(15,56,15,0.22);
+      --btn-add-text: #0f380f;
+      --overlay: rgba(0,0,0,0.75);
+    }
+
     /* ===== THEME DROPDOWN ===== */
     .theme-menu-wrap {
       position: relative;
     }
-    .theme-menu-btn {
+    .hdr-icon-btn {
       background: none;
       border: none;
       cursor: pointer;
-      font-size: 16px;
-      padding: 5px 8px;
+      padding: 6px;
       border-radius: 8px;
       color: var(--text-header-sub);
       transition: background 0.2s;
       display: flex;
       align-items: center;
-      gap: 4px;
+      gap: 3px;
+      flex-shrink: 0;
+    }
+    .hdr-icon-btn:hover { background: rgba(255,255,255,0.12); }
+    .theme-menu-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 6px;
+      border-radius: 8px;
+      color: var(--text-header-sub);
+      transition: background 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 3px;
     }
     .theme-menu-btn:hover {
-      background: rgba(255,255,255,0.1);
+      background: rgba(255,255,255,0.12);
     }
     .theme-dropdown {
       position: absolute;
@@ -634,7 +696,7 @@
     // ============================================================
     // CONFIG
     // ============================================================
-    const VERSION = '0.9.6';
+    const VERSION = '0.9.7';
     const API_URL = 'https://script.google.com/macros/s/AKfycbwHbuuctWpT1QWqQc8C1fINQyBJhssIIeh3duuQgAHiCpGBRUVnPEmUnDlEDu5mQbZk/exec';
     const DAY_NAMES = ['Friday', 'Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday'];
     const DB_NAME = 'timesheet-db';
@@ -1149,6 +1211,7 @@
         { id: 'light', label: 'Light',  swatch: '#1e3a8a' },
         { id: 'dark',  label: 'Dark',   swatch: '#0c1425' },
         { id: 'slate', label: 'Slate',  swatch: '#1a2535' },
+        { id: 'lcd',   label: 'LCD',    swatch: '#0f380f' },
       ];
       const themeOptionsHtml = themes.map(t => `
         <button class="theme-option ${currentTheme === t.id ? 'active' : ''}" onclick="setTheme('${t.id}')">
@@ -1167,9 +1230,21 @@
         </div>
       </div>
       <button onclick="nextWeek()" style="color:var(--text-header-sub)" class="text-xl px-1 py-1 min-w-[36px]">›</button>
-      <button onclick="openDateModal()" style="color:var(--text-header-sub);border-color:var(--border)" class="text-sm px-2 py-1 border rounded-lg ml-1">📅</button>
+      <button onclick="openDateModal()" class="hdr-icon-btn" title="Jump to week">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>
+        </svg>
+      </button>
       <div class="theme-menu-wrap">
-        <button class="theme-menu-btn" onclick="toggleThemeMenu(event)" title="Choose theme">🎨 ▾</button>
+        <button class="theme-menu-btn" onclick="toggleThemeMenu(event)" title="Choose theme">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="9"/>
+            <path d="M12 3a9 9 0 0 1 0 18z" fill="currentColor" stroke="none"/>
+          </svg>
+          <svg width="8" height="8" viewBox="0 0 10 10" fill="currentColor">
+            <path d="M1 3l4 4 4-4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+          </svg>
+        </button>
         <div class="theme-dropdown" id="theme-dropdown">${themeOptionsHtml}</div>
       </div>
     </div>
@@ -1670,7 +1745,7 @@
     // ============================================================
     // THEME LOGIC
     // ============================================================
-    const THEME_META = { light: '#1e3a8a', dark: '#0c1425', slate: '#1a2535' };
+    const THEME_META = { light: '#1e3a8a', dark: '#0c1425', slate: '#1a2535', lcd: '#0f380f' };
 
     function initTheme() {
       const saved = localStorage.getItem('theme');
