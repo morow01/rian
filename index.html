@@ -1655,7 +1655,7 @@
     // ============================================================
     // CONFIG
     // ============================================================
-    const VERSION = '1.1.7';
+    const VERSION = '1.1.8';
     const API_URL = 'https://script.google.com/macros/s/AKfycbwHbuuctWpT1QWqQc8C1fINQyBJhssIIeh3duuQgAHiCpGBRUVnPEmUnDlEDu5mQbZk/exec';
     const DAY_NAMES = ['Friday', 'Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday'];
     const DB_NAME = 'timesheet-db';
@@ -2534,21 +2534,34 @@
   </div>`;
 
       return `
-<main class="pb-6 pt-2">
+<main class="pb-6">
   <div class="table-view-wrap">
     <table class="timesheet-table">
+      <colgroup>
+        <col style="width:72px">
+        <col style="width:60px">
+        <col style="width:22%">
+        <col style="width:16%">
+        <col style="width:18%">
+        <col style="width:60px">
+        <col style="width:60px">
+        <col style="width:52px">
+        <col style="width:64px">
+        <col style="width:64px">
+        <col style="width:32px">
+      </colgroup>
       <thead>
         <tr>
           <th>Day</th>
           <th>Date</th>
-          <th>How time was spent</th>
-          <th>Where time was spent</th>
-          <th>Code</th>
-          <th style="text-align:center">Ord Hrs</th>
-          <th style="text-align:center">OT Hrs</th>
-          <th style="text-align:center"># Tasks</th>
-          <th style="text-align:center">Hrs / Task</th>
-          <th style="text-align:center">OT / Task</th>
+          <th>Description</th>
+          <th>Location</th>
+          <th>Work Codes</th>
+          <th style="text-align:center">Ord</th>
+          <th style="text-align:center">OT</th>
+          <th style="text-align:center">Tasks</th>
+          <th style="text-align:center">Hrs/Task</th>
+          <th style="text-align:center">OT/Task</th>
           <th></th>
         </tr>
       </thead>
@@ -2608,8 +2621,8 @@
 
       const codesHtml = `<div class="tbl-codes-inner">
         ${act.codes.map(c => `
-          <span class="code-chip" style="font-size:11px;padding:1px 6px;">
-            ${c.d} <span class="font-mono" style="opacity:0.8">${c.c}</span>
+          <span class="code-chip" style="font-size:11px;padding:2px 6px;" title="${esc(c.d)}">
+            <span class="font-mono">${c.c}</span>
             <button onclick="removeCode('${act.id}',${di},'${c.c}')" class="ml-1 text-xs leading-none" style="color:var(--text-muted)">✕</button>
           </span>`).join('')}
         <button class="tbl-add-code-btn" onclick="openCodeModal(${di},'${act.id}')">${act.codes.length ? '✎' : '+ Code'}</button>
