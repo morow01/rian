@@ -1479,7 +1479,7 @@
     // ============================================================
     // CONFIG
     // ============================================================
-    const VERSION = '1.0.7';
+    const VERSION = '1.0.8';
     const API_URL = 'https://script.google.com/macros/s/AKfycbwHbuuctWpT1QWqQc8C1fINQyBJhssIIeh3duuQgAHiCpGBRUVnPEmUnDlEDu5mQbZk/exec';
     const DAY_NAMES = ['Friday', 'Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday'];
     const DB_NAME = 'timesheet-db';
@@ -1970,6 +1970,87 @@
     }
 
     // ============================================================
+    // EMAIL WEEKLY SUMMARY
+    // ============================================================
+    function buildEmailBody(weekData) {
+      if (!weekData) return 'No data for this week.';
+      const range = formatWeekRange(weekData.weekStart);
+      let lines = [];
+      lines.push('WEEKLY TIMESHEET SUMMARY');
+      lines.push('Week: ' + range);
+      lines.push('');
+
+      // Daily breakdown
+      lines.push('DAILY BREAKDOWN');
+      lines.push('===============');
+      weekData.days.forEach(day => {
+        const acts = day.activities.filter(a => a.description || a.codes.length || parseFloat(a.ordinary) > 0);
+        if (!acts.length) return;
+        lines.push('');
+        lines.push(day.dayName.toUpperCase() + ' ' + formatDate(day.date));
+        acts.forEach((act, i) => {
+          const desc = act.description || '(no description)';
+          const loc  = act.location  ? ' — ' + act.location : '';
+          const codes = act.codes.length ? act.codes.map(c => c.c).join(', ') : '';
+          const ord  = parseFloat(act.ordinary)  || 0;
+          const ot   = parseFloat(act.overtime)  || 0;
+          lines.push('  ' + (i + 1) + '. ' + desc + loc);
+          if (codes) lines.push('     Codes: ' + codes);
+          lines.push('     Ordinary: ' + ord.toFixed(2) + 'h  |  Overtime: ' + ot.toFixed(2) + 'h');
+          if (act.notes) lines.push('     Notes: ' + act.notes);
+        });
+      });
+
+      // Code summary
+      const summary = calcSummary(weekData);
+      if (summary.length) {
+        lines.push('');
+        lines.push('SUMMARY BY CODE');
+        lines.push('===============');
+        summary.forEach(r => {
+          lines.push(r.code + ' — ' + r.description + ':  ' + r.ordinary.toFixed(2) + 'h ordinary,  ' + r.overtime.toFixed(2) + 'h OT');
+        });
+      }
+
+      // Totals
+      const totalOrd = summary.reduce((s, r) => s + r.ordinary, 0);
+      const totalOT  = summary.reduce((s, r) => s + r.overtime, 0);
+      lines.push('');
+      lines.push('TOTALS');
+      lines.push('------');
+      lines.push('Total Ordinary : ' + totalOrd.toFixed(2) + ' hrs');
+      lines.push('Total Overtime : ' + totalOT.toFixed(2)  + ' hrs');
+      lines.push('');
+      lines.push('(Sent from Timesheet PWA v' + VERSION + ')');
+      return lines.join('\n');
+    }
+
+    function sendWeeklyEmail() {
+      if (!state.weekData) { showToast('No week data to send.'); return; }
+      const to      = 'morow01@gmail.com';
+      const subject = encodeURIComponent('Weekly Timesheet — ' + formatWeekRange(state.weekStart));
+      const body    = encodeURIComponent(buildEmailBody(state.weekData));
+      const mailto  = `mailto:${to}?subject=${subject}&body=${body}`;
+      window.location.href = mailto;
+      showToast('Opening email client…');
+    }
+
+    function showToast(msg, duration = 2800) {
+      let el = document.getElementById('toast-msg');
+      if (!el) {
+        el = document.createElement('div');
+        el.id = 'toast-msg';
+        el.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.82);color:#fff;padding:10px 20px;border-radius:24px;font-size:14px;z-index:9999;pointer-events:none;transition:opacity 0.3s';
+        document.body.appendChild(el);
+      }
+      el.textContent = msg;
+      el.style.opacity = '1';
+      clearTimeout(el._timer);
+      el._timer = setTimeout(() => { el.style.opacity = '0'; }, duration);
+    }
+    }
+
+    // ============================================================
     // RENDER
     // ============================================================
     function render() {
@@ -2041,6 +2122,7 @@
     <div class="flex" style="border-top:1px solid var(--border)">
       <button onclick="setView('week')" class="flex-1 py-2 text-sm font-medium" style="color:${state.view === 'week' ? 'var(--text-header)' : 'var(--tab-inactive)'};${state.view === 'week' ? 'border-bottom:2px solid var(--tab-active)' : ''}">Week</button>
       <button onclick="syncNow()" class="flex-1 py-2 text-sm font-medium" style="color:var(--tab-inactive)" title="Sync now">☁ Sync</button>
+      <button onclick="sendWeeklyEmail()" class="flex-1 py-2 text-sm font-medium" style="color:var(--tab-inactive)" title="Email weekly summary">✉ Email</button>
       <button onclick="setView('history')" class="flex-1 py-2 text-sm font-medium" style="color:${state.view === 'history' ? 'var(--text-header)' : 'var(--tab-inactive)'};${state.view === 'history' ? 'border-bottom:2px solid var(--tab-active)' : ''}">History</button>
     </div>
   </header>`;

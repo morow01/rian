@@ -1,4 +1,4 @@
-const CACHE = 'timesheet-v7';
+const CACHE = 'timesheet-v8';
 const ASSETS = [
   '/Time-Sheet---Claude-Cowork/',
   '/Time-Sheet---Claude-Cowork/index.html',
