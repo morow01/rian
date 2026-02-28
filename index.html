@@ -1439,19 +1439,23 @@
     @media (min-width: 768px) {
       .tbl-toggle-btn { display: flex !important; }
     }
+    /* When table mode is active, break out of the 2xl max-width cap */
+    #app.tbl-mode {
+      max-width: 100% !important;
+    }
     .table-view-wrap {
       overflow-x: auto;
-      padding: 8px 12px 24px;
+      padding: 0 0 24px;
     }
     .timesheet-table {
       width: 100%;
       border-collapse: collapse;
       font-size: 13px;
-      min-width: 860px;
+      min-width: 1100px;
       background: var(--bg-card);
     }
     .timesheet-table thead th {
-      padding: 8px 10px;
+      padding: 9px 12px;
       text-align: left;
       font-size: 11px;
       font-weight: 600;
@@ -1461,9 +1465,6 @@
       background: var(--bg-header);
       color: var(--text-header-sub);
       border-bottom: 2px solid var(--border);
-      position: sticky;
-      top: 56px;
-      z-index: 2;
     }
     .timesheet-table td {
       padding: 4px 8px;
@@ -1517,12 +1518,12 @@
       border-color: var(--border-input);
     }
     .tbl-num-input {
-      width: 50px;
+      width: 62px;
       background: transparent;
       border: 1px solid transparent;
       border-radius: 6px;
-      padding: 3px 4px;
-      font-size: 13px;
+      padding: 4px 6px;
+      font-size: 14px;
       font-weight: 700;
       text-align: center;
       outline: none;
@@ -1535,7 +1536,7 @@
       background: var(--bg-input);
       border-color: var(--border-input);
     }
-    .tbl-codes-cell { min-width: 140px; max-width: 220px; }
+    .tbl-codes-cell { min-width: 160px; }
     .tbl-codes-inner { display: flex; flex-wrap: wrap; gap: 3px; align-items: center; padding: 2px 0; }
     .tbl-add-code-btn {
       font-size: 11px;
@@ -1568,11 +1569,11 @@
       font-family: var(--font-body);
     }
     .tbl-calc {
-      font-size: 11px;
-      color: var(--text-muted);
+      font-size: 12px;
+      color: var(--text-secondary);
       text-align: center;
       white-space: nowrap;
-      min-width: 48px;
+      font-weight: 600;
     }
     .tbl-del-btn {
       color: var(--btn-danger-color, #ef4444);
@@ -1655,7 +1656,7 @@
     // ============================================================
     // CONFIG
     // ============================================================
-    const VERSION = '1.1.8';
+    const VERSION = '1.1.9';
     const API_URL = 'https://script.google.com/macros/s/AKfycbwHbuuctWpT1QWqQc8C1fINQyBJhssIIeh3duuQgAHiCpGBRUVnPEmUnDlEDu5mQbZk/exec';
     const DAY_NAMES = ['Friday', 'Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday'];
     const DB_NAME = 'timesheet-db';
@@ -2351,6 +2352,8 @@
     // ============================================================
     function render() {
       const app = document.getElementById('app');
+      // In table mode break out of the narrow max-w-2xl container
+      app.classList.toggle('tbl-mode', state.view === 'week' && state.layoutMode === 'table');
       app.innerHTML = renderHeader() + (state.view === 'week' ? renderWeekView() : renderHistoryView());
       attachEvents();
       // Auto-grow textareas that have existing content
@@ -2538,17 +2541,17 @@
   <div class="table-view-wrap">
     <table class="timesheet-table">
       <colgroup>
-        <col style="width:72px">
-        <col style="width:60px">
-        <col style="width:22%">
+        <col style="width:88px">
+        <col style="width:68px">
+        <col style="width:24%">
         <col style="width:16%">
-        <col style="width:18%">
-        <col style="width:60px">
-        <col style="width:60px">
-        <col style="width:52px">
-        <col style="width:64px">
-        <col style="width:64px">
-        <col style="width:32px">
+        <col style="width:20%">
+        <col style="width:72px">
+        <col style="width:72px">
+        <col style="width:58px">
+        <col style="width:78px">
+        <col style="width:78px">
+        <col style="width:36px">
       </colgroup>
       <thead>
         <tr>
