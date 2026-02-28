@@ -324,21 +324,23 @@
       --btn-danger-border: rgba(15,56,15,0.4);
     }
     /* Scale down — Press Start 2P renders visually large, override all sizes */
-    [data-theme="gameboy"] body { font-size: 9px; }
+    [data-theme="gameboy"] body { font-size: 10px; }
     [data-theme="gameboy"] .field-label,
-    [data-theme="gameboy"] .stepper-label { font-size: 6px; letter-spacing: 0.03em; }
+    [data-theme="gameboy"] .stepper-label { font-size: 7px; letter-spacing: 0.03em; }
     /* Override inline font-size:13px on textareas and text inputs */
     [data-theme="gameboy"] textarea,
-    [data-theme="gameboy"] input[type="text"] { font-size: 9px !important; }
+    [data-theme="gameboy"] input[type="text"] { font-size: 10px !important; }
     /* Stepper number — override text-lg (18px) */
-    [data-theme="gameboy"] input[type="number"] { font-size: 12px !important; }
+    [data-theme="gameboy"] input[type="number"] { font-size: 13px !important; }
     /* Buttons, chips, general small text */
     [data-theme="gameboy"] .text-sm,
-    [data-theme="gameboy"] .text-xs { font-size: 8px !important; }
-    [data-theme="gameboy"] .text-base { font-size: 9px !important; }
-    [data-theme="gameboy"] .text-lg { font-size: 12px !important; }
-    [data-theme="gameboy"] .text-xl { font-size: 13px !important; }
-    [data-theme="gameboy"] .code-chip { font-size: 7px; }
+    [data-theme="gameboy"] .text-xs { font-size: 9px !important; }
+    [data-theme="gameboy"] .text-base { font-size: 10px !important; }
+    [data-theme="gameboy"] .text-lg { font-size: 13px !important; }
+    [data-theme="gameboy"] .text-xl { font-size: 14px !important; }
+    [data-theme="gameboy"] .code-chip { font-size: 8px; }
+    /* Placeholder text — use dark green so it's visible on the green inputs */
+    [data-theme="gameboy"] ::placeholder { color: #306230 !important; opacity: 1; }
 
     /* ===== THEME DROPDOWN ===== */
     .theme-menu-wrap {
@@ -830,7 +832,7 @@
     // ============================================================
     // CONFIG
     // ============================================================
-    const VERSION = '1.0.1';
+    const VERSION = '1.0.2';
     const API_URL = 'https://script.google.com/macros/s/AKfycbwHbuuctWpT1QWqQc8C1fINQyBJhssIIeh3duuQgAHiCpGBRUVnPEmUnDlEDu5mQbZk/exec';
     const DAY_NAMES = ['Friday', 'Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday'];
     const DB_NAME = 'timesheet-db';
