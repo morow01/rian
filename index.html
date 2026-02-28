@@ -1448,10 +1448,10 @@
       padding: 0 0 24px;
     }
     .timesheet-table {
-      width: 100%;
+      width: 1280px;
       border-collapse: collapse;
+      table-layout: fixed;
       font-size: 13px;
-      min-width: 1100px;
       background: var(--bg-card);
     }
     .timesheet-table thead th {
@@ -1465,6 +1465,20 @@
       background: var(--bg-header);
       color: var(--text-header-sub);
       border-bottom: 2px solid var(--border);
+      position: relative;
+      overflow: hidden;
+      user-select: none;
+    }
+    .col-resize-handle {
+      position: absolute;
+      top: 0; right: 0;
+      width: 5px; height: 100%;
+      cursor: col-resize;
+      z-index: 3;
+    }
+    .col-resize-handle:hover,
+    .col-resize-handle.col-resizing {
+      background: rgba(255,255,255,0.35);
     }
     .timesheet-table td {
       padding: 4px 8px;
@@ -1656,7 +1670,7 @@
     // ============================================================
     // CONFIG
     // ============================================================
-    const VERSION = '1.1.9';
+    const VERSION = '1.2.0';
     const API_URL = 'https://script.google.com/macros/s/AKfycbwHbuuctWpT1QWqQc8C1fINQyBJhssIIeh3duuQgAHiCpGBRUVnPEmUnDlEDu5mQbZk/exec';
     const DAY_NAMES = ['Friday', 'Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday'];
     const DB_NAME = 'timesheet-db';
@@ -1915,6 +1929,8 @@
       showSummary: false,
       expandedDays: new Set(),  // track which day indices are expanded
       layoutMode: localStorage.getItem('layoutMode') || 'card',  // 'card' | 'table'
+      // Column widths for table view [Day,Date,Desc,Loc,Codes,Ord,OT,Tasks,Hrs/T,OT/T,Del]
+      tableColWidths: JSON.parse(localStorage.getItem('tableColWidths') || 'null') || [88,68,280,180,220,76,76,58,80,80,36],
     };
 
     let codeModalCtx = { dayIndex: null, activityId: null, selected: [] };
@@ -2541,30 +2557,20 @@
   <div class="table-view-wrap">
     <table class="timesheet-table">
       <colgroup>
-        <col style="width:88px">
-        <col style="width:68px">
-        <col style="width:24%">
-        <col style="width:16%">
-        <col style="width:20%">
-        <col style="width:72px">
-        <col style="width:72px">
-        <col style="width:58px">
-        <col style="width:78px">
-        <col style="width:78px">
-        <col style="width:36px">
+        ${state.tableColWidths.map(w => `<col style="width:${w}px">`).join('')}
       </colgroup>
       <thead>
         <tr>
-          <th>Day</th>
-          <th>Date</th>
-          <th>Description</th>
-          <th>Location</th>
-          <th>Work Codes</th>
-          <th style="text-align:center">Ord</th>
-          <th style="text-align:center">OT</th>
-          <th style="text-align:center">Tasks</th>
-          <th style="text-align:center">Hrs/Task</th>
-          <th style="text-align:center">OT/Task</th>
+          <th>Day<div class="col-resize-handle" data-col="0"></div></th>
+          <th>Date<div class="col-resize-handle" data-col="1"></div></th>
+          <th>Description<div class="col-resize-handle" data-col="2"></div></th>
+          <th>Location<div class="col-resize-handle" data-col="3"></div></th>
+          <th>Work Codes<div class="col-resize-handle" data-col="4"></div></th>
+          <th style="text-align:center">Ord<div class="col-resize-handle" data-col="5"></div></th>
+          <th style="text-align:center">OT<div class="col-resize-handle" data-col="6"></div></th>
+          <th style="text-align:center">Tasks<div class="col-resize-handle" data-col="7"></div></th>
+          <th style="text-align:center">Hrs/Task<div class="col-resize-handle" data-col="8"></div></th>
+          <th style="text-align:center">OT/Task<div class="col-resize-handle" data-col="9"></div></th>
           <th></th>
         </tr>
       </thead>
@@ -2660,6 +2666,39 @@
       <td>
         <button class="tbl-del-btn" onclick="showConfirm('Delete activity?','${esc(act.description || 'Unnamed')}',()=>removeActivity('${act.id}',${di}))" title="Delete">✕</button>
       </td>`;
+    }
+
+    function initTableResize() {
+      const table = document.querySelector('.timesheet-table');
+      if (!table) return;
+      table.querySelectorAll('.col-resize-handle').forEach(handle => {
+        handle.addEventListener('mousedown', e => {
+          e.preventDefault();
+          const colIdx = parseInt(handle.dataset.col);
+          const cols = table.querySelectorAll('col');
+          const col = cols[colIdx];
+          if (!col) return;
+          const startX = e.clientX;
+          const startW = parseInt(col.style.width) || col.offsetWidth;
+          handle.classList.add('col-resizing');
+          function onMove(e) {
+            const newW = Math.max(40, startW + (e.clientX - startX));
+            col.style.width = newW + 'px';
+            const total = Array.from(cols).reduce((s, c) => s + (parseInt(c.style.width) || 0), 0);
+            table.style.width = Math.max(1280, total) + 'px';
+          }
+          function onUp() {
+            handle.classList.remove('col-resizing');
+            const widths = Array.from(cols).map(c => parseInt(c.style.width) || 0);
+            state.tableColWidths = widths;
+            localStorage.setItem('tableColWidths', JSON.stringify(widths));
+            document.removeEventListener('mousemove', onMove);
+            document.removeEventListener('mouseup', onUp);
+          }
+          document.addEventListener('mousemove', onMove);
+          document.addEventListener('mouseup', onUp);
+        });
+      });
     }
 
     function calcDayTotals(day) {
@@ -3086,7 +3125,9 @@
     // EVENT DELEGATION
     // ============================================================
     function attachEvents() {
-      // Handled via inline handlers — no additional setup needed
+      if (state.view === 'week' && state.layoutMode === 'table') {
+        initTableResize();
+      }
     }
 
     // Online / offline handling
