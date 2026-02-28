@@ -48,6 +48,7 @@
       --border-day: #1e3a8a;
       --border-day-we: #9ca3af;
       --border-dashed: #e2e8f0;
+      --text-input: #474747;
       --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.06);
       --shadow-card-hover: 0 4px 12px rgba(0, 0, 0, 0.08);
       --act-number-bg: #1e3a8a;
@@ -95,6 +96,7 @@
       --border-day: #14b8a6;
       --border-day-we: #475569;
       --border-dashed: #334155;
+      --text-input: #b8c4d8;
       --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.3);
       --shadow-card-hover: 0 6px 20px rgba(0, 0, 0, 0.4);
       --act-number-bg: #14b8a6;
@@ -142,6 +144,7 @@
       --border-day: #4a6fa5;
       --border-day-we: #a0aec0;
       --border-dashed: #e2e8f0;
+      --text-input: #474747;
       --shadow-card: 0 1px 4px rgba(0,0,0,0.07);
       --shadow-card-hover: 0 4px 16px rgba(0,0,0,0.1);
       --act-number-bg: #2b6cb0;
@@ -472,6 +475,43 @@
       display: block;
       padding-left: 2px;
     }
+    .location-wrap { position: relative; }
+    .town-dropdown {
+      display: none;
+      position: absolute;
+      top: calc(100% + 4px);
+      left: 0; right: 0;
+      background: var(--bg-modal);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.13);
+      z-index: 200;
+      max-height: 220px;
+      overflow-y: auto;
+    }
+    .town-option {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 9px 12px;
+      cursor: pointer;
+      font-size: 13px;
+      color: var(--text-primary);
+      border-bottom: 1px solid var(--border);
+    }
+    .town-option:last-child { border-bottom: none; }
+    .town-option:hover { background: var(--bg-card-alt); }
+    .town-option .t-code {
+      font-family: monospace;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--accent);
+      background: var(--bg-code-btn);
+      padding: 2px 6px;
+      border-radius: 5px;
+      flex-shrink: 0;
+      margin-left: 8px;
+    }
     .stepper-row {
       display: flex;
       align-items: stretch;
@@ -594,7 +634,7 @@
     // ============================================================
     // CONFIG
     // ============================================================
-    const VERSION = '0.9.5';
+    const VERSION = '0.9.6';
     const API_URL = 'https://script.google.com/macros/s/AKfycbwHbuuctWpT1QWqQc8C1fINQyBJhssIIeh3duuQgAHiCpGBRUVnPEmUnDlEDu5mQbZk/exec';
     const DAY_NAMES = ['Friday', 'Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday'];
     const DB_NAME = 'timesheet-db';
@@ -605,6 +645,67 @@
     // Edit codes.xlsx, run update-codes.py, then push to deploy changes
     // ============================================================
     let WORK_CODES = [];
+
+    // ============================================================
+    // TOWNS AUTOCOMPLETE
+    // ============================================================
+    let TOWNS = [];
+    const _townResults = {};
+
+    async function loadTowns() {
+      try {
+        const res = await fetch('towns.json?v=' + VERSION);
+        if (!res.ok) throw new Error('fetch failed');
+        TOWNS = await res.json();
+      } catch (_) {
+        TOWNS = [];
+      }
+    }
+
+    function townSearch(input) {
+      const actId = input.dataset.act;
+      const dd = document.getElementById('td-' + actId);
+      if (!dd) return;
+      const q = input.value.trim().toLowerCase();
+      if (!q) { dd.style.display = 'none'; return; }
+
+      const results = TOWNS.filter(t =>
+        t.name.toLowerCase().includes(q) ||
+        t.code.toLowerCase().startsWith(q)
+      ).slice(0, 10);
+
+      _townResults[actId] = results;
+
+      if (!results.length) { dd.style.display = 'none'; return; }
+
+      const di = input.dataset.day;
+      dd.innerHTML = results.map((t, i) =>
+        `<div class="town-option" onmousedown="selectTown('${actId}','${di}',${i})">
+          <span>${esc(t.name)}</span>
+          <span class="t-code">${esc(t.code)}</span>
+        </div>`
+      ).join('');
+      dd.style.display = 'block';
+    }
+
+    function selectTown(actId, di, idx) {
+      const t = (_townResults[actId] || [])[idx];
+      if (!t) return;
+      const input = document.querySelector(`input[data-field="location"][data-act="${actId}"]`);
+      if (input) {
+        input.value = t.name + ' (' + t.code + ')';
+        updateField(input);
+      }
+      const dd = document.getElementById('td-' + actId);
+      if (dd) dd.style.display = 'none';
+    }
+
+    function closeTownDd(input) {
+      setTimeout(() => {
+        const dd = document.getElementById('td-' + input.dataset.act);
+        if (dd) dd.style.display = 'none';
+      }, 150);
+    }
 
     async function loadCodes() {
       try {
@@ -1205,14 +1306,21 @@
     <div class="mb-2">
       <span class="field-label">Description</span>
       <textarea placeholder="Description of work" rows="2"
-        class="w-full rounded-lg px-3 py-2 text-sm outline-none" style="background:var(--bg-input);border:1px solid var(--border-input);color:var(--text-primary);resize:none;overflow:hidden;min-height:44px"
+        class="w-full rounded-lg px-3 py-2 outline-none" style="font-size:13px;background:var(--bg-input);border:1px solid var(--border-input);color:var(--text-input);resize:none;overflow:hidden;min-height:44px"
         data-field="description" data-act="${act.id}" data-day="${di}" oninput="updateField(this);autoGrow(this)">${esc(act.description)}</textarea>
     </div>
     <div class="mb-2">
       <span class="field-label">Location</span>
-      <input type="text" placeholder="Town / Site" value="${esc(act.location)}"
-        class="w-full rounded-lg px-3 py-2 text-sm outline-none" style="background:var(--bg-input);border:1px solid var(--border-input)"
-        data-field="location" data-act="${act.id}" data-day="${di}" oninput="updateField(this)">
+      <div class="location-wrap">
+        <input type="text" placeholder="Town name or code…" value="${esc(act.location)}"
+          class="w-full rounded-lg px-3 py-2 outline-none" style="font-size:13px;background:var(--bg-input);border:1px solid var(--border-input);color:var(--text-input)"
+          data-field="location" data-act="${act.id}" data-day="${di}"
+          autocomplete="off" spellcheck="false"
+          oninput="updateField(this);townSearch(this)"
+          onfocus="townSearch(this)"
+          onblur="closeTownDd(this)">
+        <div class="town-dropdown" id="td-${act.id}"></div>
+      </div>
     </div>
     <span class="field-label">Work Codes</span>
     ${codesSection}
@@ -1255,7 +1363,7 @@
     </div>
     <span class="field-label">Notes</span>
     <textarea placeholder="Notes…" rows="2"
-      class="w-full rounded-lg px-3 py-2 text-sm outline-none" style="background:var(--bg-input);border:1px solid var(--border-input);color:var(--text-primary);resize:none;overflow:hidden;min-height:60px"
+      class="w-full rounded-lg px-3 py-2 outline-none" style="font-size:13px;background:var(--bg-input);border:1px solid var(--border-input);color:var(--text-input);resize:none;overflow:hidden;min-height:60px"
       data-field="notes" data-act="${act.id}" data-day="${di}" oninput="updateField(this);autoGrow(this)">${esc(act.notes || '')}</textarea>
     <div class="flex justify-end pt-2">
       <button onclick="showConfirm('Delete activity?','${esc(act.description || 'Unnamed')}${act.location ? ' — ' + esc(act.location) : ''}',()=>removeActivity('${act.id}',${di}))"
@@ -1603,7 +1711,7 @@
         navigator.serviceWorker.register('sw.js').catch(() => { });
       }
 
-      await Promise.all([initDB(), loadCodes()]);
+      await Promise.all([initDB(), loadCodes(), loadTowns()]);
 
       const friday = getCurrentFriday();
       await loadWeek(dateToStr(friday));

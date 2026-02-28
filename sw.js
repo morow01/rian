@@ -1,8 +1,9 @@
-const CACHE = 'timesheet-v6';
+const CACHE = 'timesheet-v7';
 const ASSETS = [
   '/Time-Sheet---Claude-Cowork/',
   '/Time-Sheet---Claude-Cowork/index.html',
   '/Time-Sheet---Claude-Cowork/codes.json',
+  '/Time-Sheet---Claude-Cowork/towns.json',
 ];
 
 self.addEventListener('install', e => {
