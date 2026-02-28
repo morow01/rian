@@ -1433,6 +1433,166 @@
       -moz-appearance: textfield;
       appearance: textfield;
     }
+
+    /* ===== DESKTOP SPREADSHEET TABLE VIEW ===== */
+    .tbl-toggle-btn { display: none !important; }
+    @media (min-width: 768px) {
+      .tbl-toggle-btn { display: flex !important; }
+    }
+    .table-view-wrap {
+      overflow-x: auto;
+      padding: 8px 12px 24px;
+    }
+    .timesheet-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      min-width: 860px;
+      background: var(--bg-card);
+    }
+    .timesheet-table thead th {
+      padding: 8px 10px;
+      text-align: left;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      white-space: nowrap;
+      background: var(--bg-header);
+      color: var(--text-header-sub);
+      border-bottom: 2px solid var(--border);
+      position: sticky;
+      top: 56px;
+      z-index: 2;
+    }
+    .timesheet-table td {
+      padding: 4px 8px;
+      vertical-align: middle;
+      border-bottom: 1px solid var(--border);
+      color: var(--text-primary);
+    }
+    .tbl-day-cell {
+      font-weight: 700;
+      font-size: 12px;
+      color: var(--text-day) !important;
+      white-space: nowrap;
+      border-right: 3px solid var(--border-day);
+      background: var(--bg-day-header) !important;
+      text-align: center;
+      padding: 6px 10px !important;
+      min-width: 72px;
+    }
+    .tbl-date-cell {
+      font-size: 11px;
+      color: var(--text-muted) !important;
+      white-space: nowrap;
+      background: var(--bg-day-header) !important;
+      text-align: center;
+      padding: 6px 8px !important;
+      min-width: 56px;
+    }
+    .tbl-we .tbl-day-cell {
+      color: var(--text-day-we) !important;
+      border-right-color: var(--border-day-we);
+      background: var(--bg-day-header-we) !important;
+    }
+    .tbl-we .tbl-date-cell {
+      background: var(--bg-day-header-we) !important;
+    }
+    .tbl-act-input {
+      width: 100%;
+      background: transparent;
+      border: 1px solid transparent;
+      border-radius: 6px;
+      padding: 3px 7px;
+      font-size: 13px;
+      color: var(--text-input);
+      font-family: var(--font-body);
+      outline: none;
+      min-width: 120px;
+      transition: border-color 0.15s, background 0.15s;
+    }
+    .tbl-act-input:focus, .tbl-act-input:hover {
+      background: var(--bg-input);
+      border-color: var(--border-input);
+    }
+    .tbl-num-input {
+      width: 50px;
+      background: transparent;
+      border: 1px solid transparent;
+      border-radius: 6px;
+      padding: 3px 4px;
+      font-size: 13px;
+      font-weight: 700;
+      text-align: center;
+      outline: none;
+      color: var(--text-hours);
+      font-family: var(--font-body);
+      transition: border-color 0.15s, background 0.15s;
+    }
+    .tbl-ot-input { color: var(--text-ot); }
+    .tbl-num-input:focus, .tbl-num-input:hover {
+      background: var(--bg-input);
+      border-color: var(--border-input);
+    }
+    .tbl-codes-cell { min-width: 140px; max-width: 220px; }
+    .tbl-codes-inner { display: flex; flex-wrap: wrap; gap: 3px; align-items: center; padding: 2px 0; }
+    .tbl-add-code-btn {
+      font-size: 11px;
+      padding: 2px 7px;
+      border-radius: 10px;
+      background: var(--bg-code-btn);
+      color: var(--accent);
+      border: 1px dashed var(--accent);
+      cursor: pointer;
+      white-space: nowrap;
+      font-family: var(--font-body);
+    }
+    .tbl-add-row td {
+      background: var(--bg-card-alt) !important;
+      padding: 5px 8px !important;
+      border-bottom: 2px solid var(--border) !important;
+    }
+    .tbl-we.tbl-add-row td {
+      background: var(--bg-day-header-we) !important;
+    }
+    .tbl-add-activity-btn {
+      font-size: 11px;
+      padding: 3px 12px;
+      border-radius: 10px;
+      background: var(--btn-add-bg);
+      color: var(--btn-add-text);
+      border: none;
+      cursor: pointer;
+      font-weight: 600;
+      font-family: var(--font-body);
+    }
+    .tbl-calc {
+      font-size: 11px;
+      color: var(--text-muted);
+      text-align: center;
+      white-space: nowrap;
+      min-width: 48px;
+    }
+    .tbl-del-btn {
+      color: var(--btn-danger-color, #ef4444);
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      padding: 2px 5px;
+      border-radius: 4px;
+      font-size: 14px;
+      line-height: 1;
+      opacity: 0.35;
+      transition: opacity 0.15s;
+    }
+    .tbl-del-btn:hover { opacity: 1; background: var(--btn-danger-bg, rgba(239,68,68,0.08)); }
+    .tbl-summary-section {
+      margin: 4px 12px 24px;
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
   </style>
 </head>
 
@@ -1495,7 +1655,7 @@
     // ============================================================
     // CONFIG
     // ============================================================
-    const VERSION = '1.1.6';
+    const VERSION = '1.1.7';
     const API_URL = 'https://script.google.com/macros/s/AKfycbwHbuuctWpT1QWqQc8C1fINQyBJhssIIeh3duuQgAHiCpGBRUVnPEmUnDlEDu5mQbZk/exec';
     const DAY_NAMES = ['Friday', 'Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday'];
     const DB_NAME = 'timesheet-db';
@@ -1753,6 +1913,7 @@
       historyWeeks: [],
       showSummary: false,
       expandedDays: new Set(),  // track which day indices are expanded
+      layoutMode: localStorage.getItem('layoutMode') || 'card',  // 'card' | 'table'
     };
 
     let codeModalCtx = { dayIndex: null, activityId: null, selected: [] };
@@ -2259,6 +2420,7 @@
       <button onclick="syncNow()" class="flex-1 py-2 text-sm font-medium" style="color:var(--tab-inactive)" title="Sync now">☁ Sync</button>
       <button onclick="sendWeeklyEmail()" class="flex-1 py-2 text-sm font-medium" style="color:var(--tab-inactive)" title="Email weekly summary">✉ Email</button>
       <button onclick="setView('history')" class="flex-1 py-2 text-sm font-medium" style="color:${state.view === 'history' ? 'var(--text-header)' : 'var(--tab-inactive)'};${state.view === 'history' ? 'border-bottom:2px solid var(--tab-active)' : ''}">History</button>
+      <button onclick="toggleLayoutMode()" class="tbl-toggle-btn flex-1 py-2 text-sm font-medium items-center justify-center gap-1" style="color:${state.layoutMode === 'table' ? 'var(--text-header)' : 'var(--tab-inactive)'};${state.layoutMode === 'table' ? 'border-bottom:2px solid var(--tab-active)' : ''}" title="Spreadsheet view">⊞ Table</button>
     </div>
   </header>`;
     }
@@ -2270,6 +2432,10 @@
 
     function renderWeekView() {
       if (!state.weekData) return `<div class="p-8 text-center" style="color:var(--text-muted)">Loading…</div>`;
+      return state.layoutMode === 'table' ? renderTableView() : renderCardView();
+    }
+
+    function renderCardView() {
       const summary = calcSummary(state.weekData);
       const totalOrd = summary.reduce((s, r) => s + r.ordinary, 0);
       const totalOT = summary.reduce((s, r) => s + r.overtime, 0);
@@ -2316,6 +2482,168 @@
   </div>`;
 
       return `<main class="pb-6 pt-2">${daysHtml}${summaryHtml}</main>`;
+    }
+
+    // ============================================================
+    // DESKTOP SPREADSHEET TABLE VIEW
+    // ============================================================
+    function renderTableView() {
+      const summary = calcSummary(state.weekData);
+      const totalOrd = summary.reduce((s, r) => s + r.ordinary, 0);
+      const totalOT = summary.reduce((s, r) => s + r.overtime, 0);
+
+      const rowsHtml = state.weekData.days.map((day, di) => renderTableDay(day, di)).join('');
+
+      const summaryHtml = `
+  <div class="tbl-summary-section">
+    <button onclick="toggleSummary()" class="w-full flex items-center justify-between px-4 py-3" style="background:var(--bg-header);color:var(--text-header)">
+      <span class="font-bold text-sm">Weekly Summary</span>
+      <span style="color:var(--text-header-sub)" class="text-sm">
+        <span class="font-mono">${totalOrd.toFixed(2)}</span> hrs &nbsp;
+        <span class="font-mono" style="color:var(--tab-active)">${totalOT.toFixed(2)}</span> OT
+        <span class="ml-2">${state.showSummary ? '▲' : '▼'}</span>
+      </span>
+    </button>
+    ${state.showSummary ? `
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead>
+          <tr style="background:var(--bg-card-alt);color:var(--text-secondary)" class="text-xs uppercase">
+            <th class="px-3 py-2 text-left">Code</th>
+            <th class="px-3 py-2 text-left">Description</th>
+            <th class="px-3 py-2 text-right">Ord</th>
+            <th class="px-3 py-2 text-right">OT</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${summary.map((row, i) => `
+          <tr class="summary-row" style="${i % 2 === 0 ? '' : 'background:var(--summary-even)'}">
+            <td class="px-3 py-2 font-mono text-xs whitespace-nowrap" style="color:var(--accent)">${row.code}</td>
+            <td class="px-3 py-2 text-xs" style="color:var(--text-secondary)">${row.description}</td>
+            <td class="px-3 py-2 text-right font-semibold" style="color:var(--text-primary)">${row.ordinary.toFixed(2)}</td>
+            <td class="px-3 py-2 text-right font-semibold" style="color:var(--text-ot)">${row.overtime > 0 ? row.overtime.toFixed(2) : '—'}</td>
+          </tr>`).join('')}
+          <tr class="font-bold text-sm" style="background:var(--bg-day-header)">
+            <td colspan="2" class="px-3 py-2" style="color:var(--text-day)">TOTAL</td>
+            <td class="px-3 py-2 text-right" style="color:var(--text-day)">${totalOrd.toFixed(2)}</td>
+            <td class="px-3 py-2 text-right" style="color:var(--text-ot)">${totalOT.toFixed(2)}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>` : ''}
+  </div>`;
+
+      return `
+<main class="pb-6 pt-2">
+  <div class="table-view-wrap">
+    <table class="timesheet-table">
+      <thead>
+        <tr>
+          <th>Day</th>
+          <th>Date</th>
+          <th>How time was spent</th>
+          <th>Where time was spent</th>
+          <th>Code</th>
+          <th style="text-align:center">Ord Hrs</th>
+          <th style="text-align:center">OT Hrs</th>
+          <th style="text-align:center"># Tasks</th>
+          <th style="text-align:center">Hrs / Task</th>
+          <th style="text-align:center">OT / Task</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>${rowsHtml}</tbody>
+    </table>
+  </div>
+  ${summaryHtml}
+</main>`;
+    }
+
+    function renderTableDay(day, di) {
+      const isWeekend = di === 1 || di === 2;
+      const weClass = isWeekend ? 'tbl-we' : '';
+      const activities = day.activities;
+      const dateStr = formatDate(day.date);
+
+      if (activities.length === 0) {
+        return `
+  <tr class="${weClass}">
+    <td class="tbl-day-cell" rowspan="2">${day.dayName}</td>
+    <td class="tbl-date-cell" rowspan="2">${dateStr}</td>
+    <td colspan="9" style="color:var(--text-muted);font-size:12px;font-style:italic;">No activities</td>
+  </tr>
+  <tr class="tbl-add-row ${weClass}">
+    <td colspan="9"><button class="tbl-add-activity-btn" onclick="addActivity(${di})">+ Add Activity</button></td>
+  </tr>`;
+      }
+
+      // rowspan = activities + 1 add-row
+      const rowspan = activities.length + 1;
+      let html = '';
+
+      activities.forEach((act, ai) => {
+        const isFirst = ai === 0;
+        html += `
+  <tr class="${weClass}">
+    ${isFirst ? `<td class="tbl-day-cell" rowspan="${rowspan}">${day.dayName}</td><td class="tbl-date-cell" rowspan="${rowspan}">${dateStr}</td>` : ''}
+    ${renderTableActivityCells(act, di)}
+  </tr>`;
+      });
+
+      // Add activity row
+      html += `
+  <tr class="tbl-add-row ${weClass}">
+    <td colspan="9"><button class="tbl-add-activity-btn" onclick="addActivity(${di})">+ Add Activity</button></td>
+  </tr>`;
+
+      return html;
+    }
+
+    function renderTableActivityCells(act, di) {
+      const numTasks = act.codes.length || 1;
+      const ordinary = parseFloat(act.ordinary) || 0;
+      const overtime = parseFloat(act.overtime) || 0;
+      const hrsPerTask = ordinary > 0 ? (ordinary / numTasks).toFixed(2) : '—';
+      const otPerTask = overtime > 0 ? (overtime / numTasks).toFixed(2) : '—';
+
+      const codesHtml = `<div class="tbl-codes-inner">
+        ${act.codes.map(c => `
+          <span class="code-chip" style="font-size:11px;padding:1px 6px;">
+            ${c.d} <span class="font-mono" style="opacity:0.8">${c.c}</span>
+            <button onclick="removeCode('${act.id}',${di},'${c.c}')" class="ml-1 text-xs leading-none" style="color:var(--text-muted)">✕</button>
+          </span>`).join('')}
+        <button class="tbl-add-code-btn" onclick="openCodeModal(${di},'${act.id}')">${act.codes.length ? '✎' : '+ Code'}</button>
+      </div>`;
+
+      return `
+      <td><input type="text" class="tbl-act-input" placeholder="Description…" value="${esc(act.description)}"
+        data-field="description" data-act="${act.id}" data-day="${di}" oninput="updateField(this)"></td>
+      <td>
+        <div class="location-wrap" style="position:relative">
+          <input type="text" class="tbl-act-input" placeholder="Location…" value="${esc(act.location)}"
+            data-field="location" data-act="${act.id}" data-day="${di}"
+            autocomplete="off" spellcheck="false"
+            oninput="updateField(this);townSearch(this)"
+            onfocus="townSearch(this)"
+            onblur="closeTownDd(this)">
+          <div class="town-dropdown" id="td-${act.id}"></div>
+        </div>
+      </td>
+      <td class="tbl-codes-cell">${codesHtml}</td>
+      <td style="text-align:center">
+        <input type="number" step="0.5" min="0" class="tbl-num-input" value="${act.ordinary || ''}" placeholder="0"
+          data-field="ordinary" data-act="${act.id}" data-day="${di}" oninput="updateField(this)">
+      </td>
+      <td style="text-align:center">
+        <input type="number" step="0.5" min="0" class="tbl-num-input tbl-ot-input" value="${act.overtime || ''}" placeholder="0"
+          data-field="overtime" data-act="${act.id}" data-day="${di}" oninput="updateField(this)">
+      </td>
+      <td class="tbl-calc">${numTasks}</td>
+      <td class="tbl-calc">${hrsPerTask}</td>
+      <td class="tbl-calc">${otPerTask}</td>
+      <td>
+        <button class="tbl-del-btn" onclick="showConfirm('Delete activity?','${esc(act.description || 'Unnamed')}',()=>removeActivity('${act.id}',${di}))" title="Delete">✕</button>
+      </td>`;
     }
 
     function calcDayTotals(day) {
@@ -2563,6 +2891,12 @@
 
     function toggleSummary() {
       state.showSummary = !state.showSummary;
+      render();
+    }
+
+    function toggleLayoutMode() {
+      state.layoutMode = state.layoutMode === 'table' ? 'card' : 'table';
+      localStorage.setItem('layoutMode', state.layoutMode);
       render();
     }
 
