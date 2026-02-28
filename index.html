@@ -699,21 +699,21 @@
       --btn-danger-border: #000000;
     }
 
-    /* Hard borders and shadows for Retro theme */
+    /* Hard borders and shadows for Retro theme - NO ROUNDED CORNERS */
     [data-theme="retro"] * {
-      border-radius: 8px !important;
+      border-radius: 0 !important;
     }
 
     [data-theme="retro"] .day-card {
-      border-radius: 12px !important;
+      border-radius: 0 !important;
     }
 
     [data-theme="retro"] .day-header {
-      border-radius: 12px 12px 0 0 !important;
+      border-radius: 0 !important;
     }
 
     [data-theme="retro"] .day-weekend .day-header {
-      border-radius: 12px 12px 0 0 !important;
+      border-radius: 0 !important;
     }
 
     [data-theme="retro"] .day-card,
@@ -721,7 +721,7 @@
     [data-theme="retro"] textarea,
     [data-theme="retro"] .code-chip,
     [data-theme="retro"] button:not(.hdr-icon-btn):not(.theme-menu-btn):not(.tab-btn),
-    [data-theme="retro"] .stepper-row {
+    [data-theme="retro"] .stepper-btn {
       border: 2px solid #000000 !important;
       box-shadow: 2px 2px 0 #000000 !important;
     }
@@ -734,25 +734,26 @@
       border-left: 2px solid #000000;
       border-right: 2px solid #000000;
       border-bottom: 2px solid #000000;
-      border-radius: 0 0 12px 12px !important;
+      border-radius: 0 !important;
     }
 
     [data-theme="retro"] .stepper-btn {
-      border: none !important;
-      box-shadow: none !important;
-    }
-
-    [data-theme="retro"] .stepper-divider {
-      background: #000000 !important;
-      width: 2px !important;
+      /* Handled above */
     }
 
     [data-theme="retro"] .stepper-row {
+      border: none !important;
       background: #00d5ff !important;
+      box-shadow: none !important;
+      gap: 4px;
     }
 
     [data-theme="retro"] .stepper-row.ot {
       background: #ffd700 !important;
+    }
+
+    [data-theme="retro"] .stepper-divider {
+      display: none !important;
     }
 
     [data-theme="retro"] .day-header {
@@ -790,9 +791,19 @@
     }
 
     /* Wed: Cyan */
+
+    /* Ensure text inside all light-colored headers is explicitly black */
+    [data-theme="retro"] .day-card[data-day-idx]:not([data-day-idx="6"]) .day-header * {
+      color: #000000 !important;
+    }
+
+    [data-theme="retro"] .day-card[data-day-idx]:not([data-day-idx="6"]) .day-header .expand-arrow {
+      color: #000000 !important;
+    }
+
+    /* Thursday is dark blue so text needs to be white */
     [data-theme="retro"] .day-card[data-day-idx="6"] .day-header {
       background: #0000ff !important;
-      color: #ffffff !important;
     }
 
     /* Thu: Blue */
