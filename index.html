@@ -12,7 +12,7 @@
   <link rel="manifest" href="manifest.json">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&family=Share+Tech+Mono&family=Press+Start+2P&family=Silkscreen&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&family=Share+Tech+Mono&family=Press+Start+2P&family=Silkscreen&family=VT323&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     /* ===== THEME VARIABLES ===== */
@@ -496,6 +496,127 @@
     /* Strip OT amber colour — use gray border instead */
     [data-theme="gray"] .stepper-row.ot { border-color: rgba(0,0,0,0.18) !important; }
     [data-theme="gray"] .stepper-row.ot .stepper-divider { background: rgba(0,0,0,0.1) !important; }
+
+    [data-theme="spectrum"] {
+      /* ZX Spectrum — black + 8 classic bright colours */
+      --bg-page: #000000;
+      --bg-card: #000000;
+      --bg-card-alt: #00001a;
+      --bg-input: #00001a;
+      --bg-header: #0000D7;
+      --bg-header-tab: #0000a0;
+      --bg-day-header: #000000;
+      --bg-day-header-we: #000000;
+      --bg-hours: #00001a;
+      --bg-ot: #000000;
+      --bg-code-btn: rgba(0,215,215,0.1);
+      --bg-modal: #000000;
+      --bg-modal-search: #00001a;
+      --bg-code-group: #00001a;
+      --bg-code-item: #000000;
+      --bg-code-item-sel: rgba(0,215,215,0.15);
+      --text-primary: #ffffff;
+      --text-secondary: #00D7D7;
+      --text-muted: #0000D7;
+      --text-header: #FFFF00;
+      --text-header-sub: #00D7D7;
+      --text-day: #00D7D7;
+      --text-day-we: #0000D7;
+      --text-hours: #00D700;
+      --text-ot: #D70000;
+      --text-input: #ffffff;
+      --accent: #00D7D7;
+      --accent-light: rgba(0,215,215,0.1);
+      --accent-chip-bg: rgba(0,215,215,0.15);
+      --accent-chip-text: #00D7D7;
+      --border: #0000D7;
+      --border-input: #00D7D7;
+      --border-day: #00D7D7;
+      --border-day-we: #0000D7;
+      --border-dashed: #0000D7;
+      --shadow-card: 0 0 0 1px #0000D7;
+      --shadow-card-hover: 0 0 0 1px #00D7D7;
+      --act-number-bg: #00D7D7;
+      --act-number-text: #000000;
+      --summary-even: #00001a;
+      --tab-active: #FFFF00;
+      --tab-inactive: #0000D7;
+      --btn-add-bg: rgba(0,215,215,0.1);
+      --btn-add-text: #00D7D7;
+      --overlay: rgba(0,0,0,0.88);
+      --font-body: 'VT323', monospace;
+      --btn-danger-color: #D70000;
+      --btn-danger-bg: rgba(215,0,0,0.1);
+      --btn-danger-border: rgba(215,0,0,0.35);
+    }
+    /* VT323 reads well at larger sizes */
+    [data-theme="spectrum"] body { font-size: 15px; }
+    [data-theme="spectrum"] textarea,
+    [data-theme="spectrum"] input[type="text"] { font-size: 15px !important; }
+    [data-theme="spectrum"] input[type="number"] { font-size: 17px !important; }
+    [data-theme="spectrum"] .field-label,
+    [data-theme="spectrum"] .stepper-label { font-size: 12px; letter-spacing: 0.06em; }
+    [data-theme="spectrum"] .text-xs,
+    [data-theme="spectrum"] .text-sm { font-size: 13px !important; }
+    /* OT stepper — red instead of amber */
+    [data-theme="spectrum"] .stepper-row.ot { border-color: rgba(215,0,0,0.45) !important; }
+    [data-theme="spectrum"] .stepper-row.ot .stepper-divider { background: rgba(215,0,0,0.2) !important; }
+
+    [data-theme="apple"] {
+      /* Apple macOS Sequoia — SF Pro, Apple system palette */
+      --bg-page: #F5F5F7;
+      --bg-card: #ffffff;
+      --bg-card-alt: #F5F5F7;
+      --bg-input: #ffffff;
+      --bg-header: #1D1D1F;
+      --bg-header-tab: #141414;
+      --bg-day-header: #F5F5F7;
+      --bg-day-header-we: #F0F0F2;
+      --bg-hours: #ffffff;
+      --bg-ot: #FFF4EC;
+      --bg-code-btn: rgba(0,122,255,0.06);
+      --bg-modal: #ffffff;
+      --bg-modal-search: #F5F5F7;
+      --bg-code-group: #F5F5F7;
+      --bg-code-item: #ffffff;
+      --bg-code-item-sel: rgba(0,122,255,0.08);
+      --text-primary: #1D1D1F;
+      --text-secondary: #6E6E73;
+      --text-muted: #AEAEB2;
+      --text-header: #F5F5F7;
+      --text-header-sub: #86868B;
+      --text-day: #1D1D1F;
+      --text-day-we: #6E6E73;
+      --text-hours: #1D1D1F;
+      --text-ot: #FF6B00;
+      --text-input: #1D1D1F;
+      --accent: #007AFF;
+      --accent-light: rgba(0,122,255,0.08);
+      --accent-chip-bg: rgba(0,122,255,0.1);
+      --accent-chip-text: #007AFF;
+      --border: #E5E5EA;
+      --border-input: #C7C7CC;
+      --border-day: #007AFF;
+      --border-day-we: #C7C7CC;
+      --border-dashed: #D1D1D6;
+      --shadow-card: 0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.06);
+      --shadow-card-hover: 0 4px 16px rgba(0,0,0,0.08);
+      --act-number-bg: #007AFF;
+      --act-number-text: #ffffff;
+      --summary-even: #F5F5F7;
+      --tab-active: #ffffff;
+      --tab-inactive: #86868B;
+      --btn-add-bg: rgba(0,122,255,0.08);
+      --btn-add-text: #007AFF;
+      --overlay: rgba(0,0,0,0.45);
+      --font-body: -apple-system, 'SF Pro Display', 'SF Pro Text', BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
+      --btn-danger-color: #FF3B30;
+      --btn-danger-bg: rgba(255,59,48,0.07);
+      --btn-danger-border: rgba(255,59,48,0.2);
+    }
+    /* Apple — OT stepper uses warm orange tint */
+    [data-theme="apple"] .stepper-row.ot { border-color: rgba(255,107,0,0.28) !important; }
+    [data-theme="apple"] .stepper-row.ot .stepper-divider { background: rgba(255,107,0,0.14) !important; }
 
     /* ===== THEME DROPDOWN ===== */
     .theme-menu-wrap {
@@ -987,7 +1108,7 @@
     // ============================================================
     // CONFIG
     // ============================================================
-    const VERSION = '1.0.5';
+    const VERSION = '1.0.6';
     const API_URL = 'https://script.google.com/macros/s/AKfycbwHbuuctWpT1QWqQc8C1fINQyBJhssIIeh3duuQgAHiCpGBRUVnPEmUnDlEDu5mQbZk/exec';
     const DAY_NAMES = ['Friday', 'Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday'];
     const DB_NAME = 'timesheet-db';
@@ -1507,6 +1628,8 @@
         { id: 'gameboy',    label: 'Game Boy',    swatch: '#0F380F' },
         { id: 'win31',      label: 'Windows 3.1', swatch: '#000080' },
         { id: 'gray',       label: 'Grayscale',   swatch: '#333333' },
+        { id: 'spectrum',   label: 'ZX Spectrum', swatch: '#0000D7' },
+        { id: 'apple',      label: 'macOS',       swatch: '#007AFF' },
       ];
       const themeOptionsHtml = themes.map(t => `
         <button class="theme-option ${currentTheme === t.id ? 'active' : ''}" onclick="setTheme('${t.id}')">
@@ -2040,7 +2163,7 @@
     // ============================================================
     // THEME LOGIC
     // ============================================================
-    const THEME_META = { light: '#1e3a8a', dark: '#0c1425', slate: '#1a2535', lcd: '#0f380f', 'slate-dark': '#0a1018', gameboy: '#0F380F', win31: '#000080', gray: '#222222' };
+    const THEME_META = { light: '#1e3a8a', dark: '#0c1425', slate: '#1a2535', lcd: '#0f380f', 'slate-dark': '#0a1018', gameboy: '#0F380F', win31: '#000080', gray: '#222222', spectrum: '#0000D7', apple: '#1D1D1F' };
 
     function initTheme() {
       const saved = localStorage.getItem('theme');
