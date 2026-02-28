@@ -11,9 +11,9 @@
   <title>TimeSheet</title>
   <link rel="manifest" href="manifest.json">
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&family=Share+Tech+Mono&family=Press+Start+2P&family=Silkscreen&family=VT323&family=Pixelify+Sans:wght@400..700&display=swap"
-  rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&family=Share+Tech+Mono&family=Press+Start+2P&family=Silkscreen&family=VT323&family=Pixelify+Sans:wght@400..700&display=swap"
+    rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     /* ===== THEME VARIABLES ===== */
@@ -732,14 +732,31 @@
       border-radius: 0 !important;
       overflow: hidden !important;
       /* Forces children (like headers) to not bleed out */
-      padding: 0 !important;
-      background: #000000 !important;
-      /* Fallback behind activities to prevent bleed */
+      background: transparent !important;
+      /* Transparent so headers sit directly on page bg */
+      box-shadow: none !important;
+      /* Move shadow to the header / body */
+      border: none !important;
+      /* Move border to the header / body */
     }
 
     [data-theme="retro"] .day-header {
       border-radius: 0 !important;
-      margin: 0 !important;
+      border: 2px solid #000000 !important;
+      box-shadow: 4px 4px 0 #000000 !important;
+      margin-bottom: 2px;
+      /* tiny gap if unexpanded */
+    }
+
+    /* When expanded, the day header loses its shadow to blend with the body */
+    [data-theme="retro"] .day-activities.expanded {
+      margin-top: -2px;
+      /* pull up to connect */
+    }
+
+    [data-theme="retro"] .day-header:has(+ .day-activities.expanded) {
+      box-shadow: none !important;
+      border-bottom: none !important;
     }
 
     [data-theme="retro"] .day-weekend .day-header {
@@ -756,10 +773,6 @@
       box-shadow: 2px 2px 0 #000000 !important;
     }
 
-    [data-theme="retro"] .day-card {
-      box-shadow: 4px 4px 0 #000000 !important;
-    }
-
     [data-theme="retro"] .day-activities {
       border-left: 2px solid #000000;
       border-right: 2px solid #000000;
@@ -768,6 +781,7 @@
       border-radius: 0 !important;
       background: #f0f0f0 !important;
       /* Ensure the card body itself has the proper background */
+      box-shadow: 4px 4px 0 #000000 !important;
     }
 
     [data-theme="retro"] .stepper-btn {
