@@ -1479,7 +1479,7 @@
     // ============================================================
     // CONFIG
     // ============================================================
-    const VERSION = '1.0.8';
+    const VERSION = '1.0.9';
     const API_URL = 'https://script.google.com/macros/s/AKfycbwHbuuctWpT1QWqQc8C1fINQyBJhssIIeh3duuQgAHiCpGBRUVnPEmUnDlEDu5mQbZk/exec';
     const DAY_NAMES = ['Friday', 'Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday'];
     const DB_NAME = 'timesheet-db';
@@ -1994,6 +1994,23 @@
       return lines.join('\n');
     }
 
+    function getEmailTheme() {
+      const t = document.documentElement.getAttribute('data-theme') || 'light';
+      const map = {
+        light:        { hdr: '#1e3a8a', hdrSub: '#93c5fd', chip: '#1e3a8a', chipTxt: '#ffffff', ord: '#1e3a8a', ot: '#c2410c', totBg: '#1e3a8a', totOrd: '#ffffff', totOT: '#fbbf24', totSub: '#93c5fd', foot: '#e2e8f0', footTxt: '#94a3b8' },
+        dark:         { hdr: '#0c1425', hdrSub: '#60a5fa', chip: '#1e40af', chipTxt: '#ffffff', ord: '#3b82f6', ot: '#f97316', totBg: '#0c1425', totOrd: '#ffffff', totOT: '#fbbf24', totSub: '#60a5fa', foot: '#1e293b', footTxt: '#64748b' },
+        slate:        { hdr: '#1a2535', hdrSub: '#63b3ed', chip: '#2b6cb0', chipTxt: '#ffffff', ord: '#2b6cb0', ot: '#c2410c', totBg: '#1a2535', totOrd: '#ffffff', totOT: '#63b3ed', totSub: '#63b3ed', foot: '#cbd5e1', footTxt: '#64748b' },
+        'slate-dark': { hdr: '#0a1018', hdrSub: '#60a5fa', chip: '#1e3a5f', chipTxt: '#ffffff', ord: '#60a5fa', ot: '#f97316', totBg: '#0a1018', totOrd: '#ffffff', totOT: '#60a5fa', totSub: '#60a5fa', foot: '#1e293b', footTxt: '#64748b' },
+        lcd:          { hdr: '#4a6741', hdrSub: '#c8e6c0', chip: '#4a6741', chipTxt: '#d4e6c8', ord: '#3d5c36', ot: '#8b4513', totBg: '#3d5c36', totOrd: '#d4e6c8', totOT: '#c8e6c0', totSub: '#c8e6c0', foot: '#c8e6c0', footTxt: '#4a6741' },
+        gameboy:      { hdr: '#0F380F', hdrSub: '#9BBC0F', chip: '#0F380F', chipTxt: '#9BBC0F', ord: '#0F380F', ot: '#306230', totBg: '#0F380F', totOrd: '#9BBC0F', totOT: '#8BAC0F', totSub: '#9BBC0F', foot: '#9BBC0F', footTxt: '#0F380F' },
+        win31:        { hdr: '#000080', hdrSub: '#aaaaff', chip: '#000080', chipTxt: '#ffffff', ord: '#000080', ot: '#800000', totBg: '#000080', totOrd: '#ffffff', totOT: '#ffff00', totSub: '#aaaaff', foot: '#c0c0c0', footTxt: '#000000' },
+        gray:         { hdr: '#222222', hdrSub: '#aaaaaa', chip: '#333333', chipTxt: '#ffffff', ord: '#333333', ot: '#666666', totBg: '#222222', totOrd: '#ffffff', totOT: '#cccccc', totSub: '#aaaaaa', foot: '#dddddd', footTxt: '#666666' },
+        spectrum:     { hdr: '#0000D7', hdrSub: '#FFFF00', chip: '#0000D7', chipTxt: '#ffffff', ord: '#0000D7', ot: '#D70000', totBg: '#0000D7', totOrd: '#ffffff', totOT: '#FFFF00', totSub: '#FFFF00', foot: '#D7D7D7', footTxt: '#0000D7' },
+        apple:        { hdr: '#1D1D1F', hdrSub: '#86868b', chip: '#007AFF', chipTxt: '#ffffff', ord: '#007AFF', ot: '#FF3B30', totBg: '#1D1D1F', totOrd: '#ffffff', totOT: '#30D158', totSub: '#86868b', foot: '#f5f5f7', footTxt: '#86868b' },
+      };
+      return map[t] || map.light;
+    }
+
     function buildEmailHtml(weekData) {
       if (!weekData) return '<p>No data for this week.</p>';
       const range = formatWeekRange(weekData.weekStart);
@@ -2001,6 +2018,18 @@
       const totalOrd = summary.reduce((s, r) => s + r.ordinary, 0);
       const totalOT  = summary.reduce((s, r) => s + r.overtime, 0);
       const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+      const C = getEmailTheme();
+
+      // Summary table rows — no "h" suffix, plain numbers for copy-paste
+      const summaryRows = summary.map(r => `
+        <tr>
+          <td style="padding:8px 12px;border-bottom:1px solid #f0f0f0;font-size:12px;">
+            <span style="background:${C.chip};color:${C.chipTxt};padding:2px 8px;border-radius:8px;font-size:11px;font-weight:600;">${esc(r.code)}</span>
+          </td>
+          <td style="padding:8px 12px;border-bottom:1px solid #f0f0f0;font-size:13px;color:#333;">${esc(r.description)}</td>
+          <td style="padding:8px 12px;border-bottom:1px solid #f0f0f0;font-size:13px;text-align:right;color:${C.ord};font-weight:700;">${r.ordinary.toFixed(2)}</td>
+          <td style="padding:8px 12px;border-bottom:1px solid #f0f0f0;font-size:13px;text-align:right;color:${C.ot};font-weight:700;">${r.overtime.toFixed(2)}</td>
+        </tr>`).join('');
 
       // Daily sections
       let daysHtml = '';
@@ -2012,7 +2041,7 @@
           const ord = (parseFloat(act.ordinary)||0).toFixed(2);
           const ot  = (parseFloat(act.overtime)||0).toFixed(2);
           const codesHtml = act.codes.map(c =>
-            `<span style="display:inline-block;background:#1e3a8a;color:#fff;font-size:11px;padding:2px 7px;border-radius:10px;margin:1px 2px;">${esc(c.c)}</span>`
+            `<span style="display:inline-block;background:${C.chip};color:${C.chipTxt};font-size:11px;padding:2px 7px;border-radius:10px;margin:1px 2px;">${esc(c.c)}</span>`
           ).join('');
           actsHtml += `
             <tr>
@@ -2022,16 +2051,16 @@
                 ${act.notes ? `<div style="margin-top:5px;font-size:12px;color:#555;font-style:italic;">${esc(act.notes)}</div>` : ''}
               </td>
               <td style="padding:10px 14px;border-bottom:1px solid #f0f0f0;text-align:right;white-space:nowrap;vertical-align:top;">
-                <span style="font-size:13px;color:#1e3a8a;font-weight:600;">${ord}h</span>
+                <span style="font-size:13px;color:${C.ord};font-weight:600;">${ord}h</span>
               </td>
               <td style="padding:10px 14px;border-bottom:1px solid #f0f0f0;text-align:right;white-space:nowrap;vertical-align:top;">
-                <span style="font-size:13px;color:#c2410c;font-weight:600;">${ot}h</span>
+                <span style="font-size:13px;color:${C.ot};font-weight:600;">${ot}h</span>
               </td>
             </tr>`;
         });
         daysHtml += `
           <div style="margin-bottom:16px;border-radius:8px;overflow:hidden;border:1px solid #e2e8f0;">
-            <div style="background:#1e3a8a;color:#fff;padding:9px 14px;font-size:13px;font-weight:700;letter-spacing:0.5px;">
+            <div style="background:${C.hdr};color:#fff;padding:9px 14px;font-size:13px;font-weight:700;letter-spacing:0.5px;">
               ${esc(day.dayName.toUpperCase())} &nbsp;<span style="opacity:0.75;font-weight:400;">${esc(formatDate(day.date))}</span>
             </div>
             <table width="100%" cellpadding="0" cellspacing="0" style="background:#fff;">
@@ -2047,70 +2076,50 @@
           </div>`;
       });
 
-      // Summary table rows
-      const summaryRows = summary.map(r => `
-        <tr>
-          <td style="padding:7px 12px;border-bottom:1px solid #f0f0f0;font-size:12px;"><span style="background:#1e3a8a;color:#fff;padding:2px 7px;border-radius:8px;font-size:11px;">${esc(r.code)}</span></td>
-          <td style="padding:7px 12px;border-bottom:1px solid #f0f0f0;font-size:12px;color:#444;">${esc(r.description)}</td>
-          <td style="padding:7px 12px;border-bottom:1px solid #f0f0f0;font-size:12px;text-align:right;color:#1e3a8a;font-weight:600;">${r.ordinary.toFixed(2)}h</td>
-          <td style="padding:7px 12px;border-bottom:1px solid #f0f0f0;font-size:12px;text-align:right;color:#c2410c;font-weight:600;">${r.overtime.toFixed(2)}h</td>
-        </tr>`).join('');
-
       return `<!DOCTYPE html><html><body style="margin:0;padding:0;background:#f1f5f9;font-family:Arial,Helvetica,sans-serif;">
         <table width="100%" cellpadding="0" cellspacing="0" style="background:#f1f5f9;padding:24px 0;">
           <tr><td align="center">
             <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;">
 
               <!-- Header -->
-              <tr><td style="background:#1e3a8a;border-radius:10px 10px 0 0;padding:24px 28px;">
+              <tr><td style="background:${C.hdr};border-radius:10px 10px 0 0;padding:24px 28px;">
                 <div style="color:#fff;font-size:20px;font-weight:700;">Weekly Timesheet</div>
-                <div style="color:#93c5fd;font-size:14px;margin-top:4px;">${esc(range)}</div>
+                <div style="color:${C.hdrSub};font-size:14px;margin-top:4px;">${esc(range)}</div>
               </td></tr>
 
               <!-- Body -->
               <tr><td style="background:#f8fafc;padding:20px 28px;">
 
-                <!-- Days -->
-                <div style="font-size:13px;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;">Daily Breakdown</div>
-                ${daysHtml}
-
-                <!-- Summary table -->
-                <div style="font-size:13px;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:1px;margin:20px 0 10px;">Summary by Code</div>
-                <table width="100%" cellpadding="0" cellspacing="0" style="background:#fff;border-radius:8px;border:1px solid #e2e8f0;overflow:hidden;">
+                <!-- Summary by Code — FIRST for easy copy-paste -->
+                <div style="font-size:13px;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">Summary by Code</div>
+                <table width="100%" cellpadding="0" cellspacing="0" style="background:#fff;border-radius:8px;border:1px solid #e2e8f0;overflow:hidden;margin-bottom:20px;">
                   <thead>
                     <tr style="background:#f8fafc;">
                       <th style="padding:8px 12px;text-align:left;font-size:11px;color:#64748b;text-transform:uppercase;">Code</th>
                       <th style="padding:8px 12px;text-align:left;font-size:11px;color:#64748b;text-transform:uppercase;">Description</th>
-                      <th style="padding:8px 12px;text-align:right;font-size:11px;color:#64748b;text-transform:uppercase;">Ord</th>
-                      <th style="padding:8px 12px;text-align:right;font-size:11px;color:#64748b;text-transform:uppercase;">OT</th>
+                      <th style="padding:8px 12px;text-align:right;font-size:11px;color:#64748b;text-transform:uppercase;">Ordinary</th>
+                      <th style="padding:8px 12px;text-align:right;font-size:11px;color:#64748b;text-transform:uppercase;">Overtime</th>
                     </tr>
                   </thead>
                   <tbody>${summaryRows}</tbody>
+                  <tfoot>
+                    <tr style="background:#f8fafc;">
+                      <td colspan="2" style="padding:10px 12px;font-size:13px;font-weight:700;color:#333;">TOTAL</td>
+                      <td style="padding:10px 12px;text-align:right;font-size:14px;font-weight:700;color:${C.ord};">${totalOrd.toFixed(2)}</td>
+                      <td style="padding:10px 12px;text-align:right;font-size:14px;font-weight:700;color:${C.ot};">${totalOT.toFixed(2)}</td>
+                    </tr>
+                  </tfoot>
                 </table>
 
-                <!-- Totals -->
-                <table width="100%" cellpadding="0" cellspacing="0" style="margin-top:16px;">
-                  <tr>
-                    <td style="background:#1e3a8a;border-radius:8px;padding:14px 20px;">
-                      <table width="100%" cellpadding="0" cellspacing="0">
-                        <tr>
-                          <td style="color:#93c5fd;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1px;">Total Ordinary</td>
-                          <td style="color:#93c5fd;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1px;text-align:right;">Total Overtime</td>
-                        </tr>
-                        <tr>
-                          <td style="color:#fff;font-size:24px;font-weight:700;padding-top:4px;">${totalOrd.toFixed(2)} hrs</td>
-                          <td style="color:#fbbf24;font-size:24px;font-weight:700;padding-top:4px;text-align:right;">${totalOT.toFixed(2)} hrs</td>
-                        </tr>
-                      </table>
-                    </td>
-                  </tr>
-                </table>
+                <!-- Daily Breakdown -->
+                <div style="font-size:13px;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;">Daily Breakdown</div>
+                ${daysHtml}
 
               </td></tr>
 
               <!-- Footer -->
-              <tr><td style="background:#e2e8f0;border-radius:0 0 10px 10px;padding:12px 28px;text-align:center;">
-                <span style="font-size:11px;color:#94a3b8;">Sent from Timesheet PWA v${esc(VERSION)}</span>
+              <tr><td style="background:${C.foot};border-radius:0 0 10px 10px;padding:12px 28px;text-align:center;">
+                <span style="font-size:11px;color:${C.footTxt};">Sent from Timesheet PWA v${esc(VERSION)}</span>
               </td></tr>
 
             </table>
