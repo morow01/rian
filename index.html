@@ -699,6 +699,11 @@
       --btn-danger-border: #000000;
     }
 
+    /* Force font-mono classes in modal/inputs to inherit retro font */
+    [data-theme="retro"] .font-mono {
+      font-family: inherit !important;
+    }
+
     /* Font sizes for Retro theme to match VT323 proportions */
     [data-theme="retro"] body {
       font-size: 18px;
@@ -868,6 +873,11 @@
 
     [data-theme="retro"] header * {
       color: #ffffff !important;
+    }
+
+    /* Except the theme dropdown, which has a light background */
+    [data-theme="retro"] .theme-dropdown * {
+      color: #000000 !important;
     }
 
     [data-theme="retro"] header .text-muted {
