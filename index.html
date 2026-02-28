@@ -1475,10 +1475,13 @@
       width: 5px; height: 100%;
       cursor: col-resize;
       z-index: 3;
+      /* Always-visible hairline so user knows it's draggable */
+      border-right: 2px solid rgba(255,255,255,0.25);
     }
     .col-resize-handle:hover,
     .col-resize-handle.col-resizing {
-      background: rgba(255,255,255,0.35);
+      background: rgba(255,255,255,0.2);
+      border-right-color: rgba(255,255,255,0.7);
     }
     .timesheet-table td {
       padding: 4px 8px;
@@ -1613,7 +1616,7 @@
 
 <body class="min-h-screen">
 
-  <div id="app" class="max-w-2xl mx-auto"></div>
+  <div id="app" style="max-width:1280px;margin:0 auto"></div>
 
   <!-- ===== CODE SEARCH MODAL ===== -->
   <div id="code-modal" class="hidden fixed inset-0 z-50 flex flex-col" style="background:var(--bg-modal)">
@@ -1670,7 +1673,7 @@
     // ============================================================
     // CONFIG
     // ============================================================
-    const VERSION = '1.2.0';
+    const VERSION = '1.2.1';
     const API_URL = 'https://script.google.com/macros/s/AKfycbwHbuuctWpT1QWqQc8C1fINQyBJhssIIeh3duuQgAHiCpGBRUVnPEmUnDlEDu5mQbZk/exec';
     const DAY_NAMES = ['Friday', 'Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday'];
     const DB_NAME = 'timesheet-db';
