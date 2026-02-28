@@ -714,18 +714,10 @@
       --btn-danger-border: #000000;
     }
 
-    /* Force font-mono elements to inherit the theme font on all themed variants */
-    [data-theme="retro"] .font-mono,
-    [data-theme="lcd"] .font-mono,
-    [data-theme="gameboy"] .font-mono,
-    [data-theme="spectrum"] .font-mono,
-    [data-theme="win31"] .font-mono,
-    [data-theme="dark"] .font-mono,
-    [data-theme="slate"] .font-mono,
-    [data-theme="slate-dark"] .font-mono,
-    [data-theme="gray"] .font-mono,
-    [data-theme="apple"] .font-mono {
-      font-family: inherit !important;
+    /* Force .font-mono to use the theme font instead of Tailwind's monospace stack.
+       Using var(--font-body) directly avoids the button font-reset issue with inherit. */
+    [data-theme] .font-mono {
+      font-family: var(--font-body) !important;
     }
 
     /* Font sizes for Retro theme to match VT323 proportions */
@@ -1503,7 +1495,7 @@
     // ============================================================
     // CONFIG
     // ============================================================
-    const VERSION = '1.1.5';
+    const VERSION = '1.1.6';
     const API_URL = 'https://script.google.com/macros/s/AKfycbwHbuuctWpT1QWqQc8C1fINQyBJhssIIeh3duuQgAHiCpGBRUVnPEmUnDlEDu5mQbZk/exec';
     const DAY_NAMES = ['Friday', 'Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday'];
     const DB_NAME = 'timesheet-db';
