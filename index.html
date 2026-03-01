@@ -1842,7 +1842,7 @@
     // ============================================================
     // CONFIG
     // ============================================================
-    const VERSION = '1.5.17';
+    const VERSION = '1.5.19';
     const API_URL = 'https://script.google.com/macros/s/AKfycbwHbuuctWpT1QWqQc8C1fINQyBJhssIIeh3duuQgAHiCpGBRUVnPEmUnDlEDu5mQbZk/exec';
     const DAY_NAMES = ['Friday', 'Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday'];
     const DB_NAME = 'timesheet-db';
@@ -2102,6 +2102,7 @@
       view: 'week',         // 'week' | 'history'
       weekStart: null,      // 'YYYY-MM-DD'
       weekData: null,       // { weekStart, days: [...] }
+      weekBase: null,       // deep copy of week as loaded from server (field-level merge baseline)
       syncStatus: 'idle',   // 'idle' | 'pending' | 'syncing' | 'synced' | 'error'
       historyWeeks: [],
       showSummary: false,
@@ -2327,8 +2328,67 @@
       }, 0);
     }
 
+    function deepCopy(obj) {
+      return JSON.parse(JSON.stringify(obj));
+    }
+
+    // Field-level 3-way merge: apply our local edits on top of remote,
+    // leaving untouched fields at whatever the server has.
+    //   base  = snapshot of week when we loaded it from server
+    //   local = our current data (with edits)
+    //   remote = what the server has right now
+    function mergeWeekData(base, local, remote) {
+      const FIELDS = ['description', 'location', 'codes', 'ordinary', 'overtime',
+                      'tasks', 'timePerTask', 'otPerTask', 'notes'];
+      const merged = deepCopy(remote); // start from remote (ground truth for structure)
+
+      merged.days.forEach((mergedDay, di) => {
+        const localDay = local.days[di];
+        const baseDay  = base  ? base.days[di]  : null;
+        if (!localDay) return;
+
+        // --- Field-level merge for activities that exist in all three ---
+        mergedDay.activities.forEach(mergedAct => {
+          const localAct = localDay.activities.find(a => a.id === mergedAct.id);
+          const baseAct  = baseDay  ? baseDay.activities.find(a => a.id === mergedAct.id) : null;
+          if (!localAct || !baseAct) return; // new/unknown activity — keep remote as-is
+
+          FIELDS.forEach(field => {
+            const baseVal  = JSON.stringify(baseAct[field]  ?? '');
+            const localVal = JSON.stringify(localAct[field] ?? '');
+            if (localVal !== baseVal) {
+              // We changed this field locally — apply our change
+              mergedAct[field] = deepCopy(localAct[field]);
+            }
+            // else: we didn't touch it — keep remote's value (already there)
+          });
+        });
+
+        // --- Activities added locally (not in remote, not in base) — keep them ---
+        localDay.activities.forEach(localAct => {
+          const inBase   = baseDay ? baseDay.activities.some(a => a.id === localAct.id) : false;
+          const inRemote = mergedDay.activities.some(a => a.id === localAct.id);
+          if (!inRemote && !inBase) {
+            mergedDay.activities.push(deepCopy(localAct));
+          }
+        });
+
+        // --- Activities deleted locally (in base+remote but removed locally) ---
+        if (baseDay) {
+          mergedDay.activities = mergedDay.activities.filter(remoteAct => {
+            const inBase  = baseDay.activities.some(a => a.id === remoteAct.id);
+            const inLocal = localDay.activities.some(a => a.id === remoteAct.id);
+            return !(inBase && !inLocal); // remove if we deleted it locally
+          });
+        }
+      });
+
+      return merged;
+    }
+
     async function loadWeek(weekStart) {
       state.weekStart = weekStart;
+      state.weekBase = null; // reset merge baseline for new week
       state.syncStatus = 'idle';
 
       // Load from local DB first (for instant display)
@@ -2349,14 +2409,18 @@
             const remoteCount = countActivities(remote);
 
             // Use remote if: no local data, remote is newer, OR remote has more activities
-            // (prevents stale local timestamp from hiding data entered on another device)
             const useRemote = !local || remoteTime > localTime || remoteCount > localCount;
             if (useRemote) {
               state.weekData = remote;
+              state.weekBase = deepCopy(remote); // baseline = what server gave us
               await dbPut('weeks', { weekStart, data: remote, updatedAt: remoteTime || Date.now() });
               const active = document.activeElement;
               const userEditing = active && (active.tagName === 'TEXTAREA' || active.tagName === 'INPUT');
               if (!userEditing) render();
+            } else {
+              // Local is newer — but record server's version as merge baseline
+              // so syncNow can tell which fields we actually changed
+              state.weekBase = deepCopy(remote);
             }
           }
           state.syncStatus = 'synced';
@@ -2387,34 +2451,62 @@
       state.syncStatus = 'syncing';
       updateHeaderStatus();
       try {
-        // Step 1: Always pull remote first — never blindly overwrite server data
+        // Always pull remote first
         const remote = await apiGet('getWeek', { date: state.weekStart });
 
         if (remote && remote.days) {
-          const localCount  = countActivities(state.weekData);
-          const remoteCount = countActivities(remote);
-          const remoteTime  = remote._updatedAt || 0;
-          const localTime   = state.weekData._updatedAt || 0;
+          // --- Field-level merge (requires a baseline snapshot) ---
+          if (state.weekBase) {
+            const merged = mergeWeekData(state.weekBase, state.weekData, remote);
 
-          // Remote wins if it has more activities, or same count but is newer
-          if (remoteCount > localCount || (remoteTime > localTime && remoteCount >= localCount)) {
-            state.weekData = remote;
-            await dbPut('weeks', { weekStart: state.weekStart, data: remote, updatedAt: remoteTime });
-            // Don't re-render if user is actively typing — would destroy their input
+            // Check if merge produced anything different from what remote already has
+            const needsPush = JSON.stringify(merged.days) !== JSON.stringify(remote.days);
+
+            if (needsPush) {
+              const ts = Date.now();
+              merged._updatedAt = ts;
+              await apiPost({ action: 'saveWeek', weekStart: state.weekStart, weekData: merged });
+              state.weekData = merged;
+              state.weekBase = deepCopy(merged);
+              await dbPut('weeks', { weekStart: state.weekStart, data: merged, updatedAt: ts });
+            } else {
+              // Our local state already matches what the server has (or remote is ahead)
+              state.weekData = merged;
+              state.weekBase = deepCopy(merged);
+              await dbPut('weeks', { weekStart: state.weekStart, data: merged, updatedAt: remote._updatedAt || Date.now() });
+            }
+
             const active = document.activeElement;
             const userEditing = active && (active.tagName === 'TEXTAREA' || active.tagName === 'INPUT');
             if (!userEditing) render();
             state.syncStatus = 'synced';
             updateHeaderStatus();
-            return; // pulled newer data — no push needed
+            return;
+          }
+
+          // --- Fallback: no baseline — use count/timestamp heuristic ---
+          const localCount  = countActivities(state.weekData);
+          const remoteCount = countActivities(remote);
+          const remoteTime  = remote._updatedAt || 0;
+          const localTime   = state.weekData._updatedAt || 0;
+
+          if (remoteCount > localCount || (remoteTime > localTime && remoteCount >= localCount)) {
+            state.weekData = remote;
+            state.weekBase = deepCopy(remote);
+            await dbPut('weeks', { weekStart: state.weekStart, data: remote, updatedAt: remoteTime });
+            const active = document.activeElement;
+            const userEditing = active && (active.tagName === 'TEXTAREA' || active.tagName === 'INPUT');
+            if (!userEditing) render();
+            state.syncStatus = 'synced';
+            updateHeaderStatus();
+            return;
           }
         }
 
-        // Step 2: Local is richer/newer — push to server
+        // No remote data, or local is authoritative with no baseline — push local
         const ts = Date.now();
         state.weekData._updatedAt = ts;
-        const payload = { ...state.weekData, _updatedAt: ts };
-        await apiPost({ action: 'saveWeek', weekStart: state.weekStart, weekData: payload });
+        await apiPost({ action: 'saveWeek', weekStart: state.weekStart, weekData: { ...state.weekData, _updatedAt: ts } });
         await dbPut('weeks', { weekStart: state.weekStart, data: state.weekData, updatedAt: ts });
         state.syncStatus = 'synced';
       } catch (e) {
