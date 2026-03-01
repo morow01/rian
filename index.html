@@ -1571,7 +1571,7 @@
       box-sizing: border-box;
     }
     .card-notes-ta {
-      font-size: 10px !important;
+      font-size: 13px !important;
       line-height: 1.5;
     }
     .tbl-num-input {
@@ -1835,7 +1835,7 @@
     // ============================================================
     // CONFIG
     // ============================================================
-    const VERSION = '1.4.8';
+    const VERSION = '1.4.9';
     const API_URL = 'https://script.google.com/macros/s/AKfycbwHbuuctWpT1QWqQc8C1fINQyBJhssIIeh3duuQgAHiCpGBRUVnPEmUnDlEDu5mQbZk/exec';
     const DAY_NAMES = ['Friday', 'Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday'];
     const DB_NAME = 'timesheet-db';
@@ -2625,7 +2625,7 @@
           <span class="theme-swatch" style="background:${t.swatch}"></span>${t.label}
         </button>`).join('');
       return `
-  <header class="sticky top-0 z-10 shadow-lg" style="background:var(--bg-header);color:var(--text-header)">
+  <header class="shadow-lg" style="background:var(--bg-header);color:var(--text-header)">
     <div class="flex items-center px-4 py-3 gap-2">
       <button onclick="prevWeek()" style="color:var(--text-header-sub)" class="text-xl px-1 py-1 min-w-[36px]">‹</button>
       <div class="flex-1 text-center">
