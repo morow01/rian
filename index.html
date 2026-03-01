@@ -1831,7 +1831,7 @@
     // ============================================================
     // CONFIG
     // ============================================================
-    const VERSION = '1.3.6';
+    const VERSION = '1.3.7';
     const API_URL = 'https://script.google.com/macros/s/AKfycbwHbuuctWpT1QWqQc8C1fINQyBJhssIIeh3duuQgAHiCpGBRUVnPEmUnDlEDu5mQbZk/exec';
     const DAY_NAMES = ['Friday', 'Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday'];
     const DB_NAME = 'timesheet-db';
@@ -2841,8 +2841,7 @@
           data-act="${act.id}" data-day="${di}"
           onclick="openNotesModal(${di},'${act.id}')"
           onmouseenter="showNoteTooltip(event,'${esc(act.notes || '')}')"
-          onmouseleave="hideNoteTooltip()"
-          title="${act.notes ? 'Click to edit note' : 'Click to add note'}">📝</button>
+          onmouseleave="hideNoteTooltip()">📝</button>
       </td>
       <td>
         <button class="tbl-del-btn" onclick="showConfirm('Delete activity?','${esc(act.description || 'Unnamed')}',()=>removeActivity('${act.id}',${di}))" title="Delete">✕</button>
