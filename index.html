@@ -1835,7 +1835,7 @@
     // ============================================================
     // CONFIG
     // ============================================================
-    const VERSION = '1.5.1';
+    const VERSION = '1.5.2';
     const API_URL = 'https://script.google.com/macros/s/AKfycbwHbuuctWpT1QWqQc8C1fINQyBJhssIIeh3duuQgAHiCpGBRUVnPEmUnDlEDu5mQbZk/exec';
     const DAY_NAMES = ['Friday', 'Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday'];
     const DB_NAME = 'timesheet-db';
@@ -3030,13 +3030,15 @@
         <div class="town-dropdown" id="td-${act.id}"></div>
       </div>
     </div>
-    <span class="field-label">Work Codes</span>
-    <div style="background:var(--bg-code-btn);border:1px solid var(--accent-light);border-radius:12px;padding:10px 12px;margin-bottom:8px;">
+    <div class="mb-2">
+      <span class="field-label">Work Codes</span>
+    <div style="background:var(--bg-code-btn);border:1px solid var(--accent-light);border-radius:12px;padding:10px 12px;">
       ${codesSection}
       <button onclick="openCodeModal(${di},'${act.id}')"
         class="w-full text-left border border-dashed rounded-xl px-3 py-2 text-sm font-medium" style="background:transparent;color:var(--accent);border-color:var(--accent)">
         ${act.codes.length ? '✎ Edit codes' : '+ Tap to add code'}
       </button>
+    </div>
     </div>
     <div class="flex gap-3 mb-1">
       <div class="stepper-wrap">
