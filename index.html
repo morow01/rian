@@ -1241,11 +1241,11 @@
       border-top: 2px dashed var(--border-dashed);
     }
     .act-divider-num {
-      width: 22px; height: 22px; border-radius: 50%;
+      width: 26px; height: 26px; border-radius: 50%;
       background: var(--bg-card);
       border: 1.5px solid var(--border);
       color: var(--text-muted);
-      font-size: 11px; font-weight: 600;
+      font-size: 12px; font-weight: 600;
       display: flex; align-items: center; justify-content: center;
       position: relative; z-index: 1;
     }
@@ -2700,7 +2700,7 @@
       <button onclick="sendWeeklyEmail()" class="flex-1 py-2 text-sm font-medium" style="color:var(--tab-inactive)" title="Email weekly summary">✉ Email</button>
       <button onclick="setView('history')" class="flex-1 py-2 text-sm font-medium" style="color:${state.view === 'history' ? 'var(--text-header)' : 'var(--tab-inactive)'};${state.view === 'history' ? 'border-bottom:2px solid var(--tab-active)' : ''}">History</button>
       <button onclick="toggleLayoutMode()" class="tbl-toggle-btn flex-1 py-2 text-sm font-medium items-center justify-center gap-1" style="color:${state.layoutMode === 'table' ? 'var(--text-header)' : 'var(--tab-inactive)'};${state.layoutMode === 'table' ? 'border-bottom:2px solid var(--tab-active)' : ''}" title="Spreadsheet view">⊞ Table</button>
-      <button onclick="toggleAllDays()" class="flex-1 py-2 text-sm font-medium" style="color:var(--tab-inactive)" title="${state.expandedDays.size > 0 ? 'Collapse all days' : 'Expand all days'}">${state.expandedDays.size > 0 ? '⊟ All' : '⊞ All'}</button>
+      <button onclick="toggleAllDays()" class="flex-1 py-2 text-sm font-medium flex items-center justify-center gap-1" style="color:var(--tab-inactive)" title="${state.expandedDays.size > 0 ? 'Collapse all days' : 'Expand all days'}"><span style="display:inline-block;font-size:1.1em;line-height:1;transition:transform 0.3s ease;transform:rotate(${state.expandedDays.size > 0 ? '0deg' : '-90deg'})">▼</span> All</button>
     </div>
   </header>`;
     }

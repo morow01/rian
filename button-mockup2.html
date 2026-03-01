@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #e8edf5; padding: 24px; margin: 0; }
+  h2 { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #64748b; margin: 0 0 10px 0; }
+  p { font-size: 12px; color: #64748b; margin: 0 0 12px 0; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; max-width: 760px; }
+
+  .card {
+    background: white; border-radius: 18px; overflow: hidden;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    border-left: 5px solid #3b5fc0;
+  }
+  .card-body { padding: 14px 16px; }
+  .fake-field { height: 38px; border-radius: 10px; background: #f1f5f9; margin-bottom: 10px; }
+  .sep { border: none; border-top: 1px dashed #e2e8f0; margin: 12px 0; }
+  .btn-row { display: flex; gap: 8px; padding-top: 4px; }
+
+  /* Delete button */
+  .del {
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    padding: 8px 14px; border-radius: 10px; font-size: 12px; font-weight: 500;
+    color: #ef4444; background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.22);
+    cursor: pointer; white-space: nowrap;
+  }
+  /* Add button */
+  .add {
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    padding: 8px 14px; border-radius: 10px; font-size: 12px; font-weight: 600;
+    color: #3b5fc0; background: #dde8fb; border: none;
+    cursor: pointer; white-space: nowrap;
+  }
+
+  .ml-auto { margin-left: auto; }
+  .flex1 { flex: 1; }
+  .tag { display: inline-block; font-size: 10px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; padding: 2px 8px; border-radius: 20px; margin-bottom: 8px; }
+  .tag-current { background: #fef3c7; color: #92400e; }
+  .tag-proposed { background: #d1fae5; color: #065f46; }
+</style>
+</head>
+<body>
+
+<div class="grid">
+
+  <!-- COLUMN 1: CURRENT -->
+  <div>
+    <h2>Current (inconsistent)</h2>
+
+    <p>Activity 1 of 2 — Delete alone, small & right</p>
+    <div class="card">
+      <div class="card-body">
+        <div class="fake-field"></div>
+        <div class="fake-field"></div>
+        <hr class="sep">
+        <div class="btn-row">
+          <button class="del ml-auto">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+            Delete activity
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <br>
+    <p>Activity 2 of 2 — Delete stretches to half width</p>
+    <div class="card">
+      <div class="card-body">
+        <div class="fake-field"></div>
+        <div class="fake-field"></div>
+        <hr class="sep">
+        <div class="btn-row">
+          <button class="add flex1">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Add Activity
+          </button>
+          <button class="del flex1">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+            Delete activity
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- COLUMN 2: PROPOSED -->
+  <div>
+    <h2>Proposed (consistent)</h2>
+
+    <p>Activity 1 of 2 — Delete alone, same size, right</p>
+    <div class="card">
+      <div class="card-body">
+        <div class="fake-field"></div>
+        <div class="fake-field"></div>
+        <hr class="sep">
+        <div class="btn-row">
+          <button class="del ml-auto">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+            Delete activity
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <br>
+    <p>Activity 2 of 2 — Add joins left, Delete same size</p>
+    <div class="card">
+      <div class="card-body">
+        <div class="fake-field"></div>
+        <div class="fake-field"></div>
+        <hr class="sep">
+        <div class="btn-row">
+          <button class="add ml-auto">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Add Activity
+          </button>
+          <button class="del">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+            Delete activity
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>
