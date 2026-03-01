@@ -1835,7 +1835,7 @@
     // ============================================================
     // CONFIG
     // ============================================================
-    const VERSION = '1.5.5';
+    const VERSION = '1.5.6';
     const API_URL = 'https://script.google.com/macros/s/AKfycbwHbuuctWpT1QWqQc8C1fINQyBJhssIIeh3duuQgAHiCpGBRUVnPEmUnDlEDu5mQbZk/exec';
     const DAY_NAMES = ['Friday', 'Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday'];
     const DB_NAME = 'timesheet-db';
@@ -2234,8 +2234,34 @@
       return { weekStart, days };
     }
 
+    // Persist day-expanded and notes-open state to localStorage (per week)
+    function saveUiState() {
+      if (!state.weekStart) return;
+      localStorage.setItem('ui_' + state.weekStart, JSON.stringify({
+        expanded: [...state.expandedDays],
+        notes: Object.fromEntries(state.notesOpen)
+      }));
+    }
+
+    // Restore UI state from localStorage; returns true if something was restored
+    function loadUiState() {
+      if (!state.weekStart) return false;
+      try {
+        const saved = JSON.parse(localStorage.getItem('ui_' + state.weekStart));
+        if (saved) {
+          state.expandedDays = new Set(saved.expanded || []);
+          state.notesOpen = new Map(Object.entries(saved.notes || {}));
+          return true;
+        }
+      } catch (e) {}
+      return false;
+    }
+
     function autoExpandToday() {
+      // Restore persisted UI state first; only auto-expand when visiting this week for the first time
+      if (loadUiState()) return;
       state.expandedDays.clear();
+      state.notesOpen = new Map();
       if (!state.weekData) return;
       const today = dateToStr(new Date());
       const idx = state.weekData.days.findIndex(d => d.date === today);
@@ -2947,6 +2973,7 @@
       } else {
         state.expandedDays.add(di);
       }
+      saveUiState();
       render();
     }
 
@@ -2959,6 +2986,7 @@
       }
       const currentOpen = state.notesOpen.has(actId) ? state.notesOpen.get(actId) : hasNote;
       state.notesOpen.set(actId, !currentOpen);
+      saveUiState();
       render();
     }
 
