@@ -1835,7 +1835,7 @@
     // ============================================================
     // CONFIG
     // ============================================================
-    const VERSION = '1.5.3';
+    const VERSION = '1.5.4';
     const API_URL = 'https://script.google.com/macros/s/AKfycbwHbuuctWpT1QWqQc8C1fINQyBJhssIIeh3duuQgAHiCpGBRUVnPEmUnDlEDu5mQbZk/exec';
     const DAY_NAMES = ['Friday', 'Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday'];
     const DB_NAME = 'timesheet-db';
@@ -3011,13 +3011,13 @@
       return `
   <div class="activity-item p-3 pl-8" data-act-id="${act.id}" data-day="${di}">
     <div class="activity-number">${actIndex + 1}</div>
-    <div style="margin-bottom:8px;">
+    <div>
       <span class="field-label">Description</span>
       <textarea placeholder="Description of work" rows="1"
         class="w-full rounded-lg px-3 py-2 outline-none" style="font-size:13px;background:var(--bg-input);border:1px solid var(--border-input);color:var(--text-input);resize:none;overflow:hidden;min-height:0"
         data-field="description" data-act="${act.id}" data-day="${di}" oninput="updateField(this);autoGrow(this)">${esc(act.description)}</textarea>
     </div>
-    <div style="margin-top:8px;margin-bottom:8px;">
+    <div style="padding-top:14px;">
       <span class="field-label">Location</span>
       <div class="location-wrap">
         <input type="text" placeholder="Town name or code…" value="${esc(act.location)}"
@@ -3030,7 +3030,7 @@
         <div class="town-dropdown" id="td-${act.id}"></div>
       </div>
     </div>
-    <div style="margin-top:8px;margin-bottom:8px;">
+    <div style="padding-top:14px;">
       <span class="field-label">Work Codes</span>
       <div style="background:var(--bg-code-btn);border:1px solid var(--accent-light);border-radius:12px;padding:10px 12px;">
         ${codesSection}
@@ -3040,7 +3040,7 @@
         </button>
       </div>
     </div>
-    <div class="flex gap-3 mb-1" style="margin-top:8px;">
+    <div class="flex gap-3 mb-1" style="padding-top:14px;">
       <div class="stepper-wrap">
         <span class="stepper-label" style="color:var(--text-muted)">Ordinary Hrs</span>
         <div class="stepper-row">
