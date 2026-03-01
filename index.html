@@ -1838,7 +1838,7 @@
     // ============================================================
     // CONFIG
     // ============================================================
-    const VERSION = '1.5.15';
+    const VERSION = '1.5.16';
     const API_URL = 'https://script.google.com/macros/s/AKfycbwHbuuctWpT1QWqQc8C1fINQyBJhssIIeh3duuQgAHiCpGBRUVnPEmUnDlEDu5mQbZk/exec';
     const DAY_NAMES = ['Friday', 'Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday'];
     const DB_NAME = 'timesheet-db';
@@ -3144,6 +3144,13 @@
 `;
     })()}
     <div class="flex gap-2 pt-2">
+      ${actIndex === totalActivities - 1 ? `
+      <button onclick="addActivity(${di})"
+        class="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold transition-colors"
+        style="background:var(--btn-add-bg);color:var(--btn-add-text);border:none;">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Add Activity
+      </button>` : ''}
       <button onclick="showConfirm('Delete activity?','${esc(act.description || 'Unnamed')}${act.location ? ' — ' + esc(act.location) : ''}',()=>removeActivity('${act.id}',${di}))"
         class="flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium transition-colors ${actIndex === totalActivities - 1 ? 'flex-1' : 'ml-auto'}"
         style="color:var(--btn-danger-color,#ef4444);background:var(--btn-danger-bg,rgba(239,68,68,0.08));border:1px solid var(--btn-danger-border,rgba(239,68,68,0.22))">
@@ -3152,13 +3159,6 @@
         </svg>
         Delete activity
       </button>
-      ${actIndex === totalActivities - 1 ? `
-      <button onclick="addActivity(${di})"
-        class="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold transition-colors"
-        style="background:var(--btn-add-bg);color:var(--btn-add-text);border:none;">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-        Add Activity
-      </button>` : ''}
     </div>
   </div>`;
     }
