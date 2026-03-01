@@ -1831,7 +1831,7 @@
     // ============================================================
     // CONFIG
     // ============================================================
-    const VERSION = '1.4.2';
+    const VERSION = '1.4.3';
     const API_URL = 'https://script.google.com/macros/s/AKfycbwHbuuctWpT1QWqQc8C1fINQyBJhssIIeh3duuQgAHiCpGBRUVnPEmUnDlEDu5mQbZk/exec';
     const DAY_NAMES = ['Friday', 'Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday'];
     const DB_NAME = 'timesheet-db';
@@ -2095,7 +2095,7 @@
       historyWeeks: [],
       showSummary: false,
       expandedDays: new Set(),  // track which day indices are expanded
-      notesExpanded: new Set(), // track which activity IDs have notes section open
+      notesOpen: new Map(), // explicit open/closed per actId; default = open if note has content
       layoutMode: localStorage.getItem('layoutMode') || 'card',  // 'card' | 'table'
       // Column widths for table view [Day,Date,Desc,Loc,Codes,Ord,OT,Tasks,Hrs/T,OT/T,Notes,Del]
       tableColWidths: (() => {
@@ -2942,11 +2942,14 @@
     }
 
     function toggleNotes(actId) {
-      if (state.notesExpanded.has(actId)) {
-        state.notesExpanded.delete(actId);
-      } else {
-        state.notesExpanded.add(actId);
+      // Find the activity to determine its current default open state
+      let hasNote = false;
+      for (const day of state.weekData.days) {
+        const act = day.activities.find(a => a.id === actId);
+        if (act) { hasNote = !!act.notes; break; }
       }
+      const currentOpen = state.notesOpen.has(actId) ? state.notesOpen.get(actId) : hasNote;
+      state.notesOpen.set(actId, !currentOpen);
       render();
     }
 
@@ -3059,8 +3062,8 @@
     </div>
     ${(() => {
       const hasNote = !!act.notes;
-      if (hasNote && !state.notesExpanded.has(act.id)) state.notesExpanded.add(act.id);
-      const isOpen = state.notesExpanded.has(act.id);
+      // Default: open if note has content, closed if empty. User can override either way.
+      const isOpen = state.notesOpen.has(act.id) ? state.notesOpen.get(act.id) : hasNote;
       const preview = hasNote ? act.notes.replace(/\n/g, ' ').slice(0, 60) + (act.notes.length > 60 ? '…' : '') : '';
       const chevron = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;transition:transform .2s;transform:rotate(${isOpen ? '90deg' : '0deg'})"><polyline points="9 18 15 12 9 6"/></svg>`;
       return `
