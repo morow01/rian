@@ -1836,7 +1836,7 @@
     // ============================================================
     // CONFIG
     // ============================================================
-    const VERSION = '1.5.9';
+    const VERSION = '1.5.10';
     const API_URL = 'https://script.google.com/macros/s/AKfycbwHbuuctWpT1QWqQc8C1fINQyBJhssIIeh3duuQgAHiCpGBRUVnPEmUnDlEDu5mQbZk/exec';
     const DAY_NAMES = ['Friday', 'Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday'];
     const DB_NAME = 'timesheet-db';
@@ -3000,7 +3000,7 @@
       const actCount = day.activities.filter(a => a.description || a.codes.length || parseFloat(a.ordinary) > 0).length;
       return `
   <div class="mx-3 mb-5 rounded-2xl shadow-sm day-card ${isWeekend ? 'day-weekend' : ''}" data-day-idx="${di}">
-    <div class="day-header flex items-center justify-between px-4 py-3 ${isExpanded ? 'rounded-t-2xl' : 'rounded-2xl'}" onclick="toggleDay(${di})">
+    <div class="day-header flex items-center justify-between px-4 py-3 ${isExpanded ? '' : 'rounded-2xl'}" onclick="toggleDay(${di})">
       <div class="flex items-center gap-2 flex-wrap">
         <span class="expand-arrow ${isExpanded ? '' : 'collapsed'} text-lg leading-none" style="color:var(--text-day)">▼</span>
         <span class="font-bold text-sm" style="color:var(--text-day)">${day.dayName}</span>
