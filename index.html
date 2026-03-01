@@ -1835,7 +1835,7 @@
     // ============================================================
     // CONFIG
     // ============================================================
-    const VERSION = '1.5.4';
+    const VERSION = '1.5.5';
     const API_URL = 'https://script.google.com/macros/s/AKfycbwHbuuctWpT1QWqQc8C1fINQyBJhssIIeh3duuQgAHiCpGBRUVnPEmUnDlEDu5mQbZk/exec';
     const DAY_NAMES = ['Friday', 'Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday'];
     const DB_NAME = 'timesheet-db';
@@ -3011,7 +3011,7 @@
       return `
   <div class="activity-item p-3 pl-8" data-act-id="${act.id}" data-day="${di}">
     <div class="activity-number">${actIndex + 1}</div>
-    <div>
+    <div style="padding-top:14px;">
       <span class="field-label">Description</span>
       <textarea placeholder="Description of work" rows="1"
         class="w-full rounded-lg px-3 py-2 outline-none" style="font-size:13px;background:var(--bg-input);border:1px solid var(--border-input);color:var(--text-input);resize:none;overflow:hidden;min-height:0"
@@ -3066,7 +3066,7 @@
         </div>
       </div>
     </div>
-    <div class="flex items-center gap-3 px-1 pt-1 pb-2 text-xs" style="color:var(--text-muted)">
+    <div class="flex items-center gap-3 px-1 pb-2 text-xs" style="padding-top:14px;color:var(--text-muted)">
       <span>Tasks: <strong style="color:var(--text-secondary)">${numTasks}</strong></span>
       <span style="opacity:0.3">|</span>
       <span>Hrs/Task: <strong data-calc="hrsPerTask" data-act="${act.id}" style="color:var(--text-secondary)">${hrsPerTask}</strong></span>
@@ -3082,7 +3082,7 @@
       return `
     <button onclick="toggleNotes('${act.id}')" style="
         display:flex;align-items:center;gap:8px;width:100%;text-align:left;cursor:pointer;
-        padding:9px 12px;border-radius:${isOpen ? '10px 10px 0 0' : '10px'};margin-bottom:0;
+        padding:9px 12px;border-radius:${isOpen ? '10px 10px 0 0' : '10px'};margin-top:14px;margin-bottom:0;
         background:transparent;
         border:1px dashed var(--border);
         color:var(--text-muted);
