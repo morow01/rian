@@ -1570,6 +1570,10 @@
       display: block;
       box-sizing: border-box;
     }
+    .card-notes-ta {
+      font-size: 10px !important;
+      line-height: 1.5;
+    }
     .tbl-num-input {
       width: 62px;
       background: transparent;
@@ -1831,7 +1835,7 @@
     // ============================================================
     // CONFIG
     // ============================================================
-    const VERSION = '1.4.6';
+    const VERSION = '1.4.7';
     const API_URL = 'https://script.google.com/macros/s/AKfycbwHbuuctWpT1QWqQc8C1fINQyBJhssIIeh3duuQgAHiCpGBRUVnPEmUnDlEDu5mQbZk/exec';
     const DAY_NAMES = ['Friday', 'Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday'];
     const DB_NAME = 'timesheet-db';
@@ -3087,7 +3091,7 @@
       ${chevron}
     </button>
     ${isOpen ? `<textarea placeholder="Notes…" rows="2"
-      class="w-full rounded-lg px-3 py-2 outline-none" style="font-size:11px;background:var(--bg-input);border:1px dashed var(--border);border-top:none;border-radius:0 0 10px 10px;color:var(--text-input);resize:none;overflow:hidden;min-height:50px"
+      class="card-notes-ta w-full rounded-lg px-3 py-2 outline-none" style="background:var(--bg-input);border:1px dashed var(--border);border-top:none;border-radius:0 0 10px 10px;color:var(--text-input);resize:none;overflow:hidden;min-height:50px"
       data-field="notes" data-act="${act.id}" data-day="${di}" oninput="updateField(this);autoGrow(this)">${esc(act.notes || '')}</textarea>` : ''}
 `;
     })()}
