@@ -1835,7 +1835,7 @@
     // ============================================================
     // CONFIG
     // ============================================================
-    const VERSION = '1.4.9';
+    const VERSION = '1.5.0';
     const API_URL = 'https://script.google.com/macros/s/AKfycbwHbuuctWpT1QWqQc8C1fINQyBJhssIIeh3duuQgAHiCpGBRUVnPEmUnDlEDu5mQbZk/exec';
     const DAY_NAMES = ['Friday', 'Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday'];
     const DB_NAME = 'timesheet-db';
@@ -2999,7 +2999,7 @@
       const hrsPerTask = ordinary > 0 ? (ordinary / numTasks).toFixed(2) : '—';
       const otPerTask = overtime > 0 ? (overtime / numTasks).toFixed(2) : '—';
       const codesSection = act.codes.length
-        ? `<div class="flex flex-wrap gap-1 mb-2 px-1">
+        ? `<div class="flex flex-wrap gap-1 mb-2">
         ${act.codes.map(c => `
           <span class="code-chip">
             ${c.d} <span class="font-mono" style="opacity:0.8">${c.c}</span>
@@ -3030,8 +3030,8 @@
         <div class="town-dropdown" id="td-${act.id}"></div>
       </div>
     </div>
+    <span class="field-label">Work Codes</span>
     <div style="background:var(--bg-code-btn);border:1px solid var(--accent-light);border-radius:12px;padding:10px 12px;margin-bottom:8px;">
-      <span class="field-label" style="display:block;margin-bottom:6px;">Work Codes</span>
       ${codesSection}
       <button onclick="openCodeModal(${di},'${act.id}')"
         class="w-full text-left border border-dashed rounded-xl px-3 py-2 text-sm font-medium" style="background:transparent;color:var(--accent);border-color:var(--accent)">
