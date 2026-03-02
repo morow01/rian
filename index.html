@@ -1756,130 +1756,6 @@
       overflow: hidden;
       border: 1px solid var(--border);
     }
-
-    /* ===== FIELD NOTES ===== */
-    .notes-view { padding-bottom: 24px; }
-
-    .notes-chips {
-      display: flex; gap: 6px; padding: 10px 12px 8px; overflow-x: auto;
-    }
-    .notes-chips::-webkit-scrollbar { display: none; }
-    .notes-chip {
-      padding: 4px 12px; border-radius: 999px; font-size: 11px; font-weight: 600;
-      white-space: nowrap; flex-shrink: 0; cursor: pointer;
-      border: 1.5px solid var(--border); background: var(--bg-card); color: var(--text-secondary);
-      transition: all 0.15s;
-    }
-    .notes-chip.active  { background: var(--accent); color: #fff; border-color: var(--accent); }
-    .notes-chip.high    { background: rgba(239,68,68,0.08);  color: #ef4444; border-color: rgba(239,68,68,0.3); }
-    .notes-chip.medium  { background: rgba(249,115,22,0.08); color: #f97316; border-color: rgba(249,115,22,0.3); }
-    .notes-chip.low     { background: rgba(34,197,94,0.08);  color: #22c55e; border-color: rgba(34,197,94,0.3); }
-    .notes-chip.done    { background: var(--bg-card); color: var(--text-muted); border-color: var(--border); }
-
-    .notes-section-label {
-      font-size: 10px; color: var(--text-muted); font-weight: 700;
-      text-transform: uppercase; letter-spacing: 0.08em; padding: 8px 14px 5px;
-    }
-
-    .note-card {
-      background: var(--bg-card); border-radius: 14px;
-      margin: 0 12px 8px; border: 1px solid var(--border); overflow: hidden;
-    }
-    .note-card.expanded { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
-    .note-card.done-card { opacity: 0.5; }
-
-    .note-row {
-      display: flex; align-items: center; gap: 10px;
-      padding: 11px 12px; cursor: pointer; user-select: none;
-    }
-    .note-row:not(:last-child) { border-bottom: 1px solid var(--border); }
-    .note-row-title {
-      font-size: 13px; font-weight: 500; color: var(--text-primary);
-      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-    }
-    .note-row-meta { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
-    .note-expand-arrow {
-      display: inline-block; font-size: 11px; color: var(--text-muted);
-      line-height: 1; flex-shrink: 0; transition: transform 0.25s;
-    }
-    .note-expand-arrow.open { transform: rotate(90deg); color: var(--accent); }
-
-    .note-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
-    .note-dot-high   { background: #ef4444; }
-    .note-dot-medium { background: #f97316; }
-    .note-dot-low    { background: #22c55e; }
-    .note-dot-none   { background: var(--border); }
-
-    .note-detail {
-      background: var(--bg-card-alt); padding: 12px 13px 13px;
-      border-top: 1px solid var(--border);
-    }
-    .note-detail-row { margin-bottom: 10px; }
-    .note-detail textarea, .note-detail input[type="text"] {
-      width: 100%; background: var(--bg-input); border: 1px solid var(--border-input);
-      border-radius: 10px; padding: 8px 11px; font-size: 13px; color: var(--text-primary);
-      font-family: inherit; resize: none; box-sizing: border-box; outline: none;
-    }
-    .note-detail textarea:focus, .note-detail input[type="text"]:focus {
-      border-color: var(--accent);
-    }
-    .note-date-row { display: flex; gap: 6px; align-items: center; }
-    .note-today-btn {
-      padding: 8px 10px; border-radius: 10px; font-size: 11px; font-weight: 700;
-      cursor: pointer; white-space: nowrap; border: 1px solid var(--border);
-      background: var(--bg-card); color: var(--accent);
-    }
-    .note-priority-row { display: flex; gap: 5px; margin-top: 5px; }
-    .note-pri-chip {
-      flex: 1; padding: 7px 4px; border-radius: 10px; text-align: center;
-      font-size: 11px; font-weight: 700; cursor: pointer; text-transform: uppercase;
-      letter-spacing: 0.03em; border: 1.5px solid var(--border);
-      background: var(--bg-input); color: var(--text-muted);
-    }
-    .note-pri-chip.sel-high   { background: rgba(239,68,68,0.1);  color: #ef4444; border-color: #ef4444; }
-    .note-pri-chip.sel-medium { background: rgba(249,115,22,0.1); color: #f97316; border-color: #f97316; }
-    .note-pri-chip.sel-low    { background: rgba(34,197,94,0.1);  color: #22c55e; border-color: #22c55e; }
-
-    .note-actions { display: flex; gap: 6px; margin-top: 12px; }
-    .note-action-btn {
-      flex: 1; padding: 9px 6px; border-radius: 10px; font-size: 11px; font-weight: 600;
-      cursor: pointer; text-align: center; border: 1px solid var(--border);
-      background: var(--bg-card); color: var(--text-secondary); display: flex;
-      align-items: center; justify-content: center; gap: 5px;
-    }
-    .note-action-btn.danger  { background: rgba(239,68,68,0.08); color: #ef4444; border-color: rgba(239,68,68,0.3); }
-    .note-action-btn.success { background: rgba(34,197,94,0.08); color: #16a34a; border-color: rgba(34,197,94,0.3); }
-    .note-action-btn.remind  { background: var(--bg-card); color: var(--text-muted); border-color: var(--border); }
-    .note-action-btn.save    { background: var(--accent); color: #fff; border: none; flex: 2; }
-    .note-action-btn.cancel  { background: var(--bg-card); color: var(--text-muted); }
-
-    /* notes town dropdown */
-    .note-location-wrap { position: relative; }
-    .note-town-dropdown {
-      display: none; position: absolute; left: 0; right: 0; top: calc(100% + 3px);
-      background: var(--bg-card); border: 1px solid var(--border);
-      border-radius: 12px; z-index: 20; max-height: 200px; overflow-y: auto;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.15);
-    }
-    .note-town-option {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 9px 12px; font-size: 13px; color: var(--text-primary);
-      border-bottom: 1px solid var(--border); cursor: pointer;
-    }
-    .note-town-option:last-child { border-bottom: none; }
-    .note-town-option:hover { background: var(--bg-card-alt); }
-
-    .notes-add-btn {
-      background: var(--accent); color: #fff; border: none; border-radius: 10px;
-      padding: 6px 14px; font-size: 12px; font-weight: 700; cursor: pointer;
-    }
-    .notes-sync-dot {
-      width: 7px; height: 7px; border-radius: 50%; display: inline-block;
-      margin-left: 4px; vertical-align: middle;
-    }
-    .notes-empty {
-      padding: 40px 24px; text-align: center; color: var(--text-muted); font-size: 13px;
-    }
   </style>
 </head>
 
@@ -1966,11 +1842,11 @@
     // ============================================================
     // CONFIG
     // ============================================================
-    const VERSION = '2.0.7';
+    const VERSION = '1.9.0';
     const API_URL = 'https://script.google.com/macros/s/AKfycbwHbuuctWpT1QWqQc8C1fINQyBJhssIIeh3duuQgAHiCpGBRUVnPEmUnDlEDu5mQbZk/exec';
     const DAY_NAMES = ['Friday', 'Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday'];
     const DB_NAME = 'timesheet-db';
-    const DB_VERSION = 2;
+    const DB_VERSION = 1;
 
     // ============================================================
     // WORK CODES  — loaded from codes.json; embedded list is fallback
@@ -1983,7 +1859,6 @@
     // ============================================================
     let TOWNS = [];
     const _townResults = {};
-    const _noteTownResults = {};
 
     async function loadTowns() {
       try {
@@ -2228,12 +2103,6 @@
       weekStart: null,      // 'YYYY-MM-DD'
       weekData: null,       // { weekStart, days: [...] }
       weekBase: null,       // deep copy of week as loaded from server (field-level merge baseline)
-      notes: [],            // all field notes
-      notesBase: null,      // deep copy of notes as loaded from server (field-level merge baseline)
-      notesLocalTime: 0,    // updatedAt timestamp of notes as last saved to local DB
-      notesFilter: 'all',   // 'all' | 'high' | 'medium' | 'low' | 'done'
-      expandedNotes: new Set(), // note IDs that are expanded
-      notesSyncStatus: 'idle',  // 'idle' | 'pending' | 'syncing' | 'synced' | 'error'
       syncStatus: 'idle',   // 'idle' | 'pending' | 'syncing' | 'synced' | 'error'
       historyWeeks: [],
       showSummary: false,
@@ -2268,7 +2137,6 @@
         req.onupgradeneeded = e => {
           const d = e.target.result;
           if (!d.objectStoreNames.contains('weeks')) d.createObjectStore('weeks', { keyPath: 'weekStart' });
-          if (!d.objectStoreNames.contains('notes')) d.createObjectStore('notes', { keyPath: 'id' });
         };
         req.onsuccess = e => { db = e.target.result; res(); };
         req.onerror = rej;
@@ -2422,11 +2290,6 @@
       return { id: uid(), description: '', location: '', codes: [], ordinary: '', overtime: '', tasks: '', timePerTask: '', otPerTask: '', notes: '' };
     }
 
-    function createNote() {
-      const now = Date.now();
-      return { id: uid(), description: '', location: '', date: dateToStr(new Date()), priority: 'medium', status: 'open', createdAt: now, updatedAt: now };
-    }
-
     function calcSummary(weekData) {
       const map = {};
       if (!weekData) return [];
@@ -2524,18 +2387,6 @@
     }
 
     async function loadWeek(weekStart) {
-      // Flush any pending edit for the CURRENT week before switching —
-      // the saveTimer closure captured a snapshot so the write is safe,
-      // but we also clear the timer to avoid a redundant DB write later
-      if (saveTimer && state.weekStart && state.weekData) {
-        clearTimeout(saveTimer);
-        clearTimeout(syncTimer);
-        saveTimer = null;
-        syncTimer = null;
-        const flushTs = state.weekData._updatedAt || Date.now();
-        await dbPut('weeks', { weekStart: state.weekStart, data: state.weekData, updatedAt: flushTs });
-      }
-
       state.weekStart = weekStart;
       state.weekBase = null; // reset merge baseline for new week
       state.syncStatus = 'idle';
@@ -2560,12 +2411,9 @@
             // Use remote if: no local data, remote is newer, OR remote has more activities
             const useRemote = !local || remoteTime > localTime || remoteCount > localCount;
             if (useRemote) {
-              // Merge remote into current in-memory state — never blindly overwrite,
-              // as user may have typed while the API call was in-flight.
-              const merged = mergeWeekData(local ? local.data : null, state.weekData, remote);
-              state.weekData = merged;
+              state.weekData = remote;
               state.weekBase = deepCopy(remote); // baseline = what server gave us
-              await dbPut('weeks', { weekStart, data: merged, updatedAt: remoteTime || Date.now() });
+              await dbPut('weeks', { weekStart, data: remote, updatedAt: remoteTime || Date.now() });
               const active = document.activeElement;
               const userEditing = active && (active.tagName === 'TEXTAREA' || active.tagName === 'INPUT');
               if (!userEditing) render();
@@ -2587,20 +2435,13 @@
       clearTimeout(saveTimer);
       clearTimeout(syncTimer);
       state.syncStatus = 'pending';
-      // Stamp the edit time NOW — capture only week identity, NOT a deepCopy.
-      // deepCopy on every keystroke was blocking the JS thread and creating
-      // timing windows where syncNow could overwrite in-flight edits.
-      // Navigation safety is handled by the flush in loadWeek instead.
+      // Stamp the edit time on the data itself so syncNow can compare correctly
       state.weekData._updatedAt = Date.now();
-      const capturedWeekStart = state.weekStart;
       updateHeaderStatus();
       saveTimer = setTimeout(async () => {
-        // Guard: if user navigated away before timer fired, skip (loadWeek already flushed)
-        if (state.weekStart === capturedWeekStart) {
-          await dbPut('weeks', { weekStart: capturedWeekStart, data: state.weekData, updatedAt: state.weekData._updatedAt });
-          if (navigator.onLine) {
-            syncTimer = setTimeout(syncNow, 1000);
-          }
+        await dbPut('weeks', { weekStart: state.weekStart, data: state.weekData, updatedAt: state.weekData._updatedAt });
+        if (navigator.onLine) {
+          syncTimer = setTimeout(syncNow, 1000);
         }
       }, 500);
     }
@@ -2879,17 +2720,12 @@
     // ============================================================
     function render() {
       const app = document.getElementById('app');
-      // Capture scroll position before DOM wipe so we can restore it
-      const savedScroll = parseInt(sessionStorage.getItem('scrollPos_' + state.view) || '0');
       // In table mode break out of the narrow max-w-2xl container
       app.classList.toggle('tbl-mode', state.view === 'week' && state.layoutMode === 'table');
-      const viewBody = state.view === 'week' ? renderWeekView() : state.view === 'notes' ? renderNotesView() : renderHistoryView();
-      app.innerHTML = renderHeader() + viewBody;
+      app.innerHTML = renderHeader() + (state.view === 'week' ? renderWeekView() : renderHistoryView());
       attachEvents();
       // Auto-grow textareas that have existing content
-      app.querySelectorAll('textarea[data-field="notes"], textarea[data-field="description"], textarea[data-note-field="description"]').forEach(autoGrow);
-      // Restore scroll position after DOM is painted
-      if (savedScroll > 0) requestAnimationFrame(() => window.scrollTo(0, savedScroll));
+      app.querySelectorAll('textarea[data-field="notes"], textarea[data-field="description"]').forEach(autoGrow);
     }
 
     function renderHeader() {
@@ -2955,12 +2791,8 @@
       <button onclick="syncNow()" class="flex-1 py-2 text-sm font-medium" style="color:var(--tab-inactive)" title="Sync now">☁ Sync</button>
       <button onclick="sendWeeklyEmail()" class="flex-1 py-2 text-sm font-medium" style="color:var(--tab-inactive)" title="Email weekly summary">✉ Email</button>
       <button onclick="setView('history')" class="flex-1 py-2 text-sm font-medium" style="color:${state.view === 'history' ? 'var(--text-header)' : 'var(--tab-inactive)'};${state.view === 'history' ? 'border-bottom:2px solid var(--tab-active)' : ''}">History</button>
-      <button onclick="setView('notes')" class="flex-1 py-2 text-sm font-medium flex items-center justify-center gap-1" style="color:${state.view === 'notes' ? 'var(--text-header)' : 'var(--tab-inactive)'};${state.view === 'notes' ? 'border-bottom:2px solid var(--tab-active)' : ''}" title="Field Notes">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
-        Notes${state.view === 'notes' ? `<span class="notes-sync-dot" style="background:${{ idle:'var(--text-muted)', pending:'#f97316', syncing:'#3b82f6', synced:'#22c55e', error:'#ef4444' }[state.notesSyncStatus]||'var(--text-muted)'}"></span>` : ''}
-      </button>
       <button onclick="toggleLayoutMode()" class="tbl-toggle-btn flex-1 py-2 text-sm font-medium items-center justify-center gap-1" style="color:${state.layoutMode === 'table' ? 'var(--text-header)' : 'var(--tab-inactive)'};${state.layoutMode === 'table' ? 'border-bottom:2px solid var(--tab-active)' : ''}" title="Spreadsheet view">⊞ Table</button>
-      <button onclick="toggleAllDays()" class="flex-1 py-2 text-sm font-medium flex items-center justify-center gap-1" style="color:var(--tab-inactive)" title="${state.view==='notes' ? (state.expandedNotes.size>0?'Collapse all notes':'Expand all notes') : (state.expandedDays.size>0?'Collapse all days':'Expand all days')}"><span style="display:inline-block;font-size:1.1em;line-height:1;transition:transform 0.3s ease;transform:rotate(${(state.view==='notes'?state.expandedNotes.size>0:state.expandedDays.size>0) ? '0deg' : '-90deg'})">▼</span> All</button>
+      <button onclick="toggleAllDays()" class="flex-1 py-2 text-sm font-medium flex items-center justify-center gap-1" style="color:var(--tab-inactive)" title="${state.expandedDays.size > 0 ? 'Collapse all days' : 'Expand all days'}"><span style="display:inline-block;font-size:1.1em;line-height:1;transition:transform 0.3s ease;transform:rotate(${state.expandedDays.size > 0 ? '0deg' : '-90deg'})">▼</span> All</button>
     </div>
   </header>`;
     }
@@ -3244,17 +3076,6 @@
     }
 
     function toggleAllDays() {
-      if (state.view === 'notes') {
-        // In Notes view: expand or collapse all open notes
-        const openNotes = state.notes.filter(n => n.status !== 'done');
-        if (state.expandedNotes.size > 0) {
-          state.expandedNotes.clear();
-        } else {
-          openNotes.forEach(n => state.expandedNotes.add(n.id));
-        }
-        render();
-        return;
-      }
       if (state.expandedDays.size > 0) {
         state.expandedDays.clear();
       } else {
@@ -3566,446 +3387,8 @@
 
     function setView(v) {
       state.view = v;
-      localStorage.setItem('lastView', v);
       if (v === 'history') loadHistory();
-      else if (v === 'notes') loadNotes();
       else render();
-    }
-
-    // ============================================================
-    // FIELD NOTES — sync, render, event handlers
-    // ============================================================
-
-    let notesSaveTimer = null;
-
-    function scheduleNotesSave() {
-      clearTimeout(notesSaveTimer);
-      state.notesSyncStatus = 'pending';
-      updateHeaderStatus();
-      notesSaveTimer = setTimeout(async () => {
-        const ts = Date.now();
-        await dbPut('notes', { id: 'notes_all', data: state.notes, updatedAt: ts });
-        state.notesLocalTime = ts;  // track so syncNotes knows our true local timestamp
-        if (navigator.onLine) setTimeout(syncNotes, 800);
-      }, 500);
-    }
-
-    // 3-way field-level merge for notes array
-    function mergeNotes(base, local, remote) {
-      const FIELDS = ['description', 'location', 'date', 'priority', 'status'];
-      const merged = deepCopy(remote);
-
-      // Field-level merge for notes present in all three
-      merged.forEach(mergedNote => {
-        const localNote = local.find(n => n.id === mergedNote.id);
-        const baseNote  = base  ? base.find(n => n.id === mergedNote.id) : null;
-        if (!localNote || !baseNote) return;
-        FIELDS.forEach(field => {
-          const baseVal  = JSON.stringify(baseNote[field]  ?? '');
-          const localVal = JSON.stringify(localNote[field] ?? '');
-          if (localVal !== baseVal) mergedNote[field] = deepCopy(localNote[field]);
-        });
-      });
-
-      // Notes added locally (not in remote and not in base) — keep them
-      local.forEach(localNote => {
-        const inBase   = base ? base.some(n => n.id === localNote.id) : false;
-        const inRemote = merged.some(n => n.id === localNote.id);
-        if (!inRemote && !inBase) merged.push(deepCopy(localNote));
-      });
-
-      // Notes deleted locally (in base+remote but removed locally) — respect deletion
-      if (base) {
-        return merged.filter(remoteNote => {
-          const inBase  = base.some(n => n.id === remoteNote.id);
-          const inLocal = local.some(n => n.id === remoteNote.id);
-          return !(inBase && !inLocal);
-        });
-      }
-      return merged;
-    }
-
-    async function loadNotes() {
-      state.notesSyncStatus = 'idle';
-      const stored = await dbGet('notes', 'notes_all');
-      state.notesLocalTime = stored ? (stored.updatedAt || 0) : 0;
-      // Only load from DB if in-memory notes are empty — state.notes may already
-      // contain notes the user created during the loadWeek window (before loadNotes ran)
-      // and we must not overwrite those unsaved additions
-      if (state.notes.length === 0 && stored && stored.data.length > 0) {
-        state.notes = stored.data;
-      }
-      // Baseline = current in-memory state, so any edits made during the upcoming
-      // API call are recognised as "local changes" by mergeNotes
-      state.notesBase = deepCopy(state.notes);
-      render();
-      if (navigator.onLine) {
-        try {
-          const remote = await apiGet('getNotes');
-          if (remote && Array.isArray(remote.notes)) {
-            const remoteTime = remote._updatedAt || 0;
-            if (remote.notes.length > 0 || state.notes.length === 0) {
-              // Merge remote into local — local edits made during the API call are preserved
-              const merged = mergeNotes(state.notesBase, state.notes, remote.notes);
-              if (JSON.stringify(merged) !== JSON.stringify(remote.notes)) {
-                // Local has changes the server doesn't have yet — push merged
-                const ts = Date.now();
-                await apiPost({ action: 'saveNotes', notes: merged, _updatedAt: ts });
-                state.notesLocalTime = ts;
-                await dbPut('notes', { id: 'notes_all', data: merged, updatedAt: ts });
-              } else if (remoteTime > state.notesLocalTime) {
-                // Remote is newer and no local changes — update local DB only
-                state.notesLocalTime = remoteTime;
-                await dbPut('notes', { id: 'notes_all', data: merged, updatedAt: remoteTime });
-              }
-              state.notes    = merged;
-              state.notesBase = deepCopy(remote.notes);
-            } else {
-              // Remote is empty but we have local notes — push local up to server
-              const ts = Date.now();
-              await apiPost({ action: 'saveNotes', notes: state.notes, _updatedAt: ts });
-              state.notesBase      = deepCopy(state.notes);
-              state.notesLocalTime = ts;
-              await dbPut('notes', { id: 'notes_all', data: state.notes, updatedAt: ts });
-            }
-          }
-          state.notesSyncStatus = 'synced';
-        } catch (e) {
-          state.notesSyncStatus = 'error';
-        }
-        // Don't rebuild DOM if user is actively editing — their changes are already in state
-        const active = document.activeElement;
-        const userEditing = active && (active.tagName === 'TEXTAREA' || active.tagName === 'INPUT');
-        if (!userEditing) render();
-      }
-      updateHeaderStatus();
-    }
-
-    async function syncNotes() {
-      if (!navigator.onLine) { state.notesSyncStatus = 'pending'; updateHeaderStatus(); return; }
-      state.notesSyncStatus = 'syncing';
-      updateHeaderStatus();
-      try {
-        const remote = await apiGet('getNotes');
-        if (remote && Array.isArray(remote.notes)) {
-          if (state.notesBase) {
-            const merged    = mergeNotes(state.notesBase, state.notes, remote.notes);
-            const needsPush = JSON.stringify(merged) !== JSON.stringify(remote.notes);
-            const ts = Date.now();
-            if (needsPush) {
-              await apiPost({ action: 'saveNotes', notes: merged, _updatedAt: ts });
-            }
-            state.notes          = merged;
-            state.notesBase      = deepCopy(merged);
-            state.notesLocalTime = ts;
-            await dbPut('notes', { id: 'notes_all', data: merged, updatedAt: ts });
-          } else {
-            // No baseline yet — use real local timestamp to decide push vs pull
-            const remoteTime = remote._updatedAt || 0;
-            if (remoteTime > state.notesLocalTime) {
-              // Remote is genuinely newer — pull it
-              state.notes          = remote.notes;
-              state.notesBase      = deepCopy(remote.notes);
-              state.notesLocalTime = remoteTime;
-              await dbPut('notes', { id: 'notes_all', data: state.notes, updatedAt: remoteTime });
-            } else {
-              // Local is same age or newer — push to server
-              const ts = Date.now();
-              await apiPost({ action: 'saveNotes', notes: state.notes, _updatedAt: ts });
-              state.notesBase      = deepCopy(state.notes);
-              state.notesLocalTime = ts;
-              await dbPut('notes', { id: 'notes_all', data: state.notes, updatedAt: ts });
-            }
-          }
-          state.notesSyncStatus = 'synced';
-        } else {
-          // No remote data yet — push local
-          const ts = Date.now();
-          await apiPost({ action: 'saveNotes', notes: state.notes, _updatedAt: ts });
-          state.notesBase      = deepCopy(state.notes);
-          state.notesLocalTime = ts;
-          await dbPut('notes', { id: 'notes_all', data: state.notes, updatedAt: ts });
-          state.notesSyncStatus = 'synced';
-        }
-      } catch (e) {
-        state.notesSyncStatus = 'error';
-      }
-      if (state.view === 'notes') {
-        const active = document.activeElement;
-        const userEditing = active && (active.tagName === 'TEXTAREA' || active.tagName === 'INPUT');
-        if (!userEditing) render();
-      }
-      updateHeaderStatus();
-    }
-
-    // ---- Notes render ----
-    function renderNotesView() {
-      const TRASH_ICON = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>`;
-
-      const syncColor = { idle:'var(--text-muted)', pending:'#f97316', syncing:'#3b82f6', synced:'#22c55e', error:'#ef4444' }[state.notesSyncStatus] || 'var(--text-muted)';
-
-      const f = state.notesFilter;
-      const filtered = state.notes.filter(n => {
-        if (f === 'done')   return n.status === 'done';
-        if (f === 'all')    return n.status === 'open';
-        return n.status === 'open' && n.priority === f;
-      });
-      const openNotes = state.notes.filter(n => n.status === 'open');
-      const doneNotes = state.notes.filter(n => n.status === 'done');
-      const counts    = { high: openNotes.filter(n=>n.priority==='high').length, medium: openNotes.filter(n=>n.priority==='medium').length, low: openNotes.filter(n=>n.priority==='low').length };
-
-      const chips = [
-        { key:'all',    label:`All (${openNotes.length})` },
-        { key:'high',   label:`High (${counts.high})`,   cls:'high'   },
-        { key:'medium', label:`Med (${counts.medium})`,  cls:'medium' },
-        { key:'low',    label:`Low (${counts.low})`,     cls:'low'    },
-        { key:'done',   label:`Done (${doneNotes.length})`, cls:'done' },
-      ].map(c => `<div class="notes-chip ${c.key===f?'active':(c.cls||'')}" onclick="setNotesFilter('${c.key}')">${c.label}</div>`).join('');
-
-      const renderNote = (note) => {
-        const isExpanded = state.expandedNotes.has(note.id);
-        const isNew      = !note.description && !note.location;
-        const dotCls     = { high:'note-dot-high', medium:'note-dot-medium', low:'note-dot-low' }[note.priority] || 'note-dot-none';
-        const metaParts  = [note.location, note.date ? formatDate(note.date) : ''].filter(Boolean);
-        const titleText  = note.description || (isNew ? 'New note…' : 'Untitled');
-
-        const header = `
-          <div class="note-row ${isNew && isExpanded ? 'note-row-new':''}" onclick="toggleNote('${note.id}')" style="${isExpanded?'background:var(--bg-day-header)':''}">
-            <span class="note-expand-arrow ${isExpanded?'open':''}">▶</span>
-            <div class="note-dot ${dotCls}"></div>
-            <div style="flex:1;min-width:0;">
-              <div class="note-row-title" style="${note.status==='done'?'text-decoration:line-through;color:var(--text-muted)':''}${isNew&&isExpanded?';color:var(--text-muted);font-style:italic;font-weight:400':''}">${esc(titleText)}</div>
-              ${metaParts.length ? `<div class="note-row-meta">${esc(metaParts.join(' · '))}</div>` : ''}
-            </div>
-          </div>`;
-
-        if (!isExpanded) return header;
-
-        const priChips = ['high','medium','low'].map(p =>
-          `<div class="note-pri-chip ${note.priority===p?'sel-'+p:''}" onclick="setNotePriority('${note.id}','${p}')">${p==='high'?'🔴 High':p==='medium'?'🟠 Med':'🟢 Low'}</div>`
-        ).join('');
-
-        const actions = isNew
-          ? `<div class="note-actions">
-               <button class="note-action-btn cancel" onclick="cancelNewNote('${note.id}')">Cancel</button>
-               <button class="note-action-btn save" onclick="saveNewNote('${note.id}')">Save Note</button>
-             </div>`
-          : `<div class="note-actions">
-               <button class="note-action-btn danger" onclick="showConfirm('Delete note?','${esc(note.description||'Untitled')}',()=>deleteNote('${note.id}'))">${TRASH_ICON} Delete</button>
-               <button class="note-action-btn success" onclick="markNoteDone('${note.id}')">${note.status==='done'?'↩ Reopen':'✓ Done'}</button>
-               <button class="note-action-btn remind" onclick="showToast('Reminders coming soon 🔔')" title="Coming in next release">🔔 Remind</button>
-             </div>`;
-
-        const detail = `
-          <div class="note-detail">
-            <div class="note-detail-row">
-              <span class="field-label">Description</span>
-              <textarea data-note-id="${note.id}" data-note-field="description" rows="2"
-                style="width:100%;border-radius:8px;padding:8px 10px;font-size:13px;background:var(--bg-input);border:1px solid var(--border-input);color:var(--text-input);resize:none;overflow:hidden;min-height:36px;outline:none;"
-                oninput="updateNoteField(this);autoGrow(this)">${esc(note.description)}</textarea>
-            </div>
-            <div style="margin-bottom:10px;">
-              <span class="field-label">Location</span>
-              <div class="note-location-wrap">
-                <input type="text" data-note-id="${note.id}" data-note-field="location"
-                  value="${esc(note.location)}"
-                  placeholder="Type to search…"
-                  oninput="updateNoteField(this);noteLocationSearch(this)"
-                  onblur="setTimeout(()=>hideNoteLocationDD('${note.id}'),200)"
-                  autocomplete="off" />
-                <div class="note-town-dropdown" id="ntd-${note.id}"></div>
-              </div>
-            </div>
-            <div style="margin-bottom:10px;">
-              <span class="field-label">Date</span>
-              <div class="note-date-row">
-                <input type="date" data-note-id="${note.id}" data-note-field="date"
-                  value="${note.date||''}" oninput="updateNoteField(this)"
-                  style="flex:1;background:var(--bg-input);border:1px solid var(--border-input);border-radius:10px;padding:8px 8px;font-size:12px;color:var(--text-primary);font-family:inherit;outline:none;" />
-                <button class="note-today-btn" onclick="setNoteToday('${note.id}')">Today</button>
-              </div>
-            </div>
-            <div class="note-detail-row">
-              <span class="field-label">Priority</span>
-              <div class="note-priority-row">${priChips}</div>
-            </div>
-            ${actions}
-          </div>`;
-
-        return header + detail;
-      };
-
-      const visibleOpen = f === 'done' ? [] : filtered;
-      // Done notes always show at the bottom when viewing 'all' or the 'done' filter
-      const visibleDone = (f === 'done' || f === 'all') ? doneNotes : [];
-
-      const openSection = visibleOpen.length
-        ? `<div class="notes-section-label">Open</div>` +
-          visibleOpen.map(n => `<div class="note-card ${state.expandedNotes.has(n.id)?'expanded':''}" data-note-id="${n.id}">${renderNote(n)}</div>`).join('')
-        : (f !== 'done' ? `<div class="notes-empty">No ${f==='all'?'open':f} notes yet.</div>` : '');
-
-      const doneSection = visibleDone.length
-        ? `<div class="notes-section-label" style="margin-top:4px;">Done</div>` +
-          visibleDone.map(n => `<div class="note-card done-card ${state.expandedNotes.has(n.id)?'expanded':''}" data-note-id="${n.id}">${renderNote(n)}</div>`).join('')
-        : '';
-
-      const addBtn = f !== 'done'
-        ? `<div style="padding:12px 12px 4px;">
-             <button onclick="addNote()" style="width:100%;padding:11px;border-radius:14px;border:2px dashed var(--border);background:var(--bg-card);color:var(--accent);font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;">
-               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-               Add Note
-             </button>
-           </div>`
-        : '';
-
-      return `<div class="notes-view">${addBtn}${openSection}${doneSection}</div>`;
-    }
-
-    // ---- Notes event handlers ----
-    function addNote() {
-      const note = createNote();
-      state.notes.unshift(note);
-      state.expandedNotes.add(note.id);
-      state.notesFilter = 'all';
-      render();
-      // focus description textarea
-      setTimeout(() => {
-        const ta = document.querySelector(`textarea[data-note-id="${note.id}"]`);
-        if (ta) ta.focus();
-      }, 80);
-    }
-
-    function toggleNote(id) {
-      if (state.expandedNotes.has(id)) state.expandedNotes.delete(id);
-      else state.expandedNotes.add(id);
-      render();
-    }
-
-    function updateNoteField(input) {
-      const id    = input.dataset.noteId;
-      const field = input.dataset.noteField;
-      const note  = state.notes.find(n => n.id === id);
-      if (!note) return;
-      note[field]     = input.value;
-      note.updatedAt  = Date.now();
-      // update row title/meta live without full re-render
-      const card = document.querySelector(`.note-card[data-note-id="${id}"]`);
-      if (card) {
-        const titleEl = card.querySelector('.note-row-title');
-        const metaEl  = card.querySelector('.note-row-meta');
-        if (field === 'description' && titleEl) titleEl.textContent = input.value || 'Untitled';
-        if (field === 'location'    && metaEl)  metaEl.textContent = [input.value, note.date ? formatDate(note.date) : ''].filter(Boolean).join(' · ');
-      }
-      scheduleNotesSave();
-    }
-
-    function setNotePriority(id, priority) {
-      const note = state.notes.find(n => n.id === id);
-      if (!note) return;
-      note.priority   = priority;
-      note.updatedAt  = Date.now();
-      scheduleNotesSave();
-      // re-render just the expanded card
-      const card = document.querySelector(`.note-card[data-note-id="${id}"]`);
-      if (card) {
-        const dotEl = card.querySelector('.note-dot');
-        if (dotEl) { dotEl.className = 'note-dot ' + ({high:'note-dot-high',medium:'note-dot-medium',low:'note-dot-low'}[priority]||'note-dot-none'); }
-        card.querySelectorAll('.note-pri-chip').forEach((el, i) => {
-          const p = ['high','medium','low'][i];
-          el.className = 'note-pri-chip' + (p === priority ? ' sel-'+p : '');
-        });
-      }
-    }
-
-    function setNoteToday(id) {
-      const note = state.notes.find(n => n.id === id);
-      if (!note) return;
-      note.date      = dateToStr(new Date());
-      note.updatedAt = Date.now();
-      const input = document.querySelector(`input[data-note-id="${id}"][data-note-field="date"]`);
-      if (input) input.value = note.date;
-      const card = document.querySelector(`.note-card[data-note-id="${id}"]`);
-      if (card) {
-        const metaEl = card.querySelector('.note-row-meta');
-        if (metaEl) metaEl.textContent = [note.location, formatDate(note.date)].filter(Boolean).join(' · ');
-      }
-      scheduleNotesSave();
-    }
-
-    function markNoteDone(id) {
-      const note = state.notes.find(n => n.id === id);
-      if (!note) return;
-      note.status    = note.status === 'done' ? 'open' : 'done';
-      note.updatedAt = Date.now();
-      state.expandedNotes.delete(id);
-      scheduleNotesSave();
-      render();
-    }
-
-    function deleteNote(id) {
-      state.notes = state.notes.filter(n => n.id !== id);
-      state.expandedNotes.delete(id);
-      scheduleNotesSave();
-      render();
-    }
-
-    function saveNewNote(id) {
-      const note = state.notes.find(n => n.id === id);
-      if (!note) return;
-      state.expandedNotes.delete(id);
-      scheduleNotesSave();
-      render();
-    }
-
-    function cancelNewNote(id) {
-      const note = state.notes.find(n => n.id === id);
-      if (!note) return;
-      if (!note.description && !note.location) {
-        // blank note — discard
-        state.notes = state.notes.filter(n => n.id !== id);
-      }
-      state.expandedNotes.delete(id);
-      render();
-    }
-
-    function setNotesFilter(f) {
-      state.notesFilter = f;
-      render();
-    }
-
-    // Notes location search — reuses towns list, parallel to townSearch
-    function noteLocationSearch(input) {
-      const id = input.dataset.noteId;
-      const dd = document.getElementById('ntd-' + id);
-      if (!dd) return;
-      const q = input.value.trim().toLowerCase();
-      if (!q) { dd.style.display = 'none'; return; }
-      const results = TOWNS.filter(t =>
-        t.name.toLowerCase().includes(q) || t.code.toLowerCase().startsWith(q)
-      ).sort((a,b) => (a.name.toLowerCase().startsWith(q)?0:1)-(b.name.toLowerCase().startsWith(q)?0:1)).slice(0,10);
-      _noteTownResults[id] = results;
-      if (!results.length) { dd.style.display = 'none'; return; }
-      dd.innerHTML = results.map((t,i) =>
-        `<div class="note-town-option" onmousedown="selectNoteLocation('${id}',${i})"><span>${esc(t.name)}</span><span class="t-code">${esc(t.code)}</span></div>`
-      ).join('');
-      dd.style.display = 'block';
-    }
-
-    function selectNoteLocation(id, idx) {
-      const t = (_noteTownResults[id]||[])[idx];
-      if (!t) return;
-      const input = document.querySelector(`input[data-note-id="${id}"][data-note-field="location"]`);
-      if (input) {
-        input.value = t.name + ' (' + t.code + ')';
-        updateNoteField(input);
-      }
-      const dd = document.getElementById('ntd-' + id);
-      if (dd) dd.style.display = 'none';
-    }
-
-    function hideNoteLocationDD(id) {
-      const dd = document.getElementById('ntd-' + id);
-      if (dd) dd.style.display = 'none';
     }
 
     async function loadHistory() {
@@ -4285,43 +3668,16 @@
     // ============================================================
     // INIT
     // ============================================================
-    // Save scroll position per view (debounced, for cross-refresh memory)
-    let _scrollTimer = null;
-    window.addEventListener('scroll', () => {
-      clearTimeout(_scrollTimer);
-      _scrollTimer = setTimeout(() => {
-        sessionStorage.setItem('scrollPos_' + state.view, window.scrollY);
-      }, 120);
-    }, { passive: true });
-
     async function init() {
       initTheme();
       if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('sw.js').catch(() => { });
       }
 
-      // Restore last view BEFORE first render so every render targets the right view
-      const lastView = localStorage.getItem('lastView');
-      if (lastView === 'notes' || lastView === 'history') state.view = lastView;
-
       await Promise.all([initDB(), loadCodes(), loadTowns()]);
-
-      // Pre-populate notes from local DB NOW — before loadWeek triggers any render —
-      // so the notes view never shows blank while waiting for the week API call
-      if (state.view === 'notes') {
-        const storedNotes = await dbGet('notes', 'notes_all');
-        if (storedNotes && storedNotes.data) {
-          state.notes = storedNotes.data;
-          state.notesLocalTime = storedNotes.updatedAt || 0;
-        }
-      }
 
       const friday = getCurrentFriday();
       await loadWeek(dateToStr(friday));
-
-      // Full sync for the restored view (updates from server, merges, saves back to DB)
-      if (state.view === 'notes') loadNotes();
-      else if (state.view === 'history') loadHistory();
     }
 
     init();

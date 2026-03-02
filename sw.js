@@ -1,12 +1,9 @@
-const CACHE = 'timesheet-v11';
-
-// Detect base path dynamically — works on GitHub Pages AND localhost
-const BASE = self.location.pathname.replace(/sw\.js$/, '');
+const CACHE = 'timesheet-v9';
 const ASSETS = [
-  BASE,
-  BASE + 'index.html',
-  BASE + 'codes.json',
-  BASE + 'towns.json',
+  '/Time-Sheet---Claude-Cowork/',
+  '/Time-Sheet---Claude-Cowork/index.html',
+  '/Time-Sheet---Claude-Cowork/codes.json',
+  '/Time-Sheet---Claude-Cowork/towns.json',
 ];
 
 self.addEventListener('install', e => {
