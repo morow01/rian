@@ -1226,12 +1226,34 @@
       background: var(--bg-card-alt);
     }
 
-    /* Divider styling removed as card headers now serve this role */
-
     /* Body animation CSS port from template */
+    .activity-body-wrap {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    }
 
-    .act-divider-num {
-      display: none;
+    .activity-item.expanded .activity-body-wrap {
+      max-height: 1600px;
+    }
+
+    .activity-item.expanded {
+      border-color: #a1a1aa !important;
+      /* gray-400 */
+    }
+
+    .activity-item.expanded .activity-header-clickable {
+      background: var(--bg-day-header);
+    }
+
+    .activity-item.expanded .activity-num-badge {
+      background: #71717a !important;
+      /* gray-500 */
+      color: #fff !important;
+    }
+
+    .activity-item.expanded .activity-chevron {
+      transform: rotate(180deg) !important;
     }
 
     @keyframes spin {
@@ -2294,7 +2316,7 @@
     // ============================================================
     // CONFIG
     // ============================================================
-    const VERSION = '2.7.0';
+    const VERSION = '2.7.1';
     const API_URL = 'https://script.google.com/macros/s/AKfycbwHbuuctWpT1QWqQc8C1fINQyBJhssIIeh3duuQgAHiCpGBRUVnPEmUnDlEDu5mQbZk/exec';
     const DAY_NAMES = ['Friday', 'Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday'];
     const DB_NAME = 'timesheet-db';
@@ -3616,13 +3638,23 @@
     }
 
     function toggleActivityDetails(actId) {
-      if (state.activitiesExpanded.has(actId)) {
+      const isExpanded = state.activitiesExpanded.has(actId);
+      if (isExpanded) {
         state.activitiesExpanded.delete(actId);
       } else {
         state.activitiesExpanded.add(actId);
       }
       saveUiState();
-      render();
+
+      // Update DOM directly instead of full render() to allow CSS transitions
+      const el = document.querySelector(`.activity-item[data-act-id="${actId}"]`);
+      if (el) {
+        if (!isExpanded) {
+          el.classList.add('expanded');
+        } else {
+          el.classList.remove('expanded');
+        }
+      }
     }
 
     function toggleNotes(actId) {
@@ -3692,17 +3724,17 @@
       const isExpanded = state.activitiesExpanded.has(act.id);
 
       return `
-  <div class="activity-item" data-act-id="${act.id}" data-day="${di}" 
-       style="border: 1px solid ${isExpanded ? 'var(--accent)' : 'var(--border)'}; border-radius: 12px; margin-bottom: 12px; overflow: hidden; background: var(--bg-card); transition: border-color 0.2s; box-shadow: var(--shadow-card);">
+  <div class="activity-item ${isExpanded ? 'expanded' : ''}" data-act-id="${act.id}" data-day="${di}" 
+       style="border: 1px solid var(--border); border-radius: 12px; margin-bottom: 12px; overflow: hidden; background: var(--bg-card); transition: border-color 0.2s; box-shadow: var(--shadow-card);">
     
     <!-- Header (Always Visible) -->
-    <div onclick="toggleActivityDetails('${act.id}')" 
-         style="cursor:pointer; padding: 12px 14px; display: flex; align-items: center; gap: 12px; background: ${isExpanded ? 'var(--bg-day-header)' : 'transparent'}; transition: background 0.2s;">
+    <div onclick="toggleActivityDetails('${act.id}')" class="activity-header-clickable"
+         style="cursor:pointer; padding: 12px 14px; display: flex; align-items: center; gap: 12px; background: transparent; transition: background 0.2s;">
       
       <!-- Number Badge -->
-      <div style="flex-shrink: 0; width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; 
-                  background: ${isExpanded ? 'var(--accent)' : 'var(--btn-add-bg)'}; 
-                  color: ${isExpanded ? '#fff' : 'var(--accent)'}; transition: all 0.2s;">
+      <div class="activity-num-badge" style="flex-shrink: 0; width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; 
+                  background: var(--btn-add-bg); 
+                  color: var(--accent); transition: all 0.2s;">
         ${actIndex + 1}
       </div>
       
@@ -3720,15 +3752,15 @@
       <div style="flex-shrink: 0; display: flex; align-items: center; gap: 6px;">
         ${ordinary > 0 ? `<div style="background: var(--accent-light); color: var(--accent); padding: 2px 8px; border-radius: 12px; font-size: 12px; font-weight: 700;">${ordinary}h</div>` : ''}
         ${overtime > 0 ? `<div style="background: var(--bg-ot); color: var(--text-ot); padding: 2px 8px; border-radius: 12px; font-size: 12px; font-weight: 700;">+${overtime} OT</div>` : ''}
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" 
-             style="color: var(--text-muted); transition: transform 0.2s; transform: rotate(${isExpanded ? '180deg' : '0deg'}); margin-left: 4px;">
+        <svg class="activity-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" 
+             style="color: var(--text-muted); transition: transform 0.2s; transform: rotate(0deg); margin-left: 4px;">
           <polyline points="6 9 12 15 18 9"></polyline>
         </svg>
       </div>
     </div>
 
     <!-- Body (Always in DOM for smooth transition) -->
-    <div style="max-height: ${isExpanded ? '1600px' : '0'}; overflow: hidden; transition: max-height 0.35s cubic-bezier(0.4,0,0.2,1);">
+    <div class="activity-body-wrap">
       <div style="padding: 0 16px 16px;">
         <div style="height: 1px; background: var(--border-dashed); margin-bottom: 16px;"></div>
       
