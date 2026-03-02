@@ -1245,19 +1245,7 @@
     }
 
     .act-divider-num {
-      width: 26px;
-      height: 26px;
-      border-radius: 50%;
-      background: var(--bg-card);
-      border: 1.5px solid var(--border);
-      color: var(--text-muted);
-      font-size: 12px;
-      font-weight: 600;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      position: relative;
-      z-index: 1;
+      display: none;
     }
 
     @keyframes spin {
@@ -2320,7 +2308,7 @@
     // ============================================================
     // CONFIG
     // ============================================================
-    const VERSION = '2.3.0';
+    const VERSION = '2.4.0';
     const API_URL = 'https://script.google.com/macros/s/AKfycbwHbuuctWpT1QWqQc8C1fINQyBJhssIIeh3duuQgAHiCpGBRUVnPEmUnDlEDu5mQbZk/exec';
     const DAY_NAMES = ['Friday', 'Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday'];
     const DB_NAME = 'timesheet-db';
@@ -3707,137 +3695,148 @@
       const isExpanded = state.activitiesExpanded.has(act.id);
 
       return `
-  ${actIndex > 0 ? `<div class="act-divider"><div class="act-divider-num">${actIndex + 1}</div></div>` : ''}
-  <div class="activity-item p-3" data-act-id="${act.id}" data-day="${di}">
-    ${!isExpanded ? `
-    <!-- Collapsed View -->
-    <div onclick="toggleActivityDetails('${act.id}')" style="cursor:pointer; padding:4px 0;">
-      <div style="font-weight:600; font-size:14px; color:var(--text-primary); margin-bottom:4px; line-height:1.3;">
-        ${esc(act.description) || '<span style="opacity:0.5;font-style:italic">No description</span>'}
-      </div>
-      <div style="font-size:12px; color:var(--text-secondary); display:flex; justify-content:space-between; align-items:center;">
-        <span style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:85%;">
-          ${esc(act.location) || '<span style="opacity:0.5;font-style:italic">No location</span>'}
-        </span>
-        <button style="background:transparent; border:none; color:var(--text-muted); font-size:12px; font-weight:600; padding:0; display:flex; align-items:center;">
-          Edit ▾
-        </button>
-      </div>
-    </div>
-    ` : `
-    <!-- Expanded View -->
-    <div style="padding-top:2px;">
-      <span class="field-label">Description</span>
-      <textarea placeholder="Description of work" rows="1"
-        class="w-full rounded-lg px-3 py-2 outline-none" style="font-size:13px;background:var(--bg-input);border:1px solid var(--border-input);color:var(--text-input);resize:none;overflow:hidden;min-height:0"
-        data-field="description" data-act="${act.id}" data-day="${di}" oninput="updateField(this);autoGrow(this)">${esc(act.description)}</textarea>
-    </div>
-    <div style="padding-top:14px;">
-      <span class="field-label">Location</span>
-      <div class="location-wrap">
-        <input type="text" placeholder="Town name or code…" value="${esc(act.location)}"
-          class="w-full rounded-lg px-3 py-2 outline-none" style="font-size:13px;background:var(--bg-input);border:1px solid var(--border-input);color:var(--text-input)"
-          data-field="location" data-act="${act.id}" data-day="${di}"
-          autocomplete="off" spellcheck="false"
-          oninput="updateField(this);townSearch(this)"
-          onfocus="townSearch(this)"
-          onblur="closeTownDd(this)">
-        <div class="town-dropdown" id="td-${act.id}"></div>
-      </div>
-    </div>
+  <div class="activity-item" data-act-id="${act.id}" data-day="${di}" 
+       style="border: 1px solid ${isExpanded ? 'var(--accent)' : 'var(--border)'}; border-radius: 12px; margin-bottom: 12px; overflow: hidden; background: var(--bg-card); transition: border-color 0.2s; box-shadow: var(--shadow-card);">
     
-    <div style="padding-top:14px;">
-      <span class="field-label">Work Codes</span>
-      <div style="background:var(--bg-code-btn);border:1px solid var(--accent-light);border-radius:12px;padding:10px 12px;">
-        ${codesSection}
-        <button onclick="openCodeModal(${di},'${act.id}')"
-          class="w-full text-left border border-dashed rounded-xl px-3 py-2 text-sm font-medium" style="background:transparent;color:var(--accent);border-color:var(--accent)">
-          ${act.codes.length ? '✎ Edit codes' : '+ Tap to add code'}
-        </button>
+    <!-- Header (Always Visible) -->
+    <div onclick="toggleActivityDetails('${act.id}')" 
+         style="cursor:pointer; padding: 12px 14px; display: flex; align-items: center; gap: 12px; background: ${isExpanded ? 'var(--bg-day-header)' : 'transparent'}; transition: background 0.2s;">
+      
+      <!-- Number Badge -->
+      <div style="flex-shrink: 0; width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; 
+                  background: ${isExpanded ? 'var(--accent)' : 'var(--btn-add-bg)'}; 
+                  color: ${isExpanded ? '#fff' : 'var(--accent)'}; transition: all 0.2s;">
+        ${actIndex + 1}
       </div>
-    </div>
-    <div class="flex gap-3 mb-1" style="padding-top:14px;">
-      <div class="stepper-wrap">
-        <span class="stepper-label" style="color:var(--text-muted)">Ordinary Hrs</span>
-        <div class="stepper-row">
-          <button onclick="adjHrs(this,-1)" class="stepper-btn" data-target="ordinary" data-act="${act.id}" data-day="${di}">−</button>
-          <div class="stepper-divider"></div>
-          <input type="number" step="1" min="0" placeholder="0" value="${act.ordinary}"
-            class="flex-1 text-center font-bold text-lg bg-transparent outline-none" style="color:var(--text-hours);min-width:0"
-            data-field="ordinary" data-act="${act.id}" data-day="${di}" oninput="updateField(this)" onchange="updateField(this)" onblur="updateField(this)">
-          <div class="stepper-divider"></div>
-          <button onclick="adjHrs(this,1)" class="stepper-btn" data-target="ordinary" data-act="${act.id}" data-day="${di}">+</button>
+      
+      <!-- Text Info -->
+      <div style="flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center;">
+        <div style="font-weight: 700; font-size: 14px; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.2;">
+          ${esc(act.description) || '<span style="opacity:0.5;font-style:italic">No description</span>'}
+        </div>
+        <div style="font-size: 12px; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.4; margin-top: 2px;">
+          ${esc(act.location) || '<span style="opacity:0.5;font-style:italic">No location</span>'}
         </div>
       </div>
-      <div class="stepper-wrap">
-        <span class="stepper-label" style="color:var(--text-ot)">Overtime Hrs</span>
-        <div class="stepper-row ot">
-          <button onclick="adjHrs(this,-1)" class="stepper-btn ot-btn" data-target="overtime" data-act="${act.id}" data-day="${di}">−</button>
-          <div class="stepper-divider"></div>
-          <input type="number" step="1" min="0" placeholder="0" value="${act.overtime}"
-            class="flex-1 text-center font-bold text-lg bg-transparent outline-none" style="color:var(--text-ot);min-width:0"
-            data-field="overtime" data-act="${act.id}" data-day="${di}" oninput="updateField(this)" onchange="updateField(this)" onblur="updateField(this)">
-          <div class="stepper-divider"></div>
-          <button onclick="adjHrs(this,1)" class="stepper-btn ot-btn" data-target="overtime" data-act="${act.id}" data-day="${di}">+</button>
-        </div>
+      
+      <!-- Hour Badges & Chevron -->
+      <div style="flex-shrink: 0; display: flex; align-items: center; gap: 6px;">
+        ${ordinary > 0 ? `<div style="background: var(--accent-light); color: var(--accent); padding: 2px 8px; border-radius: 12px; font-size: 12px; font-weight: 700;">${ordinary}h</div>` : ''}
+        ${overtime > 0 ? `<div style="background: var(--bg-ot); color: var(--text-ot); padding: 2px 8px; border-radius: 12px; font-size: 12px; font-weight: 700;">+${overtime} OT</div>` : ''}
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" 
+             style="color: var(--text-muted); transition: transform 0.2s; transform: rotate(${isExpanded ? '180deg' : '0deg'}); margin-left: 4px;">
+          <polyline points="6 9 12 15 18 9"></polyline>
+        </svg>
       </div>
     </div>
-    <div class="flex items-center gap-3 px-1 pb-2 text-xs" style="padding-top:14px;color:var(--text-muted)">
-      <span>Tasks: <strong style="color:var(--text-secondary)">${numTasks}</strong></span>
-      <span style="opacity:0.3">|</span>
-      <span>Hrs/Task: <strong data-calc="hrsPerTask" data-act="${act.id}" style="color:var(--text-secondary)">${hrsPerTask}</strong></span>
-      <span style="opacity:0.3">|</span>
-      <span>OT/Task: <strong data-calc="otPerTask" data-act="${act.id}" style="color:var(--text-ot)">${otPerTask}</strong></span>
-    </div>
-    ${(() => {
-          const hasNote = !!act.notes;
-          // Default: open if note has content, closed if empty. User can override either way.
-          const isOpen = state.notesOpen.has(act.id) ? state.notesOpen.get(act.id) : hasNote;
-          const preview = hasNote ? act.notes.replace(/\n/g, ' ').slice(0, 60) + (act.notes.length > 60 ? '…' : '') : '';
-          const chevron = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;transition:transform .2s;transform:rotate(${isOpen ? '90deg' : '0deg'})"><polyline points="9 18 15 12 9 6"/></svg>`;
-          return `
-    <button onclick="toggleNotes('${act.id}')" style="
-        display:flex;align-items:center;gap:8px;width:100%;text-align:left;cursor:pointer;
-        padding:9px 12px;border-radius:${isOpen ? '10px 10px 0 0' : '10px'};margin-top:14px;margin-bottom:0;
-        background:transparent;
-        border:1px dashed var(--border);
-        color:var(--text-muted);
-        transition:background .15s,border-color .15s;">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;${hasNote ? 'color:var(--accent)' : ''}"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
-      <span style="font-size:12px;font-weight:600;flex-shrink:0;">Notes</span>
-      ${hasNote
-              ? `<span style="flex:1;font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;opacity:0.7;color:var(--text-secondary);">${esc(preview)}</span>`
-              : `<span style="flex:1;font-size:11px;opacity:0.4;font-style:italic;">Add a note…</span>`}
-      ${chevron}
-    </button>
-    ${isOpen ? `<textarea placeholder="Notes…" rows="2"
-      class="card-notes-ta w-full rounded-lg px-3 py-2 outline-none" style="background:var(--bg-input);border:1px dashed var(--border);border-top:none;border-radius:0 0 10px 10px;color:var(--text-input);resize:none;overflow:hidden;min-height:50px"
-      data-field="notes" data-act="${act.id}" data-day="${di}" oninput="updateField(this);autoGrow(this)">${esc(act.notes || '')}</textarea>` : ''}
-`;
-        })()}
-    <div class="flex gap-2 pt-2">
-      ${actIndex === totalActivities - 1 ? `
-      <button onclick="addActivity(${di})"
-        class="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold transition-colors"
-        style="background:var(--btn-add-bg);color:var(--btn-add-text);border:none;">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-        Add Activity
-      </button>` : ''}
+
+    <!-- Body (Only if expanded) -->
+    ${isExpanded ? `
+    <div style="border-top: 1px dashed var(--border-dashed); padding: 14px;">
+      
+      <div style="margin-bottom: 14px;">
+        <span class="field-label">Description</span>
+        <textarea placeholder="Description of work" rows="1"
+          class="w-full rounded-lg px-3 py-2 outline-none" style="font-size:13px;background:var(--bg-input);border:1px solid var(--border-input);color:var(--text-input);resize:none;overflow:hidden;min-height:0"
+          data-field="description" data-act="${act.id}" data-day="${di}" oninput="updateField(this);autoGrow(this)">${esc(act.description)}</textarea>
+      </div>
+      
+      <div style="margin-bottom: 14px;">
+        <span class="field-label">Location</span>
+        <div class="location-wrap">
+          <input type="text" placeholder="Town name or code…" value="${esc(act.location)}"
+            class="w-full rounded-lg px-3 py-2 outline-none" style="font-size:13px;background:var(--bg-input);border:1px solid var(--border-input);color:var(--text-input)"
+            data-field="location" data-act="${act.id}" data-day="${di}"
+            autocomplete="off" spellcheck="false"
+            oninput="updateField(this);townSearch(this)"
+            onfocus="townSearch(this)"
+            onblur="closeTownDd(this)">
+          <div class="town-dropdown" id="td-${act.id}"></div>
+        </div>
+      </div>
+      
+      <div style="margin-bottom: 14px;">
+        <span class="field-label">Work Codes</span>
+        <div style="background:var(--bg-code-btn);border:1px solid var(--accent-light);border-radius:12px;padding:10px 12px;">
+          ${codesSection}
+          <button onclick="openCodeModal(${di},'${act.id}')"
+            class="w-full text-left border border-dashed rounded-xl px-3 py-2 text-sm font-medium" style="background:transparent;color:var(--accent);border-color:var(--accent)">
+            ${act.codes.length ? '✎ Edit codes' : '+ Tap to add code'}
+          </button>
+        </div>
+      </div>
+
+      <div class="flex gap-3 mb-1" style="margin-bottom: 14px;">
+        <div class="stepper-wrap">
+          <span class="stepper-label" style="color:var(--text-muted)">Ordinary Hrs</span>
+          <div class="stepper-row">
+            <button onclick="adjHrs(this,-1)" class="stepper-btn" data-target="ordinary" data-act="${act.id}" data-day="${di}">−</button>
+            <div class="stepper-divider"></div>
+            <input type="number" step="1" min="0" placeholder="0" value="${act.ordinary}"
+              class="flex-1 text-center font-bold text-lg bg-transparent outline-none" style="color:var(--text-hours);min-width:0"
+              data-field="ordinary" data-act="${act.id}" data-day="${di}" oninput="updateField(this)" onchange="updateField(this)" onblur="updateField(this)">
+            <div class="stepper-divider"></div>
+            <button onclick="adjHrs(this,1)" class="stepper-btn" data-target="ordinary" data-act="${act.id}" data-day="${di}">+</button>
+          </div>
+        </div>
+        <div class="stepper-wrap">
+          <span class="stepper-label" style="color:var(--text-ot)">Overtime Hrs</span>
+          <div class="stepper-row ot">
+            <button onclick="adjHrs(this,-1)" class="stepper-btn ot-btn" data-target="overtime" data-act="${act.id}" data-day="${di}">−</button>
+            <div class="stepper-divider"></div>
+            <input type="number" step="1" min="0" placeholder="0" value="${act.overtime}"
+              class="flex-1 text-center font-bold text-lg bg-transparent outline-none" style="color:var(--text-ot);min-width:0"
+              data-field="overtime" data-act="${act.id}" data-day="${di}" oninput="updateField(this)" onchange="updateField(this)" onblur="updateField(this)">
+            <div class="stepper-divider"></div>
+            <button onclick="adjHrs(this,1)" class="stepper-btn ot-btn" data-target="overtime" data-act="${act.id}" data-day="${di}">+</button>
+          </div>
+        </div>
+      </div>
+      
+      <div class="flex items-center gap-3 px-1 pb-2 text-xs" style="color:var(--text-muted); margin-bottom: 14px;">
+        <span>Tasks: <strong style="color:var(--text-secondary)">${numTasks}</strong></span>
+        <span style="opacity:0.3">|</span>
+        <span>Hrs/Task: <strong data-calc="hrsPerTask" data-act="${act.id}" style="color:var(--text-secondary)">${hrsPerTask}</strong></span>
+        <span style="opacity:0.3">|</span>
+        <span>OT/Task: <strong data-calc="otPerTask" data-act="${act.id}" style="color:var(--text-ot)">${otPerTask}</strong></span>
+      </div>
+
+      ${(() => {
+            const hasNote = !!act.notes;
+            const isOpen = state.notesOpen.has(act.id) ? state.notesOpen.get(act.id) : hasNote;
+            const preview = hasNote ? act.notes.replace(/\n/g, ' ').slice(0, 60) + (act.notes.length > 60 ? '…' : '') : '';
+            const chevron = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;transition:transform .2s;transform:rotate(${isOpen ? '90deg' : '0deg'})"><polyline points="9 18 15 12 9 6"/></svg>`;
+            return `
+      <button onclick="toggleNotes('${act.id}')" style="
+          display:flex;align-items:center;gap:8px;width:100%;text-align:left;cursor:pointer;
+          padding:9px 12px;border-radius:${isOpen ? '10px 10px 0 0' : '10px'};margin-bottom:0;
+          background:transparent;
+          border:1px dashed var(--border);
+          color:var(--text-muted);
+          transition:background .15s,border-color .15s;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;${hasNote ? 'color:var(--accent)' : ''}"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+        <span style="font-size:12px;font-weight:600;flex-shrink:0;">Notes</span>
+        ${hasNote
+                ? `<span style="flex:1;font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;opacity:0.7;color:var(--text-secondary);">${esc(preview)}</span>`
+                : `<span style="flex:1;font-size:11px;opacity:0.4;font-style:italic;">Add a note…</span>`}
+        ${chevron}
+      </button>
+      ${isOpen ? `<textarea placeholder="Notes…" rows="2"
+        class="card-notes-ta w-full rounded-lg px-3 py-2 outline-none" style="background:var(--bg-input);border:1px dashed var(--border);border-top:none;border-radius:0 0 10px 10px;color:var(--text-input);resize:none;overflow:hidden;min-height:50px;margin-bottom:14px;"
+        data-field="notes" data-act="${act.id}" data-day="${di}" oninput="updateField(this);autoGrow(this)">${esc(act.notes || '')}</textarea>` : '<div style="margin-bottom:14px;"></div>'}
+      `;
+          })()}
+
       <button onclick="showConfirm('Delete activity?','${esc(act.description || 'Unnamed')}${act.location ? ' — ' + esc(act.location) : ''}',()=>removeActivity('${act.id}',${di}))"
-        class="flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium transition-colors ${actIndex === totalActivities - 1 ? 'flex-1' : 'ml-auto'}"
+        class="w-full flex items-center justify-center gap-1.5 px-3 py-3 rounded-xl text-xs font-bold transition-colors"
         style="color:var(--btn-danger-color,#ef4444);background:var(--btn-danger-bg,rgba(239,68,68,0.08));border:1px solid var(--btn-danger-border,rgba(239,68,68,0.22))">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
           <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
         </svg>
         Delete activity
       </button>
     </div>
-    <div style="margin-top:20px; text-align:center;">
-      <button onclick="toggleActivityDetails('${act.id}')" style="background:transparent; border:none; color:var(--text-muted); font-size:13px; font-weight:600; cursor:pointer; display:inline-flex; align-items:center; gap:4px; margin-bottom:8px;">
-        Collapse to summary ▴
-      </button>
-    </div>
-    `}
+    ` : ''}
   </div>`;
     }
 
