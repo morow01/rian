@@ -1966,7 +1966,7 @@
     // ============================================================
     // CONFIG
     // ============================================================
-    const VERSION = '2.0.5';
+    const VERSION = '2.0.6';
     const API_URL = 'https://script.google.com/macros/s/AKfycbwHbuuctWpT1QWqQc8C1fINQyBJhssIIeh3duuQgAHiCpGBRUVnPEmUnDlEDu5mQbZk/exec';
     const DAY_NAMES = ['Friday', 'Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday'];
     const DB_NAME = 'timesheet-db';
@@ -2524,6 +2524,18 @@
     }
 
     async function loadWeek(weekStart) {
+      // Flush any pending edit for the CURRENT week before switching —
+      // the saveTimer closure captured a snapshot so the write is safe,
+      // but we also clear the timer to avoid a redundant DB write later
+      if (saveTimer && state.weekStart && state.weekData) {
+        clearTimeout(saveTimer);
+        clearTimeout(syncTimer);
+        saveTimer = null;
+        syncTimer = null;
+        const flushTs = state.weekData._updatedAt || Date.now();
+        await dbPut('weeks', { weekStart: state.weekStart, data: state.weekData, updatedAt: flushTs });
+      }
+
       state.weekStart = weekStart;
       state.weekBase = null; // reset merge baseline for new week
       state.syncStatus = 'idle';
@@ -2572,12 +2584,18 @@
       clearTimeout(saveTimer);
       clearTimeout(syncTimer);
       state.syncStatus = 'pending';
-      // Stamp the edit time on the data itself so syncNow can compare correctly
-      state.weekData._updatedAt = Date.now();
+      // Stamp the edit time NOW and capture the week identity immediately —
+      // if the user navigates away before the timer fires, we still save to the
+      // correct week key with the correct data snapshot
+      const ts = Date.now();
+      state.weekData._updatedAt = ts;
+      const capturedWeekStart = state.weekStart;
+      const capturedData = deepCopy(state.weekData); // snapshot at edit time
       updateHeaderStatus();
       saveTimer = setTimeout(async () => {
-        await dbPut('weeks', { weekStart: state.weekStart, data: state.weekData, updatedAt: state.weekData._updatedAt });
-        if (navigator.onLine) {
+        await dbPut('weeks', { weekStart: capturedWeekStart, data: capturedData, updatedAt: ts });
+        // Only trigger sync if we're still on the same week
+        if (navigator.onLine && state.weekStart === capturedWeekStart) {
           syncTimer = setTimeout(syncNow, 1000);
         }
       }, 500);
@@ -3606,11 +3624,15 @@
     async function loadNotes() {
       state.notesSyncStatus = 'idle';
       const stored = await dbGet('notes', 'notes_all');
-      state.notes = stored ? stored.data : [];
       state.notesLocalTime = stored ? (stored.updatedAt || 0) : 0;
-      // Set baseline to current DB state BEFORE the API call so that any edits the
-      // user makes while the network request is in flight are detected as "local changes"
-      // and preserved by mergeNotes — prevents focus loss and location field revert
+      // Only load from DB if in-memory notes are empty — state.notes may already
+      // contain notes the user created during the loadWeek window (before loadNotes ran)
+      // and we must not overwrite those unsaved additions
+      if (state.notes.length === 0 && stored && stored.data.length > 0) {
+        state.notes = stored.data;
+      }
+      // Baseline = current in-memory state, so any edits made during the upcoming
+      // API call are recognised as "local changes" by mergeNotes
       state.notesBase = deepCopy(state.notes);
       render();
       if (navigator.onLine) {
