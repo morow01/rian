@@ -1966,7 +1966,7 @@
     // ============================================================
     // CONFIG
     // ============================================================
-    const VERSION = '2.0.4';
+    const VERSION = '2.0.5';
     const API_URL = 'https://script.google.com/macros/s/AKfycbwHbuuctWpT1QWqQc8C1fINQyBJhssIIeh3duuQgAHiCpGBRUVnPEmUnDlEDu5mQbZk/exec';
     const DAY_NAMES = ['Friday', 'Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday'];
     const DB_NAME = 'timesheet-db';
@@ -3608,29 +3608,49 @@
       const stored = await dbGet('notes', 'notes_all');
       state.notes = stored ? stored.data : [];
       state.notesLocalTime = stored ? (stored.updatedAt || 0) : 0;
-      state.notesBase = null;
+      // Set baseline to current DB state BEFORE the API call so that any edits the
+      // user makes while the network request is in flight are detected as "local changes"
+      // and preserved by mergeNotes — prevents focus loss and location field revert
+      state.notesBase = deepCopy(state.notes);
       render();
       if (navigator.onLine) {
         try {
           const remote = await apiGet('getNotes');
           if (remote && Array.isArray(remote.notes)) {
             const remoteTime = remote._updatedAt || 0;
-            if (remoteTime > state.notesLocalTime || remote.notes.length > state.notes.length) {
-              // Remote is newer or has more notes — take remote as source of truth
-              state.notes          = remote.notes;
-              state.notesBase      = deepCopy(remote.notes);
-              state.notesLocalTime = remoteTime;
-              await dbPut('notes', { id: 'notes_all', data: state.notes, updatedAt: remoteTime });
-            } else {
-              // Local is same age or newer — set baseline so future syncs can merge properly
+            if (remote.notes.length > 0 || state.notes.length === 0) {
+              // Merge remote into local — local edits made during the API call are preserved
+              const merged = mergeNotes(state.notesBase, state.notes, remote.notes);
+              if (JSON.stringify(merged) !== JSON.stringify(remote.notes)) {
+                // Local has changes the server doesn't have yet — push merged
+                const ts = Date.now();
+                await apiPost({ action: 'saveNotes', notes: merged, _updatedAt: ts });
+                state.notesLocalTime = ts;
+                await dbPut('notes', { id: 'notes_all', data: merged, updatedAt: ts });
+              } else if (remoteTime > state.notesLocalTime) {
+                // Remote is newer and no local changes — update local DB only
+                state.notesLocalTime = remoteTime;
+                await dbPut('notes', { id: 'notes_all', data: merged, updatedAt: remoteTime });
+              }
+              state.notes    = merged;
               state.notesBase = deepCopy(remote.notes);
+            } else {
+              // Remote is empty but we have local notes — push local up to server
+              const ts = Date.now();
+              await apiPost({ action: 'saveNotes', notes: state.notes, _updatedAt: ts });
+              state.notesBase      = deepCopy(state.notes);
+              state.notesLocalTime = ts;
+              await dbPut('notes', { id: 'notes_all', data: state.notes, updatedAt: ts });
             }
           }
           state.notesSyncStatus = 'synced';
         } catch (e) {
           state.notesSyncStatus = 'error';
         }
-        render();
+        // Don't rebuild DOM if user is actively editing — their changes are already in state
+        const active = document.activeElement;
+        const userEditing = active && (active.tagName === 'TEXTAREA' || active.tagName === 'INPUT');
+        if (!userEditing) render();
       }
       updateHeaderStatus();
     }
