@@ -1966,7 +1966,7 @@
     // ============================================================
     // CONFIG
     // ============================================================
-    const VERSION = '2.0.2';
+    const VERSION = '2.0.3';
     const API_URL = 'https://script.google.com/macros/s/AKfycbwHbuuctWpT1QWqQc8C1fINQyBJhssIIeh3duuQgAHiCpGBRUVnPEmUnDlEDu5mQbZk/exec';
     const DAY_NAMES = ['Friday', 'Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday'];
     const DB_NAME = 'timesheet-db';
@@ -2864,7 +2864,7 @@
       app.innerHTML = renderHeader() + viewBody;
       attachEvents();
       // Auto-grow textareas that have existing content
-      app.querySelectorAll('textarea[data-field="notes"], textarea[data-field="description"]').forEach(autoGrow);
+      app.querySelectorAll('textarea[data-field="notes"], textarea[data-field="description"], textarea[data-note-field="description"]').forEach(autoGrow);
       // Restore scroll position after DOM is painted
       if (savedScroll > 0) requestAnimationFrame(() => window.scrollTo(0, savedScroll));
     }
@@ -3542,9 +3542,6 @@
     }
 
     function setView(v) {
-      // Reset scroll for the new view before switching (so we start at top)
-      sessionStorage.removeItem('scrollPos_' + v);
-      window.scrollTo(0, 0);
       state.view = v;
       localStorage.setItem('lastView', v);
       if (v === 'history') loadHistory();
@@ -3747,7 +3744,8 @@
             <div class="note-detail-row">
               <span class="field-label">Description</span>
               <textarea data-note-id="${note.id}" data-note-field="description" rows="2"
-                oninput="updateNoteField(this)">${esc(note.description)}</textarea>
+                style="width:100%;border-radius:8px;padding:8px 10px;font-size:13px;background:var(--bg-input);border:1px solid var(--border-input);color:var(--text-input);resize:none;overflow:hidden;min-height:36px;outline:none;"
+                oninput="updateNoteField(this);autoGrow(this)">${esc(note.description)}</textarea>
             </div>
             <div style="margin-bottom:10px;">
               <span class="field-label">Location</span>
@@ -3781,15 +3779,16 @@
       };
 
       const visibleOpen = f === 'done' ? [] : filtered;
-      const visibleDone = f === 'done' ? doneNotes : [];
+      // Done notes always show at the bottom when viewing 'all' or the 'done' filter
+      const visibleDone = (f === 'done' || f === 'all') ? doneNotes : [];
 
       const openSection = visibleOpen.length
         ? `<div class="notes-section-label">Open</div>` +
           visibleOpen.map(n => `<div class="note-card ${state.expandedNotes.has(n.id)?'expanded':''}" data-note-id="${n.id}">${renderNote(n)}</div>`).join('')
         : (f !== 'done' ? `<div class="notes-empty">No ${f==='all'?'open':f} notes yet.</div>` : '');
 
-      const doneSection = f === 'done' && visibleDone.length
-        ? `<div class="notes-section-label">Done</div>` +
+      const doneSection = visibleDone.length
+        ? `<div class="notes-section-label" style="margin-top:4px;">Done</div>` +
           visibleDone.map(n => `<div class="note-card done-card ${state.expandedNotes.has(n.id)?'expanded':''}" data-note-id="${n.id}">${renderNote(n)}</div>`).join('')
         : '';
 
@@ -4244,15 +4243,18 @@
         navigator.serviceWorker.register('sw.js').catch(() => { });
       }
 
+      // Restore last view BEFORE first render so every render targets the right view
+      const lastView = localStorage.getItem('lastView');
+      if (lastView === 'notes' || lastView === 'history') state.view = lastView;
+
       await Promise.all([initDB(), loadCodes(), loadTowns()]);
 
       const friday = getCurrentFriday();
       await loadWeek(dateToStr(friday));
 
-      // Restore last active view (week is already loaded above)
-      const lastView = localStorage.getItem('lastView');
-      if (lastView === 'notes') setView('notes');
-      else if (lastView === 'history') setView('history');
+      // Load data for the restored view (week data already loaded above)
+      if (state.view === 'notes') loadNotes();
+      else if (state.view === 'history') loadHistory();
     }
 
     init();
