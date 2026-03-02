@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Notes — Hybrid Mockup</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { font-family: 'Segoe UI', system-ui, sans-serif; background: #0f172a; color: #e2e8f0; margin: 0; padding: 16px; }
+    .phone { width: 360px; border-radius: 24px; overflow: hidden; border: 2px solid #334155; box-shadow: 0 20px 60px rgba(0,0,0,0.5); background: #1e293b; }
+    .nav { background: #1e293b; border-top: 1px solid #334155; display: flex; padding: 0 4px; }
+    .nav-btn { flex: 1; padding: 10px 4px 12px; font-size: 11px; color: #64748b; text-align: center; cursor: pointer; border: none; background: none; }
+    .nav-btn.active { color: #3b82f6; border-bottom: 2px solid #3b82f6; }
+    .page-area { height: 540px; background: #0f172a; overflow-y: auto; overflow-x: hidden; }
+    .field-label { font-size: 10px; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 4px; display: block; }
+    .input-mock { background: #1e293b; border: 1px solid #334155; border-radius: 10px; padding: 9px 12px; font-size: 13px; color: #94a3b8; }
+    .dot-high   { background: #ef4444; }
+    .dot-medium { background: #f97316; }
+    .dot-low    { background: #22c55e; }
+    .dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+    .badge-high   { background: #450a0a; color: #fca5a5; border: 1px solid #7f1d1d; }
+    .badge-medium { background: #431407; color: #fdba74; border: 1px solid #7c2d12; }
+    .badge-low    { background: #052e16; color: #86efac; border: 1px solid #14532d; }
+    .badge-done   { background: #1e293b; color: #475569; border: 1px solid #334155; }
+    .badge { font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 999px; text-transform: uppercase; letter-spacing: 0.04em; }
+    .checkbox { width: 20px; height: 20px; border-radius: 6px; border: 1.5px solid #475569; flex-shrink: 0; display: flex; align-items: center; justify-content: center; background: transparent; }
+    .checkbox.checked { background: #3b82f6; border-color: #3b82f6; }
+    .grid-wrap { display: grid; grid-template-columns: repeat(3, 360px); gap: 28px; }
+    @media (max-width: 1160px) { .grid-wrap { grid-template-columns: repeat(2, 360px); } }
+    @media (max-width: 780px)  { .grid-wrap { grid-template-columns: 1fr; } }
+    .expand-arrow { display: inline-block; transition: transform 0.25s; color: #64748b; font-size: 12px; line-height: 1; }
+    .expand-arrow.open { transform: rotate(90deg); }
+  </style>
+</head>
+<body>
+
+<div style="max-width:1200px; margin:0 auto;">
+
+  <div style="margin-bottom:28px;">
+    <div style="font-size:20px; font-weight:800; color:#e2e8f0; margin-bottom:4px;">Notes — Hybrid B+C Mockup</div>
+    <div style="font-size:13px; color:#64748b;">Compact list rows (Option B) with inline expand (Option C). Three screens shown left to right.</div>
+  </div>
+
+  <div class="grid-wrap">
+
+    <!-- ══════════════════════════
+         SCREEN 1 — List view, all collapsed
+    ═══════════════════════════════ -->
+    <div>
+      <div style="font-size:14px; font-weight:700; color:#e2e8f0; margin-bottom:4px;">① List — all collapsed</div>
+      <div style="font-size:12px; color:#64748b; margin-bottom:12px;">Default view. Compact rows, coloured dot for priority. Filter chips at top. Tap a row to expand.</div>
+      <div class="phone">
+        <!-- Header -->
+        <div style="padding:14px 16px 10px; background:#1e293b; border-bottom:1px solid #334155; display:flex; align-items:center; justify-content:space-between;">
+          <div style="font-size:16px; font-weight:800; color:#e2e8f0;">Field Notes</div>
+          <button style="background:#3b82f6; color:white; border:none; border-radius:10px; padding:6px 14px; font-size:12px; font-weight:700;">+ Add</button>
+        </div>
+
+        <div class="page-area">
+          <!-- Filter chips -->
+          <div style="display:flex; gap:6px; padding:10px 12px 8px; overflow-x:auto;">
+            <div style="background:#3b82f6; color:white; padding:4px 12px; border-radius:999px; font-size:11px; font-weight:700; white-space:nowrap; flex-shrink:0;">All (4)</div>
+            <div style="background:#0f172a; color:#fca5a5; padding:4px 12px; border-radius:999px; font-size:11px; border:1px solid #7f1d1d; white-space:nowrap; flex-shrink:0;">High (1)</div>
+            <div style="background:#0f172a; color:#fdba74; padding:4px 12px; border-radius:999px; font-size:11px; border:1px solid #7c2d12; white-space:nowrap; flex-shrink:0;">Medium (1)</div>
+            <div style="background:#0f172a; color:#86efac; padding:4px 12px; border-radius:999px; font-size:11px; border:1px solid #14532d; white-space:nowrap; flex-shrink:0;">Low (1)</div>
+            <div style="background:#0f172a; color:#64748b; padding:4px 12px; border-radius:999px; font-size:11px; border:1px solid #334155; white-space:nowrap; flex-shrink:0;">Done (1)</div>
+          </div>
+
+          <!-- Open section -->
+          <div style="font-size:10px; color:#475569; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; padding:4px 14px 6px;">Open</div>
+
+          <div style="background:#1e293b; border-radius:14px; margin:0 12px 8px; border:1px solid #334155; overflow:hidden;">
+
+            <!-- Row 1 — High -->
+            <div style="display:flex; align-items:center; gap:10px; padding:12px 12px; border-bottom:1px solid #0f172a; cursor:pointer;">
+              <span class="expand-arrow">▶</span>
+              <div class="dot dot-high"></div>
+              <div style="flex:1; min-width:0;">
+                <div style="font-size:13px; font-weight:500; color:#e2e8f0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Filter replacement — Generator Room B</div>
+                <div style="font-size:11px; color:#64748b; margin-top:2px;">📍 Dublin Exchange · Today</div>
+              </div>
+              <span class="badge badge-high">High</span>
+            </div>
+
+            <!-- Row 2 — Medium -->
+            <div style="display:flex; align-items:center; gap:10px; padding:12px 12px; border-bottom:1px solid #0f172a; cursor:pointer;">
+              <span class="expand-arrow">▶</span>
+              <div class="dot dot-medium"></div>
+              <div style="flex:1; min-width:0;">
+                <div style="font-size:13px; font-weight:500; color:#e2e8f0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Faulty cable label on rack 3</div>
+                <div style="font-size:11px; color:#64748b; margin-top:2px;">📍 Cork Node · Yesterday</div>
+              </div>
+              <span class="badge badge-medium">Med</span>
+            </div>
+
+            <!-- Row 3 — Low -->
+            <div style="display:flex; align-items:center; gap:10px; padding:12px 12px; cursor:pointer;">
+              <span class="expand-arrow">▶</span>
+              <div class="dot dot-low"></div>
+              <div style="flex:1; min-width:0;">
+                <div style="font-size:13px; font-weight:500; color:#e2e8f0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Check AC unit noise on next visit</div>
+                <div style="font-size:11px; color:#64748b; margin-top:2px;">📍 Limerick Hub · Mon 24 Feb</div>
+              </div>
+              <span class="badge badge-low">Low</span>
+            </div>
+
+          </div>
+
+          <!-- Done section -->
+          <div style="font-size:10px; color:#475569; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; padding:8px 14px 6px;">Done</div>
+
+          <div style="background:#1e293b; border-radius:14px; margin:0 12px 8px; border:1px solid #334155; overflow:hidden; opacity:0.45;">
+            <div style="display:flex; align-items:center; gap:10px; padding:12px 12px; cursor:pointer;">
+              <span class="expand-arrow" style="color:#334155;">▶</span>
+              <div class="dot" style="background:#334155;"></div>
+              <div style="flex:1; min-width:0;">
+                <div style="font-size:13px; font-weight:500; color:#64748b; text-decoration:line-through; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Order replacement SFP modules</div>
+                <div style="font-size:11px; color:#475569; margin-top:2px;">📍 HQ · Mon 17 Feb</div>
+              </div>
+              <span class="badge badge-done">Done</span>
+            </div>
+          </div>
+
+        </div>
+        <div class="nav">
+          <button class="nav-btn">⏱ Week</button>
+          <button class="nav-btn">⊞ Table</button>
+          <button class="nav-btn">📋 Hist</button>
+          <button class="nav-btn active">🗒 Notes</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════
+         SCREEN 2 — One row expanded
+    ═══════════════════════════════ -->
+    <div>
+      <div style="font-size:14px; font-weight:700; color:#e2e8f0; margin-bottom:4px;">② One note expanded</div>
+      <div style="font-size:12px; color:#64748b; margin-bottom:12px;">Tap a row — it expands inline showing full description, location, date and action buttons.</div>
+      <div class="phone">
+        <div style="padding:14px 16px 10px; background:#1e293b; border-bottom:1px solid #334155; display:flex; align-items:center; justify-content:space-between;">
+          <div style="font-size:16px; font-weight:800; color:#e2e8f0;">Field Notes</div>
+          <button style="background:#3b82f6; color:white; border:none; border-radius:10px; padding:6px 14px; font-size:12px; font-weight:700;">+ Add</button>
+        </div>
+
+        <div class="page-area">
+          <!-- Filter chips -->
+          <div style="display:flex; gap:6px; padding:10px 12px 8px; overflow-x:auto;">
+            <div style="background:#3b82f6; color:white; padding:4px 12px; border-radius:999px; font-size:11px; font-weight:700; white-space:nowrap; flex-shrink:0;">All (4)</div>
+            <div style="background:#0f172a; color:#fca5a5; padding:4px 12px; border-radius:999px; font-size:11px; border:1px solid #7f1d1d; white-space:nowrap; flex-shrink:0;">High (1)</div>
+            <div style="background:#0f172a; color:#fdba74; padding:4px 12px; border-radius:999px; font-size:11px; border:1px solid #7c2d12; white-space:nowrap; flex-shrink:0;">Medium (1)</div>
+            <div style="background:#0f172a; color:#86efac; padding:4px 12px; border-radius:999px; font-size:11px; border:1px solid #14532d; white-space:nowrap; flex-shrink:0;">Low (1)</div>
+            <div style="background:#0f172a; color:#64748b; padding:4px 12px; border-radius:999px; font-size:11px; border:1px solid #334155; white-space:nowrap; flex-shrink:0;">Done (1)</div>
+          </div>
+
+          <div style="font-size:10px; color:#475569; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; padding:4px 14px 6px;">Open</div>
+
+          <!-- EXPANDED NOTE CARD -->
+          <div style="margin:0 12px 8px; border-radius:14px; border:1px solid #3b82f6; overflow:hidden; box-shadow:0 0 0 1px #1d4ed8;">
+
+            <!-- Collapsed header row (now with open arrow) -->
+            <div style="display:flex; align-items:center; gap:10px; padding:12px 12px; background:#1e293b; cursor:pointer; border-bottom:1px solid #1e3a5f;">
+              <span class="expand-arrow open" style="color:#3b82f6;">▶</span>
+              <div class="dot dot-high"></div>
+              <div style="flex:1; min-width:0;">
+                <div style="font-size:13px; font-weight:600; color:#e2e8f0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Filter replacement — Generator Room B</div>
+                <div style="font-size:11px; color:#64748b; margin-top:2px;">📍 Dublin Exchange · Today</div>
+              </div>
+              <span class="badge badge-high">High</span>
+            </div>
+
+            <!-- Expanded detail area -->
+            <div style="background:#0f172a; padding:14px;">
+              <div style="margin-bottom:10px;">
+                <div class="field-label">Description</div>
+                <textarea style="width:100%; background:#1e293b; border:1px solid #334155; border-radius:10px; padding:9px 12px; font-size:13px; color:#e2e8f0; resize:none; box-sizing:border-box; font-family:inherit;" rows="3">Filter replacement needed in Generator Room B — last changed 6 months ago, unit making rattling noise</textarea>
+              </div>
+              <div style="display:flex; gap:8px; margin-bottom:12px;">
+                <div style="flex:1;">
+                  <div class="field-label">Location</div>
+                  <div class="input-mock">Dublin Exchange</div>
+                </div>
+                <div style="flex:1;">
+                  <div class="field-label">Date</div>
+                  <div class="input-mock">02 Mar 2026</div>
+                </div>
+              </div>
+              <div style="display:flex; gap:8px;">
+                <button style="flex:1; padding:9px 12px; border-radius:10px; background:#1e293b; color:#64748b; border:1px solid #334155; font-size:12px; cursor:pointer;">🗑 Delete</button>
+                <button style="flex:2; padding:9px 12px; border-radius:10px; background:#14532d; color:#86efac; border:none; font-size:12px; font-weight:700; cursor:pointer;">✓ Mark as Done</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Other rows still collapsed -->
+          <div style="background:#1e293b; border-radius:14px; margin:0 12px 8px; border:1px solid #334155; overflow:hidden;">
+            <div style="display:flex; align-items:center; gap:10px; padding:12px 12px; border-bottom:1px solid #0f172a; cursor:pointer;">
+              <span class="expand-arrow">▶</span>
+              <div class="dot dot-medium"></div>
+              <div style="flex:1; min-width:0;">
+                <div style="font-size:13px; font-weight:500; color:#e2e8f0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Faulty cable label on rack 3</div>
+                <div style="font-size:11px; color:#64748b; margin-top:2px;">📍 Cork Node · Yesterday</div>
+              </div>
+              <span class="badge badge-medium">Med</span>
+            </div>
+            <div style="display:flex; align-items:center; gap:10px; padding:12px 12px; cursor:pointer;">
+              <span class="expand-arrow">▶</span>
+              <div class="dot dot-low"></div>
+              <div style="flex:1; min-width:0;">
+                <div style="font-size:13px; font-weight:500; color:#e2e8f0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Check AC unit noise on next visit</div>
+                <div style="font-size:11px; color:#64748b; margin-top:2px;">📍 Limerick Hub · Mon 24 Feb</div>
+              </div>
+              <span class="badge badge-low">Low</span>
+            </div>
+          </div>
+
+        </div>
+        <div class="nav">
+          <button class="nav-btn">⏱ Week</button>
+          <button class="nav-btn">⊞ Table</button>
+          <button class="nav-btn">📋 Hist</button>
+          <button class="nav-btn active">🗒 Notes</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════
+         SCREEN 3 — Add new note form
+    ═══════════════════════════════ -->
+    <div>
+      <div style="font-size:14px; font-weight:700; color:#e2e8f0; margin-bottom:4px;">③ Add new note</div>
+      <div style="font-size:12px; color:#64748b; margin-bottom:12px;">Tap "+ Add" — a new blank note appears at the top, expanded and ready to fill in.</div>
+      <div class="phone">
+        <div style="padding:14px 16px 10px; background:#1e293b; border-bottom:1px solid #334155; display:flex; align-items:center; justify-content:space-between;">
+          <div style="font-size:16px; font-weight:800; color:#e2e8f0;">Field Notes</div>
+          <button style="background:#3b82f6; color:white; border:none; border-radius:10px; padding:6px 14px; font-size:12px; font-weight:700;">+ Add</button>
+        </div>
+
+        <div class="page-area">
+          <div style="display:flex; gap:6px; padding:10px 12px 8px; overflow-x:auto;">
+            <div style="background:#3b82f6; color:white; padding:4px 12px; border-radius:999px; font-size:11px; font-weight:700; white-space:nowrap; flex-shrink:0;">All (4)</div>
+            <div style="background:#0f172a; color:#fca5a5; padding:4px 12px; border-radius:999px; font-size:11px; border:1px solid #7f1d1d; white-space:nowrap; flex-shrink:0;">High (1)</div>
+            <div style="background:#0f172a; color:#fdba74; padding:4px 12px; border-radius:999px; font-size:11px; border:1px solid #7c2d12; white-space:nowrap; flex-shrink:0;">Medium (1)</div>
+            <div style="background:#0f172a; color:#86efac; padding:4px 12px; border-radius:999px; font-size:11px; border:1px solid #14532d; white-space:nowrap; flex-shrink:0;">Low (1)</div>
+            <div style="background:#0f172a; color:#64748b; padding:4px 12px; border-radius:999px; font-size:11px; border:1px solid #334155; white-space:nowrap; flex-shrink:0;">Done (1)</div>
+          </div>
+
+          <div style="font-size:10px; color:#475569; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; padding:4px 14px 6px;">Open</div>
+
+          <!-- NEW NOTE — auto-expanded at top, highlighted border -->
+          <div style="margin:0 12px 8px; border-radius:14px; border:1px solid #3b82f6; overflow:hidden; box-shadow:0 0 0 1px #1d4ed8;">
+
+            <div style="display:flex; align-items:center; gap:10px; padding:12px 12px; background:#1e293b; border-bottom:1px solid #1e3a5f;">
+              <span class="expand-arrow open" style="color:#3b82f6;">▶</span>
+              <div class="dot" style="background:#475569;"></div>
+              <div style="flex:1; min-width:0;">
+                <div style="font-size:13px; font-weight:500; color:#475569; font-style:italic;">New note…</div>
+                <div style="font-size:11px; color:#475569; margin-top:2px;">📍 —  · 02 Mar 2026</div>
+              </div>
+              <span class="badge" style="background:#1e293b; color:#475569; border:1px solid #334155;">—</span>
+            </div>
+
+            <div style="background:#0f172a; padding:14px;">
+              <div style="margin-bottom:10px;">
+                <div class="field-label">Description</div>
+                <textarea style="width:100%; background:#1e293b; border:1px solid #3b82f6; border-radius:10px; padding:9px 12px; font-size:13px; color:#94a3b8; resize:none; box-sizing:border-box; font-family:inherit;" rows="3" placeholder="What needs to be done?"></textarea>
+              </div>
+              <div style="display:flex; gap:8px; margin-bottom:10px;">
+                <div style="flex:1;">
+                  <div class="field-label">Location</div>
+                  <div class="input-mock" style="color:#475569; font-style:italic;">Tap to set…</div>
+                </div>
+                <div style="flex:1;">
+                  <div class="field-label">Date</div>
+                  <div class="input-mock">02 Mar 2026</div>
+                </div>
+              </div>
+              <div style="margin-bottom:12px;">
+                <div class="field-label">Priority</div>
+                <div style="display:flex; gap:6px; margin-top:5px;">
+                  <div style="flex:1; padding:8px 4px; border-radius:10px; text-align:center; font-size:11px; font-weight:700; cursor:pointer; background:#450a0a; color:#fca5a5; border:1.5px solid #ef4444; text-transform:uppercase;">🔴 High</div>
+                  <div style="flex:1; padding:8px 4px; border-radius:10px; text-align:center; font-size:11px; font-weight:700; cursor:pointer; background:#1e293b; color:#64748b; border:1.5px solid #334155; text-transform:uppercase;">🟠 Med</div>
+                  <div style="flex:1; padding:8px 4px; border-radius:10px; text-align:center; font-size:11px; font-weight:700; cursor:pointer; background:#1e293b; color:#64748b; border:1.5px solid #334155; text-transform:uppercase;">🟢 Low</div>
+                </div>
+              </div>
+              <div style="display:flex; gap:8px;">
+                <button style="flex:1; padding:9px 12px; border-radius:10px; background:#1e293b; color:#64748b; border:1px solid #334155; font-size:12px; cursor:pointer;">Cancel</button>
+                <button style="flex:2; padding:9px 12px; border-radius:10px; background:#3b82f6; color:white; border:none; font-size:12px; font-weight:700; cursor:pointer;">Save Note</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Existing notes pushed down -->
+          <div style="background:#1e293b; border-radius:14px; margin:0 12px 8px; border:1px solid #334155; overflow:hidden;">
+            <div style="display:flex; align-items:center; gap:10px; padding:12px 12px; border-bottom:1px solid #0f172a; cursor:pointer;">
+              <span class="expand-arrow">▶</span>
+              <div class="dot dot-high"></div>
+              <div style="flex:1; min-width:0;">
+                <div style="font-size:13px; font-weight:500; color:#e2e8f0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Filter replacement — Generator Room B</div>
+                <div style="font-size:11px; color:#64748b; margin-top:2px;">📍 Dublin Exchange · Today</div>
+              </div>
+              <span class="badge badge-high">High</span>
+            </div>
+            <div style="display:flex; align-items:center; gap:10px; padding:12px 12px; cursor:pointer;">
+              <span class="expand-arrow">▶</span>
+              <div class="dot dot-medium"></div>
+              <div style="flex:1; min-width:0;">
+                <div style="font-size:13px; font-weight:500; color:#e2e8f0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Faulty cable label on rack 3</div>
+                <div style="font-size:11px; color:#64748b; margin-top:2px;">📍 Cork Node · Yesterday</div>
+              </div>
+              <span class="badge badge-medium">Med</span>
+            </div>
+          </div>
+
+        </div>
+        <div class="nav">
+          <button class="nav-btn">⏱ Week</button>
+          <button class="nav-btn">⊞ Table</button>
+          <button class="nav-btn">📋 Hist</button>
+          <button class="nav-btn active">🗒 Notes</button>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end grid -->
+
+  <!-- Summary box -->
+  <div style="margin-top:32px; padding:18px 20px; background:#1e293b; border-radius:16px; border:1px solid #334155; max-width:780px;">
+    <div style="font-size:13px; font-weight:700; color:#e2e8f0; margin-bottom:10px;">How it works — summary</div>
+    <div style="font-size:12px; color:#94a3b8; line-height:2;">
+      <b style="color:#e2e8f0;">List view:</b> Compact rows — coloured dot + title + location + date + priority badge. Nothing else until you need it.<br>
+      <b style="color:#e2e8f0;">Expand:</b> Tap any row — arrow rotates, detail area slides open. Description is editable inline. Changes auto-save (same as timesheet).<br>
+      <b style="color:#e2e8f0;">Filter chips:</b> Tap High / Medium / Low / Done to filter the list instantly.<br>
+      <b style="color:#e2e8f0;">Add:</b> "+ Add" button creates a new blank note at the top, auto-expanded and ready to type.<br>
+      <b style="color:#e2e8f0;">Mark done:</b> Button inside the expanded detail. Moves note to Done section, strikes through.<br>
+      <b style="color:#e2e8f0;">Delete:</b> Button inside expanded detail (with confirmation).<br>
+      <b style="color:#e2e8f0;">Sync:</b> Same field-level merge as the timesheet. Works across all devices.
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
