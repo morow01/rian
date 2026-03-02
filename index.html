@@ -2320,7 +2320,7 @@
     // ============================================================
     // CONFIG
     // ============================================================
-    const VERSION = '2.0.9';
+    const VERSION = '2.1.0';
     const API_URL = 'https://script.google.com/macros/s/AKfycbwHbuuctWpT1QWqQc8C1fINQyBJhssIIeh3duuQgAHiCpGBRUVnPEmUnDlEDu5mQbZk/exec';
     const DAY_NAMES = ['Friday', 'Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday'];
     const DB_NAME = 'timesheet-db';
@@ -3534,12 +3534,12 @@
       </td>
       <td class="tbl-codes-cell">${codesHtml}</td>
       <td style="text-align:center">
-        <input type="number" step="0.5" min="0" class="tbl-num-input" value="${act.ordinary || ''}" placeholder="0"
-          data-field="ordinary" data-act="${act.id}" data-day="${di}" oninput="updateField(this)">
+        <input type="number" step="1" min="0" class="tbl-num-input" value="${act.ordinary || ''}" placeholder="0"
+          data-field="ordinary" data-act="${act.id}" data-day="${di}" oninput="updateField(this)" onchange="updateField(this)" onblur="updateField(this)">
       </td>
       <td style="text-align:center">
-        <input type="number" step="0.5" min="0" class="tbl-num-input tbl-ot-input" value="${act.overtime || ''}" placeholder="0"
-          data-field="overtime" data-act="${act.id}" data-day="${di}" oninput="updateField(this)">
+        <input type="number" step="1" min="0" class="tbl-num-input tbl-ot-input" value="${act.overtime || ''}" placeholder="0"
+          data-field="overtime" data-act="${act.id}" data-day="${di}" oninput="updateField(this)" onchange="updateField(this)" onblur="updateField(this)">
       </td>
       <td class="tbl-calc">${numTasks}</td>
       <td class="tbl-calc">${hrsPerTask}</td>
@@ -3721,25 +3721,25 @@
       <div class="stepper-wrap">
         <span class="stepper-label" style="color:var(--text-muted)">Ordinary Hrs</span>
         <div class="stepper-row">
-          <button onclick="adjHrs(this,-0.5)" class="stepper-btn" data-target="ordinary" data-act="${act.id}" data-day="${di}">−</button>
+          <button onclick="adjHrs(this,-1)" class="stepper-btn" data-target="ordinary" data-act="${act.id}" data-day="${di}">−</button>
           <div class="stepper-divider"></div>
-          <input type="number" step="0.5" min="0" placeholder="0" value="${act.ordinary}"
+          <input type="number" step="1" min="0" placeholder="0" value="${act.ordinary}"
             class="flex-1 text-center font-bold text-lg bg-transparent outline-none" style="color:var(--text-hours);min-width:0"
-            data-field="ordinary" data-act="${act.id}" data-day="${di}" oninput="updateField(this)">
+            data-field="ordinary" data-act="${act.id}" data-day="${di}" oninput="updateField(this)" onchange="updateField(this)" onblur="updateField(this)">
           <div class="stepper-divider"></div>
-          <button onclick="adjHrs(this,0.5)" class="stepper-btn" data-target="ordinary" data-act="${act.id}" data-day="${di}">+</button>
+          <button onclick="adjHrs(this,1)" class="stepper-btn" data-target="ordinary" data-act="${act.id}" data-day="${di}">+</button>
         </div>
       </div>
       <div class="stepper-wrap">
         <span class="stepper-label" style="color:var(--text-ot)">Overtime Hrs</span>
         <div class="stepper-row ot">
-          <button onclick="adjHrs(this,-0.5)" class="stepper-btn ot-btn" data-target="overtime" data-act="${act.id}" data-day="${di}">−</button>
+          <button onclick="adjHrs(this,-1)" class="stepper-btn ot-btn" data-target="overtime" data-act="${act.id}" data-day="${di}">−</button>
           <div class="stepper-divider"></div>
-          <input type="number" step="0.5" min="0" placeholder="0" value="${act.overtime}"
+          <input type="number" step="1" min="0" placeholder="0" value="${act.overtime}"
             class="flex-1 text-center font-bold text-lg bg-transparent outline-none" style="color:var(--text-ot);min-width:0"
-            data-field="overtime" data-act="${act.id}" data-day="${di}" oninput="updateField(this)">
+            data-field="overtime" data-act="${act.id}" data-day="${di}" oninput="updateField(this)" onchange="updateField(this)" onblur="updateField(this)">
           <div class="stepper-divider"></div>
-          <button onclick="adjHrs(this,0.5)" class="stepper-btn ot-btn" data-target="overtime" data-act="${act.id}" data-day="${di}">+</button>
+          <button onclick="adjHrs(this,1)" class="stepper-btn ot-btn" data-target="overtime" data-act="${act.id}" data-day="${di}">+</button>
         </div>
       </div>
     </div>
