@@ -1966,7 +1966,7 @@
     // ============================================================
     // CONFIG
     // ============================================================
-    const VERSION = '2.0.3';
+    const VERSION = '2.0.4';
     const API_URL = 'https://script.google.com/macros/s/AKfycbwHbuuctWpT1QWqQc8C1fINQyBJhssIIeh3duuQgAHiCpGBRUVnPEmUnDlEDu5mQbZk/exec';
     const DAY_NAMES = ['Friday', 'Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday'];
     const DB_NAME = 'timesheet-db';
@@ -2230,6 +2230,7 @@
       weekBase: null,       // deep copy of week as loaded from server (field-level merge baseline)
       notes: [],            // all field notes
       notesBase: null,      // deep copy of notes as loaded from server (field-level merge baseline)
+      notesLocalTime: 0,    // updatedAt timestamp of notes as last saved to local DB
       notesFilter: 'all',   // 'all' | 'high' | 'medium' | 'low' | 'done'
       expandedNotes: new Set(), // note IDs that are expanded
       notesSyncStatus: 'idle',  // 'idle' | 'pending' | 'syncing' | 'synced' | 'error'
@@ -3560,7 +3561,9 @@
       state.notesSyncStatus = 'pending';
       updateHeaderStatus();
       notesSaveTimer = setTimeout(async () => {
-        await dbPut('notes', { id: 'notes_all', data: state.notes, updatedAt: Date.now() });
+        const ts = Date.now();
+        await dbPut('notes', { id: 'notes_all', data: state.notes, updatedAt: ts });
+        state.notesLocalTime = ts;  // track so syncNotes knows our true local timestamp
         if (navigator.onLine) setTimeout(syncNotes, 800);
       }, 500);
     }
@@ -3604,19 +3607,22 @@
       state.notesSyncStatus = 'idle';
       const stored = await dbGet('notes', 'notes_all');
       state.notes = stored ? stored.data : [];
+      state.notesLocalTime = stored ? (stored.updatedAt || 0) : 0;
       state.notesBase = null;
       render();
       if (navigator.onLine) {
         try {
           const remote = await apiGet('getNotes');
           if (remote && Array.isArray(remote.notes)) {
-            const localTime  = stored ? (stored.updatedAt || 0) : 0;
             const remoteTime = remote._updatedAt || 0;
-            if (!stored || remoteTime > localTime || remote.notes.length > state.notes.length) {
-              state.notes    = remote.notes;
-              state.notesBase = deepCopy(remote.notes);
-              await dbPut('notes', { id: 'notes_all', data: state.notes, updatedAt: remoteTime || Date.now() });
+            if (remoteTime > state.notesLocalTime || remote.notes.length > state.notes.length) {
+              // Remote is newer or has more notes — take remote as source of truth
+              state.notes          = remote.notes;
+              state.notesBase      = deepCopy(remote.notes);
+              state.notesLocalTime = remoteTime;
+              await dbPut('notes', { id: 'notes_all', data: state.notes, updatedAt: remoteTime });
             } else {
+              // Local is same age or newer — set baseline so future syncs can merge properly
               state.notesBase = deepCopy(remote.notes);
             }
           }
@@ -3643,21 +3649,25 @@
             if (needsPush) {
               await apiPost({ action: 'saveNotes', notes: merged, _updatedAt: ts });
             }
-            state.notes     = merged;
-            state.notesBase = deepCopy(merged);
+            state.notes          = merged;
+            state.notesBase      = deepCopy(merged);
+            state.notesLocalTime = ts;
             await dbPut('notes', { id: 'notes_all', data: merged, updatedAt: ts });
           } else {
-            // No baseline — if remote is newer, take it; otherwise push local
-            const localTime  = Date.now();
+            // No baseline yet — use real local timestamp to decide push vs pull
             const remoteTime = remote._updatedAt || 0;
-            if (remote.notes.length >= state.notes.length && remoteTime > 0) {
-              state.notes     = remote.notes;
-              state.notesBase = deepCopy(remote.notes);
+            if (remoteTime > state.notesLocalTime) {
+              // Remote is genuinely newer — pull it
+              state.notes          = remote.notes;
+              state.notesBase      = deepCopy(remote.notes);
+              state.notesLocalTime = remoteTime;
               await dbPut('notes', { id: 'notes_all', data: state.notes, updatedAt: remoteTime });
             } else {
+              // Local is same age or newer — push to server
               const ts = Date.now();
               await apiPost({ action: 'saveNotes', notes: state.notes, _updatedAt: ts });
-              state.notesBase = deepCopy(state.notes);
+              state.notesBase      = deepCopy(state.notes);
+              state.notesLocalTime = ts;
               await dbPut('notes', { id: 'notes_all', data: state.notes, updatedAt: ts });
             }
           }
@@ -3666,7 +3676,8 @@
           // No remote data yet — push local
           const ts = Date.now();
           await apiPost({ action: 'saveNotes', notes: state.notes, _updatedAt: ts });
-          state.notesBase = deepCopy(state.notes);
+          state.notesBase      = deepCopy(state.notes);
+          state.notesLocalTime = ts;
           await dbPut('notes', { id: 'notes_all', data: state.notes, updatedAt: ts });
           state.notesSyncStatus = 'synced';
         }
@@ -4249,10 +4260,20 @@
 
       await Promise.all([initDB(), loadCodes(), loadTowns()]);
 
+      // Pre-populate notes from local DB NOW — before loadWeek triggers any render —
+      // so the notes view never shows blank while waiting for the week API call
+      if (state.view === 'notes') {
+        const storedNotes = await dbGet('notes', 'notes_all');
+        if (storedNotes && storedNotes.data) {
+          state.notes = storedNotes.data;
+          state.notesLocalTime = storedNotes.updatedAt || 0;
+        }
+      }
+
       const friday = getCurrentFriday();
       await loadWeek(dateToStr(friday));
 
-      // Load data for the restored view (week data already loaded above)
+      // Full sync for the restored view (updates from server, merges, saves back to DB)
       if (state.view === 'notes') loadNotes();
       else if (state.view === 'history') loadHistory();
     }
