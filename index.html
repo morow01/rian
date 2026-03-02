@@ -2320,7 +2320,7 @@
     // ============================================================
     // CONFIG
     // ============================================================
-    const VERSION = '2.1.0';
+    const VERSION = '2.1.1';
     const API_URL = 'https://script.google.com/macros/s/AKfycbwHbuuctWpT1QWqQc8C1fINQyBJhssIIeh3duuQgAHiCpGBRUVnPEmUnDlEDu5mQbZk/exec';
     const DAY_NAMES = ['Friday', 'Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday'];
     const DB_NAME = 'timesheet-db';
@@ -2612,6 +2612,7 @@
     let codeModalCtx = { dayIndex: null, activityId: null, selected: [] };
     let saveTimer = null;
     let syncTimer = null;
+    let isSyncing = false;
     let db = null;
 
     // ============================================================
@@ -2962,6 +2963,8 @@
 
     async function syncNow() {
       if (!navigator.onLine) { state.syncStatus = 'pending'; updateHeaderStatus(); return; }
+      if (isSyncing) return;
+      isSyncing = true;
       state.syncStatus = 'syncing';
       updateHeaderStatus();
       try {
@@ -3028,6 +3031,8 @@
         state.syncStatus = 'synced';
       } catch (e) {
         state.syncStatus = 'error';
+      } finally {
+        isSyncing = false;
       }
       updateHeaderStatus();
     }
