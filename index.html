@@ -2312,11 +2312,44 @@
     </div>
   </div>
 
+  <div id="recovery-modal" class="modal-backdrop hidden" style="z-index: 10001;">
+    <div class="modal-content mx-4" style="max-width: 400px; padding: 24px;">
+      <h3 class="text-xl font-bold mb-2" style="color:var(--text-primary)">Sync Recovery</h3>
+      <p class="text-sm mb-6" style="color:var(--text-muted)">If you just restored your spreadsheet or feel your local
+        data is out of sync, use these tools to force the app to accept server data.</p>
+
+      <div class="space-y-3">
+        <button onclick="forcePullWeek()"
+          class="w-full flex items-center justify-between p-4 rounded-xl border-2 border-dashed transition-colors"
+          style="border-color:var(--accent);background:var(--bg-card);color:var(--accent);text-align:left;">
+          <div>
+            <div class="font-bold">Force Pull Week Data</div>
+            <div class="text-xs opacity-70">Overwrites today's timesheet with server data</div>
+          </div>
+          <span class="text-xl">📥</span>
+        </button>
+
+        <button onclick="forcePullNotes()"
+          class="w-full flex items-center justify-between p-4 rounded-xl border-2 border-dashed transition-colors"
+          style="border-color:#f97316;background:var(--bg-card);color:#f97316;text-align:left;">
+          <div>
+            <div class="font-bold">Force Pull Field Notes</div>
+            <div class="text-xs opacity-70">Overwrites all notes with server data</div>
+          </div>
+          <span class="text-xl">📝</span>
+        </button>
+      </div>
+
+      <button onclick="closeRecoveryModal()" class="w-full mt-6 py-3 font-bold rounded-xl"
+        style="background:var(--bg-card-alt);color:var(--text-primary);border:1px solid var(--border)">Cancel</button>
+    </div>
+  </div>
+
   <script>
     // ============================================================
     // CONFIG
     // ============================================================
-    const VERSION = '2.7.5';
+    const VERSION = '2.7.6';
     const API_URL = 'https://script.google.com/macros/s/AKfycbwHbuuctWpT1QWqQc8C1fINQyBJhssIIeh3duuQgAHiCpGBRUVnPEmUnDlEDu5mQbZk/exec';
     const DAY_NAMES = ['Friday', 'Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday'];
     const DB_NAME = 'timesheet-db';
@@ -2914,28 +2947,28 @@
             const remoteCount = countActivities(remote);
 
             // Use remote if: no local data, remote is newer, OR remote has more activities
-            const useRemote = !local || remoteTime > localTime || remoteCount > localCount;
+            // OR if explicitly forced by the Recovery Tool
+            const useRemote = !local || remoteTime > localTime || remoteCount > localCount || window._forcePull;
             if (useRemote) {
-              // Merge remote into current in-memory state — never blindly overwrite,
-              // as user may have typed while the API call was in-flight.
-              // BUG FIX: Pass null as baseline during initial load to ensure 
-              // local-only activities (unsynced from previous session) are preserved.
-              const merged = mergeWeekData(null, state.weekData, remote);
+              // Merge remote into current in-memory state
+              // During Force Pull, we pass null as baseline to ensure Structer is refreshed
+              const merged = mergeWeekData(window._forcePull ? null : (local ? local.data : null), state.weekData, remote);
               state.weekData = merged;
-              state.weekBase = deepCopy(remote); // baseline = what server gave us
+              state.weekBase = deepCopy(remote);
               await dbPut('weeks', { weekStart, data: merged, updatedAt: remoteTime || Date.now() });
               const active = document.activeElement;
               const userEditing = active && (active.tagName === 'TEXTAREA' || active.tagName === 'INPUT');
               if (!userEditing) render();
+              if (window._forcePull) showToast('Week data forced from server');
             } else {
-              // Local is newer — but record server's version as merge baseline
-              // so syncNow can tell which fields we actually changed
               state.weekBase = deepCopy(remote);
             }
           }
           state.syncStatus = 'synced';
         } catch (e) {
           state.syncStatus = 'error';
+        } finally {
+          window._forcePull = false;
         }
       }
       updateHeaderStatus();
@@ -3283,7 +3316,11 @@
       const themeOptionsHtml = themes.map(t => `
         <button class="theme-option ${currentTheme === t.id ? 'active' : ''}" onclick="setTheme('${t.id}')">
           <span class="theme-swatch" style="background:${t.swatch}"></span>${t.label}
-        </button>`).join('');
+        </button>`).join('') + `
+        <div style="height:1px;background:var(--border);margin:4px 0;"></div>
+        <button class="theme-option" onclick="openRecoveryModal()">
+          <span class="theme-swatch" style="background:#ef4444;display:flex;align-items:center;justify-content:center;color:#fff;font-size:10px;">⚠</span>Sync Recovery
+        </button>`;
       return `
   <header class="shadow-lg" style="background:var(--bg-header);color:var(--text-header)">
     <div class="flex items-center px-4 py-3 gap-2">
@@ -4108,37 +4145,29 @@
           const remote = await apiGet('getNotes');
           if (remote && Array.isArray(remote.notes)) {
             const remoteTime = remote._updatedAt || 0;
-            if (remote.notes.length > 0 || state.notes.length === 0) {
-              // Merge remote into local — local edits made during the API call are preserved
-              // BUG FIX: Pass null as baseline during initial load
+            // Use remote if forced or if explicitly newer
+            if (remote.notes.length > 0 || state.notes.length === 0 || window._forcePullNotes) {
               const merged = mergeNotes(null, state.notes, remote.notes);
-              if (JSON.stringify(merged) !== JSON.stringify(remote.notes)) {
-                // Local has changes the server doesn't have yet — push merged
+              if (JSON.stringify(merged) !== JSON.stringify(remote.notes) && !window._forcePullNotes) {
                 const ts = Date.now();
                 await apiPost({ action: 'saveNotes', notes: merged, _updatedAt: ts });
                 state.notesLocalTime = ts;
                 await dbPut('notes', { id: 'notes_all', data: merged, updatedAt: ts });
-              } else if (remoteTime > state.notesLocalTime) {
-                // Remote is newer and no local changes — update local DB only
+              } else {
                 state.notesLocalTime = remoteTime;
                 await dbPut('notes', { id: 'notes_all', data: merged, updatedAt: remoteTime });
               }
               state.notes = merged;
               state.notesBase = deepCopy(remote.notes);
-            } else {
-              // Remote is empty but we have local notes — push local up to server
-              const ts = Date.now();
-              await apiPost({ action: 'saveNotes', notes: state.notes, _updatedAt: ts });
-              state.notesBase = deepCopy(state.notes);
-              state.notesLocalTime = ts;
-              await dbPut('notes', { id: 'notes_all', data: state.notes, updatedAt: ts });
+              if (window._forcePullNotes) showToast('Notes forced from server');
             }
           }
           state.notesSyncStatus = 'synced';
         } catch (e) {
           state.notesSyncStatus = 'error';
+        } finally {
+          window._forcePullNotes = false;
         }
-        // Don't rebuild DOM if user is actively editing — their changes are already in state
         const active = document.activeElement;
         const userEditing = active && (active.tagName === 'TEXTAREA' || active.tagName === 'INPUT');
         if (!userEditing) render();
@@ -4800,6 +4829,31 @@
       // Full sync for the restored view (updates from server, merges, saves back to DB)
       if (state.view === 'notes') loadNotes();
       else if (state.view === 'history') loadHistory();
+    }
+
+    function openRecoveryModal() {
+      document.getElementById('recovery-modal').classList.remove('hidden');
+      closeThemeMenu();
+    }
+
+    function closeRecoveryModal() {
+      document.getElementById('recovery-modal').classList.add('hidden');
+    }
+
+    async function forcePullWeek() {
+      if (!navigator.onLine) { showToast('Must be online to pull data'); return; }
+      window._forcePull = true;
+      closeRecoveryModal();
+      showToast('Forcing week pull…');
+      await loadWeek(state.weekStart);
+    }
+
+    async function forcePullNotes() {
+      if (!navigator.onLine) { showToast('Must be online to pull notes'); return; }
+      window._forcePullNotes = true;
+      closeRecoveryModal();
+      showToast('Forcing notes pull…');
+      await loadNotes();
     }
 
     init();
