@@ -2349,7 +2349,7 @@
     // ============================================================
     // CONFIG
     // ============================================================
-    const VERSION = '2.7.8';
+    const VERSION = '2.7.9';
     const API_URL = 'https://script.google.com/macros/s/AKfycbwHbuuctWpT1QWqQc8C1fINQyBJhssIIeh3duuQgAHiCpGBRUVnPEmUnDlEDu5mQbZk/exec';
     const DAY_NAMES = ['Friday', 'Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday'];
     const DB_NAME = 'timesheet-db';
@@ -2954,8 +2954,10 @@
               // Merge remote into current in-memory state
               // During Force Pull, we pass null as baseline to ensure Structure is refreshed
               // For regular initial load, we use the local DB data as the baseline if available
+              // CRITICAL: If no local data exists (fresh app / clear cache), use remote Authority directly
+              // to avoid merging server data with a default empty activity structure.
               const baseline = window._forcePull ? null : (local ? local.data : null);
-              const merged = mergeWeekData(baseline, state.weekData, remote);
+              const merged = (!local && !window._forcePull) ? deepCopy(remote) : mergeWeekData(baseline, state.weekData, remote);
               state.weekData = merged;
               state.weekBase = deepCopy(remote);
               await dbPut('weeks', { weekStart, data: merged, updatedAt: remoteTime || Date.now() });
@@ -3364,7 +3366,7 @@
         Notes${state.view === 'notes' ? `<span class="notes-sync-dot" style="background:${{ idle: 'var(--text-muted)', pending: '#f97316', syncing: '#3b82f6', synced: '#22c55e', error: '#ef4444' }[state.notesSyncStatus] || 'var(--text-muted)'}"></span>` : ''}
       </button>
       <button onclick="toggleLayoutMode()" class="tbl-toggle-btn flex-1 py-2 text-sm font-medium items-center justify-center gap-1" style="color:${state.layoutMode === 'table' ? 'var(--text-header)' : 'var(--tab-inactive)'};${state.layoutMode === 'table' ? 'border-bottom:2px solid var(--tab-active)' : ''}" title="Spreadsheet view">⊞ Table</button>
-      <button onclick="toggleAllDays()" class="flex-1 py-2 text-sm font-medium flex items-center justify-center gap-1" style="color:var(--tab-inactive)" title="${state.view === 'notes' ? (state.expandedNotes.size > 0 ? 'Collapse all notes' : 'Expand all notes') : (state.expandedDays.size > 0 ? 'Collapse all days' : 'Expand all days')}"><span style="display:inline-block;font-size:1.1em;line-height:1;transition:transform 0.3s ease;transform:rotate(${(state.view === 'notes' ? state.expandedNotes.size > 0 : state.expandedDays.size > 0) ? '0deg' : '-90deg'})">▼</span> All</button>
+      <button onclick="toggleAllDays()" class="flex-1 py-2 text-sm font-medium flex items-center justify-center gap-1" style="color:var(--tab-inactive)" title="${state.view === 'notes' ? (state.expandedNotes.size > 0 ? 'Collapse all notes' : 'Expand all notes') : (state.expandedDays.size > 0 ? 'Collapse all days' : 'Expand all days')}"><span class="global-all-chevron" style="display:inline-block;font-size:1.1em;line-height:1;transition:transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);transform:rotate(${(state.view === 'notes' ? state.expandedNotes.size > 0 : state.expandedDays.size > 0) ? '0deg' : '-90deg'})">▼</span> All</button>
     </div>
   </header>`;
     }
@@ -3685,6 +3687,10 @@
         const activities = card.querySelector('.day-activities');
 
         if (isExpanded) {
+          // Explicitly set current height before starting collapse transition
+          activities.style.maxHeight = activities.scrollHeight + 'px';
+          // Trigger reflow
+          activities.offsetHeight;
           header.classList.add('rounded-2xl');
           card.classList.remove('rounded-b-2xl');
           card.classList.add('rounded-2xl');
@@ -4146,7 +4152,8 @@
             // Use remote if forced or if explicitly newer
             if (remote.notes.length > 0 || state.notes.length === 0 || window._forcePullNotes) {
               const baseline = window._forcePullNotes ? null : state.notesBase;
-              const merged = mergeNotes(baseline, state.notes, remote.notes);
+              // If no local data and no baseline, use remote Authority directly
+              const merged = (!stored && !window._forcePullNotes) ? deepCopy(remote.notes) : mergeNotes(baseline, state.notes, remote.notes);
               if (JSON.stringify(merged) !== JSON.stringify(remote.notes) && !window._forcePullNotes) {
                 const ts = Date.now();
                 await apiPost({ action: 'saveNotes', notes: merged, _updatedAt: ts });
@@ -4383,16 +4390,25 @@
           row.style.background = 'transparent';
           arrow.classList.remove('open');
           if (detail) {
+            // Set current height for collapse
+            detail.style.maxHeight = detail.scrollHeight + 'px';
+            detail.offsetHeight; // force reflow
             detail.style.maxHeight = '0px';
             detail.style.opacity = '0';
-            setTimeout(() => { if (detail.parentElement) detail.remove(); }, 250);
+            setTimeout(() => { if (!state.expandedNotes.has(id) && detail.parentElement) detail.remove(); }, 250);
           }
         } else {
           card.classList.add('expanded');
           row.style.background = 'var(--bg-day-header)';
           arrow.classList.add('open');
           // For notes, we need to render the detail if it's not there
-          render(); // Simplified for notes since they are more complex, but we'll try to keep it smooth
+          if (!detail) {
+            render(); // fall back to render if detail structure is missing
+          } else {
+            detail.style.maxHeight = detail.scrollHeight + 'px';
+            detail.style.opacity = '1';
+            setTimeout(() => { if (state.expandedNotes.has(id)) detail.style.maxHeight = 'none'; }, 260);
+          }
         }
       } else {
         render();
