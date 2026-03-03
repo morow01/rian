@@ -2349,7 +2349,7 @@
     // ============================================================
     // CONFIG
     // ============================================================
-    const VERSION = '2.7.7';
+    const VERSION = '2.7.8';
     const API_URL = 'https://script.google.com/macros/s/AKfycbwHbuuctWpT1QWqQc8C1fINQyBJhssIIeh3duuQgAHiCpGBRUVnPEmUnDlEDu5mQbZk/exec';
     const DAY_NAMES = ['Friday', 'Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday'];
     const DB_NAME = 'timesheet-db';
@@ -3953,10 +3953,6 @@
       <span class="text-lg" style="color:var(--accent)">›</span>
     </button>`).join('');
       return `<main class="pb-6"><div class="mx-3 mt-3 rounded-2xl shadow-sm overflow-hidden" style="background:var(--bg-card);border:1px solid var(--border)">${rows}</div></main>`;
-    }
-
-    function esc(s) {
-      return (s || '').replace(/"/g, '&quot;').replace(/</g, '&lt;');
     }
 
     // ============================================================
