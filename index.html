@@ -2065,13 +2065,13 @@
 
     .note-selection-check {
       position: absolute;
-      left: 12px;
+      left: 14px;
       top: 50%;
       transform: translateY(-50%);
-      width: 20px;
-      height: 20px;
+      width: 22px;
+      height: 22px;
       border-radius: 6px;
-      border: 2px solid #cbd5e1;
+      border: 2px solid #64748b;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -2215,6 +2215,11 @@
       padding: 14px 16px;
       cursor: pointer;
       user-select: none;
+      position: relative;
+    }
+
+    .note-row.selectable {
+      padding-left: 52px;
     }
 
     .note-row:not(:last-child) {
@@ -2631,7 +2636,7 @@
     // ============================================================
     // CONFIG
     // ============================================================
-    const VERSION = '2.8.9';
+    const VERSION = '2.9.0';
     const API_URL = 'https://script.google.com/macros/s/AKfycbwHbuuctWpT1QWqQc8C1fINQyBJhssIIeh3duuQgAHiCpGBRUVnPEmUnDlEDu5mQbZk/exec';
     const DAY_NAMES = ['Friday', 'Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday'];
     const DB_NAME = 'timesheet-db';
@@ -4626,7 +4631,13 @@
       const visibleDone = (f === 'done' || f === 'all') ? doneNotes : [];
 
       const headerRow = `
-        <div class="notes-header-row" style="margin-top: 10px;">
+        <div class="notes-header-row" style="margin-top: 14px; margin-bottom: 4px;">
+          <div style="flex:1"></div>
+          <div class="notes-chip select-mode-toggle ${state.selectionMode ? 'active' : ''}" 
+               style="margin: 0; padding: 6px 16px; font-size: 12px;"
+               onclick="toggleSelectionMode()">
+            ${state.selectionMode ? 'Cancel' : 'Select'}
+          </div>
         </div>`;
 
       const openSection = visibleOpen.length
@@ -4644,9 +4655,7 @@
         Add Note
       </div>`;
 
-      const finalChips = chips + `<div class="notes-chip select-mode-toggle ${state.selectionMode ? 'active' : ''}" onclick="toggleSelectionMode()">
-        ${state.selectionMode ? 'Cancel' : 'Select'}
-      </div>`;
+      const finalChips = chips;
 
       const bulkBar = `
         <div class="bulk-action-bar ${state.selectedNotes.size > 0 ? 'show' : ''}">
@@ -4654,11 +4663,11 @@
           <div class="bulk-action-btns">
             <button class="bulk-btn done" onclick="markDoneSelected()">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-              Done
+              Mark Done
             </button>
             <button class="bulk-btn delete" onclick="deleteSelected()">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
-              Delete
+              Delete Selected
             </button>
           </div>
         </div>`;
