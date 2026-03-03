@@ -1230,7 +1230,7 @@
     .activity-body-wrap {
       max-height: 0;
       overflow: hidden;
-      transition: max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: max-height 0.55s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     .activity-item.expanded .activity-body-wrap {
@@ -1238,8 +1238,7 @@
     }
 
     .activity-item.expanded {
-      border-color: #a1a1aa !important;
-      /* gray-400 */
+      border-color: var(--accent) !important;
     }
 
     .activity-item.expanded .activity-header-clickable {
@@ -1247,8 +1246,7 @@
     }
 
     .activity-item.expanded .activity-num-badge {
-      background: #71717a !important;
-      /* gray-500 */
+      background: var(--accent) !important;
       color: #fff !important;
     }
 
@@ -1979,16 +1977,19 @@
     }
 
     .note-expand-arrow {
-      display: inline-block;
-      font-size: 11px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 18px;
+      height: 18px;
       color: var(--text-muted);
-      line-height: 1;
       flex-shrink: 0;
-      transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), color 0.2s;
+      transform: rotate(-90deg);
     }
 
     .note-expand-arrow.open {
-      transform: rotate(90deg);
+      transform: rotate(0deg);
       color: var(--accent);
     }
 
@@ -2017,8 +2018,17 @@
 
     .note-detail {
       background: var(--bg-card-alt);
+      padding: 0 13px;
+      border-top: 0px solid var(--border);
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.45s cubic-bezier(0.4, 0, 0.2, 1), padding 0.3s ease, border-top-width 0.3s ease;
+    }
+
+    .note-card.expanded .note-detail {
+      max-height: 1200px;
       padding: 12px 13px 13px;
-      border-top: 1px solid var(--border);
+      border-top-width: 1px;
     }
 
     .note-detail-row {
@@ -2349,7 +2359,7 @@
     // ============================================================
     // CONFIG
     // ============================================================
-    const VERSION = '2.7.9';
+    const VERSION = '2.8.2';
     const API_URL = 'https://script.google.com/macros/s/AKfycbwHbuuctWpT1QWqQc8C1fINQyBJhssIIeh3duuQgAHiCpGBRUVnPEmUnDlEDu5mQbZk/exec';
     const DAY_NAMES = ['Friday', 'Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday'];
     const DB_NAME = 'timesheet-db';
@@ -4274,16 +4284,22 @@
         ).join('');
 
         const actions = `
-          <div class="note-actions">
-            <button class="note-action-btn ${note.status === 'done' ? 'active' : ''}" onclick="markNoteDone('${note.id}')">
-              ${note.status === 'done' ? '✓ Done' : 'Mark Done'}
-            </button>
-            <button class="note-action-btn trash" onclick="deleteNote('${note.id}')">${TRASH_ICON}</button>
+          <div class="note-actions" style="margin-top:20px; display:flex; flex-direction:column; gap:10px;">
+            <div style="display:flex; gap:10px;">
+              <button class="note-action-btn" style="flex:1; border:1px solid var(--border); background:var(--bg-card); color:var(--text-muted); font-weight:600; padding:10px; border-radius:10px;" onclick="toggleNote('${note.id}')">Cancel</button>
+              <button class="note-action-btn" style="flex:2; background:var(--accent); color:white; border:none; padding:10px; border-radius:10px; font-weight:600;" onclick="toggleNote('${note.id}')">Save Note</button>
+            </div>
+            <div style="display:flex; gap:10px; justify-content: space-between;">
+              <button class="note-action-btn ${note.status === 'done' ? 'active' : ''}" style="flex:1;" onclick="markNoteDone('${note.id}')">
+                ${note.status === 'done' ? '✓ Done' : 'Mark Done'}
+              </button>
+              <button class="note-action-btn trash" style="width: 44px; flex-shrink:0;" onclick="deleteNote('${note.id}')">${TRASH_ICON}</button>
+            </div>
           </div>`;
 
         const header = `
           <div class="note-row ${isNew && isExpanded ? 'note-row-new' : ''}" onclick="toggleNote('${note.id}')" style="${isExpanded ? 'background:var(--bg-day-header)' : ''}">
-            <span class="note-expand-arrow ${isExpanded ? 'open' : ''}">▶</span>
+            <span class="note-expand-arrow ${isExpanded ? 'open' : ''}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
             <div class="note-dot ${dotCls}"></div>
             <div style="flex:1;min-width:0;">
               <div class="note-row-title" style="${note.status === 'done' ? 'text-decoration:line-through;color:var(--text-muted)' : ''}${isNew && isExpanded ? ';color:var(--text-muted);font-style:italic;font-weight:400' : ''}">${esc(titleText)}</div>
@@ -4292,7 +4308,7 @@
           </div>`;
 
         const detail = `
-          <div class="note-detail" style="${isExpanded ? '' : 'max-height:0;opacity:0;overflow:hidden;padding-top:0;padding-bottom:0;border-top:none;'}">
+          <div class="note-detail">
             <div class="note-detail-row">
               <span class="field-label">Description</span>
               <textarea data-note-id="${note.id}" data-note-field="description" rows="2"
@@ -4383,32 +4399,15 @@
       if (card) {
         const row = card.querySelector('.note-row');
         const arrow = card.querySelector('.note-expand-arrow');
-        const detail = card.querySelector('.note-detail');
 
         if (isExpanded) {
           card.classList.remove('expanded');
           row.style.background = 'transparent';
           arrow.classList.remove('open');
-          if (detail) {
-            // Set current height for collapse
-            detail.style.maxHeight = detail.scrollHeight + 'px';
-            detail.offsetHeight; // force reflow
-            detail.style.maxHeight = '0px';
-            detail.style.opacity = '0';
-            setTimeout(() => { if (!state.expandedNotes.has(id) && detail.parentElement) detail.remove(); }, 250);
-          }
         } else {
           card.classList.add('expanded');
           row.style.background = 'var(--bg-day-header)';
           arrow.classList.add('open');
-          // For notes, we need to render the detail if it's not there
-          if (!detail) {
-            render(); // fall back to render if detail structure is missing
-          } else {
-            detail.style.maxHeight = detail.scrollHeight + 'px';
-            detail.style.opacity = '1';
-            setTimeout(() => { if (state.expandedNotes.has(id)) detail.style.maxHeight = 'none'; }, 260);
-          }
         }
       } else {
         render();
