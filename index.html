@@ -1960,7 +1960,7 @@
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
-      padding: 24px 16px 12px;
+      padding: 0px 16px 0px;
     }
 
     .notes-title-group h1 {
@@ -2018,8 +2018,9 @@
     .notes-chips {
       display: flex;
       gap: 6px;
-      padding: 10px 12px 8px;
+      padding: 4px 12px 8px;
       overflow-x: auto;
+      align-items: center;
     }
 
     .notes-chips::-webkit-scrollbar {
@@ -2038,6 +2039,115 @@
       background: var(--bg-card);
       color: var(--text-secondary);
       transition: all 0.15s;
+    }
+
+    .notes-chip.select-mode-toggle {
+      border-color: var(--accent);
+      color: var(--accent);
+      margin-left: auto;
+      background: rgba(88, 86, 214, 0.05);
+    }
+
+    .notes-chip.select-mode-toggle.active {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    /* Selection Mode Styles */
+    .note-card.selectable {
+      cursor: pointer;
+    }
+
+    .note-card.selected {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px var(--accent);
+    }
+
+    .note-selection-check {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 20px;
+      height: 20px;
+      border-radius: 6px;
+      border: 2px solid #cbd5e1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #fff;
+      transition: all 0.2s;
+      z-index: 2;
+    }
+
+    .note-card.selected .note-selection-check {
+      background: var(--accent);
+      border-color: var(--accent);
+    }
+
+    .note-card.selected .note-selection-check svg {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .note-selection-check svg {
+      opacity: 0;
+      transform: scale(0.5);
+      transition: all 0.2s;
+    }
+
+    .bulk-action-bar {
+      position: fixed;
+      bottom: 24px;
+      left: 20px;
+      right: 20px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 12px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+      z-index: 1000;
+      transform: translateY(120%);
+      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .bulk-action-bar.show {
+      transform: translateY(0);
+    }
+
+    .bulk-action-btns {
+      display: flex;
+      gap: 12px;
+    }
+
+    .bulk-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 14px;
+      border-radius: 12px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s;
+    }
+
+    .bulk-btn.delete {
+      background: #fee2e2;
+      color: #ef4444;
+    }
+
+    .bulk-btn.done {
+      background: #dcfce7;
+      color: #22c55e;
+    }
+
+    .bulk-btn:active {
+      transform: scale(0.95);
     }
 
     .notes-chip.active {
@@ -2521,7 +2631,7 @@
     // ============================================================
     // CONFIG
     // ============================================================
-    const VERSION = '2.8.8';
+    const VERSION = '2.8.9';
     const API_URL = 'https://script.google.com/macros/s/AKfycbwHbuuctWpT1QWqQc8C1fINQyBJhssIIeh3duuQgAHiCpGBRUVnPEmUnDlEDu5mQbZk/exec';
     const DAY_NAMES = ['Friday', 'Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday'];
     const DB_NAME = 'timesheet-db';
@@ -2797,6 +2907,8 @@
       showSummary: false,
       expandedDays: new Set(),  // track which day indices are expanded
       notesOpen: new Map(), // explicit open/closed per actId; default = open if note has content
+      selectionMode: false,
+      selectedNotes: new Set(),
       layoutMode: localStorage.getItem('layoutMode') || 'card',  // 'card' | 'table'
       // Column widths for table view [Day,Date,Desc,Loc,Codes,Ord,OT,Tasks,Hrs/T,OT/T,Notes,Del]
       // Notes and Del are fixed — only first 10 cols are user-resizable
@@ -4446,7 +4558,12 @@
         ).join('');
 
         const header = `
-          <div class="note-row" onclick="toggleNote('${note.id}')" style="${isExpanded ? 'background:transparent' : ''}">
+          <div class="note-row ${state.selectionMode ? 'selectable' : ''}" onclick="${state.selectionMode ? `toggleNoteSelection('${note.id}')` : `toggleNote('${note.id}')`}" style="${isExpanded ? 'background:transparent' : ''}">
+            ${state.selectionMode ? `
+              <div class="note-selection-check">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              </div>
+            ` : ''}
             <div class="note-dot ${dotCls}"></div>
             <div style="flex:1;min-width:0;">
               <div class="note-row-title" style="${note.status === 'done' ? 'text-decoration:line-through;color:var(--text-muted)' : ''}">${esc(titleText)}</div>
@@ -4514,12 +4631,12 @@
 
       const openSection = visibleOpen.length
         ? `<div class="notes-section-label">Open</div>` +
-        visibleOpen.map(n => `<div class="note-card ${state.expandedNotes.has(n.id) ? 'expanded' : ''}" data-note-id="${n.id}">${renderNote(n)}</div>`).join('')
+        visibleOpen.map(n => `<div class="note-card ${state.expandedNotes.has(n.id) ? 'expanded' : ''} ${state.selectedNotes.has(n.id) ? 'selected' : ''}" data-note-id="${n.id}">${renderNote(n)}</div>`).join('')
         : (f !== 'done' ? `<div class="notes-empty">No ${f === 'all' ? 'open' : f} notes yet.</div>` : '');
 
       const doneSection = visibleDone.length
         ? `<div class="notes-section-label">Done</div>` +
-        visibleDone.map(n => `<div class="note-card done-card ${state.expandedNotes.has(n.id) ? 'expanded' : ''}" data-note-id="${n.id}">${renderNote(n)}</div>`).join('')
+        visibleDone.map(n => `<div class="note-card done-card ${state.expandedNotes.has(n.id) ? 'expanded' : ''} ${state.selectedNotes.has(n.id) ? 'selected' : ''}" data-note-id="${n.id}">${renderNote(n)}</div>`).join('')
         : '';
 
       const addCard = `<div class="add-note-dashed" onclick="addNote()">
@@ -4527,10 +4644,81 @@
         Add Note
       </div>`;
 
-      return `<div class="notes-view">${headerRow}<div class="notes-chips">${chips}</div>${addCard}${openSection}${doneSection}</div>`;
+      const finalChips = chips + `<div class="notes-chip select-mode-toggle ${state.selectionMode ? 'active' : ''}" onclick="toggleSelectionMode()">
+        ${state.selectionMode ? 'Cancel' : 'Select'}
+      </div>`;
+
+      const bulkBar = `
+        <div class="bulk-action-bar ${state.selectedNotes.size > 0 ? 'show' : ''}">
+          <div style="font-size: 14px; font-weight: 700;">${state.selectedNotes.size} selected</div>
+          <div class="bulk-action-btns">
+            <button class="bulk-btn done" onclick="markDoneSelected()">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              Done
+            </button>
+            <button class="bulk-btn delete" onclick="deleteSelected()">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+              Delete
+            </button>
+          </div>
+        </div>`;
+
+      return `<div class="notes-view">${headerRow}<div class="notes-chips">${finalChips}</div>${state.selectionMode ? '' : addCard}${openSection}${doneSection}${bulkBar}</div>`;
     }
 
     // ---- Notes event handlers ----
+    function toggleSelectionMode() {
+      state.selectionMode = !state.selectionMode;
+      if (!state.selectionMode) {
+        state.selectedNotes.clear();
+      }
+      render();
+    }
+
+    function toggleNoteSelection(id) {
+      if (state.selectedNotes.has(id)) {
+        state.selectedNotes.delete(id);
+      } else {
+        state.selectedNotes.add(id);
+      }
+      render();
+    }
+
+    async function deleteSelected() {
+      if (state.selectedNotes.size === 0) return;
+      if (!confirm(`Delete ${state.selectedNotes.size} notes?`)) return;
+
+      const toDelete = Array.from(state.selectedNotes);
+      state.notes = state.notes.filter(n => !toDelete.includes(n.id));
+      toDelete.forEach(id => state.expandedNotes.delete(id));
+      state.selectedNotes.clear();
+      state.selectionMode = false;
+
+      scheduleNotesSave();
+      render();
+      showToast(`${toDelete.length} notes deleted`);
+    }
+
+    async function markDoneSelected() {
+      if (state.selectedNotes.size === 0) return;
+
+      const toMark = Array.from(state.selectedNotes);
+      state.notes.forEach(note => {
+        if (toMark.includes(note.id)) {
+          note.status = 'done';
+          note.updatedAt = Date.now();
+          state.expandedNotes.delete(note.id);
+        }
+      });
+
+      state.selectedNotes.clear();
+      state.selectionMode = false;
+
+      scheduleNotesSave();
+      render();
+      showToast(`${toMark.length} notes marked as done`);
+    }
+
     function addNote() {
       const note = createNote();
       state.notes.unshift(note);
