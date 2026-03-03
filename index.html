@@ -1835,14 +1835,120 @@
       flex: 1;
       width: 100%;
       min-height: 180px;
-      border-radius: 10px;
-      padding: 10px 12px;
-      font-size: 13px;
-      line-height: 1.6;
-      font-family: var(--font-body);
-      background: var(--bg-input);
-      border: 1px solid var(--border-input);
-      color: var(--text-input);
+
+      /* Segmented Control for Priority */
+      .note-priority-row {
+        display: flex;
+        background: #f1f5f9;
+        border-radius: 10px;
+        padding: 4px;
+        gap: 4px;
+      }
+
+      [data-theme="dark"] .note-priority-row {
+        background: rgba(255, 255, 255, 0.05);
+      }
+
+      .note-pri-chip {
+        flex: 1;
+        text-align: center;
+        padding: 10px 0;
+        font-size: 12px;
+        font-weight: 600;
+        border-radius: 8px;
+        cursor: pointer;
+        color: #64748b;
+        transition: all 0.2s;
+      }
+
+      .note-pri-chip.sel-high {
+        background: #ef4444;
+        color: #fff;
+      }
+
+      .note-pri-chip.sel-medium {
+        background: #f97316;
+        color: #fff;
+      }
+
+      .note-pri-chip.sel-low {
+        background: #10b981;
+        color: #fff;
+      }
+
+      .note-save-btn {
+        width: 100%;
+        background: var(--accent);
+        color: #fff;
+        border: none;
+        border-radius: 12px;
+        padding: 14px;
+        font-size: 15px;
+        font-weight: 700;
+        margin-top: 10px;
+        cursor: pointer;
+        box-shadow: 0 4px 12px rgba(88, 86, 214, 0.2);
+      }
+
+      .note-footer {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 16px;
+        padding-top: 12px;
+        /* border-top: 1px solid var(--border); */
+      }
+
+      .note-footer-btn {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 13px;
+        font-weight: 600;
+        color: #94a3b8;
+        cursor: pointer;
+        background: none;
+        border: none;
+      }
+
+      .note-footer-btn:hover {
+        color: var(--accent);
+      }
+
+      .note-footer-btn.trash:hover {
+        color: #ef4444;
+      }
+
+      .notes-header-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        padding: 24px 16px 12px;
+      }
+
+      .notes-title-group h1 {
+        font-size: 28px;
+        font-weight: 800;
+        margin: 0;
+      }
+
+      .notes-title-group span {
+        font-size: 14px;
+        color: var(--text-muted);
+        font-weight: 500;
+      }
+
+      .add-note-btn-header {
+        background: var(--accent);
+        color: #fff;
+        border: none;
+        border-radius: 12px;
+        padding: 10px 18px;
+        font-size: 14px;
+        font-weight: 700;
+        cursor: pointer;
+        box-shadow: 0 4px 12px rgba(88, 86, 214, 0.2);
+      }
+
       resize: vertical;
       outline: none;
       box-sizing: border-box;
@@ -1923,25 +2029,27 @@
     }
 
     .notes-section-label {
-      font-size: 10px;
-      color: var(--text-muted);
-      font-weight: 700;
+      font-size: 11px;
+      padding: 16px 16px 8px;
+      font-weight: 800;
+      color: #94a3b8;
       text-transform: uppercase;
-      letter-spacing: 0.08em;
-      padding: 8px 14px 5px;
+      letter-spacing: 0.05em;
     }
 
     .note-card {
       background: var(--bg-card);
-      border-radius: 14px;
-      margin: 0 12px 8px;
+      border-radius: 16px;
+      margin: 0 16px 12px;
       border: 1px solid var(--border);
       overflow: hidden;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+      transition: box-shadow 0.3s ease;
     }
 
     .note-card.expanded {
       border-color: var(--border);
-      box-shadow: none;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
     }
 
     .note-card.done-card {
@@ -1951,19 +2059,19 @@
     .note-row {
       display: flex;
       align-items: center;
-      gap: 10px;
-      padding: 11px 12px;
+      gap: 12px;
+      padding: 14px 16px;
       cursor: pointer;
       user-select: none;
     }
 
     .note-row:not(:last-child) {
-      border-bottom: 1px solid var(--border);
+      border-bottom: 0px solid var(--border);
     }
 
     .note-row-title {
-      font-size: 13px;
-      font-weight: 500;
+      font-size: 14px;
+      font-weight: 700;
       color: var(--text-primary);
       white-space: nowrap;
       overflow: hidden;
@@ -1974,6 +2082,7 @@
       font-size: 11px;
       color: var(--text-muted);
       margin-top: 2px;
+      font-weight: 500;
     }
 
     .note-expand-arrow {
@@ -2001,6 +2110,8 @@
     }
 
     .note-dot-high {
+      background: #3b82f6;
+      /* Matching accent color in screenshot dot? No, screenshot has green dot for note 13 but label "Low" is green. Ah, dots are priority colors. High=Red, Med=Orange, Low=Green. */
       background: #ef4444;
     }
 
@@ -2009,7 +2120,7 @@
     }
 
     .note-dot-low {
-      background: #22c55e;
+      background: #10b981;
     }
 
     .note-dot-none {
@@ -2017,18 +2128,17 @@
     }
 
     .note-detail {
-      background: var(--bg-card-alt);
-      padding: 0 13px;
-      border-top: 0px solid var(--border);
+      background: var(--bg-card);
+      padding: 0 16px;
+      border-top: 1px solid var(--border);
       max-height: 0;
       overflow: hidden;
-      transition: max-height 0.45s cubic-bezier(0.4, 0, 0.2, 1), padding 0.3s ease, border-top-width 0.3s ease;
+      transition: max-height 0.45s cubic-bezier(0.4, 0, 0.2, 1), padding 0.3s ease;
     }
 
     .note-card.expanded .note-detail {
       max-height: 1200px;
-      padding: 12px 13px 13px;
-      border-top-width: 1px;
+      padding: 16px 16px 20px;
     }
 
     .note-detail-row {
@@ -2036,18 +2146,28 @@
     }
 
     .note-detail textarea,
-    .note-detail input[type="text"] {
+    .note-detail input[type="text"],
+    .note-detail input[type="date"] {
       width: 100%;
-      background: var(--bg-input);
-      border: 1px solid var(--border-input);
-      border-radius: 10px;
-      padding: 8px 11px;
-      font-size: 13px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 12px 14px;
+      font-size: 14px;
       color: var(--text-primary);
       font-family: inherit;
       resize: none;
       box-sizing: border-box;
       outline: none;
+      transition: border-color 0.2s;
+    }
+
+    [data-theme="dark"] .note-detail textarea,
+    [data-theme="dark"] .note-detail input[type="text"],
+    [data-theme="dark"] .note-detail input[type="date"] {
+      background: rgba(255, 255, 255, 0.05);
+      border-color: rgba(255, 255, 255, 0.1);
+    }
     }
 
     .note-detail textarea:focus,
@@ -2359,7 +2479,7 @@
     // ============================================================
     // CONFIG
     // ============================================================
-    const VERSION = '2.8.2';
+    const VERSION = '2.8.3';
     const API_URL = 'https://script.google.com/macros/s/AKfycbwHbuuctWpT1QWqQc8C1fINQyBJhssIIeh3duuQgAHiCpGBRUVnPEmUnDlEDu5mQbZk/exec';
     const DAY_NAMES = ['Friday', 'Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday'];
     const DB_NAME = 'timesheet-db';
@@ -4249,17 +4369,17 @@
     }
 
     // ---- Notes render ----
+    // ---- Notes render ----
     function renderNotesView() {
-      const TRASH_ICON = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>`;
-
-      const syncColor = { idle: 'var(--text-muted)', pending: '#f97316', syncing: '#3b82f6', synced: '#22c55e', error: '#ef4444' }[state.notesSyncStatus] || 'var(--text-muted)';
+      const TRASH_ICON = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>`;
 
       const f = state.notesFilter;
       const filtered = state.notes.filter(n => {
         if (f === 'done') return n.status === 'done';
-        if (f === 'all') return n.status !== 'done'; // resilient to missing status
+        if (f === 'all') return n.status !== 'done';
         return n.status !== 'done' && n.priority === f;
       }).sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
+
       const openNotes = state.notes.filter(n => n.status !== 'done');
       const doneNotes = state.notes.filter(n => n.status === 'done');
       const counts = { high: openNotes.filter(n => n.priority === 'high').length, medium: openNotes.filter(n => n.priority === 'medium').length, low: openNotes.filter(n => n.priority === 'low').length };
@@ -4283,40 +4403,25 @@
           `<div class="note-pri-chip ${note.priority === p ? 'sel-' + p : ''}" onclick="setNotePriority('${note.id}', '${p}')">${p[0].toUpperCase() + p.slice(1)}</div>`
         ).join('');
 
-        const actions = `
-          <div class="note-actions" style="margin-top:20px; display:flex; flex-direction:column; gap:10px;">
-            <div style="display:flex; gap:10px;">
-              <button class="note-action-btn" style="flex:1; border:1px solid var(--border); background:var(--bg-card); color:var(--text-muted); font-weight:600; padding:10px; border-radius:10px;" onclick="toggleNote('${note.id}')">Cancel</button>
-              <button class="note-action-btn" style="flex:2; background:var(--accent); color:white; border:none; padding:10px; border-radius:10px; font-weight:600;" onclick="toggleNote('${note.id}')">Save Note</button>
-            </div>
-            <div style="display:flex; gap:10px; justify-content: space-between;">
-              <button class="note-action-btn ${note.status === 'done' ? 'active' : ''}" style="flex:1;" onclick="markNoteDone('${note.id}')">
-                ${note.status === 'done' ? '✓ Done' : 'Mark Done'}
-              </button>
-              <button class="note-action-btn trash" style="width: 44px; flex-shrink:0;" onclick="deleteNote('${note.id}')">${TRASH_ICON}</button>
-            </div>
-          </div>`;
-
         const header = `
-          <div class="note-row ${isNew && isExpanded ? 'note-row-new' : ''}" onclick="toggleNote('${note.id}')" style="${isExpanded ? 'background:var(--bg-day-header)' : ''}">
-            <span class="note-expand-arrow ${isExpanded ? 'open' : ''}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
+          <div class="note-row" onclick="toggleNote('${note.id}')" style="${isExpanded ? 'background:transparent' : ''}">
             <div class="note-dot ${dotCls}"></div>
             <div style="flex:1;min-width:0;">
-              <div class="note-row-title" style="${note.status === 'done' ? 'text-decoration:line-through;color:var(--text-muted)' : ''}${isNew && isExpanded ? ';color:var(--text-muted);font-style:italic;font-weight:400' : ''}">${esc(titleText)}</div>
+              <div class="note-row-title" style="${note.status === 'done' ? 'text-decoration:line-through;color:var(--text-muted)' : ''}">${esc(titleText)}</div>
               ${metaParts.length ? `<div class="note-row-meta">${esc(metaParts.join(' · '))}</div>` : ''}
             </div>
+            <span class="note-expand-arrow ${isExpanded ? 'open' : ''}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
           </div>`;
 
         const detail = `
           <div class="note-detail">
             <div class="note-detail-row">
-              <span class="field-label">Description</span>
+              <span class="field-label" style="display:block; margin-bottom: 6px; font-size: 11px; font-weight: 800; color: #94a3b8; text-transform: uppercase;">Description</span>
               <textarea data-note-id="${note.id}" data-note-field="description" rows="2"
-                style="width:100%;border-radius:8px;padding:8px 10px;font-size:13px;background:var(--bg-input);border:1px solid var(--border-input);color:var(--text-input);resize:none;overflow:hidden;min-height:36px;outline:none;"
                 oninput="updateNoteField(this);autoGrow(this)">${esc(note.description)}</textarea>
             </div>
-            <div style="margin-bottom:10px;">
-              <span class="field-label">Location</span>
+            <div class="note-detail-row">
+              <span class="field-label" style="display:block; margin-bottom: 6px; font-size: 11px; font-weight: 800; color: #94a3b8; text-transform: uppercase;">Location</span>
               <div class="note-location-wrap">
                 <input type="text" data-note-id="${note.id}" data-note-field="location"
                   value="${esc(note.location)}"
@@ -4327,28 +4432,47 @@
                 <div class="note-town-dropdown" id="ntd-${note.id}"></div>
               </div>
             </div>
-            <div style="margin-bottom:10px;">
-              <span class="field-label">Date</span>
-              <div class="note-date-row">
+            <div class="note-detail-row">
+              <span class="field-label" style="display:block; margin-bottom: 6px; font-size: 11px; font-weight: 800; color: #94a3b8; text-transform: uppercase;">Date</span>
+              <div class="note-date-row" style="position:relative;">
                 <input type="date" data-note-id="${note.id}" data-note-field="date"
-                  value="${note.date || ''}" oninput="updateNoteField(this)"
-                  style="flex:1;background:var(--bg-input);border:1px solid var(--border-input);border-radius:10px;padding:8px 8px;font-size:12px;color:var(--text-primary);font-family:inherit;outline:none;" />
-                <button class="note-today-btn" onclick="setNoteToday('${note.id}')">Today</button>
+                  value="${note.date || ''}" oninput="updateNoteField(this)" />
               </div>
             </div>
             <div class="note-detail-row">
-              <span class="field-label">Priority</span>
+              <span class="field-label" style="display:block; margin-bottom: 6px; font-size: 11px; font-weight: 800; color: #94a3b8; text-transform: uppercase;">Priority</span>
               <div class="note-priority-row">${priChips}</div>
             </div>
-            ${actions}
+            <button class="note-save-btn" onclick="toggleNote('${note.id}')">Save Note</button>
+            <div class="note-footer">
+              <button class="note-footer-btn" onclick="markNoteDone('${note.id}')">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                Mark as Done
+              </button>
+              <button class="note-footer-btn trash" onclick="deleteNote('${note.id}')">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+                Delete
+              </button>
+            </div>
           </div>`;
 
         return header + detail;
       };
 
       const visibleOpen = f === 'done' ? [] : filtered;
-      // Done notes always show at the bottom when viewing 'all' or the 'done' filter
       const visibleDone = (f === 'done' || f === 'all') ? doneNotes : [];
+
+      const headerRow = `
+        <div class="notes-header-row">
+          <div class="notes-title-group">
+            <h1>Notes</h1>
+            <span>${openNotes.length} open</span>
+          </div>
+          <button class="add-note-btn-header" onclick="addNote()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Add Note
+          </button>
+        </div>`;
 
       const openSection = visibleOpen.length
         ? `<div class="notes-section-label">Open</div>` +
@@ -4356,20 +4480,11 @@
         : (f !== 'done' ? `<div class="notes-empty">No ${f === 'all' ? 'open' : f} notes yet.</div>` : '');
 
       const doneSection = visibleDone.length
-        ? `<div class="notes-section-label" style="margin-top:4px;">Done</div>` +
+        ? `<div class="notes-section-label">Done</div>` +
         visibleDone.map(n => `<div class="note-card done-card ${state.expandedNotes.has(n.id) ? 'expanded' : ''}" data-note-id="${n.id}">${renderNote(n)}</div>`).join('')
         : '';
 
-      const addBtn = f !== 'done'
-        ? `<div style="padding:12px 12px 4px;">
-             <button onclick="addNote()" style="width:100%;padding:11px;border-radius:14px;border:2px dashed var(--border);background:var(--bg-card);color:var(--accent);font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;">
-               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-               Add Note
-             </button>
-           </div>`
-        : '';
-
-      return `<div class="notes-view">${addBtn}${openSection}${doneSection}</div>`;
+      return `<div class="notes-view">${headerRow}<div class="notes-chips">${chips}</div>${openSection}${doneSection}</div>`;
     }
 
     // ---- Notes event handlers ----
