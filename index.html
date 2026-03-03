@@ -1976,19 +1976,31 @@
       font-weight: 500;
     }
 
-    .add-note-btn-header {
-      background: var(--accent);
-      color: #fff;
-      border: none;
-      border-radius: 12px;
-      padding: 10px 18px;
-      font-size: 14px;
-      font-weight: 700;
-      cursor: pointer;
-      box-shadow: 0 4px 12px rgba(88, 86, 214, 0.2);
+    .add-note-dashed {
+      margin: 12px 16px 20px;
+      padding: 16px;
+      background: rgba(255, 255, 255, 0.5);
+      border: 1.5px dashed #cbd5e1;
+      border-radius: 16px;
       display: flex;
       align-items: center;
-      gap: 6px;
+      justify-content: center;
+      gap: 8px;
+      color: var(--accent);
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    [data-theme="dark"] .add-note-dashed {
+      background: rgba(255, 255, 255, 0.03);
+      border-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .add-note-dashed:active {
+      transform: scale(0.98);
+      background: rgba(88, 86, 214, 0.05);
     }
 
     .tbl-summary-section {
@@ -2509,7 +2521,7 @@
     // ============================================================
     // CONFIG
     // ============================================================
-    const VERSION = '2.8.6';
+    const VERSION = '2.8.7';
     const API_URL = 'https://script.google.com/macros/s/AKfycbwHbuuctWpT1QWqQc8C1fINQyBJhssIIeh3duuQgAHiCpGBRUVnPEmUnDlEDu5mQbZk/exec';
     const DAY_NAMES = ['Friday', 'Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday'];
     const DB_NAME = 'timesheet-db';
@@ -4502,10 +4514,6 @@
             <h1>Notes</h1>
             <span>${openNotes.length} open</span>
           </div>
-          <button class="add-note-btn-header" onclick="addNote()">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-            Add Note
-          </button>
         </div>`;
 
       const openSection = visibleOpen.length
@@ -4518,7 +4526,12 @@
         visibleDone.map(n => `<div class="note-card done-card ${state.expandedNotes.has(n.id) ? 'expanded' : ''}" data-note-id="${n.id}">${renderNote(n)}</div>`).join('')
         : '';
 
-      return `<div class="notes-view">${headerRow}<div class="notes-chips">${chips}</div>${openSection}${doneSection}</div>`;
+      const addCard = `<div class="add-note-dashed" onclick="addNote()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Add Note
+      </div>`;
+
+      return `<div class="notes-view">${headerRow}<div class="notes-chips">${chips}</div>${addCard}${openSection}${doneSection}</div>`;
     }
 
     // ---- Notes event handlers ----
