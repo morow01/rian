@@ -3041,7 +3041,7 @@
     // ============================================================
     // CONFIG
     // ============================================================
-    const VERSION = '3.0.19';
+    const VERSION = '3.0.20';
     const API_URL = 'https://script.google.com/macros/s/AKfycbwHbuuctWpT1QWqQc8C1fINQyBJhssIIeh3duuQgAHiCpGBRUVnPEmUnDlEDu5mQbZk/exec';
     const DAY_NAMES = ['Friday', 'Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday'];
     const DB_NAME = 'timesheet-db';
@@ -5863,28 +5863,9 @@
       `;
     }
 
-    // Scroll search box to just below the fixed header on mobile when keyboard opens
+    // Scroll search box to top before keyboard opens (onfocus fires before keyboard animation)
     function focusSearchScroll(input) {
-      const sg = input.closest('.search-group');
-      const HEADER_H = 105; // approx height of sticky week-header + tabs bar
-
-      function doScroll() {
-        const rect = sg.getBoundingClientRect();
-        const delta = rect.top - HEADER_H - 8;
-        if (Math.abs(delta) > 15) {
-          window.scrollBy({ top: delta, behavior: 'smooth' });
-        }
-      }
-
-      if (window.visualViewport) {
-        function onKbOpen() {
-          window.visualViewport.removeEventListener('resize', onKbOpen);
-          doScroll();
-        }
-        window.visualViewport.addEventListener('resize', onKbOpen);
-      } else {
-        setTimeout(doScroll, 500);
-      }
+      input.closest('.search-group').scrollIntoView({ behavior: 'instant', block: 'start' });
     }
 
     function updateExchangeSearch(val) {
