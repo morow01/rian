@@ -2690,9 +2690,13 @@
 
     .search-group {
       margin-bottom: 20px;
-      transition: all 0.2s ease;
+      scroll-margin-top: 110px;
+      transition: padding-bottom 0.3s ease;
     }
 
+    .search-group.focused-search {
+      padding-bottom: 60vh;
+    }
 
     .search-input-wrap {
       position: relative;
@@ -3041,7 +3045,7 @@
     // ============================================================
     // CONFIG
     // ============================================================
-    const VERSION = '3.0.21';
+    const VERSION = '3.0.22';
     const API_URL = 'https://script.google.com/macros/s/AKfycbwHbuuctWpT1QWqQc8C1fINQyBJhssIIeh3duuQgAHiCpGBRUVnPEmUnDlEDu5mQbZk/exec';
     const DAY_NAMES = ['Friday', 'Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday'];
     const DB_NAME = 'timesheet-db';
@@ -5830,7 +5834,9 @@
             <span>🔍</span>
             <input type="text" id="ex-search-input" placeholder="Name or Code (e.g. CHL, Cashel)" 
               value="${esc(state.exchangeSearch)}"
-              oninput="updateExchangeSearch(this.value)">
+              oninput="updateExchangeSearch(this.value)"
+              onfocus="const sg=this.closest('.search-group'); sg.classList.add('focused-search'); setTimeout(()=>sg.scrollIntoView({behavior:'smooth',block:'start'}), 300);"
+              onblur="const sg=this.closest('.search-group'); setTimeout(()=>sg.classList.remove('focused-search'), 200);">
           </div>
           
           <div id="ex-results-list" class="mt-4">
@@ -5851,7 +5857,9 @@
             <span>🗄️</span>
             <input type="text" id="cb-search-input" placeholder="MDF, CCP or IPID" 
               value="${esc(state.cabinetSearch)}"
-              oninput="updateCabinetSearch(this.value)">
+              oninput="updateCabinetSearch(this.value)"
+              onfocus="const sg=this.closest('.search-group'); sg.classList.add('focused-search'); setTimeout(()=>sg.scrollIntoView({behavior:'smooth',block:'start'}), 300);"
+              onblur="const sg=this.closest('.search-group'); setTimeout(()=>sg.classList.remove('focused-search'), 200);">
           </div>
 
           <div id="cb-results-list" class="mt-4">
