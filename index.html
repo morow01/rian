@@ -5409,87 +5409,126 @@
       const exQuery = (state.exchangeSearch || '').toLowerCase();
       const cbQuery = (state.cabinetSearch || '').toLowerCase();
 
-      const filteredEx = state.exchanges.filter(t =>
-        t.name.toLowerCase().includes(exQuery) || t.code.toLowerCase().includes(exQuery)
-      ).slice(0, 30);
-
-      const filteredCb = state.cabinets.filter(c =>
-        c.mdf.toLowerCase().includes(cbQuery) || c.ccp.toLowerCase().includes(cbQuery) || String(c.ipid).includes(cbQuery)
-      ).slice(0, 30);
-
       return `
         <div class="finder-container">
-          <div class="mb-8 mt-2">
-            <h2 class="text-2xl font-bold mb-1" style="color:var(--text-primary)">Exchange Finder</h2>
-            <p class="text-sm text-muted">Search for exchanges or cabinets</p>
+          <div class="mb-6 mt-2 flex items-center justify-between">
+            <div>
+              <h2 class="text-2xl font-bold mb-1" style="color:var(--text-primary)">Exchange Finder</h2>
+              <p class="text-sm text-muted">Locate exchanges and cabinets</p>
+            </div>
+            <div class="text-xs px-2 py-1 rounded bg-accent-light" style="color:var(--accent); font-weight:700;">3.0.0</div>
           </div>
 
           <!-- Exchanges Section -->
-          <div class="search-group">
-            <div class="field-label">Exchanges / Towns</div>
+          <div class="search-group mb-8">
+            <div class="flex items-center justify-between mb-2">
+              <div class="field-label" style="margin-bottom:0">Exchanges / Towns</div>
+              <span id="ex-count" class="text-xs text-muted"></span>
+            </div>
             <div class="search-input-wrap">
               <span>🔍</span>
-              <input type="text" placeholder="Name or Code (e.g. CHL, Cashel)" 
+              <input type="text" id="ex-search-input" placeholder="Name or Code (e.g. CHL, Cashel)" 
                 value="${esc(state.exchangeSearch)}"
-                oninput="state.exchangeSearch = this.value; render()">
+                oninput="updateExchangeSearch(this.value)">
             </div>
             
-            <div class="mt-4">
-              ${filteredEx.map(ex => `
-                <div class="result-card">
-                  <div class="result-header">
-                    <div class="result-title">${esc(ex.name)}</div>
-                    <div class="result-code">${esc(ex.code)}</div>
-                  </div>
-                  <div class="result-meta">
-                    ${ex.address ? `<div>📍 ${esc(ex.address)}</div>` : ''}
-                    <div>🌐 Coords: ${esc(ex.link)}</div>
-                  </div>
-                  <div class="flex gap-2">
-                    <a href="https://www.google.com/maps/search/?api=1&query=${esc(ex.link)}" target="_blank" class="maps-link">
-                      🗺️ Open Map
-                    </a>
-                    ${ex.gallery ? `<a href="${esc(ex.gallery)}" target="_blank" class="maps-link" style="background:#f0f9ff;color:#0369a1">🖼️ Gallery</a>` : ''}
-                  </div>
-                </div>
-              `).join('')}
-              ${exQuery && !filteredEx.length ? '<div class="text-center p-8 text-muted">No exchanges found</div>' : ''}
+            <div id="ex-results-list" class="mt-4">
+              ${renderExchangeResults(exQuery)}
             </div>
           </div>
 
-          <hr class="my-8" style="border:0;border-top:1px solid var(--border)">
+          <div style="height: 1px; background: var(--border); margin: 32px 0; opacity: 0.5;"></div>
 
           <!-- Cabinets Section -->
           <div class="search-group">
-            <div class="field-label">Cabinets</div>
+            <div class="flex items-center justify-between mb-2">
+              <div class="field-label" style="margin-bottom:0">Cabinets</div>
+              <span id="cb-count" class="text-xs text-muted"></span>
+            </div>
             <div class="search-input-wrap">
               <span>🗄️</span>
-              <input type="text" placeholder="MDF, CCP or IPID" 
+              <input type="text" id="cb-search-input" placeholder="MDF, CCP or IPID" 
                 value="${esc(state.cabinetSearch)}"
-                oninput="state.cabinetSearch = this.value; render()">
+                oninput="updateCabinetSearch(this.value)">
             </div>
 
-            <div class="mt-4">
-              ${filteredCb.map(cb => `
-                <div class="result-card">
-                  <div class="result-header">
-                    <div class="result-title">Cabinet ${esc(cb.mdf)} ${esc(cb.ccp)}</div>
-                    <div class="result-code">IPID: ${esc(cb.ipid)}</div>
-                  </div>
-                  <div class="result-meta">
-                    <div>MDF: ${esc(cb.mdf)} · CCP: ${esc(cb.ccp)}</div>
-                    <div>🌐 Coords: ${esc(cb.link)}</div>
-                  </div>
-                  <a href="https://www.google.com/maps/search/?api=1&query=${esc(cb.link)}" target="_blank" class="maps-link">
-                    🗺️ Open Map
-                  </a>
-                </div>
-              `).join('')}
-              ${cbQuery && !filteredCb.length ? '<div class="text-center p-8 text-muted">No cabinets found</div>' : ''}
+            <div id="cb-results-list" class="mt-4">
+              ${renderCabinetResults(cbQuery)}
             </div>
           </div>
         </div>
       `;
+    }
+
+    function updateExchangeSearch(val) {
+      state.exchangeSearch = val;
+      const list = document.getElementById('ex-results-list');
+      if (list) list.innerHTML = renderExchangeResults(val.toLowerCase());
+    }
+
+    function updateCabinetSearch(val) {
+      state.cabinetSearch = val;
+      const list = document.getElementById('cb-results-list');
+      if (list) list.innerHTML = renderCabinetResults(val.toLowerCase());
+    }
+
+    function renderExchangeResults(query) {
+      const filtered = state.exchanges.filter(t =>
+        t.name.toLowerCase().includes(query) || t.code.toLowerCase().includes(query)
+      ).slice(0, 30);
+
+      const countEl = document.getElementById('ex-count');
+      if (countEl) countEl.textContent = query ? `${filtered.length} found` : '';
+
+      if (query && !filtered.length) return '<div class="text-center p-8 text-muted">No exchanges found</div>';
+      if (!query) return '<div class="text-center p-4 text-xs text-muted border border-dashed border-muted rounded-xl opacity-50">Enter search term above</div>';
+
+      return filtered.map(ex => `
+        <div class="result-card">
+          <div class="result-header">
+            <div class="result-title">${esc(ex.name)}</div>
+            <div class="result-code">${esc(ex.code)}</div>
+          </div>
+          <div class="result-meta">
+            ${ex.address ? `<div>📍 ${esc(ex.address)}</div>` : ''}
+            <div>🌐 Coords: ${esc(ex.link)}</div>
+          </div>
+          <div class="flex gap-2">
+            <a href="https://www.google.com/maps/search/?api=1&query=${esc(ex.link)}" target="_blank" class="maps-link">
+              🗺️ Open Map
+            </a>
+            ${ex.gallery ? `<a href="${esc(ex.gallery)}" target="_blank" class="maps-link" style="background:#f0f9ff;color:#0369a1">🖼️ Gallery</a>` : ''}
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function renderCabinetResults(query) {
+      const filtered = state.cabinets.filter(c =>
+        c.mdf.toLowerCase().includes(query) || c.ccp.toLowerCase().includes(query) || String(c.ipid).includes(query)
+      ).slice(0, 30);
+
+      const countEl = document.getElementById('cb-count');
+      if (countEl) countEl.textContent = query ? `${filtered.length} found` : '';
+
+      if (query && !filtered.length) return '<div class="text-center p-8 text-muted">No cabinets found</div>';
+      if (!query) return '<div class="text-center p-4 text-xs text-muted border border-dashed border-muted rounded-xl opacity-50">Enter search term above</div>';
+
+      return filtered.map(cb => `
+        <div class="result-card">
+          <div class="result-header">
+            <div class="result-title">Cabinet ${esc(cb.mdf)} ${esc(cb.ccp)}</div>
+            <div class="result-code">IPID: ${esc(cb.ipid)}</div>
+          </div>
+          <div class="result-meta">
+            <div>MDF: ${esc(cb.mdf)} · CCP: ${esc(cb.ccp)}</div>
+            <div>🌐 Coords: ${esc(cb.link)}</div>
+          </div>
+          <a href="https://www.google.com/maps/search/?api=1&query=${esc(cb.link)}" target="_blank" class="maps-link">
+            🗺️ Open Map
+          </a>
+        </div>
+      `).join('');
     }
 
     async function loadExchanges() {
