@@ -3043,7 +3043,7 @@
     // ============================================================
     // CONFIG
     // ============================================================
-    const VERSION = '3.0.27';
+    const VERSION = '3.0.28';
     const API_URL = 'https://script.google.com/macros/s/AKfycbwHbuuctWpT1QWqQc8C1fINQyBJhssIIeh3duuQgAHiCpGBRUVnPEmUnDlEDu5mQbZk/exec';
     const DAY_NAMES = ['Friday', 'Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday'];
     const DB_NAME = 'timesheet-db';
@@ -5816,18 +5816,21 @@
         title: item.name || 'Location'
       });
 
-      // --- Map Click Feature ---
-      // Opens Google Maps to pinpoint the location instead of starting directions
+      // --- Map Click Feature (Brave / Popup Blocker safe) ---
+      // Instead of JS window.open (which Brave blocks on canvas), we use a transparent anchor tag overlay
       const mapUrl = `https://www.google.com/maps/search/?api=1&query=${latVal},${lngVal}`;
 
-      // Map click
-      map.addListener('click', () => window.open(mapUrl, '_blank'));
+      const overlayLink = document.createElement('a');
+      overlayLink.href = mapUrl;
+      overlayLink.target = '_blank';
+      overlayLink.rel = 'noopener noreferrer';
+      // Cover the entire map area but let map tiles render below
+      overlayLink.className = 'absolute inset-0 z-10';
+      overlayLink.style.cursor = 'pointer';
 
-      // Marker click
-      if (marker.element) {
-        marker.element.addEventListener('click', () => window.open(mapUrl, '_blank'));
-        marker.element.style.cursor = 'pointer';
-      }
+      // We must make sure the map container has relative position to contain the absolute overlay
+      el.style.position = 'relative';
+      el.appendChild(overlayLink);
     }
 
     window.onMapsLoaded = () => {
