@@ -2707,7 +2707,7 @@
     // ============================================================
     // CONFIG
     // ============================================================
-    const VERSION = '2.9.5';
+    const VERSION = '2.9.6';
     const API_URL = 'https://script.google.com/macros/s/AKfycbwHbuuctWpT1QWqQc8C1fINQyBJhssIIeh3duuQgAHiCpGBRUVnPEmUnDlEDu5mQbZk/exec';
     const DAY_NAMES = ['Friday', 'Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday'];
     const DB_NAME = 'timesheet-db';
@@ -3246,11 +3246,27 @@
           FIELDS.forEach(field => {
             const baseVal = JSON.stringify(baseAct[field] ?? '');
             const localVal = JSON.stringify(localAct[field] ?? '');
+            const remoteVal = JSON.stringify(mergedAct[field] ?? '');
+
             if (localVal !== baseVal) {
-              // We changed this field locally — apply our change
-              mergedAct[field] = deepCopy(localAct[field]);
+              // We changed this field locally
+              if (remoteVal !== baseVal && remoteVal !== localVal && (field === 'notes' || field === 'description')) {
+                // Both changed it differently. Append local onto remote.
+                const rText = mergedAct[field] ? String(mergedAct[field]).trim() : '';
+                const lText = localAct[field] ? String(localAct[field]).trim() : '';
+
+                // Avoid duplicating if local just appended to the end of remote anyway
+                if (rText && lText && !lText.includes(rText) && !rText.includes(lText)) {
+                  mergedAct[field] = `${rText}\n\n[Merged from ${state.deviceName}]:\n${lText}`;
+                } else if (lText.length > rText.length) {
+                  mergedAct[field] = deepCopy(localAct[field]);
+                }
+              } else {
+                // Standard local-wins if remote didn't change (or it's a non-text field)
+                mergedAct[field] = deepCopy(localAct[field]);
+              }
             }
-            // else: we didn't touch it — keep remote's value (already there)
+            // else: we didn't touch it locally — keep remote's value (which is already in mergedAct)
           });
         });
 
@@ -4363,7 +4379,11 @@
             if (s.type === 'week') {
               const actCount = countActivities(data);
               const hrs = data.days ? data.days.reduce((acc, d) => acc + d.activities.reduce((a2, act) => a2 + (parseFloat(act.ordinary) || 0) + (parseFloat(act.overtime) || 0), 0), 0) : 0;
-              extraInfo = `<span class="opacity-70 mx-1">•</span> ${actCount} task${actCount !== 1 ? 's' : ''}, ${hrs.toFixed(1)} hrs`;
+              const activeDays = data.days ? data.days.filter(d =>
+                (d.activities || []).some(act => (parseFloat(act.ordinary) || 0) > 0 || (parseFloat(act.overtime) || 0) > 0 || (act.description || '').trim() || (act.notes || '').trim())
+              ).map(d => (d.dayName || '').substring(0, 3)).join(', ') : '';
+              const daysStr = activeDays ? ` (${activeDays})` : '';
+              extraInfo = `<span class="opacity-70 mx-1">•</span> ${actCount} task${actCount !== 1 ? 's' : ''}, ${hrs.toFixed(1)} hrs${daysStr}`;
             } else {
               const noteCount = (data.notes || []).length;
               extraInfo = `<span class="opacity-70 mx-1">•</span> ${noteCount} note${noteCount !== 1 ? 's' : ''}`;
@@ -4535,7 +4555,22 @@
         FIELDS.forEach(field => {
           const baseVal = JSON.stringify(baseNote[field] ?? '');
           const localVal = JSON.stringify(localNote[field] ?? '');
-          if (localVal !== baseVal) mergedNote[field] = deepCopy(localNote[field]);
+          const remoteVal = JSON.stringify(mergedNote[field] ?? '');
+
+          if (localVal !== baseVal) {
+            if (remoteVal !== baseVal && remoteVal !== localVal && field === 'description') {
+              const rText = mergedNote[field] ? String(mergedNote[field]).trim() : '';
+              const lText = localNote[field] ? String(localNote[field]).trim() : '';
+
+              if (rText && lText && !lText.includes(rText) && !rText.includes(lText)) {
+                mergedNote[field] = `${rText}\n\n[Merged from ${state.deviceName}]:\n${lText}`;
+              } else if (lText.length > rText.length) {
+                mergedNote[field] = deepCopy(localNote[field]);
+              }
+            } else {
+              mergedNote[field] = deepCopy(localNote[field]);
+            }
+          }
         });
       });
 
