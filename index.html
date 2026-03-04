@@ -3039,7 +3039,7 @@
     // ============================================================
     // CONFIG
     // ============================================================
-    const VERSION = '3.0.8';
+    const VERSION = '3.0.9';
     const API_URL = 'https://script.google.com/macros/s/AKfycbwHbuuctWpT1QWqQc8C1fINQyBJhssIIeh3duuQgAHiCpGBRUVnPEmUnDlEDu5mQbZk/exec';
     const DAY_NAMES = ['Friday', 'Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday'];
     const DB_NAME = 'timesheet-db';
@@ -4561,15 +4561,14 @@
         ${day.activities.some(a => (parseFloat(a.ordinary) > 0 || parseFloat(a.overtime) > 0) && a.codes.length === 0)
           ? `<span class="w-2.5 h-2.5 rounded-full bg-orange-500 animate-pulse ml-1" title="Code required" style="box-shadow: 0 0 8px rgba(249,115,22,0.4)"></span>`
           : ''}
-          
-        ${(!isExpanded || day.activities.some(a => (parseFloat(a.ordinary) > 0 || parseFloat(a.overtime) > 0) && a.codes.length === 0)) && actCount > 0
-          ? `<span class="text-xs px-2 py-0.5 rounded-full" style="background:var(--bg-card-alt);color:var(--text-muted)">${actCount} task${actCount !== 1 ? 's' : ''}</span>`
-          : ''}
       </div>
       
       <div class="flex items-center gap-1.5">
-        ${ord > 0 ? `<div style="background: var(--accent-light); color: var(--accent); padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: 700;">${ord.toFixed(1)}h</div>` : ''}
-        ${ot > 0 ? `<div style="background: var(--bg-ot); color: var(--text-ot); padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: 700;">+${ot.toFixed(1)} OT</div>` : ''}
+        ${(!isExpanded || day.activities.some(a => (parseFloat(a.ordinary) > 0 || parseFloat(a.overtime) > 0) && a.codes.length === 0)) && actCount > 0
+          ? `<span class="text-xs px-2 py-0.5 rounded-full" style="background:var(--bg-card-alt);color:var(--text-muted)">${actCount} task${actCount !== 1 ? 's' : ''}</span>`
+          : ''}
+        ${ord > 0 ? `<div style="background: var(--accent-light); color: var(--accent); padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: 700;">${Math.round(ord)}h</div>` : ''}
+        ${ot > 0 ? `<div style="background: var(--bg-ot); color: var(--text-ot); padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: 700;">+${Math.round(ot)} OT</div>` : ''}
       </div>
     </div>
       <div class="day-activities ${isExpanded ? 'expanded' : 'collapsed'}" ${isExpanded ? '' : 'style="max-height:0"'} id="day-${di}-activities">
@@ -5590,7 +5589,7 @@
               <h2 class="text-2xl font-bold mb-1" style="color:var(--text-primary)">Exchange Finder</h2>
               <p class="text-sm text-muted">Locate exchanges and cabinets</p>
             </div>
-            <div class="text-xs px-2 py-1 rounded bg-accent-light" style="color:var(--accent); font-weight:700;">3.0.8</div>
+            <div class="text-xs px-2 py-1 rounded bg-accent-light" style="color:var(--accent); font-weight:700;">3.0.9</div>
           </div>
 
           <!-- Tab Switcher -->
