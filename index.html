@@ -2693,35 +2693,6 @@
       transition: all 0.2s ease;
     }
 
-    @media (max-width: 640px) {
-      .search-group:focus-within {
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: var(--bg-card);
-        z-index: 2000;
-        padding: 16px;
-        margin-bottom: 0;
-        overflow-y: auto;
-      }
-
-      .search-group:focus-within::before {
-        content: 'Done';
-        position: absolute;
-        top: 16px;
-        right: 16px;
-        background: var(--accent);
-        color: white;
-        padding: 4px 12px;
-        border-radius: 20px;
-        font-size: 12px;
-        font-weight: 700;
-        pointer-events: none;
-        /* Visual only, blur on backdrop will work */
-      }
-    }
 
     .search-input-wrap {
       position: relative;
@@ -3070,7 +3041,7 @@
     // ============================================================
     // CONFIG
     // ============================================================
-    const VERSION = '3.0.13';
+    const VERSION = '3.0.14';
     const API_URL = 'https://script.google.com/macros/s/AKfycbwHbuuctWpT1QWqQc8C1fINQyBJhssIIeh3duuQgAHiCpGBRUVnPEmUnDlEDu5mQbZk/exec';
     const DAY_NAMES = ['Friday', 'Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday'];
     const DB_NAME = 'timesheet-db';
@@ -5859,7 +5830,8 @@
             <span>🔍</span>
             <input type="text" id="ex-search-input" placeholder="Name or Code (e.g. CHL, Cashel)" 
               value="${esc(state.exchangeSearch)}"
-              oninput="updateExchangeSearch(this.value)">
+              oninput="updateExchangeSearch(this.value)"
+              onfocus="this.closest('.search-group').scrollIntoView({behavior:'smooth',block:'start'})">
           </div>
           
           <div id="ex-results-list" class="mt-4">
@@ -5880,7 +5852,8 @@
             <span>🗄️</span>
             <input type="text" id="cb-search-input" placeholder="MDF, CCP or IPID" 
               value="${esc(state.cabinetSearch)}"
-              oninput="updateCabinetSearch(this.value)">
+              oninput="updateCabinetSearch(this.value)"
+              onfocus="this.closest('.search-group').scrollIntoView({behavior:'smooth',block:'start'})">
           </div>
 
           <div id="cb-results-list" class="mt-4">
