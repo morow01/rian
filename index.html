@@ -3039,7 +3039,7 @@
     // ============================================================
     // CONFIG
     // ============================================================
-    const VERSION = '3.0.9';
+    const VERSION = '3.0.10';
     const API_URL = 'https://script.google.com/macros/s/AKfycbwHbuuctWpT1QWqQc8C1fINQyBJhssIIeh3duuQgAHiCpGBRUVnPEmUnDlEDu5mQbZk/exec';
     const DAY_NAMES = ['Friday', 'Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday'];
     const DB_NAME = 'timesheet-db';
@@ -4315,9 +4315,17 @@
 
       activities.forEach((act, ai) => {
         const isFirst = ai === 0;
+        const hasDayError = day.activities.some(a => (parseFloat(a.ordinary) > 0 || parseFloat(a.overtime) > 0) && a.codes.length === 0);
         html += `
   <tr class="${weClass}">
-    ${isFirst ? `<td class="tbl-day-cell" rowspan="${rowspan}">${day.dayName}</td><td class="tbl-date-cell" rowspan="${rowspan}">${dateStr}</td>` : ''}
+    ${isFirst ? `
+      <td class="tbl-day-cell" rowspan="${rowspan}">${day.dayName}</td>
+      <td class="tbl-date-cell" rowspan="${rowspan}">
+        <div class="flex items-center gap-1.5">
+          ${dateStr}
+          ${hasDayError ? `<span class="w-2 h-2 rounded-full bg-orange-500 animate-pulse" title="Code required" style="box-shadow: 0 0 6px rgba(249,115,22,0.4)"></span>` : ''}
+        </div>
+      </td>` : ''}
     ${renderTableActivityCells(act, di)}
   </tr>`;
       });
@@ -4338,6 +4346,7 @@
       const hrsPerTask = ordinary > 0 ? (ordinary / numTasks).toFixed(2) : '—';
       const otPerTask = overtime > 0 ? (overtime / numTasks).toFixed(2) : '—';
 
+      const isMissingCode = (ordinary > 0 || overtime > 0) && act.codes.length === 0;
       const codesHtml = `<div class="tbl-codes-inner">
         ${act.codes.map(c => `
           <span class="code-chip" style="font-size:11px;padding:2px 6px;">
@@ -4345,7 +4354,10 @@
             <span class="chip-code font-mono" style="opacity:0.75;font-size:10px;margin-left:4px;">${c.c}</span>
             <button class="chip-x" onclick="removeCode('${act.id}',${di},'${c.c}')" style="margin-left:4px;font-size:11px;line-height:1;color:var(--text-muted)">✕</button>
           </span>`).join('')}
-        <button class="tbl-add-code-btn" onclick="openCodeModal(${di},'${act.id}')">${act.codes.length ? '✎' : '+ Code'}</button>
+        <div class="flex items-center gap-2">
+          <button class="tbl-add-code-btn" onclick="openCodeModal(${di},'${act.id}')" style="${isMissingCode ? 'border-color:#f97316;color:#f97316' : ''}">${act.codes.length ? '✎' : '+ Code'}</button>
+          ${isMissingCode ? `<span class="w-2 h-2 rounded-full bg-orange-500 animate-pulse" title="Code required" style="box-shadow: 0 0 6px rgba(249,115,22,0.4)"></span>` : ''}
+        </div>
       </div>`;
 
       return `
@@ -5589,7 +5601,7 @@
               <h2 class="text-2xl font-bold mb-1" style="color:var(--text-primary)">Exchange Finder</h2>
               <p class="text-sm text-muted">Locate exchanges and cabinets</p>
             </div>
-            <div class="text-xs px-2 py-1 rounded bg-accent-light" style="color:var(--accent); font-weight:700;">3.0.9</div>
+            <div class="text-xs px-2 py-1 rounded bg-accent-light" style="color:var(--accent); font-weight:700;">3.0.10</div>
           </div>
 
           <!-- Tab Switcher -->
