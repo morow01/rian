@@ -5,7 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="theme-color" content="#1e3a8a" id="meta-theme">
-  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="TimeSheet">
   <title>TimeSheet</title>
@@ -2782,6 +2782,118 @@
         transform: translateY(0);
       }
     }
+
+    /* Detailed View Styles */
+    .detail-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .back-btn {
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      background: var(--bg-card-alt);
+      color: var(--text-primary);
+      border: 1px solid var(--border);
+      cursor: pointer;
+      font-size: 18px;
+    }
+
+    .detail-tabs {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 8px;
+      margin-bottom: 20px;
+      scrollbar-width: none;
+    }
+
+    .detail-tabs::-webkit-scrollbar {
+      display: none;
+    }
+
+    .detail-tab {
+      white-space: nowrap;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 600;
+      background: var(--bg-card-alt);
+      color: var(--text-muted);
+      border: 1px solid var(--border);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .detail-tab.active {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+
+    .detail-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    @media (min-width: 640px) {
+      .detail-grid.with-map {
+        grid-template-columns: 1fr 1.2fr;
+      }
+
+      .detail-grid.full {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    .info-box {
+      background: var(--bg-card-alt);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+    }
+
+    .info-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+      font-weight: 700;
+    }
+
+    .info-value {
+      font-size: 14px;
+      color: var(--text-primary);
+      font-weight: 600;
+      word-break: break-all;
+    }
+
+    #map-view {
+      width: 100%;
+      height: 300px;
+      border-radius: 16px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      background: var(--bg-card-alt);
+      position: relative;
+    }
+
+    .result-card {
+      cursor: pointer;
+      transition: transform 0.1s;
+    }
+
+    .result-card:active {
+      transform: scale(0.98);
+    }
   </style>
 </head>
 
@@ -3228,6 +3340,9 @@
       exchangeSearch: '',   // NEW
       cabinetSearch: '',    // NEW
       exchangeTab: 'exchanges', // 'exchanges' | 'cabinets'
+      selectedExchange: null,   // NEW
+      selectedCabinet: null,    // NEW
+      exchangeDetailTab: 'location', // 'location'|'details'|'address'|'security'|'power'|'emergency'|'additional'
     };
 
     let codeModalCtx = { dayIndex: null, activityId: null, selected: [] };
@@ -5416,6 +5531,9 @@
 
     // ---- Exchange Finder View ----
     function renderExchangesView() {
+      if (state.selectedExchange) return renderExchangeDetails(state.selectedExchange);
+      if (state.selectedCabinet) return renderCabinetDetails(state.selectedCabinet);
+
       const isEx = state.exchangeTab === 'exchanges';
       const q = isEx ? (state.exchangeSearch || '') : (state.cabinetSearch || '');
       const qLower = q.toLowerCase();
@@ -5427,7 +5545,7 @@
               <h2 class="text-2xl font-bold mb-1" style="color:var(--text-primary)">Exchange Finder</h2>
               <p class="text-sm text-muted">Locate exchanges and cabinets</p>
             </div>
-            <div class="text-xs px-2 py-1 rounded bg-accent-light" style="color:var(--accent); font-weight:700;">3.0.1</div>
+            <div class="text-xs px-2 py-1 rounded bg-accent-light" style="color:var(--accent); font-weight:700;">3.2.0</div>
           </div>
 
           <!-- Tab Switcher -->
@@ -5450,6 +5568,192 @@
         </div>
       `;
     }
+
+    function setSelectedExchange(code) {
+      state.selectedExchange = state.exchanges.find(ex => ex.code === code) || null;
+      state.exchangeDetailTab = 'location';
+      render();
+      if (state.selectedExchange) setTimeout(initMap, 100);
+    }
+
+    function setSelectedCabinet(ipid) {
+      state.selectedCabinet = state.cabinets.find(cb => cb.ipid == ipid) || null;
+      state.exchangeDetailTab = 'location';
+      render();
+      if (state.selectedCabinet) setTimeout(initMap, 100);
+    }
+
+    function backToFinder() {
+      state.selectedExchange = null;
+      state.selectedCabinet = null;
+      render();
+    }
+
+    function setExchangeDetailTab(tab) {
+      state.exchangeDetailTab = tab;
+      const content = document.getElementById('detail-content');
+      if (content) {
+        content.innerHTML = renderDetailTabContent(state.selectedExchange || state.selectedCabinet);
+        if (tab === 'location') initMap();
+      }
+      document.querySelectorAll('.detail-tab').forEach(btn => {
+        btn.classList.toggle('active', btn.getAttribute('data-tab') === tab);
+      });
+    }
+
+    const GOOGLE_MAPS_API_KEY = 'YOUR_KEY_HERE';
+
+    function renderExchangeDetails(ex) {
+      return `
+        <div class="finder-container">
+          <div class="detail-header">
+            <button onclick="backToFinder()" class="back-btn">←</button>
+            <div>
+              <h2 class="text-xl font-bold" style="color:var(--text-primary)">${esc(ex.name)}</h2>
+              <p class="text-xs text-muted">Exchange Code: ${esc(ex.code)}</p>
+            </div>
+          </div>
+
+          <div class="detail-tabs">
+            ${['location', 'details', 'address', 'security', 'power', 'emergency', 'additional'].map(tab => `
+              <div class="detail-tab ${state.exchangeDetailTab === tab ? 'active' : ''}" 
+                   onclick="setExchangeDetailTab('${tab}')" data-tab="${tab}">
+                ${tab.charAt(0).toUpperCase() + tab.slice(1).replace('details', 'Site Details')}
+              </div>
+            `).join('')}
+          </div>
+
+          <div id="detail-content">
+            ${renderDetailTabContent(ex)}
+          </div>
+        </div>
+      `;
+    }
+
+    function renderCabinetDetails(cb) {
+      return `
+        <div class="finder-container">
+          <div class="detail-header">
+            <button onclick="backToFinder()" class="back-btn">←</button>
+            <div>
+              <h2 class="text-xl font-bold" style="color:var(--text-primary)">Cabinet ${esc(cb.mdf)} ${esc(cb.ccp)}</h2>
+              <p class="text-xs text-muted">IPID: ${esc(cb.ipid)}</p>
+            </div>
+          </div>
+
+          <div class="detail-tabs">
+            ${['location', 'details', 'address', 'security', 'power', 'emergency', 'additional'].map(tab => `
+              <div class="detail-tab ${state.exchangeDetailTab === tab ? 'active' : ''}" 
+                   onclick="setExchangeDetailTab('${tab}')" data-tab="${tab}">
+                ${tab.charAt(0).toUpperCase() + tab.slice(1).replace('details', 'Site Details')}
+              </div>
+            `).join('')}
+          </div>
+
+          <div id="detail-content">
+            ${renderDetailTabContent(cb)}
+          </div>
+        </div>
+      `;
+    }
+
+    function renderDetailTabContent(item) {
+      const tab = state.exchangeDetailTab;
+      if (tab === 'location') {
+        const coords = item.link || '0,0';
+        return `
+          <div class="detail-grid with-map">
+            <div class="flex flex-col gap-3">
+              <div class="info-box">
+                <div class="info-label">Site Code</div>
+                <div class="info-value">${esc(item.code || item.mdf + item.ccp)}</div>
+              </div>
+              <div class="info-box">
+                <div class="info-label">Location Coordinates</div>
+                <div class="info-value">${esc(coords)}</div>
+              </div>
+              <div class="info-box">
+                <div class="info-label">MPRN Number</div>
+                <div class="info-value">${esc(item.mprn || '—')}</div>
+              </div>
+            </div>
+            <div id="map-view">
+              <div class="absolute inset-0 flex items-center justify-center text-xs text-muted p-4 text-center">
+                Loading Google Maps...
+              </div>
+            </div>
+          </div>
+        `;
+      }
+
+      const fields = {
+        details: { 'Site Name': item.name || '—', 'Code': item.code || '—', 'Type': 'Exchange', 'Status': 'Active' },
+        address: { 'Street': '—', 'Town': item.locality || '—', 'County': '—', 'Eircode': '—' },
+        security: { 'Access': '—', 'Code': '—', 'Provider': '—' },
+        power: { 'Factor': '—', 'Vendor': '—', 'Circuit ID': '—' },
+        emergency: { 'Fire': '—', 'Police': '—', 'Contact': '—' },
+        additional: { 'Notes': '—', 'Attachments': 'None' }
+      };
+
+      const data = fields[tab] || {};
+      return `
+        <div class="detail-grid full">
+          ${Object.entries(data).map(([label, val]) => `
+            <div class="info-box">
+              <div class="info-label">${label}</div>
+              <div class="info-value">${esc(val)}</div>
+            </div>
+          `).join('')}
+        </div>
+      `;
+    }
+
+    let map = null;
+    function initMap() {
+      const el = document.getElementById('map-view');
+      if (!el) return;
+
+      const item = state.selectedExchange || state.selectedCabinet;
+      if (!item || !item.link) {
+        el.innerHTML = '<div class="absolute inset-0 flex items-center justify-center text-xs text-muted">No coordinates available</div>';
+        return;
+      }
+
+      const [lat, lng] = item.link.split(',').map(Number);
+
+      if (!window.google) {
+        if (!document.getElementById('gmaps-script')) {
+          const script = document.createElement('script');
+          script.id = 'gmaps-script';
+          script.async = true;
+          script.src = `https://maps.googleapis.com/maps/api/js?key=${GOOGLE_MAPS_API_KEY}&callback=onMapsLoaded&libraries=marker`;
+          document.head.appendChild(script);
+        }
+        return;
+      }
+
+      const mapOptions = {
+        center: { lat, lng },
+        zoom: 15,
+        mapId: 'DEMO_MAP_ID', // Required for AdvancedMarkerElement
+        mapTypeControl: false,
+        streetViewControl: false,
+        fullscreenControl: false
+      };
+
+      map = new google.maps.Map(el, mapOptions);
+
+      const { AdvancedMarkerElement } = google.maps.marker;
+      new AdvancedMarkerElement({
+        map: map,
+        position: { lat, lng },
+        title: item.name || 'Location'
+      });
+    }
+
+    window.onMapsLoaded = () => {
+      if (state.selectedExchange || state.selectedCabinet) initMap();
+    };
 
     function renderExchangesSubView(query) {
       return `
@@ -5517,20 +5821,14 @@
       if (!query) return '<div class="text-center p-4 text-xs text-muted border border-dashed border-muted rounded-xl opacity-50">Enter search term above</div>';
 
       return filtered.map(ex => `
-        <div class="result-card">
+        <div class="result-card" onclick="setSelectedExchange('${esc(ex.code)}')">
           <div class="result-header">
             <div class="result-title">${esc(ex.name)}</div>
             <div class="result-code">${esc(ex.code)}</div>
           </div>
           <div class="result-meta">
-            ${ex.address ? `<div>📍 ${esc(ex.address)}</div>` : ''}
+            ${ex.locality ? `<div>🏠 ${esc(ex.locality)}</div>` : ''}
             <div>🌐 Coords: ${esc(ex.link)}</div>
-          </div>
-          <div class="flex gap-2">
-            <a href="https://www.google.com/maps/search/?api=1&query=${esc(ex.link)}" target="_blank" class="maps-link">
-              🗺️ Open Map
-            </a>
-            ${ex.gallery ? `<a href="${esc(ex.gallery)}" target="_blank" class="maps-link" style="background:#f0f9ff;color:#0369a1">🖼️ Gallery</a>` : ''}
           </div>
         </div>
       `).join('');
@@ -5548,7 +5846,7 @@
       if (!query) return '<div class="text-center p-4 text-xs text-muted border border-dashed border-muted rounded-xl opacity-50">Enter search term above</div>';
 
       return filtered.map(cb => `
-        <div class="result-card">
+        <div class="result-card" onclick="setSelectedCabinet('${esc(cb.ipid)}')">
           <div class="result-header">
             <div class="result-title">Cabinet ${esc(cb.mdf)} ${esc(cb.ccp)}</div>
             <div class="result-code">IPID: ${esc(cb.ipid)}</div>
@@ -5557,9 +5855,6 @@
             <div>MDF: ${esc(cb.mdf)} · CCP: ${esc(cb.ccp)}</div>
             <div>🌐 Coords: ${esc(cb.link)}</div>
           </div>
-          <a href="https://www.google.com/maps/search/?api=1&query=${esc(cb.link)}" target="_blank" class="maps-link">
-            🗺️ Open Map
-          </a>
         </div>
       `).join('');
     }
