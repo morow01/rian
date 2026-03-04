@@ -3043,7 +3043,7 @@
     // ============================================================
     // CONFIG
     // ============================================================
-    const VERSION = '3.0.28';
+    const VERSION = '3.0.29';
     const API_URL = 'https://script.google.com/macros/s/AKfycbwHbuuctWpT1QWqQc8C1fINQyBJhssIIeh3duuQgAHiCpGBRUVnPEmUnDlEDu5mQbZk/exec';
     const DAY_NAMES = ['Friday', 'Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday'];
     const DB_NAME = 'timesheet-db';
@@ -3343,7 +3343,7 @@
       cabinets: [],         // NEW
       exchangeSearch: '',   // NEW
       cabinetSearch: '',    // NEW
-      exchangeTab: 'exchanges', // 'exchanges' | 'cabinets'
+      exchangeTab: localStorage.getItem('exchangeTab') || 'exchanges', // 'exchanges' | 'cabinets'
       selectedExchange: null,   // NEW
       selectedCabinet: null,    // NEW
       exchangeDetailTab: 'location', // 'location'|'details'|'address'|'security'|'power'|'emergency'|'additional'
@@ -5583,9 +5583,9 @@
       render();
     }
 
-
     function setExchangeTab(tab) {
       state.exchangeTab = tab;
+      localStorage.setItem('exchangeTab', tab);
       render();
     }
 
@@ -6306,7 +6306,7 @@
 
       // Restore last view BEFORE first render so every render targets the right view
       const lastView = localStorage.getItem('lastView');
-      if (lastView === 'notes' || lastView === 'history') state.view = lastView;
+      if (lastView === 'notes' || lastView === 'history' || lastView === 'exchanges') state.view = lastView;
 
       await Promise.all([initDB(), loadCodes(), loadTowns()]);
 
@@ -6326,6 +6326,11 @@
       // Full sync for the restored view (updates from server, merges, saves back to DB)
       if (state.view === 'notes') loadNotes();
       else if (state.view === 'history') loadHistory();
+      else if (state.view === 'exchanges') {
+        if (!state.exchanges.length || !state.cabinets.length) {
+          Promise.all([loadTowns(), loadCabinets()]).then(render);
+        }
+      }
     }
 
     function openRecoveryModal() {
