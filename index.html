@@ -3041,7 +3041,7 @@
     // ============================================================
     // CONFIG
     // ============================================================
-    const VERSION = '3.0.20';
+    const VERSION = '3.0.21';
     const API_URL = 'https://script.google.com/macros/s/AKfycbwHbuuctWpT1QWqQc8C1fINQyBJhssIIeh3duuQgAHiCpGBRUVnPEmUnDlEDu5mQbZk/exec';
     const DAY_NAMES = ['Friday', 'Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday'];
     const DB_NAME = 'timesheet-db';
@@ -5830,8 +5830,7 @@
             <span>🔍</span>
             <input type="text" id="ex-search-input" placeholder="Name or Code (e.g. CHL, Cashel)" 
               value="${esc(state.exchangeSearch)}"
-              oninput="updateExchangeSearch(this.value)"
-              onfocus="focusSearchScroll(this)">
+              oninput="updateExchangeSearch(this.value)">
           </div>
           
           <div id="ex-results-list" class="mt-4">
@@ -5852,8 +5851,7 @@
             <span>🗄️</span>
             <input type="text" id="cb-search-input" placeholder="MDF, CCP or IPID" 
               value="${esc(state.cabinetSearch)}"
-              oninput="updateCabinetSearch(this.value)"
-              onfocus="focusSearchScroll(this)">
+              oninput="updateCabinetSearch(this.value)">
           </div>
 
           <div id="cb-results-list" class="mt-4">
@@ -5861,11 +5859,6 @@
           </div>
         </div>
       `;
-    }
-
-    // Scroll search box to top before keyboard opens (onfocus fires before keyboard animation)
-    function focusSearchScroll(input) {
-      input.closest('.search-group').scrollIntoView({ behavior: 'instant', block: 'start' });
     }
 
     function updateExchangeSearch(val) {
