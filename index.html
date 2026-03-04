@@ -2707,7 +2707,7 @@
     // ============================================================
     // CONFIG
     // ============================================================
-    const VERSION = '2.9.4';
+    const VERSION = '2.9.5';
     const API_URL = 'https://script.google.com/macros/s/AKfycbwHbuuctWpT1QWqQc8C1fINQyBJhssIIeh3duuQgAHiCpGBRUVnPEmUnDlEDu5mQbZk/exec';
     const DAY_NAMES = ['Friday', 'Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday'];
     const DB_NAME = 'timesheet-db';
@@ -2986,7 +2986,7 @@
       selectionMode: false,
       selectedNotes: new Set(),
       layoutMode: localStorage.getItem('layoutMode') || 'card',  // 'card' | 'table'
-      deviceName: localStorage.getItem('deviceName') || 'My Device',
+      deviceName: localStorage.getItem('deviceName') || 'Unknown Device',
       historySnapshots: [],
       historyTab: 'weeks', // 'weeks' | 'snapshots'
       // Column widths for table view [Day,Date,Desc,Loc,Codes,Ord,OT,Tasks,Hrs/T,OT/T,Notes,Del]
@@ -3718,10 +3718,12 @@
         </button>
         <div class="theme-dropdown" id="theme-dropdown">
           <div style="padding: 10px 14px 4px; border-bottom: 1px solid var(--border); margin-bottom: 4px;">
-            <div style="font-size: 10px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; margin-bottom: 6px; letter-spacing: 0.05em;">Device Identity</div>
-            <input type="text" placeholder="Device Name" value="${state.deviceName}" 
-                   style="width: 100%; background: var(--bg-card-alt); border: 1px solid var(--border); border-radius: 8px; padding: 6px 10px; font-size: 13px; color: var(--text-primary); outline: none;"
-                   oninput="state.deviceName = this.value; localStorage.setItem('deviceName', this.value);">
+            <div style="font-size: 10px; font-weight: 800; color: ${state.deviceName === 'Unknown Device' ? '#ef4444' : 'var(--text-muted)'}; text-transform: uppercase; margin-bottom: 6px; letter-spacing: 0.05em;">Device Identity</div>
+            <input type="text" placeholder="Device Name" value="${state.deviceName === 'Unknown Device' ? '' : state.deviceName}" 
+                   style="width: 100%; background: var(--bg-card-alt); border: 1px solid ${state.deviceName === 'Unknown Device' ? '#ef4444' : 'var(--border)'}; border-radius: 8px; padding: 6px 10px; font-size: 13px; color: var(--text-primary); outline: none;"
+                   oninput="state.deviceName = this.value || 'Unknown Device'; localStorage.setItem('deviceName', state.deviceName);"
+                   onclick="event.stopPropagation()">
+            ${state.deviceName === 'Unknown Device' ? '<div style="font-size: 10px; color: #ef4444; margin-top: 6px; line-height: 1.2;">Please set a name to identify this device\'s backups.</div>' : ''}
           </div>
           ${themeOptionsHtml}
         </div>
@@ -4355,15 +4357,28 @@
           const ws = s.weekStart ? s.weekStart.substring(0, 10) : '';
           const typeLabel = s.type === 'week' ? `Week ${ws}` : 'Field Notes';
 
+          let extraInfo = '';
+          try {
+            const data = JSON.parse(s.data);
+            if (s.type === 'week') {
+              const actCount = countActivities(data);
+              const hrs = data.days ? data.days.reduce((acc, d) => acc + d.activities.reduce((a2, act) => a2 + (parseFloat(act.ordinary) || 0) + (parseFloat(act.overtime) || 0), 0), 0) : 0;
+              extraInfo = `<span class="opacity-70 mx-1">•</span> ${actCount} task${actCount !== 1 ? 's' : ''}, ${hrs.toFixed(1)} hrs`;
+            } else {
+              const noteCount = (data.notes || []).length;
+              extraInfo = `<span class="opacity-70 mx-1">•</span> ${noteCount} note${noteCount !== 1 ? 's' : ''}`;
+            }
+          } catch (e) { }
+
           return `
           <div class="flex items-center gap-3 px-4 py-3 border-b last:border-0" style="border-color:var(--border)">
             <div class="text-lg opacity-80">${typeIcon}</div>
             <div class="flex-1 min-width-0">
               <div class="flex items-center justify-between gap-2">
                 <div class="font-bold text-sm" style="color:var(--text-primary)">${typeLabel}</div>
-                <div class="text-[10px] font-bold px-1.5 py-0.5 rounded uppercase" style="background:var(--bg-card-alt);color:var(--text-muted);letter-spacing:0.02em;">${s.deviceName}</div>
+                <div class="text-[10px] font-bold px-1.5 py-0.5 rounded uppercase" style="background:${s.deviceName === 'Unknown Device' ? 'rgba(239,68,68,0.1)' : 'var(--bg-card-alt)'};color:${s.deviceName === 'Unknown Device' ? '#ef4444' : 'var(--text-muted)'};letter-spacing:0.02em;">${s.deviceName}</div>
               </div>
-              <div class="text-xs mt-0.5" style="color:var(--text-muted)">${dateStr} at ${timeStr}</div>
+              <div class="text-xs mt-0.5" style="color:var(--text-muted)">${dateStr} at ${timeStr} ${extraInfo}</div>
             </div>
             <button onclick="restoreSnapshot(${idx})" class="px-3 py-1.5 rounded-lg text-[11px] font-bold" 
                     style="background:var(--accent);color:#fff;box-shadow:0 2px 4px rgba(0,0,0,0.1)">Restore</button>
