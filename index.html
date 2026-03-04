@@ -2670,6 +2670,18 @@
     }
 
     /* Exchange Finder Styles */
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
     .finder-container {
       padding: 16px;
       max-width: 800px;
@@ -2915,7 +2927,7 @@
     // ============================================================
     // CONFIG
     // ============================================================
-    const VERSION = '3.0.0';
+    const VERSION = '3.1.1';
     const API_URL = 'https://script.google.com/macros/s/AKfycbwHbuuctWpT1QWqQc8C1fINQyBJhssIIeh3duuQgAHiCpGBRUVnPEmUnDlEDu5mQbZk/exec';
     const DAY_NAMES = ['Friday', 'Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday'];
     const DB_NAME = 'timesheet-db';
@@ -3215,6 +3227,7 @@
       cabinets: [],         // NEW
       exchangeSearch: '',   // NEW
       cabinetSearch: '',    // NEW
+      exchangeTab: 'exchanges', // 'exchanges' | 'cabinets'
     };
 
     let codeModalCtx = { dayIndex: null, activityId: null, selected: [] };
@@ -4760,11 +4773,19 @@
       loadWeek(dateToStr(d));
     }
 
-    function setView(v) {
+    async function setView(v) {
       state.view = v;
       localStorage.setItem('lastView', v);
-      if (v === 'history') loadHistory();
-      else if (v === 'notes') loadNotes();
+      window.scrollTo(0, 0);
+
+      if (v === 'history') await loadHistory();
+      else if (v === 'notes') await loadNotes();
+      else if (v === 'exchanges') {
+        if (!state.exchanges.length || !state.cabinets.length) {
+          await Promise.all([loadTowns(), loadCabinets()]);
+        }
+        render();
+      }
       else render();
     }
 
@@ -5387,27 +5408,17 @@
       render();
     }
 
-    async function setView(v) {
-      if (v === 'notes') v = 'history'; // We treat notes as a sub-view of history in nav for now or handle separately
-      // Actually per plan: Time Sheet, Exchanges, History. 
-      // Existing app had 'week', 'history', 'notes'. 
-      // I'll map them: Time Sheet -> 'week', Exchanges -> 'exchanges', History -> 'history'
 
-      state.view = v;
-      localStorage.setItem('lastView', v);
+    function setExchangeTab(tab) {
+      state.exchangeTab = tab;
       render();
-      window.scrollTo(0, 0);
-
-      if (v === 'exchanges' && (!state.exchanges.length || !state.cabinets.length)) {
-        await Promise.all([loadTowns(), loadCabinets()]);
-        render();
-      }
     }
 
     // ---- Exchange Finder View ----
     function renderExchangesView() {
-      const exQuery = (state.exchangeSearch || '').toLowerCase();
-      const cbQuery = (state.cabinetSearch || '').toLowerCase();
+      const isEx = state.exchangeTab === 'exchanges';
+      const q = isEx ? (state.exchangeSearch || '') : (state.cabinetSearch || '');
+      const qLower = q.toLowerCase();
 
       return `
         <div class="finder-container">
@@ -5416,45 +5427,67 @@
               <h2 class="text-2xl font-bold mb-1" style="color:var(--text-primary)">Exchange Finder</h2>
               <p class="text-sm text-muted">Locate exchanges and cabinets</p>
             </div>
-            <div class="text-xs px-2 py-1 rounded bg-accent-light" style="color:var(--accent); font-weight:700;">3.0.0</div>
+            <div class="text-xs px-2 py-1 rounded bg-accent-light" style="color:var(--accent); font-weight:700;">3.1.1</div>
           </div>
 
-          <!-- Exchanges Section -->
-          <div class="search-group mb-8">
-            <div class="flex items-center justify-between mb-2">
-              <div class="field-label" style="margin-bottom:0">Exchanges / Towns</div>
-              <span id="ex-count" class="text-xs text-muted"></span>
-            </div>
-            <div class="search-input-wrap">
-              <span>🔍</span>
-              <input type="text" id="ex-search-input" placeholder="Name or Code (e.g. CHL, Cashel)" 
-                value="${esc(state.exchangeSearch)}"
-                oninput="updateExchangeSearch(this.value)">
-            </div>
-            
-            <div id="ex-results-list" class="mt-4">
-              ${renderExchangeResults(exQuery)}
-            </div>
+          <!-- Tab Switcher -->
+          <div class="flex p-1 bg-gray-100 rounded-xl mb-6 dark:bg-slate-800/50" style="background:var(--bg-code-group)">
+            <button onclick="setExchangeTab('exchanges')" 
+              class="flex-1 py-2 px-4 rounded-lg text-sm font-bold transition-all duration-200 ${isEx ? 'bg-white shadow-sm text-accent translate-y-0' : 'text-muted hover:text-primary'}"
+              style="${isEx ? 'background:var(--bg-card);color:var(--accent)' : ''}">
+              📡 Exchanges
+            </button>
+            <button onclick="setExchangeTab('cabinets')" 
+              class="flex-1 py-2 px-4 rounded-lg text-sm font-bold transition-all duration-200 ${!isEx ? 'bg-white shadow-sm text-accent translate-y-0' : 'text-muted hover:text-primary'}"
+              style="${!isEx ? 'background:var(--bg-card);color:var(--accent)' : ''}">
+              🗄️ Cabinets
+            </button>
           </div>
 
-          <div style="height: 1px; background: var(--border); margin: 32px 0; opacity: 0.5;"></div>
+          <div id="finder-content">
+            ${isEx ? renderExchangesSubView(qLower) : renderCabinetsSubView(qLower)}
+          </div>
+        </div>
+      `;
+    }
 
-          <!-- Cabinets Section -->
-          <div class="search-group">
-            <div class="flex items-center justify-between mb-2">
-              <div class="field-label" style="margin-bottom:0">Cabinets</div>
-              <span id="cb-count" class="text-xs text-muted"></span>
-            </div>
-            <div class="search-input-wrap">
-              <span>🗄️</span>
-              <input type="text" id="cb-search-input" placeholder="MDF, CCP or IPID" 
-                value="${esc(state.cabinetSearch)}"
-                oninput="updateCabinetSearch(this.value)">
-            </div>
+    function renderExchangesSubView(query) {
+      return `
+        <div class="search-group">
+          <div class="flex items-center justify-between mb-2">
+            <div class="field-label" style="margin-bottom:0">Exchanges / Towns</div>
+            <span id="ex-count" class="text-xs text-muted">${query ? '' : ''}</span>
+          </div>
+          <div class="search-input-wrap">
+            <span>🔍</span>
+            <input type="text" id="ex-search-input" placeholder="Name or Code (e.g. CHL, Cashel)" 
+              value="${esc(state.exchangeSearch)}"
+              oninput="updateExchangeSearch(this.value)">
+          </div>
+          
+          <div id="ex-results-list" class="mt-4">
+            ${renderExchangeResults(query)}
+          </div>
+        </div>
+      `;
+    }
 
-            <div id="cb-results-list" class="mt-4">
-              ${renderCabinetResults(cbQuery)}
-            </div>
+    function renderCabinetsSubView(query) {
+      return `
+        <div class="search-group">
+          <div class="flex items-center justify-between mb-2">
+            <div class="field-label" style="margin-bottom:0">Cabinets</div>
+            <span id="cb-count" class="text-xs text-muted"></span>
+          </div>
+          <div class="search-input-wrap">
+            <span>🗄️</span>
+            <input type="text" id="cb-search-input" placeholder="MDF, CCP or IPID" 
+              value="${esc(state.cabinetSearch)}"
+              oninput="updateCabinetSearch(this.value)">
+          </div>
+
+          <div id="cb-results-list" class="mt-4">
+            ${renderCabinetResults(query)}
           </div>
         </div>
       `;
