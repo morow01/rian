@@ -3070,7 +3070,7 @@
     // ============================================================
     // CONFIG
     // ============================================================
-    const VERSION = '3.0.11';
+    const VERSION = '3.0.12';
     const API_URL = 'https://script.google.com/macros/s/AKfycbwHbuuctWpT1QWqQc8C1fINQyBJhssIIeh3duuQgAHiCpGBRUVnPEmUnDlEDu5mQbZk/exec';
     const DAY_NAMES = ['Friday', 'Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday'];
     const DB_NAME = 'timesheet-db';
@@ -5627,10 +5627,6 @@
 
       return `
         <div class="finder-container">
-          <div class="flex items-center justify-between mb-4">
-            <div class="text-xs px-2 py-1 rounded bg-accent-light" style="color:var(--accent); font-weight:700;">3.0.11</div>
-          </div>
-
           <!-- Tab Switcher -->
           <div class="flex p-1 bg-gray-100 rounded-xl mb-6 dark:bg-slate-800/50" style="background:var(--bg-code-group)">
             <button onclick="setExchangeTab('exchanges')" 
@@ -5909,7 +5905,17 @@
     function renderExchangeResults(query) {
       const filtered = state.exchanges.filter(t =>
         t.name.toLowerCase().includes(query) || t.code.toLowerCase().includes(query)
-      ).slice(0, 30);
+      ).sort((a, b) => {
+        const aName = a.name.toLowerCase();
+        const bName = b.name.toLowerCase();
+        const aCode = a.code.toLowerCase();
+        const bCode = b.code.toLowerCase();
+        const aStarts = aName.startsWith(query) || aCode.startsWith(query);
+        const bStarts = bName.startsWith(query) || bCode.startsWith(query);
+        if (aStarts && !bStarts) return -1;
+        if (!aStarts && bStarts) return 1;
+        return aName.localeCompare(bName);
+      }).slice(0, 30);
 
       const countEl = document.getElementById('ex-count');
       if (countEl) countEl.textContent = query ? `${filtered.length} found` : '';
@@ -5923,10 +5929,10 @@
             <div class="result-title">${esc(ex.name)}</div>
             <div class="result-code">${esc(ex.code)}</div>
           </div>
+          ${ex.locality ? `
           <div class="result-meta">
-            ${ex.locality ? `<div>🏠 ${esc(ex.locality)}</div>` : ''}
-            <div>🌐 Coords: ${esc(ex.link)}</div>
-          </div>
+            <div>🏠 ${esc(ex.locality)}</div>
+          </div>` : ''}
         </div>
       `).join('');
     }
@@ -5934,7 +5940,15 @@
     function renderCabinetResults(query) {
       const filtered = state.cabinets.filter(c =>
         c.mdf.toLowerCase().includes(query) || c.ccp.toLowerCase().includes(query) || String(c.ipid).includes(query)
-      ).slice(0, 30);
+      ).sort((a, b) => {
+        const aM = a.mdf.toLowerCase();
+        const bM = b.mdf.toLowerCase();
+        const aStarts = aM.startsWith(query) || a.ccp.toLowerCase().startsWith(query);
+        const bStarts = bM.startsWith(query) || b.ccp.toLowerCase().startsWith(query);
+        if (aStarts && !bStarts) return -1;
+        if (!aStarts && bStarts) return 1;
+        return aM.localeCompare(bM);
+      }).slice(0, 30);
 
       const countEl = document.getElementById('cb-count');
       if (countEl) countEl.textContent = query ? `${filtered.length} found` : '';
@@ -5950,7 +5964,6 @@
           </div>
           <div class="result-meta">
             <div>MDF: ${esc(cb.mdf)} · CCP: ${esc(cb.ccp)}</div>
-            <div>🌐 Coords: ${esc(cb.link)}</div>
           </div>
         </div>
       `).join('');
