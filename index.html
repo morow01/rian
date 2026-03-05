@@ -3067,60 +3067,13 @@
     </div>
   </div>
 
-  <div id="recovery-modal" class="modal-backdrop hidden" style="z-index: 10001;">
-    <div class="modal-content mx-4" style="max-width: 400px; padding: 24px;">
-      <h3 class="text-xl font-bold mb-2" style="color:var(--text-primary)">Sync Recovery</h3>
-      <p class="text-sm mb-6" style="color:var(--text-muted)">If you just restored your spreadsheet or feel your local
-        data is out of sync, use these tools to force the app to accept server data.</p>
-
-      <div class="space-y-3">
-        <button onclick="forcePullWeek()"
-          class="w-full flex items-center justify-between p-4 rounded-xl border-2 border-dashed transition-colors"
-          style="border-color:var(--accent);background:var(--bg-card);color:var(--accent);text-align:left;">
-          <div>
-            <div class="font-bold">Force Pull Week Data</div>
-            <div class="text-xs opacity-70">Overwrites today's timesheet with server data</div>
-          </div>
-          <span class="text-xl">📥</span>
-        </button>
-
-        <button onclick="forcePullNotes()"
-          class="w-full flex items-center justify-between p-4 rounded-xl border-2 border-dashed transition-colors"
-          style="border-color:#f97316;background:var(--bg-card);color:#f97316;text-align:left;">
-          <div>
-            <div class="font-bold">Force Pull Field Notes</div>
-            <div class="text-xs opacity-70">Overwrites all notes with server data</div>
-          </div>
-          <span class="text-xl">📝</span>
-        </button>
-      </div>
-
-      <button onclick="closeRecoveryModal()" class="w-full mt-6 py-3 font-bold rounded-xl"
-        style="background:var(--bg-card-alt);color:var(--text-primary);border:1px solid var(--border)">Cancel</button>
-    </div>
-  </div>
-
-  <!-- Bottom Navigation -->
-  <div class="bottom-nav">
-    <div class="nav-item" id="nav-week" onclick="setView('week')">
-      <span class="nav-icon">📅</span>
-      <span class="nav-label">Time Sheet</span>
-    </div>
-    <div class="nav-item" id="nav-exchanges" onclick="setView('exchanges')">
-      <span class="nav-icon">🔍</span>
-      <span class="nav-label">Exchanges</span>
-    </div>
-    <div class="nav-item" id="nav-history" onclick="setView('history')">
-      <span class="nav-icon">📜</span>
-      <span class="nav-label">History</span>
-    </div>
-  </div>
+  <div id="toast" class="toast hidden"></div>
 
   <script>
     // ============================================================
     // CONFIG
     // ============================================================
-    const VERSION = '3.1.0';
+    const VERSION = '3.1.1';
     const API_URL = 'https://script.google.com/macros/s/AKfycbwHbuuctWpT1QWqQc8C1fINQyBJhssIIeh3duuQgAHiCpGBRUVnPEmUnDlEDu5mQbZk/exec';
     const DAY_NAMES = ['Friday', 'Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday'];
     const DB_NAME = 'timesheet-db';
@@ -4182,16 +4135,14 @@
         { id: 'claude', label: 'Claude (v3.1)', swatch: '#0F1C2E' },
       ];
       const menuOptionsHtml = [
-        // Secondary Views
-        { id: 'email', label: '✉ Email/Export', onClick: 'sendWeeklyEmail()', type: 'action' },
-        { id: 'history', label: '🕐 Sync History', onClick: "setView('history')", type: 'view' },
-        { id: 'table', label: `${state.layoutMode === 'table' ? '⊟ Mobile View' : '⊞ Spreadsheet'}`, onClick: 'toggleLayoutMode()', type: 'action' },
+        // Core Actions
         { id: 'jump', label: '🗓 Jump to Week', onClick: 'openDateModal()', type: 'action' },
+        { id: 'email', label: '✉ Email/Export Week', onClick: 'sendWeeklyEmail()', type: 'action' },
+        { id: 'history', label: '🕐 Restore Backups', onClick: "setView('history')", type: 'view' },
+        { id: 'table', label: `${state.layoutMode === 'table' ? '⊟ Mobile View' : '⊞ Spreadsheet View'}`, onClick: 'toggleLayoutMode()', type: 'action' },
         { spacer: true },
-        // Themes
+        // Visuals
         ...themes.map(t => ({ id: t.id, label: t.label, swatch: t.swatch, onClick: `setTheme('${t.id}')`, type: 'theme' })),
-        { spacer: true },
-        { id: 'recovery', label: '⚠ Sync Recovery', onClick: 'openRecoveryModal()', type: 'action', color: '#ef4444' }
       ].map(opt => {
         if (opt.spacer) return '<div style="height:1px;background:var(--border);margin:4px 0;"></div>';
         const isActive = (opt.type === 'view' && state.view === opt.id) || (opt.type === 'theme' && currentTheme === opt.id);
@@ -4869,56 +4820,35 @@
     }
 
     function renderHistoryView() {
+      // Direct Snapshots View (WEEKS button removed to reduce confusion)
       const tabs = `
-        <div class="flex px-3 mt-3 gap-2">
-          <button onclick="setHistoryTab('weeks')" class="flex-1 py-2.5 rounded-xl text-xs font-bold transition-all ${state.historyTab === 'weeks' ? 'shadow-sm' : 'opacity-60'}" 
-                  style="background:${state.historyTab === 'weeks' ? 'var(--bg-card)' : 'transparent'}; color:${state.historyTab === 'weeks' ? 'var(--accent)' : 'var(--text-muted)'}; border:1px solid ${state.historyTab === 'weeks' ? 'var(--border)' : 'transparent'}">
-            Weeks
-          </button>
-          <button onclick="setHistoryTab('snapshots')" class="flex-1 py-2.5 rounded-xl text-xs font-bold transition-all ${state.historyTab === 'snapshots' ? 'shadow-sm' : 'opacity-60'}" 
-                  style="background:${state.historyTab === 'snapshots' ? 'var(--bg-card)' : 'transparent'}; color:${state.historyTab === 'snapshots' ? 'var(--accent)' : 'var(--text-muted)'}; border:1px solid ${state.historyTab === 'snapshots' ? 'var(--border)' : 'transparent'}">
-            Sync Snapshots
-          </button>
+        <div class="px-3 pt-4 pb-2 border-b" style="border-color:var(--border)">
+          <div class="text-xs font-bold uppercase tracking-wider" style="color:var(--text-muted)">Sync Snapshots & Backups</div>
         </div>`;
 
-      if (state.historyTab === 'weeks') {
-        if (!state.historyWeeks.length) {
-          return `<div class="notes-view">${tabs}<main class="p-12 text-center" style="color:var(--text-muted)"><p class="text-4xl mb-3">📋</p><p>No past weeks yet</p></main></div>`;
-        }
-        const rows = state.historyWeeks.map(w => `
-          <button onclick="loadWeek('${w.weekStart}');setView('week')"
-            class="flex items-center justify-between px-4 py-3 border-b last:border-0 w-full text-left" style="border-color:var(--border)">
-            <div>
-              <div class="font-semibold text-sm" style="color:var(--text-primary)">${formatWeekRange(w.weekStart)}</div>
-              <div class="text-xs mt-0.5" style="color:var(--text-muted)">Last updated: ${w.lastUpdated ? new Date(w.lastUpdated).toLocaleDateString('en-IE', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : 'unknown'}</div>
-            </div>
-            <span class="text-lg" style="color:var(--accent)">›</span>
-          </button>`).join('');
-        return `<div class="notes-view">${tabs}<main class="pb-6"><div class="mx-3 mt-3 rounded-2xl shadow-sm overflow-hidden" style="background:var(--bg-card);border:1px solid var(--border)">${rows}</div></main></div>`;
-      } else {
-        // Snapshots Tab
-        const pageSize = 10;
-        const totalItems = state.historySnapshots.length;
+      // Snapshots Tab
+      const pageSize = 10;
+      const totalItems = state.historySnapshots.length;
 
-        if (totalItems === 0) {
-          return `<div class="notes-view">${tabs}<main class="p-12 text-center" style="color:var(--text-muted)"><p class="text-4xl mb-3">🕒</p><p>No sync backups yet.<br><span class="text-xs opacity-70">Backups are created every time you sync.</span></p></main></div>`;
-        }
+      if (totalItems === 0) {
+        return `<div class="notes-view">${tabs}<main class="p-12 text-center" style="color:var(--text-muted)"><p class="text-4xl mb-3">🕒</p><p>No sync backups yet.<br><span class="text-xs opacity-70">Backups are created every time you sync.</span></p></main></div>`;
+      }
 
-        const totalPages = Math.ceil(totalItems / pageSize);
-        const currentPage = Math.max(0, Math.min(state.snapshotPage, totalPages - 1));
-        const startIdx = currentPage * pageSize;
-        const pageItems = state.historySnapshots.slice(startIdx, startIdx + pageSize);
+      const totalPages = Math.ceil(totalItems / pageSize);
+      const currentPage = Math.max(0, Math.min(state.snapshotPage, totalPages - 1));
+      const startIdx = currentPage * pageSize;
+      const pageItems = state.historySnapshots.slice(startIdx, startIdx + pageSize);
 
-        const rows = pageItems.map((s, pIdx) => {
-          const idx = startIdx + pIdx;
-          const dt = new Date(s.timestamp);
-          const dateStr = dt.toLocaleDateString('en-IE', { day: 'numeric', month: 'short' });
-          const timeStr = dt.toLocaleTimeString('en-IE', { hour: '2-digit', minute: '2-digit' });
-          const typeIcon = s.type === 'week' ? '📅' : '📝';
-          const ws = s.weekStart ? s.weekStart.substring(0, 10) : '';
-          const typeLabel = s.type === 'week' ? `Week ${ws}` : 'Field Notes';
+      const rows = pageItems.map((s, pIdx) => {
+        const idx = startIdx + pIdx;
+        const dt = new Date(s.timestamp);
+        const dateStr = dt.toLocaleDateString('en-IE', { day: 'numeric', month: 'short' });
+        const timeStr = dt.toLocaleTimeString('en-IE', { hour: '2-digit', minute: '2-digit' });
+        const typeIcon = s.type === 'week' ? '📅' : '📝';
+        const ws = s.weekStart ? s.weekStart.substring(0, 10) : '';
+        const typeLabel = s.type === 'week' ? `Week ${ws}` : 'Field Notes';
 
-          return `
+        return `
           <div class="flex items-center gap-3 px-4 py-3 border-b last:border-0" style="border-color:var(--border)">
             <div class="text-lg opacity-80">${typeIcon}</div>
             <div class="flex-1 min-width-0">
@@ -4931,11 +4861,11 @@
             <button onclick="restoreSnapshot(${idx})" class="px-3 py-1.5 rounded-lg text-[11px] font-bold" 
                     style="background:var(--accent);color:#fff;box-shadow:0 2px 4px rgba(0,0,0,0.1)">Restore</button>
           </div>`;
-        }).join('');
+      }).join('');
 
-        let pagination = '';
-        if (totalPages > 1) {
-          pagination = `
+      let pagination = '';
+      if (totalPages > 1) {
+        pagination = `
             <div class="flex items-center justify-center gap-4 mt-6">
               <button onclick="setSnapshotPage(${currentPage - 1})" ${currentPage === 0 ? 'disabled' : ''} 
                 class="px-4 py-2 rounded-xl text-xs font-bold transition-all ${currentPage === 0 ? 'opacity-30' : 'active:scale-95'}"
@@ -4951,13 +4881,12 @@
                 Next →
               </button>
             </div>`;
-        }
+      }
 
-        return `<div class="notes-view">${tabs}<main class="pb-8">
+      return `<div class="notes-view">${tabs}<main class="pb-8">
           <div class="mx-3 mt-3 rounded-2xl shadow-sm overflow-hidden" style="background:var(--bg-card);border:1px solid var(--border)">${rows}</div>
           ${pagination}
         </main></div>`;
-      }
     }
 
     // ============================================================
@@ -6503,19 +6432,9 @@
       else if (state.view === 'history') loadHistory();
     }
 
-    function openRecoveryModal() {
-      document.getElementById('recovery-modal').classList.remove('hidden');
-      closeThemeMenu();
-    }
-
-    function closeRecoveryModal() {
-      document.getElementById('recovery-modal').classList.add('hidden');
-    }
-
     async function forcePullWeek() {
       if (!navigator.onLine) { showToast('Must be online to pull data'); return; }
       window._forcePull = true;
-      closeRecoveryModal();
       showToast('Forcing week pull…');
       await loadWeek(state.weekStart);
     }
@@ -6523,7 +6442,6 @@
     async function forcePullNotes() {
       if (!navigator.onLine) { showToast('Must be online to pull notes'); return; }
       window._forcePullNotes = true;
-      closeRecoveryModal();
       showToast('Forcing notes pull…');
       await loadNotes();
     }
