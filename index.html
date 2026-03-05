@@ -865,6 +865,61 @@
       background: var(--bg-card-alt, #fdfdfe);
       border-top: 1.5px solid var(--border);
       padding: 16px;
+      overflow: hidden;
+      max-height: 0;
+      transition: max-height 0.3s ease, padding 0.3s ease, opacity 0.3s ease;
+      opacity: 0;
+      padding-top: 0;
+      padding-bottom: 0;
+    }
+
+    .activity-detail.open {
+      max-height: 2000px;
+      opacity: 1;
+      padding: 16px;
+    }
+
+    /* Notes panel inside activity-detail */
+    .notes-panel {
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+      background: var(--bg-card);
+    }
+
+    .notes-panel-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 14px;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .notes-panel-preview {
+      flex: 1;
+      font-size: 13px;
+      color: var(--text-muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .notes-panel-preview.has-note {
+      color: var(--text-secondary);
+    }
+
+    .notes-panel-body {
+      border-top: 1.5px solid var(--border);
+      padding: 14px;
+      background: var(--bg-card-alt, #f8f9fb);
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.25s ease;
+    }
+
+    .notes-panel-body.open {
+      max-height: 400px;
     }
 
     .hrs-box {
@@ -3236,7 +3291,7 @@
     // ============================================================
     // CONFIG
     // ============================================================
-    const VERSION = '3.2.6';
+    const VERSION = '3.2.7';
     const API_URL = 'https://script.google.com/macros/s/AKfycbwHbuuctWpT1QWqQc8C1fINQyBJhssIIeh3duuQgAHiCpGBRUVnPEmUnDlEDu5mQbZk/exec';
     const DAY_NAMES = ['Friday', 'Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday'];
     const DB_NAME = 'timesheet-db';
@@ -4777,15 +4832,19 @@
         card.classList.add('expanded');
         if (detail) {
           detail.style.display = 'block';
+          // Force reflow before adding class to trigger transition
+          detail.offsetHeight;
           detail.classList.remove('hidden');
+          detail.classList.add('open');
           detail.querySelectorAll('textarea').forEach(autoGrow);
         }
         if (chevron) chevron.style.transform = 'rotate(90deg)';
       } else {
         card.classList.remove('expanded');
         if (detail) {
+          detail.classList.remove('open');
           detail.classList.add('hidden');
-          detail.style.display = 'none';
+          setTimeout(() => { detail.style.display = 'none'; }, 300);
         }
         if (chevron) chevron.style.transform = 'rotate(0deg)';
       }
@@ -4803,20 +4862,15 @@
       saveUiState();
 
       // Update DOM directly for transition
-      const btn = document.querySelector(`button[data-notes-btn="${actId}"]`);
-      const wrap = document.querySelector(`div[data-notes-wrap="${actId}"]`);
-      const spacer = document.querySelector(`div[data-notes-spacer="${actId}"]`);
+      const notesPanelBody = document.querySelector(`.notes-panel-body[data-notes-wrap="${actId}"]`);
+      const notesChevron = document.querySelector(`.notes-chevron[data-notes-btn="${actId}"]`);
 
-      if (btn) {
-        if (nextOpen) btn.classList.add('open');
-        else btn.classList.remove('open');
+      if (notesPanelBody) {
+        if (nextOpen) notesPanelBody.classList.add('open');
+        else notesPanelBody.classList.remove('open');
       }
-      if (wrap) {
-        if (nextOpen) wrap.classList.add('open');
-        else wrap.classList.remove('open');
-      }
-      if (spacer) {
-        spacer.style.display = nextOpen ? 'none' : 'block';
+      if (notesChevron) {
+        notesChevron.style.transform = nextOpen ? 'rotate(180deg)' : 'rotate(0deg)';
       }
     }
 
@@ -4867,6 +4921,7 @@
       const numTasks = act.codes.length || 1;
       const hrsPerTask = ordinary > 0 ? (ordinary / numTasks).toFixed(2) : '—';
       const otPerTask = overtime > 0 ? (overtime / numTasks).toFixed(2) : '—';
+      const notesOpen = state.notesOpen.has(act.id) ? state.notesOpen.get(act.id) : !!act.notes;
 
       return `
       <div class="activity-card ${isExpanded ? 'expanded' : ''}" data-act-id="${act.id}" style="${isMissingCode ? 'border-color:var(--btn-danger-color); box-shadow: 0 0 8px rgba(232, 69, 60, 0.2)' : ''}">
@@ -4884,7 +4939,7 @@
             <span class="chevron" style="font-size: 14px; color: var(--text-muted); transform: ${isExpanded ? 'rotate(90deg)' : 'rotate(0deg)'}; transition: transform 0.2s">›</span>
           </div>
         </div>
-        <div class="activity-detail ${isExpanded ? '' : 'hidden'}" style="${isExpanded ? '' : 'display:none'}">
+        <div class="activity-detail ${isExpanded ? 'open' : ''}" style="${isExpanded ? '' : 'display:none'}">
           <div style="display: flex; flex-direction: column; gap: 14px;">
             <div class="flex flex-col gap-1.5">
               <span style="font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted)">Description</span>
@@ -4950,20 +5005,25 @@
               <span>OT/Task: <strong data-calc="otPerTask" data-act="${act.id}" style="color:var(--text-ot)">${otPerTask}</strong></span>
             </div>
 
-            <div class="flex flex-col gap-1.5">
-              <div style="display: flex; align-items: center; justify-content: space-between;">
-                <span style="font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted)">Notes</span>
-                <button data-notes-btn="${act.id}" onclick="event.stopPropagation(); toggleNotes('${act.id}')" 
-                  style="font-size: 10px; font-weight: 700; color: var(--accent); background: none; border: none; cursor: pointer; padding: 0;">
-                  ${state.notesOpen.get(act.id) !== false && (act.notes ? true : false) ? 'Hide' : 'Show'}
-                </button>
+            <div class="notes-panel">
+              <div class="notes-panel-header" onclick="event.stopPropagation(); toggleNotes('${act.id}')">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2.5" stroke-linecap="round">
+                  <path d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+                </svg>
+                <span style="font-size: 13px; font-weight: 700; color: var(--text-secondary);">Notes</span>
+                <span class="notes-panel-preview ${act.notes && act.notes.trim() ? 'has-note' : ''}">
+                  ${act.notes && act.notes.trim() ? esc(act.notes).replace(/\n/g, ' ') : 'Add a note…'}
+                </span>
+                <svg class="notes-chevron" data-notes-btn="${act.id}" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2.5" 
+                  style="flex-shrink:0; transition: transform 0.25s ease; transform: ${notesOpen ? 'rotate(180deg)' : 'rotate(0deg)'}">
+                  <path d="M18 15l-6-6-6 6"/>
+                </svg>
               </div>
-              <div data-notes-wrap="${act.id}" style="${(state.notesOpen.get(act.id) !== false && act.notes) ? '' : 'display:none'}">
+              <div class="notes-panel-body ${notesOpen ? 'open' : ''}" data-notes-wrap="${act.id}">
                 <textarea placeholder="Notes…" rows="2"
-                  style="width: 100%; background: #fff; border: 1.5px solid var(--border); border-radius: 8px; padding: 10px 12px; font-size: 13px; color: var(--text-primary); outline: none; resize: none; overflow: hidden; min-height: 60px;"
+                  style="width: 100%; background: transparent; border: none; padding: 0; font-size: 13px; color: var(--text-primary); outline: none; resize: none; overflow: hidden;"
                   data-field="notes" data-act="${act.id}" data-day="${di}" oninput="updateField(this);autoGrow(this)">${esc(act.notes || '')}</textarea>
               </div>
-              ${!act.notes || act.notes.trim() === '' ? `<button onclick="event.stopPropagation(); toggleNotes('${act.id}')" style="text-align:left; font-size: 12px; color: var(--text-muted); background: #fff; border: 1.5px dashed var(--border); border-radius: 8px; padding: 8px 12px; cursor: pointer; width: 100%;">+ Add Note</button>` : ''}
             </div>
 
             <button onclick="showConfirm('Delete task?','${esc(act.description || 'Unnamed')}',()=>removeActivity('${act.id}',${di}))"
