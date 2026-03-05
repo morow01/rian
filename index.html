@@ -3236,7 +3236,7 @@
     // ============================================================
     // CONFIG
     // ============================================================
-    const VERSION = '3.2.4';
+    const VERSION = '3.2.5';
     const API_URL = 'https://script.google.com/macros/s/AKfycbwHbuuctWpT1QWqQc8C1fINQyBJhssIIeh3duuQgAHiCpGBRUVnPEmUnDlEDu5mQbZk/exec';
     const DAY_NAMES = ['Friday', 'Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday'];
     const DB_NAME = 'timesheet-db';
@@ -6239,16 +6239,43 @@
 
     async function restoreSnapshot(idx) {
       const snap = state.historySnapshots[idx];
-      if (!snap) return;
+      if (!snap) { showToast('Restore failed: snapshot not found'); return; }
 
       const ws = snap.weekStart ? snap.weekStart.substring(0, 10) : '';
       const typeLabel = snap.type === 'week' ? `Week ${ws}` : 'All Field Notes';
       if (!confirm(`Restore backup from "${snap.deviceName}" (${new Date(snap.timestamp).toLocaleString()})?\n\nThis will overwrite your current ${typeLabel}.`)) return;
 
+      showToast('Restoring…', 10000);
       try {
-        const res = await apiGet('getSnapshotData', { timestamp: snap.timestamp });
-        if (!res || !res.data) throw new Error('Failed to fetch snapshot data');
-        const data = JSON.parse(res.data);
+        let data = null;
+
+        // Strategy 1: Snapshot already has embedded data (some GAS versions include it)
+        if (snap.data) {
+          data = typeof snap.data === 'string' ? JSON.parse(snap.data) : snap.data;
+        }
+
+        // Strategy 2: Dedicated getSnapshotData endpoint
+        if (!data && navigator.onLine) {
+          try {
+            const res = await apiGet('getSnapshotData', { timestamp: snap.timestamp, weekStart: ws });
+            if (res && res.data) {
+              data = typeof res.data === 'string' ? JSON.parse(res.data) : res.data;
+            }
+          } catch (e2) { /* fall through to next strategy */ }
+        }
+
+        // Strategy 3: Fall back to fetching the full week data directly
+        if (!data && navigator.onLine && ws) {
+          try {
+            const res = await apiGet('getWeekData', { weekStart: ws });
+            if (res && res.data) {
+              data = typeof res.data === 'string' ? JSON.parse(res.data) : res.data;
+            }
+          } catch (e3) { /* fall through */ }
+        }
+
+        if (!data) throw new Error('Could not retrieve snapshot data. Try syncing first.');
+
         const ts = Date.now();
         if (snap.type === 'week') {
           data._updatedAt = ts;
@@ -6256,7 +6283,7 @@
           state.weekStart = ws;
           state.weekBase = deepCopy(data);
           await dbPut('weeks', { weekStart: ws, data: data, updatedAt: ts });
-          showToast('Week data restored');
+          showToast('✓ Week data restored!');
           setView('week');
 
           if (navigator.onLine) {
@@ -6269,7 +6296,7 @@
           state.notesBase = deepCopy(state.notes);
           state.notesLocalTime = ts;
           await dbPut('notes', { id: 'notes_all', data: state.notes, updatedAt: ts });
-          showToast('Notes restored');
+          showToast('✓ Notes restored!');
           setView('notes');
 
           if (navigator.onLine) {
