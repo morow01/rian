@@ -989,13 +989,13 @@
     }
 
     [data-theme="retro"] .day-activities.expanded {
-      padding-top: 8px !important;
-      /* Give some breathing room when expanded */
+      padding-top: 14px !important;
+      padding-bottom: 4px !important;
     }
 
-    [data-theme="retro"] .day-activities.collapsed {
-      padding: 0 !important;
-      /* Prevent spacing that exposes the #f0f0f0 background */
+    .day-activities.active {
+      padding-top: 14px;
+      padding-bottom: 4px;
     }
 
 
@@ -3236,7 +3236,7 @@
     // ============================================================
     // CONFIG
     // ============================================================
-    const VERSION = '3.2.3';
+    const VERSION = '3.2.4';
     const API_URL = 'https://script.google.com/macros/s/AKfycbwHbuuctWpT1QWqQc8C1fINQyBJhssIIeh3duuQgAHiCpGBRUVnPEmUnDlEDu5mQbZk/exec';
     const DAY_NAMES = ['Friday', 'Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday'];
     const DB_NAME = 'timesheet-db';
@@ -4749,6 +4749,8 @@
           activities.classList.remove('hidden');
           activities.style.maxHeight = activities.scrollHeight + 'px';
           if (chevron) chevron.style.transform = 'rotate(90deg)';
+          // Trigger autoGrow for all textareas within the expanded day
+          activities.querySelectorAll('textarea').forEach(autoGrow);
           setTimeout(() => { if (state.expandedDays.has(di)) activities.style.maxHeight = 'none'; }, 300);
         }
       }
@@ -4765,9 +4767,14 @@
 
       // Update DOM directly for smooth transition if it was already rendered
       const card = document.querySelector(`.activity-card:has([onclick*="${actId}"])`) || document.querySelector(`.activity-card[data-act-id="${actId}"]`);
-      // Since it's a bit complex with the current architecture, full render if needed, 
-      // but let's try to just toggle the expansion classes.
       render();
+      // Ensure textareas inside the expanded activity card are correctly sized
+      if (!isExpanded) {
+        requestAnimationFrame(() => {
+          const detail = document.querySelector(`.activity-detail`);
+          if (detail) detail.querySelectorAll('textarea').forEach(autoGrow);
+        });
+      }
     }
 
     function toggleNotes(actId) {
