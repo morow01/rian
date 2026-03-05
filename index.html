@@ -3204,7 +3204,7 @@
     // ============================================================
     // CONFIG
     // ============================================================
-    const VERSION = '3.2.1';
+    const VERSION = '3.2.2';
     const API_URL = 'https://script.google.com/macros/s/AKfycbwHbuuctWpT1QWqQc8C1fINQyBJhssIIeh3duuQgAHiCpGBRUVnPEmUnDlEDu5mQbZk/exec';
     const DAY_NAMES = ['Friday', 'Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday'];
     const DB_NAME = 'timesheet-db';
@@ -4997,8 +4997,7 @@
       if (val < 0) val = 0;
       act[field] = val;
 
-      updateHeaderStatus();
-      syncNowDebounced();
+      scheduleAutoSave();
       render(); // Guaranteed UI sync
     }
 
