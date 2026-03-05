@@ -1403,6 +1403,22 @@
       background: var(--bg-card-alt);
     }
 
+    .town-option.highlighted {
+      background: var(--bg-code-item-sel);
+      box-shadow: inset 0 0 0 2px var(--accent);
+      position: relative;
+      z-index: 10;
+    }
+
+    .search-results-list {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      margin-top: 16px;
+      box-shadow: var(--shadow-sm);
+    }
+
     /* Dropdown in table view */
     .timesheet-table .town-dropdown {
       right: auto;
@@ -3052,7 +3068,7 @@
     // ============================================================
     // CONFIG
     // ============================================================
-    const VERSION = '3.0.31';
+    const VERSION = '3.0.32';
     const API_URL = 'https://script.google.com/macros/s/AKfycbwHbuuctWpT1QWqQc8C1fINQyBJhssIIeh3duuQgAHiCpGBRUVnPEmUnDlEDu5mQbZk/exec';
     const DAY_NAMES = ['Friday', 'Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday'];
     const DB_NAME = 'timesheet-db';
@@ -5863,7 +5879,7 @@
               onblur="blurSearchScroll(this)">
           </div>
           
-          <div id="ex-results-list" class="mt-4">
+          <div id="ex-results-list" class="search-results-list hidden">
             ${renderExchangeResults(query)}
           </div>
         </div>
@@ -5887,7 +5903,7 @@
               onblur="blurSearchScroll(this)">
           </div>
 
-          <div id="cb-results-list" class="mt-4">
+          <div id="cb-results-list" class="search-results-list hidden">
             ${renderCabinetResults(query)}
           </div>
         </div>
@@ -5912,14 +5928,20 @@
       state.exchangeSearch = val;
       state.searchHighlightIndex = -1;
       const list = document.getElementById('ex-results-list');
-      if (list) list.innerHTML = renderExchangeResults(val.toLowerCase());
+      if (list) {
+        list.innerHTML = renderExchangeResults(val.toLowerCase());
+        list.classList.toggle('hidden', !val);
+      }
     }
 
     function updateCabinetSearch(val) {
       state.cabinetSearch = val;
       state.searchHighlightIndex = -1;
       const list = document.getElementById('cb-results-list');
-      if (list) list.innerHTML = renderCabinetResults(val.toLowerCase());
+      if (list) {
+        list.innerHTML = renderCabinetResults(val.toLowerCase());
+        list.classList.toggle('hidden', !val);
+      }
     }
 
     function handleSearchKey(e) {
@@ -5979,9 +6001,10 @@
       const isEx = state.exchangeTab === 'exchanges';
       const list = document.getElementById(isEx ? 'ex-results-list' : 'cb-results-list');
       if (list) {
+        list.classList.toggle('hidden', !(isEx ? state.exchangeSearch : state.cabinetSearch));
         list.innerHTML = isEx ? renderExchangeResults(state.exchangeSearch.toLowerCase()) : renderCabinetResults(state.cabinetSearch.toLowerCase());
         // Scroll highlighted item into view if needed
-        const highlighted = list.querySelector('.result-card.highlighted');
+        const highlighted = list.querySelector('.town-option.highlighted');
         if (highlighted) {
           highlighted.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         }
@@ -5989,65 +6012,41 @@
     }
 
     function renderExchangeResults(query) {
-      const filtered = state.exchanges.filter(t =>
-        t.name.toLowerCase().includes(query) || t.code.toLowerCase().includes(query)
-      ).sort((a, b) => {
-        const aName = a.name.toLowerCase();
-        const bName = b.name.toLowerCase();
-        const aCode = a.code.toLowerCase();
-        const bCode = b.code.toLowerCase();
-        const aStarts = aName.startsWith(query) || aCode.startsWith(query);
-        const bStarts = bName.startsWith(query) || bCode.startsWith(query);
-        if (aStarts && !bStarts) return -1;
-        if (!aStarts && bStarts) return 1;
-        return aName.localeCompare(bName);
-      }).slice(0, 30);
+      const filtered = getFilteredExchanges(query);
 
       const countEl = document.getElementById('ex-count');
       if (countEl) countEl.textContent = query ? `${filtered.length} found` : '';
 
       if (query && !filtered.length) return '<div class="text-center p-8 text-muted">No exchanges found</div>';
-      if (!query) return '<div class="text-center p-4 text-xs text-muted border border-dashed border-muted rounded-xl opacity-50">Enter search term above</div>';
+      if (!query) return '';
 
       return filtered.map((ex, idx) => `
-        <div class="result-card ${state.searchHighlightIndex === idx ? 'highlighted' : ''}" onclick="setSelectedExchange('${esc(ex.code)}')">
-          <div class="result-header">
-            <div class="result-title">${esc(ex.name)}</div>
-            <div class="result-code">${esc(ex.code)}</div>
+        <div class="town-option ${state.searchHighlightIndex === idx ? 'highlighted' : ''}" onclick="setSelectedExchange('${esc(ex.code)}')">
+          <div class="flex-1 min-w-0">
+            <span class="block truncate">${esc(ex.name)}</span>
+            ${ex.locality ? `<span class="text-[10px] text-muted block truncate">${esc(ex.locality)}</span>` : ''}
           </div>
-          ${ex.locality ? `
-          <div class="result-meta">
-            <div>🏠 ${esc(ex.locality)}</div>
-          </div>` : ''}
+          <span class="t-code">${esc(ex.code)}</span>
         </div>
       `).join('');
     }
 
     function renderCabinetResults(query) {
-      const filtered = state.cabinets.filter(c =>
-        c.mdf.toLowerCase().includes(query) || c.ccp.toLowerCase().includes(query) || String(c.ipid).includes(query)
-      ).sort((a, b) => {
-        const aM = a.mdf.toLowerCase();
-        const bM = b.mdf.toLowerCase();
-        const aStarts = aM.startsWith(query) || a.ccp.toLowerCase().startsWith(query);
-        const bStarts = bM.startsWith(query) || b.ccp.toLowerCase().startsWith(query);
-        if (aStarts && !bStarts) return -1;
-        if (!aStarts && bStarts) return 1;
-        return aM.localeCompare(bM);
-      }).slice(0, 30);
+      const filtered = getFilteredCabinets(query);
 
       const countEl = document.getElementById('cb-count');
       if (countEl) countEl.textContent = query ? `${filtered.length} found` : '';
 
       if (query && !filtered.length) return '<div class="text-center p-8 text-muted">No cabinets found</div>';
-      if (!query) return '<div class="text-center p-4 text-xs text-muted border border-dashed border-muted rounded-xl opacity-50">Enter search term above</div>';
+      if (!query) return '';
 
       return filtered.map((cb, idx) => `
-        <div class="result-card ${state.searchHighlightIndex === idx ? 'highlighted' : ''}" onclick="setSelectedCabinet('${esc(cb.ipid)}')">
-          <div class="result-header">
-            <div class="result-title">${esc(cb.mdf)} - ${esc(cb.ccp)}</div>
-            <div class="result-code">${esc(cb.ipid)}</div>
+        <div class="town-option ${state.searchHighlightIndex === idx ? 'highlighted' : ''}" onclick="setSelectedCabinet('${esc(cb.ipid)}')">
+          <div class="flex-1 min-w-0">
+            <span class="block truncate">${esc(cb.mdf)} - ${esc(cb.ccp)}</span>
+            <span class="text-[10px] text-muted block truncate">Cabinet</span>
           </div>
+          <span class="t-code">${esc(cb.ipid)}</span>
         </div>
       `).join('');
     }
