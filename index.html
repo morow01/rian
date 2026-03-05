@@ -2681,12 +2681,13 @@
     }
 
     .notes-sync-dot {
-      width: 7px;
-      height: 7px;
+      width: 8px;
+      height: 8px;
       border-radius: 50%;
-      display: inline-block;
-      margin-left: 4px;
-      vertical-align: middle;
+      position: absolute;
+      top: 10px;
+      right: calc(50% - 14px);
+      border: 1.5px solid var(--bg-header);
     }
 
     .notes-empty {
@@ -3084,7 +3085,7 @@
     // ============================================================
     // CONFIG
     // ============================================================
-    const VERSION = '3.1.2';
+    const VERSION = '3.1.3';
     const API_URL = 'https://script.google.com/macros/s/AKfycbwHbuuctWpT1QWqQc8C1fINQyBJhssIIeh3duuQgAHiCpGBRUVnPEmUnDlEDu5mQbZk/exec';
     const DAY_NAMES = ['Friday', 'Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday'];
     const DB_NAME = 'timesheet-db';
@@ -3391,6 +3392,7 @@
       exchangeDetailTab: 'location', // 'location'|'details'|'address'|'security'|'power'|'emergency'|'additional'
       snapshotPage: 0,
       menuView: 'main', // 'main' | 'themes'
+      isMenuOpen: false,
     };
 
     let codeModalCtx = { dayIndex: null, activityId: null, selected: [] };
@@ -4208,7 +4210,7 @@
             <line x1="3" y1="18" x2="21" y2="18"></line>
           </svg>
         </button>
-        <div class="theme-dropdown" id="theme-dropdown">
+        <div class="theme-dropdown ${state.isMenuOpen ? 'open' : ''}" id="theme-dropdown">
           <div style="padding: 10px 14px 8px; border-bottom: 1px solid var(--border); margin-bottom: 4px;">
             <div style="font-size: 9px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; margin-bottom: 6px; letter-spacing: 0.1em;">Device Name</div>
             <input type="text" placeholder="e.g. Fold 5" value="${state.deviceName === 'Unknown Device' ? '' : state.deviceName}" 
@@ -4221,14 +4223,18 @@
       </div>
     </div>
     <div class="flex" style="border-top:1px solid var(--border)">
-      <button onclick="setView('week')" class="flex-1 py-3 text-sm font-bold flex flex-col items-center gap-1" style="color:${state.view === 'week' ? 'var(--text-header)' : 'var(--text-header-sub)'};${state.view === 'week' ? 'border-bottom:2.5px solid #fff' : ''}">
-        <span>📋</span>Timesheet
+      <button onclick="setView('week')" class="flex-1 py-2 text-[10px] font-bold flex flex-col items-center gap-1.5" style="color:${state.view === 'week' ? 'var(--text-header)' : 'var(--text-header-sub)'};${state.view === 'week' ? 'border-bottom:2.5px solid #fff' : ''}">
+        <svg class="opacity-80" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+        Timesheet
       </button>
-      <button onclick="setView('notes')" class="flex-1 py-3 text-sm font-bold flex flex-col items-center gap-1 relative" style="color:${state.view === 'notes' ? 'var(--text-header)' : 'var(--text-header-sub)'};${state.view === 'notes' ? 'border-bottom:2.5px solid #fff' : ''}">
-        <span>📝</span>Notes${state.notesSyncStatus !== 'synced' ? `<span class="notes-sync-dot" style="background:${{ idle: 'var(--text-muted)', pending: '#f97316', syncing: '#3b82f6', error: '#ef4444' }[state.notesSyncStatus] || 'var(--text-muted)'}"></span>` : ''}
+      <button onclick="setView('notes')" class="flex-1 py-2 text-[10px] font-bold flex flex-col items-center gap-1.5 relative" style="color:${state.view === 'notes' ? 'var(--text-header)' : 'var(--text-header-sub)'};${state.view === 'notes' ? 'border-bottom:2.5px solid #fff' : ''}">
+        <svg class="opacity-80" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        Notes
+        ${state.notesSyncStatus !== 'synced' ? `<span class="notes-sync-dot" style="background:${{ idle: 'var(--text-muted)', pending: '#f97316', syncing: '#3b82f6', error: '#ef4444' }[state.notesSyncStatus] || 'var(--text-muted)'}"></span>` : ''}
       </button>
-      <button onclick="setView('exchanges')" class="flex-1 py-3 text-sm font-bold flex flex-col items-center gap-1" style="color:${state.view === 'exchanges' ? 'var(--text-header)' : 'var(--text-header-sub)'};${state.view === 'exchanges' ? 'border-bottom:2.5px solid #fff' : ''}">
-        <span>🔍</span>Finder
+      <button onclick="setView('exchanges')" class="flex-1 py-2 text-[10px] font-bold flex flex-col items-center gap-1.5" style="color:${state.view === 'exchanges' ? 'var(--text-header)' : 'var(--text-header-sub)'};${state.view === 'exchanges' ? 'border-bottom:2.5px solid #fff' : ''}">
+        <svg class="opacity-80" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        Finder
       </button>
     </div>
   </header>`;
@@ -6417,27 +6423,23 @@
 
     function toggleThemeMenu(e) {
       if (e) e.stopPropagation();
-      const dd = document.getElementById('theme-dropdown');
-      if (dd) {
-        const isOpen = dd.classList.contains('open');
-        if (!isOpen) state.menuView = 'main'; // Reset view when opening
-        dd.classList.toggle('open');
-        if (dd.classList.contains('open')) updateHeaderStatus();
-      }
+      state.isMenuOpen = !state.isMenuOpen;
+      if (state.isMenuOpen) state.menuView = 'main';
+      updateHeaderStatus();
     }
 
     function switchMenuView(v, e) {
       if (e) e.stopPropagation();
       state.menuView = v;
+      state.isMenuOpen = true;
       updateHeaderStatus();
-      // Keep dropdown open
-      const dd = document.getElementById('theme-dropdown');
-      if (dd) dd.classList.add('open');
     }
 
     function closeThemeMenu() {
-      const dd = document.getElementById('theme-dropdown');
-      if (dd) dd.classList.remove('open');
+      if (state.isMenuOpen) {
+        state.isMenuOpen = false;
+        updateHeaderStatus();
+      }
     }
 
     document.addEventListener('click', closeThemeMenu);
