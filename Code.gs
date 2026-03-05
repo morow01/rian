@@ -23,6 +23,7 @@ function doGet(e) {
       case 'getWeeks': return ok(getWeeks());
       case 'getNotes': return ok(getNotes());
       case 'getSnapshots': return ok(getSnapshots());
+      case 'getSnapshotData': return ok(getSnapshotData(e.parameter.timestamp));
       default:         return ok({ error: 'Unknown action: ' + action });
     }
   } catch (err) {
@@ -180,13 +181,27 @@ function getSnapshots() {
         timestamp: data[i][0],
         deviceName: data[i][1],
         type: data[i][2],
-        weekStart: data[i][3],
-        data: data[i][4] // Already JSON string
+        weekStart: data[i][3]
+        // Data omitted for performance; fetch via getSnapshotData(timestamp)
       });
     }
   }
 
   return snapshots;
+}
+
+function getSnapshotData(timestamp) {
+  if (!timestamp) return { error: 'No timestamp provided' };
+  const sheet = getSnapshotsSheet();
+  const data = sheet.getDataRange().getValues();
+
+  // Search for the specific snapshot by timestamp (ISO string)
+  for (let i = data.length - 1; i >= 1; i--) {
+    if (data[i][0] && String(data[i][0]) === timestamp) {
+      return { data: data[i][4] };
+    }
+  }
+  return { error: 'Snapshot not found' };
 }
 
 function getWeeks() {

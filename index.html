@@ -3068,7 +3068,7 @@
     // ============================================================
     // CONFIG
     // ============================================================
-    const VERSION = '3.0.35';
+    const VERSION = '3.0.36';
     const API_URL = 'https://script.google.com/macros/s/AKfycbwHbuuctWpT1QWqQc8C1fINQyBJhssIIeh3duuQgAHiCpGBRUVnPEmUnDlEDu5mQbZk/exec';
     const DAY_NAMES = ['Friday', 'Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday'];
     const DB_NAME = 'timesheet-db';
@@ -6091,7 +6091,9 @@
       if (!confirm(`Restore backup from "${snap.deviceName}" (${new Date(snap.timestamp).toLocaleString()})?\n\nThis will overwrite your current ${typeLabel}.`)) return;
 
       try {
-        const data = JSON.parse(snap.data);
+        const res = await apiGet('getSnapshotData', { timestamp: snap.timestamp });
+        if (!res || !res.data) throw new Error('Failed to fetch snapshot data');
+        const data = JSON.parse(res.data);
         const ts = Date.now();
         if (snap.type === 'week') {
           data._updatedAt = ts;
