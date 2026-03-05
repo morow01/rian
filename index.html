@@ -3236,7 +3236,7 @@
     // ============================================================
     // CONFIG
     // ============================================================
-    const VERSION = '3.2.5';
+    const VERSION = '3.2.6';
     const API_URL = 'https://script.google.com/macros/s/AKfycbwHbuuctWpT1QWqQc8C1fINQyBJhssIIeh3duuQgAHiCpGBRUVnPEmUnDlEDu5mQbZk/exec';
     const DAY_NAMES = ['Friday', 'Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday'];
     const DB_NAME = 'timesheet-db';
@@ -4765,15 +4765,29 @@
       }
       saveUiState();
 
-      // Update DOM directly for smooth transition if it was already rendered
-      const card = document.querySelector(`.activity-card:has([onclick*="${actId}"])`) || document.querySelector(`.activity-card[data-act-id="${actId}"]`);
-      render();
-      // Ensure textareas inside the expanded activity card are correctly sized
-      if (!isExpanded) {
-        requestAnimationFrame(() => {
-          const detail = document.querySelector(`.activity-detail`);
-          if (detail) detail.querySelectorAll('textarea').forEach(autoGrow);
-        });
+      // Surgical DOM update — no full re-render needed
+      const card = document.querySelector(`.activity-card[data-act-id="${actId}"]`);
+      if (!card) { render(); return; } // fallback if card not in DOM
+
+      const detail = card.querySelector('.activity-detail');
+      const chevron = card.querySelector('.chevron');
+      const nowExpanded = !isExpanded;
+
+      if (nowExpanded) {
+        card.classList.add('expanded');
+        if (detail) {
+          detail.style.display = 'block';
+          detail.classList.remove('hidden');
+          detail.querySelectorAll('textarea').forEach(autoGrow);
+        }
+        if (chevron) chevron.style.transform = 'rotate(90deg)';
+      } else {
+        card.classList.remove('expanded');
+        if (detail) {
+          detail.classList.add('hidden');
+          detail.style.display = 'none';
+        }
+        if (chevron) chevron.style.transform = 'rotate(0deg)';
       }
     }
 
@@ -4937,10 +4951,19 @@
             </div>
 
             <div class="flex flex-col gap-1.5">
-              <span style="font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted)">Notes</span>
-              <textarea placeholder="Notes…" rows="2"
-                style="width: 100%; background: #fff; border: 1.5px solid var(--border); border-radius: 8px; padding: 10px 12px; font-size: 13px; color: var(--text-primary); outline: none; resize: none; overflow: hidden; min-height: 60px;"
-                data-field="notes" data-act="${act.id}" data-day="${di}" oninput="updateField(this);autoGrow(this)">${esc(act.notes || '')}</textarea>
+              <div style="display: flex; align-items: center; justify-content: space-between;">
+                <span style="font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted)">Notes</span>
+                <button data-notes-btn="${act.id}" onclick="event.stopPropagation(); toggleNotes('${act.id}')" 
+                  style="font-size: 10px; font-weight: 700; color: var(--accent); background: none; border: none; cursor: pointer; padding: 0;">
+                  ${state.notesOpen.get(act.id) !== false && (act.notes ? true : false) ? 'Hide' : 'Show'}
+                </button>
+              </div>
+              <div data-notes-wrap="${act.id}" style="${(state.notesOpen.get(act.id) !== false && act.notes) ? '' : 'display:none'}">
+                <textarea placeholder="Notes…" rows="2"
+                  style="width: 100%; background: #fff; border: 1.5px solid var(--border); border-radius: 8px; padding: 10px 12px; font-size: 13px; color: var(--text-primary); outline: none; resize: none; overflow: hidden; min-height: 60px;"
+                  data-field="notes" data-act="${act.id}" data-day="${di}" oninput="updateField(this);autoGrow(this)">${esc(act.notes || '')}</textarea>
+              </div>
+              ${!act.notes || act.notes.trim() === '' ? `<button onclick="event.stopPropagation(); toggleNotes('${act.id}')" style="text-align:left; font-size: 12px; color: var(--text-muted); background: #fff; border: 1.5px dashed var(--border); border-radius: 8px; padding: 8px 12px; cursor: pointer; width: 100%;">+ Add Note</button>` : ''}
             </div>
 
             <button onclick="showConfirm('Delete task?','${esc(act.description || 'Unnamed')}',()=>removeActivity('${act.id}',${di}))"
