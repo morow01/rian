@@ -4681,31 +4681,26 @@
       const card = document.querySelector(`.day-card[data-day-idx="${di}"]`);
       if (card) {
         const header = card.querySelector('.day-header');
-        const arrow = card.querySelector('.expand-arrow');
+        const chevron = card.querySelector('.chevron');
         const activities = card.querySelector('.day-activities');
 
         if (isExpanded) {
-          // Explicitly set current height before starting collapse transition
           activities.style.maxHeight = activities.scrollHeight + 'px';
-          // Trigger reflow
-          activities.offsetHeight;
-          header.classList.add('rounded-2xl');
-          card.classList.remove('rounded-b-2xl');
-          card.classList.add('rounded-2xl');
-          arrow.classList.add('collapsed');
-          activities.classList.remove('expanded');
-          activities.classList.add('collapsed');
+          activities.offsetHeight; // force reflow
+          activities.classList.remove('active');
+          activities.classList.add('hidden');
           activities.style.maxHeight = '0px';
+          if (chevron) chevron.style.transform = 'rotate(0deg)';
+          setTimeout(() => { if (!state.expandedDays.has(di)) activities.style.display = 'none'; }, 300);
         } else {
-          header.classList.remove('rounded-2xl');
-          card.classList.add('rounded-b-2xl');
-          card.classList.remove('rounded-2xl');
-          arrow.classList.remove('collapsed');
-          activities.classList.add('expanded');
-          activities.classList.remove('collapsed');
+          activities.style.display = 'block';
+          activities.style.maxHeight = '0px';
+          activities.offsetHeight; // force reflow
+          activities.classList.add('active');
+          activities.classList.remove('hidden');
           activities.style.maxHeight = activities.scrollHeight + 'px';
-          // After transition finishes, set to none for dynamic content
-          setTimeout(() => { if (state.expandedDays.has(di)) activities.style.maxHeight = 'none'; }, 350);
+          if (chevron) chevron.style.transform = 'rotate(90deg)';
+          setTimeout(() => { if (state.expandedDays.has(di)) activities.style.maxHeight = 'none'; }, 300);
         }
       }
     }
@@ -4719,15 +4714,11 @@
       }
       saveUiState();
 
-      // Update DOM directly instead of full render() to allow CSS transitions
-      const el = document.querySelector(`.activity-item[data-act-id="${actId}"]`);
-      if (el) {
-        if (!isExpanded) {
-          el.classList.add('expanded');
-        } else {
-          el.classList.remove('expanded');
-        }
-      }
+      // Update DOM directly for smooth transition if it was already rendered
+      const card = document.querySelector(`.activity-card:has([onclick*="${actId}"])`) || document.querySelector(`.activity-card[data-act-id="${actId}"]`);
+      // Since it's a bit complex with the current architecture, full render if needed, 
+      // but let's try to just toggle the expansion classes.
+      render();
     }
 
     function toggleNotes(actId) {
@@ -4804,7 +4795,7 @@
       const otPerTask = overtime > 0 ? (overtime / numTasks).toFixed(2) : '—';
 
       return `
-      <div class="activity-card ${isExpanded ? 'expanded' : ''}" style="${isMissingCode ? 'border-color:var(--btn-danger-color); box-shadow: 0 0 8px rgba(232, 69, 60, 0.2)' : ''}">
+      <div class="activity-card ${isExpanded ? 'expanded' : ''}" data-act-id="${act.id}" style="${isMissingCode ? 'border-color:var(--btn-danger-color); box-shadow: 0 0 8px rgba(232, 69, 60, 0.2)' : ''}">
         <div class="flex items-center gap-3 px-3.5 py-3.5 cursor-pointer" onclick="toggleActivityDetails('${act.id}')">
           <div class="task-num ${overtime > 0 ? 'ot' : ''}">${actIndex + 1}</div>
           <div class="flex-1 min-width-0">
@@ -4819,8 +4810,7 @@
             <span class="chevron" style="font-size: 14px; color: var(--text-muted); transform: ${isExpanded ? 'rotate(90deg)' : 'rotate(0deg)'}; transition: transform 0.2s">›</span>
           </div>
         </div>
-        ${isExpanded ? `
-        <div class="activity-detail">
+        <div class="activity-detail ${isExpanded ? '' : 'hidden'}" style="${isExpanded ? '' : 'display:none'}">
           <div style="display: flex; flex-direction: column; gap: 14px;">
             <div class="flex flex-col gap-1.5">
               <span style="font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted)">Description</span>
@@ -4898,7 +4888,7 @@
               🗑 Delete task
             </button>
           </div>
-        </div>` : ''}
+        </div>
       </div>`;
     }
 
