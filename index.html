@@ -3068,7 +3068,7 @@
     // ============================================================
     // CONFIG
     // ============================================================
-    const VERSION = '3.0.34';
+    const VERSION = '3.0.35';
     const API_URL = 'https://script.google.com/macros/s/AKfycbwHbuuctWpT1QWqQc8C1fINQyBJhssIIeh3duuQgAHiCpGBRUVnPEmUnDlEDu5mQbZk/exec';
     const DAY_NAMES = ['Friday', 'Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday'];
     const DB_NAME = 'timesheet-db';
@@ -3448,11 +3448,15 @@
     // DATE UTILS
     // ============================================================
     function dateToStr(d) {
-      return d.toISOString().split('T')[0];
+      const year = d.getFullYear();
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
     }
 
     function strToDate(s) {
-      return new Date(s + 'T00:00:00');
+      const [y, m, d] = s.split('-').map(Number);
+      return new Date(y, m - 1, d);
     }
 
     function getCurrentFriday() {
@@ -3820,23 +3824,35 @@
             return;
           }
 
-          // --- Fallback: no baseline — use count/timestamp heuristic ---
-          const localCount = countActivities(state.weekData);
-          const remoteCount = countActivities(remote);
-          const remoteTime = remote._updatedAt || 0;
-          const localTime = state.weekData._updatedAt || 0;
+          // --- Fallback: no baseline — use union merge ---
+          // Since we don't know what changed, pass null as baseline.
+          // mergeWeekData handles this by unioning local + remote activities.
+          const merged = mergeWeekData(null, state.weekData, remote);
 
-          if (remoteCount > localCount || (remoteTime > localTime && remoteCount >= localCount)) {
-            state.weekData = remote;
-            state.weekBase = deepCopy(remote);
-            await dbPut('weeks', { weekStart: state.weekStart, data: state.weekData, updatedAt: remoteTime });
-            const active = document.activeElement;
-            const userEditing = active && (active.tagName === 'TEXTAREA' || active.tagName === 'INPUT');
-            if (!userEditing) render();
-            state.syncStatus = 'synced';
-            updateHeaderStatus();
-            return;
+          const needsPush = JSON.stringify(merged.days) !== JSON.stringify(remote.days);
+
+          if (needsPush) {
+            const ts = Date.now();
+            merged._updatedAt = ts;
+
+            const pushData = deepCopy(merged);
+            state.weekData = merged;
+            state.weekBase = deepCopy(merged);
+
+            await apiPost({ action: 'saveWeek', weekStart: state.weekStart, weekData: pushData, deviceName: state.deviceName });
+            await dbPut('weeks', { weekStart: state.weekStart, data: state.weekData, updatedAt: ts });
+          } else {
+            state.weekData = merged;
+            state.weekBase = deepCopy(merged);
+            await dbPut('weeks', { weekStart: state.weekStart, data: state.weekData, updatedAt: remote._updatedAt || Date.now() });
           }
+
+          const active = document.activeElement;
+          const userEditing = active && (active.tagName === 'TEXTAREA' || active.tagName === 'INPUT');
+          if (!userEditing) render();
+          state.syncStatus = 'synced';
+          updateHeaderStatus();
+          return;
         }
 
         // No remote data, or local is authoritative with no baseline — push local

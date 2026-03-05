@@ -130,10 +130,6 @@ function getWeek(dateStr) {
   return null;
 }
 
-  sheet.appendRow([weekStart, json, now]);
-  saveSnapshot(arguments[2] || 'Unknown Device', 'week', weekStart, json);
-  return { success: true, action: 'created', weekStart };
-}
 
 function saveWeek(weekStart, weekData, deviceName) {
   const sheet = getSheet();
