@@ -3068,7 +3068,7 @@
     // ============================================================
     // CONFIG
     // ============================================================
-    const VERSION = '3.0.33';
+    const VERSION = '3.0.34';
     const API_URL = 'https://script.google.com/macros/s/AKfycbwHbuuctWpT1QWqQc8C1fINQyBJhssIIeh3duuQgAHiCpGBRUVnPEmUnDlEDu5mQbZk/exec';
     const DAY_NAMES = ['Friday', 'Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday'];
     const DB_NAME = 'timesheet-db';
@@ -3108,7 +3108,7 @@
       if (!q) { dd.style.display = 'none'; return; }
 
       const allMatches = TOWNS.filter(t =>
-        t.name.toLowerCase().includes(q) ||
+        t.name.toLowerCase().startsWith(q) ||
         t.code.toLowerCase().startsWith(q)
       );
       allMatches.sort((a, b) => {
@@ -5552,8 +5552,8 @@
       const q = input.value.trim().toLowerCase();
       if (!q) { dd.style.display = 'none'; return; }
       const results = TOWNS.filter(t =>
-        t.name.toLowerCase().includes(q) || t.code.toLowerCase().startsWith(q)
-      ).sort((a, b) => (a.name.toLowerCase().startsWith(q) ? 0 : 1) - (b.name.toLowerCase().startsWith(q) ? 0 : 1)).slice(0, 10);
+        t.name.toLowerCase().startsWith(q) || t.code.toLowerCase().startsWith(q)
+      ).sort((a, b) => a.name.localeCompare(b.name)).slice(0, 10);
       _noteTownResults[id] = results;
       if (!results.length) { dd.style.display = 'none'; return; }
       dd.innerHTML = results.map((t, i) =>
@@ -5971,7 +5971,7 @@
     function getFilteredExchanges(query) {
       if (!query) return [];
       return state.exchanges.filter(t =>
-        t.name.toLowerCase().includes(query) || t.code.toLowerCase().includes(query)
+        t.name.toLowerCase().startsWith(query) || t.code.toLowerCase().startsWith(query)
       ).sort((a, b) => {
         const aName = a.name.toLowerCase(), bName = b.name.toLowerCase();
         const aCode = a.code.toLowerCase(), bCode = b.code.toLowerCase();
@@ -5986,7 +5986,7 @@
     function getFilteredCabinets(query) {
       if (!query) return [];
       return state.cabinets.filter(c =>
-        c.mdf.toLowerCase().includes(query) || c.ccp.toLowerCase().includes(query) || String(c.ipid).includes(query)
+        c.mdf.toLowerCase().startsWith(query) || c.ccp.toLowerCase().startsWith(query) || String(c.ipid).startsWith(query)
       ).sort((a, b) => {
         const aM = a.mdf.toLowerCase(), bM = b.mdf.toLowerCase();
         const aStarts = aM.startsWith(query) || a.ccp.toLowerCase().startsWith(query);
