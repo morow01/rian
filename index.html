@@ -6482,6 +6482,13 @@
           return;
         }
 
+        // Store user profile in Firestore so admin can identify users by name
+        db_fs.doc(`users/${user.uid}`).set({
+          displayName: user.displayName || '',
+          email: user.email || '',
+          lastSeen: Date.now(),
+        }, { merge: true }).catch(() => {});
+
         // Signed in — load local data first for instant display
         if (state.view === 'notes') {
           const storedNotes = await dbGet('notes', 'notes_all');
