@@ -844,13 +844,13 @@
     }
 
     .task-num {
-      width: 28px;
-      height: 28px;
+      width: 30px;
+      height: 30px;
       border-radius: 8px;
-      background: var(--act-number-bg, var(--text-primary));
-      color: var(--act-number-text, #fff);
-      font-size: 12px;
-      font-weight: 800;
+      background: var(--act-number-bg, #EAECEF);
+      color: var(--act-number-text, #5A7289);
+      font-size: 13px;
+      font-weight: 700;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -858,7 +858,21 @@
     }
 
     .task-num.ot {
-      background: var(--text-ot);
+      background: var(--bg-ot, #FEF3DC);
+      color: var(--text-ot, #F5A623);
+    }
+
+    .day-name {
+      font-size: 15px;
+      font-weight: 800;
+      color: var(--text-primary);
+      letter-spacing: -0.01em;
+    }
+
+    .day-date {
+      font-size: 14px;
+      font-weight: 400;
+      color: var(--text-muted);
     }
 
     .activity-detail {
@@ -3292,7 +3306,7 @@
     // ============================================================
     // CONFIG
     // ============================================================
-    const VERSION = '3.2.8';
+    const VERSION = '3.2.9';
     const API_URL = 'https://script.google.com/macros/s/AKfycbwHbuuctWpT1QWqQc8C1fINQyBJhssIIeh3duuQgAHiCpGBRUVnPEmUnDlEDu5mQbZk/exec';
     const DAY_NAMES = ['Friday', 'Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday'];
     const DB_NAME = 'timesheet-db';
@@ -4892,7 +4906,7 @@
   <div class="day-card ${isWeekend ? 'day-weekend' : ''} ${isExpanded ? 'expanded' : ''}" data-day-idx="${di}">
     <div class="day-header" onclick="toggleDay(${di})">
       <div class="day-left">
-        <span class="chevron" style="transform: ${isExpanded ? 'rotate(90deg)' : 'rotate(0deg)'}; transition: transform 0.2s">›</span>
+        <svg class="chevron" width="12" height="12" viewBox="0 0 10 10" style="transform: ${isExpanded ? 'rotate(90deg)' : 'rotate(0deg)'}; transition: transform 0.2s; flex-shrink:0"><polygon points="0,0 10,5 0,10" fill="var(--text-primary)"/></svg>
         <span class="day-name">${day.dayName}</span>
         <span class="day-date">${formatDate(day.date)}</span>
       </div>
