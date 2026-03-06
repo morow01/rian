@@ -3336,7 +3336,7 @@
     // ============================================================
     // CONFIG
     // ============================================================
-    const VERSION = '3.3.8';
+    const VERSION = '3.3.9';
     const API_URL = 'https://script.google.com/macros/s/AKfycbwHbuuctWpT1QWqQc8C1fINQyBJhssIIeh3duuQgAHiCpGBRUVnPEmUnDlEDu5mQbZk/exec';
     const DAY_NAMES = ['Friday', 'Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday'];
     const DB_NAME = 'timesheet-db';
@@ -5055,8 +5055,7 @@
               <span>OT/Task: <strong data-calc="otPerTask" data-act="${act.id}" style="color:var(--text-ot)">${otPerTask}</strong></span>
             </div>
 
-            <div class="notes-panel" style="border: 1.5px solid #EBEBEA; border-radius: 10px; overflow: hidden; background: #fff; transition: border-color 0.15s;"
-                 onmouseover="this.style.borderColor='#1A1A1A'" onmouseout="this.style.borderColor='#EBEBEA'">
+            <div class="notes-panel" style="border: 1.5px solid #EBEBEA; border-radius: 10px; overflow: hidden; background: #fff;">
               <div class="notes-panel-header" onclick="event.stopPropagation(); toggleNotes('${act.id}')"
                 style="display: flex; align-items: center; gap: 8px; padding: 12px 14px; cursor: pointer;">
                 <svg width="15" height="15" viewBox="0 0 13 13" fill="none">
