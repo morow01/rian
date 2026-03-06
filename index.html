@@ -22,699 +22,53 @@
   <style>
     /* ===== THEME VARIABLES ===== */
     :root {
-      --font-body: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
-      --btn-danger-color: #ef4444;
-      --btn-danger-bg: rgba(239, 68, 68, 0.08);
-      --btn-danger-border: rgba(239, 68, 68, 0.22);
-      --bg-page: #f1f5f9;
-      --bg-card: #ffffff;
-      --bg-card-alt: #f8fafc;
-      --bg-input: #f9fafb;
-      --bg-header: #1e3a8a;
-      --bg-header-tab: #1e3078;
-      --bg-day-header: #eff6ff;
-      --bg-day-header-we: #f9fafb;
-      --bg-hours: #f9fafb;
-      --bg-ot: #fffbeb;
-      --bg-code-btn: #eff6ff;
-      --bg-modal: #ffffff;
-      --bg-modal-search: #ffffff;
-      --bg-code-group: #f3f4f6;
-      --bg-code-item: #ffffff;
-      --bg-code-item-sel: #eff6ff;
-      --text-primary: #0f172a;
-      --text-secondary: #64748b;
-      --text-muted: #94a3b8;
-      --text-header: #ffffff;
-      --text-header-sub: #93c5fd;
-      --text-day: #1e3a8a;
-      --text-day-we: #6b7280;
-      --text-hours: #1e3a8a;
-      --text-ot: #d97706;
-      --accent: #4f46e5;
-      --accent-light: #dbeafe;
-      --accent-chip-bg: #dbeafe;
-      --accent-chip-text: #1e40af;
-      --border: #e2e8f0;
-      --border-input: #e5e7eb;
-      --border-day: #1e3a8a;
-      --border-day-we: #9ca3af;
-      --border-dashed: #e2e8f0;
-      --text-input: #474747;
-      --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.06);
-      --shadow-card-hover: 0 4px 12px rgba(0, 0, 0, 0.08);
-      --act-number-bg: #1e3a8a;
-      --act-number-text: #ffffff;
-      --summary-even: #f9fafb;
-      --tab-active: #fbbf24;
-      --tab-inactive: #93c5fd;
-      --btn-add-bg: #dbeafe;
-      --btn-add-text: #2563eb;
-      --overlay: rgba(0, 0, 0, 0.6);
-    }
-
-    [data-theme="dark"] {
-      --bg-page: #0f172a;
-      --bg-card: rgba(30, 41, 59, 0.85);
-      --bg-card-alt: rgba(30, 41, 59, 0.95);
-      --bg-input: rgba(15, 23, 42, 0.6);
-      --bg-header: #0c1425;
-      --bg-header-tab: #0a1120;
-      --bg-day-header: rgba(20, 30, 50, 0.9);
-      --bg-day-header-we: rgba(30, 41, 59, 0.7);
-      --bg-hours: rgba(15, 23, 42, 0.5);
-      --bg-ot: rgba(120, 80, 0, 0.15);
-      --bg-code-btn: rgba(20, 184, 166, 0.08);
-      --bg-modal: #1e293b;
-      --bg-modal-search: #1e293b;
-      --bg-code-group: #0f172a;
-      --bg-code-item: #1e293b;
-      --bg-code-item-sel: rgba(20, 184, 166, 0.12);
-      --text-primary: #e2e8f0;
-      --text-secondary: #94a3b8;
-      --text-muted: #64748b;
-      --text-header: #e2e8f0;
-      --text-header-sub: #5eead4;
-      --text-day: #5eead4;
-      --text-day-we: #64748b;
-      --text-hours: #5eead4;
-      --text-ot: #fbbf24;
-      --accent: #14b8a6;
-      --accent-light: rgba(20, 184, 166, 0.15);
-      --accent-chip-bg: rgba(20, 184, 166, 0.18);
-      --accent-chip-text: #5eead4;
-      --border: #334155;
-      --border-input: #334155;
-      --border-day: #14b8a6;
-      --border-day-we: #475569;
-      --border-dashed: #334155;
-      --text-input: #b8c4d8;
-      --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.3);
-      --shadow-card-hover: 0 6px 20px rgba(0, 0, 0, 0.4);
-      --act-number-bg: #14b8a6;
-      --act-number-text: #0f172a;
-      --summary-even: rgba(15, 23, 42, 0.4);
-      --tab-active: #14b8a6;
-      --tab-inactive: #5eead4;
-      --btn-add-bg: rgba(20, 184, 166, 0.15);
-      --btn-add-text: #14b8a6;
-      --overlay: rgba(0, 0, 0, 0.75);
-    }
-
-    [data-theme="slate"] {
-      --bg-page: #eef2f7;
-      --bg-card: #ffffff;
-      --bg-card-alt: #f5f7fa;
-      --bg-input: #f5f7fa;
-      --bg-header: #1a2535;
-      --bg-header-tab: #141d2b;
-      --bg-day-header: #f5f7fa;
-      --bg-day-header-we: #f0f3f8;
-      --bg-hours: #f5f7fa;
-      --bg-ot: #fef9ee;
-      --bg-code-btn: #eef2f7;
-      --bg-modal: #ffffff;
-      --bg-modal-search: #f5f7fa;
-      --bg-code-group: #f0f3f8;
-      --bg-code-item: #ffffff;
-      --bg-code-item-sel: #eef2f7;
-      --text-primary: #1a2535;
-      --text-secondary: #4a5568;
-      --text-muted: #a0aec0;
-      --text-header: #ffffff;
-      --text-header-sub: #a0aec0;
-      --text-day: #2d3748;
-      --text-day-we: #718096;
-      --text-hours: #2b6cb0;
-      --text-ot: #c05621;
-      --accent: #2b6cb0;
-      --accent-light: #ebf8ff;
-      --accent-chip-bg: #ebf8ff;
-      --accent-chip-text: #2c5282;
-      --border: #e2e8f0;
-      --border-input: #e2e8f0;
-      --border-day: #4a6fa5;
-      --border-day-we: #a0aec0;
-      --border-dashed: #e2e8f0;
-      --text-input: #474747;
-      --shadow-card: 0 1px 4px rgba(0, 0, 0, 0.07);
-      --shadow-card-hover: 0 4px 16px rgba(0, 0, 0, 0.1);
-      --act-number-bg: #2b6cb0;
-      --act-number-text: #ffffff;
-      --summary-even: #f5f7fa;
-      --tab-active: #f6ad55;
-      --tab-inactive: #a0aec0;
-      --btn-add-bg: #ebf8ff;
-      --btn-add-text: #2b6cb0;
-      --overlay: rgba(0, 0, 0, 0.5);
-      --font-body: 'Nunito', system-ui, sans-serif;
-    }
-
-    [data-theme="lcd"] {
-      /* Muted old-school calculator / LCD display aesthetic */
-      --bg-page: #5a6840;
-      --bg-card: #728c52;
-      --bg-card-alt: #697f4c;
-      --bg-input: #637648;
-      --bg-header: #1c2810;
-      --bg-header-tab: #141e0c;
-      --bg-day-header: #7d9a5a;
-      --bg-day-header-we: #728c52;
-      --bg-hours: #637648;
-      --bg-ot: #556038;
-      --bg-code-btn: rgba(28, 40, 16, 0.2);
-      --bg-modal: #728c52;
-      --bg-modal-search: #637648;
-      --bg-code-group: #5a6840;
-      --bg-code-item: #728c52;
-      --bg-code-item-sel: #7d9a5a;
-      --text-primary: #1c2810;
-      --text-secondary: #2a3c18;
-      --text-muted: #3d5428;
-      --text-header: #9ab870;
-      --text-header-sub: #5a7038;
-      --text-day: #1c2810;
-      --text-day-we: #3d5428;
-      --text-hours: #1c2810;
-      --text-ot: #2a4010;
-      --text-input: #1c2810;
-      --accent: #1c2810;
-      --accent-light: rgba(28, 40, 16, 0.18);
-      --accent-chip-bg: rgba(28, 40, 16, 0.22);
-      --accent-chip-text: #1c2810;
-      --border: #4a5e30;
-      --border-input: #4a5e30;
-      --border-day: #1c2810;
-      --border-day-we: #4a5e30;
-      --border-dashed: #4a5e30;
-      --shadow-card: 0 1px 4px rgba(0, 0, 0, 0.2);
-      --shadow-card-hover: 0 4px 12px rgba(0, 0, 0, 0.3);
-      --act-number-bg: #1c2810;
-      --act-number-text: #9ab870;
-      --summary-even: #637648;
-      --tab-active: #9ab870;
-      --tab-inactive: #4a5e30;
-      --btn-add-bg: rgba(28, 40, 16, 0.2);
-      --btn-add-text: #1c2810;
-      --overlay: rgba(0, 0, 0, 0.75);
-      --font-body: 'Bitcount Single', monospace;
-      --btn-danger-color: #5c3d0a;
-      --btn-danger-bg: rgba(92, 61, 10, 0.18);
-      --btn-danger-border: rgba(92, 61, 10, 0.35);
-    }
-
-    [data-theme="slate-dark"] {
-      /* Slate Dark — Nunito font, navy/slate palette */
-      --bg-page: #0d1520;
-      --bg-card: #172032;
-      --bg-card-alt: #1c2840;
-      --bg-input: #111c2e;
-      --bg-header: #0a1018;
-      --bg-header-tab: #070d14;
-      --bg-day-header: #1c2840;
-      --bg-day-header-we: #172032;
-      --bg-hours: #111c2e;
-      --bg-ot: rgba(180, 100, 20, 0.12);
-      --bg-code-btn: rgba(74, 144, 196, 0.1);
-      --bg-modal: #172032;
-      --bg-modal-search: #111c2e;
-      --bg-code-group: #0d1520;
-      --bg-code-item: #172032;
-      --bg-code-item-sel: rgba(74, 144, 196, 0.15);
-      --text-primary: #cdd8e8;
-      --text-secondary: #7a96b4;
-      --text-muted: #3e5870;
-      --text-header: #cdd8e8;
-      --text-header-sub: #4a6880;
-      --text-day: #7aadda;
-      --text-day-we: #4a6880;
-      --text-hours: #7aadda;
-      --text-ot: #c8822a;
-      --text-input: #9ab8d4;
-      --accent: #4a90c4;
-      --accent-light: rgba(74, 144, 196, 0.15);
-      --accent-chip-bg: rgba(74, 144, 196, 0.18);
-      --accent-chip-text: #7aadda;
-      --border: #1e3050;
-      --border-input: #1e3050;
-      --border-day: #2a4a70;
-      --border-day-we: #1e3050;
-      --border-dashed: #1e3050;
-      --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.35);
-      --shadow-card-hover: 0 6px 20px rgba(0, 0, 0, 0.45);
-      --act-number-bg: #4a90c4;
-      --act-number-text: #ffffff;
-      --summary-even: rgba(13, 21, 32, 0.5);
-      --tab-active: #4a90c4;
-      --tab-inactive: #3e5870;
-      --btn-add-bg: rgba(74, 144, 196, 0.12);
-      --btn-add-text: #4a90c4;
-      --overlay: rgba(0, 0, 0, 0.75);
-      --font-body: 'Nunito', system-ui, sans-serif;
-      --btn-danger-color: #e05050;
-      --btn-danger-bg: rgba(224, 80, 80, 0.1);
-      --btn-danger-border: rgba(224, 80, 80, 0.25);
-    }
-
-    [data-theme="gameboy"] {
-      /* Authentic DMG Game Boy 4-colour palette */
-      --bg-page: #306230;
-      --bg-card: #8BAC0F;
-      --bg-card-alt: #8BAC0F;
-      --bg-input: #8BAC0F;
-      --bg-header: #0F380F;
-      --bg-header-tab: #0a2808;
-      --bg-day-header: #9BBC0F;
-      --bg-day-header-we: #8BAC0F;
-      --bg-hours: #8BAC0F;
-      --bg-ot: #9BBC0F;
-      --bg-code-btn: rgba(15, 56, 15, 0.18);
-      --bg-modal: #8BAC0F;
-      --bg-modal-search: #8BAC0F;
-      --bg-code-group: #306230;
-      --bg-code-item: #8BAC0F;
-      --bg-code-item-sel: #9BBC0F;
-      --text-primary: #0F380F;
-      --text-secondary: #306230;
-      --text-muted: #306230;
-      --text-header: #9BBC0F;
-      --text-header-sub: #306230;
-      --text-day: #0F380F;
-      --text-day-we: #306230;
-      --text-hours: #0F380F;
-      --text-ot: #0F380F;
-      --text-input: #0F380F;
-      --accent: #0F380F;
-      --accent-light: rgba(15, 56, 15, 0.18);
-      --accent-chip-bg: rgba(15, 56, 15, 0.2);
-      --accent-chip-text: #0F380F;
-      --border: #306230;
-      --border-input: #306230;
-      --border-day: #0F380F;
-      --border-day-we: #306230;
-      --border-dashed: #306230;
-      --shadow-card: none;
-      --shadow-card-hover: none;
-      --act-number-bg: #0F380F;
-      --act-number-text: #9BBC0F;
-      --summary-even: #8BAC0F;
-      --tab-active: #9BBC0F;
-      --tab-inactive: #306230;
-      --btn-add-bg: rgba(15, 56, 15, 0.18);
-      --btn-add-text: #0F380F;
-      --overlay: rgba(15, 56, 15, 0.88);
-      --font-body: 'Press Start 2P', monospace;
-      --btn-danger-color: #0F380F;
-      --btn-danger-bg: rgba(15, 56, 15, 0.18);
-      --btn-danger-border: rgba(15, 56, 15, 0.4);
-    }
-
-    /* Scale down — Press Start 2P renders visually large, override all sizes */
-    [data-theme="gameboy"] body {
-      font-size: 10px;
-    }
-
-    [data-theme="gameboy"] .field-label,
-    [data-theme="gameboy"] .stepper-label {
-      font-size: 7px;
-      letter-spacing: 0.03em;
-    }
-
-    /* Override inline font-size:13px on textareas and text inputs */
-    [data-theme="gameboy"] textarea,
-    [data-theme="gameboy"] input[type="text"] {
-      font-size: 10px !important;
-    }
-
-    /* Stepper number — override text-lg (18px) */
-    [data-theme="gameboy"] input[type="number"] {
-      font-size: 13px !important;
-    }
-
-    /* Buttons, chips, general small text */
-    [data-theme="gameboy"] .text-sm,
-    [data-theme="gameboy"] .text-xs {
-      font-size: 9px !important;
-    }
-
-    [data-theme="gameboy"] .text-base {
-      font-size: 10px !important;
-    }
-
-    [data-theme="gameboy"] .text-lg {
-      font-size: 13px !important;
-    }
-
-    [data-theme="gameboy"] .text-xl {
-      font-size: 14px !important;
-    }
-
-    [data-theme="gameboy"] .code-chip {
-      font-size: 8px;
-    }
-
-    /* Placeholder text — use dark green so it's visible on the green inputs */
-    [data-theme="gameboy"] ::placeholder {
-      color: #306230 !important;
-      opacity: 1;
-    }
-
-    /* Game Boy — no rounded corners */
-    [data-theme="gameboy"] * {
-      border-radius: 0 !important;
-    }
-
-    [data-theme="win31"] {
-      /* Windows 3.1 — teal desktop, silver windows, navy title bars */
-      --bg-page: #008080;
-      --bg-card: #c0c0c0;
-      --bg-card-alt: #d4d0c8;
-      --bg-input: #ffffff;
-      --bg-header: #000080;
-      --bg-header-tab: #00007a;
-      --bg-day-header: #c0c0c0;
-      --bg-day-header-we: #c0c0c0;
-      --bg-hours: #ffffff;
-      --bg-ot: #ffffff;
-      --bg-code-btn: #c0c0c0;
-      --bg-modal: #c0c0c0;
-      --bg-modal-search: #ffffff;
-      --bg-code-group: #d4d0c8;
-      --bg-code-item: #ffffff;
-      --bg-code-item-sel: #000080;
-      --text-primary: #000000;
-      --text-secondary: #444444;
-      --text-muted: #808080;
-      --text-header: #ffffff;
-      --text-header-sub: #a0a0c0;
-      --text-day: #000080;
-      --text-day-we: #808080;
-      --text-hours: #000080;
-      --text-ot: #800000;
-      --text-input: #000000;
-      --accent: #000080;
-      --accent-light: rgba(0, 0, 128, 0.08);
-      --accent-chip-bg: #000080;
-      --accent-chip-text: #ffffff;
-      --border: #808080;
-      --border-input: #808080;
-      --border-day: #000080;
-      --border-day-we: #808080;
-      --border-dashed: #808080;
-      --shadow-card: inset -1px -1px 0 #000000, inset 1px 1px 0 #ffffff, inset -2px -2px 0 #808080, inset 2px 2px 0 #dfdfdf;
-      --shadow-card-hover: inset -1px -1px 0 #000000, inset 1px 1px 0 #ffffff, inset -2px -2px 0 #808080, inset 2px 2px 0 #dfdfdf;
-      --act-number-bg: #000080;
-      --act-number-text: #ffffff;
-      --summary-even: #d4d0c8;
-      --tab-active: #ffffff;
-      --tab-inactive: #a0a0c0;
-      --btn-add-bg: #c0c0c0;
-      --btn-add-text: #000000;
-      --overlay: rgba(0, 0, 0, 0.5);
-      --font-body: 'MS Sans Serif', 'Arial', 'Helvetica', sans-serif;
-      --btn-danger-color: #800000;
-      --btn-danger-bg: rgba(128, 0, 0, 0.08);
-      --btn-danger-border: rgba(128, 0, 0, 0.35);
-    }
-
-    /* LCD — no rounded corners */
-    [data-theme="lcd"] * {
-      border-radius: 0 !important;
-    }
-
-    /* Windows 3.1 — kill all border-radius, add 3D raised/sunken effects */
-    [data-theme="win31"] * {
-      border-radius: 0 !important;
-    }
-
-    /* Raised panel (cards, buttons) */
-    [data-theme="win31"] .day-card,
-    [data-theme="win31"] .activity-item {
-      box-shadow: inset -1px -1px 0 #000000, inset 1px 1px 0 #ffffff,
-        inset -2px -2px 0 #808080, inset 2px 2px 0 #dfdfdf !important;
-      border: none !important;
-    }
-
-    /* Sunken inset (inputs, textareas) */
-    [data-theme="win31"] input[type="text"],
-    [data-theme="win31"] input[type="number"],
-    [data-theme="win31"] textarea {
-      box-shadow: inset 1px 1px 0 #808080, inset -1px -1px 0 #ffffff,
-        inset 2px 2px 0 #000000 !important;
-      border: none !important;
-      font-size: 11px !important;
-    }
-
-    /* Raised buttons */
-    [data-theme="win31"] button:not(.stepper-btn):not(.hdr-icon-btn):not(.theme-menu-btn):not(.theme-option):not(.tab-btn) {
-      box-shadow: inset -1px -1px 0 #000000, inset 1px 1px 0 #ffffff,
-        inset -2px -2px 0 #808080, inset 2px 2px 0 #dfdfdf !important;
-      border: none !important;
-    }
-
-    [data-theme="win31"] button:not(.stepper-btn):not(.hdr-icon-btn):not(.theme-menu-btn):not(.theme-option):not(.tab-btn):active {
-      box-shadow: inset 1px 1px 0 #808080, inset -1px -1px 0 #dfdfdf !important;
-    }
-
-    /* Raised stepper pill */
-    [data-theme="win31"] .stepper-row {
-      box-shadow: inset 1px 1px 0 #808080, inset -1px -1px 0 #ffffff,
-        inset 2px 2px 0 #000000 !important;
-      border: none !important;
-    }
-
-    [data-theme="win31"] .stepper-btn {
-      box-shadow: inset -1px -1px 0 #808080, inset 1px 1px 0 #ffffff !important;
-    }
-
-    [data-theme="win31"] .stepper-btn:active {
-      box-shadow: inset 1px 1px 0 #808080, inset -1px -1px 0 #ffffff !important;
-    }
-
-    /* Code chips — navy selected look */
-    [data-theme="win31"] .code-chip {
-      font-size: 11px;
-    }
-
-    /* Placeholder */
-    [data-theme="win31"] ::placeholder {
-      color: #808080 !important;
-      opacity: 1;
-    }
-
-    /* Field labels — MS Sans Serif looks fine at normal sizes, no need to shrink */
-    [data-theme="win31"] .field-label,
-    [data-theme="win31"] .stepper-label {
-      font-size: 10px;
-      letter-spacing: 0.05em;
-    }
-
-    [data-theme="gray"] {
-      /* Grayscale — no colour at all, system font same as Light */
-      --bg-page: #e0e0e0;
-      --bg-card: #ffffff;
-      --bg-card-alt: #f5f5f5;
-      --bg-input: #f8f8f8;
-      --bg-header: #222222;
-      --bg-header-tab: #1a1a1a;
-      --bg-day-header: #f0f0f0;
-      --bg-day-header-we: #ebebeb;
-      --bg-hours: #f8f8f8;
-      --bg-ot: #f0f0f0;
-      --bg-code-btn: #eeeeee;
-      --bg-modal: #ffffff;
-      --bg-modal-search: #f8f8f8;
-      --bg-code-group: #f0f0f0;
-      --bg-code-item: #ffffff;
-      --bg-code-item-sel: #e8e8e8;
-      --text-primary: #1a1a1a;
-      --text-secondary: #555555;
-      --text-muted: #999999;
-      --text-header: #ffffff;
-      --text-header-sub: #aaaaaa;
-      --text-day: #222222;
-      --text-day-we: #888888;
-      --text-hours: #1a1a1a;
-      --text-ot: #555555;
-      --text-input: #333333;
-      --accent: #333333;
-      --accent-light: rgba(0, 0, 0, 0.05);
-      --accent-chip-bg: #e8e8e8;
-      --accent-chip-text: #222222;
-      --border: #d8d8d8;
-      --border-input: #d0d0d0;
-      --border-day: #333333;
-      --border-day-we: #aaaaaa;
-      --border-dashed: #cccccc;
-      --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.07);
-      --shadow-card-hover: 0 4px 12px rgba(0, 0, 0, 0.1);
-      --act-number-bg: #333333;
-      --act-number-text: #ffffff;
-      --summary-even: #f5f5f5;
-      --tab-active: #ffffff;
-      --tab-inactive: #aaaaaa;
-      --btn-add-bg: #eeeeee;
-      --btn-add-text: #333333;
-      --overlay: rgba(0, 0, 0, 0.55);
-      --btn-danger-color: #444444;
-      --btn-danger-bg: rgba(0, 0, 0, 0.05);
-      --btn-danger-border: rgba(0, 0, 0, 0.15);
-      /* No --font-body — inherits system font stack from :root, same as Light */
-    }
-
-    /* Strip OT amber colour — use gray border instead */
-    [data-theme="gray"] .stepper-row.ot {
-      border-color: rgba(0, 0, 0, 0.18) !important;
-    }
-
-    [data-theme="gray"] .stepper-row.ot .stepper-divider {
-      background: rgba(0, 0, 0, 0.1) !important;
-    }
-
-    [data-theme="spectrum"] {
-      /* ZX Spectrum — bright/paper style (BASIC editor look) */
-      --bg-page: #D7D7D7;
-      --bg-card: #D7D7D7;
-      --bg-card-alt: #c8c8c8;
-      --bg-input: #ffffff;
-      --bg-header: #0000D7;
-      --bg-header-tab: #0000a0;
-      --bg-day-header: #D7D7D7;
-      --bg-day-header-we: #c8c8c8;
-      --bg-hours: #ffffff;
-      --bg-ot: #ffffff;
-      --bg-code-btn: rgba(0, 0, 215, 0.08);
-      --bg-modal: #D7D7D7;
-      --bg-modal-search: #ffffff;
-      --bg-code-group: #c8c8c8;
-      --bg-code-item: #ffffff;
-      --bg-code-item-sel: rgba(0, 0, 215, 0.12);
-      --text-primary: #000000;
-      --text-secondary: #0000D7;
-      --text-muted: #555555;
-      --text-header: #FFFF00;
-      --text-header-sub: #00D7D7;
-      --text-day: #0000D7;
-      --text-day-we: #555555;
-      --text-hours: #000000;
-      --text-ot: #D70000;
-      --text-input: #000000;
-      --accent: #0000D7;
-      --accent-light: rgba(0, 0, 215, 0.08);
-      --accent-chip-bg: #0000D7;
-      --accent-chip-text: #ffffff;
-      --border: #555555;
-      --border-input: #555555;
-      --border-day: #0000D7;
-      --border-day-we: #555555;
-      --border-dashed: #555555;
-      --shadow-card: 0 0 0 1px #555555;
-      --shadow-card-hover: 0 0 0 2px #0000D7;
-      --act-number-bg: #0000D7;
-      --act-number-text: #ffffff;
-      --summary-even: #c8c8c8;
-      --tab-active: #FFFF00;
-      --tab-inactive: #00D7D7;
-      --btn-add-bg: rgba(0, 0, 215, 0.08);
-      --btn-add-text: #0000D7;
-      --overlay: rgba(0, 0, 0, 0.6);
-      --font-body: 'VT323', monospace;
-      --btn-danger-color: #D70000;
-      --btn-danger-bg: rgba(215, 0, 0, 0.08);
-      --btn-danger-border: rgba(215, 0, 0, 0.3);
-    }
-
-    /* VT323 — slightly larger than before */
-    [data-theme="spectrum"] body {
-      font-size: 17px;
-    }
-
-    [data-theme="spectrum"] textarea,
-    [data-theme="spectrum"] input[type="text"] {
-      font-size: 17px !important;
-    }
-
-    [data-theme="spectrum"] input[type="number"] {
-      font-size: 19px !important;
-    }
-
-    [data-theme="spectrum"] .field-label,
-    [data-theme="spectrum"] .stepper-label {
-      font-size: 13px;
-      letter-spacing: 0.06em;
-    }
-
-    [data-theme="spectrum"] .text-xs,
-    [data-theme="spectrum"] .text-sm {
-      font-size: 14px !important;
-    }
-
-    /* OT stepper — red border */
-    [data-theme="spectrum"] .stepper-row.ot {
-      border-color: rgba(215, 0, 0, 0.4) !important;
-    }
-
-    [data-theme="spectrum"] .stepper-row.ot .stepper-divider {
-      background: rgba(215, 0, 0, 0.18) !important;
-    }
-
-    /* ZX Spectrum — no rounded corners */
-    [data-theme="spectrum"] * {
-      border-radius: 0 !important;
-    }
-
-    [data-theme="retro"] {
-      /* User-provided screenshot style: thick borders, bright blue bg, rainbow headers */
-      --bg-page: #a5d2ff;
-      --bg-card: #f0f0f0;
-      --bg-card-alt: #f0f0f0;
-      --bg-input: #ffffff;
-      --bg-header: #000000;
-      --bg-header-tab: #000000;
-      --bg-day-header: #00d5ff;
-      /* Default fallback, overridden by CSS below */
-      --bg-day-header-we: #b0b0b0;
-      --bg-hours: #ffffff;
-      --bg-ot: #f0f0f0;
-      --bg-code-btn: rgba(255, 255, 255, 0.5);
-      --bg-modal: #f0f0f0;
-      --bg-modal-search: #ffffff;
-      --bg-code-group: #e0e0e0;
-      --bg-code-item: #ffffff;
-      --bg-code-item-sel: #00d5ff;
-      --text-primary: #000000;
-      --text-secondary: #000000;
-      --text-muted: #333333;
-      --text-header: #ffffff;
-      --text-header-sub: #00d5ff;
-      --text-day: #000000;
-      --text-day-we: #000000;
-      --text-hours: #000000;
-      --text-ot: #000000;
-      --text-input: #000000;
-      --accent: #0000e0;
-      --accent-light: rgba(0, 0, 224, 0.1);
-      --accent-chip-bg: #00d5ff;
-      --accent-chip-text: #000000;
-      --border: #000000;
-      --border-input: #000000;
-      --border-day: #000000;
-      --border-day-we: #000000;
-      --border-dashed: #000000;
-      --shadow-card: inset -1px -1px 0 #000000, inset 1px 1px 0 #ffffff, inset -2px -2px 0 #808080, inset 2px 2px 0 #dfdfdf;
-      --shadow-card-hover: inset -1px -1px 0 #000000, inset 1px 1px 0 #ffffff, inset -2px -2px 0 #808080, inset 2px 2px 0 #dfdfdf;
-      --act-number-bg: #000000;
-      --act-number-text: #ffffff;
-      --summary-even: #e0e0e0;
-      --tab-active: #ffffff;
-      --tab-inactive: #888888;
-      --btn-add-bg: #c0d8ff;
-      --btn-add-text: #0000e0;
-      --overlay: rgba(0, 0, 0, 0.6);
-      --font-body: 'Bitcount Single', 'Pixelify Sans', sans-serif;
-      --btn-danger-color: #ffffff;
-      --btn-danger-bg: #ff0000;
-      --btn-danger-border: #000000;
+      --font-body: 'DM Sans', sans-serif;
+      --font-mono: 'DM Mono', monospace;
+      --bg-page: #E8EEF5;
+      --bg-header: #0F1C2E;
+      --bg-header-tab: #162438;
+      --text-header: #FFFFFF;
+      --text-header-sub: rgba(255,255,255,0.6);
+      --bg-card: #FFFFFF;
+      --bg-card-alt: #F4F7FA;
+      --bg-day-header: #FFFFFF;
+      --bg-day-header-we: #F0F4F8;
+      --accent: #2D6BE4;
+      --accent-light: #EBF1FD;
+      --accent-chip-bg: #EBF1FD;
+      --accent-chip-text: #1A4FB5;
+      --text-primary: #0F1C2E;
+      --text-secondary: #4A6580;
+      --text-muted: #8BA5BE;
+      --border: #D4E0EC;
+      --border-input: #D4E0EC;
+      --border-day: #2D6BE4;
+      --border-day-we: #C5D5E4;
+      --border-dashed: #D4E0EC;
+      --bg-ot: #FEF3DC;
+      --text-ot: #F5A623;
+      --text-day: #0F1C2E;
+      --text-day-we: #8BA5BE;
+      --text-hours: #2D6BE4;
+      --btn-danger-color: #E8453C;
+      --btn-danger-bg: #FDECEA;
+      --btn-danger-border: rgba(232,69,60,0.22);
+      --bg-input: #F4F7FA;
+      --bg-hours: #F4F7FA;
+      --bg-code-btn: #EBF1FD;
+      --bg-modal: #FFFFFF;
+      --bg-modal-search: #F4F7FA;
+      --bg-code-group: #F4F7FA;
+      --bg-code-item: #FFFFFF;
+      --bg-code-item-sel: #EBF1FD;
+      --text-input: #0F1C2E;
+      --shadow-card: 0 1px 4px rgba(15,28,46,0.08);
+      --shadow-card-hover: 0 4px 16px rgba(15,28,46,0.12);
+      --act-number-bg: #2D6BE4;
+      --act-number-text: #FFFFFF;
+      --summary-even: #F4F7FA;
+      --tab-active: #F5A623;
+      --radius: 12px;
     }
 
     /* Force .font-mono to use the theme font instead of Tailwind's monospace stack.
@@ -723,101 +77,113 @@
       font-family: var(--font-body) !important;
     }
 
-    /* Font sizes for Retro theme to match VT323 proportions */
-    [data-theme="retro"] body {
-      font-size: 18px;
-    }
-
-    [data-theme="retro"] textarea,
-    [data-theme="retro"] input[type="text"] {
-      font-size: 18px !important;
-    }
-
-    [data-theme="retro"] input[type="number"] {
-      font-size: 20px !important;
-    }
-
-    [data-theme="retro"] .field-label,
-    [data-theme="retro"] .stepper-label {
-      font-size: 14px;
-      letter-spacing: 0.05em;
-    }
-
-    [data-theme="retro"] .text-xs,
-    [data-theme="retro"] .text-sm {
-      font-size: 15px !important;
-    }
-
-    /* Hard borders and shadows for Retro theme - NO ROUNDED CORNERS */
-    [data-theme="retro"] * {
-      border-radius: 0 !important;
-    }
-
-    /* Entire Day Card is the main bordered box again */
-    [data-theme="retro"] .activity-card {
-      box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.1);
-    }
-
     /* ===== SHARED LAYOUT (Phase 2) ===== */
     .day-card {
-      margin-bottom: 0px;
-      /* Stacked for compact view */
-      border-top: 1px solid var(--border);
+      margin: 0 12px 6px;
+      background: #FFFFFF;
+      border-radius: 14px;
+      border: 1.5px solid var(--border);
+      overflow: hidden;
+      transition: box-shadow 0.2s;
+    }
+
+    .day-card.day-weekend {
+      background: #F8FAFB;
+      border-color: #E8F0F7;
+    }
+
+    .day-card.expanded {
+      box-shadow: 0 4px 20px rgba(15,28,46,0.10);
+      border-color: #B8CDE0;
     }
 
     .day-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 14px 16px;
-      background: var(--bg-day-header, var(--bg-card));
+      padding: 13px 16px;
+      background: transparent;
+      cursor: pointer;
       position: sticky;
       top: 0;
       z-index: 10;
-      cursor: pointer;
-      transition: background 0.2s;
+      transition: background 0.15s;
+      border-radius: 14px;
+      gap: 10px;
+    }
+
+    .day-header:active {
+      background: rgba(45,107,228,0.04);
     }
 
     .day-left {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .day-name {
+      font-size: 15px;
+      font-weight: 800;
+      color: var(--text-primary);
+      letter-spacing: -0.02em;
+    }
+
+    .day-weekend .day-name {
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .day-date {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-muted);
+    }
+
+    .day-pills {
+      display: flex;
+      gap: 5px;
+      align-items: center;
+      flex-shrink: 0;
     }
 
     .pill {
       font-size: 11px;
       font-weight: 700;
-      border-radius: 9px;
-      padding: 4px 10px;
+      border-radius: 8px;
+      padding: 4px 9px;
       letter-spacing: 0.01em;
       display: inline-flex;
       align-items: center;
       justify-content: center;
+      white-space: nowrap;
     }
 
     .pill-slate {
-      background: #D1DAE5;
-      color: var(--text-secondary);
+      background: #EDF1F5;
+      color: #5A7289;
     }
 
     .pill-blue {
-      background: var(--accent-light);
-      color: var(--accent);
+      background: #EBF1FD;
+      color: #1A4FB5;
     }
 
     .pill-amber {
-      background: var(--bg-ot);
-      color: var(--text-ot);
+      background: #FEF3DC;
+      color: #C07800;
+      font-weight: 800;
     }
 
     .dot-flash {
-      width: 10px;
-      height: 10px;
+      width: 8px;
+      height: 8px;
       border-radius: 50%;
-      background: #f97316;
-      box-shadow: 0 0 8px rgba(249, 115, 22, 0.4);
+      background: #E8453C;
+      box-shadow: 0 0 6px rgba(232,69,60,0.5);
       display: inline-block;
-      margin-left: 8px;
+      flex-shrink: 0;
     }
 
     .animate-pulse {
@@ -1056,215 +422,9 @@
       background: var(--bg-page);
     }
 
-
-    [data-theme="retro"] .day-card {
-      border: 2px solid #000000 !important;
-      box-shadow: 4px 4px 0 #000000 !important;
-      background: #f0f0f0 !important;
-      padding: 0 !important;
-      margin-bottom: 24px !important;
-    }
-
-    [data-theme="retro"] .day-header {
-      border-bottom: 2px solid #000000 !important;
-      margin: 0 !important;
-    }
-
-    /* When collapsed, we don't need the bottom border on the header since the card itself has a border */
-    [data-theme="retro"] .day-activities.collapsed+.day-header,
-    [data-theme="retro"] .day-card:not(:has(.day-activities.expanded)) .day-header {
-      border-bottom: none !important;
-    }
-
-    [data-theme="retro"] input[type="text"],
-    [data-theme="retro"] textarea,
-    [data-theme="retro"] .code-chip,
-    [data-theme="retro"] button:not(.hdr-icon-btn):not(.theme-menu-btn):not(.tab-btn),
-    [data-theme="retro"] .stepper-btn {
-      border: 2px solid #000000 !important;
-      box-shadow: 2px 2px 0 #000000 !important;
-    }
-
-    [data-theme="retro"] .day-activities {
-      border: none !important;
-      background: transparent !important;
-      box-shadow: none !important;
-    }
-
-    [data-theme="retro"] .day-activities.expanded {
-      padding-top: 14px !important;
-      padding-bottom: 4px !important;
-    }
-
     .day-activities.active {
       padding-top: 14px;
       padding-bottom: 4px;
-    }
-
-
-
-    [data-theme="retro"] .stepper-row {
-      border: none !important;
-      background: #00d5ff !important;
-      box-shadow: none !important;
-      gap: 4px;
-    }
-
-    [data-theme="retro"] .stepper-row.ot {
-      background: #ffd700 !important;
-    }
-
-    [data-theme="retro"] .stepper-divider {
-      display: none !important;
-    }
-
-    /* Rainbow headers correctly ordered starting from Friday (di=0) */
-    [data-theme="retro"] .day-card[data-day-idx="0"] .day-header {
-      background: #00d5ff !important;
-    }
-
-    /* Fri: Cyan */
-    [data-theme="retro"] .day-card[data-day-idx="1"] .day-header {
-      background: #e0e0e0 !important;
-    }
-
-    /* Sat: Grey */
-    [data-theme="retro"] .day-card[data-day-idx="2"] .day-header {
-      background: #ff00ff !important;
-    }
-
-    /* Sun: Magenta */
-    [data-theme="retro"] .day-card[data-day-idx="3"] .day-header {
-      background: #00ff00 !important;
-    }
-
-    /* Mon: Green */
-    [data-theme="retro"] .day-card[data-day-idx="4"] .day-header {
-      background: #ffff00 !important;
-    }
-
-    /* Tue: Yellow */
-    [data-theme="retro"] .day-card[data-day-idx="5"] .day-header {
-      background: #00d5ff !important;
-    }
-
-    /* Wed: Cyan */
-    [data-theme="retro"] .day-card[data-day-idx="5"] .day-header {
-      background: #00d5ff !important;
-    }
-
-    /* Ensure text inside all light-colored headers is explicitly black, including expanded states */
-    [data-theme="retro"] .day-card[data-day-idx]:not([data-day-idx="6"]) .day-header *,
-    [data-theme="retro"] .day-card[data-day-idx]:not([data-day-idx="6"]) .day-header .text-xs,
-    [data-theme="retro"] .day-card[data-day-idx]:not([data-day-idx="6"]) .day-header .text-muted,
-    [data-theme="retro"] .day-card[data-day-idx]:not([data-day-idx="6"]) .day-header span {
-      color: #000000 !important;
-    }
-
-    [data-theme="retro"] .day-card[data-day-idx]:not([data-day-idx="6"]) .day-header .expand-arrow {
-      color: #000000 !important;
-    }
-
-    /* Thursday is dark blue so text needs to be white */
-    [data-theme="retro"] .day-card[data-day-idx="6"] .day-header {
-      background: #0000ff !important;
-    }
-
-    /* Thu: Blue */
-    [data-theme="retro"] .day-card[data-day-idx="6"] .day-header *,
-    [data-theme="retro"] .day-card[data-day-idx="6"] .day-header .text-xs,
-    [data-theme="retro"] .day-card[data-day-idx="6"] .day-header .text-muted,
-    [data-theme="retro"] .day-card[data-day-idx="6"] .day-header span {
-      color: #ffffff !important;
-    }
-
-    /* Active tab black background */
-    [data-theme="retro"] .tab-btn.active {
-      background: #000000 !important;
-      color: #ffffff !important;
-      border-bottom-color: #000000 !important;
-    }
-
-    /* Override top level header background which previously was bleeding --bg-page on some elements */
-    [data-theme="retro"] header {
-      background: #000000 !important;
-      color: #ffffff !important;
-    }
-
-    [data-theme="retro"] header * {
-      color: #ffffff !important;
-    }
-
-    /* Except the theme dropdown, which has a light background */
-    [data-theme="retro"] .theme-dropdown * {
-      color: #000000 !important;
-    }
-
-    [data-theme="retro"] header .text-muted {
-      color: #888888 !important;
-      /* Keep v1.0.7 slightly dimmer */
-    }
-
-    [data-theme="apple"] {
-      /* Apple macOS Sequoia — SF Pro, Apple system palette */
-      --bg-page: #F5F5F7;
-      --bg-card: #ffffff;
-      --bg-card-alt: #F5F5F7;
-      --bg-input: #ffffff;
-      --bg-header: #1D1D1F;
-      --bg-header-tab: #141414;
-      --bg-day-header: #F5F5F7;
-      --bg-day-header-we: #F0F0F2;
-      --bg-hours: #ffffff;
-      --bg-ot: #FFF4EC;
-      --bg-code-btn: rgba(0, 122, 255, 0.06);
-      --bg-modal: #ffffff;
-      --bg-modal-search: #F5F5F7;
-      --bg-code-group: #F5F5F7;
-      --bg-code-item: #ffffff;
-      --bg-code-item-sel: rgba(0, 122, 255, 0.08);
-      --text-primary: #1D1D1F;
-      --text-secondary: #6E6E73;
-      --text-muted: #AEAEB2;
-      --text-header: #F5F5F7;
-      --text-header-sub: #86868B;
-      --text-day: #1D1D1F;
-      --text-day-we: #6E6E73;
-      --text-hours: #1D1D1F;
-      --text-ot: #FF6B00;
-      --text-input: #1D1D1F;
-      --accent: #007AFF;
-      --accent-light: rgba(0, 122, 255, 0.08);
-      --accent-chip-bg: rgba(0, 122, 255, 0.1);
-      --accent-chip-text: #007AFF;
-      --border: #E5E5EA;
-      --border-input: #C7C7CC;
-      --border-day: #007AFF;
-      --border-day-we: #C7C7CC;
-      --border-dashed: #D1D1D6;
-      --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.06);
-      --shadow-card-hover: 0 4px 16px rgba(0, 0, 0, 0.08);
-      --act-number-bg: #007AFF;
-      --act-number-text: #ffffff;
-      --summary-even: #F5F5F7;
-      --tab-active: #ffffff;
-      --tab-inactive: #86868B;
-      --btn-add-bg: rgba(0, 122, 255, 0.08);
-      --btn-add-text: #007AFF;
-      --overlay: rgba(0, 0, 0, 0.45);
-      --font-body: -apple-system, 'SF Pro Display', 'SF Pro Text', BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
-      --btn-danger-color: #FF3B30;
-      --btn-danger-bg: rgba(255, 59, 48, 0.07);
-      --btn-danger-border: rgba(255, 59, 48, 0.2);
-    }
-
-    /* Apple — OT stepper uses warm orange tint */
-    [data-theme="apple"] .stepper-row.ot {
-      border-color: rgba(255, 107, 0, 0.28) !important;
-    }
-
-    [data-theme="apple"] .stepper-row.ot .stepper-divider {
-      background: rgba(255, 107, 0, 0.14) !important;
     }
 
     /* ===== THEME DROPDOWN ===== */
@@ -1630,16 +790,6 @@
     }
 
     /* Dark glass effects */
-    [data-theme="dark"] .day-card {
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-    }
-
-    [data-theme="dark"] .day-header {
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
-    }
-
     /* Theme toggle button */
     .theme-toggle {
       background: none;
@@ -2238,10 +1388,6 @@
       margin-bottom: 12px;
     }
 
-    [data-theme="dark"] .note-priority-row {
-      background: rgba(255, 255, 255, 0.05);
-    }
-
     .note-pri-chip {
       flex: 1;
       text-align: center;
@@ -2273,11 +1419,6 @@
       background: #10b981;
       color: #fff;
       border-color: #10b981;
-    }
-
-    [data-theme="dark"] .note-pri-chip.sel-medium {
-      background: #f97316;
-      color: #fff;
     }
 
     .note-save-btn {
@@ -2364,11 +1505,6 @@
       font-size: 14px;
       cursor: pointer;
       transition: all 0.2s;
-    }
-
-    [data-theme="dark"] .add-note-dashed {
-      background: rgba(255, 255, 255, 0.03);
-      border-color: rgba(255, 255, 255, 0.1);
     }
 
     .add-note-dashed:active {
@@ -2533,11 +1669,6 @@
       min-width: 280px;
     }
 
-    [data-theme="dark"] .bulk-action-bar {
-      background: var(--bg-card);
-      border-color: var(--border);
-    }
-
     .bulk-action-bar.show {
       transform: translateX(-50%) translateY(0);
     }
@@ -2574,20 +1705,10 @@
       border: 1.5px solid #fee2e2;
     }
 
-    [data-theme="dark"] .bulk-btn.delete {
-      background: rgba(239, 68, 68, 0.05);
-      border-color: rgba(239, 68, 68, 0.2);
-    }
-
     .bulk-btn.done {
       background: #f0fdf4;
       color: #16a34a;
       border: 1.5px solid #dcfce7;
-    }
-
-    [data-theme="dark"] .bulk-btn.done {
-      background: rgba(34, 197, 94, 0.05);
-      border-color: rgba(34, 197, 94, 0.2);
     }
 
     .bulk-btn:active {
@@ -2761,12 +1882,6 @@
       box-sizing: border-box;
       outline: none;
       transition: border-color 0.2s;
-    }
-
-    [data-theme="dark"] .note-detail textarea,
-    [data-theme="dark"] .note-detail input[type="text"],
-    [data-theme="dark"] .note-detail input[type="date"] {
-      border-color: rgba(255, 255, 255, 0.1);
     }
 
     .note-detail textarea:focus,
@@ -3339,7 +2454,7 @@
     // ============================================================
     // CONFIG
     // ============================================================
-    const VERSION = '3.4.0';
+    const VERSION = '3.5.0';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -4214,61 +3329,21 @@
         error: '<span class="text-red-300 text-xs">✗</span>',
       };
       const syncTitles = { idle: '', pending: 'Unsaved changes', syncing: 'Syncing…', synced: 'Synced', error: 'Sync failed – tap to retry' };
-      const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
-      const themes = [
-        { id: 'light', label: 'Light', swatch: '#1e3a8a' },
-        { id: 'dark', label: 'Dark', swatch: '#0c1425' },
-        { id: 'slate', label: 'Slate', swatch: '#2b6cb0' },
-        { id: 'slate-dark', label: 'Slate Dark', swatch: '#0a1018' },
-        { id: 'lcd', label: 'LCD', swatch: '#728c52' },
-        { id: 'gameboy', label: 'Game Boy', swatch: '#0F380F' },
-        { id: 'win31', label: 'Windows 3.1', swatch: '#000080' },
-        { id: 'gray', label: 'Grayscale', swatch: '#333333' },
-        { id: 'spectrum', label: 'ZX Spectrum', swatch: '#0000D7' },
-        { id: 'apple', label: 'macOS', swatch: '#007AFF' },
-        { id: 'retro', label: 'Retro', swatch: '#a5d2ff' },
-        { id: 'claude', label: 'Claude (v3.1)', swatch: '#0F1C2E' },
+
+      const items = [
+        { id: 'jump', label: 'Jump to Week', icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>', onClick: 'openDateModal()' },
+        { id: 'email', label: 'Email/Export Week', icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>', onClick: 'sendWeeklyEmail()' },
+        { id: 'history', label: 'Restore Backups', icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5M12 7v5l4 2"/></svg>', onClick: "setView('history')" },
+        { id: 'table', label: state.layoutMode === 'table' ? 'Mobile View' : 'Spreadsheet View', icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/></svg>', onClick: 'toggleLayoutMode()' },
       ];
 
-      let menuContent = '';
-      if (state.menuView === 'themes') {
-        const themeList = themes.map(t => `
-          <button class="theme-option ${currentTheme === t.id ? 'active' : ''}" onclick="setTheme('${t.id}')">
-            <span class="theme-swatch" style="background:${t.swatch}"></span>
-            ${t.label}
-            ${currentTheme === t.id ? '<span class="ml-auto text-xs">✓</span>' : ''}
-          </button>`).join('');
-        menuContent = `
-          <div class="px-3 py-2 border-b flex items-center gap-3" style="border-color:var(--border);color:var(--text-primary)">
-            <button onclick="switchMenuView('main', event)" class="p-1.5 hover:bg-black/5 rounded-lg transition-colors" style="color:var(--accent)">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-            </button>
-            <span class="text-[10px] font-extrabold uppercase tracking-[0.1em] opacity-80">Select Theme</span>
-          </div>
-          <div class="max-h-[350px] overflow-y-auto">
-            ${themeList}
-          </div>`;
-      } else {
-        const items = [
-          { id: 'jump', label: 'Jump to Week', icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>', onClick: 'openDateModal()' },
-          { id: 'email', label: 'Email/Export Week', icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>', onClick: 'sendWeeklyEmail()' },
-          { id: 'history', label: 'Restore Backups', icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5M12 7v5l4 2"/></svg>', onClick: "setView('history')" },
-          { id: 'table', label: state.layoutMode === 'table' ? 'Mobile View' : 'Spreadsheet View', icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/></svg>', onClick: 'toggleLayoutMode()' },
-          { spacer: true },
-          { id: 'themes', label: 'App Themes', icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="13.5" cy="6.5" r=".5"/><circle cx="17.5" cy="10.5" r=".5"/><circle cx="8.5" cy="7.5" r=".5"/><circle cx="6.5" cy="12.5" r=".5"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.9 0 1.6-.7 1.6-1.6 0-.4-.2-.8-.4-1.1-.1-.3-.2-.5-.2-.8 0-.9.7-1.6 1.6-1.6h2.1c4.6 0 8.3-3.7 8.3-8.3C23.1 4.7 18.1 2 12 2z"/></svg>', onClick: "switchMenuView('themes', event)", chevron: true },
-        ];
-
-        menuContent = items.map(opt => {
-          if (opt.spacer) return '<div style="height:1px;background:var(--border);margin:4px 0;"></div>';
-          const chevron = opt.chevron ? '<svg class="ml-auto opacity-30" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M9 18l6-6-6-6"/></svg>' : '';
-          const finalOnClick = opt.chevron ? opt.onClick : `${opt.onClick};toggleThemeMenu(event)`;
-          return `<button class="theme-option" onclick="${finalOnClick}">
-            <span class="opacity-70">${opt.icon}</span>
-            <span class="flex-1">${opt.label}</span>
-            ${chevron}
-          </button>`;
-        }).join('');
-      }
+      const menuContent = items.map(opt => {
+        if (opt.spacer) return '<div style="height:1px;background:var(--border);margin:4px 0;"></div>';
+        return `<button class="theme-option" onclick="${opt.onClick};toggleThemeMenu(event)">
+          <span class="opacity-70">${opt.icon}</span>
+          <span class="flex-1">${opt.label}</span>
+        </button>`;
+      }).join('');
 
       return `
   <header class="shadow-lg" style="background:var(--bg-header);color:var(--text-header)">
@@ -4391,7 +3466,7 @@
     </div>` : ''}
   </div>`;
 
-      return `<main class="pb-6 pt-2">${daysHtml}${summaryHtml}</main>`;
+      return `<main class="pb-6 pt-3">${daysHtml}${summaryHtml}</main>`;
     }
 
     // ============================================================
@@ -4769,29 +3844,28 @@
       const hasMissingCode = day.activities.some(a => (parseFloat(a.ordinary) > 0 || parseFloat(a.overtime) > 0) && a.codes.length === 0);
 
       return `
-  <div class="day-card ${isWeekend ? 'day-weekend' : ''} ${isExpanded ? 'expanded' : ''}" data-day-idx="${di}">
-    <div class="day-header" onclick="toggleDay(${di})">
-      <div class="day-left">
-        <svg class="chevron" width="12" height="12" viewBox="0 0 10 10" style="transform: ${isExpanded ? 'rotate(90deg)' : 'rotate(0deg)'}; transition: transform 0.2s; flex-shrink:0"><polygon points="0,0 10,5 0,10" fill="var(--text-primary)"/></svg>
-        <span class="day-name">${day.dayName}</span>
-        <span class="day-date">${formatDate(day.date)}</span>
-      </div>
-      
-      <div class="day-pills" data-day-pills="${di}">
-        ${actCount > 0 ? `<span class="pill pill-slate">${actCount} task${actCount !== 1 ? 's' : ''}</span>` : ''}
-        ${ord > 0 ? `<span class="pill pill-blue" data-pill="ord">${Math.round(ord)}h</span>` : ''}
-        ${ot > 0 ? `<span class="pill pill-amber" data-pill="ot">+${Math.round(ot)} OT</span>` : ''}
-        ${hasMissingCode ? `<span class="dot-flash animate-pulse" title="Missing work code"></span>` : ''}
-      </div>
+<div class="day-card ${isWeekend ? 'day-weekend' : ''} ${isExpanded ? 'expanded' : ''}" data-day-idx="${di}">
+  <div class="day-header" onclick="toggleDay(${di})">
+    <div class="day-left">
+      <svg width="10" height="10" viewBox="0 0 10 10" style="flex-shrink:0;transition:transform 0.2s;transform:${isExpanded ? 'rotate(90deg)' : 'rotate(0deg)'}"><polygon points="0,0 10,5 0,10" fill="${isWeekend ? 'var(--border)' : 'var(--text-muted)'}"/></svg>
+      <span class="day-name">${day.dayName}</span>
+      <span class="day-date">${formatDate(day.date)}</span>
     </div>
-    <div class="day-activities ${isExpanded ? 'active' : 'hidden'}" id="day-${di}-activities" style="${isExpanded ? '' : 'display:none'}">
-        ${activitiesHtml}
-        <button onclick="addActivity(${di})" class="add-task-btn" style="margin: 4px 14px 14px; width: calc(100% - 28px); display: flex; align-items: center; justify-content: center; gap: 6px; padding: 12px; border-radius: 12px; border: 1.5px dashed var(--border); background: #fff; font-size: 13px; font-weight: 700; color: var(--accent); cursor: pointer;">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-          Add Task
-        </button>
+    <div class="day-pills" data-day-pills="${di}">
+      ${actCount > 0 ? `<span class="pill pill-slate">${actCount} task${actCount !== 1 ? 's' : ''}</span>` : (isWeekend ? '' : `<span style="font-size:11px;color:var(--border);font-weight:600">No entries</span>`)}
+      ${ord > 0 ? `<span class="pill pill-blue">${Math.round(ord) === ord ? ord : ord.toFixed(1)}h</span>` : ''}
+      ${ot > 0 ? `<span class="pill pill-amber">+${Math.round(ot) === ot ? ot : ot.toFixed(1)} OT</span>` : ''}
+      ${hasMissingCode ? `<span class="dot-flash animate-pulse" title="Missing work code"></span>` : ''}
     </div>
-  </div>`;
+  </div>
+  <div class="day-activities ${isExpanded ? 'active' : 'hidden'}" id="day-${di}-activities" style="${isExpanded ? '' : 'display:none'}">
+      ${activitiesHtml}
+      <button onclick="addActivity(${di})" class="add-task-btn" style="margin: 4px 14px 14px; width: calc(100% - 28px); display: flex; align-items: center; justify-content: center; gap: 6px; padding: 12px; border-radius: 10px; border: 1.5px dashed var(--border); background: transparent; font-size: 13px; font-weight: 700; color: var(--accent); cursor: pointer;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Add Task
+      </button>
+  </div>
+</div>`;
     }
 
     function renderActivity(act, di, actIndex) {
@@ -6372,24 +5446,16 @@
     // ============================================================
     // THEME LOGIC
     // ============================================================
-    const THEME_META = { light: '#1e3a8a', dark: '#0c1425', slate: '#1a2535', lcd: '#0f380f', 'slate-dark': '#0a1018', gameboy: '#0F380F', win31: '#000080', gray: '#222222', spectrum: '#0000D7', apple: '#1D1D1F', retro: '#000000' };
+    const THEME_META = { claude: '#0F1C2E' };
 
     function initTheme() {
-      const saved = localStorage.getItem('theme');
+      document.documentElement.setAttribute('data-theme', 'claude');
       const meta = document.getElementById('meta-theme');
-      const theme = saved || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-      document.documentElement.setAttribute('data-theme', theme);
-      if (meta) meta.setAttribute('content', THEME_META[theme] || '#1e3a8a');
+      if (meta) meta.setAttribute('content', '#0F1C2E');
     }
 
     function setTheme(t) {
-      document.documentElement.setAttribute('data-theme', t);
-      localStorage.setItem('theme', t);
-      const meta = document.getElementById('meta-theme');
-      const swatch = THEME_META[t] || '#1e3a8a';
-      if (meta) meta.setAttribute('content', swatch);
-      state.menuView = 'main'; // Return to main menu after selection
-      render();
+      /* themes removed */
     }
 
     function toggleThemeMenu(e) {
