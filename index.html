@@ -951,40 +951,59 @@
     .hrs-stepper {
       display: flex;
       align-items: center;
-      border: 1.5px solid var(--border);
-      border-radius: 50px;
+      background: #F5F5F3;
+      border-radius: 10px;
       overflow: hidden;
-      background: var(--bg-card);
+      height: 40px;
     }
 
     .ot-box .hrs-stepper {
-      border-color: var(--text-ot);
-      background: var(--bg-ot);
+      background: #FFF8F0;
+      outline: 1.5px solid #FFD88A;
     }
 
     .hrs-stepper button {
-      width: 44px;
-      height: 44px;
+      width: 38px;
+      height: 100%;
       background: transparent;
       border: none;
-      color: var(--text-secondary);
-      font-size: 20px;
-      font-weight: 400;
+      color: #8A8A88;
+      font-size: 16px;
+      font-weight: 300;
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: background 0.1s;
+      transition: all 0.12s;
       cursor: pointer;
       -webkit-tap-highlight-color: transparent;
       flex-shrink: 0;
+      user-select: none;
+    }
+
+    .hrs-stepper button:hover {
+      color: #1A1A1A;
+      background: rgba(0, 0, 0, 0.04);
     }
 
     .hrs-stepper button:active {
-      background: rgba(0, 0, 0, 0.06);
+      transform: scale(0.9);
     }
 
-    .ot-box .hrs-stepper button {
-      color: var(--text-ot);
+    .ot-box .hrs-stepper button:hover {
+      color: #C27A00;
+    }
+
+    .hrs-stepper .val {
+      flex: 1;
+      text-align: center;
+      font-family: var(--font-mono, 'DM Mono', monospace);
+      font-size: 15px;
+      font-weight: 500;
+      color: #1A1A1A;
+    }
+
+    .ot-box .hrs-stepper .val {
+      color: #C27A00;
     }
 
     /* ===== CLAUDE THEME (v3.1) ===== */
@@ -3317,7 +3336,7 @@
     // ============================================================
     // CONFIG
     // ============================================================
-    const VERSION = '3.3.2';
+    const VERSION = '3.3.4';
     const API_URL = 'https://script.google.com/macros/s/AKfycbwHbuuctWpT1QWqQc8C1fINQyBJhssIIeh3duuQgAHiCpGBRUVnPEmUnDlEDu5mQbZk/exec';
     const DAY_NAMES = ['Friday', 'Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday'];
     const DB_NAME = 'timesheet-db';
@@ -5008,17 +5027,17 @@
               <div class="hrs-box flex-1">
                 <div style="font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); margin-bottom: 8px;">Ordinary HRS</div>
                 <div class="hrs-stepper flex items-center justify-between">
-                  <button onclick="event.stopPropagation(); stepHrs('${act.id}',${di},'ordinary',-1)" style="color: var(--text-secondary);">−</button>
-                  <span class="val" data-step-val="${act.id}-ordinary" style="font-size: 18px; font-weight: 700; color: var(--text-primary);">${act.ordinary || 0}</span>
-                  <button onclick="event.stopPropagation(); stepHrs('${act.id}',${di},'ordinary',1)" style="color: var(--text-secondary);">+</button>
+                  <button onclick="event.stopPropagation(); stepHrs('${act.id}',${di},'ordinary',-1)">−</button>
+                  <span class="val" data-step-val="${act.id}-ordinary">${act.ordinary || 0}</span>
+                  <button onclick="event.stopPropagation(); stepHrs('${act.id}',${di},'ordinary',1)">+</button>
                 </div>
               </div>
               <div class="hrs-box ot-box flex-1">
                 <div style="font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-ot); margin-bottom: 8px;">Overtime HRS</div>
                 <div class="hrs-stepper flex items-center justify-between">
-                  <button onclick="event.stopPropagation(); stepHrs('${act.id}',${di},'overtime',-1)" style="color: var(--text-ot);">−</button>
-                  <span class="val" data-step-val="${act.id}-overtime" style="font-size: 18px; font-weight: 700; color: var(--text-ot);">${act.overtime || 0}</span>
-                  <button onclick="event.stopPropagation(); stepHrs('${act.id}',${di},'overtime',1)" style="color: var(--text-ot);">+</button>
+                  <button onclick="event.stopPropagation(); stepHrs('${act.id}',${di},'overtime',-1)">−</button>
+                  <span class="val" data-step-val="${act.id}-overtime">${act.overtime || 0}</span>
+                  <button onclick="event.stopPropagation(); stepHrs('${act.id}',${di},'overtime',1)">+</button>
                 </div>
               </div>
             </div>
