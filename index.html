@@ -217,16 +217,20 @@
 
     .activity-card {
       background: var(--bg-card);
-      border-radius: var(--radius, 12px);
-      box-shadow: 0 4px 12px rgba(15, 28, 46, 0.06);
-      border: 1.5px solid var(--border);
-      margin: 0 14px 10px;
+      border-radius: 0;
+      border: none;
+      border-bottom: 1px solid #F0F4F8;
+      margin: 0;
       overflow: hidden;
-      transition: transform 0.2s, box-shadow 0.2s;
+      transition: background 0.15s;
+    }
+
+    .activity-card:last-of-type {
+      border-bottom: none;
     }
 
     .activity-card.expanded {
-      box-shadow: 0 8px 24px rgba(15, 28, 46, 0.12);
+      background: #FAFBFD;
     }
 
     .task-num {
@@ -2445,7 +2449,7 @@
     // ============================================================
     // CONFIG
     // ============================================================
-    const VERSION = '3.6.0';
+    const VERSION = '3.6.1';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
