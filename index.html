@@ -872,8 +872,14 @@
       text-align: right;
     }
 
+    @keyframes sumFadeRow {
+      from { opacity: 0; transform: translateY(4px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
     .sum-table tbody tr {
       border-bottom: 1px solid #F0F4F8;
+      animation: sumFadeRow 0.3s ease both;
     }
 
     .sum-table tbody tr:last-child {
@@ -3663,10 +3669,10 @@
           </tr>
         </thead>
         <tbody>
-          ${summary.map((row) => {
+          ${summary.map((row, i) => {
         const isUncat = row.isUncategorized;
         return `
-          <tr class="${isUncat ? 'sum-missing' : ''}">
+          <tr class="${isUncat ? 'sum-missing' : ''}" style="animation-delay:${i * 30}ms">
             <td class="sum-td-code ${isUncat ? 'missing' : ''}">${row.code}</td>
             <td class="sum-td-desc ${isUncat ? 'missing' : ''}">${row.description}</td>
             <td class="sum-td-num ${isUncat ? 'missing' : ''}">${Math.round(row.ordinary)}</td>
@@ -3676,7 +3682,7 @@
         </tbody>
       </table>
     </div>
-    <div class="sum-totals-row">
+    <div class="sum-totals-row" style="animation:sumFadeRow 0.3s ease both;animation-delay:${summary.length * 30}ms">
       <span class="sum-totals-label">Total</span>
       <div class="sum-totals-nums">
         <div class="sum-totals-item">
