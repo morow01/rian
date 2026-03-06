@@ -778,6 +778,221 @@
       background: var(--summary-even);
     }
 
+    /* ── JSX-style Weekly Summary ── */
+    .sum-section {
+      background: #FFFFFF;
+      border-top: 2px solid #D4E0EC;
+    }
+
+    .sum-hdr {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 16px 13px;
+      background: #FFFFFF;
+      border: none;
+      border-bottom: 1px solid #EAEFF5;
+      cursor: pointer;
+      text-align: left;
+    }
+
+    .sum-title {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.09em;
+      text-transform: uppercase;
+      color: #0F1C2E;
+    }
+
+    .sum-hdr-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .sum-pill {
+      display: flex;
+      align-items: baseline;
+      gap: 3px;
+    }
+
+    .sum-num {
+      font-size: 15px;
+      font-weight: 700;
+      color: #0F1C2E;
+      font-family: var(--font-mono);
+    }
+
+    .sum-num.ot {
+      color: #C07800;
+    }
+
+    .sum-lbl {
+      font-size: 10px;
+      font-weight: 600;
+      color: #8BA5BE;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .sum-sep {
+      width: 1px;
+      height: 16px;
+      background: #D4E0EC;
+    }
+
+    .sum-chevron {
+      font-size: 11px;
+      color: #8BA5BE;
+      margin-left: 2px;
+    }
+
+    .sum-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .sum-table thead tr {
+      background: #F4F7FA;
+      border-bottom: 1px solid #EAEFF5;
+    }
+
+    .sum-table th {
+      padding: 8px 14px;
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #8BA5BE;
+      text-align: left;
+    }
+
+    .sum-table th.num {
+      text-align: right;
+    }
+
+    .sum-table tbody tr {
+      border-bottom: 1px solid #F0F4F8;
+    }
+
+    .sum-table tbody tr:last-child {
+      border-bottom: none;
+    }
+
+    .sum-table tbody tr:hover {
+      background: #F8FAFC;
+    }
+
+    .sum-table tbody tr.sum-missing {
+      background: rgba(239, 68, 68, 0.04);
+    }
+
+    .sum-table tbody tr.sum-missing:hover {
+      background: rgba(239, 68, 68, 0.07);
+    }
+
+    .sum-table td {
+      padding: 10px 14px;
+      vertical-align: middle;
+    }
+
+    .sum-td-code {
+      font-family: var(--font-mono);
+      font-size: 12px;
+
+      color: #2D6BE4;
+      white-space: nowrap;
+    }
+
+    .sum-td-code.missing {
+      color: #DC2626;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .sum-td-desc {
+      font-size: 12px;
+      color: #4A6580;
+      line-height: 1.35;
+    }
+
+    .sum-td-desc.missing {
+      color: #DC2626;
+    }
+
+    .sum-td-num {
+      font-family: var(--font-mono);
+      font-size: 13px;
+      font-weight: 600;
+      color: #0F1C2E;
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    .sum-td-num.ot {
+      color: #C07800;
+    }
+
+    .sum-td-num.dash {
+      color: #C8D8E8;
+    }
+
+    .sum-td-num.missing {
+      color: #DC2626;
+    }
+
+    .sum-totals-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 13px 14px;
+      background: #F4F7FA;
+      border-top: 1.5px solid #D4E0EC;
+    }
+
+    .sum-totals-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #8BA5BE;
+    }
+
+    .sum-totals-nums {
+      display: flex;
+      gap: 24px;
+      align-items: center;
+    }
+
+    .sum-totals-item {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 1px;
+    }
+
+    .sum-totals-val {
+      font-family: var(--font-mono);
+      font-size: 17px;
+      font-weight: 700;
+      color: #0F1C2E;
+    }
+
+    .sum-totals-val.ot {
+      color: #C07800;
+    }
+
+    .sum-totals-sub {
+      font-size: 9px;
+      color: #8BA5BE;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+
     input[type=number]::-webkit-inner-spin-button {
       opacity: 1;
     }
@@ -3115,11 +3330,11 @@
         acts.forEach((act, i) => {
           lines.push('  ' + (i + 1) + '. ' + (act.description || '(no description)') + (act.location ? ' — ' + act.location : ''));
           if (act.codes.length) lines.push('     Codes: ' + act.codes.map(c => c.c).join(', '));
-          lines.push('     Ordinary: ' + (parseFloat(act.ordinary) || 0).toFixed(2) + 'h  |  OT: ' + (parseFloat(act.overtime) || 0).toFixed(2) + 'h');
+          lines.push('     Ordinary: ' + Math.round(parseFloat(act.ordinary) || 0) + 'h  |  OT: ' + Math.round(parseFloat(act.overtime) || 0) + 'h');
         });
         lines.push('');
       });
-      lines.push('TOTALS', 'Ordinary: ' + totalOrd.toFixed(2) + ' hrs   Overtime: ' + totalOT.toFixed(2) + ' hrs');
+      lines.push('TOTALS', 'Ordinary: ' + Math.round(totalOrd) + ' hrs   Overtime: ' + Math.round(totalOT) + ' hrs');
       return lines.join('\n');
     }
 
@@ -3161,8 +3376,8 @@
             <span style="display:inline-block;background:${C.chip};color:${C.chipTxt};padding:3px 9px;border-radius:8px;font-size:11px;font-weight:600;line-height:1.4;">${esc(r.code)}</span>
           </td>
           <td style="padding:6px 12px;border-bottom:1px solid ${C.border};font-size:13px;color:${C.txt};vertical-align:middle;">${esc(r.description)}</td>
-          <td style="padding:6px 12px;border-bottom:1px solid ${C.border};font-size:13px;text-align:right;color:${C.ord};font-weight:700;vertical-align:middle;">${r.ordinary.toFixed(2)}</td>
-          <td style="padding:6px 12px;border-bottom:1px solid ${C.border};font-size:13px;text-align:right;color:${C.ot};font-weight:700;vertical-align:middle;">${r.overtime.toFixed(2)}</td>
+          <td style="padding:6px 12px;border-bottom:1px solid ${C.border};font-size:13px;text-align:right;color:${C.ord};font-weight:700;vertical-align:middle;">${Math.round(r.ordinary)}</td>
+          <td style="padding:6px 12px;border-bottom:1px solid ${C.border};font-size:13px;text-align:right;color:${C.ot};font-weight:700;vertical-align:middle;">${Math.round(r.overtime)}</td>
         </tr>`).join('');
 
       // Daily sections
@@ -3172,8 +3387,8 @@
         if (!acts.length) return;
         let actsHtml = '';
         acts.forEach((act, i) => {
-          const ord = (parseFloat(act.ordinary) || 0).toFixed(2);
-          const ot = (parseFloat(act.overtime) || 0).toFixed(2);
+          const ord = Math.round(parseFloat(act.ordinary) || 0);
+          const ot = Math.round(parseFloat(act.overtime) || 0);
           const codesHtml = act.codes.map(c =>
             `<span style="display:inline-block;background:${C.chip};color:${C.chipTxt};font-size:11px;padding:2px 7px;border-radius:10px;margin:1px 2px;">${esc(c.c)}</span>`
           ).join('');
@@ -3239,8 +3454,8 @@
                   <tfoot>
                     <tr style="background:${C.rowAlt};">
                       <td colspan="2" style="padding:10px 12px;font-size:13px;font-weight:700;color:${C.txt};">TOTAL</td>
-                      <td style="padding:10px 12px;text-align:right;font-size:14px;font-weight:700;color:${C.ord};">${totalOrd.toFixed(2)}</td>
-                      <td style="padding:10px 12px;text-align:right;font-size:14px;font-weight:700;color:${C.ot};">${totalOT.toFixed(2)}</td>
+                      <td style="padding:10px 12px;text-align:right;font-size:14px;font-weight:700;color:${C.ord};">${Math.round(totalOrd)}</td>
+                      <td style="padding:10px 12px;text-align:right;font-size:14px;font-weight:700;color:${C.ot};">${Math.round(totalOT)}</td>
                     </tr>
                   </tfoot>
                 </table>
@@ -3420,52 +3635,63 @@
       const daysHtml = state.weekData.days.map((day, di) => renderDaySection(day, di)).join('');
 
       const summaryHtml = `
-  <div class="mx-3 mb-4 rounded-2xl shadow-sm overflow-hidden" style="background:var(--bg-card);border:1px solid var(--border)">
-    <button onclick="toggleSummary()" class="w-full flex items-center justify-between px-4 py-3" style="background:var(--bg-header);color:var(--text-header)">
-      <span class="font-bold text-sm">Weekly Summary</span>
-      <span style="color:var(--text-header-sub)" class="text-sm">
-        <span class="font-mono">${totalOrd.toFixed(2)}</span> hrs &nbsp;
-        <span class="font-mono" style="color:var(--tab-active)">${totalOT.toFixed(2)}</span> OT
-        <span class="ml-2">${state.showSummary ? '▲' : '▼'}</span>
-      </span>
+  <div class="sum-section">
+    <button onclick="toggleSummary()" class="sum-hdr">
+      <span class="sum-title">Weekly Summary</span>
+      <div class="sum-hdr-right">
+        <div class="sum-pill">
+          <span class="sum-num" data-sum-ord>${Math.round(totalOrd)}</span>
+          <span class="sum-lbl">hrs</span>
+        </div>
+        <div class="sum-sep"></div>
+        <div class="sum-pill">
+          <span class="sum-num ot" data-sum-ot>${Math.round(totalOT)}</span>
+          <span class="sum-lbl">OT</span>
+        </div>
+        <span class="sum-chevron">${state.showSummary ? '▲' : '▼'}</span>
+      </div>
     </button>
     ${state.showSummary ? `
-    <div class="overflow-x-auto">
-      <table class="w-full text-sm">
+    <div style="overflow-x:auto">
+      <table class="sum-table">
         <thead>
-          <tr style="background:var(--bg-card-alt);color:var(--text-secondary)" class="text-xs uppercase">
-            <th class="px-3 py-2 text-left">Code</th>
-            <th class="px-3 py-2 text-left">Description</th>
-            <th class="px-3 py-2 text-right">Ord</th>
-            <th class="px-3 py-2 text-right">OT</th>
+          <tr>
+            <th style="width:108px">Code</th>
+            <th>Description</th>
+            <th class="num" style="width:48px">Ord</th>
+            <th class="num" style="width:48px">OT</th>
           </tr>
         </thead>
         <tbody>
-          ${summary.map((row, i) => {
+          ${summary.map((row) => {
         const isUncat = row.isUncategorized;
-        const bgStyle = isUncat ? 'background:rgba(239,68,68,0.1)' : (i % 2 === 0 ? '' : 'background:var(--summary-even)');
-        const textColor = isUncat ? 'color:#ef4444' : 'color:var(--text-secondary)';
-        const accentColor = isUncat ? 'color:#ef4444;font-weight:bold' : 'color:var(--accent)';
-
         return `
-          <tr class="summary-row" style="${bgStyle}">
-            <td class="px-3 py-2 font-mono text-xs whitespace-nowrap" style="${accentColor}">${row.code}</td>
-            <td class="px-3 py-2 text-xs" style="${textColor}">${row.description}</td>
-            <td class="px-3 py-2 text-right font-semibold" style="${isUncat ? 'color:#ef4444' : 'color:var(--text-primary)'}">${row.ordinary.toFixed(2)}</td>
-            <td class="px-3 py-2 text-right font-semibold" style="${isUncat ? 'color:#ef4444' : 'color:var(--text-ot)'}">${row.overtime > 0 ? row.overtime.toFixed(2) : '—'}</td>
+          <tr class="${isUncat ? 'sum-missing' : ''}">
+            <td class="sum-td-code ${isUncat ? 'missing' : ''}">${row.code}</td>
+            <td class="sum-td-desc ${isUncat ? 'missing' : ''}">${row.description}</td>
+            <td class="sum-td-num ${isUncat ? 'missing' : ''}">${Math.round(row.ordinary)}</td>
+            <td class="sum-td-num ${row.overtime > 0 ? (isUncat ? 'missing' : 'ot') : 'dash'}">${row.overtime > 0 ? Math.round(row.overtime) : '—'}</td>
           </tr>`;
       }).join('')}
-          <tr class="font-bold text-sm" style="background:var(--bg-day-header)">
-            <td colspan="2" class="px-3 py-2" style="color:var(--text-day)">TOTAL</td>
-            <td class="px-3 py-2 text-right" style="color:var(--text-day)">${totalOrd.toFixed(2)}</td>
-            <td class="px-3 py-2 text-right" style="color:var(--text-ot)">${totalOT.toFixed(2)}</td>
-          </tr>
         </tbody>
       </table>
+    </div>
+    <div class="sum-totals-row">
+      <span class="sum-totals-label">Total</span>
+      <div class="sum-totals-nums">
+        <div class="sum-totals-item">
+          <span class="sum-totals-val">${Math.round(totalOrd)}</span>
+          <span class="sum-totals-sub">Ordinary</span>
+        </div>
+        <div class="sum-totals-item">
+          <span class="sum-totals-val ot">${Math.round(totalOT)}</span>
+          <span class="sum-totals-sub">Overtime</span>
+        </div>
+      </div>
     </div>` : ''}
   </div>`;
 
-      return `<main class="pb-6"><div class="week-list">${daysHtml}</div>${summaryHtml}</main>`;
+      return `<main class="pb-6"><div class="week-list">${daysHtml}${summaryHtml}</div></main>`;
     }
 
     // ============================================================
@@ -3483,8 +3709,8 @@
     <button onclick="toggleSummary()" class="w-full flex items-center justify-between px-4 py-3" style="background:var(--bg-header);color:var(--text-header)">
       <span class="font-bold text-sm">Weekly Summary</span>
       <span style="color:var(--text-header-sub)" class="text-sm">
-        <span class="font-mono">${totalOrd.toFixed(2)}</span> hrs &nbsp;
-        <span class="font-mono" style="color:var(--tab-active)">${totalOT.toFixed(2)}</span> OT
+        <span class="font-mono" data-sum-ord>${Math.round(totalOrd)}</span> hrs &nbsp;
+        <span class="font-mono" style="color:var(--tab-active)" data-sum-ot>${Math.round(totalOT)}</span> OT
         <span class="ml-2">${state.showSummary ? '▲' : '▼'}</span>
       </span>
     </button>
@@ -3510,14 +3736,14 @@
           <tr class="summary-row" style="${bgStyle}">
             <td class="px-3 py-2 font-mono text-xs whitespace-nowrap" style="${accentColor}">${row.code}</td>
             <td class="px-3 py-2 text-xs" style="${textColor}">${row.description}</td>
-            <td class="px-3 py-2 text-right font-semibold" style="${isUncat ? 'color:#ef4444' : 'color:var(--text-primary)'}">${row.ordinary.toFixed(2)}</td>
-            <td class="px-3 py-2 text-right font-semibold" style="${isUncat ? 'color:#ef4444' : 'color:var(--text-ot)'}">${row.overtime > 0 ? row.overtime.toFixed(2) : '—'}</td>
+            <td class="px-3 py-2 text-right font-semibold" style="${isUncat ? 'color:#ef4444' : 'color:var(--text-primary)'}">${Math.round(row.ordinary)}</td>
+            <td class="px-3 py-2 text-right font-semibold" style="${isUncat ? 'color:#ef4444' : 'color:var(--text-ot)'}">${row.overtime > 0 ? Math.round(row.overtime) : '—'}</td>
           </tr>`;
       }).join('')}
           <tr class="font-bold text-sm" style="background:var(--bg-day-header)">
             <td colspan="2" class="px-3 py-2" style="color:var(--text-day)">TOTAL</td>
-            <td class="px-3 py-2 text-right" style="color:var(--text-day)">${totalOrd.toFixed(2)}</td>
-            <td class="px-3 py-2 text-right" style="color:var(--text-ot)">${totalOT.toFixed(2)}</td>
+            <td class="px-3 py-2 text-right" style="color:var(--text-day)">${Math.round(totalOrd)}</td>
+            <td class="px-3 py-2 text-right" style="color:var(--text-ot)">${Math.round(totalOT)}</td>
           </tr>
         </tbody>
       </table>
@@ -3606,8 +3832,8 @@
       const numTasks = act.codes.length || 1;
       const ordinary = parseFloat(act.ordinary) || 0;
       const overtime = parseFloat(act.overtime) || 0;
-      const hrsPerTask = ordinary > 0 ? (ordinary / numTasks).toFixed(2) : '—';
-      const otPerTask = overtime > 0 ? (overtime / numTasks).toFixed(2) : '—';
+      const hrsPerTask = ordinary > 0 ? Math.round(ordinary / numTasks) : '—';
+      const otPerTask = overtime > 0 ? Math.round(overtime / numTasks) : '—';
 
       const isMissingCode = (ordinary > 0 || overtime > 0) && act.codes.length === 0;
       const codesHtml = `<div class="tbl-codes-inner">
@@ -3873,8 +4099,8 @@
       const overtime = parseFloat(act.overtime) || 0;
       const isMissingCode = (ordinary > 0 || overtime > 0) && act.codes.length === 0;
       const numTasks = act.codes.length || 1;
-      const hrsPerTask = ordinary > 0 ? (ordinary / numTasks).toFixed(2) : '—';
-      const otPerTask = overtime > 0 ? (overtime / numTasks).toFixed(2) : '—';
+      const hrsPerTask = ordinary > 0 ? Math.round(ordinary / numTasks) : '—';
+      const otPerTask = overtime > 0 ? Math.round(overtime / numTasks) : '—';
       const notesOpen = state.notesOpen.has(act.id) ? state.notesOpen.get(act.id) : !!act.notes;
 
       return `
@@ -4107,8 +4333,8 @@
         const ot = parseFloat(act.overtime) || 0;
         const hrsEl = document.querySelector(`[data-calc="hrsPerTask"][data-act="${actId}"]`);
         const otEl = document.querySelector(`[data-calc="otPerTask"][data-act="${actId}"]`);
-        if (hrsEl) hrsEl.textContent = ord > 0 ? (ord / numTasks).toFixed(2) : '—';
-        if (otEl) otEl.textContent = ot > 0 ? (ot / numTasks).toFixed(2) : '—';
+        if (hrsEl) hrsEl.textContent = ord > 0 ? Math.round(ord / numTasks) : '—';
+        if (otEl) otEl.textContent = ot > 0 ? Math.round(ot / numTasks) : '—';
         // Live-update the collapsed row pills
         const rowHrsPill = document.querySelector(`[data-row-hrs="${actId}"]`);
         const rowOtPill = document.querySelector(`[data-row-ot="${actId}"]`);
@@ -4158,17 +4384,14 @@
     }
 
     function updateSummaryDisplay() {
-      // lightweight re-render of just the summary section
+      // lightweight re-render of just the summary header totals
       const summary = calcSummary(state.weekData);
       const totalOrd = summary.reduce((s, r) => s + r.ordinary, 0);
       const totalOT = summary.reduce((s, r) => s + r.overtime, 0);
-      const btn = document.querySelector('button[onclick="toggleSummary()"]');
-      if (btn) {
-        const ordEl = btn.querySelector('span.font-mono:first-of-type');
-        const otEl = btn.querySelector('span.font-mono:last-of-type');
-        if (ordEl) ordEl.textContent = totalOrd.toFixed(2);
-        if (otEl) otEl.textContent = totalOT.toFixed(2);
-      }
+      const ordEl = document.querySelector('[data-sum-ord]');
+      const otEl = document.querySelector('[data-sum-ot]');
+      if (ordEl) ordEl.textContent = Math.round(totalOrd);
+      if (otEl) otEl.textContent = Math.round(totalOT);
     }
 
     function toggleSummary() {
