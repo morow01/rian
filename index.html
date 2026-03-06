@@ -24,7 +24,7 @@
     :root {
       --font-body: 'DM Sans', sans-serif;
       --font-mono: 'DM Mono', monospace;
-      --bg-page: #FFFFFF;
+      --bg-page: #E8EEF5;
       --bg-header: #0F1C2E;
       --bg-header-tab: #162438;
       --text-header: #FFFFFF;
@@ -83,7 +83,7 @@
       background: #FFFFFF;
       border-radius: 14px;
       border: 1.5px solid var(--border);
-      overflow: hidden;
+      overflow: clip;
       transition: box-shadow 0.2s;
     }
 
@@ -379,7 +379,7 @@
     [data-theme="claude"] {
       --font-body: 'DM Sans', sans-serif;
       --font-mono: 'DM Mono', monospace;
-      --bg-page: #FFFFFF;
+      --bg-page: #E8EEF5;
       --bg-header: #0F1C2E;
       --bg-header-tab: #162438;
       --text-header: #FFFFFF;
@@ -2454,7 +2454,7 @@
     // ============================================================
     // CONFIG
     // ============================================================
-    const VERSION = '3.5.1';
+    const VERSION = '3.5.2';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
