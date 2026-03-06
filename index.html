@@ -28,7 +28,7 @@
       --bg-header: #0F1C2E;
       --bg-header-tab: #162438;
       --text-header: #FFFFFF;
-      --text-header-sub: rgba(255,255,255,0.6);
+      --text-header-sub: rgba(255, 255, 255, 0.6);
       --bg-card: #FFFFFF;
       --bg-card-alt: #F4F7FA;
       --bg-day-header: #FFFFFF;
@@ -50,7 +50,7 @@
       --text-hours: #2D6BE4;
       --btn-danger-color: #E8453C;
       --btn-danger-bg: #FDECEA;
-      --btn-danger-border: rgba(232,69,60,0.22);
+      --btn-danger-border: rgba(232, 69, 60, 0.22);
       --bg-input: #F4F7FA;
       --bg-hours: #F4F7FA;
       --bg-code-btn: #EBF1FD;
@@ -60,8 +60,8 @@
       --bg-code-item: #FFFFFF;
       --bg-code-item-sel: #EBF1FD;
       --text-input: #0F1C2E;
-      --shadow-card: 0 1px 4px rgba(15,28,46,0.08);
-      --shadow-card-hover: 0 4px 16px rgba(15,28,46,0.12);
+      --shadow-card: 0 1px 4px rgba(15, 28, 46, 0.08);
+      --shadow-card-hover: 0 4px 16px rgba(15, 28, 46, 0.12);
       --act-number-bg: #2D6BE4;
       --act-number-text: #FFFFFF;
       --summary-even: #F4F7FA;
@@ -119,7 +119,7 @@
     }
 
     .day-header:active {
-      background: rgba(45,107,228,0.04);
+      background: rgba(45, 107, 228, 0.04);
     }
 
     .day-card.expanded .day-header {
@@ -192,7 +192,7 @@
       height: 8px;
       border-radius: 50%;
       background: #E8453C;
-      box-shadow: 0 0 6px rgba(232,69,60,0.5);
+      box-shadow: 0 0 6px rgba(232, 69, 60, 0.5);
       display: inline-block;
       flex-shrink: 0;
     }
@@ -262,7 +262,7 @@
     }
 
     .activity-detail {
-      background: #E8EEF5;
+      background: #FAFCFE;
       border-top: 1.5px solid var(--border);
       padding: 16px;
       overflow: hidden;
@@ -430,6 +430,7 @@
     .day-activities.active {
       padding-top: 14px;
       padding-bottom: 4px;
+      background-color: #F4F7FA;
     }
 
     /* ===== THEME DROPDOWN ===== */
@@ -2457,7 +2458,7 @@
     firebase.initializeApp(firebaseConfig);
     const db_fs = firebase.firestore();
     const auth_fb = firebase.auth();
-    db_fs.enablePersistence({ synchronizeTabs: true }).catch(() => {});
+    db_fs.enablePersistence({ synchronizeTabs: true }).catch(() => { });
     const DAY_NAMES = ['Friday', 'Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday'];
     const DB_NAME = 'timesheet-db';
     const DB_VERSION = 2;
@@ -3015,7 +3016,7 @@
         saveTimer = null;
         const flushTs = state.weekData._updatedAt || Date.now();
         await dbPut('weeks', { weekStart: state.weekStart, data: state.weekData, updatedAt: flushTs });
-        if (state.currentUser) await fsSetWeek(state.weekStart, state.weekData).catch(() => {});
+        if (state.currentUser) await fsSetWeek(state.weekStart, state.weekData).catch(() => { });
       }
 
       // Unsubscribe from previous week listener
@@ -3041,7 +3042,7 @@
 
         if (!snap.exists) {
           // No data on server yet — push our local data up
-          fsSetWeek(weekStart, state.weekData).catch(() => {});
+          fsSetWeek(weekStart, state.weekData).catch(() => { });
           state.syncStatus = 'synced';
           updateHeaderStatus();
           return;
@@ -3054,7 +3055,7 @@
         // state (e.g. a confirmed write echoing back after we've already made
         // newer local edits), ignore it to prevent overwriting unsaved changes
         if (remote._updatedAt && state.weekData._updatedAt &&
-            remote._updatedAt < state.weekData._updatedAt) return;
+          remote._updatedAt < state.weekData._updatedAt) return;
 
         enforceCorrectDates(weekStart, remote);
         state.weekData = deepCopy(remote);
@@ -4109,9 +4110,9 @@
         if (otEl) otEl.textContent = ot > 0 ? (ot / numTasks).toFixed(2) : '—';
         // Live-update the collapsed row pills
         const rowHrsPill = document.querySelector(`[data-row-hrs="${actId}"]`);
-        const rowOtPill  = document.querySelector(`[data-row-ot="${actId}"]`);
+        const rowOtPill = document.querySelector(`[data-row-ot="${actId}"]`);
         if (rowHrsPill) { rowHrsPill.textContent = ord > 0 ? `${ord}h` : ''; rowHrsPill.style.display = ord > 0 ? '' : 'none'; }
-        if (rowOtPill)  { rowOtPill.textContent  = ot  > 0 ? `+${ot} OT` : ''; rowOtPill.style.display  = ot  > 0 ? '' : 'none'; }
+        if (rowOtPill) { rowOtPill.textContent = ot > 0 ? `+${ot} OT` : ''; rowOtPill.style.display = ot > 0 ? '' : 'none'; }
         updateSummaryDisplay();
       }
       scheduleAutoSave();
@@ -4256,7 +4257,7 @@
 
         if (!snap.exists) {
           // No notes on server yet — push local
-          fsSetNotes(state.notes).catch(() => {});
+          fsSetNotes(state.notes).catch(() => { });
           state.notesSyncStatus = 'synced';
           updateHeaderStatus();
           return;
@@ -5559,7 +5560,7 @@
           displayName: user.displayName || '',
           email: user.email || '',
           lastSeen: Date.now(),
-        }, { merge: true }).catch(() => {});
+        }, { merge: true }).catch(() => { });
 
         // Signed in — load local data first for instant display
         if (state.view === 'notes') {
