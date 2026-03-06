@@ -16,6 +16,9 @@
     href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&family=Share+Tech+Mono&family=Press+Start+2P&family=Silkscreen&family=VT323&family=Pixelify+Sans:wght@400..700&family=Bitcount+Single&family=DM+Sans:wght@400;500;700&family=DM+Mono:wght@400;500&display=swap"
     rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
   <style>
     /* ===== THEME VARIABLES ===== */
     :root {
@@ -3336,8 +3339,19 @@
     // ============================================================
     // CONFIG
     // ============================================================
-    const VERSION = '3.3.10';
-    const API_URL = 'https://script.google.com/macros/s/AKfycbwHbuuctWpT1QWqQc8C1fINQyBJhssIIeh3duuQgAHiCpGBRUVnPEmUnDlEDu5mQbZk/exec';
+    const VERSION = '3.4.0';
+    const firebaseConfig = {
+      apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
+      authDomain: "eir-fieldlog.firebaseapp.com",
+      projectId: "eir-fieldlog",
+      storageBucket: "eir-fieldlog.firebasestorage.app",
+      messagingSenderId: "670175047784",
+      appId: "1:670175047784:web:b48dc899508a925652cbdd"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db_fs = firebase.firestore();
+    const auth_fb = firebase.auth();
+    db_fs.enablePersistence({ synchronizeTabs: true }).catch(() => {});
     const DAY_NAMES = ['Friday', 'Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday'];
     const DB_NAME = 'timesheet-db';
     const DB_VERSION = 2;
@@ -3601,10 +3615,8 @@
       view: 'week',         // 'week' | 'history' | 'exchanges' (NEW)
       weekStart: null,      // 'YYYY-MM-DD'
       weekData: null,       // { weekStart, days: [...] }
-      weekBase: null,       // deep copy of week as loaded from server (field-level merge baseline)
+      currentUser: null,    // Firebase Auth user
       notes: [],            // all field notes
-      notesBase: null,      // deep copy of notes as loaded from server (field-level merge baseline)
-      notesLocalTime: 0,    // updatedAt timestamp of notes as last saved to local DB
       notesFilter: 'all',   // 'all' | 'high' | 'medium' | 'low' | 'done'
       expandedNotes: new Set(), // note IDs that are expanded
       activitiesExpanded: new Set(), // activity IDs that are expanded for details
@@ -3648,9 +3660,9 @@
 
     let codeModalCtx = { dayIndex: null, activityId: null, selected: [] };
     let saveTimer = null;
-    let syncTimer = null;
-    let isSyncing = false;
     let db = null;
+    let weekUnsubscribe = null;
+    let notesUnsubscribe = null;
 
     // ============================================================
     // INDEXEDDB
@@ -3696,23 +3708,23 @@
     }
 
     // ============================================================
-    // API
+    // FIREBASE SYNC HELPERS
     // ============================================================
-    async function apiGet(action, params = {}) {
-      const url = new URL(API_URL);
-      url.searchParams.set('action', action);
-      Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, v));
-      const res = await fetch(url.toString(), { redirect: 'follow' });
-      return res.json();
+    function userDoc(path) {
+      if (!state.currentUser) return null;
+      return db_fs.doc(`users/${state.currentUser.uid}/${path}`);
     }
 
-    async function apiPost(body) {
-      const res = await fetch(API_URL, {
-        method: 'POST',
-        redirect: 'follow',
-        body: JSON.stringify(body),
-      });
-      return res.json();
+    async function fsSetWeek(weekStart, weekData) {
+      const ref = userDoc(`weeks/${weekStart}`);
+      if (!ref) return;
+      await ref.set({ ...weekData, _updatedAt: Date.now() });
+    }
+
+    async function fsSetNotes(notes) {
+      const ref = userDoc('data/notes');
+      if (!ref) return;
+      await ref.set({ notes, _updatedAt: Date.now() });
     }
 
     // ============================================================
@@ -3886,109 +3898,24 @@
     // ============================================================
     // LOAD / SAVE
     // ============================================================
-    // Count meaningful activities across a week (used for sync conflict resolution)
-    function countActivities(weekData) {
-      if (!weekData || !weekData.days) return 0;
-      return weekData.days.reduce((sum, d) => {
-        return sum + (d.activities || []).filter(a => a.description || (a.codes && a.codes.length)).length;
-      }, 0);
-    }
-
     function deepCopy(obj) {
       return JSON.parse(JSON.stringify(obj));
     }
 
-    // Field-level 3-way merge: apply our local edits on top of remote,
-    // leaving untouched fields at whatever the server has.
-    //   base  = snapshot of week when we loaded it from server
-    //   local = our current data (with edits)
-    //   remote = what the server has right now
-    function mergeWeekData(base, local, remote) {
-      const FIELDS = ['description', 'location', 'codes', 'ordinary', 'overtime',
-        'tasks', 'timePerTask', 'otPerTask', 'notes'];
-      const merged = deepCopy(remote); // start from remote (ground truth for structure)
-
-      merged.days.forEach((mergedDay, di) => {
-        const localDay = local.days[di];
-        const baseDay = base ? base.days[di] : null;
-        if (!localDay) return;
-
-        // --- Field-level merge for activities that exist in all three ---
-        mergedDay.activities.forEach(mergedAct => {
-          const localAct = localDay.activities.find(a => a.id === mergedAct.id);
-          const baseAct = baseDay ? baseDay.activities.find(a => a.id === mergedAct.id) : null;
-          if (!localAct || !baseAct) return; // new/unknown activity — keep remote as-is
-
-          FIELDS.forEach(field => {
-            const baseVal = JSON.stringify(baseAct[field] ?? '');
-            const localVal = JSON.stringify(localAct[field] ?? '');
-            const remoteVal = JSON.stringify(mergedAct[field] ?? '');
-
-            if (localVal !== baseVal) {
-              // We changed this field locally
-              if (remoteVal !== baseVal && remoteVal !== localVal && (field === 'notes' || field === 'description' || field === 'location')) {
-                // Both changed it differently. Prefer longer string if one is a sub-part, otherwise append (for notes/desc).
-                const rText = mergedAct[field] ? String(mergedAct[field]).trim() : '';
-                const lText = localAct[field] ? String(localAct[field]).trim() : '';
-
-                // If one contains the other, just use the longer one (resolves partial vs full)
-                if (rText && lText && lText.toLowerCase().includes(rText.toLowerCase())) {
-                  mergedAct[field] = deepCopy(localAct[field]);
-                } else if (rText && lText && rText.toLowerCase().includes(lText.toLowerCase())) {
-                  mergedAct[field] = deepCopy(mergedAct[field]);
-                } else if (rText && lText && (field === 'notes' || field === 'description')) {
-                  // Truly different text and it's a multi-line field: append
-                  mergedAct[field] = `${rText}\n\n[Merged from ${state.deviceName}]:\n${lText}`;
-                } else if (lText.length > rText.length) {
-                  // Fallback for location or other fields: prefer more content
-                  mergedAct[field] = deepCopy(localAct[field]);
-                }
-              } else {
-                // Standard local-wins if remote didn't change (or it's a non-text field)
-                mergedAct[field] = deepCopy(localAct[field]);
-              }
-            }
-            // else: we didn't touch it locally — keep remote's value (which is already in mergedAct)
-          });
-        });
-
-        // --- Activities added locally (not in remote, not in base) — keep them ---
-        localDay.activities.forEach(localAct => {
-          const inBase = baseDay ? baseDay.activities.some(a => a.id === localAct.id) : false;
-          const inRemote = mergedDay.activities.some(a => a.id === localAct.id);
-          if (!inRemote && !inBase) {
-            mergedDay.activities.push(deepCopy(localAct));
-          }
-        });
-
-        // --- Activities deleted locally (in base+remote but removed locally) ---
-        if (baseDay) {
-          mergedDay.activities = mergedDay.activities.filter(remoteAct => {
-            const inBase = baseDay.activities.some(a => a.id === remoteAct.id);
-            const inLocal = localDay.activities.some(a => a.id === remoteAct.id);
-            return !(inBase && !inLocal); // remove if we deleted it locally
-          });
-        }
-      });
-
-      return merged;
-    }
-
     async function loadWeek(weekStart) {
-      // Flush any pending edit for the CURRENT week before switching —
-      // the saveTimer closure captured a snapshot so the write is safe,
-      // but we also clear the timer to avoid a redundant DB write later
+      // Flush any pending save for the current week before switching
       if (saveTimer && state.weekStart && state.weekData) {
         clearTimeout(saveTimer);
-        clearTimeout(syncTimer);
         saveTimer = null;
-        syncTimer = null;
         const flushTs = state.weekData._updatedAt || Date.now();
         await dbPut('weeks', { weekStart: state.weekStart, data: state.weekData, updatedAt: flushTs });
+        if (state.currentUser) await fsSetWeek(state.weekStart, state.weekData).catch(() => {});
       }
 
+      // Unsubscribe from previous week listener
+      if (weekUnsubscribe) { weekUnsubscribe(); weekUnsubscribe = null; }
+
       state.weekStart = weekStart;
-      state.weekBase = null; // reset merge baseline for new week
       state.syncStatus = 'idle';
 
       // Load from local DB first (for instant display)
@@ -3996,161 +3923,66 @@
       state.weekData = local ? deepCopy(local.data) : createEmptyWeek(weekStart);
       enforceCorrectDates(weekStart, state.weekData);
       autoExpandToday();
-
       render();
 
-      // Try to sync from API — remote is source of truth
-      if (navigator.onLine) {
-        try {
-          const remote = await apiGet('getWeek', { date: weekStart });
-          if (remote && remote.days) {
-            const localTime = local ? (local.updatedAt || 0) : 0;
-            const remoteTime = remote._updatedAt || 0;
-            const localCount = countActivities(local ? local.data : null);
-            const remoteCount = countActivities(remote);
+      if (!state.currentUser) return;
 
-            // Use remote if: no local data, remote is newer, OR remote has more activities
-            // OR if explicitly forced by the Recovery Tool
-            const useRemote = !local || remoteTime > localTime || remoteCount > localCount || window._forcePull;
-            if (useRemote) {
-              // Merge remote into current in-memory state
-              // During Force Pull, we pass null as baseline to ensure Structure is refreshed
-              // For regular initial load, we use the local DB data as the baseline if available
-              // CRITICAL: If no local data exists (fresh app / clear cache), use remote Authority directly
-              // to avoid merging server data with a default empty activity structure.
-              const baseline = window._forcePull ? null : (local ? local.data : null);
-              const merged = (!local && !window._forcePull) ? deepCopy(remote) : mergeWeekData(baseline, state.weekData, remote);
-              enforceCorrectDates(weekStart, merged);
-              state.weekData = merged;
-              state.weekBase = deepCopy(remote);
-              await dbPut('weeks', { weekStart, data: merged, updatedAt: remoteTime || Date.now() });
-              const active = document.activeElement;
-              const userEditing = active && (active.tagName === 'TEXTAREA' || active.tagName === 'INPUT');
-              if (!userEditing) render();
-              if (window._forcePull) showToast('Week data forced from server');
-            } else {
-              state.weekBase = deepCopy(remote);
-            }
-          }
-          state.syncStatus = 'synced';
-        } catch (e) {
-          state.syncStatus = 'error';
-        } finally {
-          window._forcePull = false;
-        }
-      }
-      updateHeaderStatus();
-    }
+      // Subscribe to Firestore real-time updates for this week
+      const ref = userDoc(`weeks/${weekStart}`);
+      weekUnsubscribe = ref.onSnapshot({ includeMetadataChanges: true }, snap => {
+        // Ignore snapshots that are just echoing our own pending writes
+        if (snap.metadata.hasPendingWrites) return;
 
-    function scheduleAutoSave() {
-      clearTimeout(saveTimer);
-      clearTimeout(syncTimer);
-      state.syncStatus = 'pending';
-      // Stamp the edit time NOW — capture only week identity, NOT a deepCopy.
-      // deepCopy on every keystroke was blocking the JS thread and creating
-      // timing windows where syncNow could overwrite in-flight edits.
-      // Navigation safety is handled by the flush in loadWeek instead.
-      state.weekData._updatedAt = Date.now();
-      const capturedWeekStart = state.weekStart;
-      updateHeaderStatus();
-      saveTimer = setTimeout(async () => {
-        // Guard: if user navigated away before timer fired, skip (loadWeek already flushed)
-        if (state.weekStart === capturedWeekStart) {
-          await dbPut('weeks', { weekStart: capturedWeekStart, data: state.weekData, updatedAt: state.weekData._updatedAt });
-          if (navigator.onLine) {
-            syncTimer = setTimeout(syncNow, 1000);
-          }
-        }
-      }, 500);
-    }
-
-    async function syncNow() {
-      if (!navigator.onLine) { state.syncStatus = 'pending'; updateHeaderStatus(); return; }
-      if (isSyncing) return;
-      isSyncing = true;
-      state.syncStatus = 'syncing';
-      updateHeaderStatus();
-      try {
-        // Always pull remote first
-        const remote = await apiGet('getWeek', { date: state.weekStart });
-
-        if (remote && remote.days) {
-          // --- Field-level merge (requires a baseline snapshot) ---
-          if (state.weekBase) {
-            const merged = mergeWeekData(state.weekBase, state.weekData, remote);
-
-            // Check if merge produced anything different from what remote already has
-            const needsPush = JSON.stringify(merged.days) !== JSON.stringify(remote.days);
-
-            if (needsPush) {
-              const ts = Date.now();
-              merged._updatedAt = ts;
-
-              const pushData = deepCopy(merged);
-              state.weekData = merged;
-              state.weekBase = deepCopy(merged);
-
-              await apiPost({ action: 'saveWeek', weekStart: state.weekStart, weekData: pushData, deviceName: state.deviceName });
-              await dbPut('weeks', { weekStart: state.weekStart, data: state.weekData, updatedAt: ts });
-            } else {
-              // Our local state already matches what the server has (or remote is ahead)
-              state.weekData = merged;
-              state.weekBase = deepCopy(merged);
-              await dbPut('weeks', { weekStart: state.weekStart, data: state.weekData, updatedAt: remote._updatedAt || Date.now() });
-            }
-
-            const active = document.activeElement;
-            const userEditing = active && (active.tagName === 'TEXTAREA' || active.tagName === 'INPUT');
-            if (!userEditing) render();
-            state.syncStatus = 'synced';
-            updateHeaderStatus();
-            return;
-          }
-
-          // --- Fallback: no baseline — use union merge ---
-          // Since we don't know what changed, pass null as baseline.
-          // mergeWeekData handles this by unioning local + remote activities.
-          const merged = mergeWeekData(null, state.weekData, remote);
-
-          const needsPush = JSON.stringify(merged.days) !== JSON.stringify(remote.days);
-
-          if (needsPush) {
-            const ts = Date.now();
-            merged._updatedAt = ts;
-
-            const pushData = deepCopy(merged);
-            state.weekData = merged;
-            state.weekBase = deepCopy(merged);
-
-            await apiPost({ action: 'saveWeek', weekStart: state.weekStart, weekData: pushData, deviceName: state.deviceName });
-            await dbPut('weeks', { weekStart: state.weekStart, data: state.weekData, updatedAt: ts });
-          } else {
-            state.weekData = merged;
-            state.weekBase = deepCopy(merged);
-            await dbPut('weeks', { weekStart: state.weekStart, data: state.weekData, updatedAt: remote._updatedAt || Date.now() });
-          }
-
-          const active = document.activeElement;
-          const userEditing = active && (active.tagName === 'TEXTAREA' || active.tagName === 'INPUT');
-          if (!userEditing) render();
+        if (!snap.exists) {
+          // No data on server yet — push our local data up
+          fsSetWeek(weekStart, state.weekData).catch(() => {});
           state.syncStatus = 'synced';
           updateHeaderStatus();
           return;
         }
 
-        // No remote data, or local is authoritative with no baseline — push local
-        const ts = Date.now();
-        state.weekData._updatedAt = ts;
-        await apiPost({ action: 'saveWeek', weekStart: state.weekStart, weekData: { ...state.weekData, _updatedAt: ts }, deviceName: state.deviceName });
-        await dbPut('weeks', { weekStart: state.weekStart, data: state.weekData, updatedAt: ts });
+        const remote = snap.data();
+        if (!remote.days) return;
+
+        enforceCorrectDates(weekStart, remote);
+        state.weekData = deepCopy(remote);
+        dbPut('weeks', { weekStart, data: state.weekData, updatedAt: remote._updatedAt || Date.now() });
+
+        const active = document.activeElement;
+        const userEditing = active && (active.tagName === 'TEXTAREA' || active.tagName === 'INPUT');
+        if (!userEditing) render();
+
         state.syncStatus = 'synced';
-      } catch (e) {
+        updateHeaderStatus();
+      }, () => {
         state.syncStatus = 'error';
-      } finally {
-        isSyncing = false;
-      }
+        updateHeaderStatus();
+      });
+
+      state.syncStatus = 'synced';
       updateHeaderStatus();
     }
+
+    function scheduleAutoSave() {
+      clearTimeout(saveTimer);
+      state.syncStatus = 'pending';
+      state.weekData._updatedAt = Date.now();
+      const capturedWeekStart = state.weekStart;
+      updateHeaderStatus();
+      saveTimer = setTimeout(async () => {
+        if (state.weekStart !== capturedWeekStart) return;
+        await dbPut('weeks', { weekStart: capturedWeekStart, data: state.weekData, updatedAt: state.weekData._updatedAt });
+        if (state.currentUser) {
+          try {
+            await fsSetWeek(capturedWeekStart, state.weekData);
+            if (state.weekStart === capturedWeekStart) { state.syncStatus = 'synced'; updateHeaderStatus(); }
+          } catch (e) {
+            if (state.weekStart === capturedWeekStart) { state.syncStatus = 'error'; updateHeaderStatus(); }
+          }
+        }
+      }, 1000);
+    }
+
 
     // ============================================================
     // EMAIL WEEKLY SUMMARY
@@ -4318,23 +4150,9 @@
 
     async function sendWeeklyEmail() {
       if (!state.weekData) { showToast('No week data to send.'); return; }
-      showToast('Sending email…', 8000);
-      try {
-        const res = await apiPost({
-          action: 'emailWeekly',
-          to: 'morow01@gmail.com',
-          subject: 'Weekly Timesheet — ' + formatWeekRange(state.weekStart),
-          body: buildEmailPlain(state.weekData),
-          htmlBody: buildEmailHtml(state.weekData),
-        });
-        if (res && res.ok) {
-          showToast('✓ Email sent!', 4000);
-        } else {
-          showToast('⚠ Email failed — see GAS logs', 5000);
-        }
-      } catch (e) {
-        showToast('⚠ Email error: ' + e.message, 5000);
-      }
+      const subject = encodeURIComponent('Weekly Timesheet — ' + formatWeekRange(state.weekStart));
+      const body = encodeURIComponent(buildEmailPlain(state.weekData));
+      window.open(`mailto:morow01@gmail.com?subject=${subject}&body=${body}`);
     }
 
     function showToast(msg, duration = 2800) {
@@ -4477,10 +4295,16 @@
           ${state.menuView === 'main' ? `
           <div style="padding: 10px 14px 8px; border-bottom: 1px solid var(--border); margin-bottom: 4px;">
             <div style="font-size: 9px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; margin-bottom: 6px; letter-spacing: 0.1em;">Device Name</div>
-            <input type="text" placeholder="e.g. Fold 5" value="${state.deviceName === 'Unknown Device' ? '' : state.deviceName}" 
+            <input type="text" placeholder="e.g. Fold 5" value="${state.deviceName === 'Unknown Device' ? '' : state.deviceName}"
                    style="width: 100%; background: var(--bg-card-alt); border: 1px solid var(--border); border-radius: 8px; padding: 6px 10px; font-size: 13px; color: var(--text-primary); outline: none;"
                    oninput="state.deviceName = this.value || 'Unknown Device'; localStorage.setItem('deviceName', state.deviceName);"
                    onclick="event.stopPropagation()">
+          </div>
+          <div style="padding: 8px 14px 6px; border-bottom: 1px solid var(--border); margin-bottom: 4px;">
+            ${state.currentUser ? `<div style="font-size: 11px; color: var(--text-secondary); margin-bottom: 6px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+              Signed in as ${esc(state.currentUser.displayName || state.currentUser.email || 'Unknown')}
+            </div>
+            <button onclick="signOutUser()" style="width:100%;background:rgba(239,68,68,0.08);color:#ef4444;border:1px solid rgba(239,68,68,0.22);border-radius:8px;padding:6px 10px;font-size:12px;font-weight:600;cursor:pointer;">Sign Out</button>` : ''}
           </div>` : ''}
           ${menuContent}
         </div>
@@ -5319,166 +5143,63 @@
       notesSaveTimer = setTimeout(async () => {
         const ts = Date.now();
         await dbPut('notes', { id: 'notes_all', data: state.notes, updatedAt: ts });
-        state.notesLocalTime = ts;  // track so syncNotes knows our true local timestamp
-        if (navigator.onLine) setTimeout(syncNotes, 800);
-      }, 500);
-    }
-
-    // 3-way field-level merge for notes array
-    function mergeNotes(base, local, remote) {
-      const FIELDS = ['description', 'location', 'date', 'priority', 'status'];
-      const merged = deepCopy(remote);
-
-      // Field-level merge for notes present in all three
-      merged.forEach(mergedNote => {
-        const localNote = local.find(n => n.id === mergedNote.id);
-        const baseNote = base ? base.find(n => n.id === mergedNote.id) : null;
-        if (!localNote || !baseNote) return;
-        FIELDS.forEach(field => {
-          const baseVal = JSON.stringify(baseNote[field] ?? '');
-          const localVal = JSON.stringify(localNote[field] ?? '');
-          const remoteVal = JSON.stringify(mergedNote[field] ?? '');
-
-          if (localVal !== baseVal) {
-            if (remoteVal !== baseVal && remoteVal !== localVal && field === 'description') {
-              const rText = mergedNote[field] ? String(mergedNote[field]).trim() : '';
-              const lText = localNote[field] ? String(localNote[field]).trim() : '';
-
-              if (rText && lText && !lText.includes(rText) && !rText.includes(lText)) {
-                mergedNote[field] = `${rText}\n\n[Merged from ${state.deviceName}]:\n${lText}`;
-              } else if (lText.length > rText.length) {
-                mergedNote[field] = deepCopy(localNote[field]);
-              }
-            } else {
-              mergedNote[field] = deepCopy(localNote[field]);
-            }
+        if (state.currentUser) {
+          try {
+            await fsSetNotes(state.notes);
+            state.notesSyncStatus = 'synced';
+          } catch (e) {
+            state.notesSyncStatus = 'error';
           }
-        });
-      });
-
-      // Notes added locally (not in remote and not in base) — keep them
-      local.forEach(localNote => {
-        const inBase = base ? base.some(n => n.id === localNote.id) : false;
-        const inRemote = merged.some(n => n.id === localNote.id);
-        if (!inRemote && !inBase) merged.push(deepCopy(localNote));
-      });
-
-      // Notes deleted locally (in base+remote but removed locally) — respect deletion
-      if (base) {
-        return merged.filter(remoteNote => {
-          const inBase = base.some(n => n.id === remoteNote.id);
-          const inLocal = local.some(n => n.id === remoteNote.id);
-          return !(inBase && !inLocal);
-        });
-      }
-      return merged;
+          updateHeaderStatus();
+        }
+      }, 1000);
     }
 
     async function loadNotes() {
       state.notesSyncStatus = 'idle';
+
+      // Unsubscribe from previous listener
+      if (notesUnsubscribe) { notesUnsubscribe(); notesUnsubscribe = null; }
+
       const stored = await dbGet('notes', 'notes_all');
-      state.notesLocalTime = stored ? (stored.updatedAt || 0) : 0;
-      // Only load from DB if in-memory notes are empty — state.notes may already
-      // contain notes the user created during the loadWeek window (before loadNotes ran)
-      // and we must not overwrite those unsaved additions
       if (state.notes.length === 0 && stored && stored.data.length > 0) {
         state.notes = stored.data;
       }
-      // Baseline = current in-memory state, so any edits made during the upcoming
-      // API call are recognised as "local changes" by mergeNotes
-      state.notesBase = deepCopy(state.notes);
       render();
-      if (navigator.onLine) {
-        try {
-          const remote = await apiGet('getNotes');
-          if (remote && Array.isArray(remote.notes)) {
-            const remoteTime = remote._updatedAt || 0;
-            // Use remote if forced or if explicitly newer
-            if (remote.notes.length > 0 || state.notes.length === 0 || window._forcePullNotes) {
-              const baseline = window._forcePullNotes ? null : state.notesBase;
-              // If no local data and no baseline, use remote Authority directly
-              const merged = (!stored && !window._forcePullNotes) ? deepCopy(remote.notes) : mergeNotes(baseline, state.notes, remote.notes);
-              if (JSON.stringify(merged) !== JSON.stringify(remote.notes) && !window._forcePullNotes) {
-                const ts = Date.now();
-                await apiPost({ action: 'saveNotes', notes: merged, _updatedAt: ts, deviceName: state.deviceName });
-                state.notesLocalTime = ts;
-                await dbPut('notes', { id: 'notes_all', data: merged, updatedAt: ts });
-              } else {
-                state.notesLocalTime = remoteTime;
-                await dbPut('notes', { id: 'notes_all', data: merged, updatedAt: remoteTime });
-              }
-              state.notes = merged;
-              state.notesBase = deepCopy(remote.notes);
-              if (window._forcePullNotes) showToast('Notes forced from server');
-            }
-          }
-          state.notesSyncStatus = 'synced';
-        } catch (e) {
-          state.notesSyncStatus = 'error';
-        } finally {
-          window._forcePullNotes = false;
-        }
-        const active = document.activeElement;
-        const userEditing = active && (active.tagName === 'TEXTAREA' || active.tagName === 'INPUT');
-        if (!userEditing) render();
-      }
-      updateHeaderStatus();
-    }
 
-    async function syncNotes() {
-      if (!navigator.onLine) { state.notesSyncStatus = 'pending'; updateHeaderStatus(); return; }
-      state.notesSyncStatus = 'syncing';
-      updateHeaderStatus();
-      try {
-        const remote = await apiGet('getNotes');
-        if (remote && Array.isArray(remote.notes)) {
-          if (state.notesBase) {
-            const merged = mergeNotes(state.notesBase, state.notes, remote.notes);
-            const needsPush = JSON.stringify(merged) !== JSON.stringify(remote.notes);
-            const ts = Date.now();
-            if (needsPush) {
-              await apiPost({ action: 'saveNotes', notes: merged, _updatedAt: ts, deviceName: state.deviceName });
-            }
-            state.notes = merged;
-            state.notesBase = deepCopy(merged);
-            state.notesLocalTime = ts;
-            await dbPut('notes', { id: 'notes_all', data: merged, updatedAt: ts });
-          } else {
-            // No baseline yet — use real local timestamp to decide push vs pull
-            const remoteTime = remote._updatedAt || 0;
-            if (remoteTime > state.notesLocalTime) {
-              // Remote is genuinely newer — pull it
-              state.notes = remote.notes;
-              state.notesBase = deepCopy(remote.notes);
-              state.notesLocalTime = remoteTime;
-              await dbPut('notes', { id: 'notes_all', data: state.notes, updatedAt: remoteTime });
-            } else {
-              // Local is same age or newer — push to server
-              const ts = Date.now();
-              await apiPost({ action: 'saveNotes', notes: state.notes, _updatedAt: ts, deviceName: state.deviceName });
-              state.notesBase = deepCopy(state.notes);
-              state.notesLocalTime = ts;
-              await dbPut('notes', { id: 'notes_all', data: state.notes, updatedAt: ts });
-            }
-          }
+      if (!state.currentUser) return;
+
+      // Subscribe to Firestore real-time updates for notes
+      const ref = userDoc('data/notes');
+      notesUnsubscribe = ref.onSnapshot({ includeMetadataChanges: true }, snap => {
+        if (snap.metadata.hasPendingWrites) return;
+
+        if (!snap.exists) {
+          // No notes on server yet — push local
+          fsSetNotes(state.notes).catch(() => {});
           state.notesSyncStatus = 'synced';
-        } else {
-          // No remote data yet — push local
-          const ts = Date.now();
-          await apiPost({ action: 'saveNotes', notes: state.notes, _updatedAt: ts, deviceName: state.deviceName });
-          state.notesBase = deepCopy(state.notes);
-          state.notesLocalTime = ts;
-          await dbPut('notes', { id: 'notes_all', data: state.notes, updatedAt: ts });
-          state.notesSyncStatus = 'synced';
+          updateHeaderStatus();
+          return;
         }
-      } catch (e) {
-        state.notesSyncStatus = 'error';
-      }
-      if (state.view === 'notes') {
+
+        const remote = snap.data();
+        if (!Array.isArray(remote.notes)) return;
+
+        state.notes = deepCopy(remote.notes);
+        dbPut('notes', { id: 'notes_all', data: state.notes, updatedAt: remote._updatedAt || Date.now() });
+
         const active = document.activeElement;
         const userEditing = active && (active.tagName === 'TEXTAREA' || active.tagName === 'INPUT');
-        if (!userEditing) render();
-      }
+        if (state.view === 'notes' && !userEditing) render();
+
+        state.notesSyncStatus = 'synced';
+        updateHeaderStatus();
+      }, () => {
+        state.notesSyncStatus = 'error';
+        updateHeaderStatus();
+      });
+
+      state.notesSyncStatus = 'synced';
       updateHeaderStatus();
     }
 
@@ -5894,28 +5615,23 @@
       state.snapshotPage = 0;
       state.historySnapshots = [];
       render();
+
       // Load from local DB
       const all = await dbGetAll('weeks');
       state.historyWeeks = all.sort((a, b) => b.weekStart.localeCompare(a.weekStart));
-      // Also try API
-      if (navigator.onLine) {
-        try {
-          const remote = await apiGet('getWeeks');
-          if (Array.isArray(remote)) {
-            const local = new Set(state.historyWeeks.map(w => w.weekStart));
-            remote.forEach(r => { if (!local.has(r.weekStart)) state.historyWeeks.push(r); });
-            state.historyWeeks.sort((a, b) => b.weekStart.localeCompare(a.weekStart));
-          }
-        } catch (e) { }
-      }
 
-      // Load Snapshots
-      if (navigator.onLine) {
+      // Also fetch from Firestore to catch weeks not in local cache
+      if (state.currentUser) {
         try {
-          const snaps = await apiGet('getSnapshots');
-          if (Array.isArray(snaps)) {
-            state.historySnapshots = snaps;
-          }
+          const snap = await db_fs.collection(`users/${state.currentUser.uid}/weeks`).get();
+          const local = new Set(state.historyWeeks.map(w => w.weekStart));
+          snap.forEach(doc => {
+            if (!local.has(doc.id)) {
+              state.historyWeeks.push({ weekStart: doc.id, data: doc.data() });
+              local.add(doc.id);
+            }
+          });
+          state.historyWeeks.sort((a, b) => b.weekStart.localeCompare(a.weekStart));
         } catch (e) { }
       }
 
@@ -6400,27 +6116,7 @@
           data = typeof snap.data === 'string' ? JSON.parse(snap.data) : snap.data;
         }
 
-        // Strategy 2: Dedicated getSnapshotData endpoint
-        if (!data && navigator.onLine) {
-          try {
-            const res = await apiGet('getSnapshotData', { timestamp: snap.timestamp, weekStart: ws });
-            if (res && res.data) {
-              data = typeof res.data === 'string' ? JSON.parse(res.data) : res.data;
-            }
-          } catch (e2) { /* fall through to next strategy */ }
-        }
-
-        // Strategy 3: Fall back to fetching the full week data directly
-        if (!data && navigator.onLine && ws) {
-          try {
-            const res = await apiGet('getWeekData', { weekStart: ws });
-            if (res && res.data) {
-              data = typeof res.data === 'string' ? JSON.parse(res.data) : res.data;
-            }
-          } catch (e3) { /* fall through */ }
-        }
-
-        if (!data) throw new Error('Could not retrieve snapshot data. Try syncing first.');
+        if (!data) throw new Error('Snapshot data not available. Historical snapshots from the old sync system may not be accessible.');
 
         const ts = Date.now();
         if (snap.type === 'week') {
@@ -6428,27 +6124,24 @@
           data._updatedAt = ts;
           state.weekData = data;
           state.weekStart = ws;
-          state.weekBase = deepCopy(data);
           await dbPut('weeks', { weekStart: ws, data: data, updatedAt: ts });
           showToast('✓ Week data restored!');
           setView('week');
 
-          if (navigator.onLine) {
-            isSyncing = true; state.syncStatus = 'syncing'; updateHeaderStatus();
-            await apiPost({ action: 'saveWeek', weekStart: ws, weekData: data, deviceName: state.deviceName });
-            isSyncing = false; state.syncStatus = 'synced'; updateHeaderStatus();
+          if (state.currentUser) {
+            state.syncStatus = 'syncing'; updateHeaderStatus();
+            await fsSetWeek(ws, data);
+            state.syncStatus = 'synced'; updateHeaderStatus();
           }
         } else {
           state.notes = data.notes || [];
-          state.notesBase = deepCopy(state.notes);
-          state.notesLocalTime = ts;
           await dbPut('notes', { id: 'notes_all', data: state.notes, updatedAt: ts });
           showToast('✓ Notes restored!');
           setView('notes');
 
-          if (navigator.onLine) {
+          if (state.currentUser) {
             state.notesSyncStatus = 'syncing'; updateHeaderStatus();
-            await apiPost({ action: 'saveNotes', notes: state.notes, _updatedAt: ts, deviceName: state.deviceName });
+            await fsSetNotes(state.notes);
             state.notesSyncStatus = 'synced'; updateHeaderStatus();
           }
         }
@@ -6666,9 +6359,9 @@
       }
     }
 
-    // Online / offline handling
+    // Online / offline handling — Firestore reconnects automatically
     window.addEventListener('online', () => {
-      if (state.syncStatus === 'pending' || state.syncStatus === 'error') syncNow();
+      updateHeaderStatus();
     });
 
     window.addEventListener('offline', () => {
@@ -6734,47 +6427,84 @@
       }, 120);
     }, { passive: true });
 
+    function renderLogin() {
+      document.getElementById('app').innerHTML = `
+        <div style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--bg-page);">
+          <div style="background:var(--bg-card);border-radius:16px;padding:40px 32px;text-align:center;max-width:340px;width:90%;box-shadow:0 4px 24px rgba(0,0,0,0.10);border:1px solid var(--border);">
+            <div style="font-size:2.5rem;margin-bottom:12px;">⏱️</div>
+            <h1 style="font-size:1.4rem;font-weight:800;color:var(--text-primary);margin-bottom:6px;">TimeSheet</h1>
+            <p style="color:var(--text-secondary);margin-bottom:28px;font-size:0.88rem;">Sign in to sync your timesheet across all devices.</p>
+            <button onclick="signInWithGoogle()" style="background:#1e3a8a;color:#fff;border:none;border-radius:10px;padding:13px 20px;font-size:0.95rem;font-weight:700;cursor:pointer;width:100%;display:flex;align-items:center;justify-content:center;gap:10px;">
+              <svg width="18" height="18" viewBox="0 0 48 48" style="flex-shrink:0"><path fill="#fff" d="M44.5 20H24v8.5h11.8C34.7 33.9 30.1 37 24 37c-7.2 0-13-5.8-13-13s5.8-13 13-13c3.1 0 5.9 1.1 8.1 2.9l6.4-6.4C34.6 4.1 29.6 2 24 2 11.8 2 2 11.8 2 24s9.8 22 22 22c11 0 21-8 21-22 0-1.3-.2-2.7-.5-4z"/></svg>
+              Sign in with Google
+            </button>
+          </div>
+        </div>`;
+    }
+
+    async function signInWithGoogle() {
+      const provider = new firebase.auth.GoogleAuthProvider();
+      try {
+        await auth_fb.signInWithPopup(provider);
+      } catch (e) {
+        showToast('Sign-in failed: ' + (e.message || 'Unknown error'));
+      }
+    }
+
+    async function signOutUser() {
+      if (weekUnsubscribe) { weekUnsubscribe(); weekUnsubscribe = null; }
+      if (notesUnsubscribe) { notesUnsubscribe(); notesUnsubscribe = null; }
+      await auth_fb.signOut();
+    }
+
     async function init() {
       initTheme();
       if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('sw.js').catch(() => { });
       }
 
-      // Restore last view BEFORE first render so every render targets the right view
       const lastView = localStorage.getItem('lastView');
       if (lastView === 'notes' || lastView === 'history' || lastView === 'exchanges') state.view = lastView;
 
       await Promise.all([initDB(), loadCodes(), loadTowns(), loadCabinets()]);
 
-      // Pre-populate notes from local DB NOW — before loadWeek triggers any render —
-      // so the notes view never shows blank while waiting for the week API call
-      if (state.view === 'notes') {
-        const storedNotes = await dbGet('notes', 'notes_all');
-        if (storedNotes && storedNotes.data) {
-          state.notes = storedNotes.data;
-          state.notesLocalTime = storedNotes.updatedAt || 0;
+      // Show login screen immediately while waiting for auth state
+      renderLogin();
+
+      // Firebase auth state observer — drives the whole app lifecycle
+      auth_fb.onAuthStateChanged(async user => {
+        state.currentUser = user;
+        if (!user) {
+          // Signed out — tear down listeners and show login
+          if (weekUnsubscribe) { weekUnsubscribe(); weekUnsubscribe = null; }
+          if (notesUnsubscribe) { notesUnsubscribe(); notesUnsubscribe = null; }
+          renderLogin();
+          return;
         }
-      }
 
-      const friday = getCurrentFriday();
-      await loadWeek(dateToStr(friday));
+        // Signed in — load local data first for instant display
+        if (state.view === 'notes') {
+          const storedNotes = await dbGet('notes', 'notes_all');
+          if (storedNotes && storedNotes.data) {
+            state.notes = storedNotes.data;
+          }
+        }
 
-      // Full sync for the restored view (updates from server, merges, saves back to DB)
-      if (state.view === 'notes') loadNotes();
-      else if (state.view === 'history') loadHistory();
+        const friday = getCurrentFriday();
+        await loadWeek(dateToStr(friday));
+
+        if (state.view === 'notes') loadNotes();
+        else if (state.view === 'history') loadHistory();
+      });
     }
 
     async function forcePullWeek() {
-      if (!navigator.onLine) { showToast('Must be online to pull data'); return; }
-      window._forcePull = true;
-      showToast('Forcing week pull…');
+      showToast('Re-subscribing to week…');
       await loadWeek(state.weekStart);
     }
 
     async function forcePullNotes() {
-      if (!navigator.onLine) { showToast('Must be online to pull notes'); return; }
-      window._forcePullNotes = true;
-      showToast('Forcing notes pull…');
+      showToast('Re-subscribing to notes…');
       await loadNotes();
     }
 
