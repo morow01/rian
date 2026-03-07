@@ -872,151 +872,220 @@
       text-align: right;
     }
 
+    /* ── Weekly Summary animations ── */
     @keyframes sumFadeRow {
-      from {
-        opacity: 0;
-        transform: translateY(4px);
-      }
-
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
+      from { opacity: 0; transform: translateY(4px); }
+      to   { opacity: 1; transform: translateY(0); }
     }
-
     @keyframes sumFadeRowOut {
-      from {
-        opacity: 1;
-        transform: translateY(0);
-      }
-
-      to {
-        opacity: 0;
-        transform: translateY(4px);
-      }
+      from { opacity: 1; transform: translateY(0); }
+      to   { opacity: 0; transform: translateY(4px); }
     }
 
-    .sum-table tbody tr {
+    /* ── Summary section wrapper ── */
+    .sum-section {
+      margin: 10px 10px 4px;
+    }
+
+    /* ── Gradient hero button ── */
+    .sum-hero {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 16px 14px;
+      background: linear-gradient(135deg, #1B3FA6 0%, #2D6BE4 100%);
+      border: none;
+      border-radius: 14px 14px 0 0;
+      cursor: pointer;
+      text-align: left;
+      transition: border-radius 0.3s ease;
+    }
+    .sum-hero.collapsed { border-radius: 14px; }
+
+    .sum-hero-label {
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.13em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.45);
+      margin-bottom: 8px;
+    }
+    .sum-hero-nums {
+      display: flex;
+      align-items: flex-end;
+      gap: 16px;
+    }
+    .sum-hnum { display: flex; flex-direction: column; }
+    .sum-hnum-val {
+      font-family: var(--font-mono);
+      font-size: 26px;
+      font-weight: 500;
+      color: #fff;
+      line-height: 1;
+      letter-spacing: -0.02em;
+    }
+    .sum-hnum-val em {
+      font-size: 13px;
+      font-weight: 400;
+      color: rgba(255,255,255,0.4);
+      font-style: normal;
+    }
+    .sum-hnum.ot .sum-hnum-val { color: #FDE68A; }
+    .sum-hnum-sub {
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.4);
+      margin-top: 3px;
+    }
+    .sum-hero-sep {
+      width: 1px;
+      height: 36px;
+      background: rgba(255,255,255,0.18);
+      align-self: flex-end;
+      margin-bottom: 4px;
+    }
+
+    /* Chevron circle button */
+    .sum-chevron-btn {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.13);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .sum-chevron-svg {
+      transition: transform 0.3s ease;
+      display: block;
+    }
+    .sum-chevron-svg.flipped { transform: rotate(180deg); }
+
+    /* ── Table wrapper ── */
+    .sum-table-wrap {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-top: none;
+      border-radius: 0 0 14px 14px;
+      overflow: hidden;
+    }
+
+    /* ── Responsive grid rows ── */
+    /* Mobile default: [code+desc stacked | ord | ot] */
+    .sum-grid-head,
+    .sum-grid-row,
+    .sum-grid-total {
+      display: grid;
+      grid-template-columns: 1fr 44px 44px;
+    }
+    /* Desktop: [code | description | ord | ot] */
+    @media (min-width: 580px) {
+      .sum-grid-head,
+      .sum-grid-row,
+      .sum-grid-total {
+        grid-template-columns: 126px 1fr 60px 60px;
+      }
+      .sum-td-code-mob { display: none; }
+      .sum-td-code-desk { display: block !important; }
+    }
+
+    .sum-grid-head {
+      padding: 7px 14px;
+      background: var(--bg-card-alt);
+      border-bottom: 1px solid var(--border-lt, #EAEFF5);
+    }
+    .sum-th {
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.11em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+    .sum-th.r { text-align: right; }
+    /* Hide desktop CODE column header on mobile */
+    .sum-th-code-desk { display: none; }
+    @media (min-width: 580px) { .sum-th-code-desk { display: block; } }
+
+    .sum-grid-row {
+      padding: 9px 14px;
       border-bottom: 1px solid #F0F4F8;
+      align-items: start;
       animation: sumFadeRow 0.3s ease both;
     }
+    .sum-grid-row:last-child { border-bottom: none; }
+    .sum-grid-row:hover { background: #F8FAFC; }
+    .sum-grid-row.sum-missing { background: rgba(239,68,68,0.04); }
+    .sum-grid-row.sum-missing:hover { background: rgba(239,68,68,0.07); }
 
-    .sum-table tbody tr:last-child {
-      border-bottom: none;
-    }
-
-    .sum-table tbody tr:hover {
-      background: #F8FAFC;
-    }
-
-    .sum-table tbody tr.sum-missing {
-      background: rgba(239, 68, 68, 0.04);
-    }
-
-    .sum-table tbody tr.sum-missing:hover {
-      background: rgba(239, 68, 68, 0.07);
-    }
-
-    .sum-table td {
-      padding: 10px 14px;
-      vertical-align: middle;
-    }
-
-    .sum-td-code {
+    /* Desktop-only code column (hidden on mobile) */
+    .sum-td-code-desk {
+      display: none;
       font-family: var(--font-mono);
-      font-size: 12px;
-
-      color: #2D6BE4;
-      white-space: nowrap;
-    }
-
-    .sum-td-code.missing {
-      color: #DC2626;
       font-size: 10px;
-      font-weight: 700;
-      letter-spacing: 0.05em;
-      text-transform: uppercase;
+      font-weight: 600;
+      color: var(--accent);
+      letter-spacing: 0.02em;
+      padding-top: 1px;
     }
+    .sum-td-code-desk.missing { color: #DC2626; text-transform: uppercase; }
 
+    /* Mobile stacked cell */
+    .sum-td-main { min-width: 0; }
+    .sum-td-code-mob {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--accent);
+      letter-spacing: 0.02em;
+      margin-bottom: 1px;
+    }
+    .sum-td-code-mob.missing { color: #DC2626; text-transform: uppercase; }
     .sum-td-desc {
-      font-size: 12px;
-      color: #4A6580;
-      line-height: 1.35;
+      font-size: 11px;
+      color: var(--text-sec);
+      line-height: 1.3;
     }
+    .sum-td-desc.missing { color: #DC2626; }
 
-    .sum-td-desc.missing {
-      color: #DC2626;
-    }
-
+    /* Number cells */
     .sum-td-num {
       font-family: var(--font-mono);
       font-size: 13px;
       font-weight: 600;
-      color: #0F1C2E;
+      color: var(--text-primary);
       text-align: right;
       white-space: nowrap;
     }
+    .sum-td-num.ot      { color: #C07800; }
+    .sum-td-num.dash    { color: #C8D8E8; }
+    .sum-td-num.missing { color: #DC2626; }
 
-    .sum-td-num.ot {
-      color: #C07800;
-    }
-
-    .sum-td-num.dash {
-      color: #C8D8E8;
-    }
-
-    .sum-td-num.missing {
-      color: #DC2626;
-    }
-
-    .sum-totals-row {
-      display: flex;
+    /* Total row */
+    .sum-grid-total {
+      padding: 11px 14px;
+      background: var(--bg-card-alt);
+      border-top: 1.5px solid var(--border);
       align-items: center;
-      justify-content: space-between;
-      padding: 13px 14px;
-      background: #F4F7FA;
-      border-top: 1.5px solid #D4E0EC;
     }
-
-    .sum-totals-label {
-      font-size: 11px;
+    .sum-total-label {
+      font-size: 10px;
       font-weight: 700;
       letter-spacing: 0.1em;
       text-transform: uppercase;
-      color: #8BA5BE;
+      color: var(--text-muted);
     }
-
-    .sum-totals-nums {
-      display: flex;
-      gap: 24px;
-      align-items: center;
-    }
-
-    .sum-totals-item {
-      display: flex;
-      flex-direction: column;
-      align-items: flex-end;
-      gap: 1px;
-    }
-
-    .sum-totals-val {
+    .sum-total-val {
       font-family: var(--font-mono);
-      font-size: 17px;
+      font-size: 15px;
       font-weight: 700;
-      color: #0F1C2E;
+      color: var(--text-primary);
+      text-align: right;
     }
-
-    .sum-totals-val.ot {
-      color: #C07800;
-    }
-
-    .sum-totals-sub {
-      font-size: 9px;
-      color: #8BA5BE;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      font-weight: 600;
-    }
+    .sum-total-val.ot { color: #C07800; }
 
     input[type=number]::-webkit-inner-spin-button {
       opacity: 1;
@@ -3659,64 +3728,58 @@
 
       const daysHtml = state.weekData.days.map((day, di) => renderDaySection(day, di)).join('');
 
+      const chevronSvg = `<svg class="sum-chevron-svg${state.showSummary ? '' : ' flipped'}" width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="rgba(255,255,255,0.8)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+
       const summaryHtml = `
   <div class="sum-section">
-    <button onclick="toggleSummary()" class="sum-hdr">
-      <span class="sum-title">Weekly Summary</span>
-      <div class="sum-hdr-right">
-        <div class="sum-pill">
-          <span class="sum-num" data-sum-ord>${Math.round(totalOrd)}</span>
-          <span class="sum-lbl">hrs</span>
+    <button onclick="toggleSummary()" class="sum-hero${state.showSummary ? '' : ' collapsed'}">
+      <div>
+        <div class="sum-hero-label">Week Total</div>
+        <div class="sum-hero-nums">
+          <div class="sum-hnum">
+            <div class="sum-hnum-val"><span data-sum-ord>${Math.round(totalOrd)}</span><em> hrs</em></div>
+            <div class="sum-hnum-sub">Ordinary</div>
+          </div>
+          <div class="sum-hero-sep"></div>
+          <div class="sum-hnum ot">
+            <div class="sum-hnum-val"><span data-sum-ot>${Math.round(totalOT)}</span><em> hrs</em></div>
+            <div class="sum-hnum-sub">Overtime</div>
+          </div>
         </div>
-        <div class="sum-sep"></div>
-        <div class="sum-pill">
-          <span class="sum-num ot" data-sum-ot>${Math.round(totalOT)}</span>
-          <span class="sum-lbl">OT</span>
-        </div>
-        <span class="sum-chevron">${state.showSummary ? '▲' : '▼'}</span>
       </div>
+      <div class="sum-chevron-btn">${chevronSvg}</div>
     </button>
     ${state.showSummary ? `
-    <div style="overflow-x:auto">
-      <table class="sum-table">
-        <thead>
-          <tr>
-            <th style="width:108px">Code</th>
-            <th>Description</th>
-            <th class="num" style="width:48px">Ord</th>
-            <th class="num" style="width:48px">OT</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${summary.map((row, i) => {
-        const isUncat = row.isUncategorized;
+    <div class="sum-table-wrap">
+      <div class="sum-grid-head">
+        <div class="sum-th sum-th-code-desk">Code</div>
+        <div class="sum-th">Description</div>
+        <div class="sum-th r">Ord</div>
+        <div class="sum-th r">OT</div>
+      </div>
+      ${summary.map((row, i) => {
+        const m = row.isUncategorized;
         return `
-          <tr class="${isUncat ? 'sum-missing' : ''}" style="animation-delay:${i * 30}ms">
-            <td class="sum-td-code ${isUncat ? 'missing' : ''}">${row.code}</td>
-            <td class="sum-td-desc ${isUncat ? 'missing' : ''}">${row.description}</td>
-            <td class="sum-td-num ${isUncat ? 'missing' : ''}">${Math.round(row.ordinary)}</td>
-            <td class="sum-td-num ${row.overtime > 0 ? (isUncat ? 'missing' : 'ot') : 'dash'}">${row.overtime > 0 ? Math.round(row.overtime) : '—'}</td>
-          </tr>`;
+      <div class="sum-grid-row${m ? ' sum-missing' : ''}" style="animation-delay:${i * 30}ms">
+        <div class="sum-td-code-desk${m ? ' missing' : ''}">${row.code}</div>
+        <div class="sum-td-main">
+          <div class="sum-td-code-mob${m ? ' missing' : ''}">${row.code}</div>
+          <div class="sum-td-desc${m ? ' missing' : ''}">${row.description}</div>
+        </div>
+        <div class="sum-td-num${m ? ' missing' : ''}">${Math.round(row.ordinary)}</div>
+        <div class="sum-td-num ${row.overtime > 0 ? (m ? 'missing' : 'ot') : 'dash'}">${row.overtime > 0 ? Math.round(row.overtime) : '—'}</div>
+      </div>`;
       }).join('')}
-        </tbody>
-      </table>
-    </div>
-    <div class="sum-totals-row" style="animation:sumFadeRow 0.3s ease both;animation-delay:${summary.length * 30}ms">
-      <span class="sum-totals-label">Total</span>
-      <div class="sum-totals-nums">
-        <div class="sum-totals-item">
-          <span class="sum-totals-val">${Math.round(totalOrd)}</span>
-          <span class="sum-totals-sub">Ordinary</span>
-        </div>
-        <div class="sum-totals-item">
-          <span class="sum-totals-val ot">${Math.round(totalOT)}</span>
-          <span class="sum-totals-sub">Overtime</span>
-        </div>
+      <div class="sum-grid-total" style="animation:sumFadeRow 0.3s ease both;animation-delay:${summary.length * 30}ms">
+        <div class="sum-total-label">Total</div>
+        <div></div>
+        <div class="sum-total-val">${Math.round(totalOrd)}</div>
+        <div class="sum-total-val ot">${Math.round(totalOT)}</div>
       </div>
     </div>` : ''}
   </div>`;
 
-      return `<main class="pb-6"><div class="week-list">${daysHtml}${summaryHtml}</div></main>`;
+      return `<main class="pb-6"><div class="week-list">${daysHtml}</div>${summaryHtml}</main>`;
     }
 
     // ============================================================
@@ -4423,8 +4486,8 @@
       if (state.showSummary) {
         // Animate rows out (reverse stagger: bottom row first), then collapse
         const animRows = [
-          ...document.querySelectorAll('.sum-table tbody tr'),
-          document.querySelector('.sum-totals-row')
+          ...document.querySelectorAll('.sum-grid-row'),
+          document.querySelector('.sum-grid-total')
         ].filter(Boolean);
 
         const total = animRows.length;
