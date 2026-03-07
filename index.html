@@ -877,6 +877,11 @@
       to   { opacity: 1; transform: translateY(0); }
     }
 
+    @keyframes sumFadeRowOut {
+      from { opacity: 1; transform: translateY(0); }
+      to   { opacity: 0; transform: translateY(4px); }
+    }
+
     .sum-table tbody tr {
       border-bottom: 1px solid #F0F4F8;
       animation: sumFadeRow 0.3s ease both;
@@ -4401,8 +4406,29 @@
     }
 
     function toggleSummary() {
-      state.showSummary = !state.showSummary;
-      render();
+      if (state.showSummary) {
+        // Animate rows out (reverse stagger: bottom row first), then collapse
+        const animRows = [
+          ...document.querySelectorAll('.sum-table tbody tr'),
+          document.querySelector('.sum-totals-row')
+        ].filter(Boolean);
+
+        const total = animRows.length;
+        if (total === 0) { state.showSummary = false; render(); return; }
+
+        animRows.forEach((row, i) => {
+          const delay = (total - 1 - i) * 30; // reverse order
+          row.style.animation = `sumFadeRowOut 0.2s ease both`;
+          row.style.animationDelay = delay + 'ms';
+        });
+
+        // Wait for last animation to finish before re-rendering
+        const waitMs = (total - 1) * 30 + 200;
+        setTimeout(() => { state.showSummary = false; render(); }, waitMs);
+      } else {
+        state.showSummary = true;
+        render();
+      }
     }
 
     function toggleLayoutMode() {
