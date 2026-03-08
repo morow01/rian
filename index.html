@@ -2924,7 +2924,7 @@
     // ============================================================
     // CONFIG
     // ============================================================
-    const VERSION = '3.6.17';
+    const VERSION = '3.6.18';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -4405,7 +4405,7 @@
       return `
       <div class="activity-card ${isExpanded ? 'expanded' : ''}" data-act-id="${act.id}" style="${showRedBorder ? 'border-color:var(--btn-danger-color); box-shadow: 0 0 8px rgba(232, 69, 60, 0.2)' : ''}">
         <div class="flex items-center gap-3 px-3.5 py-3 cursor-pointer" onclick="toggleActivityDetails('${act.id}')">
-          <div class="task-num ${overtime > 0 ? 'ot' : ''}">${actIndex + 1}</div>
+          <div class="task-num">${actIndex + 1}</div>
           <div class="flex-1 min-w-0 act-meta">
             <!-- Line 1: description, full width -->
             <div class="act-desc-txt" data-row-desc="${act.id}">${esc(act.description) || '<span style="opacity:0.4;font-weight:400;font-style:italic">No description</span>'}</div>
