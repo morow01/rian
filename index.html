@@ -890,31 +890,6 @@
       text-align: right;
     }
 
-    /* ── Weekly Summary animations ── */
-    @keyframes sumFadeRow {
-      from {
-        opacity: 0;
-        transform: translateY(4px);
-      }
-
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    @keyframes sumFadeRowOut {
-      from {
-        opacity: 1;
-        transform: translateY(0);
-      }
-
-      to {
-        opacity: 0;
-        transform: translateY(4px);
-      }
-    }
-
     /* ── Summary section header (lined label) ── */
     .sum-section-hdr {
       display: flex;
@@ -937,22 +912,14 @@
       color: #8BA5BE;
     }
 
-    /* ── Summary section wrapper ── */
-    /* Mobile: full-width, no side margins */
+    /* ── Summary card wrapper ── */
     .sum-section {
       margin: 0 10px 12px;
-      transition: margin 0.3s ease;
-    }
-
-    .sum-section.expanded {
-      margin: 0 0 12px;
-    }
-
-    /* Desktop: add side margins + rounded card feel */
-    @media (min-width: 580px) {
-      .sum-section:not(.expanded) {
-        margin: 0 10px 12px;
-      }
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: var(--shadow-card);
     }
 
     /* Increase code + description font on mobile */
@@ -964,110 +931,35 @@
       font-size: 12px;
     }
 
-    /* ── Gradient hero button ── */
+    /* ── Summary header button (matches day card header) ── */
     .sum-hero {
       width: 100%;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 16px 16px 14px;
-      background: linear-gradient(135deg, #1B3FA6 0%, #2D6BE4 100%);
+      padding: 11px 14px;
+      background: #fff;
       border: none;
-      border-radius: 0;
       cursor: pointer;
       text-align: left;
-      transition: border-radius 0.3s ease;
+      font-family: inherit;
     }
 
-    .sum-hero.collapsed {
-      border-radius: 14px;
+    .sum-hero:hover {
+      background: var(--bg-card-alt);
     }
 
-    .sum-hero-label {
-      font-size: 9px;
-      font-weight: 700;
-      letter-spacing: 0.13em;
-      text-transform: uppercase;
-      color: rgba(255, 255, 255, 0.45);
-      margin-bottom: 8px;
-    }
-
-    .sum-hero-nums {
-      display: flex;
-      align-items: flex-end;
-      gap: 16px;
-    }
-
-    .sum-hnum {
-      display: flex;
-      flex-direction: column;
-    }
-
-    .sum-hnum-val {
-      font-family: var(--font-mono);
-      font-size: 26px;
-      font-weight: 500;
-      color: #fff;
-      line-height: 1;
-      letter-spacing: -0.02em;
-    }
-
-    .sum-hnum-val em {
-      font-size: 13px;
-      font-weight: 400;
-      color: rgba(255, 255, 255, 0.4);
-      font-style: normal;
-    }
-
-    .sum-hnum.ot .sum-hnum-val {
-      color: #FDE68A;
-    }
-
-    .sum-hnum-sub {
-      font-size: 9px;
-      font-weight: 700;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: rgba(255, 255, 255, 0.4);
-      margin-top: 3px;
-    }
-
-    .sum-hero-sep {
-      width: 1px;
-      height: 36px;
-      background: rgba(255, 255, 255, 0.18);
-      align-self: flex-end;
-      margin-bottom: 4px;
-    }
-
-    /* Chevron circle button */
-    .sum-chevron-btn {
-      width: 30px;
-      height: 30px;
-      border-radius: 50%;
-      background: rgba(255, 255, 255, 0.13);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-    }
-
-    .sum-chevron-svg {
-      transition: transform 0.3s ease;
-      display: block;
-    }
-
-    .sum-chevron-svg.flipped {
-      transform: rotate(180deg);
-    }
-
-    /* ── Table wrapper ── */
+    /* ── Table wrapper — max-height slide animation ── */
     .sum-table-wrap {
-      background: #fff;
-      border-bottom: 1px solid var(--border);
-      border-radius: 0;
       overflow: hidden;
-      transition: border-radius 0.3s ease;
+      max-height: 0;
+      opacity: 0;
+      transition: max-height 0.35s ease, opacity 0.25s ease;
+    }
+
+    .sum-table-wrap.open {
+      max-height: 1400px;
+      opacity: 1;
     }
 
     /* ── Responsive grid rows ── */
@@ -1130,7 +1022,6 @@
       padding: 9px 14px;
       border-bottom: 1px solid #F0F4F8;
       align-items: start;
-      animation: sumFadeRow 0.3s ease both;
     }
 
     .sum-grid-row:last-child {
@@ -2924,7 +2815,7 @@
     // ============================================================
     // CONFIG
     // ============================================================
-    const VERSION = '3.6.18';
+    const VERSION = '3.6.19';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -3912,36 +3803,28 @@
     <div class="sum-section-label">Weekly Summary</div>
     <div class="sum-section-line"></div>
   </div>
-  <div class="sum-section${(state.showSummary && !state.animatingSummary) ? ' expanded' : ''}">
-    <button onclick="toggleSummary()" class="sum-hero${(state.showSummary && !state.animatingSummary) ? '' : ' collapsed'}">
-      <div>
-        <div class="sum-hero-label">Week Total</div>
-        <div class="sum-hero-nums">
-          <div class="sum-hnum">
-            <div class="sum-hnum-val"><span data-sum-ord>${Math.round(totalOrd)}</span><em> hrs</em></div>
-            <div class="sum-hnum-sub">Ordinary</div>
-          </div>
-          <div class="sum-hero-sep"></div>
-          <div class="sum-hnum ot">
-            <div class="sum-hnum-val"><span data-sum-ot>${Math.round(totalOT)}</span><em> hrs</em></div>
-            <div class="sum-hnum-sub">Overtime</div>
-          </div>
-        </div>
+  <div class="sum-section">
+    <button onclick="toggleSummary()" class="sum-hero">
+      <div class="day-left">
+        <svg width="10" height="10" viewBox="0 0 10 10" style="flex-shrink:0;transition:transform 0.2s;transform:${state.showSummary ? 'rotate(90deg)' : 'rotate(0deg)'}"><polygon points="0,0 10,5 0,10" fill="var(--text-muted)"/></svg>
+        <span class="day-name">Weekly Summary</span>
       </div>
-      <div class="sum-chevron-btn">${chevronSvg}</div>
+      <div class="day-pills">
+        ${totalOrd > 0 ? `<span class="pill pill-blue" data-sum-ord>${Math.round(totalOrd)}h</span>` : `<span style="display:none" data-sum-ord></span>`}
+        ${totalOT > 0 ? `<span class="pill pill-amber" data-sum-ot>+${Math.round(totalOT)} OT</span>` : `<span style="display:none" data-sum-ot></span>`}
+      </div>
     </button>
-    ${state.showSummary ? `
-    <div class="sum-table-wrap">
+    <div class="sum-table-wrap${state.showSummary ? ' open' : ''}">
       <div class="sum-grid-head">
         <div class="sum-th sum-th-code-desk">Code</div>
         <div class="sum-th">Description</div>
         <div class="sum-th r">Ord</div>
         <div class="sum-th r">OT</div>
       </div>
-      ${summary.map((row, i) => {
+      ${summary.map((row) => {
         const m = row.isUncategorized;
         return `
-      <div class="sum-grid-row${m ? ' sum-missing' : ''}" style="animation-delay:${i * ANIM_STAGGER_MS}ms">
+      <div class="sum-grid-row${m ? ' sum-missing' : ''}">
         <div class="sum-td-code-desk${m ? ' missing' : ''}">${row.code}</div>
         <div class="sum-td-main">
           <div class="sum-td-code-mob${m ? ' missing' : ''}">${row.code}</div>
@@ -3951,13 +3834,13 @@
         <div class="sum-td-num ${row.overtime > 0 ? (m ? 'missing' : 'ot') : 'dash'}">${row.overtime > 0 ? Math.round(row.overtime) : '—'}</div>
       </div>`;
       }).join('')}
-      <div class="sum-grid-total" style="animation:sumFadeRow ${ANIM_EXPAND_MS / 1000}s ease both;animation-delay:${summary.length * ANIM_STAGGER_MS}ms">
+      <div class="sum-grid-total">
         <div class="sum-total-label">Total</div>
         <div class="sum-total-spacer"></div>
         <div class="sum-total-val">${Math.round(totalOrd)}</div>
         <div class="sum-total-val ot">${Math.round(totalOT)}</div>
       </div>
-    </div>` : ''}
+    </div>
   </div>`;
 
       return `<main class="pb-6"><div class="week-list">${daysHtml}</div>${summaryHtml}</main>`;
@@ -4695,60 +4578,24 @@
     }
 
     function updateSummaryDisplay() {
-      // lightweight re-render of just the summary header totals
+      // lightweight re-render of just the summary header pills
       const summary = calcSummary(state.weekData);
       const totalOrd = summary.reduce((s, r) => s + r.ordinary, 0);
-      const totalOT = summary.reduce((s, r) => s + r.overtime, 0);
+      const totalOT  = summary.reduce((s, r) => s + r.overtime, 0);
       const ordEl = document.querySelector('[data-sum-ord]');
-      const otEl = document.querySelector('[data-sum-ot]');
-      if (ordEl) ordEl.textContent = Math.round(totalOrd);
-      if (otEl) otEl.textContent = Math.round(totalOT);
+      const otEl  = document.querySelector('[data-sum-ot]');
+      if (ordEl) { ordEl.textContent = Math.round(totalOrd) + 'h'; ordEl.style.display = totalOrd > 0 ? '' : 'none'; }
+      if (otEl)  { otEl.textContent  = '+' + Math.round(totalOT) + ' OT'; otEl.style.display = totalOT > 0 ? '' : 'none'; }
     }
 
     function toggleSummary() {
-      if (state.showSummary) {
-        const sumSection = document.querySelector('.sum-section');
-        const sumHero = document.querySelector('.sum-hero');
-        const chevron = document.querySelector('.sum-chevron-svg');
-        if (sumSection) sumSection.classList.remove('expanded');
-        if (sumHero) sumHero.classList.add('collapsed');
-        if (chevron) chevron.classList.add('flipped');
-
-        // Animate rows out (reverse stagger: bottom row first), then collapse
-        const animRows = [
-          ...document.querySelectorAll('.sum-grid-row'),
-          document.querySelector('.sum-grid-total')
-        ].filter(Boolean);
-
-        const total = animRows.length;
-        if (total === 0) { state.showSummary = false; render(); return; }
-
-        animRows.forEach((row, i) => {
-          const delay = (total - 1 - i) * ANIM_STAGGER_MS; // reverse order
-          row.style.animation = `sumFadeRowOut ${ANIM_COLLAPSE_MS / 1000}s ease both`;
-          row.style.animationDelay = delay + 'ms';
-        });
-
-        // Wait for last animation to finish before re-rendering
-        const waitMs = (total - 1) * ANIM_STAGGER_MS + ANIM_EXPAND_MS;
-        setTimeout(() => { state.showSummary = false; render(); }, waitMs);
-      } else {
-        state.showSummary = true;
-        state.animatingSummary = true;
-        render();
-
-        requestAnimationFrame(() => {
-          requestAnimationFrame(() => {
-            const sumSection = document.querySelector('.sum-section');
-            const sumHero = document.querySelector('.sum-hero');
-            const chevron = document.querySelector('.sum-chevron-svg');
-            if (sumSection) sumSection.classList.add('expanded');
-            if (sumHero) sumHero.classList.remove('collapsed');
-            if (chevron) chevron.classList.remove('flipped');
-            setTimeout(() => { state.animatingSummary = false; }, ANIM_EXPAND_MS);
-          });
-        });
-      }
+      state.showSummary = !state.showSummary;
+      // CSS max-height transition handles animation — just toggle the class and chevron
+      const tableWrap = document.querySelector('.sum-table-wrap');
+      const chevron   = document.querySelector('.sum-hero .chevron, .sum-hero svg polygon')
+                        && document.querySelector('.sum-hero svg');
+      if (tableWrap) tableWrap.classList.toggle('open', state.showSummary);
+      if (chevron) chevron.style.transform = state.showSummary ? 'rotate(90deg)' : 'rotate(0deg)';
     }
 
     function toggleLayoutMode() {
