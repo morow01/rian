@@ -1218,9 +1218,9 @@
     .sum-td-code-desk {
       display: none;
       font-family: var(--font-mono);
-      font-size: 10px;
-      font-weight: 600;
-      color: var(--accent);
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-muted);
       letter-spacing: 0.02em;
       padding-top: 1px;
     }
@@ -2989,7 +2989,7 @@
     // ============================================================
     // CONFIG
     // ============================================================
-    const VERSION = '3.6.24';
+    const VERSION = '3.6.25';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -3696,7 +3696,7 @@
       const range = formatWeekRange(weekData.weekStart);
       const summary = calcSummary(weekData);
       const totalOrd = summary.reduce((s, r) => s + r.ordinary, 0);
-      const totalOT  = summary.reduce((s, r) => s + r.overtime, 0);
+      const totalOT = summary.reduce((s, r) => s + r.overtime, 0);
 
       // Fixed light palette — matches app default light theme exactly
       const C = {
@@ -3706,7 +3706,7 @@
         rowBorder:'#F0F4F8',
         headBg:   '#F4F7FA',
         label:    '#8BA5BE',
-        code:     '#2D6BE4',
+        code:     '#8BA5BE',
         txt:      '#1e293b',
         txtSec:   '#475569',
         txtMuted: '#8BA5BE',
@@ -3716,6 +3716,9 @@
         totalBg:  '#F4F7FA',
         footBg:   '#EBF1F8',
         footTxt:  '#94a3b8',
+        dayBg:    '#4A6580',
+        dayTxt:   '#ffffff',
+        dayDate:  '#D4E0EC',
       };
 
       // ── Summary by Code table ──
@@ -3727,7 +3730,8 @@
           <td style="padding:8px 14px;border-bottom:1px solid ${C.rowBorder};font-size:13px;color:${C.txtSec};vertical-align:middle;">${esc(r.description)}</td>
           <td style="padding:8px 14px;border-bottom:1px solid ${C.rowBorder};font-family:monospace;font-size:13px;font-weight:600;color:${C.ord};text-align:right;vertical-align:middle;white-space:nowrap;">${Math.round(r.ordinary)}</td>
           <td style="padding:8px 14px;border-bottom:1px solid ${C.rowBorder};font-family:monospace;font-size:13px;font-weight:600;color:${otVal > 0 ? C.ot : C.dash};text-align:right;vertical-align:middle;white-space:nowrap;">${otVal > 0 ? otVal : '—'}</td>
-        </tr>`; }).join('');
+        </tr>`;
+      }).join('');
 
       // ── Daily breakdown sections ──
       let daysHtml = '';
@@ -3737,7 +3741,7 @@
         let actsHtml = '';
         acts.forEach(act => {
           const ord = Math.round(parseFloat(act.ordinary) || 0);
-          const ot  = Math.round(parseFloat(act.overtime)  || 0);
+          const ot = Math.round(parseFloat(act.overtime) || 0);
           const codesHtml = act.codes.map(c =>
             `<span style="font-family:monospace;font-size:11px;font-weight:600;color:${C.code};margin-right:6px;">${esc(c.c)}</span>`
           ).join('');
@@ -3754,14 +3758,14 @@
         });
         daysHtml += `
           <div style="margin-bottom:12px;border-radius:10px;overflow:hidden;border:1px solid ${C.border};background:${C.cardBg};">
-            <div style="padding:10px 14px;border-bottom:1px solid ${C.border};">
-              <span style="font-size:13px;font-weight:800;color:${C.txt};">${esc(day.dayName)}</span>
-              <span style="font-size:12px;color:${C.txtMuted};margin-left:8px;">${esc(formatDate(day.date))}</span>
+            <div style="padding:10px 14px;background:${C.dayBg};">
+              <span style="font-size:13px;font-weight:800;color:${C.dayTxt};">${esc(day.dayName)}</span>
+              <span style="font-size:12px;color:${C.dayDate};margin-left:8px;">${esc(formatDate(day.date))}</span>
             </div>
             <table width="100%" cellpadding="0" cellspacing="0">
               <thead>
                 <tr style="background:${C.headBg};">
-                  <th style="padding:7px 14px;text-align:left;font-size:9px;font-weight:700;color:${C.label};text-transform:uppercase;letter-spacing:0.1em;">Task</th>
+                  <th style="padding:7px 14px;text-align:left;font-size:9px;font-weight:700;color:${C.label};text-transform:uppercase;letter-spacing:0.1em;">Tasks</th>
                   <th style="padding:7px 14px;text-align:right;font-size:9px;font-weight:700;color:${C.label};text-transform:uppercase;letter-spacing:0.1em;">Ord</th>
                   <th style="padding:7px 14px;text-align:right;font-size:9px;font-weight:700;color:${C.label};text-transform:uppercase;letter-spacing:0.1em;">OT</th>
                 </tr>
@@ -3777,9 +3781,9 @@
             <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;">
 
               <!-- Header card -->
-              <tr><td style="background:${C.cardBg};border-radius:12px 12px 0 0;padding:20px 24px 16px;border:1px solid ${C.border};border-bottom:none;">
-                <div style="font-size:11px;font-weight:700;letter-spacing:0.13em;text-transform:uppercase;color:${C.label};margin-bottom:6px;">Weekly Timesheet</div>
-                <div style="font-size:22px;font-weight:800;color:${C.txt};">${esc(range)}</div>
+              <tr><td style="background:${C.dayBg};border-radius:12px 12px 0 0;padding:20px 24px 16px;">
+                <div style="font-size:11px;font-weight:700;letter-spacing:0.13em;text-transform:uppercase;color:${C.dayDate};margin-bottom:6px;">Weekly Timesheet</div>
+                <div style="font-size:22px;font-weight:800;color:${C.dayTxt};">${esc(range)}</div>
               </td></tr>
 
               <!-- Body -->
