@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Days Hybrid Mockup</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: #E8EEF5;
+    padding: 0 0 80px;
+  }
+
+  .app-header {
+    background: #0F1C2E; color: #fff;
+    padding: 14px 16px 0;
+  }
+  .app-header .week { font-size: 16px; font-weight: 700; }
+  .app-header .sync { font-size: 12px; color: rgba(255,255,255,0.5); margin-top: 1px; }
+  .tabs-bar {
+    background: #0F1C2E;
+    display: flex; padding: 8px 16px 0;
+    border-top: 1px solid rgba(255,255,255,0.08);
+    margin-top: 8px;
+  }
+  .t-tab { padding: 8px 14px 8px; font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.45); border-bottom: 2.5px solid transparent; }
+  .t-tab.active { color: #fff; border-color: #fff; }
+
+  .switcher {
+    display: flex; background: #D6E2EF; border-radius: 12px; padding: 3px; margin: 12px 12px;
+  }
+  .sw { flex:1; text-align:center; padding:8px 0; font-size:12px; font-weight:700; color:#8A9BB0; border-radius:10px; cursor:pointer; transition:all .15s; }
+  .sw.active { background:#fff; color:#0F1C2E; box-shadow:0 1px 4px rgba(0,0,0,.1); }
+  .panel { display:none; }
+  .panel.active { display:block; }
+
+  /* ── shared ── */
+  .pills { display:flex; gap:6px; align-items:center; flex-shrink:0; }
+  .pill { padding:3px 10px; border-radius:20px; font-size:12px; font-weight:700; }
+  .pill-slate { background:#EDF1F5; color:#5A7289; }
+  .pill-blue  { background:#EBF1FD; color:#2D6BE4; }
+  .pill-amber { background:#FEF3DC; color:#C07800; }
+  .t-pill { padding:2px 7px; border-radius:20px; font-size:11px; font-weight:700; white-space:nowrap; }
+  .t-pill-blue  { background:#EBF1FD; color:#2D6BE4; }
+  .t-pill-amber { background:#FEF3DC; color:#C07800; }
+  .task-num { width:28px; height:28px; border-radius:8px; background:#EAECEF; color:#5A7289; font-size:12px; font-weight:700; flex-shrink:0; display:flex; align-items:center; justify-content:center; }
+  .task-num.ot { background:#FEF3DC; color:#C07800; }
+  .chevron { font-size:16px; color:#B0BECC; flex-shrink:0; }
+  .day-name { font-size:16px; font-weight:700; color:#0F1C2E; }
+  .day-date { font-size:13px; color:#8A9BB0; }
+  .task-title { font-size:14px; font-weight:700; color:#0F1C2E; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .task-loc { font-size:12px; color:#8A9BB0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; flex:1; min-width:0; }
+
+  /* ════ CURRENT ════ */
+  .cur-card { margin:0 12px 6px; background:#fff; border-radius:14px; border:1.5px solid #D6E2EF; overflow:clip; box-shadow:0 2px 8px rgba(15,28,46,0.06); }
+  .cur-card.open { box-shadow:0 4px 16px rgba(15,28,46,0.10); }
+  .cur-day-hdr { display:flex; align-items:center; justify-content:space-between; padding:13px 16px; gap:10px; background:#fff; }
+  .cur-card.open .cur-day-hdr { border-bottom:1.5px solid #EEF2F7; border-radius:14px 14px 0 0; }
+  .cur-task-row { display:flex; align-items:center; gap:12px; padding:11px 16px; border-bottom:1px solid #F0F4F8; cursor:pointer; }
+  .cur-task-row:last-child { border-bottom:none; }
+  /* expanded task detail */
+  .cur-task-detail { margin:0 12px 12px; background:#F8FAFB; border-radius:10px; border:1.5px solid #E0EAF2; padding:14px; }
+  .field-label { font-size:10px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:#8A9BB0; margin-bottom:5px; margin-top:12px; }
+  .field-label:first-child { margin-top:0; }
+  .field-input { width:100%; padding:9px 12px; background:#fff; border:1.5px solid #D6E2EF; border-radius:9px; font-size:14px; color:#0F1C2E; }
+  .code-chip { display:inline-flex; align-items:center; gap:5px; background:#EBF1FD; color:#2D6BE4; border-radius:8px; padding:5px 10px; font-size:12px; font-weight:600; }
+  .hrs-row { display:flex; gap:10px; margin-top:2px; }
+  .hrs-box { flex:1; border:1.5px solid #D6E2EF; border-radius:10px; padding:10px 12px; text-align:center; }
+  .hrs-box.ot { border-color:#F5C842; }
+  .hrs-lbl { font-size:10px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:#8A9BB0; }
+  .hrs-lbl.ot { color:#C07800; }
+  .hrs-val { font-size:22px; font-weight:700; color:#0F1C2E; margin:4px 0; }
+  .hrs-ctrl { display:flex; align-items:center; justify-content:space-between; }
+  .hrs-btn { width:28px; height:28px; border-radius:7px; border:1.5px solid #D6E2EF; background:#F4F7FA; font-size:18px; display:flex; align-items:center; justify-content:center; color:#5A7289; }
+  .del-btn { width:100%; margin-top:12px; padding:12px; border-radius:10px; border:none; background:#FEF0EF; color:#E8453C; font-size:13px; font-weight:700; display:flex; align-items:center; justify-content:center; gap:6px; }
+
+  /* ════ NEW HYBRID ════ */
+  /* full-width container, no side margins */
+  .week-list { background:#fff; border-top:1px solid #E0E8F0; border-bottom:1px solid #E0E8F0; }
+  .new-day { border-bottom:1px solid #EAEFF5; }
+  .new-day:last-child { border-bottom:none; }
+  .new-day-hdr {
+    display:flex; align-items:center; justify-content:space-between;
+    padding:13px 16px; gap:10px; background:#fff; cursor:pointer;
+    position:sticky; top:0; z-index:10;
+  }
+  .new-day.open .new-day-hdr { border-bottom:1px solid #EEF2F7; }
+  .new-day-left { display:flex; align-items:center; gap:8px; }
+  .new-day.weekend .new-day-hdr { background:#FAFBFC; }
+
+  /* collapsed task rows — full width, no card */
+  .new-task-row { display:flex; align-items:center; gap:12px; padding:11px 16px; border-bottom:1px solid #F4F6F8; cursor:pointer; background:#fff; }
+  .new-task-row:last-child { border-bottom:none; }
+
+  /* ↓↓ EXPANDED task detail — gets the card/padding treatment ↓↓ */
+  .new-task-detail {
+    margin: 8px 12px 12px;          /* side margins back for the detail card */
+    background: #F8FAFB;
+    border-radius: 12px;
+    border: 1.5px solid #E0EAF2;
+    padding: 14px;
+  }
+
+  .add-task-row {
+    display:flex; align-items:center; justify-content:center; gap:6px;
+    padding:11px 16px; font-size:13px; font-weight:700; color:#2D6BE4;
+    border-top:1px dashed #D6E2EF; background:#fff; cursor:pointer;
+  }
+</style>
+</head>
+<body>
+
+<div class="app-header">
+  <div class="week">6 Mar – 12 Mar</div>
+  <div class="sync">✓ Synced  v3.5.9</div>
+  <div class="tabs-bar">
+    <div class="t-tab active">Timesheet</div>
+    <div class="t-tab">Notes</div>
+    <div class="t-tab">Finder</div>
+  </div>
+</div>
+
+<div class="switcher">
+  <div class="sw active" onclick="show('current')">Current</div>
+  <div class="sw" onclick="show('new')">New hybrid</div>
+</div>
+
+<!-- ══ CURRENT ══ -->
+<div class="panel active" id="tab-current">
+
+  <div class="cur-card open">
+    <div class="cur-day-hdr">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <svg width="10" height="10" viewBox="0 0 10 10" style="transform:rotate(90deg)"><polygon points="0,0 10,5 0,10" fill="#8A9BB0"/></svg>
+        <span class="day-name">Friday</span><span class="day-date">27 Feb</span>
+      </div>
+      <div class="pills"><span class="pill pill-slate">4 tasks</span><span class="pill pill-blue">7h</span><span class="pill pill-amber">+1 OT</span></div>
+    </div>
+    <!-- task 1 collapsed -->
+    <div class="cur-task-row">
+      <div class="task-num">1</div>
+      <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:3px;">
+        <div class="task-title">General Admin</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+          <span class="task-loc">📍 Naas (NAS)</span>
+          <div style="display:flex;gap:4px;"><span class="t-pill t-pill-blue">2h</span></div>
+        </div>
+      </div>
+      <span class="chevron">›</span>
+    </div>
+    <!-- task 2 collapsed -->
+    <div class="cur-task-row">
+      <div class="task-num">2</div>
+      <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:3px;">
+        <div class="task-title">Van</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+          <span class="task-loc">📍 Naas (NAS)</span>
+          <div style="display:flex;gap:4px;"><span class="t-pill t-pill-blue">2h</span></div>
+        </div>
+      </div>
+      <span class="chevron">›</span>
+    </div>
+    <!-- task 3 expanded -->
+    <div class="cur-task-row" style="background:#F8FAFB;">
+      <div class="task-num ot">3</div>
+      <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:3px;">
+        <div class="task-title">Antenna</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+          <span class="task-loc">📍 Portlaoise (PGS)</span>
+          <div style="display:flex;gap:4px;"><span class="t-pill t-pill-amber">+1 OT</span></div>
+        </div>
+      </div>
+      <span class="chevron" style="transform:rotate(90deg)">›</span>
+    </div>
+    <div class="cur-task-detail">
+      <div class="field-label">Description</div>
+      <div class="field-input">Antenna</div>
+      <div class="field-label">Work Codes</div>
+      <div style="padding:10px;background:#fff;border-radius:9px;border:1.5px solid #D6E2EF;">
+        <span class="code-chip">COW-Escort</span>&nbsp;
+        <span class="code-chip">ESAT RLB0003A10 ×</span>
+      </div>
+      <div class="field-label">Hours</div>
+      <div class="hrs-row">
+        <div class="hrs-box">
+          <div class="hrs-lbl">Ordinary Hrs</div>
+          <div class="hrs-ctrl"><div class="hrs-btn">−</div><div class="hrs-val">0</div><div class="hrs-btn">+</div></div>
+        </div>
+        <div class="hrs-box ot">
+          <div class="hrs-lbl ot">Overtime Hrs</div>
+          <div class="hrs-ctrl"><div class="hrs-btn">−</div><div class="hrs-val">1</div><div class="hrs-btn">+</div></div>
+        </div>
+      </div>
+      <button class="del-btn">🗑 Delete task</button>
+    </div>
+  </div>
+
+  <div class="cur-card">
+    <div class="cur-day-hdr">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <svg width="10" height="10" viewBox="0 0 10 10"><polygon points="0,0 10,5 0,10" fill="#8A9BB0"/></svg>
+        <span class="day-name">Saturday</span><span class="day-date">28 Feb</span>
+      </div>
+      <div class="pills"></div>
+    </div>
+  </div>
+
+  <div class="cur-card">
+    <div class="cur-day-hdr">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <svg width="10" height="10" viewBox="0 0 10 10"><polygon points="0,0 10,5 0,10" fill="#8A9BB0"/></svg>
+        <span class="day-name">Monday</span><span class="day-date">2 Mar</span>
+      </div>
+      <div class="pills"><span style="font-size:11px;color:#C5D3E0;font-weight:600">No entries</span></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ══ NEW HYBRID ══ -->
+<div class="panel" id="tab-new">
+  <div class="week-list">
+
+    <!-- Friday expanded -->
+    <div class="new-day open">
+      <div class="new-day-hdr">
+        <div class="new-day-left">
+          <svg width="10" height="10" viewBox="0 0 10 10" style="transform:rotate(90deg)"><polygon points="0,0 10,5 0,10" fill="#8A9BB0"/></svg>
+          <span class="day-name">Friday</span><span class="day-date">27 Feb</span>
+        </div>
+        <div class="pills"><span class="pill pill-slate">4 tasks</span><span class="pill pill-blue">7h</span><span class="pill pill-amber">+1 OT</span></div>
+      </div>
+
+      <!-- task 1 collapsed row — full width -->
+      <div class="new-task-row">
+        <div class="task-num">1</div>
+        <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:3px;">
+          <div class="task-title">General Admin</div>
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+            <span class="task-loc">📍 Naas (NAS)</span>
+            <div style="display:flex;gap:4px;"><span class="t-pill t-pill-blue">2h</span></div>
+          </div>
+        </div>
+        <span class="chevron">›</span>
+      </div>
+
+      <!-- task 2 collapsed row -->
+      <div class="new-task-row">
+        <div class="task-num">2</div>
+        <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:3px;">
+          <div class="task-title">Van</div>
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+            <span class="task-loc">📍 Naas (NAS)</span>
+            <div style="display:flex;gap:4px;"><span class="t-pill t-pill-blue">2h</span></div>
+          </div>
+        </div>
+        <span class="chevron">›</span>
+      </div>
+
+      <!-- task 3 expanded row + detail card with padding -->
+      <div class="new-task-row" style="background:#F4F7FA;">
+        <div class="task-num ot">3</div>
+        <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:3px;">
+          <div class="task-title">Antenna</div>
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+            <span class="task-loc">📍 Portlaoise (PGS)</span>
+            <div style="display:flex;gap:4px;"><span class="t-pill t-pill-amber">+1 OT</span></div>
+          </div>
+        </div>
+        <span class="chevron" style="transform:rotate(90deg)">›</span>
+      </div>
+
+      <!-- ↓ detail card — padded, rounded, indented ↓ -->
+      <div class="new-task-detail">
+        <div class="field-label">Description</div>
+        <div class="field-input">Antenna</div>
+        <div class="field-label">Work Codes</div>
+        <div style="padding:10px;background:#fff;border-radius:9px;border:1.5px solid #D6E2EF;">
+          <span class="code-chip">COW-Escort</span>&nbsp;
+          <span class="code-chip">ESAT RLB0003A10 ×</span>
+        </div>
+        <div class="field-label">Hours</div>
+        <div class="hrs-row">
+          <div class="hrs-box">
+            <div class="hrs-lbl">Ordinary Hrs</div>
+            <div class="hrs-ctrl"><div class="hrs-btn">−</div><div class="hrs-val">0</div><div class="hrs-btn">+</div></div>
+          </div>
+          <div class="hrs-box ot">
+            <div class="hrs-lbl ot">Overtime Hrs</div>
+            <div class="hrs-ctrl"><div class="hrs-btn">−</div><div class="hrs-val">1</div><div class="hrs-btn">+</div></div>
+          </div>
+        </div>
+        <button class="del-btn">🗑 Delete task</button>
+      </div>
+
+      <div class="add-task-row">+ Add Task</div>
+    </div>
+
+    <!-- Saturday collapsed -->
+    <div class="new-day weekend">
+      <div class="new-day-hdr">
+        <div class="new-day-left">
+          <svg width="10" height="10" viewBox="0 0 10 10"><polygon points="0,0 10,5 0,10" fill="#C5D3E0"/></svg>
+          <span class="day-name" style="color:#8A9BB0">Saturday</span><span class="day-date">28 Feb</span>
+        </div>
+        <div class="pills"></div>
+      </div>
+    </div>
+
+    <!-- Monday collapsed -->
+    <div class="new-day">
+      <div class="new-day-hdr">
+        <div class="new-day-left">
+          <svg width="10" height="10" viewBox="0 0 10 10"><polygon points="0,0 10,5 0,10" fill="#8A9BB0"/></svg>
+          <span class="day-name">Monday</span><span class="day-date">2 Mar</span>
+        </div>
+        <div class="pills"><span style="font-size:11px;color:#C5D3E0;font-weight:600">No entries</span></div>
+      </div>
+    </div>
+
+    <div class="new-day">
+      <div class="new-day-hdr">
+        <div class="new-day-left">
+          <svg width="10" height="10" viewBox="0 0 10 10"><polygon points="0,0 10,5 0,10" fill="#8A9BB0"/></svg>
+          <span class="day-name">Tuesday</span><span class="day-date">3 Mar</span>
+        </div>
+        <div class="pills"><span style="font-size:11px;color:#C5D3E0;font-weight:600">No entries</span></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  function show(n) {
+    document.querySelectorAll('.sw').forEach((t,i)=>t.classList.toggle('active',['current','new'][i]===n));
+    document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+    document.getElementById('tab-'+n).classList.add('active');
+  }
+</script>
+</body>
+</html>

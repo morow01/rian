@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Weekly Summary — Mockup</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'DM Sans', -apple-system, sans-serif;
+    background: #E8EEF5;
+    padding: 0 0 80px;
+  }
+
+  /* ── Tabs ── */
+  .top-tabs {
+    display: flex; background: #0F1C2E;
+    padding: 10px 16px 0; gap: 4px;
+  }
+  .top-tab {
+    padding: 8px 16px; font-size: 13px; font-weight: 700;
+    color: rgba(255,255,255,0.5); border-radius: 8px 8px 0 0;
+    cursor: pointer; transition: all 0.15s;
+  }
+  .top-tab.active { background: #E8EEF5; color: #0F1C2E; }
+
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  /* ── Shared ── */
+  .section-label {
+    font-size: 10px; font-weight: 700; letter-spacing: 0.08em;
+    text-transform: uppercase; color: #8BA5BE; padding: 16px 16px 8px;
+  }
+
+  /* ─────────────────────────────────────────────
+     CONCEPT A — "Hero + Ranked Rows"
+     Dark navy hero showing totals at a glance,
+     then a flat white list of codes below it.
+  ───────────────────────────────────────────── */
+
+  /* Hero totals banner */
+  .hero {
+    background: #0F1C2E;
+    padding: 20px 20px 22px;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .hero-label {
+    font-size: 11px; font-weight: 700; letter-spacing: 0.08em;
+    text-transform: uppercase; color: rgba(255,255,255,0.45); margin-bottom: 6px;
+  }
+  .hero-block { text-align: center; }
+  .hero-num { font-size: 32px; font-weight: 700; line-height: 1; }
+  .hero-num.reg { color: #FFFFFF; }
+  .hero-num.ot  { color: #F5A623; }
+  .hero-sub { font-size: 11px; color: rgba(255,255,255,0.45); margin-top: 3px; }
+  .hero-divider { width: 1px; height: 48px; background: rgba(255,255,255,0.1); }
+
+  /* Bar + row list */
+  .code-list {
+    background: #FFFFFF;
+    border-top: 1px solid #E0E8F0;
+    border-bottom: 1px solid #E0E8F0;
+  }
+  .code-row {
+    display: flex; align-items: center; gap: 10px;
+    padding: 12px 16px; border-bottom: 1px solid #EAEFF5;
+  }
+  .code-row:last-child { border-bottom: none; }
+
+  .code-badge {
+    font-size: 11px; font-weight: 700;
+    background: #EBF1FD; color: #2D6BE4;
+    padding: 3px 8px; border-radius: 6px;
+    flex-shrink: 0; min-width: 52px; text-align: center;
+  }
+  .code-badge.ot-only { background: #FEF3DC; color: #C07800; }
+  .code-badge.uncat   { background: rgba(239,68,68,0.1); color: #ef4444; }
+
+  .code-body { flex: 1; min-width: 0; }
+  .code-desc {
+    font-size: 13px; font-weight: 600; color: #0F1C2E;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    margin-bottom: 5px;
+  }
+  .bar-track {
+    height: 5px; background: #EDF1F5; border-radius: 3px; overflow: hidden;
+  }
+  .bar-fill {
+    height: 100%; border-radius: 3px; background: #2D6BE4;
+  }
+  .bar-fill.ot-fill { background: #F5A623; }
+
+  .code-hrs {
+    display: flex; flex-direction: column; align-items: flex-end;
+    gap: 3px; flex-shrink: 0;
+  }
+  .code-hrs .h  { font-size: 13px; font-weight: 700; color: #0F1C2E; }
+  .code-hrs .o  { font-size: 11px; font-weight: 700; color: #C07800; }
+
+  /* Total row */
+  .total-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 13px 16px; background: #F4F7FA;
+    border-top: 1.5px solid #D4E0EC;
+  }
+  .total-label { font-size: 13px; font-weight: 700; color: #0F1C2E; }
+  .total-nums { display: flex; gap: 12px; }
+  .total-nums .h { font-size: 15px; font-weight: 700; color: #0F1C2E; }
+  .total-nums .o { font-size: 15px; font-weight: 700; color: #C07800; }
+
+  /* ─────────────────────────────────────────────
+     CONCEPT B — "Cards" style
+     Each code is a small summary card with title,
+     hours pill, mini bar, all in a 2-col grid.
+  ───────────────────────────────────────────── */
+  .card-grid {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 10px; padding: 0 12px 12px;
+  }
+  .sum-card {
+    background: #FFFFFF; border-radius: 14px;
+    border: 1.5px solid #D6E2EF;
+    padding: 13px 14px;
+    box-shadow: 0 2px 8px rgba(15,28,46,0.06);
+  }
+  .sum-card-code {
+    font-size: 11px; font-weight: 700; color: #2D6BE4;
+    background: #EBF1FD; padding: 2px 8px; border-radius: 6px;
+    display: inline-block; margin-bottom: 6px;
+  }
+  .sum-card-desc {
+    font-size: 12px; font-weight: 600; color: #0F1C2E;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    margin-bottom: 8px;
+  }
+  .sum-card-bar-track {
+    height: 4px; background: #EDF1F5; border-radius: 3px;
+    overflow: hidden; margin-bottom: 8px;
+  }
+  .sum-card-bar-fill {
+    height: 100%; border-radius: 3px; background: #2D6BE4;
+  }
+  .sum-card-nums { display: flex; justify-content: space-between; align-items: center; }
+  .sum-card-h { font-size: 15px; font-weight: 700; color: #0F1C2E; }
+  .sum-card-ot { font-size: 12px; font-weight: 700; color: #C07800; }
+
+  /* Hero for concept B */
+  .hero-b {
+    background: #0F1C2E;
+    padding: 18px 20px 18px;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .hero-b-left .label {
+    font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.45);
+    letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 4px;
+  }
+  .hero-b-left .week { font-size: 13px; font-weight: 700; color: #FFFFFF; }
+  .hero-b-pills { display: flex; gap: 8px; }
+  .hero-b-pill {
+    padding: 6px 14px; border-radius: 20px;
+    font-size: 14px; font-weight: 700;
+  }
+  .hero-b-pill.reg { background: rgba(45,107,228,0.25); color: #7AAAF5; }
+  .hero-b-pill.ot  { background: rgba(245,166,35,0.2);  color: #F5A623; }
+
+  /* ─────────────────────────────────────────────
+     CONCEPT C — "Current + mini improvements"
+     Keep familiar table, tighten typography,
+     add a tiny bar column, bolder totals.
+  ───────────────────────────────────────────── */
+  .c-table-wrap {
+    background: #FFFFFF;
+    border-top: 1px solid #E0E8F0;
+    border-bottom: 1px solid #E0E8F0;
+    overflow-x: auto;
+  }
+  table.c-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .c-table thead tr {
+    background: #F4F7FA;
+  }
+  .c-table thead th {
+    padding: 9px 12px; text-align: left;
+    font-size: 10px; font-weight: 700; letter-spacing: 0.07em;
+    text-transform: uppercase; color: #8BA5BE;
+  }
+  .c-table thead th.num { text-align: right; }
+  .c-table tbody tr { border-bottom: 1px solid #EAEFF5; }
+  .c-table tbody tr:last-of-type { border-bottom: none; }
+  .c-table tbody td { padding: 10px 12px; }
+
+  .c-code { font-size: 11px; font-weight: 700; color: #2D6BE4; background: #EBF1FD; padding: 2px 7px; border-radius: 6px; white-space: nowrap; }
+  .c-desc { font-size: 13px; color: #0F1C2E; }
+  .c-bar-cell { width: 60px; padding: 10px 8px; }
+  .c-bar-track { height: 5px; background: #EDF1F5; border-radius: 3px; overflow: hidden; }
+  .c-bar-fill  { height: 100%; border-radius: 3px; background: #2D6BE4; }
+  .c-ord { text-align: right; font-weight: 700; color: #0F1C2E; }
+  .c-ot  { text-align: right; font-weight: 700; color: #C07800; }
+  .c-total-row td { background: #0F1C2E; color: #FFFFFF; font-weight: 700; padding: 11px 12px; }
+  .c-total-row .c-ot-total { color: #F5A623; text-align: right; }
+  .c-total-row .num { text-align: right; }
+
+  /* ── Nav ── */
+  .nav-bar {
+    background: #0F1C2E; display: flex; justify-content: space-between;
+    align-items: center; padding: 14px 20px 14px;
+  }
+  .nav-week { font-size: 14px; font-weight: 700; color: #FFFFFF; }
+  .nav-arrow { font-size: 18px; color: rgba(255,255,255,0.5); cursor: pointer; padding: 4px 8px; }
+</style>
+</head>
+<body>
+
+<!-- Simulated nav -->
+<div class="nav-bar">
+  <span class="nav-arrow">‹</span>
+  <span class="nav-week">3 – 9 Mar 2025</span>
+  <span class="nav-arrow">›</span>
+</div>
+
+<!-- Tab selector -->
+<div class="top-tabs">
+  <div class="top-tab active" onclick="show('a')">Concept A</div>
+  <div class="top-tab" onclick="show('b')">Concept B</div>
+  <div class="top-tab" onclick="show('c')">Concept C</div>
+</div>
+
+
+<!-- ════════════════════════════════════════
+     CONCEPT A — Hero + Ranked Rows
+════════════════════════════════════════ -->
+<div class="panel active" id="tab-a">
+  <div class="section-label">Concept A — Hero totals + flat code list with bar</div>
+
+  <!-- Hero -->
+  <div class="hero">
+    <div class="hero-block">
+      <div class="hero-label">Regular</div>
+      <div class="hero-num reg">38<span style="font-size:18px;font-weight:400;color:rgba(255,255,255,0.5)">h</span></div>
+      <div class="hero-sub">across 5 codes</div>
+    </div>
+    <div class="hero-divider"></div>
+    <div class="hero-block">
+      <div class="hero-label">Overtime</div>
+      <div class="hero-num ot">12<span style="font-size:18px;font-weight:400;color:rgba(245,166,35,0.5)">h</span></div>
+      <div class="hero-sub">3 days with OT</div>
+    </div>
+    <div class="hero-divider"></div>
+    <div class="hero-block">
+      <div class="hero-label">Total</div>
+      <div class="hero-num reg" style="color:#7AAAF5">50<span style="font-size:18px;font-weight:400;color:rgba(255,255,255,0.3)">h</span></div>
+      <div class="hero-sub">this week</div>
+    </div>
+  </div>
+
+  <!-- Code rows -->
+  <div class="code-list">
+    <div class="code-row">
+      <div class="code-badge">CRW</div>
+      <div class="code-body">
+        <div class="code-desc">Carlow Depot</div>
+        <div class="bar-track"><div class="bar-fill" style="width:80%"></div></div>
+      </div>
+      <div class="code-hrs">
+        <span class="h">16h</span>
+        <span class="o">+6 OT</span>
+      </div>
+    </div>
+
+    <div class="code-row">
+      <div class="code-badge">SLS</div>
+      <div class="code-body">
+        <div class="code-desc">Sallins</div>
+        <div class="bar-track"><div class="bar-fill" style="width:55%"></div></div>
+      </div>
+      <div class="code-hrs">
+        <span class="h">11h</span>
+        <span class="o">+3 OT</span>
+      </div>
+    </div>
+
+    <div class="code-row">
+      <div class="code-badge">AUV</div>
+      <div class="code-body">
+        <div class="code-desc">Navan</div>
+        <div class="bar-track"><div class="bar-fill" style="width:30%"></div></div>
+      </div>
+      <div class="code-hrs">
+        <span class="h">6h</span>
+      </div>
+    </div>
+
+    <div class="code-row">
+      <div class="code-badge">TLM</div>
+      <div class="code-body">
+        <div class="code-desc">Tullamore</div>
+        <div class="bar-track"><div class="bar-fill" style="width:20%"></div></div>
+      </div>
+      <div class="code-hrs">
+        <span class="h">4h</span>
+        <span class="o">+3 OT</span>
+      </div>
+    </div>
+
+    <div class="code-row">
+      <div class="code-badge">DUB</div>
+      <div class="code-body">
+        <div class="code-desc">Dublin HQ</div>
+        <div class="bar-track"><div class="bar-fill" style="width:5%"></div></div>
+      </div>
+      <div class="code-hrs">
+        <span class="h">1h</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════════
+     CONCEPT B — Pill hero + 2-col cards
+════════════════════════════════════════ -->
+<div class="panel" id="tab-b">
+  <div class="section-label">Concept B — Inline hero + 2-col summary cards</div>
+
+  <!-- Hero -->
+  <div class="hero-b">
+    <div class="hero-b-left">
+      <div class="label">Week of</div>
+      <div class="week">3 – 9 Mar 2025</div>
+    </div>
+    <div class="hero-b-pills">
+      <div class="hero-b-pill reg">38h reg</div>
+      <div class="hero-b-pill ot">+12 OT</div>
+    </div>
+  </div>
+
+  <!-- 2-col grid -->
+  <div style="padding-top:12px">
+  <div class="card-grid">
+
+    <div class="sum-card">
+      <div class="sum-card-code">CRW</div>
+      <div class="sum-card-desc">Carlow Depot</div>
+      <div class="sum-card-bar-track"><div class="sum-card-bar-fill" style="width:80%"></div></div>
+      <div class="sum-card-nums">
+        <span class="sum-card-h">16h</span>
+        <span class="sum-card-ot">+6 OT</span>
+      </div>
+    </div>
+
+    <div class="sum-card">
+      <div class="sum-card-code">SLS</div>
+      <div class="sum-card-desc">Sallins</div>
+      <div class="sum-card-bar-track"><div class="sum-card-bar-fill" style="width:55%"></div></div>
+      <div class="sum-card-nums">
+        <span class="sum-card-h">11h</span>
+        <span class="sum-card-ot">+3 OT</span>
+      </div>
+    </div>
+
+    <div class="sum-card">
+      <div class="sum-card-code">AUV</div>
+      <div class="sum-card-desc">Navan</div>
+      <div class="sum-card-bar-track"><div class="sum-card-bar-fill" style="width:30%"></div></div>
+      <div class="sum-card-nums">
+        <span class="sum-card-h">6h</span>
+        <span class="sum-card-ot" style="color:#8BA5BE">—</span>
+      </div>
+    </div>
+
+    <div class="sum-card">
+      <div class="sum-card-code">TLM</div>
+      <div class="sum-card-desc">Tullamore</div>
+      <div class="sum-card-bar-track"><div class="sum-card-bar-fill" style="width:20%"></div></div>
+      <div class="sum-card-nums">
+        <span class="sum-card-h">4h</span>
+        <span class="sum-card-ot">+3 OT</span>
+      </div>
+    </div>
+
+    <div class="sum-card">
+      <div class="sum-card-code">DUB</div>
+      <div class="sum-card-desc">Dublin HQ</div>
+      <div class="sum-card-bar-track"><div class="sum-card-bar-fill" style="width:5%"></div></div>
+      <div class="sum-card-nums">
+        <span class="sum-card-h">1h</span>
+        <span class="sum-card-ot" style="color:#8BA5BE">—</span>
+      </div>
+    </div>
+
+  </div>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════════
+     CONCEPT C — Improved table (familiar)
+════════════════════════════════════════ -->
+<div class="panel" id="tab-c">
+  <div class="section-label">Concept C — Tightened table + dark total row</div>
+
+  <div class="c-table-wrap">
+    <table class="c-table">
+      <thead>
+        <tr>
+          <th>Code</th>
+          <th>Description</th>
+          <th style="width:60px">Bar</th>
+          <th class="num">Ord</th>
+          <th class="num">OT</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="c-code">CRW</span></td>
+          <td class="c-desc">Carlow Depot</td>
+          <td class="c-bar-cell"><div class="c-bar-track"><div class="c-bar-fill" style="width:80%"></div></div></td>
+          <td class="c-ord">16</td>
+          <td class="c-ot">+6</td>
+        </tr>
+        <tr>
+          <td><span class="c-code">SLS</span></td>
+          <td class="c-desc">Sallins</td>
+          <td class="c-bar-cell"><div class="c-bar-track"><div class="c-bar-fill" style="width:55%"></div></div></td>
+          <td class="c-ord">11</td>
+          <td class="c-ot">+3</td>
+        </tr>
+        <tr>
+          <td><span class="c-code">AUV</span></td>
+          <td class="c-desc">Navan</td>
+          <td class="c-bar-cell"><div class="c-bar-track"><div class="c-bar-fill" style="width:30%"></div></div></td>
+          <td class="c-ord">6</td>
+          <td class="c-ot" style="color:#8BA5BE">—</td>
+        </tr>
+        <tr>
+          <td><span class="c-code">TLM</span></td>
+          <td class="c-desc">Tullamore</td>
+          <td class="c-bar-cell"><div class="c-bar-track"><div class="c-bar-fill" style="width:20%"></div></div></td>
+          <td class="c-ord">4</td>
+          <td class="c-ot">+3</td>
+        </tr>
+        <tr>
+          <td><span class="c-code">DUB</span></td>
+          <td class="c-desc">Dublin HQ</td>
+          <td class="c-bar-cell"><div class="c-bar-track"><div class="c-bar-fill" style="width:5%"></div></div></td>
+          <td class="c-ord">1</td>
+          <td class="c-ot" style="color:#8BA5BE">—</td>
+        </tr>
+        <tr class="c-total-row">
+          <td colspan="2" style="color:#fff;font-weight:700">TOTAL</td>
+          <td></td>
+          <td class="num" style="color:#fff">38</td>
+          <td class="c-ot-total">+12</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+
+<script>
+  function show(name) {
+    document.querySelectorAll('.top-tab').forEach((t, i) =>
+      t.classList.toggle('active', ['a','b','c'][i] === name));
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('tab-' + name).classList.add('active');
+  }
+</script>
+</body>
+</html>

@@ -2937,6 +2937,22 @@
     </div>
   </div>
 
+  <!-- ===== FINDER SEARCH MODAL ===== -->
+  <div id="finder-search-modal" class="hidden fixed inset-0 z-50 flex flex-col" style="background:var(--bg-modal)">
+    <div class="flex flex-col flex-1 overflow-hidden">
+      <div style="background:var(--bg-header)" class="text-white px-4 py-3 flex items-center gap-3 safe-top">
+        <button onclick="closeFinderModal()" class="text-white p-1 text-xl leading-none">✕</button>
+        <h2 class="text-base font-semibold flex-1" id="finder-modal-title">Search Exchanges</h2>
+      </div>
+      <div class="p-3 sticky top-0 z-10" style="background:var(--bg-modal-search);border-bottom:1px solid var(--border)">
+        <input id="finder-modal-search" type="text" placeholder="Name or Code…"
+          class="w-full rounded-xl px-4 py-2.5 text-base"
+          style="border:1px solid var(--border-input);background:var(--bg-input)" oninput="filterFinderModal(this.value)">
+      </div>
+      <div id="finder-modal-list" class="flex-1 overflow-y-auto pb-6"></div>
+    </div>
+  </div>
+
   <!-- ===== NOTE HOVER TOOLTIP ===== -->
   <div id="note-tooltip" class="tbl-note-tooltip"></div>
 
@@ -3007,7 +3023,7 @@
     // ============================================================
     // CONFIG
     // ============================================================
-    const VERSION = '3.6.32';
+    const VERSION = '3.6.33';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -3181,6 +3197,70 @@
     function closeLocationModal() {
       document.getElementById('location-modal').classList.add('hidden');
       locationModalCtx = { actId: null, dayIndex: null, _results: [] };
+    }
+
+    // ── Finder (Exchanges / Cabinets) full-screen modal ──────────
+    let finderModalMode = 'exchanges';
+
+    function openFinderModal(mode) {
+      finderModalMode = mode;
+      const isEx = mode === 'exchanges';
+      document.getElementById('finder-modal-title').textContent = isEx ? 'Search Exchanges' : 'Search Cabinets';
+      document.getElementById('finder-search-modal').classList.remove('hidden');
+      const searchEl = document.getElementById('finder-modal-search');
+      searchEl.placeholder = isEx ? 'Name or Code (e.g. CHL, Cashel)' : 'MDF, CCP or IPID';
+      const current = isEx ? (state.exchangeSearch || '') : (state.cabinetSearch || '');
+      searchEl.value = current;
+      renderFinderModalList(current.toLowerCase());
+      setTimeout(() => searchEl.focus(), 100);
+    }
+
+    function filterFinderModal(val) {
+      if (finderModalMode === 'exchanges') state.exchangeSearch = val;
+      else state.cabinetSearch = val;
+      renderFinderModalList(val.toLowerCase());
+    }
+
+    function renderFinderModalList(q) {
+      const el = document.getElementById('finder-modal-list');
+      if (!el) return;
+      if (!q) {
+        el.innerHTML = '<p class="text-center text-sm px-4 py-8" style="color:var(--text-muted)">Type to search…</p>';
+        return;
+      }
+      if (finderModalMode === 'exchanges') {
+        const filtered = getFilteredExchanges(q);
+        if (!filtered.length) { el.innerHTML = '<div class="text-center p-8" style="color:var(--text-muted)">No exchanges found</div>'; return; }
+        el.innerHTML = filtered.map(ex => `
+          <div class="town-option" onclick="selectFinderItem('${esc(ex.code)}', false)">
+            <div class="flex-1 min-w-0">
+              <span class="block truncate">${esc(ex.name)}</span>
+              ${ex.locality ? `<span class="text-[10px] block truncate" style="color:var(--text-muted)">${esc(ex.locality)}</span>` : ''}
+            </div>
+            <span class="t-code">${esc(ex.code)}</span>
+          </div>`).join('');
+      } else {
+        const filtered = getFilteredCabinets(q);
+        if (!filtered.length) { el.innerHTML = '<div class="text-center p-8" style="color:var(--text-muted)">No cabinets found</div>'; return; }
+        el.innerHTML = filtered.map(cb => `
+          <div class="town-option" onclick="selectFinderItem('${esc(cb.ipid)}', true)">
+            <div class="flex-1 min-w-0">
+              <span class="block truncate">${esc(cb.mdf)} - ${esc(cb.ccp)}</span>
+              <span class="text-[10px] block truncate" style="color:var(--text-muted)">Cabinet</span>
+            </div>
+            <span class="t-code">${esc(cb.ipid)}</span>
+          </div>`).join('');
+      }
+    }
+
+    function selectFinderItem(id, isCabinet) {
+      closeFinderModal();
+      if (isCabinet) setSelectedCabinet(id);
+      else setSelectedExchange(id);
+    }
+
+    function closeFinderModal() {
+      document.getElementById('finder-search-modal').classList.add('hidden');
     }
 
     async function loadCodes() {
@@ -5346,15 +5426,21 @@
         <div class="finder-container">
           <!-- Tab Switcher -->
           <div class="flex p-1 bg-gray-100 rounded-xl mb-6 dark:bg-slate-800/50" style="background:var(--bg-code-group)">
-            <button onclick="setExchangeTab('exchanges')" 
+            <button onclick="setExchangeTab('exchanges')"
               class="flex-1 py-2 px-4 rounded-lg text-sm font-bold transition-all duration-200 ${isEx ? 'bg-white shadow-sm text-accent translate-y-0' : 'text-muted hover:text-primary'}"
               style="${isEx ? 'background:var(--bg-card);color:var(--accent)' : ''}">
-              📡 Exchanges
+              <span class="inline-flex items-center gap-1.5">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h16M4 18h16"/><circle cx="20" cy="6" r="1" fill="currentColor" stroke="none"/><circle cx="20" cy="12" r="1" fill="currentColor" stroke="none"/><circle cx="20" cy="18" r="1" fill="currentColor" stroke="none"/></svg>
+                Exchanges
+              </span>
             </button>
-            <button onclick="setExchangeTab('cabinets')" 
+            <button onclick="setExchangeTab('cabinets')"
               class="flex-1 py-2 px-4 rounded-lg text-sm font-bold transition-all duration-200 ${!isEx ? 'bg-white shadow-sm text-accent translate-y-0' : 'text-muted hover:text-primary'}"
               style="${!isEx ? 'background:var(--bg-card);color:var(--accent)' : ''}">
-              🗄️ Cabinets
+              <span class="inline-flex items-center gap-1.5">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="5" rx="1"/><rect x="2" y="10" width="20" height="5" rx="1"/><rect x="2" y="17" width="20" height="5" rx="1"/><circle cx="18" cy="5.5" r="1" fill="currentColor" stroke="none"/><circle cx="18" cy="12.5" r="1" fill="currentColor" stroke="none"/></svg>
+                Cabinets
+              </span>
             </button>
           </div>
 
@@ -5579,20 +5665,12 @@
         <div class="search-group">
           <div class="flex items-center justify-between mb-2">
             <div class="field-label" style="margin-bottom:0">Exchanges / Towns</div>
-            <span id="ex-count" class="text-xs text-muted">${query ? '' : ''}</span>
           </div>
-          <div class="search-input-wrap">
-            <span>🔍</span>
-            <input type="text" id="ex-search-input" placeholder="Name or Code (e.g. CHL, Cashel)" 
+          <div class="search-input-wrap" onclick="openFinderModal('exchanges')" style="cursor:pointer">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;opacity:0.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" id="ex-search-input" placeholder="Name or Code (e.g. CHL, Cashel)"
               value="${esc(state.exchangeSearch)}"
-              oninput="updateExchangeSearch(this.value)"
-              onkeydown="handleSearchKey(event)"
-              onfocus="focusSearchScroll(this)"
-              onblur="blurSearchScroll(this)">
-          </div>
-          
-          <div id="ex-results-list" class="search-results-list hidden">
-            ${renderExchangeResults(query)}
+              readonly style="cursor:pointer;pointer-events:none">
           </div>
         </div>
       `;
@@ -5603,20 +5681,12 @@
         <div class="search-group">
           <div class="flex items-center justify-between mb-2">
             <div class="field-label" style="margin-bottom:0">Cabinets</div>
-            <span id="cb-count" class="text-xs text-muted"></span>
           </div>
-          <div class="search-input-wrap">
-            <span>🗄️</span>
-            <input type="text" id="cb-search-input" placeholder="MDF, CCP or IPID" 
+          <div class="search-input-wrap" onclick="openFinderModal('cabinets')" style="cursor:pointer">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;opacity:0.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" id="cb-search-input" placeholder="MDF, CCP or IPID"
               value="${esc(state.cabinetSearch)}"
-              oninput="updateCabinetSearch(this.value)"
-              onkeydown="handleSearchKey(event)"
-              onfocus="focusSearchScroll(this)"
-              onblur="blurSearchScroll(this)">
-          </div>
-
-          <div id="cb-results-list" class="search-results-list hidden">
-            ${renderCabinetResults(query)}
+              readonly style="cursor:pointer;pointer-events:none">
           </div>
         </div>
       `;

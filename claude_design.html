@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FieldLog – Unified Design Mockup</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --navy:    #0F1C2E;
+    --navy-2:  #162438;
+    --navy-3:  #1E3050;
+    --slate:   #5A7A9A;
+    --muted:   #8BA5BE;
+    --border:  #D4E0EC;
+    --surface: #F4F7FA;
+    --white:   #FFFFFF;
+    --amber:   #F5A623;
+    --amber-bg:#FEF3DC;
+    --red:     #E8453C;
+    --red-bg:  #FDECEA;
+    --green:   #27AE60;
+    --green-bg:#E8F8EF;
+    --blue:    #2D6BE4;
+    --blue-bg: #EBF1FD;
+    --text-1:  #0F1C2E;
+    --text-2:  #4A6580;
+    --text-3:  #8BA5BE;
+    --radius:  12px;
+    --radius-sm: 8px;
+    --shadow:  0 2px 8px rgba(15,28,46,0.08);
+    --shadow-md: 0 4px 16px rgba(15,28,46,0.12);
+  }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: #E8EEF5;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 20px 60px;
+    gap: 48px;
+  }
+
+  /* ── Page title ── */
+  .page-title {
+    text-align: center;
+    color: var(--navy);
+  }
+  .page-title h1 { font-size: 22px; font-weight: 700; letter-spacing: -0.3px; }
+  .page-title p  { font-size: 14px; color: var(--text-2); margin-top: 4px; }
+
+  .section-label {
+    font-size: 11px; font-weight: 600; letter-spacing: 1px;
+    text-transform: uppercase; color: var(--slate);
+    margin-bottom: 10px;
+  }
+
+  /* ── Phone shell ── */
+  .phone {
+    width: 375px;
+    background: var(--surface);
+    border-radius: 40px;
+    box-shadow: 0 24px 64px rgba(15,28,46,0.22), 0 0 0 1.5px rgba(15,28,46,0.1);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ── Status bar ── */
+  .status-bar {
+    background: var(--navy);
+    padding: 14px 24px 0;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .status-bar .time { font-size: 15px; font-weight: 600; color: white; }
+  .status-bar .icons { display: flex; gap: 6px; align-items: center; }
+  .status-bar .icons span { font-size: 13px; color: rgba(255,255,255,0.8); }
+
+  /* ── Top nav ── */
+  .top-nav {
+    background: var(--navy);
+    padding: 10px 20px 16px;
+  }
+  .top-nav .week-row {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 14px;
+  }
+  .top-nav .week-row .chevron {
+    width: 32px; height: 32px; border-radius: 8px;
+    background: rgba(255,255,255,0.1);
+    display: flex; align-items: center; justify-content: center;
+    color: white; font-size: 16px; cursor: pointer;
+  }
+  .top-nav .week-info { text-align: center; }
+  .top-nav .week-info .week-range { font-size: 16px; font-weight: 700; color: white; letter-spacing: -0.2px; }
+  .top-nav .week-info .sync-badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-size: 11px; color: rgba(255,255,255,0.6);
+    margin-top: 2px;
+  }
+  .top-nav .week-info .sync-badge::before {
+    content: ''; width: 6px; height: 6px; border-radius: 50%;
+    background: #27AE60; display: inline-block;
+  }
+
+  /* Tab bar inside nav */
+  .tab-bar {
+    display: flex; gap: 2px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 10px; padding: 3px;
+  }
+  .tab-bar .tab {
+    flex: 1; padding: 7px 4px; border-radius: 8px;
+    font-size: 11px; font-weight: 600; color: rgba(255,255,255,0.55);
+    text-align: center; cursor: pointer; transition: all 0.15s;
+    letter-spacing: 0.2px;
+    display: flex; flex-direction: column; align-items: center; gap: 2px;
+  }
+  .tab-bar .tab .tab-icon { font-size: 14px; }
+  .tab-bar .tab.active {
+    background: white; color: var(--navy);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.15);
+  }
+  .tab-bar .tab .badge {
+    display: inline-block; background: var(--amber);
+    color: white; font-size: 9px; font-weight: 700;
+    border-radius: 10px; padding: 1px 5px; margin-left: 2px;
+    vertical-align: middle;
+  }
+
+  /* ── Screen body ── */
+  .screen-body {
+    flex: 1;
+    overflow: hidden;
+    display: flex; flex-direction: column;
+  }
+
+  /* ── Day header ── */
+  .day-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 16px 10px;
+    background: white;
+    border-bottom: 1px solid var(--border);
+    position: sticky; top: 0; z-index: 10;
+  }
+  .day-header .day-left { display: flex; align-items: center; gap: 8px; }
+  .day-header .day-left .chevron { color: var(--navy); font-size: 14px; }
+  .day-header .day-name { font-size: 15px; font-weight: 700; color: var(--navy); }
+  .day-header .day-date { font-size: 13px; color: var(--text-2); }
+  .day-header .day-pills { display: flex; gap: 6px; align-items: center; }
+  .pill {
+    font-size: 11px; font-weight: 600; border-radius: 20px;
+    padding: 3px 9px;
+  }
+  .pill-blue { background: var(--blue-bg); color: var(--blue); }
+  .pill-amber { background: var(--amber-bg); color: var(--amber); }
+  .pill-green { background: var(--green-bg); color: var(--green); }
+  .pill-red   { background: var(--red-bg); color: var(--red); }
+  .pill-slate { background: #EEF2F6; color: var(--slate); }
+
+  /* ── Task list ── */
+  .task-list { padding: 10px 14px; display: flex; flex-direction: column; gap: 8px; }
+
+  .task-card {
+    background: white;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border);
+    overflow: hidden;
+  }
+  .task-card-row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 13px 14px;
+  }
+  .task-num {
+    width: 28px; height: 28px; border-radius: 8px;
+    background: var(--navy); color: white;
+    font-size: 12px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .task-num.ot { background: var(--amber); }
+  .task-info { flex: 1; min-width: 0; }
+  .task-info .task-name { font-size: 14px; font-weight: 600; color: var(--text-1); }
+  .task-info .task-loc {
+    font-size: 12px; color: var(--text-3); margin-top: 1px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .task-right { display: flex; align-items: center; gap: 8px; }
+  .task-hours {
+    font-size: 13px; font-weight: 600; color: var(--navy);
+    font-family: 'DM Mono', monospace;
+  }
+  .task-hours.ot { color: var(--amber); }
+  .task-expand { color: var(--text-3); font-size: 14px; }
+
+  /* Expanded task detail */
+  .task-detail {
+    border-top: 1px solid var(--border);
+    padding: 14px;
+    background: #FAFCFE;
+    display: flex; flex-direction: column; gap: 12px;
+  }
+  .detail-row { display: flex; flex-direction: column; gap: 4px; }
+  .detail-label { font-size: 10px; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase; color: var(--text-3); }
+  .detail-value {
+    font-size: 13px; color: var(--text-1);
+    background: white; border: 1px solid var(--border);
+    border-radius: var(--radius-sm); padding: 8px 11px;
+  }
+  .code-chip {
+    display: inline-flex; align-items: center; gap: 5px;
+    background: var(--blue-bg); color: var(--blue);
+    font-size: 12px; font-weight: 500; border-radius: 6px; padding: 4px 9px;
+  }
+  .hrs-row { display: flex; gap: 10px; }
+  .hrs-box {
+    flex: 1; background: white; border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm); padding: 8px 12px;
+  }
+  .hrs-box.ot-box { border-color: var(--amber); background: var(--amber-bg); }
+  .hrs-box .hrs-label { font-size: 10px; font-weight: 700; letter-spacing: 0.6px; text-transform: uppercase; color: var(--text-3); margin-bottom: 6px; }
+  .hrs-box.ot-box .hrs-label { color: var(--amber); }
+  .hrs-stepper { display: flex; align-items: center; gap: 8px; }
+  .hrs-stepper button {
+    width: 26px; height: 26px; border-radius: 6px;
+    border: 1.5px solid var(--border); background: white;
+    font-size: 16px; font-weight: 500; color: var(--navy);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+  }
+  .hrs-box.ot-box .hrs-stepper button { border-color: var(--amber); color: var(--amber); }
+  .hrs-stepper .val {
+    flex: 1; text-align: center; font-size: 18px; font-weight: 700;
+    color: var(--navy); font-family: 'DM Mono', monospace;
+  }
+  .hrs-box.ot-box .hrs-stepper .val { color: var(--amber); }
+  .delete-btn {
+    width: 100%; padding: 10px; border-radius: var(--radius-sm);
+    border: none; background: var(--red-bg); color: var(--red);
+    font-size: 13px; font-weight: 600; cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+  }
+
+  /* Add task */
+  .add-task {
+    margin: 4px 14px 14px;
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    padding: 11px; border-radius: var(--radius);
+    border: 1.5px dashed var(--border);
+    font-size: 13px; font-weight: 600; color: var(--blue);
+    cursor: pointer; background: white;
+  }
+
+  /* ──────────────────── NOTES SCREEN ──────────────────── */
+  .filter-bar {
+    display: flex; gap: 6px; padding: 12px 14px 8px;
+    overflow-x: auto; background: white;
+    border-bottom: 1px solid var(--border);
+  }
+  .filter-bar::-webkit-scrollbar { display: none; }
+  .filter-chip {
+    flex-shrink: 0; padding: 5px 12px; border-radius: 20px;
+    font-size: 12px; font-weight: 600; cursor: pointer;
+    border: 1.5px solid var(--border); background: white; color: var(--text-2);
+  }
+  .filter-chip.active-all   { background: var(--navy); color: white; border-color: var(--navy); }
+  .filter-chip.active-high  { background: var(--red-bg); color: var(--red); border-color: var(--red); }
+  .filter-chip.active-med   { background: var(--amber-bg); color: var(--amber); border-color: var(--amber); }
+  .filter-chip.active-low   { background: var(--green-bg); color: var(--green); border-color: var(--green); }
+  .filter-chip .count { opacity: 0.75; margin-left: 3px; }
+
+  .notes-list { padding: 10px 14px; display: flex; flex-direction: column; gap: 8px; }
+  .notes-section-lbl { font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--text-3); padding: 4px 2px; }
+
+  .note-card {
+    background: white; border-radius: var(--radius);
+    border: 1px solid var(--border); box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+  .note-row {
+    display: flex; align-items: center; gap: 10px;
+    padding: 12px 14px; cursor: pointer;
+  }
+  .note-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 1px; }
+  .dot-red   { background: var(--red); }
+  .dot-amber { background: var(--amber); }
+  .dot-green { background: var(--green); }
+  .dot-slate { background: var(--slate); }
+  .note-body { flex: 1; min-width: 0; }
+  .note-title { font-size: 14px; font-weight: 600; color: var(--text-1); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .note-title.done { text-decoration: line-through; color: var(--text-3); }
+  .note-meta  { font-size: 12px; color: var(--text-3); margin-top: 2px; }
+  .note-expand-icon { color: var(--text-3); font-size: 14px; }
+
+  /* Expanded note form */
+  .note-form {
+    border-top: 1px solid var(--border);
+    padding: 14px;
+    background: #FAFCFE;
+    display: flex; flex-direction: column; gap: 10px;
+  }
+  .form-field { display: flex; flex-direction: column; gap: 4px; }
+  .form-label { font-size: 10px; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase; color: var(--text-3); }
+  .form-input {
+    font-size: 13px; color: var(--text-1);
+    background: white; border: 1px solid var(--border);
+    border-radius: var(--radius-sm); padding: 8px 11px;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .priority-row { display: flex; gap: 6px; }
+  .pri-btn {
+    flex: 1; padding: 8px; border-radius: var(--radius-sm);
+    border: 1.5px solid var(--border); background: white;
+    font-size: 12px; font-weight: 600; color: var(--text-2);
+    cursor: pointer; font-family: 'DM Sans', sans-serif; text-align: center;
+  }
+  .pri-btn.active-med { border-color: var(--amber); background: var(--amber-bg); color: var(--amber); }
+  .save-btn {
+    width: 100%; padding: 11px; border-radius: var(--radius-sm);
+    border: none; background: var(--navy); color: white;
+    font-size: 14px; font-weight: 700; cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .note-actions { display: flex; justify-content: space-between; align-items: center; }
+  .note-action-btn {
+    font-size: 12px; font-weight: 600; color: var(--text-3);
+    background: none; border: none; cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    display: flex; align-items: center; gap: 4px;
+  }
+  .note-action-btn.done-btn { color: var(--green); }
+  .note-action-btn.del-btn  { color: var(--red); }
+
+  .add-note {
+    margin: 4px 14px 14px;
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    padding: 11px; border-radius: var(--radius);
+    border: 1.5px dashed var(--border);
+    font-size: 13px; font-weight: 600; color: var(--blue);
+    cursor: pointer; background: white;
+  }
+
+  /* ──────────────────── EXCHANGE FINDER ──────────────────── */
+  .search-bar-wrap {
+    padding: 12px 14px;
+    background: white;
+    border-bottom: 1px solid var(--border);
+  }
+  .search-bar {
+    display: flex; align-items: center; gap: 8px;
+    background: var(--surface); border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm); padding: 9px 12px;
+  }
+  .search-bar .search-icon { font-size: 16px; color: var(--text-3); }
+  .search-bar input {
+    flex: 1; border: none; background: none; outline: none;
+    font-size: 14px; color: var(--text-1); font-family: 'DM Sans', sans-serif;
+  }
+  .search-bar .clear { font-size: 14px; color: var(--text-3); cursor: pointer; }
+
+  .toggle-group {
+    display: flex; padding: 10px 14px 6px;
+    gap: 8px; background: white; border-bottom: 1px solid var(--border);
+  }
+  .toggle-btn {
+    flex: 1; padding: 9px; border-radius: var(--radius-sm);
+    font-size: 13px; font-weight: 600; cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    border: 1.5px solid var(--border); background: white; color: var(--text-2);
+    transition: all 0.15s;
+  }
+  .toggle-btn.active { background: var(--navy); color: white; border-color: var(--navy); }
+
+  .results-header {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 10px 16px 6px;
+    font-size: 12px; color: var(--text-3); font-weight: 500;
+  }
+  .results-header strong { color: var(--text-1); }
+
+  .exchange-list { padding: 0 14px 14px; display: flex; flex-direction: column; gap: 6px; }
+  .exchange-row {
+    background: white; border-radius: var(--radius-sm);
+    border: 1px solid var(--border); box-shadow: var(--shadow);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 13px 14px; cursor: pointer;
+    transition: border-color 0.15s;
+  }
+  .exchange-row:active { border-color: var(--blue); }
+  .exchange-name { font-size: 14px; font-weight: 600; color: var(--text-1); }
+  .exchange-code {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px; font-weight: 500;
+    background: var(--navy); color: white;
+    border-radius: 6px; padding: 3px 8px;
+    letter-spacing: 0.5px;
+  }
+
+  /* ── Layout grid for side-by-side ── */
+  .mockup-row {
+    display: flex; gap: 32px; align-items: flex-start;
+    flex-wrap: wrap; justify-content: center;
+  }
+  .mockup-col { display: flex; flex-direction: column; gap: 10px; align-items: center; }
+  .screen-tag {
+    display: inline-block;
+    background: var(--navy); color: white;
+    font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
+    border-radius: 20px; padding: 4px 14px;
+  }
+  
+  /* scrollable area sim */
+  .scroll-area { overflow: hidden; }
+
+  /* Design tokens callout */
+  .tokens-panel {
+    background: white; border-radius: 16px;
+    padding: 24px; max-width: 780px; width: 100%;
+    box-shadow: var(--shadow-md);
+  }
+  .tokens-panel h2 { font-size: 15px; font-weight: 700; color: var(--navy); margin-bottom: 16px; }
+  .tokens-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 10px; }
+  .token-item { display: flex; flex-direction: column; gap: 6px; }
+  .token-swatch {
+    height: 36px; border-radius: 8px;
+    border: 1px solid rgba(0,0,0,0.06);
+  }
+  .token-name { font-size: 11px; font-weight: 600; color: var(--text-2); }
+  .token-val  { font-size: 11px; color: var(--text-3); font-family: 'DM Mono', monospace; }
+</style>
+</head>
+<body>
+
+<div class="page-title">
+  <h1>FieldLog — Unified Design Mockup</h1>
+  <p>One design system across Timesheet · Notes · Exchange Finder</p>
+</div>
+
+<!-- ═══════════════════ ROW 1: TIMESHEET + NOTES ═══════════════════ -->
+<div class="mockup-row">
+
+  <!-- TIMESHEET -->
+  <div class="mockup-col">
+    <span class="screen-tag">⏱ Timesheet</span>
+    <div class="phone">
+      <div class="status-bar">
+        <span class="time">09:41</span>
+        <div class="icons"><span>▲▲▲</span><span>WiFi</span><span>🔋</span></div>
+      </div>
+      <div class="top-nav">
+        <div class="week-row">
+          <div class="chevron">‹</div>
+          <div class="week-info">
+            <div class="week-range">27 Feb – 5 Mar</div>
+            <div class="sync-badge">Synced · v3.0.36</div>
+          </div>
+          <div class="chevron">›</div>
+        </div>
+        <div class="tab-bar">
+          <div class="tab active"><span class="tab-icon">📋</span>Week</div>
+          <div class="tab"><span class="tab-icon">📧</span>Email</div>
+          <div class="tab"><span class="tab-icon">🕐</span>History</div>
+          <div class="tab"><span class="tab-icon">📝</span>Notes <span class="badge">4</span></div>
+          <div class="tab"><span class="tab-icon">🔍</span>Find</div>
+        </div>
+      </div>
+
+      <div class="screen-body scroll-area">
+        <!-- Day header -->
+        <div class="day-header">
+          <div class="day-left">
+            <span class="chevron">▼</span>
+            <span class="day-name">Friday</span>
+            <span class="day-date">27 Feb</span>
+          </div>
+          <div class="day-pills">
+            <span class="pill pill-slate">4 tasks</span>
+            <span class="pill pill-blue">7h</span>
+            <span class="pill pill-amber">+1 OT</span>
+          </div>
+        </div>
+
+        <div class="task-list">
+          <!-- Task 1 collapsed -->
+          <div class="task-card">
+            <div class="task-card-row">
+              <div class="task-num">1</div>
+              <div class="task-info">
+                <div class="task-name">General Admin</div>
+                <div class="task-loc">📍 Naas (NAS)</div>
+              </div>
+              <div class="task-right">
+                <span class="task-hours">2h</span>
+                <span class="task-expand">›</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Task 2 collapsed -->
+          <div class="task-card">
+            <div class="task-card-row">
+              <div class="task-num">2</div>
+              <div class="task-info">
+                <div class="task-name">Van</div>
+                <div class="task-loc">📍 Naas (NAS)</div>
+              </div>
+              <div class="task-right">
+                <span class="task-hours">2h</span>
+                <span class="task-expand">›</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Task 3 EXPANDED (OT) -->
+          <div class="task-card">
+            <div class="task-card-row">
+              <div class="task-num ot">3</div>
+              <div class="task-info">
+                <div class="task-name">Antenna</div>
+                <div class="task-loc">📍 Portlaoise (PGS)</div>
+              </div>
+              <div class="task-right">
+                <span class="task-hours ot">+1 OT</span>
+                <span class="task-expand" style="transform:rotate(90deg)">›</span>
+              </div>
+            </div>
+            <div class="task-detail">
+              <div class="detail-row">
+                <span class="detail-label">Description</span>
+                <span class="detail-value">Antenna</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Work Codes</span>
+                <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:2px;">
+                  <span class="code-chip">COW-Escort</span>
+                  <span class="code-chip">ESAT RLB0003A10 ✕</span>
+                </div>
+              </div>
+              <div class="hrs-row">
+                <div class="hrs-box">
+                  <div class="hrs-label">Ordinary Hrs</div>
+                  <div class="hrs-stepper">
+                    <button>−</button>
+                    <span class="val">0</span>
+                    <button>+</button>
+                  </div>
+                </div>
+                <div class="hrs-box ot-box">
+                  <div class="hrs-label">Overtime Hrs</div>
+                  <div class="hrs-stepper">
+                    <button>−</button>
+                    <span class="val">1</span>
+                    <button>+</button>
+                  </div>
+                </div>
+              </div>
+              <button class="delete-btn">🗑 Delete task</button>
+            </div>
+          </div>
+
+          <!-- Task 4 collapsed -->
+          <div class="task-card">
+            <div class="task-card-row">
+              <div class="task-num">4</div>
+              <div class="task-info">
+                <div class="task-name">Fault</div>
+                <div class="task-loc">📍 Baltinglass (BGS)</div>
+              </div>
+              <div class="task-right">
+                <span class="task-hours">3h</span>
+                <span class="task-expand">›</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="add-task">+ Add Task</div>
+
+        <!-- Saturday -->
+        <div class="day-header" style="opacity:0.6">
+          <div class="day-left">
+            <span class="chevron">►</span>
+            <span class="day-name">Saturday</span>
+            <span class="day-date">28 Feb</span>
+          </div>
+        </div>
+        <!-- Sunday -->
+        <div class="day-header" style="margin-top:6px;opacity:0.6">
+          <div class="day-left">
+            <span class="chevron">►</span>
+            <span class="day-name">Sunday</span>
+            <span class="day-date">1 Mar</span>
+          </div>
+          <div class="day-pills">
+            <span class="pill pill-slate">1 task</span>
+            <span class="pill pill-amber">+8 OT</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- NOTES -->
+  <div class="mockup-col">
+    <span class="screen-tag">📝 Notes</span>
+    <div class="phone">
+      <div class="status-bar">
+        <span class="time">09:41</span>
+        <div class="icons"><span>▲▲▲</span><span>WiFi</span><span>🔋</span></div>
+      </div>
+      <div class="top-nav">
+        <div class="week-row">
+          <div class="chevron">‹</div>
+          <div class="week-info">
+            <div class="week-range">27 Feb – 5 Mar</div>
+            <div class="sync-badge">Synced · v3.0.36</div>
+          </div>
+          <div class="chevron">›</div>
+        </div>
+        <div class="tab-bar">
+          <div class="tab"><span class="tab-icon">📋</span>Week</div>
+          <div class="tab"><span class="tab-icon">📧</span>Email</div>
+          <div class="tab"><span class="tab-icon">🕐</span>History</div>
+          <div class="tab active"><span class="tab-icon">📝</span>Notes <span class="badge">4</span></div>
+          <div class="tab"><span class="tab-icon">🔍</span>Find</div>
+        </div>
+      </div>
+
+      <div class="screen-body scroll-area">
+        <!-- Filter chips -->
+        <div class="filter-bar">
+          <div class="filter-chip active-all">All <span class="count">4</span></div>
+          <div class="filter-chip active-high">High <span class="count">1</span></div>
+          <div class="filter-chip active-med">Med <span class="count">2</span></div>
+          <div class="filter-chip active-low">Low <span class="count">1</span></div>
+          <div class="filter-chip">Done <span class="count">11</span></div>
+        </div>
+
+        <div class="notes-list">
+          <div class="notes-section-lbl">Open</div>
+
+          <!-- Note 1 collapsed -->
+          <div class="note-card">
+            <div class="note-row">
+              <div class="note-dot dot-amber"></div>
+              <div class="note-body">
+                <div class="note-title">note 13 – Reopen test</div>
+                <div class="note-meta">Goresbridge (GBE) · 3 Mar</div>
+              </div>
+              <span class="note-expand-icon">›</span>
+            </div>
+          </div>
+
+          <!-- Note 2 EXPANDED -->
+          <div class="note-card">
+            <div class="note-row">
+              <div class="note-dot dot-amber"></div>
+              <div class="note-body">
+                <div class="note-title">note 12</div>
+                <div class="note-meta">Kilmore Quay (KQY) · 3 Mar</div>
+              </div>
+              <span class="note-expand-icon" style="transform:rotate(90deg)">›</span>
+            </div>
+            <div class="note-form">
+              <div class="form-field">
+                <span class="form-label">Description</span>
+                <input class="form-input" value="note 12" readonly>
+              </div>
+              <div class="form-field">
+                <span class="form-label">Location</span>
+                <input class="form-input" value="Kilmore Quay (KQY)" readonly>
+              </div>
+              <div class="form-field">
+                <span class="form-label">Date</span>
+                <input class="form-input" value="03/03/2026" readonly>
+              </div>
+              <div class="form-field">
+                <span class="form-label">Priority</span>
+                <div class="priority-row">
+                  <button class="pri-btn">High</button>
+                  <button class="pri-btn active-med">Medium</button>
+                  <button class="pri-btn">Low</button>
+                </div>
+              </div>
+              <button class="save-btn">Save Note</button>
+              <div class="note-actions">
+                <button class="note-action-btn done-btn">✓ Mark as Done</button>
+                <button class="note-action-btn del-btn">🗑 Delete</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Note 3 -->
+          <div class="note-card">
+            <div class="note-row">
+              <div class="note-dot dot-green"></div>
+              <div class="note-body">
+                <div class="note-title">test 3</div>
+                <div class="note-meta">2 Mar</div>
+              </div>
+              <span class="note-expand-icon">›</span>
+            </div>
+          </div>
+
+          <!-- Note 4 -->
+          <div class="note-card">
+            <div class="note-row">
+              <div class="note-dot dot-red"></div>
+              <div class="note-body">
+                <div class="note-title" style="font-size:13px">Test 2 – fnctionality and the text wrap...</div>
+                <div class="note-meta">Tullamore (TLM) · 2 Mar</div>
+              </div>
+              <span class="note-expand-icon">›</span>
+            </div>
+          </div>
+
+          <div class="notes-section-lbl" style="margin-top:8px">Done</div>
+          <div class="note-card" style="opacity:0.55">
+            <div class="note-row">
+              <div class="note-dot dot-slate"></div>
+              <div class="note-body">
+                <div class="note-title done">Test</div>
+                <div class="note-meta">Naas (NAS) · 2 Mar</div>
+              </div>
+              <span class="note-expand-icon">›</span>
+            </div>
+          </div>
+        </div>
+        <div class="add-note">+ Add Note</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ═══════════════════ ROW 2: EXCHANGE FINDER ═══════════════════ -->
+<div class="mockup-row">
+  <div class="mockup-col">
+    <span class="screen-tag">🔍 Exchange Finder</span>
+    <div class="phone" style="max-height: 700px;">
+      <div class="status-bar">
+        <span class="time">09:41</span>
+        <div class="icons"><span>▲▲▲</span><span>WiFi</span><span>🔋</span></div>
+      </div>
+      <div class="top-nav">
+        <div class="week-row">
+          <div class="chevron">‹</div>
+          <div class="week-info">
+            <div class="week-range">27 Feb – 5 Mar</div>
+            <div class="sync-badge">Synced · v3.0.36</div>
+          </div>
+          <div class="chevron">›</div>
+        </div>
+        <div class="tab-bar">
+          <div class="tab"><span class="tab-icon">📋</span>Week</div>
+          <div class="tab"><span class="tab-icon">📧</span>Email</div>
+          <div class="tab"><span class="tab-icon">🕐</span>History</div>
+          <div class="tab"><span class="tab-icon">📝</span>Notes</div>
+          <div class="tab active"><span class="tab-icon">🔍</span>Find</div>
+        </div>
+      </div>
+
+      <div class="screen-body scroll-area">
+        <!-- Toggle Exchanges / Cabinets -->
+        <div class="toggle-group">
+          <button class="toggle-btn active">📡 Exchanges</button>
+          <button class="toggle-btn">🗄 Cabinets</button>
+        </div>
+
+        <!-- Search -->
+        <div class="search-bar-wrap">
+          <div class="search-bar">
+            <span class="search-icon">🔍</span>
+            <input type="text" value="sa" placeholder="Search exchanges or towns…">
+            <span class="clear">✕</span>
+          </div>
+        </div>
+
+        <div class="results-header">
+          Showing <strong>8 results</strong> for "sa"
+        </div>
+
+        <div class="exchange-list">
+          <div class="exchange-row">
+            <span class="exchange-name">Sallins</span>
+            <span class="exchange-code">SLS</span>
+          </div>
+          <div class="exchange-row">
+            <span class="exchange-name">Sallybrook</span>
+            <span class="exchange-code">SBK</span>
+          </div>
+          <div class="exchange-row">
+            <span class="exchange-name">Sandyford</span>
+            <span class="exchange-code">SND</span>
+          </div>
+          <div class="exchange-row">
+            <span class="exchange-name">Sandyford Aeh</span>
+            <span class="exchange-code">SNH</span>
+          </div>
+          <div class="exchange-row">
+            <span class="exchange-name">Santry</span>
+            <span class="exchange-code">SAN</span>
+          </div>
+          <div class="exchange-row">
+            <span class="exchange-name">Shannon Airport</span>
+            <span class="exchange-code">SAP</span>
+          </div>
+          <div class="exchange-row">
+            <span class="exchange-name">Sliabh A Mhadra</span>
+            <span class="exchange-code">SAW</span>
+          </div>
+          <div class="exchange-row">
+            <span class="exchange-name">St Andrew Street</span>
+            <span class="exchange-code">SAS</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Design system panel -->
+  <div class="mockup-col" style="max-width:340px">
+    <span class="screen-tag">🎨 Design Tokens</span>
+    <div class="tokens-panel">
+      <h2>Shared Design System</h2>
+      <div class="tokens-grid">
+        <div class="token-item">
+          <div class="token-swatch" style="background:#0F1C2E"></div>
+          <span class="token-name">Navy (Primary)</span>
+          <span class="token-val">#0F1C2E</span>
+        </div>
+        <div class="token-item">
+          <div class="token-swatch" style="background:#2D6BE4"></div>
+          <span class="token-name">Blue (Action)</span>
+          <span class="token-val">#2D6BE4</span>
+        </div>
+        <div class="token-item">
+          <div class="token-swatch" style="background:#F5A623"></div>
+          <span class="token-name">Amber (OT / Med)</span>
+          <span class="token-val">#F5A623</span>
+        </div>
+        <div class="token-item">
+          <div class="token-swatch" style="background:#E8453C"></div>
+          <span class="token-name">Red (High / Delete)</span>
+          <span class="token-val">#E8453C</span>
+        </div>
+        <div class="token-item">
+          <div class="token-swatch" style="background:#27AE60"></div>
+          <span class="token-name">Green (Done / Low)</span>
+          <span class="token-val">#27AE60</span>
+        </div>
+        <div class="token-item">
+          <div class="token-swatch" style="background:#F4F7FA;border:1px solid #D4E0EC"></div>
+          <span class="token-name">Surface</span>
+          <span class="token-val">#F4F7FA</span>
+        </div>
+      </div>
+
+      <div style="margin-top:20px;display:flex;flex-direction:column;gap:8px;">
+        <div style="font-size:13px;font-weight:700;color:#0F1C2E;margin-bottom:4px">What changed</div>
+        <div style="font-size:12px;color:#4A6580;line-height:1.6">
+          ✅ <strong>Shared top nav & tab bar</strong> — same dark navy header on all 3 screens, making them feel like one app<br><br>
+          ✅ <strong>Consistent card pattern</strong> — tasks and notes use the same card shell, expand gesture, and field layout<br><br>
+          ✅ <strong>Unified colour semantics</strong> — amber always means overtime/medium, red always means high/delete, green always means done/low<br><br>
+          ✅ <strong>Exchange Finder reframed as a tab</strong> — not a separate app, just the "Find" tab with a clean toggle for Exchanges vs Cabinets<br><br>
+          ✅ <strong>DM Sans + DM Mono</strong> — one typeface pair across all screens (mono for codes/hours, sans for everything else)<br><br>
+          ✅ <strong>Consistent add-item pattern</strong> — "+" dashed row at the bottom of every list
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

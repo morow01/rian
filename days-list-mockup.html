@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Days List Mockup</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: #E8EEF5;
+    padding: 0 0 60px;
+  }
+
+  /* fake app header */
+  .app-header {
+    background: #0F1C2E; color: #fff;
+    padding: 14px 16px 10px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .app-header .week { font-size: 16px; font-weight: 700; }
+  .app-header .sync { font-size: 12px; color: rgba(255,255,255,0.55); }
+
+  .tabs-bar {
+    background: #0F1C2E;
+    display: flex; padding: 0 16px;
+    border-top: 1px solid rgba(255,255,255,0.08);
+  }
+  .t-tab {
+    padding: 10px 16px 8px; font-size: 13px; font-weight: 600;
+    color: rgba(255,255,255,0.5); border-bottom: 2.5px solid transparent;
+    cursor: pointer;
+  }
+  .t-tab.active { color: #fff; border-color: #fff; }
+
+  /* switcher */
+  .switcher {
+    display: flex; background: #D6E2EF;
+    border-radius: 12px; padding: 3px;
+    margin: 14px 12px;
+  }
+  .sw { flex:1; text-align:center; padding:8px 0; font-size:12px; font-weight:700; color:#8A9BB0; border-radius:10px; cursor:pointer; transition:all .15s; }
+  .sw.active { background:#fff; color:#0F1C2E; box-shadow:0 1px 4px rgba(0,0,0,.1); }
+  .panel { display:none; }
+  .panel.active { display:block; }
+
+  /* ── shared ── */
+  .pills { display:flex; gap:6px; align-items:center; }
+  .pill { padding:3px 10px; border-radius:20px; font-size:12px; font-weight:700; }
+  .pill-slate { background:#EDF1F5; color:#5A7289; }
+  .pill-blue  { background:#EBF1FD; color:#2D6BE4; }
+  .pill-amber { background:#FEF3DC; color:#C07800; }
+
+  .task-num {
+    width:28px; height:28px; border-radius:8px;
+    background:#EAECEF; color:#5A7289;
+    font-size:12px; font-weight:700; flex-shrink:0;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .task-num.ot { background:#FEF3DC; color:#C07800; }
+  .chevron { font-size:16px; color:#B0BECC; flex-shrink:0; }
+
+  /* task row shared */
+  .task-title { font-size:14px; font-weight:700; color:#0F1C2E; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .t-pill { padding:2px 7px; border-radius:20px; font-size:11px; font-weight:700; line-height:1.5; white-space:nowrap; }
+  .t-pill-blue  { background:#EBF1FD; color:#2D6BE4; }
+  .t-pill-amber { background:#FEF3DC; color:#C07800; }
+  .task-loc { font-size:12px; color:#8A9BB0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; flex:1; min-width:0; }
+
+  /* ════ CURRENT ════ */
+  .cur-day-card {
+    margin: 0 12px 6px;
+    background: #fff;
+    border-radius: 14px;
+    border: 1.5px solid #D6E2EF;
+    overflow: clip;
+    box-shadow: 0 2px 8px rgba(15,28,46,0.06);
+  }
+  .cur-day-card.open { box-shadow: 0 4px 16px rgba(15,28,46,0.10); }
+  .cur-day-header {
+    display:flex; align-items:center; justify-content:space-between;
+    padding:13px 16px; gap:10px; cursor:pointer;
+    background:#fff;
+  }
+  .cur-day-card.open .cur-day-header { border-bottom:1.5px solid #EEF2F7; border-radius:14px 14px 0 0; }
+  .cur-task-row {
+    display:flex; align-items:center; gap:12px;
+    padding:11px 16px; border-bottom:1px solid #F0F4F8; cursor:pointer;
+  }
+  .cur-task-row:last-child { border-bottom:none; }
+
+  /* ════ NEW CONCEPT ════ */
+  /* One big white container for the whole week */
+  .week-list {
+    background: #fff;
+    border-top: 1px solid #E0E8F0;
+    border-bottom: 1px solid #E0E8F0;
+  }
+
+  .new-day {
+    border-bottom: 1px solid #E8EEF5;
+  }
+  .new-day:last-child { border-bottom: none; }
+
+  .new-day-header {
+    display:flex; align-items:center; justify-content:space-between;
+    padding:13px 16px; gap:10px; cursor:pointer;
+    background:#fff;
+    position:sticky; top:0; z-index:10;
+  }
+  /* expanded: subtle bottom divider on header */
+  .new-day.open .new-day-header {
+    border-bottom: 1px solid #EEF2F7;
+    background: #fff;
+  }
+
+  .new-day-left { display:flex; align-items:center; gap:8px; }
+  .day-name { font-size:16px; font-weight:700; color:#0F1C2E; }
+  .day-date { font-size:13px; color:#8A9BB0; }
+
+  /* weekend row — very subtle tint */
+  .new-day.weekend .new-day-header { background: #FAFBFC; }
+  .new-day.weekend { background: #FAFBFC; }
+
+  .new-task-row {
+    display:flex; align-items:center; gap:12px;
+    padding:11px 16px; border-bottom:1px solid #F4F6F8; cursor:pointer;
+    background:#fff;
+  }
+  .new-task-row:last-child { border-bottom:none; }
+
+  .add-task-row {
+    display:flex; align-items:center; justify-content:center; gap:6px;
+    padding:11px 16px; cursor:pointer;
+    font-size:13px; font-weight:700; color:#2D6BE4;
+    border-top:1px dashed #D6E2EF;
+    background: #fff;
+  }
+</style>
+</head>
+<body>
+
+<div class="app-header">
+  <div>
+    <div class="week">6 Mar – 12 Mar</div>
+    <div class="sync">✓ Synced v3.5.9</div>
+  </div>
+  <span style="font-size:20px;opacity:0.6">☰</span>
+</div>
+<div class="tabs-bar">
+  <div class="t-tab active">Timesheet</div>
+  <div class="t-tab">Notes</div>
+  <div class="t-tab">Finder</div>
+</div>
+
+<div class="switcher">
+  <div class="sw active" onclick="show('current')">Current</div>
+  <div class="sw" onclick="show('new')">New concept</div>
+</div>
+
+<!-- ══ CURRENT ══ -->
+<div class="panel active" id="tab-current">
+
+  <!-- collapsed -->
+  <div class="cur-day-card">
+    <div class="cur-day-header">
+      <div class="new-day-left">
+        <svg width="10" height="10" viewBox="0 0 10 10"><polygon points="0,0 10,5 0,10" fill="#8A9BB0"/></svg>
+        <span class="day-name">Friday</span><span class="day-date">6 Mar</span>
+      </div>
+      <div class="pills"><span class="pill pill-slate">3 tasks</span><span class="pill pill-blue">8h</span><span class="pill pill-amber">+1 OT</span></div>
+    </div>
+  </div>
+
+  <!-- expanded -->
+  <div class="cur-day-card open">
+    <div class="cur-day-header">
+      <div class="new-day-left">
+        <svg width="10" height="10" viewBox="0 0 10 10" style="transform:rotate(90deg)"><polygon points="0,0 10,5 0,10" fill="#8A9BB0"/></svg>
+        <span class="day-name">Saturday</span><span class="day-date">7 Mar</span>
+      </div>
+      <div class="pills"><span class="pill pill-slate">2 tasks</span><span class="pill pill-blue">4h</span></div>
+    </div>
+    <div class="cur-task-row">
+      <div class="task-num">1</div>
+      <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:3px;">
+        <div class="task-title">General Admin</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+          <span class="task-loc">📍 Naas (NAS)</span>
+          <div style="display:flex;gap:4px;"><span class="t-pill t-pill-blue">2h</span></div>
+        </div>
+      </div>
+      <span class="chevron">›</span>
+    </div>
+    <div class="cur-task-row">
+      <div class="task-num">2</div>
+      <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:3px;">
+        <div class="task-title">Van inspection</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+          <span class="task-loc">📍 Naas (NAS)</span>
+          <div style="display:flex;gap:4px;"><span class="t-pill t-pill-blue">2h</span></div>
+        </div>
+      </div>
+      <span class="chevron">›</span>
+    </div>
+    <button class="add-task-row" style="width:100%;border:none;">+ Add Task</button>
+  </div>
+
+  <div class="cur-day-card">
+    <div class="cur-day-header">
+      <div class="new-day-left">
+        <svg width="10" height="10" viewBox="0 0 10 10"><polygon points="0,0 10,5 0,10" fill="#C5D3E0"/></svg>
+        <span class="day-name" style="color:#8A9BB0">Sunday</span><span class="day-date">8 Mar</span>
+      </div>
+      <div class="pills"></div>
+    </div>
+  </div>
+
+  <div class="cur-day-card">
+    <div class="cur-day-header">
+      <div class="new-day-left">
+        <svg width="10" height="10" viewBox="0 0 10 10"><polygon points="0,0 10,5 0,10" fill="#8A9BB0"/></svg>
+        <span class="day-name">Monday</span><span class="day-date">9 Mar</span>
+      </div>
+      <div class="pills"><span style="font-size:11px;color:#C5D3E0;font-weight:600">No entries</span></div>
+    </div>
+  </div>
+
+  <div class="cur-day-card">
+    <div class="cur-day-header">
+      <div class="new-day-left">
+        <svg width="10" height="10" viewBox="0 0 10 10"><polygon points="0,0 10,5 0,10" fill="#8A9BB0"/></svg>
+        <span class="day-name">Tuesday</span><span class="day-date">10 Mar</span>
+      </div>
+      <div class="pills"><span style="font-size:11px;color:#C5D3E0;font-weight:600">No entries</span></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ══ NEW CONCEPT ══ -->
+<div class="panel" id="tab-new">
+  <div class="week-list">
+
+    <!-- collapsed day -->
+    <div class="new-day">
+      <div class="new-day-header">
+        <div class="new-day-left">
+          <svg width="10" height="10" viewBox="0 0 10 10"><polygon points="0,0 10,5 0,10" fill="#8A9BB0"/></svg>
+          <span class="day-name">Friday</span><span class="day-date">6 Mar</span>
+        </div>
+        <div class="pills"><span class="pill pill-slate">3 tasks</span><span class="pill pill-blue">8h</span><span class="pill pill-amber">+1 OT</span></div>
+      </div>
+    </div>
+
+    <!-- expanded day -->
+    <div class="new-day open">
+      <div class="new-day-header">
+        <div class="new-day-left">
+          <svg width="10" height="10" viewBox="0 0 10 10" style="transform:rotate(90deg)"><polygon points="0,0 10,5 0,10" fill="#8A9BB0"/></svg>
+          <span class="day-name">Saturday</span><span class="day-date">7 Mar</span>
+        </div>
+        <div class="pills"><span class="pill pill-slate">2 tasks</span><span class="pill pill-blue">4h</span></div>
+      </div>
+      <div class="new-task-row">
+        <div class="task-num">1</div>
+        <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:3px;">
+          <div class="task-title">General Admin</div>
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+            <span class="task-loc">📍 Naas (NAS)</span>
+            <div style="display:flex;gap:4px;"><span class="t-pill t-pill-blue">2h</span></div>
+          </div>
+        </div>
+        <span class="chevron">›</span>
+      </div>
+      <div class="new-task-row">
+        <div class="task-num">2</div>
+        <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:3px;">
+          <div class="task-title">Van inspection</div>
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+            <span class="task-loc">📍 Naas (NAS)</span>
+            <div style="display:flex;gap:4px;"><span class="t-pill t-pill-blue">2h</span></div>
+          </div>
+        </div>
+        <span class="chevron">›</span>
+      </div>
+      <div class="add-task-row">+ Add Task</div>
+    </div>
+
+    <!-- weekend collapsed -->
+    <div class="new-day weekend">
+      <div class="new-day-header">
+        <div class="new-day-left">
+          <svg width="10" height="10" viewBox="0 0 10 10"><polygon points="0,0 10,5 0,10" fill="#C5D3E0"/></svg>
+          <span class="day-name" style="color:#8A9BB0">Sunday</span><span class="day-date">8 Mar</span>
+        </div>
+        <div class="pills"></div>
+      </div>
+    </div>
+
+    <div class="new-day">
+      <div class="new-day-header">
+        <div class="new-day-left">
+          <svg width="10" height="10" viewBox="0 0 10 10"><polygon points="0,0 10,5 0,10" fill="#8A9BB0"/></svg>
+          <span class="day-name">Monday</span><span class="day-date">9 Mar</span>
+        </div>
+        <div class="pills"><span style="font-size:11px;color:#C5D3E0;font-weight:600">No entries</span></div>
+      </div>
+    </div>
+
+    <div class="new-day">
+      <div class="new-day-header">
+        <div class="new-day-left">
+          <svg width="10" height="10" viewBox="0 0 10 10"><polygon points="0,0 10,5 0,10" fill="#8A9BB0"/></svg>
+          <span class="day-name">Tuesday</span><span class="day-date">10 Mar</span>
+        </div>
+        <div class="pills"><span style="font-size:11px;color:#C5D3E0;font-weight:600">No entries</span></div>
+      </div>
+    </div>
+
+    <div class="new-day">
+      <div class="new-day-header">
+        <div class="new-day-left">
+          <svg width="10" height="10" viewBox="0 0 10 10"><polygon points="0,0 10,5 0,10" fill="#8A9BB0"/></svg>
+          <span class="day-name">Wednesday</span><span class="day-date">11 Mar</span>
+        </div>
+        <div class="pills"><span style="font-size:11px;color:#C5D3E0;font-weight:600">No entries</span></div>
+      </div>
+    </div>
+
+    <div class="new-day">
+      <div class="new-day-header">
+        <div class="new-day-left">
+          <svg width="10" height="10" viewBox="0 0 10 10"><polygon points="0,0 10,5 0,10" fill="#8A9BB0"/></svg>
+          <span class="day-name">Thursday</span><span class="day-date">12 Mar</span>
+        </div>
+        <div class="pills"><span style="font-size:11px;color:#C5D3E0;font-weight:600">No entries</span></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  function show(n) {
+    document.querySelectorAll('.sw').forEach((t,i)=>t.classList.toggle('active',['current','new'][i]===n));
+    document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+    document.getElementById('tab-'+n).classList.add('active');
+  }
+</script>
+</body>
+</html>

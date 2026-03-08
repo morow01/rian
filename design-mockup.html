@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TimeSheet UI Redesign Concepts</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0f172a; color: #e2e8f0; min-height: 100vh; }
+
+    .page-header {
+      background: #1e293b;
+      border-bottom: 1px solid #334155;
+      padding: 20px 24px;
+      display: flex; align-items: center; justify-content: space-between;
+      position: sticky; top: 0; z-index: 100;
+    }
+    .page-header h1 { font-size: 18px; font-weight: 800; color: #f1f5f9; }
+    .page-header p { font-size: 13px; color: #94a3b8; margin-top: 2px; }
+
+    .tabs { display: flex; gap: 4px; background: #0f172a; padding: 16px 24px 0; border-bottom: 1px solid #1e293b; position: sticky; top: 73px; z-index: 99; }
+    .tab { padding: 10px 20px; font-size: 13px; font-weight: 700; border-radius: 8px 8px 0 0; cursor: pointer; border: 1px solid transparent; border-bottom: none; color: #64748b; transition: all 0.15s; }
+    .tab.active { background: #1e293b; color: #f1f5f9; border-color: #334155; }
+    .tab:hover:not(.active) { color: #94a3b8; }
+
+    .section { display: none; padding: 24px; }
+    .section.active { display: block; }
+
+    .concepts-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 24px; max-width: 1400px; margin: 0 auto; }
+
+    .concept { background: #1e293b; border-radius: 16px; overflow: hidden; border: 1px solid #334155; }
+    .concept-header { padding: 16px 20px; border-bottom: 1px solid #334155; }
+    .concept-label { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.12em; color: #64748b; margin-bottom: 4px; }
+    .concept-title { font-size: 16px; font-weight: 800; color: #f1f5f9; }
+    .concept-desc { font-size: 12px; color: #94a3b8; margin-top: 4px; line-height: 1.5; }
+    .concept-body { padding: 16px; background: #f1f5f9; }
+    .concept-body.dark { background: #0c1425; }
+
+    /* ===== PHONE FRAME ===== */
+    .phone { width: 100%; max-width: 360px; margin: 0 auto; background: #f1f5f9; border-radius: 12px; overflow: hidden; }
+
+    /* ===== CURRENT DESIGN ===== */
+    .current-day {
+      background: #fff;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    .current-day-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 12px 16px;
+      cursor: pointer;
+    }
+    .current-day-left { display: flex; align-items: center; gap: 8px; }
+    .current-chevron { color: #9ca3af; font-size: 12px; }
+    .current-day-name { font-size: 14px; font-weight: 700; color: #0f172a; }
+    .current-day-date { font-size: 12px; color: #6b7280; }
+    .current-pills { display: flex; gap: 5px; }
+    .current-pill { font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 20px; }
+    .pill-slate { background: #f1f5f9; color: #475569; }
+    .pill-blue { background: #dbeafe; color: #1e40af; }
+    .pill-amber { background: #fef3c7; color: #92400e; }
+
+    /* ===== CONCEPT A: Timeline strip ===== */
+    .ca-day {
+      background: #fff;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    .ca-header {
+      display: flex; align-items: stretch;
+      cursor: pointer;
+    }
+    .ca-accent-bar {
+      width: 4px;
+      background: #1e3a8a;
+      flex-shrink: 0;
+      border-radius: 0;
+    }
+    .ca-accent-bar.we { background: #d1d5db; }
+    .ca-accent-bar.active { background: #2563eb; }
+    .ca-content { flex: 1; padding: 12px 14px; display: flex; align-items: center; justify-content: space-between; }
+    .ca-left { display: flex; flex-direction: column; gap: 2px; }
+    .ca-day-name { font-size: 14px; font-weight: 800; color: #0f172a; }
+    .ca-day-date { font-size: 11px; color: #9ca3af; font-weight: 500; }
+    .ca-right { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
+    .ca-hrs-row { display: flex; gap: 6px; align-items: center; }
+    .ca-hrs { font-size: 16px; font-weight: 800; color: #1e3a8a; }
+    .ca-ot { font-size: 12px; font-weight: 700; color: #d97706; background: #fef3c7; padding: 2px 6px; border-radius: 5px; }
+    .ca-tasks { font-size: 11px; color: #94a3b8; }
+    .ca-bar-wrap { height: 3px; background: #f1f5f9; border-radius: 0 0 0 0; overflow: hidden; }
+    .ca-bar-fill { height: 100%; background: #1e3a8a; border-radius: 2px; transition: width 0.3s; }
+    .ca-bar-ot { background: #d97706; float: right; height: 100%; border-radius: 2px; }
+
+    /* ===== CONCEPT B: Status card ===== */
+    .cb-day {
+      margin: 0 10px 8px;
+      background: #fff;
+      border-radius: 14px;
+      border: 1.5px solid #e5e7eb;
+      overflow: hidden;
+      cursor: pointer;
+    }
+    .cb-day.we { background: #f9fafb; border-color: #f0f0f0; }
+    .cb-day.has-data { border-color: #bfdbfe; }
+    .cb-header { padding: 12px 14px; display: flex; align-items: center; gap: 12px; }
+    .cb-dow {
+      width: 42px; height: 42px; border-radius: 10px;
+      background: #eff6ff; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .cb-dow.we { background: #f3f4f6; }
+    .cb-dow-name { font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: #93c5fd; }
+    .cb-dow.we .cb-dow-name { color: #9ca3af; }
+    .cb-dow-num { font-size: 16px; font-weight: 800; color: #1e3a8a; line-height: 1; }
+    .cb-dow.we .cb-dow-num { color: #6b7280; }
+    .cb-info { flex: 1; }
+    .cb-status { font-size: 12px; font-weight: 700; color: #94a3b8; }
+    .cb-status.filled { color: #1e3a8a; }
+    .cb-meta { font-size: 11px; color: #94a3b8; margin-top: 2px; }
+    .cb-nums { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
+    .cb-big-hrs { font-size: 20px; font-weight: 900; color: #0f172a; line-height: 1; }
+    .cb-big-ot { font-size: 12px; font-weight: 700; color: #d97706; }
+    .cb-empty-bar { height: 2px; background: #f1f5f9; margin: 0 14px 10px; border-radius: 1px; }
+    .cb-fill-bar { height: 2px; margin: 0 14px 10px; border-radius: 1px; background: linear-gradient(to right, #1e3a8a, #3b82f6); }
+
+    /* ===== CONCEPT C: Minimal list ===== */
+    .cc-week-header {
+      padding: 16px 16px 8px;
+      display: flex; justify-content: space-between; align-items: flex-end;
+    }
+    .cc-week-title { font-size: 16px; font-weight: 800; color: #0f172a; }
+    .cc-week-sub { font-size: 12px; color: #94a3b8; }
+    .cc-total-badge { font-size: 13px; font-weight: 700; color: #1e3a8a; background: #eff6ff; padding: 4px 10px; border-radius: 8px; }
+    .cc-day-row {
+      display: flex; align-items: center;
+      padding: 10px 16px;
+      border-bottom: 1px solid #f1f5f9;
+      gap: 12px; cursor: pointer;
+    }
+    .cc-day-row:hover { background: #f8fafc; }
+    .cc-day-row.we { opacity: 0.5; }
+    .cc-dot { width: 8px; height: 8px; border-radius: 50%; background: #1e3a8a; flex-shrink: 0; }
+    .cc-dot.empty { background: #e5e7eb; }
+    .cc-dot.we { background: #d1d5db; }
+    .cc-day-col { flex: 1; }
+    .cc-dname { font-size: 14px; font-weight: 700; color: #0f172a; }
+    .cc-ddate { font-size: 11px; color: #9ca3af; }
+    .cc-tasks-col { font-size: 12px; color: #94a3b8; width: 60px; text-align: center; }
+    .cc-hrs-col { font-size: 14px; font-weight: 700; color: #0f172a; width: 40px; text-align: right; }
+    .cc-ot-col { font-size: 12px; font-weight: 600; color: #d97706; width: 50px; text-align: right; }
+    .cc-chevron-col { color: #d1d5db; font-size: 16px; width: 16px; text-align: center; }
+
+    /* ===== SUMMARY REDESIGNS ===== */
+
+    /* Current summary */
+    .sum-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .sum-table th { background: #f8fafc; color: #6b7280; font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; padding: 8px 12px; text-align: left; border-bottom: 1px solid #e5e7eb; }
+    .sum-table th:nth-child(3), .sum-table th:nth-child(4) { text-align: right; }
+    .sum-table td { padding: 8px 12px; border-bottom: 1px solid #f1f5f9; color: #374151; }
+    .sum-table td:nth-child(3), .sum-table td:nth-child(4) { text-align: right; font-weight: 700; }
+    .sum-table tr:nth-child(even) td { background: #f9fafb; }
+    .sum-table .total td { background: #eff6ff; font-weight: 800; color: #1e3a8a; border-top: 2px solid #bfdbfe; }
+    .sum-code { font-family: 'SF Mono', 'Fira Code', monospace; font-size: 10px; color: #3b82f6; }
+
+    /* Summary A: Horizontal bars */
+    .suma-container { padding: 14px; }
+    .suma-totals { display: flex; gap: 12px; margin-bottom: 16px; }
+    .suma-total-card { flex: 1; background: #eff6ff; border-radius: 10px; padding: 10px 14px; }
+    .suma-total-label { font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; color: #3b82f6; }
+    .suma-total-val { font-size: 24px; font-weight: 900; color: #1e3a8a; line-height: 1.1; }
+    .suma-total-card.ot { background: #fffbeb; }
+    .suma-total-card.ot .suma-total-label { color: #d97706; }
+    .suma-total-card.ot .suma-total-val { color: #92400e; }
+    .suma-row { margin-bottom: 10px; }
+    .suma-row-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+    .suma-row-desc { font-size: 12px; font-weight: 600; color: #374151; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 180px; }
+    .suma-row-hrs { font-size: 12px; font-weight: 700; color: #0f172a; }
+    .suma-bar-bg { height: 6px; background: #f1f5f9; border-radius: 4px; overflow: hidden; }
+    .suma-bar-fill { height: 100%; border-radius: 4px; background: linear-gradient(to right, #1e3a8a, #3b82f6); transition: width 0.5s; }
+    .suma-bar-fill.ot { background: linear-gradient(to right, #d97706, #fbbf24); }
+    .suma-code { font-family: 'SF Mono', monospace; font-size: 9px; color: #94a3b8; }
+
+    /* Summary B: Code chips with totals */
+    .sumb-container { padding: 14px; }
+    .sumb-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px solid #e5e7eb; }
+    .sumb-total-hrs { font-size: 28px; font-weight: 900; color: #0f172a; line-height: 1; }
+    .sumb-total-label { font-size: 10px; color: #94a3b8; font-weight: 600; margin-top: 2px; }
+    .sumb-ot-pill { background: #fffbeb; border: 1.5px solid #fde68a; color: #92400e; font-size: 13px; font-weight: 700; padding: 6px 14px; border-radius: 8px; }
+    .sumb-row { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid #f8fafc; }
+    .sumb-rank { width: 20px; height: 20px; border-radius: 50%; background: #f1f5f9; font-size: 10px; font-weight: 800; color: #94a3b8; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .sumb-desc { flex: 1; font-size: 12px; font-weight: 600; color: #374151; }
+    .sumb-code-chip { font-family: monospace; font-size: 10px; background: #eff6ff; color: #3b82f6; padding: 2px 6px; border-radius: 4px; white-space: nowrap; }
+    .sumb-hrs { font-size: 14px; font-weight: 800; color: #0f172a; width: 42px; text-align: right; }
+    .sumb-ot { font-size: 11px; font-weight: 600; color: #d97706; width: 36px; text-align: right; }
+
+    /* ===== SECTION LABELS ===== */
+    .section-label {
+      font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em;
+      color: #64748b; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;
+    }
+    .section-label::after { content: ''; flex: 1; height: 1px; background: #334155; }
+
+    .note-box { background: #1e293b; border: 1px solid #334155; border-radius: 10px; padding: 12px 16px; font-size: 12px; color: #94a3b8; line-height: 1.6; margin-bottom: 16px; }
+    .note-box strong { color: #f1f5f9; }
+
+    /* toggle for interactivity */
+    .interactive-btn {
+      background: #1e3a8a; color: #fff; border: none; border-radius: 8px;
+      padding: 7px 14px; font-size: 12px; font-weight: 700; cursor: pointer;
+      margin-top: 8px; transition: background 0.15s;
+    }
+    .interactive-btn:hover { background: #2563eb; }
+    .expandable { display: none; }
+    .expandable.open { display: block; }
+  </style>
+</head>
+<body>
+
+<div class="page-header">
+  <div>
+    <h1>TimeSheet — UI Redesign Concepts</h1>
+    <p>3 directions for Day Headers &nbsp;·&nbsp; 2 directions for Weekly Summary</p>
+  </div>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="showTab('days')">Day Headers</div>
+  <div class="tab" onclick="showTab('summary')">Weekly Summary</div>
+</div>
+
+<!-- =========================================================== -->
+<!-- DAY HEADERS TAB -->
+<!-- =========================================================== -->
+<div id="tab-days" class="section active">
+  <div class="concepts-grid">
+
+    <!-- CURRENT -->
+    <div class="concept">
+      <div class="concept-header">
+        <div class="concept-label">Current Design</div>
+        <div class="concept-title">Pill badges</div>
+        <div class="concept-desc">Chevron + day name + date + small coloured pill badges. Clean but the pills feel small and the hours are hidden in text.</div>
+      </div>
+      <div class="concept-body">
+        <div class="phone">
+          <!-- Day 1: Has data -->
+          <div class="current-day">
+            <div class="current-day-header">
+              <div class="current-day-left">
+                <span class="current-chevron">▶</span>
+                <span class="current-day-name">Friday</span>
+                <span class="current-day-date">28 Feb</span>
+              </div>
+              <div class="current-pills">
+                <span class="current-pill pill-slate">2 tasks</span>
+                <span class="current-pill pill-blue">10h</span>
+                <span class="current-pill pill-amber">+2 OT</span>
+              </div>
+            </div>
+          </div>
+          <!-- Day 2: Weekend -->
+          <div class="current-day">
+            <div class="current-day-header">
+              <div class="current-day-left">
+                <span class="current-chevron">▶</span>
+                <span class="current-day-name" style="color:#9ca3af">Saturday</span>
+                <span class="current-day-date">1 Mar</span>
+              </div>
+              <div class="current-pills">
+              </div>
+            </div>
+          </div>
+          <!-- Day 3 -->
+          <div class="current-day">
+            <div class="current-day-header">
+              <div class="current-day-left">
+                <span class="current-chevron">▶</span>
+                <span class="current-day-name" style="color:#9ca3af">Sunday</span>
+                <span class="current-day-date">2 Mar</span>
+              </div>
+              <div class="current-pills">
+              </div>
+            </div>
+          </div>
+          <!-- Day 4 -->
+          <div class="current-day">
+            <div class="current-day-header">
+              <div class="current-day-left">
+                <span class="current-chevron">▶</span>
+                <span class="current-day-name">Monday</span>
+                <span class="current-day-date">3 Mar</span>
+              </div>
+              <div class="current-pills">
+                <span class="current-pill pill-slate">3 tasks</span>
+                <span class="current-pill pill-blue">8h</span>
+              </div>
+            </div>
+          </div>
+          <!-- Day 5 -->
+          <div class="current-day">
+            <div class="current-day-header">
+              <div class="current-day-left">
+                <span class="current-chevron">▶</span>
+                <span class="current-day-name">Tuesday</span>
+                <span class="current-day-date">4 Mar</span>
+              </div>
+              <div class="current-pills">
+                <span class="current-pill pill-slate">1 task</span>
+                <span class="current-pill pill-blue">8h</span>
+                <span class="current-pill pill-amber">+4 OT</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONCEPT A: Left accent bar + hours prominent -->
+    <div class="concept">
+      <div class="concept-header">
+        <div class="concept-label">Concept A</div>
+        <div class="concept-title">Accent bar + big hours</div>
+        <div class="concept-desc">Coloured left border shows at-a-glance if a day has data. Hours are displayed larger and more prominently on the right. A thin progress bar underneath shows relative hours for the week.</div>
+      </div>
+      <div class="concept-body">
+        <div class="phone" style="background:#f8fafc">
+          <!-- Fri -->
+          <div class="ca-day">
+            <div class="ca-header">
+              <div class="ca-accent-bar active"></div>
+              <div class="ca-content">
+                <div class="ca-left">
+                  <span class="ca-day-name">Friday</span>
+                  <span class="ca-day-date">28 Feb</span>
+                </div>
+                <div class="ca-right">
+                  <div class="ca-hrs-row">
+                    <span class="ca-hrs">10h</span>
+                    <span class="ca-ot">+2 OT</span>
+                  </div>
+                  <span class="ca-tasks">2 tasks</span>
+                </div>
+              </div>
+            </div>
+            <div class="ca-bar-wrap"><div style="display:flex;height:3px"><div class="ca-bar-fill" style="width:83%;background:#1e3a8a"></div><div style="width:17%;height:3px;background:#d97706"></div></div></div>
+          </div>
+          <!-- Sat -->
+          <div class="ca-day">
+            <div class="ca-header">
+              <div class="ca-accent-bar we"></div>
+              <div class="ca-content">
+                <div class="ca-left">
+                  <span class="ca-day-name" style="color:#9ca3af">Saturday</span>
+                  <span class="ca-day-date">1 Mar</span>
+                </div>
+                <div class="ca-right">
+                  <span class="ca-tasks" style="color:#d1d5db">Off</span>
+                </div>
+              </div>
+            </div>
+            <div class="ca-bar-wrap"><div class="ca-bar-fill" style="width:0%"></div></div>
+          </div>
+          <!-- Sun -->
+          <div class="ca-day">
+            <div class="ca-header">
+              <div class="ca-accent-bar we"></div>
+              <div class="ca-content">
+                <div class="ca-left">
+                  <span class="ca-day-name" style="color:#9ca3af">Sunday</span>
+                  <span class="ca-day-date">2 Mar</span>
+                </div>
+                <div class="ca-right">
+                  <span class="ca-tasks" style="color:#d1d5db">Off</span>
+                </div>
+              </div>
+            </div>
+            <div class="ca-bar-wrap"><div class="ca-bar-fill" style="width:0%"></div></div>
+          </div>
+          <!-- Mon -->
+          <div class="ca-day">
+            <div class="ca-header">
+              <div class="ca-accent-bar active"></div>
+              <div class="ca-content">
+                <div class="ca-left">
+                  <span class="ca-day-name">Monday</span>
+                  <span class="ca-day-date">3 Mar</span>
+                </div>
+                <div class="ca-right">
+                  <div class="ca-hrs-row">
+                    <span class="ca-hrs">8h</span>
+                  </div>
+                  <span class="ca-tasks">3 tasks</span>
+                </div>
+              </div>
+            </div>
+            <div class="ca-bar-wrap"><div class="ca-bar-fill" style="width:67%"></div></div>
+          </div>
+          <!-- Tue -->
+          <div class="ca-day">
+            <div class="ca-header">
+              <div class="ca-accent-bar active"></div>
+              <div class="ca-content">
+                <div class="ca-left">
+                  <span class="ca-day-name">Tuesday</span>
+                  <span class="ca-day-date">4 Mar</span>
+                </div>
+                <div class="ca-right">
+                  <div class="ca-hrs-row">
+                    <span class="ca-hrs">8h</span>
+                    <span class="ca-ot">+4 OT</span>
+                  </div>
+                  <span class="ca-tasks">1 task</span>
+                </div>
+              </div>
+            </div>
+            <div class="ca-bar-wrap"><div style="display:flex;height:3px"><div class="ca-bar-fill" style="width:67%;background:#1e3a8a"></div><div style="width:33%;height:3px;background:#d97706"></div></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONCEPT B: Card per day with date badge -->
+    <div class="concept">
+      <div class="concept-header">
+        <div class="concept-label">Concept B</div>
+        <div class="concept-title">Card with date badge</div>
+        <div class="concept-desc">Each day is its own floating card. A square date badge on the left mirrors a calendar feel. Hours are large and right-aligned. Empty days are visually quieter.</div>
+      </div>
+      <div class="concept-body" style="background:#f1f5f9;padding:12px 8px">
+        <div class="phone" style="background:transparent">
+          <!-- Fri -->
+          <div class="cb-day has-data" style="margin:0 0 6px">
+            <div class="cb-header">
+              <div class="cb-dow">
+                <span class="cb-dow-name">FRI</span>
+                <span class="cb-dow-num">28</span>
+              </div>
+              <div class="cb-info">
+                <div class="cb-status filled">2 tasks · Strokestown, Roscommon</div>
+                <div class="cb-meta">2 work codes assigned</div>
+              </div>
+              <div class="cb-nums">
+                <span class="cb-big-hrs">10h</span>
+                <span class="cb-big-ot">+2 OT</span>
+              </div>
+            </div>
+            <div class="cb-fill-bar"></div>
+          </div>
+          <!-- Sat -->
+          <div class="cb-day we" style="margin:0 0 6px">
+            <div class="cb-header">
+              <div class="cb-dow we">
+                <span class="cb-dow-name" style="color:#d1d5db">SAT</span>
+                <span class="cb-dow-num" style="color:#d1d5db">1</span>
+              </div>
+              <div class="cb-info">
+                <div class="cb-status">No entries</div>
+              </div>
+              <div class="cb-nums"><span class="cb-big-hrs" style="color:#d1d5db">—</span></div>
+            </div>
+            <div class="cb-empty-bar"></div>
+          </div>
+          <!-- Sun -->
+          <div class="cb-day we" style="margin:0 0 6px">
+            <div class="cb-header">
+              <div class="cb-dow we">
+                <span class="cb-dow-name" style="color:#d1d5db">SUN</span>
+                <span class="cb-dow-num" style="color:#d1d5db">2</span>
+              </div>
+              <div class="cb-info">
+                <div class="cb-status">No entries</div>
+              </div>
+              <div class="cb-nums"><span class="cb-big-hrs" style="color:#d1d5db">—</span></div>
+            </div>
+            <div class="cb-empty-bar"></div>
+          </div>
+          <!-- Mon -->
+          <div class="cb-day has-data" style="margin:0 0 6px">
+            <div class="cb-header">
+              <div class="cb-dow">
+                <span class="cb-dow-name">MON</span>
+                <span class="cb-dow-num">3</span>
+              </div>
+              <div class="cb-info">
+                <div class="cb-status filled">3 tasks · Athlone</div>
+                <div class="cb-meta">3 work codes assigned</div>
+              </div>
+              <div class="cb-nums">
+                <span class="cb-big-hrs">8h</span>
+              </div>
+            </div>
+            <div class="cb-fill-bar" style="background:linear-gradient(to right,#1e3a8a,#3b82f6);width:calc(100% - 28px)"></div>
+          </div>
+          <!-- Tue -->
+          <div class="cb-day has-data" style="margin:0 0 6px">
+            <div class="cb-header">
+              <div class="cb-dow">
+                <span class="cb-dow-name">TUE</span>
+                <span class="cb-dow-num">4</span>
+              </div>
+              <div class="cb-info">
+                <div class="cb-status filled">1 task · Ballinasloe</div>
+                <div class="cb-meta">1 work code assigned</div>
+              </div>
+              <div class="cb-nums">
+                <span class="cb-big-hrs">8h</span>
+                <span class="cb-big-ot">+4 OT</span>
+              </div>
+            </div>
+            <div class="cb-fill-bar"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONCEPT C: Compact list with grid columns -->
+    <div class="concept">
+      <div class="concept-header">
+        <div class="concept-label">Concept C</div>
+        <div class="concept-title">Compact list / spreadsheet feel</div>
+        <div class="concept-desc">Ultra-compact rows with aligned columns for tasks, hours and OT. Shows all 7 days at once without scrolling. Good for quick scanning and editing-heavy workflows.</div>
+      </div>
+      <div class="concept-body">
+        <div class="phone">
+          <div class="cc-week-header">
+            <div>
+              <div class="cc-week-title">28 Feb – 6 Mar</div>
+              <div class="cc-week-sub">Week overview</div>
+            </div>
+            <div class="cc-total-badge">26h ord · 6h OT</div>
+          </div>
+          <!-- header row -->
+          <div style="display:flex;padding:4px 16px;border-bottom:1px solid #e5e7eb">
+            <div style="flex:1;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:0.08em;color:#94a3b8">Day</div>
+            <div style="width:60px;text-align:center;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:0.08em;color:#94a3b8">Tasks</div>
+            <div style="width:40px;text-align:right;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:0.08em;color:#94a3b8">Hrs</div>
+            <div style="width:50px;text-align:right;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:0.08em;color:#94a3b8">OT</div>
+            <div style="width:16px"></div>
+          </div>
+          <div class="cc-day-row">
+            <div class="cc-dot"></div>
+            <div class="cc-day-col"><div class="cc-dname">Friday</div><div class="cc-ddate">28 Feb</div></div>
+            <div class="cc-tasks-col">2 tasks</div>
+            <div class="cc-hrs-col">10</div>
+            <div class="cc-ot-col">+2</div>
+            <div class="cc-chevron-col">›</div>
+          </div>
+          <div class="cc-day-row we">
+            <div class="cc-dot we"></div>
+            <div class="cc-day-col"><div class="cc-dname">Saturday</div><div class="cc-ddate">1 Mar</div></div>
+            <div class="cc-tasks-col">—</div>
+            <div class="cc-hrs-col" style="color:#d1d5db">—</div>
+            <div class="cc-ot-col">—</div>
+            <div class="cc-chevron-col">›</div>
+          </div>
+          <div class="cc-day-row we">
+            <div class="cc-dot we"></div>
+            <div class="cc-day-col"><div class="cc-dname">Sunday</div><div class="cc-ddate">2 Mar</div></div>
+            <div class="cc-tasks-col">—</div>
+            <div class="cc-hrs-col" style="color:#d1d5db">—</div>
+            <div class="cc-ot-col">—</div>
+            <div class="cc-chevron-col">›</div>
+          </div>
+          <div class="cc-day-row">
+            <div class="cc-dot"></div>
+            <div class="cc-day-col"><div class="cc-dname">Monday</div><div class="cc-ddate">3 Mar</div></div>
+            <div class="cc-tasks-col">3 tasks</div>
+            <div class="cc-hrs-col">8</div>
+            <div class="cc-ot-col" style="color:#d1d5db">—</div>
+            <div class="cc-chevron-col">›</div>
+          </div>
+          <div class="cc-day-row">
+            <div class="cc-dot"></div>
+            <div class="cc-day-col"><div class="cc-dname">Tuesday</div><div class="cc-ddate">4 Mar</div></div>
+            <div class="cc-tasks-col">1 task</div>
+            <div class="cc-hrs-col">8</div>
+            <div class="cc-ot-col">+4</div>
+            <div class="cc-chevron-col">›</div>
+          </div>
+          <div class="cc-day-row">
+            <div class="cc-dot empty"></div>
+            <div class="cc-day-col"><div class="cc-dname">Wednesday</div><div class="cc-ddate">5 Mar</div></div>
+            <div class="cc-tasks-col" style="color:#d1d5db">—</div>
+            <div class="cc-hrs-col" style="color:#d1d5db">—</div>
+            <div class="cc-ot-col">—</div>
+            <div class="cc-chevron-col">›</div>
+          </div>
+          <div class="cc-day-row">
+            <div class="cc-dot empty"></div>
+            <div class="cc-day-col"><div class="cc-dname">Thursday</div><div class="cc-ddate">6 Mar</div></div>
+            <div class="cc-tasks-col" style="color:#d1d5db">—</div>
+            <div class="cc-hrs-col" style="color:#d1d5db">—</div>
+            <div class="cc-ot-col">—</div>
+            <div class="cc-chevron-col">›</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /grid -->
+</div>
+
+<!-- =========================================================== -->
+<!-- WEEKLY SUMMARY TAB -->
+<!-- =========================================================== -->
+<div id="tab-summary" class="section">
+  <div class="concepts-grid">
+
+    <!-- CURRENT SUMMARY -->
+    <div class="concept">
+      <div class="concept-header">
+        <div class="concept-label">Current Design</div>
+        <div class="concept-title">Plain table</div>
+        <div class="concept-desc">4-column table: code, description, Ord, OT. Functional but dense. Hard to compare relative hours at a glance. The code column isn't that useful collapsed.</div>
+      </div>
+      <div class="concept-body">
+        <div class="phone">
+          <div style="background:#1e3a8a;padding:12px 16px;display:flex;justify-content:space-between;align-items:center">
+            <span style="color:#fff;font-size:14px;font-weight:700">Weekly Summary</span>
+            <span style="color:#93c5fd;font-size:13px">26.00 hrs &nbsp; <span style="color:#fbbf24">6.00</span> OT ▲</span>
+          </div>
+          <table class="sum-table">
+            <thead>
+              <tr><th>Code</th><th>Description</th><th>Ord</th><th>OT</th></tr>
+            </thead>
+            <tbody>
+              <tr><td class="sum-code">RLB0002A10</td><td>COW-Escort; Meteor</td><td>8.00</td><td>—</td></tr>
+              <tr><td class="sum-code">CGN7012H13</td><td>Project Titan Offloads</td><td>10.00</td><td>2.00</td></tr>
+              <tr><td class="sum-code">ROC2000E13</td><td>Verizon Smart Hands</td><td>8.00</td><td>4.00</td></tr>
+              <tr class="total"><td colspan="2">TOTAL</td><td>26.00</td><td>6.00</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- SUMMARY A: Visual bars -->
+    <div class="concept">
+      <div class="concept-header">
+        <div class="concept-label">Concept A</div>
+        <div class="concept-title">Bar chart summary</div>
+        <div class="concept-desc">Big total hours up top, then each code as a horizontal bar — instantly shows which codes consumed the most time. OT shown as a separate amber bar. Much faster to read.</div>
+      </div>
+      <div class="concept-body">
+        <div class="phone">
+          <div style="background:#1e3a8a;padding:12px 16px;display:flex;justify-content:space-between;align-items:center">
+            <span style="color:#fff;font-size:14px;font-weight:700">Weekly Summary</span>
+            <span style="color:#93c5fd;font-size:12px">▲ hide</span>
+          </div>
+          <div class="suma-container">
+            <div class="suma-totals">
+              <div class="suma-total-card">
+                <div class="suma-total-label">Ordinary</div>
+                <div class="suma-total-val">26h</div>
+              </div>
+              <div class="suma-total-card ot">
+                <div class="suma-total-label">Overtime</div>
+                <div class="suma-total-val">6h</div>
+              </div>
+            </div>
+
+            <div class="suma-row">
+              <div class="suma-row-top">
+                <div>
+                  <div class="suma-row-desc">Project Titan Offloads</div>
+                  <div class="suma-code">CGN7012H13</div>
+                </div>
+                <div style="text-align:right">
+                  <div class="suma-row-hrs">10h ord</div>
+                  <div style="font-size:11px;color:#d97706;font-weight:600">+2h OT</div>
+                </div>
+              </div>
+              <div class="suma-bar-bg"><div class="suma-bar-fill" style="width:100%"></div></div>
+              <div class="suma-bar-bg" style="margin-top:2px"><div class="suma-bar-fill ot" style="width:33%"></div></div>
+            </div>
+
+            <div class="suma-row">
+              <div class="suma-row-top">
+                <div>
+                  <div class="suma-row-desc">Verizon Smart Hands</div>
+                  <div class="suma-code">ROC2000E13</div>
+                </div>
+                <div style="text-align:right">
+                  <div class="suma-row-hrs">8h ord</div>
+                  <div style="font-size:11px;color:#d97706;font-weight:600">+4h OT</div>
+                </div>
+              </div>
+              <div class="suma-bar-bg"><div class="suma-bar-fill" style="width:80%"></div></div>
+              <div class="suma-bar-bg" style="margin-top:2px"><div class="suma-bar-fill ot" style="width:67%"></div></div>
+            </div>
+
+            <div class="suma-row">
+              <div class="suma-row-top">
+                <div>
+                  <div class="suma-row-desc">COW-Escort; Meteor</div>
+                  <div class="suma-code">RLB0002A10</div>
+                </div>
+                <div style="text-align:right">
+                  <div class="suma-row-hrs">8h ord</div>
+                </div>
+              </div>
+              <div class="suma-bar-bg"><div class="suma-bar-fill" style="width:80%"></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SUMMARY B: Top total + ranked list -->
+    <div class="concept">
+      <div class="concept-header">
+        <div class="concept-label">Concept B</div>
+        <div class="concept-title">Total hero + ranked rows</div>
+        <div class="concept-desc">The total hours is given a large "hero" treatment at the top. Each code row is compact with a numbered rank. OT shown as its own amber pill. Clean and modern.</div>
+      </div>
+      <div class="concept-body">
+        <div class="phone">
+          <div style="background:#1e3a8a;padding:12px 16px;display:flex;justify-content:space-between;align-items:center">
+            <span style="color:#fff;font-size:14px;font-weight:700">Weekly Summary</span>
+            <span style="color:#93c5fd;font-size:12px">▲ hide</span>
+          </div>
+          <div class="sumb-container">
+            <div class="sumb-header">
+              <div>
+                <div class="sumb-total-hrs">26h</div>
+                <div class="sumb-total-label">ordinary hours</div>
+              </div>
+              <div class="sumb-ot-pill">+6h OT</div>
+            </div>
+
+            <div class="sumb-row">
+              <div class="sumb-rank">1</div>
+              <div>
+                <div class="sumb-desc">Project Titan Offloads</div>
+                <div class="sumb-code-chip">CGN7012H13</div>
+              </div>
+              <div class="sumb-hrs">10h</div>
+              <div class="sumb-ot">+2h</div>
+            </div>
+            <div class="sumb-row">
+              <div class="sumb-rank">2</div>
+              <div>
+                <div class="sumb-desc">Verizon Smart Hands</div>
+                <div class="sumb-code-chip">ROC2000E13</div>
+              </div>
+              <div class="sumb-hrs">8h</div>
+              <div class="sumb-ot">+4h</div>
+            </div>
+            <div class="sumb-row">
+              <div class="sumb-rank">3</div>
+              <div>
+                <div class="sumb-desc">COW-Escort; Meteor</div>
+                <div class="sumb-code-chip">RLB0002A10</div>
+              </div>
+              <div class="sumb-hrs">8h</div>
+              <div class="sumb-ot" style="color:#d1d5db">—</div>
+            </div>
+            <div style="margin-top:12px;padding-top:10px;border-top:2px solid #eff6ff;display:flex;justify-content:space-between;font-size:13px">
+              <strong style="color:#0f172a">TOTAL</strong>
+              <div style="display:flex;gap:16px">
+                <strong style="color:#1e3a8a">26h ord</strong>
+                <strong style="color:#d97706">6h OT</strong>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  function showTab(name) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.getElementById('tab-' + name).classList.add('active');
+    event.target.classList.add('active');
+  }
+</script>
+</body>
+</html>
