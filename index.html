@@ -184,7 +184,7 @@
     .pill-amber {
       background: #FEF3DC;
       color: #C07800;
-      font-weight: 800;
+      font-weight: 500;
     }
 
     .dot-flash {
@@ -885,7 +885,7 @@
       display: flex;
       align-items: center;
       gap: 10px;
-      padding: 16px 14px 8px;
+      padding: 16px 14px 14px;
     }
 
     .sum-section-line {
@@ -895,7 +895,7 @@
     }
 
     .sum-section-label {
-      font-size: 9px;
+      font-size: 11px;
       font-weight: 700;
       letter-spacing: 0.13em;
       text-transform: uppercase;
@@ -4342,8 +4342,8 @@
                 ${act.location ? `<span style="margin-right:2px">📍</span>${esc(act.location)}` : '<span style="opacity:0.4">No location</span>'}
               </div>
               <div style="display:flex;gap:4px;flex-shrink:0;align-items:center;">
-                ${ordinary > 0 ? `<span data-row-hrs="${act.id}" style="padding:2px 7px;border-radius:20px;font-size:11px;font-weight:700;background:#EBF1FD;color:#2D6BE4;white-space:nowrap;">${ordinary}h</span>` : `<span data-row-hrs="${act.id}" style="display:none"></span>`}
-                ${overtime > 0 ? `<span data-row-ot="${act.id}" style="padding:2px 7px;border-radius:20px;font-size:11px;font-weight:700;background:#FEF3DC;color:#C07800;white-space:nowrap;">+${overtime} OT</span>` : `<span data-row-ot="${act.id}" style="display:none"></span>`}
+                ${ordinary > 0 ? `<span data-row-hrs="${act.id}" style="padding:2px 7px;border-radius:20px;font-size:11px;font-weight:500;background:#EBF1FD;color:#2D6BE4;white-space:nowrap;">${ordinary}h</span>` : `<span data-row-hrs="${act.id}" style="display:none"></span>`}
+                ${overtime > 0 ? `<span data-row-ot="${act.id}" style="padding:2px 7px;border-radius:20px;font-size:11px;font-weight:500;background:#FEF3DC;color:#C07800;white-space:nowrap;">+${overtime} OT</span>` : `<span data-row-ot="${act.id}" style="display:none"></span>`}
               </div>
             </div>
           </div>
