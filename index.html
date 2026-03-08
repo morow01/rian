@@ -1448,6 +1448,42 @@
       #code-modal-inner .safe-top {
         padding-top: 12px !important;
       }
+
+      /* Location modal — desktop: centered dialog */
+      #location-modal {
+        background: rgba(0, 0, 0, 0.55) !important;
+        align-items: center;
+        justify-content: center;
+      }
+      #location-modal-inner {
+        width: 540px;
+        max-height: 78vh;
+        border-radius: 16px;
+        overflow: hidden;
+        flex: 0 1 auto;
+        box-shadow: 0 24px 64px rgba(0, 0, 0, 0.5);
+      }
+      #location-modal-inner .safe-top {
+        padding-top: 12px !important;
+      }
+
+      /* Finder search modal — desktop: centered dialog */
+      #finder-search-modal {
+        background: rgba(0, 0, 0, 0.55) !important;
+        align-items: center;
+        justify-content: center;
+      }
+      #finder-modal-inner {
+        width: 540px;
+        max-height: 78vh;
+        border-radius: 16px;
+        overflow: hidden;
+        flex: 0 1 auto;
+        box-shadow: 0 24px 64px rgba(0, 0, 0, 0.5);
+      }
+      #finder-modal-inner .safe-top {
+        padding-top: 12px !important;
+      }
     }
 
     .town-option .t-code {
@@ -2921,7 +2957,7 @@
 
   <!-- ===== LOCATION SEARCH MODAL ===== -->
   <div id="location-modal" class="hidden fixed inset-0 z-50 flex flex-col" style="background:var(--bg-modal)">
-    <div class="flex flex-col flex-1 overflow-hidden">
+    <div id="location-modal-inner" class="flex flex-col flex-1 overflow-hidden">
       <div style="background:var(--bg-header)" class="text-white px-4 py-3 flex items-center gap-3 safe-top">
         <button onclick="closeLocationModal()" class="text-white p-1 text-xl leading-none">✕</button>
         <h2 class="text-base font-semibold flex-1">Select Location</h2>
@@ -2939,7 +2975,7 @@
 
   <!-- ===== FINDER SEARCH MODAL ===== -->
   <div id="finder-search-modal" class="hidden fixed inset-0 z-50 flex flex-col" style="background:var(--bg-modal)">
-    <div class="flex flex-col flex-1 overflow-hidden">
+    <div id="finder-modal-inner" class="flex flex-col flex-1 overflow-hidden">
       <div style="background:var(--bg-header)" class="text-white px-4 py-3 flex items-center gap-3 safe-top">
         <button onclick="closeFinderModal()" class="text-white p-1 text-xl leading-none">✕</button>
         <h2 class="text-base font-semibold flex-1" id="finder-modal-title">Search Exchanges</h2>
@@ -3023,7 +3059,7 @@
     // ============================================================
     // CONFIG
     // ============================================================
-    const VERSION = '3.6.33';
+    const VERSION = '3.6.34';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -3246,7 +3282,6 @@
           <div class="town-option" onclick="selectFinderItem('${esc(cb.ipid)}', true)">
             <div class="flex-1 min-w-0">
               <span class="block truncate">${esc(cb.mdf)} - ${esc(cb.ccp)}</span>
-              <span class="text-[10px] block truncate" style="color:var(--text-muted)">Cabinet</span>
             </div>
             <span class="t-code">${esc(cb.ipid)}</span>
           </div>`).join('');
