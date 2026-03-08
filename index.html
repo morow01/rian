@@ -2924,7 +2924,7 @@
     // ============================================================
     // CONFIG
     // ============================================================
-    const VERSION = '3.6.15';
+    const VERSION = '3.6.16';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -4282,6 +4282,9 @@
 
       if (nowExpanded) {
         card.classList.add('expanded');
+        // Clear any collapse-triggered red border while editing
+        card.style.borderColor = '';
+        card.style.boxShadow = '';
         if (detail) {
           detail.style.display = 'block';
           // Force reflow before adding class to trigger transition
@@ -4299,6 +4302,22 @@
           setTimeout(() => { detail.style.display = 'none'; }, ANIM_EXPAND_MS);
         }
         if (chevron) chevron.style.transform = 'rotate(0deg)';
+
+        // Re-evaluate red border on collapse (renderActivity doesn't re-run here)
+        let act = null;
+        for (const day of state.weekData.days) {
+          act = day.activities.find(a => a.id === actId);
+          if (act) break;
+        }
+        if (act) {
+          const ord = parseFloat(act.ordinary) || 0;
+          const ot  = parseFloat(act.overtime)  || 0;
+          const isMissingHours = act.codes.length > 0 && ord === 0 && ot === 0;
+          if (isMissingHours) {
+            card.style.borderColor = 'var(--btn-danger-color)';
+            card.style.boxShadow   = '0 0 8px rgba(232, 69, 60, 0.2)';
+          }
+        }
       }
     }
 
