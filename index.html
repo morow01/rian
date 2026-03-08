@@ -1064,9 +1064,32 @@
       text-align: right;
     }
 
+    /* ── Summary section header (lined label) ── */
+    .sum-section-hdr {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 16px 14px 14px;
+    }
+
+    .sum-section-line {
+      flex: 1;
+      height: 1px;
+      background: #D4E0EC;
+    }
+
+    .sum-section-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.13em;
+      text-transform: uppercase;
+      color: #8BA5BE;
+    }
+
     /* ── Summary card wrapper ── */
     .sum-section {
-      margin: 0 10px 16px;
+      margin: 0 10px 12px;
+      background: #fff;
       border: 1px solid var(--border);
       border-radius: 14px;
       overflow: hidden;
@@ -1082,78 +1105,22 @@
       font-size: 12px;
     }
 
-    /* ── Summary header button — dark bar style ── */
+    /* ── Summary header button (matches day card header) ── */
     .sum-hero {
       width: 100%;
       display: flex;
       align-items: center;
+      justify-content: space-between;
       padding: 11px 14px;
-      background: var(--bg-header);
+      background: #fff;
       border: none;
       cursor: pointer;
       text-align: left;
       font-family: inherit;
-      gap: 0;
     }
 
     .sum-hero:hover {
-      filter: brightness(1.08);
-    }
-
-    .sum-hero-stat {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      min-width: 36px;
-    }
-
-    .sum-hero-val {
-      font-size: 16px;
-      font-weight: 800;
-      color: #fff;
-      line-height: 1;
-    }
-
-    .sum-hero-val.ot {
-      color: var(--tab-active);
-    }
-
-    .sum-hero-sublabel {
-      font-size: 8px;
-      font-weight: 600;
-      color: rgba(255,255,255,0.38);
-      letter-spacing: 0.05em;
-      margin-top: 2px;
-    }
-
-    .sum-hero-sublabel.ot {
-      color: rgba(245,166,35,0.5);
-    }
-
-    .sum-hero-sep {
-      width: 1px;
-      height: 26px;
-      background: rgba(255,255,255,0.12);
-      margin: 0 10px;
-      flex-shrink: 0;
-    }
-
-    .sum-hero-title {
-      flex: 1;
-      font-size: 13px;
-      font-weight: 700;
-      color: rgba(255,255,255,0.75);
-    }
-
-    /* Week date range row inside expanded table */
-    .sum-week-range {
-      padding: 6px 14px;
-      font-size: 11px;
-      font-weight: 600;
-      color: var(--text-muted);
-      border-bottom: 1px solid var(--border);
       background: var(--bg-card-alt);
-      letter-spacing: 0.02em;
     }
 
     /* ── Table wrapper — max-height slide animation ── */
@@ -3103,7 +3070,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '3.6.37';
+    const VERSION = '3.6.36';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -4247,27 +4214,24 @@
 
       const chevronSvg = `<svg class="sum-chevron-svg${(state.showSummary && !state.animatingSummary) ? '' : ' flipped'}" width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="rgba(255,255,255,0.8)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
 
-      const weekRange = formatWeekRange(state.weekStart);
       const summaryHtml = `
+  <div class="sum-section-hdr">
+    <div class="sum-section-line"></div>
+    <div class="sum-section-label">Weekly Summary</div>
+    <div class="sum-section-line"></div>
+  </div>
   <div class="sum-section">
     <button onclick="toggleSummary()" class="sum-hero">
-      <div class="sum-hero-stat">
-        <span class="sum-hero-val" data-sum-ord>${Math.round(totalOrd)}</span>
-        <span class="sum-hero-sublabel">ORD</span>
+      <div class="day-left">
+        <div class="day-expand-btn"><svg class="sum-chevron-svg" width="8" height="8" viewBox="0 0 10 10" style="transition:transform 0.2s;transform:${state.showSummary ? 'rotate(90deg)' : 'rotate(0deg)'}"><polygon points="0,0 10,5 0,10" fill="#b4b8cc"/></svg></div>
+        <span class="day-name">Weekly Summary</span>
       </div>
-      <div class="sum-hero-sep"></div>
-      <div class="sum-hero-stat">
-        <span class="sum-hero-val ot" data-sum-ot>${totalOT > 0 ? '+' + Math.round(totalOT) : '—'}</span>
-        <span class="sum-hero-sublabel ot">OT</span>
+      <div class="day-pills">
+        ${totalOrd > 0 ? `<span class="pill pill-blue" data-sum-ord>${Math.round(totalOrd)}h</span>` : `<span style="display:none" data-sum-ord></span>`}
+        ${totalOT > 0 ? `<span class="pill pill-amber" data-sum-ot>+${Math.round(totalOT)} OT</span>` : `<span style="display:none" data-sum-ot></span>`}
       </div>
-      <div class="sum-hero-sep"></div>
-      <span class="sum-hero-title">Weekly Summary</span>
-      <svg class="sum-chevron-svg${state.showSummary ? '' : ' flipped'}" width="14" height="14" viewBox="0 0 16 16" fill="none">
-        <path d="M4 6l4 4 4-4" stroke="rgba(255,255,255,0.6)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
     </button>
     <div class="sum-table-wrap${state.showSummary ? ' open' : ''}">
-      <div class="sum-week-range">📅 ${weekRange}</div>
       <div class="sum-grid-head">
         <div class="sum-th sum-th-code-desk">Code</div>
         <div class="sum-th">Description</div>
@@ -4311,24 +4275,15 @@
 
       const summaryHtml = `
   <div class="tbl-summary-section">
-    <button onclick="toggleSummary()" class="sum-hero" style="border-radius:0">
-      <div class="sum-hero-stat">
-        <span class="sum-hero-val" data-sum-ord>${Math.round(totalOrd)}</span>
-        <span class="sum-hero-sublabel">ORD</span>
-      </div>
-      <div class="sum-hero-sep"></div>
-      <div class="sum-hero-stat">
-        <span class="sum-hero-val ot" data-sum-ot>${totalOT > 0 ? '+' + Math.round(totalOT) : '—'}</span>
-        <span class="sum-hero-sublabel ot">OT</span>
-      </div>
-      <div class="sum-hero-sep"></div>
-      <span class="sum-hero-title">Weekly Summary</span>
-      <svg class="sum-chevron-svg${state.showSummary ? '' : ' flipped'}" width="14" height="14" viewBox="0 0 16 16" fill="none">
-        <path d="M4 6l4 4 4-4" stroke="rgba(255,255,255,0.6)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
+    <button onclick="toggleSummary()" class="w-full flex items-center justify-between px-4 py-3" style="background:var(--bg-header);color:var(--text-header)">
+      <span class="font-bold text-sm">Weekly Summary</span>
+      <span style="color:var(--text-header-sub)" class="text-sm">
+        <span class="font-mono" data-sum-ord>${Math.round(totalOrd)}</span> hrs &nbsp;
+        <span class="font-mono" style="color:var(--tab-active)" data-sum-ot>${Math.round(totalOT)}</span> OT
+        <span class="ml-2">${state.showSummary ? '▲' : '▼'}</span>
+      </span>
     </button>
     ${state.showSummary ? `
-    <div class="sum-week-range">📅 ${formatWeekRange(state.weekStart)}</div>
     <div class="overflow-x-auto">
       <table class="w-full text-sm">
         <thead>
