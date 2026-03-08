@@ -2989,7 +2989,7 @@
     // ============================================================
     // CONFIG
     // ============================================================
-    const VERSION = '3.6.26';
+    const VERSION = '3.6.27';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -3748,9 +3748,9 @@
           actsHtml += `
             <tr>
               <td style="padding:10px 14px;border-bottom:1px solid ${C.rowBorder};vertical-align:top;">
-                <div style="font-size:14px;font-weight:600;color:${C.txt};">${esc(act.description || '(no description)')}${act.location ? `<span style="color:${C.txtMuted};font-weight:400;font-size:13px;"> &mdash; ${esc(act.location)}</span>` : ''}</div>
+                <div style="font-size:14px;font-weight:600;color:${C.txt};">${esc(act.description || '(no description)')}${act.location ? `<span style="color:#475569;font-weight:400;font-size:13px;"> &mdash; ${esc(act.location)}</span>` : ''}</div>
                 ${act.codes.length ? `<div style="margin-top:4px;">${codesHtml}</div>` : ''}
-                ${act.notes ? `<div style="margin-top:4px;font-size:12px;color:${C.txtMuted};font-style:italic;">${esc(act.notes)}</div>` : ''}
+                ${act.notes ? `<div style="margin-top:4px;font-size:12px;color:#B0C4D8;font-style:italic;">${esc(act.notes)}</div>` : ''}
               </td>
               <td style="padding:10px 14px;border-bottom:1px solid ${C.rowBorder};font-family:monospace;font-size:13px;font-weight:600;color:${C.ord};text-align:right;white-space:nowrap;vertical-align:top;">${ord}</td>
               <td style="padding:10px 14px;border-bottom:1px solid ${C.rowBorder};font-family:monospace;font-size:13px;font-weight:600;color:${ot > 0 ? C.ot : C.dash};text-align:right;white-space:nowrap;vertical-align:top;">${ot > 0 ? ot : '—'}</td>
