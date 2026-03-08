@@ -225,29 +225,187 @@
     }
 
     /* Activity card internals */
-    .act-meta         { display: flex; flex-direction: column; gap: 3px; }
-    .act-desc-txt     { font-size: 14px; font-weight: 700; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .act-row2         { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
-    .act-loc-txt      { font-size: 12px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1; min-width: 0; }
-    .act-pill-row     { display: flex; gap: 4px; flex-shrink: 0; align-items: center; }
-    .act-detail-inner { display: flex; flex-direction: column; gap: 14px; }
+    .act-meta {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
 
-    .act-field-label  { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); }
-    .act-field-label-ot { color: var(--text-ot); }
+    .act-desc-txt {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-primary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
 
-    .act-codes-wrap   { background: #F8F8F6; border-radius: 10px; padding: 10px 12px; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
-    .act-code-chip    { display: inline-flex; align-items: center; gap: 6px; background: #fff; border: 1.5px solid #EBEBEA; border-radius: 7px; padding: 4px 10px; font-size: 12px; font-weight: 500; color: #1A1A1A; }
-    .act-code-mono    { font-family: var(--font-mono, 'DM Mono', monospace); font-size: 10px; color: #8A8A88; font-weight: 400; }
-    .act-code-del     { background: none; border: none; cursor: pointer; color: #BBBBB8; font-size: 13px; line-height: 1; padding: 0; display: flex; align-items: center; }
-    .act-code-del:hover { color: #F04E3E; }
-    .act-add-code     { background: none; border: 1.5px dashed #D0D0CE; border-radius: 7px; padding: 4px 10px; font-family: inherit; font-size: 12px; color: #8A8A88; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; transition: all 0.15s; }
-    .act-add-code:hover { border-color: #1A1A1A; color: #1A1A1A; }
-    .act-missing-warn { font-size: 11px; color: var(--btn-danger-color); font-weight: 600; margin-top: 4px; }
+    .act-row2 {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
 
-    .act-textarea     { width: 100%; background: #fff; border: 1.5px solid var(--border); border-radius: 8px; padding: 10px 12px; font-size: 13px; color: var(--text-primary); outline: none; resize: none; overflow: hidden; }
-    .act-input        { width: 100%; background: #fff; border: 1.5px solid var(--border); border-radius: 8px; padding: 10px 12px; font-size: 13px; color: var(--text-primary); outline: none; }
-    .act-notes-area   { width: 100%; background: transparent; border: none; padding: 0; font-size: 13px; color: var(--text-primary); outline: none; resize: none; overflow: hidden; }
-    .act-delete-btn   { width: 100%; background: var(--btn-danger-bg); color: var(--btn-danger-color); border: none; border-radius: 10px; padding: 12px; font-size: 13px; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 6px; cursor: pointer; }
+    .act-loc-txt {
+      font-size: 12px;
+      color: var(--text-muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      flex: 1;
+      min-width: 0;
+    }
+
+    .act-pill-row {
+      display: flex;
+      gap: 4px;
+      flex-shrink: 0;
+      align-items: center;
+    }
+
+    .act-detail-inner {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .act-field-label {
+      font-size: 10px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-muted);
+    }
+
+    .act-field-label-ot {
+      color: var(--text-ot);
+    }
+
+    .act-codes-wrap {
+      background: #F8F8F6;
+      border-radius: 10px;
+      padding: 10px 12px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .act-code-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #fff;
+      border: 1.5px solid #EBEBEA;
+      border-radius: 7px;
+      padding: 4px 10px;
+      font-size: 12px;
+      font-weight: 500;
+      color: #1A1A1A;
+    }
+
+    .act-code-mono {
+      font-family: var(--font-mono, 'DM Mono', monospace);
+      font-size: 10px;
+      color: #8A8A88;
+      font-weight: 400;
+    }
+
+    .act-code-del {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #BBBBB8;
+      font-size: 13px;
+      line-height: 1;
+      padding: 0;
+      display: flex;
+      align-items: center;
+    }
+
+    .act-code-del:hover {
+      color: #F04E3E;
+    }
+
+    .act-add-code {
+      background: none;
+      border: 1.5px dashed #D0D0CE;
+      border-radius: 7px;
+      padding: 4px 10px;
+      font-family: inherit;
+      font-size: 12px;
+      color: #8A8A88;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.15s;
+    }
+
+    .act-add-code:hover {
+      border-color: #1A1A1A;
+      color: #1A1A1A;
+    }
+
+    .act-missing-warn {
+      font-size: 11px;
+      color: var(--btn-danger-color);
+      font-weight: 600;
+      margin-top: 4px;
+    }
+
+    .act-textarea {
+      width: 100%;
+      background: #fff;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-size: 13px;
+      color: var(--text-primary);
+      outline: none;
+      resize: none;
+      overflow: hidden;
+    }
+
+    .act-input {
+      width: 100%;
+      background: #fff;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-size: 13px;
+      color: var(--text-primary);
+      outline: none;
+    }
+
+    .act-notes-area {
+      width: 100%;
+      background: transparent;
+      border: none;
+      padding: 0;
+      font-size: 13px;
+      color: var(--text-primary);
+      outline: none;
+      resize: none;
+      overflow: hidden;
+    }
+
+    .act-delete-btn {
+      width: 100%;
+      background: var(--btn-danger-bg);
+      color: var(--btn-danger-color);
+      border: none;
+      border-radius: 10px;
+      padding: 12px;
+      font-size: 13px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      cursor: pointer;
+    }
 
     .dot-flash {
       width: 8px;
@@ -2831,7 +2989,7 @@
     // ============================================================
     // CONFIG
     // ============================================================
-    const VERSION = '3.6.20';
+    const VERSION = '3.6.21';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -2852,9 +3010,9 @@
     // ============================================================
     // ANIMATION / UI CONSTANTS
     // ============================================================
-    const ANIM_STAGGER_MS  = 30;   // per-row stagger delay in summary animations
+    const ANIM_STAGGER_MS = 30;   // per-row stagger delay in summary animations
     const ANIM_COLLAPSE_MS = 200;  // sumFadeRowOut duration
-    const ANIM_EXPAND_MS   = 300;  // expand / open transition duration
+    const ANIM_EXPAND_MS = 300;  // expand / open transition duration
     const TOAST_DURATION_MS = 2800; // default toast display time
 
     // ============================================================
@@ -3122,16 +3280,12 @@
       activitiesExpanded: new Set(), // activity IDs that are expanded for details
       notesSyncStatus: 'idle',  // 'idle' | 'pending' | 'syncing' | 'synced' | 'error'
       syncStatus: 'idle',   // 'idle' | 'pending' | 'syncing' | 'synced' | 'error'
-      historyWeeks: [],
       showSummary: false,
       expandedDays: new Set(),  // track which day indices are expanded
       notesOpen: new Map(), // explicit open/closed per actId; default = open if note has content
       selectionMode: false,
       selectedNotes: new Set(),
       layoutMode: localStorage.getItem('layoutMode') || 'card',  // 'card' | 'table'
-      deviceName: localStorage.getItem('deviceName') || 'Unknown Device',
-      historySnapshots: [],
-      historyTab: 'weeks', // 'weeks' | 'snapshots'
       // Column widths for table view [Day,Date,Desc,Loc,Codes,Ord,OT,Tasks,Hrs/T,OT/T,Notes,Del]
       // Notes and Del are fixed — only first 10 cols are user-resizable
       tableColWidths: (() => {
@@ -3153,7 +3307,6 @@
       selectedExchange: null,   // NEW
       selectedCabinet: null,    // NEW
       exchangeDetailTab: 'location', // 'location'|'details'|'address'|'security'|'power'|'emergency'|'additional'
-      snapshotPage: 0,
       menuView: 'main', // 'main' | 'themes'
       isMenuOpen: false,
     };
@@ -3693,8 +3846,6 @@
       let viewBody = '';
       if (state.view === 'exchanges') {
         viewBody = renderExchangesView();
-      } else if (state.view === 'history') {
-        viewBody = renderHistoryView();
       } else if (state.view === 'notes') {
         viewBody = renderNotesView();
       } else { // Default to 'week' view
@@ -3724,7 +3875,6 @@
       const items = [
         { id: 'jump', label: 'Jump to Week', icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>', onClick: 'openDateModal()' },
         { id: 'email', label: 'Email/Export Week', icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>', onClick: 'sendWeeklyEmail()' },
-        { id: 'history', label: 'Restore Backups', icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5M12 7v5l4 2"/></svg>', onClick: "setView('history')" },
         { id: 'table', label: state.layoutMode === 'table' ? 'Mobile View' : 'Spreadsheet View', icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/></svg>', onClick: 'toggleLayoutMode()' },
       ];
 
@@ -3759,13 +3909,6 @@
         </button>
         <div class="theme-dropdown ${state.isMenuOpen ? 'open' : ''}" id="theme-dropdown">
           ${state.menuView === 'main' ? `
-          <div style="padding: 10px 14px 8px; border-bottom: 1px solid var(--border); margin-bottom: 4px;">
-            <div style="font-size: 9px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; margin-bottom: 6px; letter-spacing: 0.1em;">Device Name</div>
-            <input type="text" placeholder="e.g. Fold 5" value="${state.deviceName === 'Unknown Device' ? '' : state.deviceName}"
-                   style="width: 100%; background: var(--bg-card-alt); border: 1px solid var(--border); border-radius: 8px; padding: 6px 10px; font-size: 13px; color: var(--text-primary); outline: none;"
-                   oninput="state.deviceName = this.value || 'Unknown Device'; localStorage.setItem('deviceName', state.deviceName);"
-                   onclick="event.stopPropagation()">
-          </div>
           <div style="padding: 8px 14px 6px; border-bottom: 1px solid var(--border); margin-bottom: 4px;">
             ${state.currentUser ? `<div style="font-size: 11px; color: var(--text-secondary); margin-bottom: 6px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
               Signed in as ${esc(state.currentUser.displayName || state.currentUser.email || 'Unknown')}
@@ -4003,9 +4146,9 @@
       const hrsPerTask = ordinary > 0 ? Math.round(ordinary / numTasks) : '—';
       const otPerTask = overtime > 0 ? Math.round(overtime / numTasks) : '—';
 
-      const isMissingCode  = (ordinary > 0 || overtime > 0) && act.codes.length === 0;
+      const isMissingCode = (ordinary > 0 || overtime > 0) && act.codes.length === 0;
       const isMissingHours = act.codes.length > 0 && ordinary === 0 && overtime === 0;
-      const isInvalid      = isMissingCode || isMissingHours;
+      const isInvalid = isMissingCode || isMissingHours;
       const codesHtml = `<div class="tbl-codes-inner">
         ${act.codes.map(c => `
           <span class="code-chip" style="font-size:11px;padding:2px 6px;">
@@ -4210,11 +4353,11 @@
         }
         if (act) {
           const ord = parseFloat(act.ordinary) || 0;
-          const ot  = parseFloat(act.overtime)  || 0;
+          const ot = parseFloat(act.overtime) || 0;
           const isMissingHours = act.codes.length > 0 && ord === 0 && ot === 0;
           if (isMissingHours) {
             card.style.borderColor = 'var(--btn-danger-color)';
-            card.style.boxShadow   = '0 0 8px rgba(232, 69, 60, 0.2)';
+            card.style.boxShadow = '0 0 8px rgba(232, 69, 60, 0.2)';
           }
         }
       }
@@ -4257,7 +4400,7 @@
       // Check for missing codes in any activity with hours
       const hasMissingCode = day.activities.some(a => {
         const ord = parseFloat(a.ordinary) || 0;
-        const ot  = parseFloat(a.overtime) || 0;
+        const ot = parseFloat(a.overtime) || 0;
         return ((ord > 0 || ot > 0) && a.codes.length === 0) || (a.codes.length > 0 && ord === 0 && ot === 0);
       });
 
@@ -4290,12 +4433,12 @@
       const isExpanded = state.activitiesExpanded.has(act.id);
       const ordinary = parseFloat(act.ordinary) || 0;
       const overtime = parseFloat(act.overtime) || 0;
-      const isMissingCode  = (ordinary > 0 || overtime > 0) && act.codes.length === 0;
+      const isMissingCode = (ordinary > 0 || overtime > 0) && act.codes.length === 0;
       const isMissingHours = act.codes.length > 0 && ordinary === 0 && overtime === 0;
-      const isInvalid      = isMissingCode || isMissingHours;
+      const isInvalid = isMissingCode || isMissingHours;
       // Hours with no code → red immediately
       // Code with no hours → red only on collapse (grace period while entering hours)
-      const showRedBorder  = isMissingCode || (isMissingHours && !isExpanded);
+      const showRedBorder = isMissingCode || (isMissingHours && !isExpanded);
       const numTasks = act.codes.length || 1;
       const hrsPerTask = ordinary > 0 ? Math.round(ordinary / numTasks) : '—';
       const otPerTask = overtime > 0 ? Math.round(overtime / numTasks) : '—';
@@ -4421,76 +4564,6 @@
       </div>`;
     }
 
-    function renderHistoryView() {
-      // Direct Snapshots View (WEEKS button removed to reduce confusion)
-      const tabs = `
-        <div class="px-3 pt-4 pb-2 border-b" style="border-color:var(--border)">
-          <div class="text-xs font-bold uppercase tracking-wider" style="color:var(--text-muted)">Sync Snapshots & Backups</div>
-        </div>`;
-
-      // Snapshots Tab
-      const pageSize = 10;
-      const totalItems = state.historySnapshots.length;
-
-      if (totalItems === 0) {
-        return `<div class="notes-view">${tabs}<main class="p-12 text-center" style="color:var(--text-muted)"><p class="text-4xl mb-3">🕒</p><p>No sync backups yet.<br><span class="text-xs opacity-70">Backups are created every time you sync.</span></p></main></div>`;
-      }
-
-      const totalPages = Math.ceil(totalItems / pageSize);
-      const currentPage = Math.max(0, Math.min(state.snapshotPage, totalPages - 1));
-      const startIdx = currentPage * pageSize;
-      const pageItems = state.historySnapshots.slice(startIdx, startIdx + pageSize);
-
-      const rows = pageItems.map((s, pIdx) => {
-        const idx = startIdx + pIdx;
-        const dt = new Date(s.timestamp);
-        const dateStr = dt.toLocaleDateString('en-IE', { day: 'numeric', month: 'short' });
-        const timeStr = dt.toLocaleTimeString('en-IE', { hour: '2-digit', minute: '2-digit' });
-        const typeIcon = s.type === 'week' ? '📅' : '📝';
-        const ws = s.weekStart ? s.weekStart.substring(0, 10) : '';
-        const typeLabel = s.type === 'week' ? `Week ${ws}` : 'Field Notes';
-
-        return `
-          <div class="flex items-center gap-3 px-4 py-3 border-b last:border-0" style="border-color:var(--border)">
-            <div class="text-lg opacity-80">${typeIcon}</div>
-            <div class="flex-1 min-w-0">
-              <div class="flex items-center justify-between gap-2">
-                <div class="font-bold text-sm" style="color:var(--text-primary)">${typeLabel}</div>
-                <div class="text-[10px] font-bold px-1.5 py-0.5 rounded uppercase" style="background:${s.deviceName === 'Unknown Device' ? 'rgba(239,68,68,0.1)' : 'var(--bg-card-alt)'};color:${s.deviceName === 'Unknown Device' ? '#ef4444' : 'var(--text-muted)'};letter-spacing:0.02em;">${s.deviceName}</div>
-              </div>
-              <div class="text-xs mt-0.5" style="color:var(--text-muted)">${dateStr} at ${timeStr}</div>
-            </div>
-            <button onclick="restoreSnapshot(${idx})" class="px-3 py-1.5 rounded-lg text-[11px] font-bold" 
-                    style="background:var(--accent);color:#fff;box-shadow:0 2px 4px rgba(0,0,0,0.1)">Restore</button>
-          </div>`;
-      }).join('');
-
-      let pagination = '';
-      if (totalPages > 1) {
-        pagination = `
-            <div class="flex items-center justify-center gap-4 mt-6">
-              <button onclick="setSnapshotPage(${currentPage - 1})" ${currentPage === 0 ? 'disabled' : ''} 
-                class="px-4 py-2 rounded-xl text-xs font-bold transition-all ${currentPage === 0 ? 'opacity-30' : 'active:scale-95'}"
-                style="background:var(--bg-card); border:1px solid var(--border); color:var(--text-primary)">
-                ← Previous
-              </button>
-              <div class="text-xs font-bold" style="color:var(--text-muted)">
-                Page ${currentPage + 1} of ${totalPages}
-              </div>
-              <button onclick="setSnapshotPage(${currentPage + 1})" ${currentPage >= totalPages - 1 ? 'disabled' : ''} 
-                class="px-4 py-2 rounded-xl text-xs font-bold transition-all ${currentPage >= totalPages - 1 ? 'opacity-30' : 'active:scale-95'}"
-                style="background:var(--bg-card); border:1px solid var(--border); color:var(--text-primary)">
-                Next →
-              </button>
-            </div>`;
-      }
-
-      return `<div class="notes-view">${tabs}<main class="pb-8">
-          <div class="mx-3 mt-3 rounded-2xl shadow-sm overflow-hidden" style="background:var(--bg-card);border:1px solid var(--border)">${rows}</div>
-          ${pagination}
-        </main></div>`;
-    }
-
     // ============================================================
     // ACTIONS
     // ============================================================
@@ -4597,18 +4670,18 @@
       // lightweight re-render of just the summary header pills
       const summary = calcSummary(state.weekData);
       const totalOrd = summary.reduce((s, r) => s + r.ordinary, 0);
-      const totalOT  = summary.reduce((s, r) => s + r.overtime, 0);
+      const totalOT = summary.reduce((s, r) => s + r.overtime, 0);
       const ordEl = document.querySelector('[data-sum-ord]');
-      const otEl  = document.querySelector('[data-sum-ot]');
+      const otEl = document.querySelector('[data-sum-ot]');
       if (ordEl) { ordEl.textContent = Math.round(totalOrd) + 'h'; ordEl.style.display = totalOrd > 0 ? '' : 'none'; }
-      if (otEl)  { otEl.textContent  = '+' + Math.round(totalOT) + ' OT'; otEl.style.display = totalOT > 0 ? '' : 'none'; }
+      if (otEl) { otEl.textContent = '+' + Math.round(totalOT) + ' OT'; otEl.style.display = totalOT > 0 ? '' : 'none'; }
     }
 
     function toggleSummary() {
       state.showSummary = !state.showSummary;
       // CSS max-height transition handles animation — just toggle the class and chevron
       const tableWrap = document.querySelector('.sum-table-wrap');
-      const chevron   = document.querySelector('.sum-chevron-svg');
+      const chevron = document.querySelector('.sum-chevron-svg');
       if (tableWrap) tableWrap.classList.toggle('open', state.showSummary);
       if (chevron) chevron.style.transform = state.showSummary ? 'rotate(90deg)' : 'rotate(0deg)';
     }
@@ -4638,8 +4711,7 @@
       localStorage.setItem('lastView', v);
       window.scrollTo(0, 0);
 
-      if (v === 'history') await loadHistory();
-      else if (v === 'notes') await loadNotes();
+      if (v === 'notes') await loadNotes();
       else if (v === 'exchanges') {
         if (!state.exchanges.length || !state.cabinets.length) {
           await Promise.all([loadTowns(), loadCabinets()]);
@@ -5129,44 +5201,6 @@
       if (dd) dd.style.display = 'none';
     }
 
-    async function loadHistory() {
-      state.historyWeeks = [];
-      state.snapshotPage = 0;
-      state.historySnapshots = [];
-      render();
-
-      // Load from local DB
-      const all = await dbGetAll('weeks');
-      state.historyWeeks = all.sort((a, b) => b.weekStart.localeCompare(a.weekStart));
-
-      // Also fetch from Firestore to catch weeks not in local cache
-      if (state.currentUser) {
-        try {
-          const snap = await db_fs.collection(`users/${state.currentUser.uid}/weeks`).get();
-          const local = new Set(state.historyWeeks.map(w => w.weekStart));
-          snap.forEach(doc => {
-            if (!local.has(doc.id)) {
-              state.historyWeeks.push({ weekStart: doc.id, data: doc.data() });
-              local.add(doc.id);
-            }
-          });
-          state.historyWeeks.sort((a, b) => b.weekStart.localeCompare(a.weekStart));
-        } catch (e) { }
-      }
-
-      render();
-    }
-
-    function setSnapshotPage(page) {
-      state.snapshotPage = page;
-      render();
-    }
-
-    function setHistoryTab(tab) {
-      state.historyTab = tab;
-      render();
-    }
-
     function setExchangeTab(tab) {
       state.exchangeTab = tab;
       localStorage.setItem('exchangeTab', tab);
@@ -5618,57 +5652,6 @@
       } catch (e) { console.error('Failed to load cabinets', e); }
     }
 
-    async function restoreSnapshot(idx) {
-      const snap = state.historySnapshots[idx];
-      if (!snap) { showToast('Restore failed: snapshot not found'); return; }
-
-      const ws = snap.weekStart ? snap.weekStart.substring(0, 10) : '';
-      const typeLabel = snap.type === 'week' ? `Week ${ws}` : 'All Field Notes';
-      if (!confirm(`Restore backup from "${snap.deviceName}" (${new Date(snap.timestamp).toLocaleString()})?\n\nThis will overwrite your current ${typeLabel}.`)) return;
-
-      showToast('Restoring…', 10000);
-      try {
-        let data = null;
-
-        // Strategy 1: Snapshot already has embedded data (some GAS versions include it)
-        if (snap.data) {
-          data = typeof snap.data === 'string' ? JSON.parse(snap.data) : snap.data;
-        }
-
-        if (!data) throw new Error('Snapshot data not available. Historical snapshots from the old sync system may not be accessible.');
-
-        const ts = Date.now();
-        if (snap.type === 'week') {
-          enforceCorrectDates(ws, data);
-          data._updatedAt = ts;
-          state.weekData = data;
-          state.weekStart = ws;
-          await dbPut('weeks', { weekStart: ws, data: data, updatedAt: ts });
-          showToast('✓ Week data restored!');
-          setView('week');
-
-          if (state.currentUser) {
-            state.syncStatus = 'syncing'; updateHeaderStatus();
-            await fsSetWeek(ws, data);
-            state.syncStatus = 'synced'; updateHeaderStatus();
-          }
-        } else {
-          state.notes = data.notes || [];
-          await dbPut('notes', { id: 'notes_all', data: state.notes, updatedAt: ts });
-          showToast('✓ Notes restored!');
-          setView('notes');
-
-          if (state.currentUser) {
-            state.notesSyncStatus = 'syncing'; updateHeaderStatus();
-            await fsSetNotes(state.notes);
-            state.notesSyncStatus = 'synced'; updateHeaderStatus();
-          }
-        }
-      } catch (e) {
-        showToast('Restore failed: ' + e.message);
-      }
-    }
-
     // ============================================================
     // CODE MODAL
     // ============================================================
@@ -6012,7 +5995,6 @@
         await loadWeek(dateToStr(friday));
 
         if (state.view === 'notes') loadNotes();
-        else if (state.view === 'history') loadHistory();
       });
     }
 
