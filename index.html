@@ -2989,7 +2989,7 @@
     // ============================================================
     // CONFIG
     // ============================================================
-    const VERSION = '3.6.22';
+    const VERSION = '3.6.23';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -3809,9 +3809,20 @@
 
     async function sendWeeklyEmail() {
       if (!state.weekData) { showToast('No week data to send.'); return; }
-      const subject = encodeURIComponent('Weekly Timesheet — ' + formatWeekRange(state.weekStart));
-      const body = encodeURIComponent(buildEmailPlain(state.weekData));
-      window.open(`mailto:morow01@gmail.com?subject=${subject}&body=${body}`);
+      if (!state.currentUser) { showToast('Please sign in to send email.'); return; }
+      showToast('Sending email…', 6000);
+      try {
+        await db_fs.collection('mail').add({
+          to: state.currentUser.email,
+          message: {
+            subject: 'Weekly Timesheet — ' + formatWeekRange(state.weekStart),
+            html: buildEmailHtml(state.weekData)
+          }
+        });
+        showToast('✓ Email sent to ' + state.currentUser.email);
+      } catch (e) {
+        showToast('Failed to send email: ' + e.message);
+      }
     }
 
     function showToast(msg, duration = TOAST_DURATION_MS) {
