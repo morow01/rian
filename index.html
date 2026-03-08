@@ -159,6 +159,22 @@
       flex-shrink: 0;
     }
 
+    /* Rounded-square chip wrapping the day chevron — matches template */
+    .day-expand-btn {
+      width: 20px;
+      height: 20px;
+      border-radius: 6px;
+      background: #f2f4fa;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .day-weekend .day-expand-btn {
+      opacity: 0.45;
+    }
+
     .pill {
       font-size: 11px;
       font-weight: 500;
@@ -2815,7 +2831,7 @@
     // ============================================================
     // CONFIG
     // ============================================================
-    const VERSION = '3.6.19';
+    const VERSION = '3.6.20';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -3806,7 +3822,7 @@
   <div class="sum-section">
     <button onclick="toggleSummary()" class="sum-hero">
       <div class="day-left">
-        <svg width="10" height="10" viewBox="0 0 10 10" style="flex-shrink:0;transition:transform 0.2s;transform:${state.showSummary ? 'rotate(90deg)' : 'rotate(0deg)'}"><polygon points="0,0 10,5 0,10" fill="var(--text-muted)"/></svg>
+        <div class="day-expand-btn"><svg class="sum-chevron-svg" width="8" height="8" viewBox="0 0 10 10" style="transition:transform 0.2s;transform:${state.showSummary ? 'rotate(90deg)' : 'rotate(0deg)'}"><polygon points="0,0 10,5 0,10" fill="#b4b8cc"/></svg></div>
         <span class="day-name">Weekly Summary</span>
       </div>
       <div class="day-pills">
@@ -4249,7 +4265,7 @@
 <div class="day-card ${isWeekend ? 'day-weekend' : ''} ${isExpanded ? 'expanded' : ''}" data-day-idx="${di}">
   <div class="day-header" onclick="toggleDay(${di})">
     <div class="day-left">
-      <svg class="chevron" width="10" height="10" viewBox="0 0 10 10" style="flex-shrink:0;transition:transform 0.2s;transform:${isExpanded ? 'rotate(90deg)' : 'rotate(0deg)'}"><polygon points="0,0 10,5 0,10" fill="${isWeekend ? 'var(--border)' : 'var(--text-muted)'}"/></svg>
+      <div class="day-expand-btn"><svg class="chevron" width="8" height="8" viewBox="0 0 10 10" style="transition:transform 0.2s;transform:${isExpanded ? 'rotate(90deg)' : 'rotate(0deg)'}"><polygon points="0,0 10,5 0,10" fill="#b4b8cc"/></svg></div>
       <span class="day-name">${day.dayName}</span>
       <span class="day-date">${formatDate(day.date)}</span>
     </div>
@@ -4592,8 +4608,7 @@
       state.showSummary = !state.showSummary;
       // CSS max-height transition handles animation — just toggle the class and chevron
       const tableWrap = document.querySelector('.sum-table-wrap');
-      const chevron   = document.querySelector('.sum-hero .chevron, .sum-hero svg polygon')
-                        && document.querySelector('.sum-hero svg');
+      const chevron   = document.querySelector('.sum-chevron-svg');
       if (tableWrap) tableWrap.classList.toggle('open', state.showSummary);
       if (chevron) chevron.style.transform = state.showSummary ? 'rotate(90deg)' : 'rotate(0deg)';
     }
