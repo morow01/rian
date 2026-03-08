@@ -2989,7 +2989,7 @@
     // ============================================================
     // CONFIG
     // ============================================================
-    const VERSION = '3.6.25';
+    const VERSION = '3.6.26';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -3700,25 +3700,25 @@
 
       // Fixed light palette — matches app default light theme exactly
       const C = {
-        outerBg:  '#F1F5F9',
-        cardBg:   '#ffffff',
-        border:   '#EAEFF5',
-        rowBorder:'#F0F4F8',
-        headBg:   '#F4F7FA',
-        label:    '#8BA5BE',
-        code:     '#8BA5BE',
-        txt:      '#1e293b',
-        txtSec:   '#475569',
+        outerBg: '#F1F5F9',
+        cardBg: '#ffffff',
+        border: '#EAEFF5',
+        rowBorder: '#F0F4F8',
+        headBg: '#F4F7FA',
+        label: '#8BA5BE',
+        code: '#8BA5BE',
+        txt: '#1e293b',
+        txtSec: '#475569',
         txtMuted: '#8BA5BE',
-        ord:      '#1e293b',
-        ot:       '#C07800',
-        dash:     '#C8D8E8',
-        totalBg:  '#F4F7FA',
-        footBg:   '#EBF1F8',
-        footTxt:  '#94a3b8',
-        dayBg:    '#4A6580',
-        dayTxt:   '#ffffff',
-        dayDate:  '#D4E0EC',
+        ord: '#1e293b',
+        ot: '#C07800',
+        dash: '#C8D8E8',
+        totalBg: '#F4F7FA',
+        footBg: '#EBF1F8',
+        footTxt: '#94a3b8',
+        dayBg: '#4A6580',
+        dayTxt: '#ffffff',
+        dayDate: '#D4E0EC',
       };
 
       // ── Summary by Code table ──
@@ -3726,7 +3726,7 @@
         const otVal = Math.round(r.overtime);
         return `
         <tr>
-          <td style="padding:8px 14px;border-bottom:1px solid ${C.rowBorder};font-family:monospace;font-size:12px;font-weight:600;color:${C.code};vertical-align:middle;white-space:nowrap;">${esc(r.code)}</td>
+          <td style="padding:8px 14px;border-bottom:1px solid ${C.rowBorder};font-family:monospace;font-size:12px;font-weight:500;color:${C.code};vertical-align:middle;white-space:nowrap;">${esc(r.code)}</td>
           <td style="padding:8px 14px;border-bottom:1px solid ${C.rowBorder};font-size:13px;color:${C.txtSec};vertical-align:middle;">${esc(r.description)}</td>
           <td style="padding:8px 14px;border-bottom:1px solid ${C.rowBorder};font-family:monospace;font-size:13px;font-weight:600;color:${C.ord};text-align:right;vertical-align:middle;white-space:nowrap;">${Math.round(r.ordinary)}</td>
           <td style="padding:8px 14px;border-bottom:1px solid ${C.rowBorder};font-family:monospace;font-size:13px;font-weight:600;color:${otVal > 0 ? C.ot : C.dash};text-align:right;vertical-align:middle;white-space:nowrap;">${otVal > 0 ? otVal : '—'}</td>
@@ -3743,7 +3743,7 @@
           const ord = Math.round(parseFloat(act.ordinary) || 0);
           const ot = Math.round(parseFloat(act.overtime) || 0);
           const codesHtml = act.codes.map(c =>
-            `<span style="font-family:monospace;font-size:11px;font-weight:600;color:${C.code};margin-right:6px;">${esc(c.c)}</span>`
+            `<span style="font-family:monospace;font-size:12px;font-weight:500;color:${C.code};margin-right:6px;">${esc(c.c)}</span>`
           ).join('');
           actsHtml += `
             <tr>
@@ -3822,7 +3822,7 @@
 
               <!-- Footer -->
               <tr><td style="background:${C.footBg};border-radius:0 0 12px 12px;padding:12px 24px;text-align:center;border:1px solid ${C.border};border-top:none;">
-                <span style="font-size:11px;color:${C.footTxt};">Timesheet PWA v${esc(VERSION)}</span>
+                <span style="font-size:11px;color:${C.footTxt};">eir Fieldlog</span>
               </td></tr>
 
             </table>
