@@ -3081,7 +3081,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '3.6.42';
+    const VERSION = '3.6.43';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -5214,25 +5214,59 @@
         ? `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6"/><path d="M10 14L21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>`
         : `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`;
 
+      const noSel = state.selectedNotes.size === 0;
       const bulkBar = `
-        <div class="bulk-action-bar ${state.selectedNotes.size > 0 ? 'show' : ''}">
-          <div class="bulk-count-text">${state.selectedNotes.size} ${state.selectedNotes.size === 1 ? 'note' : 'notes'} selected</div>
-          <div class="bulk-action-btns" style="width: 100%;">
-            <button class="bulk-btn done" onclick="toggleStatusSelected()">
-              ${bulkStatusIcon}
-              ${bulkStatusLabel}
+        <div class="bulk-action-bar ${state.selectionMode ? 'show' : ''}">
+          <div style="display:flex;align-items:center;justify-content:space-between;width:100%;">
+            <span class="bulk-count-text">${state.selectedNotes.size} ${state.selectedNotes.size === 1 ? 'note' : 'notes'} selected</span>
+            <button onclick="toggleSelectionMode()" style="background:none;border:none;color:var(--text-muted);font-size:13px;font-weight:700;cursor:pointer;padding:2px 0 2px 12px;">Cancel</button>
+          </div>
+          <div class="bulk-action-btns" style="width:100%;">
+            <button class="bulk-btn select-all" onclick="toggleSelectAll()">
+              ${isAllSelected ? 'Deselect All' : 'Select All'}
             </button>
-            <button class="bulk-btn delete" onclick="deleteSelected()">
+            <button class="bulk-btn done" onclick="toggleStatusSelected()" ${noSel ? 'disabled' : ''}>
+              ${bulkStatusIcon}${bulkStatusLabel}
+            </button>
+            <button class="bulk-btn delete" onclick="deleteSelected()" ${noSel ? 'disabled' : ''}>
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
               Delete
             </button>
           </div>
         </div>`;
 
-      return `<div class="notes-view">${headerRow}<div class="notes-chips">${finalChips}</div>${state.selectionMode ? selectAllRow : addCard}${openSection}${doneSection}${bulkBar}</div>`;
+      return `<div class="notes-view">${headerRow}<div class="notes-chips">${finalChips}</div>${state.selectionMode ? '' : addCard}${openSection}${doneSection}${bulkBar}</div>`;
     }
 
     // ---- Notes event handlers ----
+    let _notePressTimer = null;
+    let _notePressLocked = false;
+
+    function notePressStart(e, id) {
+      if (e.pointerType === 'mouse' && e.button !== 0) return;
+      _notePressLocked = false;
+      _notePressTimer = setTimeout(() => {
+        _notePressTimer = null;
+        _notePressLocked = true;
+        if (!state.selectionMode) {
+          state.selectionMode = true;
+          state.selectedNotes.clear();
+        }
+        state.selectedNotes.add(id);
+        if (navigator.vibrate) navigator.vibrate(30);
+        render();
+      }, 500);
+    }
+
+    function notePressEnd(e) {
+      if (_notePressTimer) { clearTimeout(_notePressTimer); _notePressTimer = null; }
+    }
+
+    function notePressClick(e, id) {
+      if (_notePressLocked) { _notePressLocked = false; return; }
+      if (state.selectionMode) { toggleNoteSelection(id); } else { toggleNote(id); }
+    }
+
     function toggleSelectionMode() {
       state.selectionMode = !state.selectionMode;
       if (!state.selectionMode) {
@@ -5271,19 +5305,19 @@
       render();
     }
 
-    async function deleteSelected() {
+    function deleteSelected() {
       if (state.selectedNotes.size === 0) return;
-      if (!confirm(`Delete ${state.selectedNotes.size} notes?`)) return;
-
-      const toDelete = Array.from(state.selectedNotes);
-      state.notes = state.notes.filter(n => !toDelete.includes(n.id));
-      toDelete.forEach(id => state.expandedNotes.delete(id));
-      state.selectedNotes.clear();
-      state.selectionMode = false;
-
-      scheduleNotesSave();
-      render();
-      showToast(`${toDelete.length} notes deleted`);
+      const count = state.selectedNotes.size;
+      showConfirm('Delete notes?', `Delete ${count} selected ${count === 1 ? 'note' : 'notes'}?`, () => {
+        const toDelete = Array.from(state.selectedNotes);
+        state.notes = state.notes.filter(n => !toDelete.includes(n.id));
+        toDelete.forEach(id => state.expandedNotes.delete(id));
+        state.selectedNotes.clear();
+        state.selectionMode = false;
+        scheduleNotesSave();
+        render();
+        showToast(`${toDelete.length} ${toDelete.length === 1 ? 'note' : 'notes'} deleted`);
+      });
     }
 
     async function toggleStatusSelected() {
