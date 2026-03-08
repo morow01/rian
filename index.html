@@ -1456,6 +1456,7 @@
         align-items: center;
         justify-content: center;
       }
+
       #location-modal-inner {
         width: 540px;
         max-height: 78vh;
@@ -1465,6 +1466,7 @@
         background: var(--bg-card);
         box-shadow: 0 24px 64px rgba(0, 0, 0, 0.5);
       }
+
       #location-modal-inner .safe-top {
         padding-top: 12px !important;
       }
@@ -1475,6 +1477,7 @@
         align-items: center;
         justify-content: center;
       }
+
       #finder-modal-inner {
         width: 540px;
         max-height: 78vh;
@@ -1484,6 +1487,7 @@
         background: var(--bg-card);
         box-shadow: 0 24px 64px rgba(0, 0, 0, 0.5);
       }
+
       #finder-modal-inner .safe-top {
         padding-top: 12px !important;
       }
@@ -2964,13 +2968,16 @@
       <div style="background:var(--bg-header)" class="text-white px-4 py-3 flex items-center gap-3 safe-top">
         <button onclick="closeLocationModal()" class="text-white p-1 text-xl leading-none">✕</button>
         <h2 class="text-base font-semibold flex-1">Select Location</h2>
-        <button onclick="confirmLocationModal()" class="bg-amber-500 text-white px-4 py-1.5 rounded-full text-sm font-bold">Done</button>
+        <button onclick="confirmLocationModal()"
+          class="bg-amber-500 text-white px-4 py-1.5 rounded-full text-sm font-bold">Done</button>
       </div>
-      <div class="p-3 sticky top-0 z-10" style="background:var(--bg-modal-search);border-bottom:1px solid var(--border)">
+      <div class="p-3 sticky top-0 z-10"
+        style="background:var(--bg-modal-search);border-bottom:1px solid var(--border)">
         <input id="location-search" type="text" placeholder="Town name or code…"
           class="w-full rounded-xl px-4 py-2.5 text-base"
           style="border:1px solid var(--border-input);background:var(--bg-input)" oninput="filterLocations(this.value)">
-        <p class="text-xs mt-1.5 px-1" style="color:var(--text-secondary)">Tap to select, or type a custom location and tap Done.</p>
+        <p class="text-xs mt-1.5 px-1" style="color:var(--text-secondary)">Tap to select, or type a custom location and
+          tap Done.</p>
       </div>
       <div id="location-list" class="flex-1 overflow-y-auto pb-6"></div>
     </div>
@@ -2983,10 +2990,12 @@
         <button onclick="closeFinderModal()" class="text-white p-1 text-xl leading-none">✕</button>
         <h2 class="text-base font-semibold flex-1" id="finder-modal-title">Search Exchanges</h2>
       </div>
-      <div class="p-3 sticky top-0 z-10" style="background:var(--bg-modal-search);border-bottom:1px solid var(--border)">
+      <div class="p-3 sticky top-0 z-10"
+        style="background:var(--bg-modal-search);border-bottom:1px solid var(--border)">
         <input id="finder-modal-search" type="text" placeholder="Name or Code…"
           class="w-full rounded-xl px-4 py-2.5 text-base"
-          style="border:1px solid var(--border-input);background:var(--bg-input)" oninput="filterFinderModal(this.value)">
+          style="border:1px solid var(--border-input);background:var(--bg-input)"
+          oninput="filterFinderModal(this.value)">
       </div>
       <div id="finder-modal-list" class="flex-1 overflow-y-auto pb-6"></div>
     </div>
@@ -3061,8 +3070,7 @@
   <script>
     // ============================================================
     // CONFIG
-    // ============================================================
-    const VERSION = '3.6.35';
+    const VERSION = '3.6.36';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -3273,7 +3281,7 @@
         el.innerHTML = filtered.map(ex => `
           <div class="town-option" onclick="selectFinderItem('${esc(ex.code)}', false)">
             <div class="flex-1 min-w-0">
-              <span class="block truncate">${esc(ex.name)}</span>
+              <span class="block truncate text-sm">${esc(ex.name)}</span>
               ${ex.locality ? `<span class="text-[10px] block truncate" style="color:var(--text-muted)">${esc(ex.locality)}</span>` : ''}
             </div>
             <span class="t-code">${esc(ex.code)}</span>
@@ -3284,7 +3292,7 @@
         el.innerHTML = filtered.map(cb => `
           <div class="town-option" onclick="selectFinderItem('${esc(cb.ipid)}', true)">
             <div class="flex-1 min-w-0">
-              <span class="block truncate">${esc(cb.mdf)} - ${esc(cb.ccp)}</span>
+              <span class="block truncate text-sm">${esc(cb.mdf)} - ${esc(cb.ccp)}</span>
             </div>
             <span class="t-code">${esc(cb.ipid)}</span>
           </div>`).join('');
