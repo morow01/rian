@@ -2924,7 +2924,7 @@
     // ============================================================
     // CONFIG
     // ============================================================
-    const VERSION = '3.6.16';
+    const VERSION = '3.6.17';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -4408,10 +4408,10 @@
           <div class="task-num ${overtime > 0 ? 'ot' : ''}">${actIndex + 1}</div>
           <div class="flex-1 min-w-0 act-meta">
             <!-- Line 1: description, full width -->
-            <div class="act-desc-txt">${esc(act.description) || '<span style="opacity:0.4;font-weight:400;font-style:italic">No description</span>'}</div>
+            <div class="act-desc-txt" data-row-desc="${act.id}">${esc(act.description) || '<span style="opacity:0.4;font-weight:400;font-style:italic">No description</span>'}</div>
             <!-- Line 2: location left, hour pills right -->
             <div class="act-row2">
-              <div class="act-loc-txt">
+              <div class="act-loc-txt" data-row-loc="${act.id}">
                 ${act.location ? `<span style="margin-right:2px">📍</span>${esc(act.location)}` : '<span style="opacity:0.4">No location</span>'}
               </div>
               <div class="act-pill-row">
@@ -4622,6 +4622,20 @@
 
       const val = el.value;
       act[field] = val;
+
+      // Live-update description in collapsed header
+      if (field === 'description') {
+        const descEl = document.querySelector(`[data-row-desc="${actId}"]`);
+        if (descEl) descEl.innerHTML = val ? esc(val) : '<span style="opacity:0.4;font-weight:400;font-style:italic">No description</span>';
+      }
+
+      // Live-update location (pin icon) in collapsed header
+      if (field === 'location') {
+        const locEl = document.querySelector(`[data-row-loc="${actId}"]`);
+        if (locEl) locEl.innerHTML = val
+          ? `<span style="margin-right:2px">📍</span>${esc(val)}`
+          : '<span style="opacity:0.4">No location</span>';
+      }
 
       // Live-update calculated displays when hours change
       if (field === 'ordinary' || field === 'overtime') {
