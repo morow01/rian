@@ -3300,7 +3300,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '3.6.69';
+    const VERSION = '3.6.70';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -5839,7 +5839,7 @@
         <div class="flex p-1 rounded-xl mb-3" style="background:var(--bg-code-group)">
           <button onclick="setExchangeTab('exchanges')"
             class="flex-1 py-2 px-4 rounded-lg text-sm font-bold transition-all duration-200"
-            style="${isEx ? 'background:var(--bg-card);color:var(--accent)' : ''}">
+            style="${isEx ? 'background:var(--bg-card);color:var(--accent)' : 'color:var(--text-muted);'}">
             <span class="inline-flex items-center gap-1.5">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"></path><circle cx="12" cy="10" r="3"></circle></svg>
               Exchanges
@@ -5847,7 +5847,7 @@
           </button>
           <button onclick="setExchangeTab('cabinets')"
             class="flex-1 py-2 px-4 rounded-lg text-sm font-bold transition-all duration-200"
-            style="${!isEx ? 'background:var(--bg-card);color:var(--accent)' : ''}">
+            style="${!isEx ? 'background:var(--bg-card);color:var(--accent)' : 'color:var(--text-muted);'}">
             <span class="inline-flex items-center gap-1.5">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="8" x="2" y="2" rx="2" ry="2"></rect><rect width="20" height="8" x="2" y="14" rx="2" ry="2"></rect><line x1="6" x2="6.01" y1="6" y2="6"></line><line x1="6" x2="6.01" y1="18" y2="18"></line></svg>
               Cabinets
