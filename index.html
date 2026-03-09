@@ -3302,7 +3302,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '3.6.66';
+    const VERSION = '3.6.67';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -4426,7 +4426,8 @@
       const _hdrSummary = state.weekData ? calcSummary(state.weekData) : [];
       const _hdrOrd = Math.round(_hdrSummary.reduce((s, r) => s + r.ordinary, 0));
       const _hdrOT  = Math.round(_hdrSummary.reduce((s, r) => s + r.overtime, 0));
-      const _hdrTasks = state.weekData ? state.weekData.days.reduce((s, d) => s + d.activities.length, 0) : 0;
+      const _hdrTasks = state.weekData ? state.weekData.days.reduce((s, d) =>
+        s + d.activities.filter(a => a.description || a.codes.length || parseFloat(a.ordinary) > 0 || parseFloat(a.overtime) > 0).length, 0) : 0;
       const _hdrChevron = `<svg class="hdr-week-chevron${state.headerExpanded ? ' open' : ''}" width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="rgba(255,255,255,0.85)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
 
       return `
