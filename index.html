@@ -3295,7 +3295,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '3.6.50';
+    const VERSION = '3.6.51';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -6505,6 +6505,7 @@
 
     async function signInWithGoogle() {
       const provider = new firebase.auth.GoogleAuthProvider();
+      provider.setCustomParameters({ prompt: 'select_account' });
       try {
         await auth_fb.signInWithPopup(provider);
       } catch (e) {
