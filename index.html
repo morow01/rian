@@ -3295,7 +3295,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '3.6.56';
+    const VERSION = '3.6.57';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -6583,11 +6583,20 @@
         async () => {
           showToast('Deleting all data…');
           try {
+            const ws = state.weekStart || dateToStr(getCurrentFriday());
+            // 1. Kill both listeners FIRST so snapshots can't restore deleted data
+            if (weekUnsubscribe) { weekUnsubscribe(); weekUnsubscribe = null; }
+            if (notesUnsubscribe) { notesUnsubscribe(); notesUnsubscribe = null; }
+            // 2. Reset state immediately so nothing stale can leak
+            state.weekData = createEmptyWeek(ws);
+            state.notes = [];
+            render();
+            // 3. Now safe to delete — no listeners watching
             await _deleteAllFirestoreData();
             await Promise.allSettled([dbClear('weeks'), dbClear('notes')]);
-            state.weekData = null;
-            state.notes = [];
-            await loadWeek(state.weekStart || dateToStr(getCurrentFriday()));
+            // 4. Re-subscribe via loadWeek
+            await loadWeek(ws);
+            if (state.view === 'notes') loadNotes();
             showToast('All data deleted.');
           } catch (e) { showToast('Error: ' + e.message); }
         }
