@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Changes Preview</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  font-family:'DM Sans',sans-serif;
+  background:#d8dde8;
+  padding:40px 20px 80px;
+  display:flex; flex-direction:column; align-items:center; gap:60px;
+}
+.section-title {
+  font-size:11px; font-weight:700; letter-spacing:0.14em;
+  text-transform:uppercase; color:#7a8299;
+  text-align:center; margin-bottom:-44px;
+}
+.row { display:flex; gap:24px; flex-wrap:wrap; justify-content:center; align-items:flex-start; }
+.col { display:flex; flex-direction:column; align-items:center; gap:10px; }
+.col-label {
+  font-size:10px; font-weight:700; letter-spacing:0.1em;
+  text-transform:uppercase; color:#8a91a8;
+}
+.phone {
+  width:340px; border-radius:36px; overflow:hidden;
+  background:#f0f3f8;
+  box-shadow:0 28px 70px rgba(0,0,0,0.18),0 4px 16px rgba(0,0,0,0.09);
+  padding-bottom:24px;
+}
+
+/* ── App header (current) ── */
+.app-hdr {
+  background:#0F1C2E; color:#fff;
+  padding:12px 16px;
+  display:flex; align-items:center; gap:8px;
+}
+.app-hdr-nav { color:rgba(255,255,255,0.45); font-size:22px; cursor:pointer; padding:0 4px; }
+.app-hdr-center { flex:1; text-align:center; }
+.app-hdr-title { font-size:15px; font-weight:700; letter-spacing:-0.01em; }
+.app-hdr-sub { font-size:11px; color:rgba(255,255,255,0.4); margin-top:2px; }
+.app-hdr-ham {
+  width:34px; height:34px; border-radius:8px;
+  background:rgba(255,255,255,0.08);
+  display:flex; align-items:center; justify-content:center;
+  cursor:pointer; flex-shrink:0;
+}
+.app-tabs {
+  background:#162438; display:flex;
+  border-bottom:1px solid rgba(255,255,255,0.06);
+}
+.app-tab {
+  flex:1; padding:10px 0 11px;
+  text-align:center; font-size:10px; font-weight:600;
+  color:rgba(255,255,255,0.35); letter-spacing:0.04em; text-transform:uppercase;
+}
+.app-tab.active { color:#f59e0b; border-bottom:2px solid #f59e0b; }
+
+/* ── Body ── */
+.app-body { padding:12px 12px; display:flex; flex-direction:column; gap:10px; }
+.day-card {
+  background:#fff; border-radius:14px; padding:14px 16px;
+  display:flex; justify-content:space-between; align-items:center;
+  box-shadow:0 1px 4px rgba(0,0,0,0.06);
+}
+.day-name { font-size:13px; font-weight:700; color:#0f1c2e; }
+.day-code { font-size:11px; font-family:'DM Mono',monospace; color:#2D6BE4; margin-top:2px; }
+.day-pill { background:#EBF1FD; color:#1A4FB5; font-size:12px; font-weight:700; font-family:'DM Mono',monospace; padding:4px 10px; border-radius:20px; }
+
+.sum-divider {
+  display:flex; align-items:center; gap:10px; padding:2px 2px;
+}
+.sum-div-line { flex:1; height:1px; background:#c9d2e0; }
+.sum-div-label { font-size:10px; font-weight:700; letter-spacing:0.12em; text-transform:uppercase; color:#94a3b8; }
+
+/* ─────────────────────────────────────────
+   CHANGE 1 — Summary rows with OT bar
+───────────────────────────────────────── */
+.sum-card { border-radius:16px; overflow:hidden; box-shadow:0 4px 20px rgba(0,0,0,0.08); }
+
+/* dark head */
+.sum-head-dark {
+  background:#0F1C2E; padding:14px 16px;
+  display:flex; align-items:center; justify-content:space-between;
+}
+.sum-head-left { display:flex; align-items:center; gap:12px; }
+.sum-icon {
+  width:36px; height:36px; border-radius:10px;
+  background:linear-gradient(135deg,#4f7aff,#7b5ea7);
+  display:flex; align-items:center; justify-content:center; font-size:16px;
+}
+.sum-htitle { font-size:13px; font-weight:700; color:#fff; }
+.sum-hsub { font-size:11px; color:rgba(255,255,255,0.3); margin-top:2px; }
+.sum-badge { background:#4f7aff; color:#fff; font-size:12px; font-weight:700; font-family:'DM Mono',monospace; padding:4px 10px; border-radius:20px; }
+.sum-chev { color:rgba(255,255,255,0.4); font-size:18px; }
+
+/* light head */
+.sum-head-light {
+  background:#fff; padding:14px 16px;
+  display:flex; align-items:center; justify-content:space-between;
+  border-bottom:1px solid #e8edf5;
+}
+.sum-icon-light {
+  width:36px; height:36px; border-radius:10px;
+  background:#EBF1FD;
+  display:flex; align-items:center; justify-content:center; font-size:16px;
+}
+.sum-htitle-light { font-size:13px; font-weight:700; color:#0f1c2e; }
+.sum-hsub-light { font-size:11px; color:#94a3b8; margin-top:2px; }
+.sum-badge-light { background:#EBF1FD; color:#1A4FB5; font-size:12px; font-weight:700; font-family:'DM Mono',monospace; padding:4px 10px; border-radius:20px; }
+.sum-chev-light { color:#94a3b8; font-size:18px; }
+
+/* col headers */
+.sum-col-head {
+  display:grid; grid-template-columns:1fr 44px 44px;
+  gap:6px; padding:10px 16px 8px;
+  border-bottom:1px solid #f0f2f6; background:#fff;
+}
+.sum-cth { font-size:9px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:#b0b7cc; }
+.sum-cth.r { text-align:right; }
+
+/* data rows */
+.sum-row {
+  display:grid; grid-template-columns:1fr 44px 44px;
+  gap:6px; padding:12px 16px;
+  border-bottom:1px solid #f6f7fb;
+  align-items:start; background:#fff;
+}
+.sum-row:last-of-type { border-bottom:none; }
+.sum-row.missing .row-code,
+.sum-row.missing .row-desc,
+.sum-row.missing .row-num { color:#ef4444; }
+.sum-row.missing .bar-ord { background:#ef4444; }
+.sum-row.missing .bar-ot { background:#ef4444; opacity:0.6; }
+
+.row-code { font-size:10px; font-weight:600; font-family:'DM Mono',monospace; color:#2D6BE4; margin-bottom:2px; }
+.row-desc { font-size:12px; font-weight:500; color:#0f1c2e; line-height:1.35; margin-bottom:5px; }
+
+/* ORD bar */
+.bar-wrap { height:3px; background:#e8edf5; border-radius:2px; overflow:hidden; margin-bottom:3px; }
+.bar-ord { height:100%; border-radius:2px; background:linear-gradient(90deg,#4f7aff,#7b5ea7); }
+
+/* OT bar */
+.bar-ot-wrap { height:3px; background:#e8edf5; border-radius:2px; overflow:hidden; }
+.bar-ot { height:100%; border-radius:2px; background:linear-gradient(90deg,#f59e0b,#f97316); }
+
+.row-num { font-size:14px; font-weight:700; color:#0f1c2e; font-family:'DM Mono',monospace; text-align:right; padding-top:2px; }
+.row-ot-num { font-size:14px; font-weight:500; font-family:'DM Mono',monospace; text-align:right; padding-top:2px; color:#ccc; }
+.row-ot-num.has { color:#f59e0b; font-weight:700; }
+
+/* footer */
+.sum-footer {
+  background:#f8f9fc; padding:12px 16px;
+  display:flex; justify-content:space-between; align-items:center;
+  border-top:1px solid #eef0f6;
+}
+.footer-lbl { font-size:11px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:#9aa0b2; }
+.footer-totals { display:flex; gap:14px; align-items:center; }
+.footer-item { text-align:right; }
+.footer-item-lbl { font-size:10px; color:#b0b7cc; text-transform:uppercase; letter-spacing:0.08em; }
+.footer-val { font-size:20px; font-weight:800; font-family:'DM Mono',monospace; color:#1c2233; line-height:1.1; }
+.footer-val.ot { color:#f59e0b; }
+.footer-div { width:1px; height:30px; background:#e4e7f0; }
+
+/* ─────────────────────────────────────────
+   CHANGE 2 — Header Option A variants
+───────────────────────────────────────── */
+/* A1: nav row on top, metric tiles below, ham top-right */
+.hdr-a1 { background:linear-gradient(160deg,#0f1c2e,#1a2d4a); padding:14px 16px 16px; }
+.hdr-a1-row1 { display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
+.hdr-a1-nav { display:flex; align-items:center; gap:10px; }
+.hdr-a1-arrow { color:rgba(255,255,255,0.45); font-size:22px; }
+.hdr-a1-week { font-size:15px; font-weight:800; color:#fff; letter-spacing:-0.02em; }
+.hdr-a1-right { display:flex; align-items:center; gap:8px; }
+.hdr-a1-sync { font-size:11px; color:#22c55e; font-weight:600; display:flex; align-items:center; gap:4px; }
+.hdr-a1-ham { width:32px; height:32px; background:rgba(255,255,255,0.1); border-radius:8px; display:flex; align-items:center; justify-content:center; }
+.hdr-a1-tiles { display:flex; gap:8px; }
+.hdr-a1-tile { flex:1; background:rgba(255,255,255,0.07); border-radius:12px; padding:10px 12px; }
+.hdr-a1-tile-val { font-size:20px; font-weight:800; font-family:'DM Mono',monospace; color:#fff; line-height:1; }
+.hdr-a1-tile-val.ot { color:#f59e0b; }
+.hdr-a1-tile-lbl { font-size:10px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:rgba(255,255,255,0.3); margin-top:4px; }
+
+/* A2: ham integrated into right of week row */
+.hdr-a2 { background:linear-gradient(160deg,#0f1c2e,#1a2d4a); padding:14px 16px 16px; }
+.hdr-a2-row1 { display:flex; align-items:center; margin-bottom:14px; }
+.hdr-a2-arrow { color:rgba(255,255,255,0.45); font-size:22px; flex-shrink:0; }
+.hdr-a2-week-wrap { flex:1; text-align:center; }
+.hdr-a2-week { font-size:15px; font-weight:800; color:#fff; letter-spacing:-0.02em; }
+.hdr-a2-sync { font-size:10px; color:#22c55e; font-weight:600; margin-top:2px; display:flex; align-items:center; justify-content:center; gap:4px; }
+.hdr-a2-ham { width:32px; height:32px; background:rgba(255,255,255,0.1); border-radius:8px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════
+     CHANGE 1 — OT progress bar
+═══════════════════════════════════ -->
+<div class="section-title">Change 1 — OT bar added below each row's ORD bar</div>
+
+<div class="row">
+  <div class="col">
+    <div class="col-label">Before (ORD bar only)</div>
+    <div class="phone">
+      <div style="height:10px"></div>
+      <div class="app-body">
+        <div class="sum-divider"><div class="sum-div-line"></div><div class="sum-div-label">Weekly Summary</div><div class="sum-div-line"></div></div>
+        <div class="sum-card">
+          <div class="sum-head-dark">
+            <div class="sum-head-left"><div class="sum-icon">📊</div><div><div class="sum-htitle">Weekly Summary</div><div class="sum-hsub">4 work codes · 1 issue</div></div></div>
+            <div style="display:flex;align-items:center;gap:10px;"><div class="sum-badge">13h</div><div class="sum-chev">▾</div></div>
+          </div>
+          <div class="sum-col-head">
+            <div class="sum-cth">Code / Description</div>
+            <div class="sum-cth r">ORD</div>
+            <div class="sum-cth r">OT</div>
+          </div>
+          <div class="sum-row">
+            <div>
+              <div class="row-code">WVM0001A99</div>
+              <div class="row-desc">Van Maintenance COps FE</div>
+              <div class="bar-wrap"><div class="bar-ord" style="width:31%"></div></div>
+            </div>
+            <div class="row-num">4</div><div class="row-ot-num">—</div>
+          </div>
+          <div class="sum-row">
+            <div>
+              <div class="row-code">UWO0001A99</div>
+              <div class="row-desc">Other Unworked Leave</div>
+              <div class="bar-wrap"><div class="bar-ord" style="width:46%"></div></div>
+            </div>
+            <div class="row-num">6</div><div class="row-ot-num has">2</div>
+          </div>
+          <div class="sum-row">
+            <div>
+              <div class="row-code">WWO0001A99</div>
+              <div class="row-desc">General Admin COps FE</div>
+              <div class="bar-wrap"><div class="bar-ord" style="width:23%"></div></div>
+            </div>
+            <div class="row-num">3</div><div class="row-ot-num">—</div>
+          </div>
+          <div class="sum-footer">
+            <div class="footer-lbl">Total</div>
+            <div class="footer-totals">
+              <div class="footer-item"><div class="footer-item-lbl">ORD</div><div class="footer-val">13</div></div>
+              <div class="footer-div"></div>
+              <div class="footer-item"><div class="footer-item-lbl">OT</div><div class="footer-val ot">2</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col">
+    <div class="col-label">After (ORD bar + OT bar)</div>
+    <div class="phone">
+      <div style="height:10px"></div>
+      <div class="app-body">
+        <div class="sum-divider"><div class="sum-div-line"></div><div class="sum-div-label">Weekly Summary</div><div class="sum-div-line"></div></div>
+        <div class="sum-card">
+          <div class="sum-head-dark">
+            <div class="sum-head-left"><div class="sum-icon">📊</div><div><div class="sum-htitle">Weekly Summary</div><div class="sum-hsub">4 work codes · 1 issue</div></div></div>
+            <div style="display:flex;align-items:center;gap:10px;"><div class="sum-badge">13h</div><div class="sum-chev">▾</div></div>
+          </div>
+          <div class="sum-col-head">
+            <div class="sum-cth">Code / Description</div>
+            <div class="sum-cth r">ORD</div>
+            <div class="sum-cth r">OT</div>
+          </div>
+          <!-- row with OT = 0 -->
+          <div class="sum-row">
+            <div>
+              <div class="row-code">WVM0001A99</div>
+              <div class="row-desc">Van Maintenance COps FE</div>
+              <div class="bar-wrap"><div class="bar-ord" style="width:31%"></div></div>
+              <!-- no OT bar when OT = 0 -->
+            </div>
+            <div class="row-num">4</div><div class="row-ot-num">—</div>
+          </div>
+          <!-- row WITH OT -->
+          <div class="sum-row">
+            <div>
+              <div class="row-code">UWO0001A99</div>
+              <div class="row-desc">Other Unworked Leave</div>
+              <div class="bar-wrap"><div class="bar-ord" style="width:46%"></div></div>
+              <div class="bar-ot-wrap" style="margin-top:3px;"><div class="bar-ot" style="width:15%"></div></div>
+            </div>
+            <div class="row-num">6</div><div class="row-ot-num has">2</div>
+          </div>
+          <div class="sum-row">
+            <div>
+              <div class="row-code">WWO0001A99</div>
+              <div class="row-desc">General Admin COps FE</div>
+              <div class="bar-wrap"><div class="bar-ord" style="width:23%"></div></div>
+            </div>
+            <div class="row-num">3</div><div class="row-ot-num">—</div>
+          </div>
+          <div class="sum-footer">
+            <div class="footer-lbl">Total</div>
+            <div class="footer-totals">
+              <div class="footer-item"><div class="footer-item-lbl">ORD</div><div class="footer-val">13</div></div>
+              <div class="footer-div"></div>
+              <div class="footer-item"><div class="footer-item-lbl">OT</div><div class="footer-val ot">2</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════
+     CHANGE 2 — Header Option A, two placements for ☰
+═══════════════════════════════════ -->
+<div class="section-title">Change 2 — Header Option A (no subtitle) · two hamburger placements</div>
+
+<div class="row">
+
+  <!-- Option A — Variant 1: ham top-right, week + arrows same row -->
+  <div class="col">
+    <div class="col-label">Variant 1 — ☰ top-right corner</div>
+    <div class="phone">
+      <div class="hdr-a1">
+        <div class="hdr-a1-row1">
+          <div class="hdr-a1-nav">
+            <div class="hdr-a1-arrow">‹</div>
+            <div class="hdr-a1-week">6 Mar – 12 Mar</div>
+            <div class="hdr-a1-arrow">›</div>
+          </div>
+          <div class="hdr-a1-right">
+            <div class="hdr-a1-sync">
+              <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+              Synced
+            </div>
+            <div class="hdr-a1-ham">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="2.5" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+            </div>
+          </div>
+        </div>
+        <div class="hdr-a1-tiles">
+          <div class="hdr-a1-tile"><div class="hdr-a1-tile-val">13</div><div class="hdr-a1-tile-lbl">Ord hrs</div></div>
+          <div class="hdr-a1-tile"><div class="hdr-a1-tile-val ot">2.5</div><div class="hdr-a1-tile-lbl">Overtime</div></div>
+          <div class="hdr-a1-tile"><div class="hdr-a1-tile-val">4</div><div class="hdr-a1-tile-lbl">Tasks</div></div>
+        </div>
+      </div>
+      <div class="app-tabs">
+        <div class="app-tab active">Timesheet</div>
+        <div class="app-tab">Notes</div>
+        <div class="app-tab">Finder</div>
+      </div>
+      <div class="app-body">
+        <div class="day-card"><div><div class="day-name">Monday</div><div class="day-code">WVM0001A99</div></div><div class="day-pill">5h</div></div>
+        <div class="day-card" style="opacity:0.4"><div><div class="day-name">Tuesday</div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Option A — Variant 2: week centered, ham far right (like current) -->
+  <div class="col">
+    <div class="col-label">Variant 2 — week centered, ☰ far-right (closest to current)</div>
+    <div class="phone">
+      <div class="hdr-a2">
+        <div class="hdr-a2-row1">
+          <div class="hdr-a2-arrow">‹</div>
+          <div class="hdr-a2-week-wrap">
+            <div class="hdr-a2-week">6 Mar – 12 Mar</div>
+            <div class="hdr-a2-sync">
+              <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+              Synced · v3.6.45
+            </div>
+          </div>
+          <div class="hdr-a2-arrow">›</div>
+          <div class="hdr-a2-ham">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="2.5" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+          </div>
+        </div>
+        <div class="hdr-a1-tiles" style="margin-top:0">
+          <div class="hdr-a1-tile"><div class="hdr-a1-tile-val">13</div><div class="hdr-a1-tile-lbl">Ord hrs</div></div>
+          <div class="hdr-a1-tile"><div class="hdr-a1-tile-val ot">2.5</div><div class="hdr-a1-tile-lbl">Overtime</div></div>
+          <div class="hdr-a1-tile"><div class="hdr-a1-tile-val">4</div><div class="hdr-a1-tile-lbl">Tasks</div></div>
+        </div>
+      </div>
+      <div class="app-tabs">
+        <div class="app-tab active">Timesheet</div>
+        <div class="app-tab">Notes</div>
+        <div class="app-tab">Finder</div>
+      </div>
+      <div class="app-body">
+        <div class="day-card"><div><div class="day-name">Monday</div><div class="day-code">WVM0001A99</div></div><div class="day-pill">5h</div></div>
+        <div class="day-card" style="opacity:0.4"><div><div class="day-name">Tuesday</div></div></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+
+<!-- ═══════════════════════════════════
+     CHANGE 3 — Summary header: dark vs light
+═══════════════════════════════════ -->
+<div class="section-title">Change 3 — Summary card header: dark (current) vs light</div>
+
+<div class="row">
+
+  <div class="col">
+    <div class="col-label">Current — dark header</div>
+    <div class="phone">
+      <div style="height:10px"></div>
+      <div class="app-body">
+        <div class="sum-divider"><div class="sum-div-line"></div><div class="sum-div-label">Weekly Summary</div><div class="sum-div-line"></div></div>
+        <div class="sum-card">
+          <div class="sum-head-dark">
+            <div class="sum-head-left"><div class="sum-icon">📊</div><div><div class="sum-htitle">Weekly Summary</div><div class="sum-hsub">4 work codes · 1 issue</div></div></div>
+            <div style="display:flex;align-items:center;gap:10px;"><div class="sum-badge">13h</div><div class="sum-chev">▾</div></div>
+          </div>
+          <div class="sum-col-head"><div class="sum-cth">Code / Description</div><div class="sum-cth r">ORD</div><div class="sum-cth r">OT</div></div>
+          <div class="sum-row"><div><div class="row-code">WVM0001A99</div><div class="row-desc">Van Maintenance COps FE</div><div class="bar-wrap"><div class="bar-ord" style="width:31%"></div></div></div><div class="row-num">4</div><div class="row-ot-num">—</div></div>
+          <div class="sum-row"><div><div class="row-code">UWO0001A99</div><div class="row-desc">Other Unworked Leave</div><div class="bar-wrap"><div class="bar-ord" style="width:46%"></div></div><div class="bar-ot-wrap" style="margin-top:3px;"><div class="bar-ot" style="width:15%"></div></div></div><div class="row-num">6</div><div class="row-ot-num has">2</div></div>
+          <div class="sum-footer"><div class="footer-lbl">Total</div><div class="footer-totals"><div class="footer-item"><div class="footer-item-lbl">ORD</div><div class="footer-val">13</div></div><div class="footer-div"></div><div class="footer-item"><div class="footer-item-lbl">OT</div><div class="footer-val ot">2</div></div></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col">
+    <div class="col-label">Light header</div>
+    <div class="phone">
+      <div style="height:10px"></div>
+      <div class="app-body">
+        <div class="sum-divider"><div class="sum-div-line"></div><div class="sum-div-label">Weekly Summary</div><div class="sum-div-line"></div></div>
+        <div class="sum-card" style="border:1px solid #e8edf5;">
+          <div class="sum-head-light">
+            <div class="sum-head-left"><div class="sum-icon-light">📊</div><div><div class="sum-htitle-light">Weekly Summary</div><div class="sum-hsub-light">4 work codes · 1 issue</div></div></div>
+            <div style="display:flex;align-items:center;gap:10px;"><div class="sum-badge-light">13h</div><div class="sum-chev-light">▾</div></div>
+          </div>
+          <div class="sum-col-head"><div class="sum-cth">Code / Description</div><div class="sum-cth r">ORD</div><div class="sum-cth r">OT</div></div>
+          <div class="sum-row"><div><div class="row-code">WVM0001A99</div><div class="row-desc">Van Maintenance COps FE</div><div class="bar-wrap"><div class="bar-ord" style="width:31%"></div></div></div><div class="row-num">4</div><div class="row-ot-num">—</div></div>
+          <div class="sum-row"><div><div class="row-code">UWO0001A99</div><div class="row-desc">Other Unworked Leave</div><div class="bar-wrap"><div class="bar-ord" style="width:46%"></div></div><div class="bar-ot-wrap" style="margin-top:3px;"><div class="bar-ot" style="width:15%"></div></div></div><div class="row-num">6</div><div class="row-ot-num has">2</div></div>
+          <div class="sum-footer"><div class="footer-lbl">Total</div><div class="footer-totals"><div class="footer-item"><div class="footer-item-lbl">ORD</div><div class="footer-val">13</div></div><div class="footer-div"></div><div class="footer-item"><div class="footer-item-lbl">OT</div><div class="footer-val ot">2</div></div></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

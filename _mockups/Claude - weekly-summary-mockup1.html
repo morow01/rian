@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Weekly Summary - Mockup 1</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: #eef0f5;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 16px;
+    gap: 48px;
+  }
+
+  h2 {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #9aa0b2;
+    margin-bottom: 12px;
+    text-align: center;
+  }
+
+  .phone-frame {
+    width: 360px;
+    border-radius: 32px;
+    overflow: hidden;
+    background: #f3f5f9;
+    box-shadow: 0 24px 64px rgba(0,0,0,0.13), 0 4px 16px rgba(0,0,0,0.08);
+  }
+
+  /* ── COLLAPSED ── */
+  .summary-collapsed {
+    background: #1c2233;
+    margin: 0 16px 24px;
+    border-radius: 20px;
+    padding: 18px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    box-shadow: 0 8px 24px rgba(28,34,51,0.28);
+    transition: transform 0.15s;
+  }
+
+  .summary-collapsed:active { transform: scale(0.98); }
+
+  .sc-left {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .sc-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #4f7aff 0%, #7b5ea7 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+
+  .sc-label {
+    font-size: 14px;
+    font-weight: 600;
+    color: #fff;
+    letter-spacing: -0.01em;
+  }
+
+  .sc-sub {
+    font-size: 11px;
+    color: #7a8299;
+    margin-top: 2px;
+    font-weight: 400;
+  }
+
+  .sc-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .sc-badge {
+    background: #4f7aff;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 700;
+    font-family: 'DM Mono', monospace;
+    padding: 5px 12px;
+    border-radius: 30px;
+  }
+
+  .sc-arrow {
+    color: #3d4561;
+    font-size: 16px;
+    transition: transform 0.2s;
+  }
+
+  /* mini sparkline bars */
+  .sc-bars {
+    display: flex;
+    align-items: flex-end;
+    gap: 3px;
+    height: 24px;
+  }
+
+  .sc-bar {
+    width: 4px;
+    border-radius: 2px;
+    background: #4f7aff;
+    opacity: 0.7;
+  }
+
+  /* ── EXPANDED ── */
+  .summary-expanded {
+    background: #fff;
+    margin: 0 16px;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.07);
+  }
+
+  .se-header {
+    background: #1c2233;
+    padding: 18px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+  }
+
+  .se-header-left {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .se-label {
+    font-size: 14px;
+    font-weight: 600;
+    color: #fff;
+  }
+
+  .se-sub {
+    font-size: 11px;
+    color: #7a8299;
+    margin-top: 2px;
+  }
+
+  .se-badge {
+    background: #4f7aff;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 700;
+    font-family: 'DM Mono', monospace;
+    padding: 5px 12px;
+    border-radius: 30px;
+  }
+
+  .se-arrow-open {
+    color: #7a8299;
+    font-size: 16px;
+    transform: rotate(180deg);
+  }
+
+  .se-body {
+    padding: 0 20px 8px;
+  }
+
+  .se-col-header {
+    display: grid;
+    grid-template-columns: 1fr 48px 48px;
+    gap: 8px;
+    padding: 14px 0 8px;
+    border-bottom: 1px solid #f0f2f6;
+  }
+
+  .col-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #b0b7cc;
+  }
+
+  .col-label.right { text-align: right; }
+
+  .se-row {
+    display: grid;
+    grid-template-columns: 1fr 48px 48px;
+    gap: 8px;
+    padding: 14px 0;
+    border-bottom: 1px solid #f6f7fa;
+    align-items: center;
+  }
+
+  .se-row:last-of-type { border-bottom: none; }
+
+  .row-info {}
+
+  .row-code {
+    font-size: 10px;
+    font-weight: 500;
+    font-family: 'DM Mono', monospace;
+    color: #4f7aff;
+    margin-bottom: 3px;
+    letter-spacing: 0.03em;
+  }
+
+  .row-name {
+    font-size: 13px;
+    font-weight: 500;
+    color: #2a3050;
+    line-height: 1.35;
+  }
+
+  .row-bar-wrap {
+    margin-top: 6px;
+    height: 3px;
+    background: #eef0f6;
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .row-bar-fill {
+    height: 100%;
+    border-radius: 2px;
+    background: linear-gradient(90deg, #4f7aff, #7b5ea7);
+  }
+
+  .row-hrs {
+    font-size: 14px;
+    font-weight: 700;
+    color: #2a3050;
+    text-align: right;
+    font-family: 'DM Mono', monospace;
+  }
+
+  .row-ot {
+    font-size: 14px;
+    font-weight: 500;
+    color: #ccc;
+    text-align: right;
+    font-family: 'DM Mono', monospace;
+  }
+
+  .row-missing .row-code { color: #ff4d4f; }
+  .row-missing .row-name { color: #ff4d4f; }
+  .row-missing .row-hrs { color: #ff4d4f; }
+  .row-missing .row-bar-fill { background: #ff4d4f; }
+
+  .se-footer {
+    background: #f8f9fc;
+    padding: 14px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid #eef0f6;
+  }
+
+  .footer-label {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #9aa0b2;
+  }
+
+  .footer-totals {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+  }
+
+  .footer-total-item {
+    text-align: right;
+  }
+
+  .footer-total-label {
+    font-size: 10px;
+    color: #b0b7cc;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  .footer-total-value {
+    font-size: 20px;
+    font-weight: 700;
+    font-family: 'DM Mono', monospace;
+    color: #1c2233;
+  }
+
+  .footer-total-value.ot {
+    color: #ff9f43;
+  }
+
+  .divider { width: 1px; height: 32px; background: #e4e7f0; }
+
+  /* spacer */
+  .spacer { height: 16px; }
+
+  .context-bar {
+    background: #fff;
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid #eef0f5;
+  }
+  .context-bar-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: #2a3050;
+  }
+  .context-bar-sub {
+    font-size: 11px;
+    color: #9aa0b2;
+  }
+
+  .section-label {
+    padding: 20px 32px 8px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #9aa0b2;
+  }
+</style>
+</head>
+<body>
+
+<h2>Mockup A — Dark Header Card</h2>
+
+<!-- COLLAPSED STATE -->
+<div class="phone-frame">
+  <div class="context-bar">
+    <div>
+      <div class="context-bar-title">6 Mar – 12 Mar</div>
+      <div class="context-bar-sub">3 tasks logged</div>
+    </div>
+  </div>
+  <div class="spacer"></div>
+  <div class="section-label">Weekly Summary</div>
+  <div class="summary-collapsed">
+    <div class="sc-left">
+      <div class="sc-icon">📊</div>
+      <div>
+        <div class="sc-label">Weekly Summary</div>
+        <div class="sc-sub">4 work codes · 1 issue</div>
+      </div>
+    </div>
+    <div class="sc-right">
+      <div class="sc-bars">
+        <div class="sc-bar" style="height:10px; opacity:0.4"></div>
+        <div class="sc-bar" style="height:18px; opacity:0.6"></div>
+        <div class="sc-bar" style="height:14px; opacity:0.5"></div>
+        <div class="sc-bar" style="height:24px;"></div>
+        <div class="sc-bar" style="height:8px; opacity:0.35"></div>
+      </div>
+      <div class="sc-badge">13h</div>
+      <div class="sc-arrow">›</div>
+    </div>
+  </div>
+  <div class="spacer"></div>
+  <div class="spacer"></div>
+</div>
+
+<!-- EXPANDED STATE -->
+<div class="phone-frame">
+  <div class="context-bar">
+    <div>
+      <div class="context-bar-title">6 Mar – 12 Mar</div>
+      <div class="context-bar-sub">3 tasks logged</div>
+    </div>
+  </div>
+  <div class="spacer"></div>
+  <div class="section-label">Weekly Summary</div>
+  <div class="summary-expanded">
+    <div class="se-header">
+      <div class="se-header-left">
+        <div class="sc-icon">📊</div>
+        <div>
+          <div class="se-label">Weekly Summary</div>
+          <div class="se-sub">4 work codes · 1 issue</div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div class="se-badge">13h</div>
+        <div class="se-arrow-open">›</div>
+      </div>
+    </div>
+
+    <div class="se-body">
+      <div class="se-col-header">
+        <div class="col-label">Description</div>
+        <div class="col-label right">ORD</div>
+        <div class="col-label right">OT</div>
+      </div>
+
+      <div class="se-row">
+        <div class="row-info">
+          <div class="row-code">WVM0001A99</div>
+          <div class="row-name">Van Maintenance COps FE</div>
+          <div class="row-bar-wrap"><div class="row-bar-fill" style="width:31%"></div></div>
+        </div>
+        <div class="row-hrs">4</div>
+        <div class="row-ot">—</div>
+      </div>
+
+      <div class="se-row">
+        <div class="row-info">
+          <div class="row-code">UWO0001A99</div>
+          <div class="row-name">Other Unworked Leave; Meetings</div>
+          <div class="row-bar-wrap"><div class="row-bar-fill" style="width:23%"></div></div>
+        </div>
+        <div class="row-hrs">3</div>
+        <div class="row-ot">—</div>
+      </div>
+
+      <div class="se-row">
+        <div class="row-info">
+          <div class="row-code">WWO0001A99</div>
+          <div class="row-name">General Admin COps FE</div>
+          <div class="row-bar-wrap"><div class="row-bar-fill" style="width:15%"></div></div>
+        </div>
+        <div class="row-hrs">2</div>
+        <div class="row-ot">—</div>
+      </div>
+
+      <div class="se-row row-missing">
+        <div class="row-info">
+          <div class="row-code">MISSING</div>
+          <div class="row-name">No Work Code selected</div>
+          <div class="row-bar-wrap"><div class="row-bar-fill" style="width:31%"></div></div>
+        </div>
+        <div class="row-hrs">4</div>
+        <div class="row-ot">—</div>
+      </div>
+    </div>
+
+    <div class="se-footer">
+      <div class="footer-label">Total</div>
+      <div class="footer-totals">
+        <div class="footer-total-item">
+          <div class="footer-total-label">ORD</div>
+          <div class="footer-total-value">13</div>
+        </div>
+        <div class="divider"></div>
+        <div class="footer-total-item">
+          <div class="footer-total-label">OT</div>
+          <div class="footer-total-value ot">0</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="spacer"></div>
+  <div class="spacer"></div>
+</div>
+
+</body>
+</html>
