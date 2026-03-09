@@ -665,7 +665,7 @@
 
     .hdr-metric-tile {
       flex: 1;
-      background: rgba(255,255,255,0.07);
+      background: transparent;
       border-radius: 12px;
       padding: 10px 12px;
     }
@@ -3295,7 +3295,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '3.6.48';
+    const VERSION = '3.6.49';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -4444,7 +4444,7 @@
         <div class="hdr-metric-lbl">Tasks</div>
       </div>
     </div>
-    <div class="flex" style="border-top:1px solid var(--border)">
+    <div class="flex">
       <button onclick="setView('week')" class="flex-1 py-2.5 text-[10px] font-bold tracking-widest uppercase relative" style="color:${state.view === 'week' ? '#F5A623' : 'var(--text-header-sub)'};${state.view === 'week' ? 'border-bottom:2.5px solid #F5A623' : ''}">
         Timesheet
       </button>
