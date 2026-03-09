@@ -3295,7 +3295,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '3.6.51';
+    const VERSION = '3.6.52';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -4021,7 +4021,7 @@
         clearTimeout(saveTimer);
         saveTimer = null;
         const flushTs = state.weekData._updatedAt || Date.now();
-        await dbPut('weeks', { weekStart: state.weekStart, data: state.weekData, updatedAt: flushTs });
+        await dbPut('weeks', { weekStart: state.weekStart, userId: state.currentUser?.uid || null, data: state.weekData, updatedAt: flushTs });
         if (state.currentUser) await fsSetWeek(state.weekStart, state.weekData).catch(() => { });
       }
 
@@ -4032,8 +4032,12 @@
       state.syncStatus = 'idle';
 
       // Load from local DB first (for instant display)
+      // Only use cached data if it belongs to the current user — prevents
+      // another account's cached data from overwriting this user's Firestore data
       const local = await dbGet('weeks', weekStart);
-      state.weekData = local ? deepCopy(local.data) : createEmptyWeek(weekStart);
+      const uid = state.currentUser?.uid || null;
+      const localIsOwn = local && (!local.userId || local.userId === uid);
+      state.weekData = localIsOwn ? deepCopy(local.data) : createEmptyWeek(weekStart);
       enforceCorrectDates(weekStart, state.weekData);
       autoExpandToday();
       render();
@@ -4065,7 +4069,7 @@
 
         enforceCorrectDates(weekStart, remote);
         state.weekData = deepCopy(remote);
-        dbPut('weeks', { weekStart, data: state.weekData, updatedAt: remote._updatedAt || Date.now() });
+        dbPut('weeks', { weekStart, userId: state.currentUser?.uid || null, data: state.weekData, updatedAt: remote._updatedAt || Date.now() });
 
         const active = document.activeElement;
         const userEditing = active && (active.tagName === 'TEXTAREA' || active.tagName === 'INPUT');
@@ -4090,7 +4094,7 @@
       updateHeaderStatus();
       saveTimer = setTimeout(async () => {
         if (state.weekStart !== capturedWeekStart) return;
-        await dbPut('weeks', { weekStart: capturedWeekStart, data: state.weekData, updatedAt: state.weekData._updatedAt });
+        await dbPut('weeks', { weekStart: capturedWeekStart, userId: state.currentUser?.uid || null, data: state.weekData, updatedAt: state.weekData._updatedAt });
         if (state.currentUser) {
           try {
             await fsSetWeek(capturedWeekStart, state.weekData);
@@ -5268,7 +5272,7 @@
       updateHeaderStatus();
       notesSaveTimer = setTimeout(async () => {
         const ts = Date.now();
-        await dbPut('notes', { id: 'notes_all', data: state.notes, updatedAt: ts });
+        await dbPut('notes', { id: 'notes_all', userId: state.currentUser?.uid || null, data: state.notes, updatedAt: ts });
         if (state.currentUser) {
           try {
             await fsSetNotes(state.notes);
@@ -5312,7 +5316,7 @@
         if (!Array.isArray(remote.notes)) return;
 
         state.notes = deepCopy(remote.notes);
-        dbPut('notes', { id: 'notes_all', data: state.notes, updatedAt: remote._updatedAt || Date.now() });
+        dbPut('notes', { id: 'notes_all', userId: state.currentUser?.uid || null, data: state.notes, updatedAt: remote._updatedAt || Date.now() });
 
         const active = document.activeElement;
         const userEditing = active && (active.tagName === 'TEXTAREA' || active.tagName === 'INPUT');
@@ -6552,9 +6556,10 @@
         }, { merge: true }).catch(() => { });
 
         // Signed in — load local data first for instant display
+        // Only use cached notes if they belong to this user
         if (state.view === 'notes') {
           const storedNotes = await dbGet('notes', 'notes_all');
-          if (storedNotes && storedNotes.data) {
+          if (storedNotes && storedNotes.data && (!storedNotes.userId || storedNotes.userId === user.uid)) {
             state.notes = storedNotes.data;
           }
         }
