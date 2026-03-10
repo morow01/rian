@@ -2,7 +2,7 @@
   "name": "Rian",
   "short_name": "Rian",
   "description": "Weekly timesheet tracker",
-  "start_url": "/",
+  "start_url": "/rian/app.html",
   "display": "standalone",
   "background_color": "#1e3a8a",
   "theme_color": "#1e3a8a",
