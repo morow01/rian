@@ -480,6 +480,78 @@
     .ts-sum-row:last-child { border: none; }
     .ts-sum-row span:last-child { font-weight: 600; font-family: 'DM Mono', monospace; }
 
+    /* ── WEEKLY SUMMARY MOCKUP ── */
+    .sum-section-header {
+      background: var(--navy);
+      padding: 7px 10px 5px;
+      color: rgba(255,255,255,0.55);
+      font-size: 7px; font-weight: 800;
+      letter-spacing: 0.08em; text-transform: uppercase;
+    }
+    .sum-card {
+      background: var(--card);
+      border-radius: 8px;
+      margin: 6px 6px 0;
+      overflow: hidden;
+    }
+    .sum-card-title {
+      padding: 6px 8px 4px;
+      font-size: 7.5px; font-weight: 800;
+      color: var(--text);
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .sum-badge {
+      font-size: 6px; font-weight: 700;
+      background: rgba(45,107,228,0.12); color: var(--accent);
+      border-radius: 4px; padding: 1px 5px;
+      font-family: 'DM Mono', monospace;
+    }
+    .sum-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 4px 8px;
+      border-bottom: 1px solid var(--border);
+      font-size: 7px;
+    }
+    .sum-row:last-child { border: none; }
+    .sum-row-label { color: var(--muted); }
+    .sum-row-val { font-weight: 700; font-family: 'DM Mono', monospace; }
+    .sum-row-val.ot { color: var(--ot); }
+    .sum-row-val.green { color: var(--green); }
+    .sum-divider {
+      height: 1px; background: var(--border); margin: 4px 8px;
+    }
+    .sum-total-row {
+      display: flex; justify-content: space-between;
+      background: var(--navy);
+      padding: 5px 8px;
+      font-size: 7.5px; font-weight: 800;
+      color: #fff;
+    }
+    .sum-code-chip {
+      background: rgba(45,107,228,0.12); color: var(--accent);
+      border-radius: 3px; padding: 0px 4px; font-size: 6px;
+      font-family: 'DM Mono', monospace; font-weight: 700;
+      margin-right: 2px;
+    }
+    .sum-day-row {
+      display: grid; grid-template-columns: 28px 1fr 22px 22px;
+      align-items: center;
+      padding: 3px 8px;
+      border-bottom: 1px solid var(--border);
+      font-size: 7px;
+    }
+    .sum-day-row:last-child { border: none; }
+    .sum-day-name { font-weight: 700; color: var(--text); }
+    .sum-day-hrs { font-family: 'DM Mono', monospace; font-weight: 700; text-align: right; }
+    .sum-day-ot  { font-family: 'DM Mono', monospace; font-weight: 700; color: var(--ot); text-align: right; }
+    .sum-email-btn {
+      display: flex; align-items: center; justify-content: center; gap: 4px;
+      background: var(--accent); color: #fff;
+      margin: 6px; border-radius: 6px;
+      padding: 6px 8px; font-size: 7.5px; font-weight: 700;
+    }
+
     /* ── NOTES MOCKUP ── */
     .notes-body { padding: 6px; display: flex; flex-direction: column; gap: 4px; }
     .notes-filter-bar {
@@ -997,6 +1069,162 @@
     </div><!-- /browser-chrome -->
 
   </div><!-- /desktop-inner -->
+</section>
+
+
+<!-- ════ SECTION 1c — WEEKLY SUMMARY ════ -->
+<section class="feature-section">
+  <div class="feature-inner">
+
+    <!-- Text -->
+    <div class="feature-text">
+      <div class="section-number">01 — Timesheet · Summary</div>
+      <h2>Your week at a glance</h2>
+      <p class="lead">The weekly summary rolls up every task, code, and hour into a clean overview. See ordinary vs overtime totals per day and for the full week — then email the whole thing in one tap.</p>
+      <ul class="feature-list">
+        <li>
+          <div class="icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+          </div>
+          <div>
+            <strong>Day-by-day breakdown</strong>
+            <span>Ordinary and overtime hours listed for each day of the week, with running totals.</span>
+          </div>
+        </li>
+        <li>
+          <div class="icon orange">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+          </div>
+          <div>
+            <strong>Overtime highlighted</strong>
+            <span>OT hours stand out in amber so you can spot them immediately.</span>
+          </div>
+        </li>
+        <li>
+          <div class="icon green">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          </div>
+          <div>
+            <strong>One-tap email</strong>
+            <span>Send a formatted summary straight from the app — no copy-paste, no spreadsheet needed.</span>
+          </div>
+        </li>
+        <li>
+          <div class="icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M4 12h10M4 17h7"/></svg>
+          </div>
+          <div>
+            <strong>Code totals</strong>
+            <span>Hours grouped by work code so supervisors can see exactly where time was spent.</span>
+          </div>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Phone -->
+    <div class="phones">
+      <div class="phone" style="width:210px">
+        <div class="phone-notch"></div>
+        <div class="phone-screen" style="min-height:420px">
+
+          <!-- App header -->
+          <div class="app-header">
+            <div class="app-header-row">
+              <div class="app-nav-btn"><svg width="5" height="8" viewBox="0 0 5 8"><polygon points="5,0 0,4 5,8" fill="rgba(255,255,255,0.5)"/></svg></div>
+              <div>
+                <div class="app-week">10 – 14 Mar 2026</div>
+                <div class="app-week-sub">Synced · v3.6.75</div>
+              </div>
+              <div class="app-nav-btn"><svg width="5" height="8" viewBox="0 0 5 8"><polygon points="0,0 5,4 0,8" fill="rgba(255,255,255,0.5)"/></svg></div>
+            </div>
+          </div>
+          <div class="app-tabs">
+            <div class="app-tab active">Timesheet</div>
+            <div class="app-tab">Notes</div>
+            <div class="app-tab">Finder</div>
+          </div>
+
+          <!-- Section label -->
+          <div class="sum-section-header">Weekly Summary</div>
+
+          <!-- Day-by-day card -->
+          <div class="sum-card">
+            <div class="sum-card-title">
+              Hours per Day
+              <span class="sum-badge">10–14 Mar</span>
+            </div>
+            <div class="sum-day-row">
+              <div class="sum-day-name">Mon</div>
+              <div style="font-size:6.5px;color:var(--muted)">Cable install · Panel inspect</div>
+              <div class="sum-day-hrs">8h</div>
+              <div class="sum-day-ot">—</div>
+            </div>
+            <div class="sum-day-row">
+              <div class="sum-day-name">Tue</div>
+              <div style="font-size:6.5px;color:var(--muted)">Fault diag · Terminations</div>
+              <div class="sum-day-hrs">8h</div>
+              <div class="sum-day-ot">+1h</div>
+            </div>
+            <div class="sum-day-row">
+              <div class="sum-day-name">Wed</div>
+              <div style="font-size:6.5px;color:var(--muted)">Site survey — new build</div>
+              <div class="sum-day-hrs">8h</div>
+              <div class="sum-day-ot">+2h</div>
+            </div>
+            <div class="sum-day-row">
+              <div class="sum-day-name">Thu</div>
+              <div style="font-size:6.5px;color:var(--muted)">Remedial works</div>
+              <div class="sum-day-hrs">8h</div>
+              <div class="sum-day-ot">—</div>
+            </div>
+            <div class="sum-day-row">
+              <div class="sum-day-name">Fri</div>
+              <div style="font-size:6.5px;color:var(--muted)">Commissioning test</div>
+              <div class="sum-day-hrs">9h</div>
+              <div class="sum-day-ot">+1h</div>
+            </div>
+            <div class="sum-total-row">
+              <span>Weekly Total</span>
+              <span>41h ord &nbsp;<span style="color:var(--ot)">+4h OT</span></span>
+            </div>
+          </div>
+
+          <!-- Totals by code card -->
+          <div class="sum-card" style="margin-top:5px">
+            <div class="sum-card-title">Hours by Work Code</div>
+            <div class="sum-row">
+              <span class="sum-row-label"><span class="sum-code-chip">EL-001</span> Cable &amp; Terminations</span>
+              <span class="sum-row-val">14h</span>
+            </div>
+            <div class="sum-row">
+              <span class="sum-row-label"><span class="sum-code-chip">SV-003</span> Site Survey</span>
+              <span class="sum-row-val">10h</span>
+            </div>
+            <div class="sum-row">
+              <span class="sum-row-label"><span class="sum-code-chip">FD-012</span> Fault Diagnosis</span>
+              <span class="sum-row-val ot">5h</span>
+            </div>
+            <div class="sum-row">
+              <span class="sum-row-label"><span class="sum-code-chip">RM-009</span> Remedial Works</span>
+              <span class="sum-row-val">8h</span>
+            </div>
+            <div class="sum-row">
+              <span class="sum-row-label"><span class="sum-code-chip">CM-022</span> Commissioning</span>
+              <span class="sum-row-val">8h</span>
+            </div>
+          </div>
+
+          <!-- Email button -->
+          <div class="sum-email-btn">
+            <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+            Email Weekly Summary
+          </div>
+
+        </div><!-- /phone-screen -->
+      </div><!-- /phone -->
+    </div><!-- /phones -->
+
+  </div><!-- /feature-inner -->
 </section>
 
 
