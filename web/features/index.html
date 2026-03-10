@@ -83,7 +83,12 @@
       color: rgba(255,255,255,0.8);
       padding: 8px 20px; border-radius: 24px;
       font-size: 13px; font-weight: 600;
-      cursor: default;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background 0.15s, border-color 0.15s;
+    }
+    .hero-tab:hover {
+      background: rgba(255,255,255,0.15);
     }
     .hero-tab.active {
       background: var(--accent);
@@ -475,9 +480,9 @@
   <h1>Everything you need<br><span>on the job site</span></h1>
   <p>FieldLog keeps your timesheets, field notes, and site finder in one fast, cloud-synced app.</p>
   <div class="hero-tabs">
-    <div class="hero-tab active">Timesheet</div>
-    <div class="hero-tab">Notes</div>
-    <div class="hero-tab">Finder</div>
+    <a href="#timesheet" class="hero-tab active" data-section="timesheet">Timesheet</a>
+    <a href="#notes"     class="hero-tab"        data-section="notes">Notes</a>
+    <a href="#finder"    class="hero-tab"        data-section="finder">Finder</a>
   </div>
   <div class="hero-cta">
     <a href="../.." class="btn-launch">
@@ -490,7 +495,7 @@
 
 
 <!-- ════ SECTION 1 — TIMESHEET ════ -->
-<section class="feature-section">
+<section class="feature-section" id="timesheet">
   <div class="feature-inner">
 
     <!-- Text -->
@@ -685,7 +690,7 @@
 
 
 <!-- ════ SECTION 2 — NOTES ════ -->
-<section class="feature-section">
+<section class="feature-section" id="notes">
   <div class="feature-inner">
 
     <!-- Text -->
@@ -861,7 +866,7 @@
 
 
 <!-- ════ SECTION 3 — FINDER ════ -->
-<section class="feature-section">
+<section class="feature-section" id="finder">
   <div class="feature-inner">
 
     <!-- Text -->
@@ -1041,6 +1046,7 @@
 <footer class="footer">
   <p><strong>FieldLog</strong> · Built for field technicians</p>
   <p style="margin-top:6px">Data cached locally · Syncs to cloud · Mobile first</p>
+  <p style="margin-top:6px;font-size:11px;opacity:0.45">v3.6.75</p>
   <div style="margin-top:24px">
     <a href="../.." class="btn-launch" style="font-size:14px;padding:11px 24px;">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
@@ -1048,6 +1054,27 @@
     </a>
   </div>
 </footer>
+
+<script>
+  // Smooth scroll for tab links
+  document.querySelectorAll('a.hero-tab').forEach(link => {
+    link.addEventListener('click', e => {
+      e.preventDefault();
+      const target = document.getElementById(link.dataset.section);
+      if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  });
+
+  // Highlight active tab based on scroll position
+  const sections = ['timesheet', 'notes', 'finder'].map(id => document.getElementById(id));
+  const tabs = document.querySelectorAll('a.hero-tab');
+  window.addEventListener('scroll', () => {
+    const scrollY = window.scrollY + 120;
+    let current = 0;
+    sections.forEach((s, i) => { if (s && s.offsetTop <= scrollY) current = i; });
+    tabs.forEach((t, i) => t.classList.toggle('active', i === current));
+  }, { passive: true });
+</script>
 
 </body>
 </html>
