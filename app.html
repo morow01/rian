@@ -3887,7 +3887,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '3.7.3';
+    const VERSION = '3.7.4';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -4442,7 +4442,8 @@
     async function fsSetWeek(weekStart, weekData) {
       const ref = userDoc(`weeks/${weekStart}`);
       if (!ref) return;
-      await ref.set({ ...weekData, _updatedAt: Date.now() });
+      // Use serverTimestamp for _updatedAt to ensure cross-device consistency
+      await ref.set({ ...weekData, _updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
       // After a successful Firestore write, opportunistically take an auto-snapshot
       // (throttled to once per 10 min so it doesn't spam the subcollection).
       maybeTakeAutoSnapshot(weekStart, weekData).catch(() => { });
@@ -4665,8 +4666,10 @@
         if (snap.metadata.hasPendingWrites) return;
 
         if (!snap.exists) {
-          // No data on server yet — push our local data up
-          fsSetWeek(weekStart, state.weekData).catch(() => { });
+          // No data on server yet. We DO NOT push local data here anymore.
+          // This prevents a "push-back" bug where an empty local cache overwrites
+          // fresh data from another device during initial load/offline-sync.
+          // Data will be pushed naturally during the first edit or scheduleAutoSave.
           state.syncStatus = 'synced';
           updateHeaderStatus();
           return;
@@ -4675,15 +4678,23 @@
         const remote = snap.data();
         if (!remote.days) return;
 
+        // Convert Firestore Timestamp to JS number for comparison if needed
+        const remoteTs = (remote._updatedAt && remote._updatedAt.toMillis)
+          ? remote._updatedAt.toMillis()
+          : (remote._updatedAt || 0);
+
+        const localTs = state.weekData._updatedAt || 0;
+
         // Skip stale snapshots — if the remote data is older than our local
-        // state (e.g. a confirmed write echoing back after we've already made
-        // newer local edits), ignore it to prevent overwriting unsaved changes
-        if (remote._updatedAt && state.weekData._updatedAt &&
-          remote._updatedAt < state.weekData._updatedAt) return;
+        // state, ignore it to prevent overwriting unsaved changes.
+        if (remoteTs > 0 && localTs > 0 && remoteTs < localTs) return;
 
         enforceCorrectDates(weekStart, remote);
         state.weekData = deepCopy(remote);
-        dbPut('weeks', { weekStart, userId: state.currentUser?.uid || null, data: state.weekData, updatedAt: remote._updatedAt || Date.now() });
+        // Ensure the local updatedAt reflects the server time (as a number)
+        state.weekData._updatedAt = remoteTs;
+
+        dbPut('weeks', { weekStart, userId: state.currentUser?.uid || null, data: state.weekData, updatedAt: remoteTs || Date.now() });
 
         const active = document.activeElement;
         const userEditing = active && (active.tagName === 'TEXTAREA' || active.tagName === 'INPUT');
