@@ -3946,7 +3946,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '3.8.4';
+    const VERSION = '3.8.5';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -5065,10 +5065,11 @@
         const cards = container.querySelectorAll('.activity-card');
         if (!cards.length) { container.style.setProperty('--tl-height', '0px'); return; }
         const lastCard = cards[cards.length - 1];
-        // lastCard.offsetTop is relative to container top (which is 14px padding)
-        // circle is at top:20px (nodeCenter=25px). 
-        // We start line at top:-14px, so total height = offset + 25 + 14.
-        const totalHeight = lastCard.offsetTop + 25 + 14;
+        // circle is at top:20px (nodeCenter relative to card top = 25px). 
+        // We start line at top:-28px relative to container.
+        // offsetTop is relative to container (which has 14px padding).
+        // totalHeight = (offsetTop + nodeCenter) + absoluteTopOffset
+        const totalHeight = lastCard.offsetTop + 25 + 28;
         container.style.setProperty('--tl-height', totalHeight + 'px');
       });
     }
