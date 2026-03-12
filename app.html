@@ -542,7 +542,6 @@
       padding: 16px;
       overflow: hidden;
       max-height: 0;
-      transition: opacity 0.16s ease;
       opacity: 0;
       padding-top: 0;
       padding-bottom: 0;
@@ -552,6 +551,22 @@
       max-height: none;
       opacity: 1;
       padding: 16px;
+    }
+
+    /* Keep timeline stable: animate inner content instead of container height */
+    .activity-detail>* {
+      transition: opacity 0.2s ease, transform 0.2s ease;
+    }
+
+    .activity-detail:not(.open)>* {
+      opacity: 0;
+      transform: translateY(6px);
+      pointer-events: none;
+    }
+
+    .activity-detail.open>* {
+      opacity: 1;
+      transform: translateY(0);
     }
 
     /* Notes panel inside activity-detail */
@@ -3946,7 +3961,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '3.8.7';
+    const VERSION = '3.8.8';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
