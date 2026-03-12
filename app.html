@@ -202,21 +202,15 @@
       color: #C07800;
       font-weight: 500;
     }
-
-    .today-badge {
-      font-size: 9px;
-      font-weight: 800;
+    .day-today::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 4px;
       background: var(--accent);
-      color: white;
-      padding: 2px 6px;
-      border-radius: 10px;
-      text-transform: uppercase;
-      margin-left: 6px;
-      display: inline-flex;
-      align-items: center;
-      vertical-align: middle;
-      line-height: 1;
-      height: 16px;
+      z-index: 20;
     }
 
     /* Task row hour pills */
@@ -5772,11 +5766,11 @@
       });
 
       return `
-<div class="day-card ${isWeekend ? 'day-weekend' : ''} ${isExpanded ? 'expanded' : ''}" data-day-idx="${di}">
+<div class="day-card ${isWeekend ? 'day-weekend' : ''} ${isExpanded ? 'expanded' : ''} ${day.date === dateToStr(new Date()) ? 'day-today' : ''}" data-day-idx="${di}">
   <div class="day-header" onclick="toggleDay(${di})">
     <div class="day-left">
       <div class="day-expand-btn"><svg class="chevron" width="8" height="8" viewBox="0 0 10 10" style="transition:transform 0.2s;transform:${isExpanded ? 'rotate(90deg)' : 'rotate(0deg)'}"><polygon points="0,0 10,5 0,10" fill="#b4b8cc"/></svg></div>
-      <span class="day-name">${day.dayName}${day.date === dateToStr(new Date()) ? ' <span class="today-badge">Today</span>' : ''}</span>
+      <span class="day-name">${day.dayName}</span>
       <span class="day-date">${formatDate(day.date)}</span>
     </div>
     <div class="day-pills" data-day-pills="${di}">
