@@ -452,8 +452,10 @@
       left: 26px;
       /* Center of day expand button */
       /* height is set dynamically via --tl-height so the line ends exactly
-         at the last task node rather than overrunning it */
+         at the last task node. Top is offset to connect into header. */
       height: var(--tl-height, 0px);
+      top: -28px;
+      /* Reach exactly into the day header button centre */
       bottom: auto;
       width: 2px;
       background: #818CF8;
@@ -461,6 +463,7 @@
       opacity: 0.7;
       /* Increased for better visibility */
       z-index: 1;
+      /* Transition removed to ensure the line feels solid and updates instantly */
     }
 
     .activity-card {
@@ -3943,7 +3946,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '3.8.3';
+    const VERSION = '3.8.4';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -5062,11 +5065,23 @@
         const cards = container.querySelectorAll('.activity-card');
         if (!cards.length) { container.style.setProperty('--tl-height', '0px'); return; }
         const lastCard = cards[cards.length - 1];
-        // Node circle: top:20px, height:10px → centre at top+25px
-        const nodeCenter = lastCard.offsetTop + 25;
-        const heightPx = Math.max(0, nodeCenter + 1);
-        container.style.setProperty('--tl-height', heightPx + 'px');
+        // lastCard.offsetTop is relative to container top (which is 14px padding)
+        // circle is at top:20px (nodeCenter=25px). 
+        // We start line at top:-14px, so total height = offset + 25 + 14.
+        const totalHeight = lastCard.offsetTop + 25 + 14;
+        container.style.setProperty('--tl-height', totalHeight + 'px');
       });
+    }
+
+    // Helper to keep timeline in sync during CSS transitions (max-height)
+    function syncTimelineAnimation() {
+      const start = performance.now();
+      const duration = ANIM_EXPAND_MS + 50;
+      function step(now) {
+        fixTimelineLines();
+        if (now - start < duration) requestAnimationFrame(step);
+      }
+      requestAnimationFrame(step);
     }
 
     function renderHeader() {
@@ -5590,7 +5605,7 @@
           activities.classList.add('hidden');
           activities.style.maxHeight = '0px';
           if (chevron) chevron.style.transform = 'rotate(0deg)';
-          requestAnimationFrame(fixTimelineLines);
+          syncTimelineAnimation();
           setTimeout(() => {
             if (!state.expandedDays.has(di)) activities.style.display = 'none';
             fixTimelineLines();
@@ -5605,7 +5620,7 @@
           if (chevron) chevron.style.transform = 'rotate(90deg)';
           // Trigger autoGrow for all textareas within the expanded day
           activities.querySelectorAll('textarea').forEach(autoGrow);
-          requestAnimationFrame(fixTimelineLines);
+          syncTimelineAnimation();
           setTimeout(() => {
             if (state.expandedDays.has(di)) activities.style.maxHeight = 'none';
             fixTimelineLines();
@@ -5645,8 +5660,7 @@
           detail.querySelectorAll('textarea').forEach(autoGrow);
         }
         if (chevron) chevron.style.transform = 'rotate(90deg)';
-        requestAnimationFrame(fixTimelineLines);
-        setTimeout(fixTimelineLines, ANIM_EXPAND_MS + 20);
+        syncTimelineAnimation();
       } else {
         card.classList.remove('expanded');
         if (detail) {
@@ -5671,8 +5685,7 @@
             card.style.boxShadow = '0 0 8px rgba(232, 69, 60, 0.2)';
           }
         }
-        requestAnimationFrame(fixTimelineLines);
-        setTimeout(fixTimelineLines, ANIM_EXPAND_MS + 20);
+        syncTimelineAnimation();
       }
     }
 
