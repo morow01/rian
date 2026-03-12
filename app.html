@@ -453,8 +453,9 @@
       /* Center of day expand button */
       top: -1px;
       /* Touch the header border */
-      bottom: 60px;
-      /* Stop before the 'Add Task' button */
+      height: var(--tl-height, 0px);
+      bottom: auto;
+      /* Height-based trim avoids flicker during expand/collapse animation */
       width: 2px;
       background: #818CF8;
       /* Gemini indigo */
@@ -5053,6 +5054,23 @@
       app.querySelectorAll('textarea[data-field="notes"], textarea[data-field="description"], textarea[data-note-field="description"]').forEach(autoGrow);
       // Restore scroll position after DOM is painted
       if (savedScroll > 0) requestAnimationFrame(() => window.scrollTo(0, savedScroll));
+      // Ensure timeline ends exactly at last task node
+      requestAnimationFrame(fixTimelineLines);
+    }
+
+    function fixTimelineLines() {
+      document.querySelectorAll('.day-activities.active').forEach(container => {
+        const cards = container.querySelectorAll('.activity-card');
+        if (!cards.length) {
+          container.style.setProperty('--tl-height', '0px');
+          return;
+        }
+        const lastCard = cards[cards.length - 1];
+        // Node center: ::after has top:20px and height:10px
+        const nodeCenter = lastCard.offsetTop + 25;
+        const lineHeight = Math.max(0, nodeCenter + 1); // +1 for top:-1px offset
+        container.style.setProperty('--tl-height', `${lineHeight}px`);
+      });
     }
 
     function renderHeader() {
@@ -5577,6 +5595,7 @@
           activities.style.maxHeight = '0px';
           if (chevron) chevron.style.transform = 'rotate(0deg)';
           setTimeout(() => { if (!state.expandedDays.has(di)) activities.style.display = 'none'; }, ANIM_EXPAND_MS);
+          setTimeout(fixTimelineLines, ANIM_EXPAND_MS + 20);
         } else {
           activities.style.display = 'block';
           activities.style.maxHeight = '0px';
@@ -5588,6 +5607,7 @@
           // Trigger autoGrow for all textareas within the expanded day
           activities.querySelectorAll('textarea').forEach(autoGrow);
           setTimeout(() => { if (state.expandedDays.has(di)) activities.style.maxHeight = 'none'; }, ANIM_EXPAND_MS);
+          setTimeout(fixTimelineLines, ANIM_EXPAND_MS + 20);
         }
       }
     }
@@ -5623,6 +5643,7 @@
           detail.querySelectorAll('textarea').forEach(autoGrow);
         }
         if (chevron) chevron.style.transform = 'rotate(90deg)';
+        setTimeout(fixTimelineLines, ANIM_EXPAND_MS + 20);
       } else {
         card.classList.remove('expanded');
         if (detail) {
@@ -5647,6 +5668,7 @@
             card.style.boxShadow = '0 0 8px rgba(232, 69, 60, 0.2)';
           }
         }
+        setTimeout(fixTimelineLines, ANIM_EXPAND_MS + 20);
       }
     }
 
