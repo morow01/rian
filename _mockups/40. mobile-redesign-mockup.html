@@ -1,0 +1,1211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rian — Mobile Redesign Mockup</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800;1,9..40,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --navy: #0F1C2E;
+      --navy2: #162438;
+      --accent: #2D6BE4;
+      --accent-light: #EBF1FD;
+      --page: #E8EEF5;
+      --card: #FFFFFF;
+      --border: #D4E0EC;
+      --text: #0F1C2E;
+      --muted: #4A6580;
+      --faint: #8BA5BE;
+      --ot: #F5A623;
+      --green: #16a34a;
+      --red: #ef4444;
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: #1a1f2e;
+      color: #fff;
+      min-height: 100vh;
+      padding: 40px 20px 60px;
+    }
+
+    /* ── LAYOUT ── */
+    .page-title {
+      text-align: center;
+      margin-bottom: 48px;
+    }
+
+    .page-title h1 {
+      font-size: 28px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 8px;
+    }
+
+    .page-title p {
+      font-size: 15px;
+      color: rgba(255,255,255,0.5);
+      max-width: 480px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+
+    .comparison-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 48px 32px;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .comparison-block {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .block-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: 5px 12px;
+      border-radius: 20px;
+      display: inline-block;
+      align-self: flex-start;
+    }
+
+    .block-label.before {
+      background: rgba(255,255,255,0.08);
+      color: rgba(255,255,255,0.4);
+    }
+
+    .block-label.after {
+      background: rgba(45,107,228,0.25);
+      color: #7EB3FF;
+    }
+
+    .section-title {
+      font-size: 11px;
+      font-weight: 700;
+      color: rgba(255,255,255,0.35);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+
+    /* ── PHONE FRAME ── */
+    .phone-frame {
+      width: 100%;
+      max-width: 320px;
+      background: #111827;
+      border-radius: 44px;
+      padding: 14px;
+      box-shadow: 0 32px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.07), inset 0 1px 0 rgba(255,255,255,0.1);
+      margin: 0 auto;
+    }
+
+    .phone-notch {
+      width: 80px;
+      height: 7px;
+      background: #111827;
+      border-radius: 4px;
+      margin: 0 auto 10px;
+    }
+
+    .phone-screen {
+      border-radius: 32px;
+      overflow: hidden;
+      background: var(--page);
+    }
+
+    /* ── CHANGE NOTES ── */
+    .change-notes {
+      margin-top: 16px;
+    }
+
+    .change-note {
+      display: flex;
+      gap: 8px;
+      align-items: flex-start;
+      font-size: 12px;
+      color: rgba(255,255,255,0.55);
+      margin-bottom: 8px;
+      line-height: 1.5;
+    }
+
+    .change-note .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #7EB3FF;
+      flex-shrink: 0;
+      margin-top: 5px;
+    }
+
+    .change-note .dot.green { background: #4ade80; }
+    .change-note .dot.amber { background: var(--ot); }
+
+    /* ────────────────────────────────
+       BEFORE: NAVBAR
+    ──────────────────────────────── */
+    .nav-before {
+      background: var(--navy);
+      height: 52px;
+      display: flex;
+      align-items: center;
+      padding: 0 16px;
+      gap: 10px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .nav-logo-box-sm {
+      width: 28px; height: 28px;
+      border-radius: 7px;
+      background: linear-gradient(135deg, #2D6BE4, #7c73e6);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 800; color: #fff; flex-shrink: 0;
+    }
+
+    .nav-brand-name-sm { font-size: 14px; font-weight: 800; color: #fff; }
+
+    .nav-cta-sm {
+      margin-left: auto;
+      background: var(--accent); color: #fff;
+      font-size: 12px; font-weight: 700;
+      padding: 7px 14px; border-radius: 8px;
+      font-family: 'DM Sans', sans-serif;
+    }
+
+    /* ────────────────────────────────
+       AFTER: NAVBAR — Transparent + blur, hamburger menu
+    ──────────────────────────────── */
+    .nav-after {
+      background: rgba(15,28,46,0.75);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      height: 56px;
+      display: flex;
+      align-items: center;
+      padding: 0 18px;
+      gap: 10px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      position: relative;
+    }
+
+    .nav-logo-pill {
+      display: flex; align-items: center; gap: 8px;
+    }
+
+    .nav-logo-box-pill {
+      width: 30px; height: 30px;
+      border-radius: 9px;
+      background: linear-gradient(135deg, #2D6BE4, #7c73e6);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; font-weight: 800; color: #fff;
+      box-shadow: 0 2px 10px rgba(45,107,228,0.4);
+    }
+
+    .nav-brand-name-new {
+      font-size: 15px; font-weight: 800; color: #fff; letter-spacing: -0.01em;
+    }
+
+    .nav-right {
+      margin-left: auto;
+      display: flex; align-items: center; gap: 10px;
+    }
+
+    .nav-hamburger {
+      display: flex; flex-direction: column; gap: 4px;
+      padding: 4px; cursor: pointer;
+    }
+
+    .nav-hamburger span {
+      display: block; width: 20px; height: 2px;
+      background: rgba(255,255,255,0.6); border-radius: 2px;
+    }
+
+    .nav-hamburger span:nth-child(2) { width: 14px; }
+
+    .nav-cta-new {
+      background: var(--accent); color: #fff;
+      font-size: 12px; font-weight: 700;
+      padding: 8px 14px; border-radius: 9px;
+      font-family: 'DM Sans', sans-serif;
+      box-shadow: 0 2px 10px rgba(45,107,228,0.4);
+    }
+
+    /* ────────────────────────────────
+       BEFORE: HERO
+    ──────────────────────────────── */
+    .hero-before {
+      background: var(--navy);
+      padding: 36px 20px 44px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-before::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse at 60% 0%, rgba(45,107,228,0.25) 0%, transparent 70%);
+    }
+
+    .hero-badge-sm {
+      display: inline-block;
+      background: rgba(45,107,228,0.2);
+      border: 1px solid rgba(45,107,228,0.4);
+      color: #7EB3FF;
+      font-size: 9px; font-weight: 700; letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 4px 12px; border-radius: 20px;
+      margin-bottom: 14px;
+      position: relative;
+    }
+
+    .hero-h1-sm {
+      font-size: 26px; font-weight: 800;
+      letter-spacing: -0.02em; line-height: 1.1;
+      color: #fff; margin-bottom: 12px; position: relative;
+    }
+
+    .hero-h1-sm span { color: #7EB3FF; }
+
+    .hero-p-sm {
+      font-size: 13px; color: rgba(255,255,255,0.6);
+      margin-bottom: 24px; line-height: 1.5;
+      position: relative;
+    }
+
+    .hero-btns-sm {
+      display: flex; gap: 10px; justify-content: center;
+      flex-direction: column; align-items: center;
+      position: relative;
+    }
+
+    .btn-launch-sm {
+      display: inline-flex; align-items: center; gap: 7px;
+      background: var(--accent); color: #fff;
+      font-size: 13px; font-weight: 700;
+      padding: 12px 24px; border-radius: 10px;
+      width: 100%; justify-content: center;
+    }
+
+    .btn-ghost-sm {
+      display: inline-flex; align-items: center; gap: 7px;
+      background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.8);
+      font-size: 13px; font-weight: 600;
+      padding: 12px 24px; border-radius: 10px;
+      border: 1px solid rgba(255,255,255,0.18);
+      width: 100%; justify-content: center;
+    }
+
+    /* ────────────────────────────────
+       AFTER: HERO — Full bleed, stacked cards, gradient mesh bg
+    ──────────────────────────────── */
+    .hero-after {
+      background: var(--navy);
+      padding: 40px 18px 50px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-after-bg {
+      position: absolute; inset: 0; pointer-events: none;
+      background:
+        radial-gradient(ellipse at 20% 80%, rgba(124,115,230,0.18) 0%, transparent 60%),
+        radial-gradient(ellipse at 80% 10%, rgba(45,107,228,0.3) 0%, transparent 55%);
+    }
+
+    /* Floating grid lines */
+    .hero-after-grid {
+      position: absolute; inset: 0; pointer-events: none;
+      opacity: 0.06;
+      background-image: linear-gradient(rgba(255,255,255,0.6) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.6) 1px, transparent 1px);
+      background-size: 32px 32px;
+    }
+
+    .hero-eyebrow {
+      display: flex; align-items: center; justify-content: center;
+      gap: 6px; margin-bottom: 18px; position: relative;
+    }
+
+    .hero-eyebrow-dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--accent); box-shadow: 0 0 8px rgba(45,107,228,0.8);
+    }
+
+    .hero-eyebrow span {
+      font-size: 10px; font-weight: 700;
+      letter-spacing: 0.14em; text-transform: uppercase; color: #7EB3FF;
+    }
+
+    .hero-h1-new {
+      font-size: 30px; font-weight: 800;
+      letter-spacing: -0.03em; line-height: 1.05;
+      color: #fff; margin-bottom: 14px;
+      position: relative;
+    }
+
+    .hero-h1-new .accent-word {
+      background: linear-gradient(135deg, #7EB3FF, #a78bfa);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero-p-new {
+      font-size: 14px; color: rgba(255,255,255,0.55);
+      margin-bottom: 28px; line-height: 1.6;
+      position: relative;
+    }
+
+    /* Trust pills */
+    .hero-trust {
+      display: flex; gap: 8px; flex-wrap: wrap;
+      justify-content: center; margin-bottom: 28px;
+      position: relative;
+    }
+
+    .trust-pill {
+      display: flex; align-items: center; gap: 5px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 20px; padding: 4px 10px;
+      font-size: 10px; color: rgba(255,255,255,0.6);
+    }
+
+    .trust-pill svg { color: #4ade80; }
+
+    .hero-btns-new {
+      display: flex; flex-direction: column; gap: 10px;
+      position: relative;
+    }
+
+    .btn-launch-new {
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      background: var(--accent); color: #fff;
+      font-size: 14px; font-weight: 700;
+      padding: 14px; border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(45,107,228,0.45);
+      letter-spacing: -0.01em;
+    }
+
+    .btn-ghost-new {
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.75);
+      font-size: 14px; font-weight: 600;
+      padding: 14px; border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.14);
+    }
+
+    /* ────────────────────────────────
+       BEFORE: FEATURE SECTION
+    ──────────────────────────────── */
+    .feature-before {
+      padding: 28px 16px;
+      background: #fff;
+    }
+
+    .feat-num-sm {
+      font-size: 10px; font-weight: 800; letter-spacing: 0.12em;
+      text-transform: uppercase; color: var(--accent); margin-bottom: 6px;
+    }
+
+    .feat-h2-sm {
+      font-size: 20px; font-weight: 800; letter-spacing: -0.02em;
+      line-height: 1.15; color: var(--text); margin-bottom: 10px;
+    }
+
+    .feat-lead-sm {
+      font-size: 13px; color: var(--muted); margin-bottom: 20px; line-height: 1.6;
+    }
+
+    .feat-list-sm {
+      list-style: none; display: flex; flex-direction: column; gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .feat-list-sm li {
+      display: flex; gap: 10px; align-items: flex-start;
+    }
+
+    .feat-icon-sm {
+      width: 30px; height: 30px; border-radius: 8px;
+      background: var(--accent-light);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; color: var(--accent);
+    }
+
+    .feat-icon-sm.green { background: rgba(22,163,74,0.1); color: var(--green); }
+    .feat-icon-sm.orange { background: rgba(245,166,35,0.1); color: var(--ot); }
+
+    .feat-list-sm li strong { display: block; font-size: 13px; font-weight: 700; margin-bottom: 1px; color: var(--text); }
+    .feat-list-sm li span { font-size: 12px; color: var(--muted); }
+
+    .feat-phones-sm {
+      display: flex; justify-content: center;
+      /* stacked phones as-is */
+    }
+
+    /* Mini phone for feature illustration */
+    .mini-phone {
+      width: 140px;
+      background: #1a1a2e;
+      border-radius: 28px;
+      padding: 9px;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.22), 0 0 0 1px rgba(255,255,255,0.06);
+    }
+
+    .mini-phone-notch {
+      width: 50px; height: 5px;
+      background: #1a1a2e; border-radius: 3px; margin: 0 auto 6px;
+    }
+
+    .mini-phone-screen {
+      background: var(--page); border-radius: 21px; overflow: hidden; min-height: 260px;
+    }
+
+    .mini-app-header {
+      background: var(--navy); padding: 8px 10px 6px; color: #fff;
+    }
+
+    .mini-app-tabs {
+      display: flex; background: var(--navy2);
+    }
+
+    .mini-app-tab {
+      flex: 1; text-align: center;
+      font-size: 6px; font-weight: 700; letter-spacing: 0.08em;
+      text-transform: uppercase; padding: 4px 0; color: rgba(255,255,255,0.4);
+    }
+
+    .mini-app-tab.active { color: var(--ot); border-bottom: 2px solid var(--ot); }
+
+    .mini-ts-body { padding: 5px; display: flex; flex-direction: column; gap: 3px; }
+
+    .mini-ts-day {
+      background: var(--card); border-radius: 7px; overflow: hidden;
+    }
+
+    .mini-ts-header {
+      display: flex; align-items: center; padding: 5px 7px; gap: 5px;
+    }
+
+    .mini-ts-name { font-size: 7px; font-weight: 700; flex: 1; color: var(--text); }
+    .mini-ts-hrs { font-size: 7px; font-weight: 700; color: var(--accent); font-family: 'DM Mono', monospace; }
+
+    .mini-ts-activity {
+      background: var(--page); border-radius: 5px; padding: 4px 6px; margin: 0 7px 5px;
+    }
+
+    .mini-ts-act-desc { font-size: 7px; font-weight: 600; margin-bottom: 2px; color: var(--text); }
+
+    .mini-ts-act-row { display: flex; gap: 3px; align-items: center; }
+
+    .mini-ts-code {
+      font-size: 6px; font-family: 'DM Mono', monospace;
+      background: var(--accent-light); color: var(--accent);
+      padding: 1px 4px; border-radius: 3px; font-weight: 500;
+    }
+
+    .mini-ts-hrs2 {
+      font-size: 6px; font-family: 'DM Mono', monospace;
+      color: var(--accent); font-weight: 700; margin-left: auto;
+    }
+
+    /* ────────────────────────────────
+       AFTER: FEATURE SECTION — Tab-scrollable features, sticky section chips
+    ──────────────────────────────── */
+    .feature-after {
+      background: #fff;
+    }
+
+    /* Sticky section label chip */
+    .feat-section-chip {
+      display: flex; align-items: center; gap: 6px;
+      padding: 12px 16px 8px;
+      border-bottom: 1px solid var(--border);
+      background: #fff;
+    }
+
+    .feat-chip-dot {
+      width: 8px; height: 8px; border-radius: 50%; background: var(--accent);
+    }
+
+    .feat-chip-label {
+      font-size: 10px; font-weight: 800; letter-spacing: 0.12em;
+      text-transform: uppercase; color: var(--accent);
+    }
+
+    .feat-chip-num {
+      margin-left: auto;
+      font-size: 10px; font-weight: 700; color: var(--faint);
+    }
+
+    .feat-content-new { padding: 18px 16px 16px; }
+
+    .feat-h2-new {
+      font-size: 22px; font-weight: 800; letter-spacing: -0.025em;
+      line-height: 1.1; color: var(--text); margin-bottom: 8px;
+    }
+
+    .feat-lead-new {
+      font-size: 13px; color: var(--muted); margin-bottom: 0; line-height: 1.6;
+    }
+
+    /* Scrollable horizontal feature chips */
+    .feat-tags {
+      display: flex; gap: 6px; overflow-x: auto; padding: 14px 16px;
+      scrollbar-width: none; border-bottom: 1px solid var(--border);
+      -ms-overflow-style: none;
+    }
+
+    .feat-tags::-webkit-scrollbar { display: none; }
+
+    .feat-tag {
+      display: flex; align-items: center; gap: 5px;
+      background: var(--page); border: 1px solid var(--border);
+      border-radius: 20px; padding: 5px 12px; white-space: nowrap;
+      font-size: 11px; font-weight: 600; color: var(--muted); flex-shrink: 0;
+    }
+
+    .feat-tag.active {
+      background: var(--accent-light); border-color: rgba(45,107,228,0.25);
+      color: var(--accent);
+    }
+
+    .feat-tag-dot {
+      width: 5px; height: 5px; border-radius: 50%; background: currentColor;
+    }
+
+    /* Phone preview card */
+    .feat-preview-card {
+      margin: 0 16px 16px;
+      background: var(--page); border-radius: 16px;
+      padding: 14px;
+      display: flex; justify-content: center;
+      border: 1px solid var(--border);
+    }
+
+    /* Inline highlight list */
+    .feat-highlights {
+      padding: 0 16px 20px;
+      display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+    }
+
+    .feat-highlight-item {
+      background: var(--page); border-radius: 10px; padding: 10px;
+      border: 1px solid var(--border);
+    }
+
+    .feat-hi-icon {
+      width: 26px; height: 26px; border-radius: 7px;
+      background: var(--accent-light); color: var(--accent);
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 6px;
+    }
+
+    .feat-hi-icon.green { background: rgba(22,163,74,0.1); color: var(--green); }
+    .feat-hi-icon.orange { background: rgba(245,166,35,0.1); color: var(--ot); }
+
+    .feat-hi-title { font-size: 11px; font-weight: 700; color: var(--text); margin-bottom: 2px; }
+    .feat-hi-sub { font-size: 10px; color: var(--muted); line-height: 1.4; }
+
+    /* ────────────────────────────────
+       FOOTER BEFORE
+    ──────────────────────────────── */
+    .footer-before {
+      background: var(--navy); padding: 32px 20px;
+      text-align: center; color: rgba(255,255,255,0.6);
+    }
+
+    .footer-before strong { color: #fff; }
+
+    .footer-launch-btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: var(--accent); color: #fff;
+      font-size: 13px; font-weight: 700;
+      padding: 11px 22px; border-radius: 10px;
+      margin-top: 20px;
+    }
+
+    /* ────────────────────────────────
+       FOOTER AFTER — Richer footer with app store CTAs
+    ──────────────────────────────── */
+    .footer-after {
+      background: var(--navy); padding: 0;
+      overflow: hidden;
+    }
+
+    .footer-top {
+      padding: 28px 18px 24px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .footer-brand {
+      display: flex; align-items: center; gap: 10px; margin-bottom: 16px;
+    }
+
+    .footer-logo {
+      width: 36px; height: 36px; border-radius: 10px;
+      background: linear-gradient(135deg, #2D6BE4, #7c73e6);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 15px; font-weight: 800; color: #fff;
+      box-shadow: 0 4px 14px rgba(45,107,228,0.4);
+    }
+
+    .footer-brand-name { font-size: 18px; font-weight: 800; color: #fff; }
+    .footer-brand-tagline { font-size: 11px; color: rgba(255,255,255,0.4); margin-top: 1px; }
+
+    .footer-desc {
+      font-size: 13px; color: rgba(255,255,255,0.45); line-height: 1.6; margin-bottom: 20px;
+    }
+
+    .footer-launch-new {
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      background: var(--accent); color: #fff;
+      font-size: 14px; font-weight: 700;
+      padding: 13px; border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(45,107,228,0.4);
+      width: 100%;
+    }
+
+    .footer-bottom {
+      padding: 16px 18px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+
+    .footer-meta { font-size: 11px; color: rgba(255,255,255,0.25); }
+
+    .footer-links {
+      display: flex; gap: 14px;
+    }
+
+    .footer-link { font-size: 11px; color: rgba(255,255,255,0.3); }
+
+    /* ── DIVIDER ── */
+    .section-divider {
+      grid-column: 1 / -1;
+      display: flex; align-items: center; gap: 16px;
+      margin: 16px 0;
+    }
+
+    .section-divider::before, .section-divider::after {
+      content: ''; flex: 1; height: 1px;
+      background: rgba(255,255,255,0.1);
+    }
+
+    .section-divider span {
+      font-size: 13px; font-weight: 700; color: rgba(255,255,255,0.5);
+      white-space: nowrap;
+    }
+
+    /* ── ANNOTATION ── */
+    .annotation-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: rgba(74,222,128,0.12); border: 1px solid rgba(74,222,128,0.25);
+      border-radius: 20px; padding: 4px 12px;
+      font-size: 10px; font-weight: 700; color: #4ade80;
+      margin-bottom: 10px;
+    }
+
+    /* ── SUMMARY TABLE ── */
+    .summary-section {
+      grid-column: 1 / -1;
+      max-width: 900px; margin: 0 auto; width: 100%;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 16px;
+      overflow: hidden;
+    }
+
+    .summary-table {
+      width: 100%; border-collapse: collapse;
+    }
+
+    .summary-table th {
+      text-align: left; padding: 12px 20px;
+      font-size: 10px; font-weight: 700; letter-spacing: 0.1em;
+      text-transform: uppercase; color: rgba(255,255,255,0.35);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .summary-table td {
+      padding: 13px 20px; font-size: 13px;
+      color: rgba(255,255,255,0.7);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .summary-table tr:last-child td { border: none; }
+    .summary-table td:first-child { color: rgba(255,255,255,0.4); font-size: 12px; }
+
+    .change-badge {
+      display: inline-block; padding: 2px 8px; border-radius: 10px;
+      font-size: 10px; font-weight: 700;
+    }
+
+    .change-badge.improve { background: rgba(74,222,128,0.15); color: #4ade80; }
+    .change-badge.fix { background: rgba(245,166,35,0.15); color: var(--ot); }
+    .change-badge.new { background: rgba(45,107,228,0.2); color: #7EB3FF; }
+  </style>
+</head>
+<body>
+
+  <div class="page-title">
+    <h1>Rian — Mobile Redesign</h1>
+    <p>Proposed design improvements for mobile view. Each section shows the current design alongside the proposed change.</p>
+  </div>
+
+  <div class="comparison-grid">
+
+    <!-- ═══════════════════════════════
+         ROW 1: NAVBAR
+    ═══════════════════════════════ -->
+    <div class="comparison-block">
+      <div>
+        <div class="section-title">Navigation Bar</div>
+        <div class="block-label before">Current</div>
+      </div>
+      <div class="phone-frame">
+        <div class="phone-notch"></div>
+        <div class="phone-screen" style="min-height:72px; max-height:72px;">
+          <div class="nav-before">
+            <div class="nav-logo-box-sm">R</div>
+            <span class="nav-brand-name-sm">Rian</span>
+            <div class="nav-cta-sm">Get Started</div>
+          </div>
+        </div>
+      </div>
+      <div class="change-notes">
+        <div class="change-note"><div class="dot" style="background:rgba(255,255,255,0.2)"></div>Logo and CTA only — no menu affordance</div>
+        <div class="change-note"><div class="dot" style="background:rgba(255,255,255,0.2)"></div>Flat, opaque — fills space unnecessarily</div>
+      </div>
+    </div>
+
+    <div class="comparison-block">
+      <div>
+        <div class="section-title">Navigation Bar</div>
+        <div class="block-label after">Proposed</div>
+      </div>
+      <div class="phone-frame">
+        <div class="phone-notch"></div>
+        <div class="phone-screen" style="min-height:72px; max-height:72px;">
+          <div class="nav-after">
+            <div class="nav-logo-pill">
+              <div class="nav-logo-box-pill">R</div>
+              <span class="nav-brand-name-new">Rian</span>
+            </div>
+            <div class="nav-right">
+              <div class="nav-cta-new">Get Started</div>
+              <div class="nav-hamburger">
+                <span></span><span></span><span></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="change-notes">
+        <div class="change-note"><div class="dot"></div>Frosted glass effect — lighter feel, modern iOS pattern</div>
+        <div class="change-note"><div class="dot green"></div>Hamburger menu icon gives users navigation control</div>
+        <div class="change-note"><div class="dot amber"></div>Logo has subtle glow — elevated brand presence</div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════
+         ROW 2: HERO
+    ═══════════════════════════════ -->
+    <div class="comparison-block">
+      <div>
+        <div class="section-title">Hero Section</div>
+        <div class="block-label before">Current</div>
+      </div>
+      <div class="phone-frame">
+        <div class="phone-notch"></div>
+        <div class="phone-screen">
+          <div class="hero-before">
+            <div class="hero-badge-sm">Field Tech Platform</div>
+            <div class="hero-h1-sm">Track time,<br><span>smarter.</span></div>
+            <div class="hero-p-sm">Built for field technicians. Capture hours, notes, and site data from your phone — synced to the cloud.</div>
+            <div class="hero-btns-sm">
+              <div class="btn-launch-sm">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                Launch App
+              </div>
+              <div class="btn-ghost-sm">See Features ↓</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="change-notes">
+        <div class="change-note"><div class="dot" style="background:rgba(255,255,255,0.2)"></div>Buttons stacked but full-width — CTA hierarchy unclear</div>
+        <div class="change-note"><div class="dot" style="background:rgba(255,255,255,0.2)"></div>Simple radial gradient — minimal visual interest</div>
+      </div>
+    </div>
+
+    <div class="comparison-block">
+      <div>
+        <div class="section-title">Hero Section</div>
+        <div class="block-label after">Proposed</div>
+      </div>
+      <div class="phone-frame">
+        <div class="phone-notch"></div>
+        <div class="phone-screen">
+          <div class="hero-after">
+            <div class="hero-after-bg"></div>
+            <div class="hero-after-grid"></div>
+            <div class="hero-eyebrow">
+              <div class="hero-eyebrow-dot"></div>
+              <span>Field Tech Platform</span>
+            </div>
+            <div class="hero-h1-new">Track time,<br><span class="accent-word">smarter.</span></div>
+            <div class="hero-p-new">Built for field technicians. Capture hours, notes & site data — synced to the cloud.</div>
+            <div class="hero-trust">
+              <div class="trust-pill">
+                <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                Works offline
+              </div>
+              <div class="trust-pill">
+                <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                Auto-sync
+              </div>
+              <div class="trust-pill">
+                <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                iOS & Android
+              </div>
+            </div>
+            <div class="hero-btns-new">
+              <div class="btn-launch-new">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                Launch App
+              </div>
+              <div class="btn-ghost-new">Explore Features ↓</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="change-notes">
+        <div class="change-note"><div class="dot"></div>Dual radial gradients + subtle grid texture — much richer depth</div>
+        <div class="change-note"><div class="dot green"></div>Trust pills add credibility and answer "why?" upfront</div>
+        <div class="change-note"><div class="dot amber"></div>Gradient text on headline — premium feel, visual highlight</div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════
+         ROW 3: FEATURE SECTION
+    ═══════════════════════════════ -->
+    <div class="comparison-block">
+      <div>
+        <div class="section-title">Feature Section</div>
+        <div class="block-label before">Current</div>
+      </div>
+      <div class="phone-frame">
+        <div class="phone-notch"></div>
+        <div class="phone-screen">
+          <div class="feature-before">
+            <div class="feat-num-sm">01 · Timesheet</div>
+            <div class="feat-h2-sm">Daily timesheets on your phone</div>
+            <div class="feat-lead-sm">Log every job with activity codes, travel time, and overtime — all from the field.</div>
+            <ul class="feat-list-sm">
+              <li>
+                <div class="feat-icon-sm">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                </div>
+                <div>
+                  <strong>Auto overtime</strong>
+                  <span>Overtime flagged automatically as you log hours.</span>
+                </div>
+              </li>
+              <li>
+                <div class="feat-icon-sm green">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16"/><polyline points="14 2 14 8 20 8"/></svg>
+                </div>
+                <div>
+                  <strong>Activity codes</strong>
+                  <span>Assign job codes to every activity entry.</span>
+                </div>
+              </li>
+            </ul>
+            <!-- phone mockup inside feature section -->
+            <div class="feat-phones-sm">
+              <div class="mini-phone">
+                <div class="mini-phone-notch"></div>
+                <div class="mini-phone-screen">
+                  <div class="mini-app-header">
+                    <div style="font-size:8px;font-weight:700;text-align:center;color:#fff;margin-bottom:2px;">Mon 14 Jul</div>
+                  </div>
+                  <div class="mini-app-tabs">
+                    <div class="mini-app-tab active">Timesheet</div>
+                    <div class="mini-app-tab">Notes</div>
+                    <div class="mini-app-tab">Finder</div>
+                  </div>
+                  <div class="mini-ts-body">
+                    <div class="mini-ts-day">
+                      <div class="mini-ts-header">
+                        <span class="mini-ts-name">Monday</span>
+                        <span class="mini-ts-hrs">8.5h</span>
+                      </div>
+                      <div class="mini-ts-activity">
+                        <div class="mini-ts-act-desc">Cable Installation</div>
+                        <div class="mini-ts-act-row">
+                          <span class="mini-ts-code">INST-04</span>
+                          <span class="mini-ts-hrs2">4.0h</span>
+                        </div>
+                      </div>
+                      <div class="mini-ts-activity">
+                        <div class="mini-ts-act-desc">Testing & Commissioning</div>
+                        <div class="mini-ts-act-row">
+                          <span class="mini-ts-code">TEST-01</span>
+                          <span class="mini-ts-hrs2 ts-ot" style="color:var(--ot)">4.5h OT</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="change-notes">
+        <div class="change-note"><div class="dot" style="background:rgba(255,255,255,0.2)"></div>Long list + phone mockup stacks to a very tall scroll</div>
+        <div class="change-note"><div class="dot" style="background:rgba(255,255,255,0.2)"></div>No visual hierarchy between section header and content</div>
+      </div>
+    </div>
+
+    <div class="comparison-block">
+      <div>
+        <div class="section-title">Feature Section</div>
+        <div class="block-label after">Proposed</div>
+      </div>
+      <div class="phone-frame">
+        <div class="phone-notch"></div>
+        <div class="phone-screen">
+          <div class="feature-after">
+            <!-- Sticky chip -->
+            <div class="feat-section-chip">
+              <div class="feat-chip-dot"></div>
+              <div class="feat-chip-label">Timesheet</div>
+              <div class="feat-chip-num">01 / 03</div>
+            </div>
+            <!-- Horizontal tag scroller -->
+            <div class="feat-tags">
+              <div class="feat-tag active"><div class="feat-tag-dot"></div>Auto overtime</div>
+              <div class="feat-tag"><div class="feat-tag-dot"></div>Activity codes</div>
+              <div class="feat-tag"><div class="feat-tag-dot"></div>Travel time</div>
+              <div class="feat-tag"><div class="feat-tag-dot"></div>Weekly summary</div>
+            </div>
+            <div class="feat-content-new">
+              <div class="feat-h2-new">Daily timesheets, from the field</div>
+              <div class="feat-lead-new">Log every job with codes, travel, and OT — all on your phone.</div>
+            </div>
+            <!-- Preview card -->
+            <div class="feat-preview-card">
+              <div class="mini-phone">
+                <div class="mini-phone-notch"></div>
+                <div class="mini-phone-screen">
+                  <div class="mini-app-header">
+                    <div style="font-size:8px;font-weight:700;text-align:center;color:#fff;margin-bottom:2px;">Mon 14 Jul</div>
+                  </div>
+                  <div class="mini-app-tabs">
+                    <div class="mini-app-tab active">Timesheet</div>
+                    <div class="mini-app-tab">Notes</div>
+                    <div class="mini-app-tab">Finder</div>
+                  </div>
+                  <div class="mini-ts-body">
+                    <div class="mini-ts-day">
+                      <div class="mini-ts-header">
+                        <span class="mini-ts-name">Monday</span>
+                        <span class="mini-ts-hrs">8.5h</span>
+                      </div>
+                      <div class="mini-ts-activity">
+                        <div class="mini-ts-act-desc">Cable Installation</div>
+                        <div class="mini-ts-act-row">
+                          <span class="mini-ts-code">INST-04</span>
+                          <span class="mini-ts-hrs2">4.0h</span>
+                        </div>
+                      </div>
+                      <div class="mini-ts-activity">
+                        <div class="mini-ts-act-desc">Testing & Commissioning</div>
+                        <div class="mini-ts-act-row">
+                          <span class="mini-ts-code">TEST-01</span>
+                          <span style="color:var(--ot);font-size:6px;font-family:'DM Mono',monospace;font-weight:700;margin-left:auto;">4.5h OT</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- 2-col highlight grid -->
+            <div class="feat-highlights">
+              <div class="feat-highlight-item">
+                <div class="feat-hi-icon">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                </div>
+                <div class="feat-hi-title">Auto overtime</div>
+                <div class="feat-hi-sub">Flagged automatically as you log</div>
+              </div>
+              <div class="feat-highlight-item">
+                <div class="feat-hi-icon green">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16"/><polyline points="14 2 14 8 20 8"/></svg>
+                </div>
+                <div class="feat-hi-title">Job codes</div>
+                <div class="feat-hi-sub">Assign codes to every entry</div>
+              </div>
+              <div class="feat-highlight-item">
+                <div class="feat-hi-icon orange">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/></svg>
+                </div>
+                <div class="feat-hi-title">Travel time</div>
+                <div class="feat-hi-sub">Separate travel from on-site hours</div>
+              </div>
+              <div class="feat-highlight-item">
+                <div class="feat-hi-icon">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/></svg>
+                </div>
+                <div class="feat-hi-title">Weekly view</div>
+                <div class="feat-hi-sub">See your whole week at a glance</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="change-notes">
+        <div class="change-note"><div class="dot"></div>Sticky section chip keeps context visible while scrolling</div>
+        <div class="change-note"><div class="dot green"></div>Horizontal tag scroller — scannable without vertical scroll</div>
+        <div class="change-note"><div class="dot amber"></div>2-col highlight grid replaces verbose bullet list — much more compact</div>
+        <div class="change-note"><div class="dot"></div>Phone mockup centered in a card container — cleaner framing</div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════
+         ROW 4: FOOTER
+    ═══════════════════════════════ -->
+    <div class="comparison-block">
+      <div>
+        <div class="section-title">Footer</div>
+        <div class="block-label before">Current</div>
+      </div>
+      <div class="phone-frame">
+        <div class="phone-notch"></div>
+        <div class="phone-screen">
+          <div class="footer-before">
+            <p><strong>Rian</strong> · Built for field technicians</p>
+            <p style="margin-top:6px;font-size:12px">Data cached locally · Syncs to cloud · Mobile first</p>
+            <p style="margin-top:6px;font-size:10px;opacity:0.35">v3.7.1</p>
+            <div class="footer-launch-btn">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+              Launch App
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="change-notes">
+        <div class="change-note"><div class="dot" style="background:rgba(255,255,255,0.2)"></div>Plain text, small inline CTA — low conversion potential</div>
+        <div class="change-note"><div class="dot" style="background:rgba(255,255,255,0.2)"></div>No visual brand presence — feels like an afterthought</div>
+      </div>
+    </div>
+
+    <div class="comparison-block">
+      <div>
+        <div class="section-title">Footer</div>
+        <div class="block-label after">Proposed</div>
+      </div>
+      <div class="phone-frame">
+        <div class="phone-notch"></div>
+        <div class="phone-screen">
+          <div class="footer-after">
+            <div class="footer-top">
+              <div class="footer-brand">
+                <div class="footer-logo">R</div>
+                <div>
+                  <div class="footer-brand-name">Rian</div>
+                  <div class="footer-brand-tagline">Built for field technicians</div>
+                </div>
+              </div>
+              <div class="footer-desc">Data cached locally. Syncs to cloud. Works offline anywhere.</div>
+              <div class="footer-launch-new">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                Launch App
+              </div>
+            </div>
+            <div class="footer-bottom">
+              <div class="footer-meta">v3.7.1 · Anthropic</div>
+              <div class="footer-links">
+                <span class="footer-link">Privacy</span>
+                <span class="footer-link">Support</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="change-notes">
+        <div class="change-note"><div class="dot"></div>Brand block with logo icon — strong closer, consistent identity</div>
+        <div class="change-note"><div class="dot green"></div>Full-width CTA — higher tap area, better conversion</div>
+        <div class="change-note"><div class="dot amber"></div>Bottom bar with utility links — professional, complete feel</div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════
+         SUMMARY TABLE
+    ═══════════════════════════════ -->
+    <div class="section-divider">
+      <span>Summary of Changes</span>
+    </div>
+
+    <div class="summary-section">
+      <table class="summary-table">
+        <thead>
+          <tr>
+            <th>Area</th>
+            <th>Change</th>
+            <th>Type</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Navbar</td>
+            <td>Add frosted glass + hamburger menu for section navigation</td>
+            <td><span class="change-badge improve">Improve</span></td>
+          </tr>
+          <tr>
+            <td>Hero</td>
+            <td>Richer background (dual gradients + grid texture), gradient headline text, trust pills</td>
+            <td><span class="change-badge improve">Improve</span></td>
+          </tr>
+          <tr>
+            <td>Hero CTAs</td>
+            <td>Full-width stacked buttons with clearer visual hierarchy</td>
+            <td><span class="change-badge fix">Fix</span></td>
+          </tr>
+          <tr>
+            <td>Feature layout</td>
+            <td>Replace long bullet list + stacked phone with sticky chip, horizontal tag scroller, and 2-col highlight grid</td>
+            <td><span class="change-badge new">New pattern</span></td>
+          </tr>
+          <tr>
+            <td>Feature phone</td>
+            <td>Wrap phone mockup in a card container with background fill</td>
+            <td><span class="change-badge fix">Fix</span></td>
+          </tr>
+          <tr>
+            <td>Footer</td>
+            <td>Add brand block, full-width CTA button, utility link row</td>
+            <td><span class="change-badge improve">Improve</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+
+</body>
+</html>

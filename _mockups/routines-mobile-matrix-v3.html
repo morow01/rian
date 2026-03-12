@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rian Routines - Mobile Matrix V3</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg:#eef4fa;
+      --card:#fff;
+      --line:#d7e3ef;
+      --text:#11273f;
+      --muted:#6f859b;
+      --navy:#14263d;
+      --done:#a9d8c2;
+      --done-text:#173628;
+      --empty:#f7f9fc;
+      --shadow:0 12px 26px rgba(17,39,63,.12);
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:"DM Sans",sans-serif;
+      background:linear-gradient(180deg,#f7fafe 0%,var(--bg) 100%);
+      color:var(--text);
+      padding:18px 10px 28px;
+    }
+    .note{
+      max-width:440px;
+      margin:0 auto 10px;
+      border:1px solid #cfe1ff;
+      background:#eaf2ff;
+      border-radius:12px;
+      padding:10px 12px;
+      font-size:13px;
+      color:#35516f;
+    }
+    .phone{
+      max-width:440px;
+      margin:0 auto;
+      border:7px solid #0f1f33;
+      border-radius:28px;
+      overflow:hidden;
+      background:#0f1f33;
+      box-shadow:0 28px 42px rgba(9,20,33,.35);
+    }
+    .screen{min-height:830px;background:#f7fafe}
+    .hdr{
+      background:linear-gradient(165deg,#1a2c46 0%,#122136 100%);
+      color:#fff;
+      padding:14px;
+      position:sticky;
+      top:0;
+      z-index:4;
+    }
+    .hdr-top{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:8px;
+    }
+    .hamb{
+      width:36px;height:36px;border-radius:10px;border:1px solid rgba(255,255,255,.2);
+      display:grid;place-items:center;background:rgba(255,255,255,.08);font-size:18px
+    }
+    .title strong{display:block;font-size:17px}
+    .title span{display:block;font-size:12px;color:rgba(255,255,255,.72)}
+    .sync{
+      font-size:11px;font-weight:700;border-radius:999px;padding:6px 9px;
+      border:1px solid rgba(150,232,185,.35);background:rgba(70,204,128,.2);color:#d8ffe7;
+    }
+    .body{padding:10px}
+    .card{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:14px;
+      box-shadow:var(--shadow);
+      padding:10px;
+    }
+    .top{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:8px;
+      margin-bottom:8px;
+    }
+    .top strong{font-size:15px}
+    .top span{font-size:12px;color:var(--muted)}
+    .legend{
+      display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:8px;
+      font-size:11px;color:#4f6882;
+    }
+    .chip{
+      border-radius:999px;padding:5px 8px;border:1px solid var(--line);background:#f5f9ff;font-weight:700
+    }
+    .chip.done{background:#eaf7f1;border-color:#c9e9d8;color:#1a5d40}
+    .grid-wrap{
+      border:1px solid var(--line);
+      border-radius:12px;
+      overflow:auto;
+      max-height:640px;
+      background:#fff;
+      -webkit-overflow-scrolling:touch;
+    }
+    table{
+      border-collapse:separate;
+      border-spacing:0;
+      min-width:700px;
+      width:700px;
+      font-size:12px;
+    }
+    th,td{
+      border-right:1px solid #e2eaf2;
+      border-bottom:1px solid #e2eaf2;
+      padding:7px 8px;
+      text-align:center;
+      white-space:nowrap;
+      background:#fff;
+    }
+    th{
+      position:sticky;
+      top:0;
+      z-index:3;
+      font-weight:800;
+      background:#f2e2a8;
+      color:#24374e;
+    }
+    th.sticky-1,td.sticky-1{
+      position:sticky;
+      left:0;
+      z-index:2;
+      text-align:left;
+      min-width:230px;
+      max-width:230px;
+      background:#fff;
+    }
+    th.sticky-1{z-index:5;background:#ecdca1}
+    th.month,td.month{
+      min-width:39px;
+      max-width:39px;
+      padding-left:4px;
+      padding-right:4px;
+    }
+    td.done{
+      background:var(--done);
+      color:var(--done-text);
+      font-weight:800;
+    }
+    td.empty{background:var(--empty);color:#9aabbb}
+    .footer{
+      margin-top:8px;
+      font-size:11px;
+      color:#6d8398;
+    }
+  </style>
+</head>
+<body>
+  <div class="note">Spreadsheet-style mobile mockup: all sites visible, Jan-Dec preserved, swipe horizontally to view full year.</div>
+
+  <div class="phone">
+    <div class="screen">
+      <header class="hdr">
+        <div class="hdr-top">
+          <div class="hamb">=</div>
+          <div class="title">
+            <strong>Routines Matrix</strong>
+            <span>Menu > Routines</span>
+          </div>
+          <div class="sync">Firebase synced</div>
+        </div>
+      </header>
+
+      <main class="body">
+        <section class="card">
+          <div class="top">
+            <strong>All Sites (2026)</strong>
+            <span>30 / 30 visible</span>
+          </div>
+          <div class="legend">
+            <span class="chip">Town stays pinned</span>
+            <span class="chip done">Green cell = done day</span>
+            <span class="chip">Blank = not done that month</span>
+          </div>
+
+          <div class="grid-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th class="sticky-1">Town</th>
+                  <th class="month">Jan</th><th class="month">Feb</th><th class="month">Mar</th><th class="month">Apr</th><th class="month">May</th><th class="month">Jun</th>
+                  <th class="month">Jul</th><th class="month">Aug</th><th class="month">Sep</th><th class="month">Oct</th><th class="month">Nov</th><th class="month">Dec</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td class="sticky-1">Ballinagar (cab)</td><td class="month empty"></td><td class="month empty"></td><td class="month done">21</td><td class="month empty"></td><td class="month empty"></td><td class="month empty"></td><td class="month empty"></td><td class="month empty"></td><td class="month empty"></td><td class="month done">31</td><td class="month empty"></td><td class="month empty"></td></tr>
+                <tr><td class="sticky-1">Ballinakill</td><td class="month empty"></td><td class="month empty"></td><td class="month empty"></td><td class="month done">14</td><td class="month empty"></td><td class="month done">3</td><td class="month empty"></td><td class="month done">27</td><td class="month empty"></td><td class="month empty"></td><td class="month empty"></td><td class="month done">29</td></tr>
+                <tr><td class="sticky-1">Ballycumber</td><td class="month done">13</td><td class="month empty"></td><td class="month empty"></td><td class="month done">22</td><td class="month empty"></td><td class="month empty"></td><td class="month empty"></td><td class="month empty"></td><td class="month done">11</td><td class="month empty"></td><td class="month empty"></td><td class="month empty"></td></tr>
+                <tr><td class="sticky-1">Ballydaly (cab)</td><td class="month empty"></td><td class="month empty"></td><td class="month done">21</td><td class="month empty"></td><td class="month empty"></td><td class="month empty"></td><td class="month empty"></td><td class="month done">7</td><td class="month empty"></td><td class="month empty"></td><td class="month empty"></td><td class="month empty"></td></tr>
+                <tr><td class="sticky-1">Clara</td><td class="month empty"></td><td class="month done">26</td><td class="month empty"></td><td class="month empty"></td><td class="month empty"></td><td class="month done">4</td><td class="month empty"></td><td class="month done">20</td><td class="month empty"></td><td class="month done">13</td><td class="month empty"></td><td class="month empty"></td></tr>
+                <tr><td class="sticky-1">Clonaslee</td><td class="month done">2</td><td class="month empty"></td><td class="month empty"></td><td class="month empty"></td><td class="month empty"></td><td class="month done">3</td><td class="month done">7</td><td class="month done">7</td><td class="month done">26</td><td class="month empty"></td><td class="month empty"></td><td class="month done">30</td></tr>
+                <tr><td class="sticky-1">Clonygowan (cab)</td><td class="month empty"></td><td class="month empty"></td><td class="month empty"></td><td class="month empty"></td><td class="month empty"></td><td class="month empty"></td><td class="month empty"></td><td class="month empty"></td><td class="month empty"></td><td class="month empty"></td><td class="month empty"></td><td class="month empty"></td></tr>
+                <tr><td class="sticky-1">Collins Lane (cab)</td><td class="month empty"></td><td class="month empty"></td><td class="month empty"></td><td class="month empty"></td><td class="month empty"></td><td class="month empty"></td><td class="month empty"></td><td class="month empty"></td><td class="month empty"></td><td class="month empty"></td><td class="month empty"></td><td class="month empty"></td></tr>
+                <tr><td class="sticky-1">Daingean</td><td class="month empty"></td><td class="month done">11</td><td class="month empty"></td><td class="month empty"></td><td class="month done">29</td><td class="month empty"></td><td class="month empty"></td><td class="month empty"></td><td class="month done">1</td><td class="month empty"></td><td class="month empty"></td><td class="month empty"></td></tr>
+                <tr><td class="sticky-1">Dunmurry Hill</td><td class="month empty"></td><td class="month empty"></td><td class="month empty"></td><td class="month done">23</td><td class="month empty"></td><td class="month empty"></td><td class="month empty"></td><td class="month done">11</td><td class="month empty"></td><td class="month done">22</td><td class="month empty"></td><td class="month empty"></td></tr>
+                <tr><td class="sticky-1">Five Alley</td><td class="month done">2</td><td class="month empty"></td><td class="month empty"></td><td class="month done">15</td><td class="month empty"></td><td class="month done">5</td><td class="month empty"></td><td class="month done">19</td><td class="month empty"></td><td class="month empty"></td><td class="month empty"></td><td class="month empty"></td></tr>
+                <tr><td class="sticky-1">Geashill</td><td class="month done">2</td><td class="month empty"></td><td class="month empty"></td><td class="month empty"></td><td class="month done">29</td><td class="month empty"></td><td class="month empty"></td><td class="month done">14</td><td class="month empty"></td><td class="month empty"></td><td class="month empty"></td><td class="month done">22</td></tr>
+                <tr><td class="sticky-1">Gracefield (cab)</td><td class="month empty"></td><td class="month empty"></td><td class="month done">21</td><td class="month empty"></td><td class="month empty"></td><td class="month empty"></td><td class="month empty"></td><td class="month empty"></td><td class="month empty"></td><td class="month empty"></td><td class="month empty"></td><td class="month empty"></td></tr>
+                <tr><td class="sticky-1">Horseleap</td><td class="month done">7</td><td class="month empty"></td><td class="month empty"></td><td class="month empty"></td><td class="month done">28</td><td class="month empty"></td><td class="month empty"></td><td class="month empty"></td><td class="month done">17</td><td class="month empty"></td><td class="month empty"></td><td class="month done">31</td></tr>
+                <tr><td class="sticky-1">Kilbeggan</td><td class="month empty"></td><td class="month done">7</td><td class="month empty"></td><td class="month empty"></td><td class="month done">8</td><td class="month empty"></td><td class="month empty"></td><td class="month done">26</td><td class="month empty"></td><td class="month empty"></td><td class="month empty"></td><td class="month empty"></td></tr>
+                <tr><td class="sticky-1">Kilcormac</td><td class="month done">2</td><td class="month empty"></td><td class="month empty"></td><td class="month done">15</td><td class="month empty"></td><td class="month done">24</td><td class="month done">31</td><td class="month empty"></td><td class="month empty"></td><td class="month done">2</td><td class="month empty"></td><td class="month empty"></td></tr>
+                <tr><td class="sticky-1">Kildare</td><td class="month empty"></td><td class="month empty"></td><td class="month done">3</td><td class="month done">28</td><td class="month empty"></td><td class="month empty"></td><td class="month empty"></td><td class="month done">5</td><td class="month empty"></td><td class="month done">15</td><td class="month empty"></td><td class="month empty"></td></tr>
+                <tr><td class="sticky-1">Killeigh</td><td class="month empty"></td><td class="month empty"></td><td class="month done">28</td><td class="month empty"></td><td class="month done">26</td><td class="month empty"></td><td class="month empty"></td><td class="month done">7</td><td class="month empty"></td><td class="month empty"></td><td class="month empty"></td><td class="month done">29</td></tr>
+                <tr><td class="sticky-1">Killenard (cab)</td><td class="month empty"></td><td class="month empty"></td><td class="month empty"></td><td class="month done">9</td><td class="month empty"></td><td class="month empty"></td><td class="month empty"></td><td class="month empty"></td><td class="month empty"></td><td class="month empty"></td><td class="month empty"></td><td class="month empty"></td></tr>
+                <tr><td class="sticky-1">Kinnity</td><td class="month empty"></td><td class="month empty"></td><td class="month done">26</td><td class="month empty"></td><td class="month done">19</td><td class="month empty"></td><td class="month empty"></td><td class="month done">19</td><td class="month empty"></td><td class="month empty"></td><td class="month done">19</td><td class="month empty"></td></tr>
+                <tr><td class="sticky-1">Leabeg</td><td class="month empty"></td><td class="month done">10</td><td class="month empty"></td><td class="month empty"></td><td class="month empty"></td><td class="month empty"></td><td class="month done">17</td><td class="month empty"></td><td class="month empty"></td><td class="month done">22</td><td class="month empty"></td><td class="month empty"></td></tr>
+                <tr><td class="sticky-1">Mount Bolus</td><td class="month empty"></td><td class="month empty"></td><td class="month empty"></td><td class="month done">14</td><td class="month empty"></td><td class="month empty"></td><td class="month empty"></td><td class="month done">7</td><td class="month empty"></td><td class="month done">22</td><td class="month empty"></td><td class="month empty"></td></tr>
+                <tr><td class="sticky-1">Mountmellick</td><td class="month empty"></td><td class="month done">21</td><td class="month empty"></td><td class="month empty"></td><td class="month done">26</td><td class="month empty"></td><td class="month done">15</td><td class="month empty"></td><td class="month empty"></td><td class="month empty"></td><td class="month empty"></td><td class="month done">9</td></tr>
+                <tr><td class="sticky-1">Mucklagh (cab)</td><td class="month empty"></td><td class="month empty"></td><td class="month empty"></td><td class="month empty"></td><td class="month empty"></td><td class="month empty"></td><td class="month empty"></td><td class="month empty"></td><td class="month empty"></td><td class="month empty"></td><td class="month empty"></td><td class="month empty"></td></tr>
+                <tr><td class="sticky-1">Pollagh (cab)</td><td class="month empty"></td><td class="month empty"></td><td class="month empty"></td><td class="month empty"></td><td class="month empty"></td><td class="month empty"></td><td class="month empty"></td><td class="month empty"></td><td class="month empty"></td><td class="month empty"></td><td class="month empty"></td><td class="month empty"></td></tr>
+                <tr><td class="sticky-1">Portarlington</td><td class="month empty"></td><td class="month empty"></td><td class="month empty"></td><td class="month done">10</td><td class="month done">28</td><td class="month empty"></td><td class="month empty"></td><td class="month empty"></td><td class="month empty"></td><td class="month done">6</td><td class="month empty"></td><td class="month done">23</td></tr>
+                <tr><td class="sticky-1">Rahan</td><td class="month empty"></td><td class="month done">14</td><td class="month empty"></td><td class="month done">31</td><td class="month empty"></td><td class="month empty"></td><td class="month done">28</td><td class="month empty"></td><td class="month empty"></td><td class="month empty"></td><td class="month done">11</td><td class="month empty"></td></tr>
+                <tr><td class="sticky-1">Rosenallis</td><td class="month empty"></td><td class="month empty"></td><td class="month done">10</td><td class="month empty"></td><td class="month done">1</td><td class="month empty"></td><td class="month done">7</td><td class="month empty"></td><td class="month done">29</td><td class="month empty"></td><td class="month empty"></td><td class="month done">30</td></tr>
+                <tr><td class="sticky-1">Tullamore</td><td class="month empty"></td><td class="month done">17</td><td class="month empty"></td><td class="month empty"></td><td class="month done">15</td><td class="month empty"></td><td class="month done">29</td><td class="month empty"></td><td class="month empty"></td><td class="month done">1</td><td class="month empty"></td><td class="month empty"></td></tr>
+                <tr><td class="sticky-1">Walsh Island</td><td class="month empty"></td><td class="month empty"></td><td class="month empty"></td><td class="month done">22</td><td class="month empty"></td><td class="month done">24</td><td class="month empty"></td><td class="month empty"></td><td class="month done">17</td><td class="month empty"></td><td class="month empty"></td><td class="month empty"></td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="footer">Mobile use: vertical scroll for sites, horizontal swipe for months. The town column stays pinned so you always know where you were.</div>
+        </section>
+      </main>
+    </div>
+  </div>
+</body>
+</html>

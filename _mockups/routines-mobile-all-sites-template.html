@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rian Routines - All Sites Template</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #ecf3f9;
+      --card: #ffffff;
+      --line: #d5e1ed;
+      --text: #10253f;
+      --muted: #6b8298;
+      --navy: #152740;
+      --accent: #2e6be4;
+      --done-bg: #dff7e9;
+      --done-text: #0d6a38;
+      --todo-bg: #fff1f1;
+      --todo-text: #a53636;
+      --shadow: 0 12px 26px rgba(16, 37, 63, 0.12);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "DM Sans", sans-serif;
+      background: linear-gradient(180deg, #f6f9fd 0%, var(--bg) 100%);
+      color: var(--text);
+      padding: 20px 12px 30px;
+    }
+    .note {
+      max-width: 430px;
+      margin: 0 auto 12px;
+      background: #e9f2ff;
+      border: 1px solid #cfe0ff;
+      border-radius: 12px;
+      padding: 10px 12px;
+      font-size: 13px;
+      color: #35506c;
+    }
+    .phone {
+      max-width: 430px;
+      margin: 0 auto;
+      border: 7px solid #0f1f34;
+      border-radius: 28px;
+      overflow: hidden;
+      background: #0f1f34;
+      box-shadow: 0 28px 42px rgba(8, 18, 30, 0.35);
+    }
+    .screen { min-height: 820px; background: #f7fafe; }
+    .hdr {
+      background: linear-gradient(165deg, #1a2c47 0%, #122238 100%);
+      color: #fff;
+      padding: 14px;
+      position: sticky;
+      top: 0;
+      z-index: 2;
+    }
+    .hdr-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .hamb {
+      width: 36px; height: 36px; border-radius: 10px;
+      border: 1px solid rgba(255,255,255,0.2);
+      display: grid; place-items: center;
+      background: rgba(255,255,255,0.08);
+      font-size: 18px;
+    }
+    .hdr-title strong { display: block; font-size: 17px; }
+    .hdr-title span { display: block; font-size: 12px; color: rgba(255,255,255,0.72); }
+    .sync {
+      font-size: 11px;
+      font-weight: 700;
+      border-radius: 999px;
+      padding: 6px 9px;
+      color: #d9ffe7;
+      border: 1px solid rgba(147, 233, 184, 0.35);
+      background: rgba(67, 200, 126, 0.2);
+    }
+    .content { padding: 12px; display: grid; gap: 10px; }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      box-shadow: var(--shadow);
+      padding: 11px;
+    }
+    .card h3 { margin: 0; font-size: 15px; }
+    .sub { margin-top: 4px; font-size: 12px; color: var(--muted); }
+    .controls {
+      margin-top: 10px;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 7px;
+    }
+    .input {
+      min-height: 36px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: #f9fbff;
+      padding: 0 10px;
+      display: flex;
+      align-items: center;
+      font-size: 12px;
+      color: #304964;
+    }
+    .btn {
+      min-height: 36px;
+      border: 0;
+      border-radius: 10px;
+      padding: 0 12px;
+      background: var(--accent);
+      color: #fff;
+      font-size: 12px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      white-space: nowrap;
+    }
+    .summary {
+      margin-top: 10px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+    .sum-box {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 8px;
+      text-align: center;
+      background: #f8fbff;
+    }
+    .sum-box strong {
+      display: block;
+      font-size: 16px;
+      line-height: 1;
+    }
+    .sum-box span {
+      font-size: 11px;
+      color: var(--muted);
+      font-weight: 700;
+    }
+    .sum-box.done strong { color: var(--done-text); }
+    .sum-box.todo strong { color: var(--todo-text); }
+    .site-list {
+      margin-top: 10px;
+      display: grid;
+      gap: 7px;
+      max-height: 540px;
+      overflow: auto;
+      padding-right: 2px;
+    }
+    .site {
+      border: 1px solid var(--line);
+      border-radius: 11px;
+      padding: 9px 10px;
+      background: #fff;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+      align-items: center;
+    }
+    .site strong { font-size: 13px; }
+    .meta { margin-top: 2px; font-size: 11px; color: #7389a0; }
+    .status {
+      border-radius: 999px;
+      padding: 6px 9px;
+      font-size: 11px;
+      font-weight: 800;
+      border: 1px solid transparent;
+      white-space: nowrap;
+    }
+    .done {
+      background: var(--done-bg);
+      color: var(--done-text);
+      border-color: #bfe8d0;
+    }
+    .todo {
+      background: var(--todo-bg);
+      color: var(--todo-text);
+      border-color: #f1c5c5;
+    }
+  </style>
+</head>
+<body>
+  <div class="note">New template with all your sites included. Strong contrast: green = Done this month, red = Not done this month.</div>
+
+  <div class="phone">
+    <div class="screen">
+      <header class="hdr">
+        <div class="hdr-top">
+          <div class="hamb">=</div>
+          <div class="hdr-title">
+            <strong>Routines</strong>
+            <span>Menu > Routines</span>
+          </div>
+          <div class="sync">Firebase synced</div>
+        </div>
+      </header>
+
+      <main class="content">
+        <section class="card">
+          <h3>All Sites - March 2026</h3>
+          <div class="sub">All sites stay visible. This helps you instantly see where you still need to go.</div>
+          <div class="controls">
+            <div class="input">Month: March 2026</div>
+            <button class="btn">All 30 visible</button>
+          </div>
+
+          <div class="summary">
+            <div class="sum-box done"><strong>4</strong><span>Done</span></div>
+            <div class="sum-box todo"><strong>26</strong><span>Not done</span></div>
+            <div class="sum-box"><strong>30</strong><span>Total sites</span></div>
+          </div>
+
+          <div class="site-list">
+            <div class="site"><div><strong>Ballinagar</strong><div class="meta">57 km · Done on 12 Mar 2026</div></div><span class="status done">Done 12</span></div>
+            <div class="site"><div><strong>Ballinakill</strong><div class="meta">76 km · No March record</div></div><span class="status todo">Not done</span></div>
+            <div class="site"><div><strong>Ballycumber</strong><div class="meta">87 km · No March record</div></div><span class="status todo">Not done</span></div>
+            <div class="site"><div><strong>Ballydaly</strong><div class="meta">62 km · No March record</div></div><span class="status todo">Not done</span></div>
+            <div class="site"><div><strong>Clara</strong><div class="meta">81 km · No March record</div></div><span class="status todo">Not done</span></div>
+            <div class="site"><div><strong>Clonaslee</strong><div class="meta">74 km · No March record</div></div><span class="status todo">Not done</span></div>
+            <div class="site"><div><strong>Clonygowan</strong><div class="meta">53 km · No March record</div></div><span class="status todo">Not done</span></div>
+            <div class="site"><div><strong>Collins Lane</strong><div class="meta">71 km · No March record</div></div><span class="status todo">Not done</span></div>
+            <div class="site"><div><strong>Daingean</strong><div class="meta">53 km · No March record</div></div><span class="status todo">Not done</span></div>
+            <div class="site"><div><strong>Dunmurry Hill</strong><div class="meta">23 km · No March record</div></div><span class="status todo">Not done</span></div>
+            <div class="site"><div><strong>Five Alley</strong><div class="meta">100 km · No March record</div></div><span class="status todo">Not done</span></div>
+            <div class="site"><div><strong>Geashill</strong><div class="meta">55 km · No March record</div></div><span class="status todo">Not done</span></div>
+            <div class="site"><div><strong>Gracefield</strong><div class="meta">47 km · No March record</div></div><span class="status todo">Not done</span></div>
+            <div class="site"><div><strong>Horseleap</strong><div class="meta">80 km · No March record</div></div><span class="status todo">Not done</span></div>
+            <div class="site"><div><strong>Kilbeggan</strong><div class="meta">73 km · No March record</div></div><span class="status todo">Not done</span></div>
+            <div class="site"><div><strong>Kilcormac</strong><div class="meta">91 km · Done on 3 Mar 2026</div></div><span class="status done">Done 3</span></div>
+            <div class="site"><div><strong>Kildare</strong><div class="meta">24 km · No March record</div></div><span class="status todo">Not done</span></div>
+            <div class="site"><div><strong>Killeigh</strong><div class="meta">66 km · No March record</div></div><span class="status todo">Not done</span></div>
+            <div class="site"><div><strong>Killenard</strong><div class="meta">44 km · No March record</div></div><span class="status todo">Not done</span></div>
+            <div class="site"><div><strong>Kinnitty</strong><div class="meta">91 km · Done on 11 Mar 2026</div></div><span class="status done">Done 11</span></div>
+            <div class="site"><div><strong>Leabeg</strong><div class="meta">90 km · No March record</div></div><span class="status todo">Not done</span></div>
+            <div class="site"><div><strong>Mount Bolus</strong><div class="meta">82 km · No March record</div></div><span class="status todo">Not done</span></div>
+            <div class="site"><div><strong>Mountmellick</strong><div class="meta">60 km · No March record</div></div><span class="status todo">Not done</span></div>
+            <div class="site"><div><strong>Mucklagh</strong><div class="meta">75 km · No March record</div></div><span class="status todo">Not done</span></div>
+            <div class="site"><div><strong>Pollagh</strong><div class="meta">89 km · No March record</div></div><span class="status todo">Not done</span></div>
+            <div class="site"><div><strong>Portarlington</strong><div class="meta">46 km · No March record</div></div><span class="status todo">Not done</span></div>
+            <div class="site"><div><strong>Rahan</strong><div class="meta">81 km · Done on 12 Mar 2026</div></div><span class="status done">Done 12</span></div>
+            <div class="site"><div><strong>Rosenallis</strong><div class="meta">65 km · No March record</div></div><span class="status todo">Not done</span></div>
+            <div class="site"><div><strong>Tullamore</strong><div class="meta">70 km · No March record</div></div><span class="status todo">Not done</span></div>
+            <div class="site"><div><strong>Walsh Island</strong><div class="meta">47 km · No March record</div></div><span class="status todo">Not done</span></div>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+</body>
+</html>

@@ -297,7 +297,7 @@
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      background: var(--accent-chip-bg, #EBF1FD);
+      background: var(--bg-page);
       border: none;
       border-radius: 7px;
       padding: 5px 10px;
@@ -436,14 +436,53 @@
       }
     }
 
+    .day-activities.active {
+      padding-top: 14px;
+      padding-bottom: 4px;
+      background-color: var(--bg-page);
+      position: relative;
+      /* Timeline gutter */
+      padding-left: 36px;
+    }
+
+    /* Timeline Vertical Line */
+    .day-activities.active::before {
+      content: "";
+      position: absolute;
+      left: 20px;
+      top: 0;
+      bottom: 60px;
+      /* Stop before the 'Add Task' button */
+      width: 2px;
+      background: var(--border);
+      opacity: 0.8;
+      z-index: 1;
+    }
+
     .activity-card {
       background: var(--bg-card);
       border-radius: 12px;
       box-shadow: 0 2px 8px rgba(15, 28, 46, 0.06);
       border: 1.5px solid var(--border);
-      margin: 0 14px 10px;
+      margin: 0 14px 10px 0;
+      /* Removed left margin to use parent padding */
       overflow: hidden;
       transition: transform 0.2s, box-shadow 0.2s;
+      position: relative;
+      z-index: 2;
+    }
+
+    /* Timeline Horizontal Branch */
+    .activity-card::before {
+      content: "";
+      position: absolute;
+      left: -16px;
+      top: 24px;
+      width: 16px;
+      height: 2px;
+      background: var(--border);
+      opacity: 0.8;
+      z-index: 1;
     }
 
     .activity-card.expanded {
@@ -638,13 +677,6 @@
       background: #FFFFFF;
     }
 
-    .day-activities.active {
-      padding-top: 14px;
-      padding-bottom: 4px;
-
-      background-color: var(--bg-page);
-
-    }
 
     /* ===== COLLAPSIBLE HEADER METRIC TILES ===== */
     .hdr-metrics {
@@ -3888,7 +3920,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '3.7.5';
+    const VERSION = '3.8.0';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",

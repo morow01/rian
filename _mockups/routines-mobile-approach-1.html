@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rian Routines - Mobile Approach 1</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg:#edf3fa;
+      --card:#ffffff;
+      --line:#d8e3ef;
+      --text:#10253e;
+      --muted:#6e8399;
+      --navy:#14243a;
+      --accent:#2d6be4;
+      --ok-bg:#e6f7ee;
+      --ok:#12683a;
+      --empty:#f4f7fb;
+      --shadow:0 12px 24px rgba(16,37,62,.12);
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:"DM Sans",sans-serif;
+      background:linear-gradient(180deg,#f6f9fd 0%,var(--bg) 100%);
+      color:var(--text);
+      padding:20px 12px 28px;
+    }
+    .note{
+      max-width:420px;
+      margin:0 auto 12px;
+      font-size:13px;
+      color:#38506a;
+      background:#eaf2ff;
+      border:1px solid #cfe0ff;
+      border-radius:12px;
+      padding:10px 12px;
+    }
+    .phone{
+      max-width:420px;
+      margin:0 auto;
+      border:7px solid #0f1e31;
+      border-radius:26px;
+      overflow:hidden;
+      box-shadow:0 26px 40px rgba(11,22,36,.35);
+      background:#0f1e31;
+    }
+    .screen{min-height:780px;background:#f6f9fd}
+    .hdr{
+      background:linear-gradient(165deg,#1a2c45 0%,#122137 100%);
+      color:#fff;
+      padding:14px;
+      position:sticky;
+      top:0;
+    }
+    .hdr-top{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:8px;
+    }
+    .hamb{width:36px;height:36px;border-radius:10px;border:1px solid rgba(255,255,255,.2);display:grid;place-items:center;background:rgba(255,255,255,.08)}
+    .hdr-title strong{display:block;font-size:17px}
+    .hdr-title span{display:block;font-size:12px;color:rgba(255,255,255,.7)}
+    .sync{
+      font-size:11px;
+      font-weight:700;
+      background:rgba(76,211,138,.2);
+      border:1px solid rgba(157,235,189,.35);
+      color:#d7ffe7;
+      border-radius:999px;
+      padding:6px 9px;
+    }
+    .content{padding:12px;display:grid;gap:10px}
+    .card{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:14px;
+      box-shadow:var(--shadow);
+      padding:11px;
+    }
+    .card h3{margin:0;font-size:15px}
+    .sub{margin-top:4px;font-size:12px;color:var(--muted)}
+    .top-controls{
+      margin-top:10px;
+      display:grid;
+      grid-template-columns:1fr auto auto;
+      gap:7px;
+    }
+    .pill{
+      min-height:35px;
+      border:1px solid var(--line);
+      border-radius:10px;
+      background:#f9fbff;
+      font-size:12px;
+      color:#2f4763;
+      display:flex;
+      align-items:center;
+      padding:0 10px;
+    }
+    .btn{
+      min-height:35px;
+      border:0;
+      border-radius:10px;
+      padding:0 11px;
+      background:var(--accent);
+      color:#fff;
+      font-size:12px;
+      font-weight:700;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+    .progress{
+      margin-top:10px;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      background:#f2f7ff;
+      border:1px solid #d7e5fa;
+      border-radius:10px;
+      padding:8px 10px;
+      font-size:12px;
+      color:#365272;
+      font-weight:700;
+    }
+    .site-list{margin-top:10px;display:grid;gap:8px}
+    .site{
+      border:1px solid var(--line);
+      border-radius:11px;
+      padding:9px 10px;
+      display:grid;
+      grid-template-columns:1fr auto;
+      align-items:center;
+      gap:8px;
+      background:#fff;
+    }
+    .site strong{font-size:13px}
+    .site small{display:block;margin-top:2px;font-size:11px;color:#71889e}
+    .state{
+      font-size:11px;
+      font-weight:800;
+      border-radius:999px;
+      padding:6px 9px;
+      border:1px solid transparent;
+      white-space:nowrap;
+    }
+    .done{background:var(--ok-bg);color:var(--ok);border-color:#c8ebd6}
+    .empty{background:var(--empty);color:#6a7f94;border-color:#dfe7f0}
+    .auto{
+      margin-top:10px;
+      display:grid;
+      gap:7px;
+    }
+    .log{
+      border:1px solid #d8e3ef;
+      border-radius:10px;
+      background:#f8fbff;
+      padding:8px 9px;
+      font-size:12px;
+      color:#35506d;
+      line-height:1.4;
+    }
+    .log strong{color:#1e3d64}
+  </style>
+</head>
+<body>
+  <div class="note">Approach 1: Month-first board. Best for quickly seeing what is done and what is missing this month.</div>
+
+  <div class="phone">
+    <div class="screen">
+      <header class="hdr">
+        <div class="hdr-top">
+          <div class="hamb">=</div>
+          <div class="hdr-title">
+            <strong>Routines</strong>
+            <span>Menu > Routines</span>
+          </div>
+          <div class="sync">Firebase synced</div>
+        </div>
+      </header>
+
+      <main class="content">
+        <section class="card">
+          <h3>March 2026 Board</h3>
+          <div class="sub">One row per selected site. Green means routine was logged for this month. All 20 sites remain visible at all times.</div>
+          <div class="top-controls">
+            <div class="pill">Month: March 2026</div>
+            <button class="btn">Jump to not done</button>
+            <button class="btn">All sites visible</button>
+          </div>
+          <div class="progress">
+            <span>Showing all sites</span>
+            <span>20 / 20</span>
+          </div>
+          <div class="site-list">
+            <div class="site">
+              <div><strong>Ballinagar</strong><small>Last record: 12 Mar 2026</small></div>
+              <span class="state done">Done on 12</span>
+            </div>
+            <div class="site">
+              <div><strong>Kinnitty</strong><small>Last record: 11 Mar 2026</small></div>
+              <span class="state done">Done on 11</span>
+            </div>
+            <div class="site">
+              <div><strong>Daingean</strong><small>No routine record in March</small></div>
+              <span class="state empty">No record</span>
+            </div>
+            <div class="site">
+              <div><strong>Rosenallis</strong><small>No routine record in March</small></div>
+              <span class="state empty">No record</span>
+            </div>
+            <div class="site">
+              <div><strong>Horseleap</strong><small>No routine record in March</small></div>
+              <span class="state empty">No record</span>
+            </div>
+            <div class="site">
+              <div><strong>Tullamore</strong><small>Last record: 18 Feb 2026</small></div>
+              <span class="state empty">No record</span>
+            </div>
+          </div>
+        </section>
+
+        <section class="card">
+          <h3>Auto-captured from timesheet</h3>
+          <div class="sub">Description match: "routine" or "routines" (any case), then save exact site + day.</div>
+          <div class="auto">
+            <div class="log"><strong>12 Mar 2026 - Ballinagar</strong><br>Matched text: PM check and RoutINes on battery.</div>
+            <div class="log"><strong>11 Mar 2026 - Kinnitty</strong><br>Matched text: routine visit and filters completed.</div>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+</body>
+</html>

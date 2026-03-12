@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Timesheet App – v3.7.5 Mockup</title>
+    <!-- Tailwind CSS for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- React and ReactDOM via CDN -->
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <!-- Babel for in-browser JSX transpilation -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <!-- Lucide Icons via CDN -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F8FAFC;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .animate-in {
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        // Custom Lucide Icon Component
+        const Icon = ({ name, size = 18, className = "", fill = "none" }) => {
+            useEffect(() => { if (window.lucide) window.lucide.createIcons(); }, [name]);
+            return <i data-lucide={name} className={className} style={{ width: size, height: size, strokeWidth: 2.5, fill }}></i>;
+        };
+
+        // ── Data ──────────────────────────────────────────────────────────
+        const INITIAL_DAYS = [
+            {
+                name: 'Wednesday', date: '11 MAR', totalHours: '8.5h', taskCount: 2,
+                tasks: [
+                    {
+                        id: 1, title: 'Fixing the Van', location: 'SALLINS (SLS)',
+                        description: 'Replaced flat tyre and checked engine levels.',
+                        codes: [{ c: 'VAN-MTN', d: 'Van Maintenance' }, { c: 'BREAKDOWN', d: 'Breakdown' }],
+                        ordinary: 4.5, overtime: 1.5, notes: 'Sync fix also applied while on site.'
+                    },
+                    {
+                        id: 2, title: 'Admin & Logs', location: 'NAAS (NAS)',
+                        description: 'Weekly summary and log submission.',
+                        codes: [{ c: 'ADMIN', d: 'Administration' }],
+                        ordinary: 2.5, overtime: 0, notes: ''
+                    },
+                ]
+            },
+            {
+                name: 'Monday', date: '9 MAR', totalHours: '8h', taskCount: 2,
+                tasks: [
+                    {
+                        id: 3, title: 'Breakdown', location: 'SALLINS (SLS)',
+                        description: 'Flat tyre on van. Called recovery.',
+                        codes: [{ c: 'BREAKDOWN', d: 'Breakdown' }],
+                        ordinary: 3, overtime: 0, notes: 'Flat tyre – called recovery at 09:30'
+                    },
+                    {
+                        id: 4, title: "Healy's Garage", location: 'NAAS (NAS)',
+                        description: 'Picked up parts and returned van.',
+                        codes: [{ c: 'VAN-MTN', d: 'Van Maintenance' }],
+                        ordinary: 5, overtime: 0, notes: ''
+                    },
+                ]
+            }
+        ];
+
+        // ── Sub-components ────────────────────────────────────────────────
+
+        const StatCard = ({ label, value, orange = false }) => (
+            <div className="bg-slate-800/40 border border-slate-700/50 p-3 rounded-xl">
+                <div className="text-lg font-black leading-none flex items-center gap-1.5">
+                    {orange && <div className="w-3 h-3 rounded-full border-2 border-orange-400 flex items-center justify-center"><div className="w-1 h-1 bg-orange-400 rounded-full"></div></div>}
+                    {value}
+                </div>
+                <div className="text-[9px] font-bold text-slate-400 tracking-wider mt-1 uppercase">{label}</div>
+            </div>
+        );
+
+        // Work Code chip
+        const CodeChip = ({ code, onRemove }) => (
+            <div className="inline-flex items-center gap-2 bg-white border-[1.5px] border-slate-200 rounded-xl px-3 py-1.5 text-sm group">
+                <span className="text-slate-700 font-medium">{code.d}</span>
+                <span className="font-mono text-[11px] text-indigo-600 bg-indigo-50 px-1.5 py-0.5 rounded-lg">{code.c}</span>
+                <button onClick={onRemove} className="text-slate-300 hover:text-red-400 transition-colors font-black text-base leading-none">×</button>
+            </div>
+        );
+
+        // Notes collapsible panel
+        const NotesPanel = ({ notes, onChange }) => {
+            const [open, setOpen] = useState(!!notes);
+            return (
+                <div className="rounded-2xl border border-slate-100 overflow-hidden bg-white">
+                    <button
+                        onClick={() => setOpen(o => !o)}
+                        className="w-full flex items-center gap-3 p-4 text-left active:bg-slate-50 transition-colors"
+                    >
+                        <Icon name="message-square" size={14} className="text-slate-400 flex-shrink-0" />
+                        <span className={`flex-1 text-sm truncate ${notes ? 'text-slate-700 font-medium' : 'text-slate-400 italic'}`}>
+                            {notes ? notes : 'Add a note…'}
+                        </span>
+                        <Icon name="chevron-right" size={12} className={`text-slate-300 transition-transform flex-shrink-0 ${open ? 'rotate-90' : ''}`} />
+                    </button>
+                    {open && (
+                        <div className="px-4 pb-4 border-t border-slate-100 animate-in">
+                            <textarea
+                                className="w-full mt-3 border border-slate-200 rounded-xl p-3 text-sm focus:border-indigo-400 outline-none resize-none"
+                                rows="3"
+                                placeholder="Notes…"
+                                defaultValue={notes}
+                                onChange={e => onChange(e.target.value)}
+                            />
+                        </div>
+                    )}
+                </div>
+            );
+        };
+
+        // Full expanded task detail — mirrors all fields from current app
+        const TaskEditContent = ({ task }) => {
+            const numTasks = task.codes.length || 1;
+            const hrsPerTask = task.ordinary > 0 ? Math.round(task.ordinary / numTasks) : '—';
+            const otPerTask = task.overtime > 0 ? Math.round(task.overtime / numTasks) : '—';
+
+            return (
+                <div className="p-4 pt-0 border-t border-slate-50 mt-1 animate-in">
+                    <div className="space-y-5 pt-5">
+                        {/* 1. DESCRIPTION */}
+                        <div>
+                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2 ml-1">Description</label>
+                            <textarea
+                                rows="2"
+                                className="w-full border border-slate-200 rounded-2xl p-4 text-sm focus:border-indigo-400 outline-none transition-all resize-none shadow-sm bg-slate-50/40"
+                                defaultValue={task.description}
+                            />
+                        </div>
+
+                        {/* 2. LOCATION */}
+                        <div>
+                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2 ml-1">Location</label>
+                            <div className="relative">
+                                <input
+                                    type="text"
+                                    readOnly
+                                    defaultValue={task.location}
+                                    className="w-full border border-slate-200 rounded-2xl p-4 text-sm focus:border-indigo-400 outline-none cursor-pointer bg-white shadow-sm"
+                                />
+                                <Icon name="map-pin" size={16} className="text-red-400 absolute right-4 top-1/2 -translate-y-1/2" />
+                            </div>
+                        </div>
+
+                        {/* 3. WORK CODES */}
+                        <div>
+                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2 ml-1">Work Codes</label>
+                            <div className="bg-slate-50 rounded-2xl p-3 flex flex-wrap gap-2 items-center border border-slate-100">
+                                {task.codes.map(c => (
+                                    <CodeChip key={c.c} code={c} onRemove={() => { }} />
+                                ))}
+                                <button className="inline-flex items-center gap-1.5 bg-indigo-50 border border-indigo-100 rounded-xl px-3 py-2 text-indigo-600 text-[11px] font-black uppercase tracking-widest hover:bg-indigo-100 transition-colors">
+                                    <Icon name="plus" size={12} /> Code
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* 4 & 5. HOURS */}
+                        <div className="grid grid-cols-2 gap-3">
+                            <div>
+                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2 ml-1">Ordinary HRS</label>
+                                <div className="flex justify-between items-center bg-white border border-slate-200 rounded-2xl p-3 shadow-sm">
+                                    <button className="p-2 w-9 h-9 rounded-xl bg-slate-50 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 transition-all font-black text-lg">−</button>
+                                    <span className="font-black text-slate-800 text-lg">{task.ordinary}</span>
+                                    <button className="p-2 w-9 h-9 rounded-xl bg-indigo-50 text-indigo-600 hover:bg-indigo-100 transition-all font-black text-lg">+</button>
+                                </div>
+                            </div>
+                            <div>
+                                <label className="text-[10px] font-black text-orange-400 uppercase tracking-widest block mb-2 ml-1">Overtime HRS</label>
+                                <div className="flex justify-between items-center bg-white border border-slate-200 rounded-2xl p-3 shadow-sm">
+                                    <button className="p-2 w-9 h-9 rounded-xl bg-slate-50 text-slate-300 hover:text-orange-400 hover:bg-orange-50 transition-all font-black text-lg">−</button>
+                                    <span className={`font-black text-lg ${task.overtime > 0 ? 'text-orange-500' : 'text-slate-300'}`}>{task.overtime}</span>
+                                    <button className="p-2 w-9 h-9 rounded-xl bg-orange-50 text-orange-400 hover:bg-orange-100 transition-all font-black text-lg">+</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* 6. STATS ROW: Tasks · Hrs/Task · OT/Task */}
+                        <div className="flex items-center gap-3 px-1 text-xs text-slate-400">
+                            <span>Tasks: <strong className="text-slate-600">{numTasks}</strong></span>
+                            <span className="opacity-30">|</span>
+                            <span>Hrs/Task: <strong className="text-slate-600">{hrsPerTask}</strong></span>
+                            <span className="opacity-30">|</span>
+                            <span>OT/Task: <strong className="text-orange-400">{otPerTask}</strong></span>
+                        </div>
+
+                        {/* 7. NOTES (collapsible) */}
+                        <NotesPanel notes={task.notes} onChange={() => { }} />
+
+                        {/* 8. DELETE */}
+                        <button className="w-full py-4 bg-red-50 text-red-500 rounded-2xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2 border border-red-100 hover:bg-red-100 active:scale-95 transition-all">
+                            <Icon name="trash-2" size={14} /> Delete task
+                        </button>
+                    </div>
+                </div>
+            );
+        };
+
+        // ── Main App ──────────────────────────────────────────────────────
+        const App = () => {
+            const [expandedDays, setExpandedDays] = useState({ 'Wednesday': true, 'Monday': true });
+            const [expandedTasks, setExpandedTasks] = useState({ 'Monday-1': true });
+
+            const toggleDay = (dayName) => setExpandedDays(prev => ({ ...prev, [dayName]: !prev[dayName] }));
+            const toggleTask = (dayName, taskId) => {
+                const key = `${dayName}-${taskId}`;
+                setExpandedTasks(prev => ({ ...prev, [key]: !prev[key] }));
+            };
+
+            const totalOrd = INITIAL_DAYS.flatMap(d => d.tasks).reduce((s, t) => s + t.ordinary, 0);
+            const totalOT = INITIAL_DAYS.flatMap(d => d.tasks).reduce((s, t) => s + t.overtime, 0);
+            const totalTasks = INITIAL_DAYS.flatMap(d => d.tasks).length;
+
+            return (
+                <div className="min-h-screen pb-32">
+                    {/* ── HEADER (exact Gemini template) ── */}
+                    <header className="bg-[#1A2533] text-white p-4 pt-8 shadow-xl">
+                        <div className="max-w-md mx-auto">
+                            <div className="flex justify-between items-center mb-6">
+                                <button className="p-2 bg-slate-700/50 rounded-lg hover:bg-slate-600 active:scale-95 transition-all"><Icon name="chevron-left" /></button>
+                                <div className="text-center">
+                                    <h1 className="text-sm font-bold flex items-center justify-center gap-1 cursor-pointer hover:text-orange-400">6 Mar – 12 Mar <Icon name="chevron-down" size={14} /></h1>
+                                    <p className="text-[10px] text-emerald-400 flex items-center justify-center gap-1 mt-1 font-medium"><Icon name="check-circle-2" size={10} /> Synced v3.7.5</p>
+                                </div>
+                                <div className="flex gap-2">
+                                    <button className="p-2 bg-slate-700/50 rounded-lg hover:bg-slate-600 active:scale-95 transition-all"><Icon name="play" fill="white" size={18} /></button>
+                                    <button className="p-2 bg-slate-700/50 rounded-lg hover:bg-slate-600 active:scale-95 transition-all"><Icon name="menu" size={18} /></button>
+                                </div>
+                            </div>
+                            <div className="grid grid-cols-3 gap-3">
+                                <StatCard label="ORD HRS" value={totalOrd} />
+                                <StatCard label="OVERTIME" value={totalOT} orange />
+                                <StatCard label="TASKS" value={totalTasks} />
+                            </div>
+                        </div>
+                    </header>
+
+                    {/* ── TABS (exact Gemini template) ── */}
+                    <nav className="bg-[#1A2533] border-t border-slate-700 sticky top-0 z-40">
+                        <div className="max-w-md mx-auto flex">
+                            {['TIMESHEET', 'NOTES', 'FINDER'].map((tab, i) => (
+                                <button key={tab} className={`flex-1 py-3 text-[10px] font-bold tracking-wider transition-all ${i === 0 ? 'text-orange-400 border-b-2 border-orange-400' : 'text-slate-400 hover:text-white'}`}>{tab}</button>
+                            ))}
+                        </div>
+                    </nav>
+
+                    <main className="max-w-md mx-auto p-3 mt-4">
+                        {/* ── DAY LIST (hierarchical: Day → Tasks ) ── */}
+                        <div className="space-y-4">
+                            {INITIAL_DAYS.map((day) => {
+                                const dayExpanded = expandedDays[day.name];
+                                return (
+                                    <div key={day.name} className={`rounded-[24px] transition-all duration-300 ${dayExpanded ? 'bg-indigo-50/20 pb-4' : 'bg-transparent'}`}>
+
+                                        {/* DAY HEADER BUTTON */}
+                                        <button
+                                            onClick={() => toggleDay(day.name)}
+                                            className={`relative z-10 w-full flex items-center justify-between p-4 rounded-3xl bg-white shadow-sm border border-slate-200 text-left transition-all active:scale-[0.99] ${dayExpanded ? 'ring-1 ring-indigo-100' : ''}`}
+                                        >
+                                            <div className="flex items-center gap-4">
+                                                <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-white border border-slate-200 shadow-sm">
+                                                    <Icon name={dayExpanded ? "chevron-down" : "chevron-right"} className="text-slate-400" size={20} />
+                                                </div>
+                                                <div>
+                                                    <h2 className="font-black text-xl text-slate-900 leading-none">{day.name}</h2>
+                                                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1 block">{day.date}</span>
+                                                </div>
+                                            </div>
+                                            <div className="flex items-center gap-3">
+                                                <div className="text-right">
+                                                    <div className="text-sm font-black text-indigo-600">{day.totalHours}</div>
+                                                    <div className="text-[9px] font-bold text-slate-400 uppercase">{day.taskCount} tasks</div>
+                                                </div>
+                                                <Icon name="chevron-down" size={16} className={`text-slate-200 transition-transform ${dayExpanded ? 'rotate-0 opacity-40' : '-rotate-90 opacity-20'}`} />
+                                            </div>
+                                        </button>
+
+                                        {/* TASK LIST */}
+                                        {dayExpanded && (
+                                            <div className="relative ml-[39px] mr-2 space-y-4 pt-6 animate-in">
+                                                {day.tasks.map((task, idx) => {
+                                                    const isFirst = idx === 0;
+                                                    const isLast = idx === day.tasks.length - 1;
+                                                    const taskExpanded = expandedTasks[`${day.name}-${task.id}`];
+                                                    return (
+                                                        <div key={task.id} className="relative group">
+                                                            {/* Timeline connector lines (from Gemini template) */}
+                                                            {isFirst ? (
+                                                                <div className="absolute left-[-19px] top-[-40px] h-[64px] w-0.5 bg-indigo-200"></div>
+                                                            ) : (
+                                                                <div className="absolute left-[-19px] top-[-16px] h-[40px] w-0.5 bg-indigo-200"></div>
+                                                            )}
+                                                            {!isLast && (
+                                                                <div className="absolute left-[-19px] top-[24px] bottom-[-20px] w-0.5 bg-indigo-200"></div>
+                                                            )}
+                                                            <div className="absolute -left-[19px] top-[24px] w-[19px] h-0.5 bg-indigo-200 rounded-full"></div>
+                                                            <div className={`absolute left-[-24.5px] top-[18px] w-3 h-3 rounded-full bg-white border-2 border-indigo-500 shadow-sm z-10 transition-transform ${taskExpanded ? 'scale-125' : ''}`}></div>
+
+                                                            {/* TASK CARD */}
+                                                            <div className={`bg-white rounded-2xl transition-all duration-200 border ${taskExpanded ? 'shadow-lg border-indigo-200 ring-1 ring-indigo-100' : 'shadow-sm border-slate-100 hover:border-slate-200'}`}>
+                                                                {/* Task collapsed row */}
+                                                                <button onClick={() => toggleTask(day.name, task.id)} className="w-full p-4 flex items-center gap-4 text-left active:bg-slate-50 transition-colors rounded-t-2xl">
+                                                                    <div className="w-8 h-8 rounded-lg bg-slate-50 border border-slate-100 flex items-center justify-center text-[12px] font-black text-slate-400 transition-colors group-hover:text-indigo-600">{idx + 1}</div>
+                                                                    <div className="flex-1 truncate">
+                                                                        <h3 className="font-bold text-base text-slate-700 truncate leading-snug">{task.title}</h3>
+                                                                        {!taskExpanded && (
+                                                                            <div className="flex items-center gap-2 mt-1 flex-wrap">
+                                                                                <div className="flex items-center gap-1 text-[10px] text-slate-400 font-bold uppercase tracking-tight">
+                                                                                    <Icon name="map-pin" size={10} className="text-red-400" /> {task.location}
+                                                                                </div>
+                                                                                {task.codes.map(c => (
+                                                                                    <span key={c.c} className="text-[10px] font-mono bg-indigo-50 text-indigo-500 px-1.5 py-0.5 rounded">{c.c}</span>
+                                                                                ))}
+                                                                            </div>
+                                                                        )}
+                                                                    </div>
+                                                                    <div className="flex items-center gap-3">
+                                                                        <div className="text-right">
+                                                                            <div className="bg-slate-50 px-3 py-1.5 rounded-lg text-xs font-black text-slate-600">{task.ordinary}h</div>
+                                                                            {task.overtime > 0 && <div className="text-[9px] font-bold text-orange-400 mt-1">+{task.overtime} OT</div>}
+                                                                        </div>
+                                                                        <Icon name="chevron-right" size={16} className={`text-slate-300 transition-transform ${taskExpanded ? 'rotate-90' : ''}`} />
+                                                                    </div>
+                                                                </button>
+
+                                                                {/* Task expanded detail */}
+                                                                {taskExpanded && <TaskEditContent task={task} />}
+                                                            </div>
+                                                        </div>
+                                                    );
+                                                })}
+
+                                                {/* ADD TASK */}
+                                                <button className="w-full py-4 bg-white/40 border-2 border-dashed border-slate-200 rounded-2xl text-slate-400 flex items-center justify-center gap-2 hover:bg-white hover:border-indigo-300 hover:text-indigo-600 transition-all font-bold text-[11px] uppercase tracking-widest ml-1 active:scale-95 shadow-sm">
+                                                    <Icon name="plus" size={16} /> Add Task
+                                                </button>
+                                            </div>
+                                        )}
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    </main>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+
+</html>

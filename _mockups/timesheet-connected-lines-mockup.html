@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rian Timesheet Connected Lines Mockup</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --navy:#091d37;
+      --navy2:#132844;
+      --page:#e8eff6;
+      --card:#ffffff;
+      --line:#cad7e5;
+      --timeline:#d3def0;
+      --timeline-strong:#7c96c2;
+      --text:#10233d;
+      --muted:#7a91aa;
+      --accent:#f6a11a;
+      --pill:#e9eef7;
+      --danger-bg:#fde8e5;
+      --danger:#ff5b4d;
+      --shadow:0 10px 22px rgba(13, 31, 52, 0.08);
+    }
+
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:"DM Sans",sans-serif;
+      background:linear-gradient(180deg,#f5f8fc 0%,var(--page) 100%);
+      color:var(--text);
+      padding:18px 10px 28px;
+    }
+
+    .note{
+      max-width:1040px;
+      margin:0 auto 12px;
+      padding:10px 12px;
+      border-radius:12px;
+      background:#eaf2ff;
+      border:1px solid #cfe0ff;
+      color:#365170;
+      font-size:13px;
+    }
+
+    .frame{
+      max-width:1040px;
+      margin:0 auto;
+      border-radius:18px;
+      overflow:hidden;
+      box-shadow:0 24px 50px rgba(9, 28, 52, 0.12);
+      border:1px solid #d5e0ec;
+    }
+
+    .header{
+      background:linear-gradient(180deg,var(--navy) 0%,#0b2341 100%);
+      color:#fff;
+      padding:18px 22px 0;
+    }
+
+    .header-top{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:16px;
+    }
+
+    .nav-btn{
+      width:42px;
+      height:42px;
+      border-radius:12px;
+      background:rgba(255,255,255,0.08);
+      display:grid;
+      place-items:center;
+      color:#b7c5d9;
+      font-size:20px;
+      font-weight:700;
+    }
+
+    .week{
+      text-align:center;
+      flex:1;
+    }
+
+    .week h1{
+      margin:0;
+      font-size:28px;
+      font-weight:800;
+      letter-spacing:-0.02em;
+    }
+
+    .week p{
+      margin:6px 0 0;
+      color:#bfe7cd;
+      font-size:15px;
+    }
+
+    .stats{
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:14px;
+      padding:18px 0 22px;
+    }
+
+    .stat{
+      border-radius:18px;
+      background:rgba(255,255,255,0.08);
+      padding:14px 18px;
+      min-height:88px;
+    }
+
+    .stat strong{
+      display:block;
+      font-size:26px;
+      line-height:1;
+      margin-bottom:8px;
+      color:#fff;
+    }
+
+    .stat span{
+      color:#8196b0;
+      font-size:14px;
+      font-weight:800;
+      letter-spacing:0.08em;
+    }
+
+    .tabs{
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      background:#122743;
+      border-top:1px solid rgba(255,255,255,0.05);
+    }
+
+    .tab{
+      text-align:center;
+      padding:17px 8px;
+      color:#c2cad6;
+      font-size:15px;
+      font-weight:800;
+      letter-spacing:0.08em;
+    }
+
+    .tab.active{
+      color:var(--accent);
+      border-bottom:3px solid var(--accent);
+    }
+
+    .main{
+      background:#eef3f8;
+      padding-bottom:18px;
+    }
+
+    .day-header{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      padding:22px 22px 16px;
+      background:#f7f9fc;
+      border-bottom:1px solid #d4dce7;
+    }
+
+    .day-left{
+      display:flex;
+      align-items:center;
+      gap:16px;
+    }
+
+    .day-toggle{
+      width:32px;
+      height:32px;
+      border-radius:10px;
+      background:#e8ebf0;
+      display:grid;
+      place-items:center;
+      color:#b2b9c5;
+      font-size:18px;
+      font-weight:900;
+    }
+
+    .day-title{
+      display:flex;
+      align-items:center;
+      gap:16px;
+    }
+
+    .day-title strong{
+      font-size:24px;
+      font-weight:800;
+    }
+
+    .day-title span{
+      color:#7c97b4;
+      font-size:18px;
+      font-weight:700;
+    }
+
+    .day-pills{
+      display:flex;
+      gap:10px;
+    }
+
+    .day-pill{
+      padding:10px 14px;
+      border-radius:14px;
+      background:#e9edf2;
+      color:#6f849b;
+      font-size:14px;
+      font-weight:700;
+    }
+
+    .day-column{
+      position:relative;
+      padding:22px 22px 0 22px;
+    }
+
+    .timeline{
+      position:absolute;
+      left:62px;
+      top:54px;
+      bottom:38px;
+      width:3px;
+      background:linear-gradient(180deg,var(--timeline) 0%,#d9e4f2 100%);
+      border-radius:99px;
+    }
+
+    .task{
+      position:relative;
+      margin-bottom:18px;
+      padding-left:72px;
+    }
+
+    .task:last-child{
+      margin-bottom:0;
+      padding-bottom:8px;
+    }
+
+    .node{
+      position:absolute;
+      left:46px;
+      top:30px;
+      width:14px;
+      height:14px;
+      border-radius:50%;
+      background:#fff;
+      border:3px solid var(--timeline-strong);
+      box-shadow:0 0 0 5px #eef3f8;
+      z-index:2;
+    }
+
+    .connector{
+      position:absolute;
+      left:59px;
+      top:36px;
+      width:24px;
+      height:3px;
+      background:var(--timeline);
+      border-radius:99px;
+    }
+
+    .task-card{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:22px;
+      box-shadow:var(--shadow);
+      overflow:hidden;
+    }
+
+    .task-head{
+      display:grid;
+      grid-template-columns:auto 1fr auto auto;
+      gap:18px;
+      align-items:center;
+      padding:20px 20px 18px;
+    }
+
+    .task-num{
+      width:46px;
+      height:46px;
+      border-radius:14px;
+      background:#e6eaef;
+      display:grid;
+      place-items:center;
+      font-size:18px;
+      font-weight:800;
+      color:#507096;
+    }
+
+    .task-info strong{
+      display:block;
+      font-size:20px;
+      line-height:1.15;
+      margin-bottom:8px;
+    }
+
+    .task-info span{
+      color:#7b94b3;
+      font-size:16px;
+    }
+
+    .hrs{
+      padding:8px 14px;
+      border-radius:999px;
+      background:#e9eef7;
+      color:#5275c7;
+      font-size:15px;
+      font-weight:800;
+    }
+
+    .chev{
+      color:#9eb1c8;
+      font-size:24px;
+      padding-right:4px;
+    }
+
+    .task-body{
+      border-top:1px solid #d8e1eb;
+      padding:24px;
+      background:#fff;
+    }
+
+    .field{
+      margin-bottom:20px;
+    }
+
+    .field:last-child{
+      margin-bottom:0;
+    }
+
+    .field label{
+      display:block;
+      margin-bottom:10px;
+      color:#8aa0bc;
+      font-size:14px;
+      font-weight:800;
+      letter-spacing:0.08em;
+    }
+
+    .input{
+      width:100%;
+      min-height:64px;
+      border-radius:14px;
+      border:2px solid #d1dbe8;
+      background:#fff;
+      padding:0 18px;
+      display:flex;
+      align-items:center;
+      font-size:22px;
+    }
+
+    .codes{
+      min-height:78px;
+      padding:16px;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:flex-start;
+    }
+
+    .code-pill{
+      background:#e7ebf0;
+      border-radius:12px;
+      padding:10px 14px;
+      font-size:16px;
+    }
+
+    .add-code{
+      border:2px dashed #c8ced8;
+      color:#7b8796;
+      background:#fff;
+    }
+
+    .hours-row{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:14px;
+      margin-bottom:18px;
+    }
+
+    .hours-box{
+      border-radius:18px;
+      border:2px solid #d8dee7;
+      min-height:74px;
+      display:grid;
+      grid-template-columns:48px 1fr 48px;
+      align-items:center;
+      padding:0 10px;
+      font-size:24px;
+      font-weight:800;
+      text-align:center;
+    }
+
+    .hours-box.ot{
+      border-color:#f0c56a;
+      background:#fffaf1;
+      color:#c98600;
+    }
+
+    .hours-box span:first-child,
+    .hours-box span:last-child{
+      color:#7e8c9f;
+    }
+
+    .meta{
+      color:#7f97b2;
+      font-size:16px;
+      margin-bottom:18px;
+    }
+
+    .note-box{
+      min-height:70px;
+      font-size:18px;
+      color:#8397ad;
+      justify-content:space-between;
+    }
+
+    .delete{
+      margin-top:22px;
+      min-height:64px;
+      border-radius:16px;
+      background:var(--danger-bg);
+      color:var(--danger);
+      display:grid;
+      place-items:center;
+      font-size:18px;
+      font-weight:800;
+    }
+
+    @media (max-width: 900px){
+      .task-head{
+        grid-template-columns:auto 1fr auto;
+      }
+
+      .chev{
+        display:none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="note">Mockup only. This shows the current timesheet layout with connected timeline lines added on the left so each task reads as part of the same day group.</div>
+
+  <div class="frame">
+    <header class="header">
+      <div class="header-top">
+        <div class="nav-btn">&#9664;</div>
+        <div class="week">
+          <h1>6 Mar - 12 Mar</h1>
+          <p>✓ Synced v3.7.5</p>
+        </div>
+        <div style="display:flex;gap:12px;">
+          <div class="nav-btn">&#9654;</div>
+          <div class="nav-btn">&#9776;</div>
+        </div>
+      </div>
+
+      <div class="stats">
+        <div class="stat"><strong>31</strong><span>ORD HRS</span></div>
+        <div class="stat"><strong style="color:#f6a11a;">0</strong><span>OVERTIME</span></div>
+        <div class="stat"><strong>11</strong><span>TASKS</span></div>
+      </div>
+
+      <div class="tabs">
+        <div class="tab active">TIMESHEET</div>
+        <div class="tab">NOTES</div>
+        <div class="tab">FINDER</div>
+      </div>
+    </header>
+
+    <main class="main">
+      <section class="day-header">
+        <div class="day-left">
+          <div class="day-toggle">&#9660;</div>
+          <div class="day-title">
+            <strong>Friday</strong>
+            <span>6 Mar</span>
+          </div>
+        </div>
+        <div class="day-pills">
+          <div class="day-pill">3 tasks</div>
+          <div class="day-pill" style="color:#5275c7;">7h</div>
+        </div>
+      </section>
+
+      <section class="day-column">
+        <div class="timeline"></div>
+
+        <article class="task">
+          <div class="node"></div>
+          <div class="connector"></div>
+          <div class="task-card">
+            <div class="task-head">
+              <div class="task-num">1</div>
+              <div class="task-info">
+                <strong>General Admin</strong>
+                <span>📍 Naas (NAS)</span>
+              </div>
+              <div class="hrs">2h</div>
+              <div class="chev">›</div>
+            </div>
+          </div>
+        </article>
+
+        <article class="task">
+          <div class="node"></div>
+          <div class="connector"></div>
+          <div class="task-card">
+            <div class="task-head">
+              <div class="task-num">2</div>
+              <div class="task-info">
+                <strong>Van</strong>
+                <span>📍 Sallins (SLS)</span>
+              </div>
+              <div class="hrs">2h</div>
+              <div class="chev">⌄</div>
+            </div>
+            <div class="task-body">
+              <div class="field">
+                <label>DESCRIPTION</label>
+                <div class="input">Van</div>
+              </div>
+              <div class="field">
+                <label>LOCATION</label>
+                <div class="input">Sallins (SLS)</div>
+              </div>
+              <div class="field">
+                <label>WORK CODES</label>
+                <div class="input codes">
+                  <div class="code-pill">Van Maintenance COps FE&nbsp;&nbsp;<span style="color:#8da0bb;">VWM0001A99</span></div>
+                  <div class="code-pill add-code">+ Code</div>
+                </div>
+              </div>
+              <div class="field">
+                <div class="hours-row">
+                  <div>
+                    <label>ORDINARY HRS</label>
+                    <div class="hours-box"><span>-</span><span>2</span><span>+</span></div>
+                  </div>
+                  <div>
+                    <label style="color:#d18a00;">OVERTIME HRS</label>
+                    <div class="hours-box ot"><span>-</span><span>0</span><span>+</span></div>
+                  </div>
+                </div>
+                <div class="meta">Tasks: <strong>1</strong> &nbsp; | &nbsp; Hrs/Task: <strong>2</strong> &nbsp; | &nbsp; OT/Task: <strong style="color:#d18a00;">-</strong></div>
+              </div>
+              <div class="field">
+                <div class="input note-box"><span>🗒 Add a note...</span><span style="color:#b7c3cf;">›</span></div>
+              </div>
+              <div class="delete">🗑 Delete task</div>
+            </div>
+          </div>
+        </article>
+
+        <article class="task">
+          <div class="node"></div>
+          <div class="connector"></div>
+          <div class="task-card">
+            <div class="task-head">
+              <div class="task-num">3</div>
+              <div class="task-info">
+                <strong>Collecting the van - make ticket</strong>
+                <span>📍 Carlow (CRW)</span>
+              </div>
+              <div class="hrs">3h</div>
+              <div class="chev">›</div>
+            </div>
+          </div>
+        </article>
+      </section>
+    </main>
+  </div>
+</body>
+</html>
