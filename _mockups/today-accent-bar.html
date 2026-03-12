@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Refined Today Highlight - Accent Bar</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --font-body: 'DM Sans', sans-serif;
+      --font-mono: 'DM Mono', monospace;
+      --bg-page: #E8EEF5;
+      --bg-header: #0F1C2E;
+      --bg-card: #FFFFFF;
+      --accent: #2D6BE4;
+      --accent-light: #EBF1FD;
+      --text-primary: #0F1C2E;
+      --text-secondary: #4A6580;
+      --text-muted: #8BA5BE;
+      --border: #D4E0EC;
+    }
+
+    body {
+      font-family: var(--font-body);
+      background: var(--bg-page);
+      padding: 24px;
+    }
+
+    .container {
+      max-width: 480px;
+      margin: 0 auto;
+    }
+
+    .day-card {
+      background: #FFFFFF;
+      border-bottom: 1px solid #EAEFF5;
+      padding: 13px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: relative; /* For absolute positioning of the bar */
+    }
+
+    /* THE SOLUTION: Zero-width horizontal impact */
+    .day-today {
+      background: var(--accent-light); /* Subtle tint */
+    }
+
+    .day-today::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 4px;
+      background: var(--accent);
+      z-index: 20;
+    }
+
+    .day-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .day-name {
+      font-size: 15px;
+      font-weight: 800;
+      color: var(--text-primary);
+    }
+
+    .day-date {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-muted);
+      margin-left: 10px;
+    }
+
+    .day-pills {
+      display: flex;
+      gap: 5px;
+      align-items: center;
+    }
+
+    .pill {
+      font-size: 11px;
+      font-weight: 500;
+      border-radius: 8px;
+      padding: 4px 9px;
+      white-space: nowrap;
+    }
+
+    .pill-slate { background: #EDF1F5; color: #5A7289; }
+    .pill-blue { background: #EBF1FD; color: #1A4FB5; }
+    .pill-amber { background: #FEF3DC; color: #C07800; }
+
+    .dot-flash {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #E8453C;
+      box-shadow: 0 0 6px rgba(232, 69, 60, 0.5);
+    }
+
+    .day-expand-btn {
+      width: 20px;
+      height: 20px;
+      border-radius: 6px;
+      background: #f2f4fa;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .back-link {
+        display: block;
+        margin-bottom: 24px;
+        color: var(--accent);
+        text-decoration: none;
+        font-weight: 700;
+        font-size: 0.9rem;
+    }
+
+    .today-txt {
+        color: var(--accent);
+        font-size: 10px;
+        font-weight: 800;
+        text-transform: uppercase;
+        margin-left: 8px;
+        opacity: 0.8;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <a href="../app.html" class="back-link">← Back to App</a>
+    
+    <h1 class="text-2xl font-extrabold mb-2">Accent Bar Mockup</h1>
+    <p class="text-sm text-secondary mb-8">This design highlights the current day (Thursday) without pushing the pills into a second row.</p>
+
+    <div class="rounded-2xl overflow-hidden shadow-md border border-slate-200 bg-white">
+      
+      <!-- Wednesday -->
+      <div class="day-card">
+        <div class="day-left">
+          <div class="day-expand-btn">
+             <svg width="6" height="6" viewBox="0 0 10 10"><polygon points="0,0 10,5 0,10" fill="#b4b8cc"/></svg>
+          </div>
+          <span class="day-name">Wednesday</span>
+          <span class="day-date">11 Mar</span>
+        </div>
+        <div class="day-pills">
+            <span class="pill pill-slate">2 tasks</span>
+            <span class="pill pill-blue">8h</span>
+        </div>
+      </div>
+
+      <!-- Thursday (TODAY) -->
+      <div class="day-card day-today">
+        <div class="day-left">
+          <div class="day-expand-btn">
+             <svg width="6" height="6" viewBox="0 0 10 10"><polygon points="0,0 10,5 0,10" fill="#b4b8cc"/></svg>
+          </div>
+          <span class="day-name">Thursday <span class="today-txt">Today</span></span>
+          <span class="day-date">12 Mar</span>
+        </div>
+        <div class="day-pills">
+            <span class="pill pill-slate">3 tasks</span>
+            <span class="pill pill-blue">8h</span>
+            <span class="pill pill-amber">+1 OT</span>
+            <span class="dot-flash"></span>
+        </div>
+      </div>
+
+      <!-- Friday -->
+      <div class="day-card">
+        <div class="day-left">
+          <div class="day-expand-btn">
+             <svg width="6" height="6" viewBox="0 0 10 10"><polygon points="0,0 10,5 0,10" fill="#b4b8cc"/></svg>
+          </div>
+          <span class="day-name">Friday</span>
+          <span class="day-date">13 Mar</span>
+        </div>
+        <div class="day-pills">
+            <span class="pill pill-slate">No entries</span>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="mt-8 p-4 bg-blue-50 border border-blue-100 rounded-xl">
+        <h3 class="font-bold text-blue-900 text-sm mb-1">Why this works:</h3>
+        <ul class="text-xs text-blue-800 space-y-1">
+            <li>• <strong>Accent Bar:</strong> Clearly marks the row on the far left edge.</li>
+            <li>• <strong>Background Tint:</strong> Makes the entire row feel "active".</li>
+            <li>• <strong>Small Label:</strong> "Today" is placed next to the name in a light color, avoiding "pill fatigue".</li>
+        </ul>
+    </div>
+
+  </div>
+
+</body>
+</html>
