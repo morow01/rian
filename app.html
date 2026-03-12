@@ -3944,7 +3944,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '3.8.3';
+    const VERSION = '3.8.4';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -5087,12 +5087,14 @@
       };
       const onEnd = (e) => {
         if (!e || e.target !== detailEl) return;
-        if (e.propertyName === 'max-height' || e.propertyName === 'padding-top' || e.propertyName === 'padding-bottom') {
+        // Only react when the actual height animation is complete.
+        if (e.propertyName === 'max-height') {
           finish();
         }
       };
       detailEl.addEventListener('transitionend', onEnd);
-      setTimeout(finish, ANIM_EXPAND_MS + 80);
+      // Safety fallback for browsers that occasionally skip transitionend.
+      setTimeout(finish, ANIM_EXPAND_MS + 250);
     }
 
     function renderHeader() {
