@@ -5682,6 +5682,7 @@
           detail.offsetHeight;
           detail.classList.remove('hidden');
           detail.classList.add('open');
+          detail.style.maxHeight = 'none'; // CRITICAL FIX: Reset max-height so content can grow freely
           detail.querySelectorAll('textarea').forEach(autoGrow);
         }
         if (chevron) chevron.style.transform = 'rotate(90deg)';
