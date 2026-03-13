@@ -3849,10 +3849,10 @@
     .rtn-empty-title { font-size:17px; font-weight:700; color:var(--text-primary); }
     .rtn-empty-sub { font-size:14px; color:var(--text-secondary); line-height:1.5; max-width:280px; }
     .rtn-setup-btn { background:var(--accent); color:#fff; border:none; border-radius:12px; padding:14px 28px; font-size:15px; font-weight:700; cursor:pointer; margin-top:4px; }
-    /* Grid container — own scroll so thead can be sticky inside it */
-    .rtn-grid-scroll { overflow-x:auto; overflow-y:auto; -webkit-overflow-scrolling:touch; max-height:calc(100vh - 175px); }
+    /* Grid container — horizontal scroll only; vertical scroll is the page itself */
+    .rtn-grid-scroll { overflow-x:auto; -webkit-overflow-scrolling:touch; }
     .rtn-table { border-collapse:separate; border-spacing:0; width:auto; }
-    /* Header row — sticky top:0 inside the scroll container */
+    /* Header row — sticky on page scroll, sticks just below whatever is above */
     .rtn-th-site { position:sticky; top:0; left:0; z-index:7; white-space:nowrap; background:var(--bg-page); padding:7px 16px 7px 14px; font-size:11px; font-weight:700; color:var(--text-muted); text-align:left; border-bottom:2px solid var(--border); }
     .rtn-th-month { position:sticky; top:0; z-index:5; width:36px; min-width:36px; background:var(--bg-page); padding:7px 2px; font-size:11px; font-weight:700; color:var(--text-muted); text-align:center; border-bottom:2px solid var(--border); }
     .rtn-th-month.cur { color:var(--accent); }
