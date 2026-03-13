@@ -3835,6 +3835,73 @@
       text-transform: uppercase;
       letter-spacing: 0.03em;
     }
+
+    /* ===== ROUTINES FEATURE ===== */
+    .rtn-page { padding: 0 0 24px; }
+    .rtn-top-bar { display:flex; align-items:center; justify-content:space-between; padding:12px 16px; background:var(--bg-card); border-bottom:1px solid var(--border); }
+    .rtn-year-nav { display:flex; align-items:center; gap:10px; }
+    .rtn-year-btn { background:none; border:none; padding:6px 10px; border-radius:8px; font-size:18px; color:var(--accent); cursor:pointer; line-height:1; font-weight:700; }
+    .rtn-year-label { font-size:16px; font-weight:700; color:var(--text-primary); min-width:44px; text-align:center; }
+    .rtn-edit-btn { background:var(--accent-light); color:var(--accent); border:none; border-radius:10px; padding:7px 14px; font-size:13px; font-weight:700; cursor:pointer; }
+    /* Empty state */
+    .rtn-empty { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:14px; padding:70px 24px; text-align:center; }
+    .rtn-empty-icon { font-size:48px; opacity:0.35; }
+    .rtn-empty-title { font-size:17px; font-weight:700; color:var(--text-primary); }
+    .rtn-empty-sub { font-size:14px; color:var(--text-secondary); line-height:1.5; max-width:280px; }
+    .rtn-setup-btn { background:var(--accent); color:#fff; border:none; border-radius:12px; padding:14px 28px; font-size:15px; font-weight:700; cursor:pointer; margin-top:4px; }
+    /* Grid container */
+    .rtn-grid-scroll { overflow-x:auto; -webkit-overflow-scrolling:touch; padding-top:2px; }
+    .rtn-table { border-collapse:separate; border-spacing:0; width:auto; }
+    /* Header row */
+    .rtn-th-site { position:sticky; left:0; z-index:6; width:126px; min-width:126px; max-width:126px; background:var(--bg-page); padding:7px 8px 7px 14px; font-size:11px; font-weight:700; color:var(--text-muted); text-align:left; border-bottom:2px solid var(--border); }
+    .rtn-th-month { width:36px; min-width:36px; background:var(--bg-page); padding:7px 2px; font-size:11px; font-weight:700; color:var(--text-muted); text-align:center; border-bottom:2px solid var(--border); }
+    .rtn-th-month.cur { color:var(--accent); }
+    /* Data rows */
+    .rtn-td-site { position:sticky; left:0; z-index:3; width:126px; min-width:126px; max-width:126px; background:var(--bg-card); padding:6px 8px 6px 14px; font-size:13px; font-weight:600; color:var(--text-primary); border-bottom:1px solid var(--border); vertical-align:middle; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .rtn-tr:last-child .rtn-td-site { border-bottom:none; }
+    .rtn-tr:last-child .rtn-td-cell { border-bottom:none; }
+    .rtn-td-cell { width:36px; min-width:36px; vertical-align:middle; text-align:center; border-bottom:1px solid var(--border); padding:3px 2px; }
+    .rtn-td-cell.cur-col { background:rgba(45,107,228,0.05); }
+    /* Cell button */
+    .rtn-cell-btn { width:32px; height:38px; border-radius:8px; border:none; cursor:pointer; display:flex; flex-direction:column; align-items:center; justify-content:center; margin:0 auto; gap:1px; background:transparent; -webkit-tap-highlight-color:transparent; transition:background 0.12s; }
+    .rtn-cell-btn:active { opacity:0.7; }
+    .rtn-cell-btn .rtn-dot { width:6px; height:6px; border-radius:50%; background:var(--border); }
+    .rtn-cell-btn.visited { background:#d1fae5; }
+    .rtn-cell-btn.visited .rtn-dot { display:none; }
+    .rtn-cell-btn:not(.visited) .rtn-day-num { display:none; }
+    .rtn-cell-btn:not(.visited) .rtn-auto-badge { display:none; }
+    .rtn-day-num { font-size:13px; font-weight:800; color:#059669; line-height:1; }
+    .rtn-auto-badge { font-size:7px; font-weight:800; color:#059669; letter-spacing:0.03em; text-transform:uppercase; line-height:1; }
+    /* Site picker modal */
+    #rtn-picker-modal { display:none; position:fixed; inset:0; z-index:60; background:var(--bg-modal); flex-direction:column; }
+    #rtn-picker-modal.open { display:flex; }
+    .rtn-picker-hdr { background:var(--bg-header); color:#fff; padding:14px 16px; display:flex; align-items:center; gap:12px; }
+    .rtn-picker-hdr-title { flex:1; font-size:16px; font-weight:700; }
+    .rtn-picker-close-btn { background:none; border:none; color:#fff; font-size:22px; cursor:pointer; padding:2px 6px; line-height:1; }
+    .rtn-picker-done-btn { background:#F5A623; color:#fff; border:none; border-radius:20px; padding:7px 18px; font-weight:700; font-size:13px; cursor:pointer; }
+    .rtn-picker-search-wrap { padding:12px 14px; background:var(--bg-modal-search); border-bottom:1px solid var(--border); }
+    .rtn-picker-search-wrap input { width:100%; border-radius:10px; padding:10px 14px; font-size:14px; border:1px solid var(--border-input); background:var(--bg-input); color:var(--text-primary); outline:none; }
+    .rtn-picker-section-lbl { font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.08em; padding:10px 14px 4px; }
+    .rtn-picker-row { display:flex; align-items:center; gap:12px; padding:11px 14px; border-bottom:1px solid var(--border); cursor:pointer; -webkit-tap-highlight-color:transparent; }
+    .rtn-picker-row:active { background:var(--bg-card-alt); }
+    .rtn-picker-chk { width:22px; height:22px; border-radius:6px; border:2px solid var(--border); display:flex; align-items:center; justify-content:center; flex-shrink:0; transition:all 0.12s; }
+    .rtn-picker-chk.checked { background:var(--accent); border-color:var(--accent); }
+    .rtn-picker-row-name { font-size:14px; font-weight:600; color:var(--text-primary); }
+    .rtn-picker-row-sub { font-size:12px; color:var(--text-secondary); }
+    /* Log / detail modal */
+    #rtn-log-modal { display:none; position:fixed; inset:0; z-index:62; background:rgba(0,0,0,0.45); align-items:flex-end; justify-content:center; }
+    #rtn-log-modal.open { display:flex; }
+    .rtn-log-sheet { background:var(--bg-modal); border-radius:24px 24px 0 0; padding:22px 20px 32px; width:100%; max-width:480px; }
+    .rtn-log-title { font-size:16px; font-weight:700; color:var(--text-primary); margin-bottom:3px; }
+    .rtn-log-sub { font-size:13px; color:var(--text-secondary); margin-bottom:14px; }
+    .rtn-log-source-box { font-size:12px; color:var(--accent); background:var(--accent-light); border-radius:8px; padding:8px 12px; margin-bottom:14px; line-height:1.5; }
+    .rtn-log-date-label { font-size:13px; font-weight:600; color:var(--text-secondary); display:block; margin-bottom:6px; }
+    .rtn-log-date-input { width:100%; border-radius:10px; padding:11px 14px; font-size:15px; border:1px solid var(--border-input); background:var(--bg-input); color:var(--text-primary); outline:none; }
+    .rtn-log-btns { display:flex; gap:10px; margin-top:16px; }
+    .rtn-log-btn { flex:1; padding:13px; border-radius:12px; border:none; font-size:14px; font-weight:700; cursor:pointer; }
+    .rtn-log-btn.primary { background:var(--accent); color:#fff; }
+    .rtn-log-btn.danger { background:var(--btn-danger-bg); color:var(--btn-danger-color); border:1px solid var(--btn-danger-border); }
+    .rtn-log-btn.cancel { background:var(--bg-card-alt); color:var(--text-secondary); border:1px solid var(--border); }
   </style>
 </head>
 
@@ -3998,6 +4065,33 @@
     </div>
   </div>
 
+  <!-- ===== ROUTINES SITE PICKER MODAL ===== -->
+  <div id="rtn-picker-modal">
+    <div class="rtn-picker-hdr safe-top">
+      <button class="rtn-picker-close-btn" onclick="closeRoutinesSitePicker()">✕</button>
+      <span class="rtn-picker-hdr-title">Choose Sites</span>
+      <button class="rtn-picker-done-btn" onclick="saveRoutinesSites()">Save</button>
+    </div>
+    <div class="rtn-picker-search-wrap">
+      <input id="rtn-picker-search" type="text" placeholder="Search locations…" oninput="filterRoutinesPicker(this.value)">
+    </div>
+    <div id="rtn-picker-list" style="flex:1;overflow-y:auto;padding-bottom:40px;"></div>
+  </div>
+
+  <!-- ===== ROUTINES LOG MODAL ===== -->
+  <div id="rtn-log-modal">
+    <div class="rtn-log-sheet">
+      <div class="rtn-log-title" id="rtn-log-title">Log Visit</div>
+      <div class="rtn-log-sub" id="rtn-log-sub"></div>
+      <div class="rtn-log-source-box" id="rtn-log-source" style="display:none"></div>
+      <div id="rtn-log-date-wrap">
+        <label class="rtn-log-date-label">Date of visit</label>
+        <input id="rtn-log-date" type="date" class="rtn-log-date-input">
+      </div>
+      <div class="rtn-log-btns" id="rtn-log-btns"></div>
+    </div>
+  </div>
+
   <!-- ===== CONFIRM MODAL ===== -->
   <div id="confirm-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4"
     style="background:var(--overlay)">
@@ -4017,7 +4111,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '3.9.6';
+    const VERSION = '3.9.7';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -4512,6 +4606,11 @@
       exchangeDetailTab: 'location', // 'location'|'details'|'address'|'security'|'power'|'emergency'|'additional'
       menuView: 'main', // 'main' | 'themes'
       isMenuOpen: false,
+      // Routines
+      routines: null,           // { selectedSites:[], visits:{} } loaded from Firestore
+      routinesAutoVisits: {},   // { key: { day, weekStart, location } } scanned from timesheet
+      routinesYear: new Date().getFullYear(),
+      routinesPickerSites: [],  // working copy while picker is open
     };
 
     let codeModalCtx = { dayIndex: null, activityId: null, selected: [] };
@@ -5135,6 +5234,8 @@
         viewBody = renderExchangesView();
       } else if (state.view === 'notes') {
         viewBody = renderNotesView();
+      } else if (state.view === 'routines') {
+        viewBody = renderRoutinesView();
       } else { // Default to 'week' view
         // In table mode break out of the narrow max-w-2xl container
         app.classList.toggle('tbl-mode', state.view === 'week' && state.layoutMode === 'table');
@@ -5248,6 +5349,11 @@
               <div class="menu-section-wrap">
                 <div class="menu-section-label">Navigation</div>
                 <div class="menu-card">
+                  <button class="menu-row" onclick="setView('routines');closeThemeMenu()">
+                    <span class="menu-row-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M9 9h6M9 13h6M9 17h4"/><circle cx="6" cy="9" r="1.2" fill="currentColor"/><circle cx="6" cy="13" r="1.2" fill="currentColor"/><circle cx="6" cy="17" r="1.2" fill="currentColor"/></svg></span>
+                    <span class="menu-row-body"><span class="menu-row-label">Routines</span><span class="menu-row-sub">Track monthly site visits</span></span>
+                    ${chev}
+                  </button>
                   <button class="menu-row" onclick="openDateModal();closeThemeMenu()">
                     <span class="menu-row-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></span>
                     <span class="menu-row-body"><span class="menu-row-label">Jump to Week</span><span class="menu-row-sub">Navigate to any date</span></span>
@@ -6166,6 +6272,7 @@
         }
         render();
       }
+      else if (v === 'routines') await loadRoutines();
       else render();
     }
 
@@ -7901,12 +8008,358 @@
       }
       state.weekData = null;
       state.notes = [];
+      state.routines = null;
+      state.routinesAutoVisits = {};
       // Wipe local IDB so the next user never sees this user's cached data
       await Promise.allSettled([dbClear('weeks'), dbClear('notes')]);
       if (weekUnsubscribe) { weekUnsubscribe(); weekUnsubscribe = null; }
       if (notesUnsubscribe) { notesUnsubscribe(); notesUnsubscribe = null; }
       await auth_fb.signOut();
       window.location.href = './index.html';
+    }
+
+    // ============================================================
+    // ROUTINES FEATURE
+    // ============================================================
+    const MONTHS_SHORT = ['J','F','M','A','M','J','J','A','S','O','N','D'];
+    const MONTHS_FULL = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+    // Composite key for a visit slot
+    function rtnKey(site, year, month) {
+      return site + '__' + year + '__' + month;
+    }
+
+    // Parse a rtnKey back into parts
+    function rtnParseKey(key) {
+      const parts = key.split('__');
+      return { site: parts.slice(0, parts.length - 2).join('__'), year: parseInt(parts[parts.length - 2]), month: parseInt(parts[parts.length - 1]) };
+    }
+
+    // Load routines from Firestore and scan timesheet for auto-visits
+    async function loadRoutines() {
+      if (!state.currentUser) { render(); return; }
+      const ref = userDoc('data/routines');
+      try {
+        const snap = await ref.get();
+        if (snap.exists) {
+          state.routines = snap.data();
+          if (!state.routines.selectedSites) state.routines.selectedSites = [];
+          if (!state.routines.visits) state.routines.visits = {};
+        } else {
+          state.routines = { selectedSites: [], visits: {} };
+        }
+      } catch (e) {
+        state.routines = state.routines || { selectedSites: [], visits: {} };
+      }
+      render();
+      // Scan timesheet weeks in background for auto-visits
+      scanWeeksForRoutines().catch(() => {});
+    }
+
+    async function fsSetRoutines() {
+      if (!state.currentUser || !state.routines) return;
+      const ref = userDoc('data/routines');
+      await ref.set({ ...state.routines, _updatedAt: Date.now() });
+    }
+
+    // Scan all weeks in Firestore looking for activities with description containing "routines"
+    async function scanWeeksForRoutines() {
+      if (!state.currentUser) return;
+      const uid = state.currentUser.uid;
+      const snap = await db_fs.collection(`users/${uid}/weeks`).get();
+      const autoVisits = {};
+      snap.forEach(doc => {
+        const data = doc.data();
+        if (!data.days) return;
+        data.days.forEach(day => {
+          if (!day.activities || !day.date) return;
+          day.activities.forEach(act => {
+            const desc = (act.description || '').trim().toLowerCase();
+            if (desc !== 'routines') return;
+            const loc = (act.location || '').trim();
+            if (!loc) return;
+            // Parse the date to get year/month
+            const parts = day.date.split('-');
+            if (parts.length !== 3) return;
+            const year = parseInt(parts[0]);
+            const month = parseInt(parts[1]);
+            const dayNum = parseInt(parts[2]);
+            const key = rtnKey(loc, year, month);
+            // Keep the most recent day if there are multiple entries
+            if (!autoVisits[key] || dayNum > autoVisits[key].day) {
+              autoVisits[key] = { day: dayNum, weekStart: doc.id };
+            }
+          });
+        });
+      });
+      state.routinesAutoVisits = autoVisits;
+      if (state.view === 'routines') render();
+    }
+
+    // Render the Routines view
+    function renderRoutinesView() {
+      const r = state.routines;
+      if (!r) return `<div class="rtn-page"><div class="rtn-empty"><div class="rtn-empty-title">Loading…</div></div></div>`;
+
+      if (!r.selectedSites || r.selectedSites.length === 0) {
+        return `
+          <div class="rtn-page">
+            <div class="rtn-empty">
+              <div class="rtn-empty-icon">🗓️</div>
+              <div class="rtn-empty-title">Track your routine visits</div>
+              <div class="rtn-empty-sub">Choose up to 20 sites you visit regularly and track them month by month.</div>
+              <button class="rtn-setup-btn" onclick="openRoutinesSitePicker()">Choose my sites</button>
+            </div>
+          </div>`;
+      }
+
+      const now = new Date();
+      const curYear = now.getFullYear();
+      const curMonth = now.getMonth() + 1; // 1-based
+      const year = state.routinesYear;
+
+      // Build grid HTML
+      let headCells = `<th class="rtn-th-site">Site</th>`;
+      for (let m = 1; m <= 12; m++) {
+        const isCur = (m === curMonth && year === curYear);
+        headCells += `<th class="rtn-th-month${isCur ? ' cur' : ''}">${MONTHS_SHORT[m - 1]}</th>`;
+      }
+
+      let rows = '';
+      r.selectedSites.forEach(site => {
+        let cells = `<td class="rtn-td-site" title="${esc(site)}">${esc(site)}</td>`;
+        for (let m = 1; m <= 12; m++) {
+          const isCur = (m === curMonth && year === curYear);
+          const key = rtnKey(site, year, m);
+          const manual = r.visits[key];
+          const auto = state.routinesAutoVisits[key];
+          const visited = manual || auto;
+          const isAuto = !manual && !!auto;
+          const dayNum = manual ? manual.day : (auto ? auto.day : null);
+
+          let btnClass = 'rtn-cell-btn';
+          if (visited) btnClass += ' visited';
+
+          const dayHtml = visited ? `<span class="rtn-day-num">${dayNum}</span>` : '';
+          const autoHtml = (visited && isAuto) ? `<span class="rtn-auto-badge">AUTO</span>` : '';
+          const dotHtml = visited ? '' : `<span class="rtn-dot"></span>`;
+
+          cells += `<td class="rtn-td-cell${isCur ? ' cur-col' : ''}">
+            <button class="${btnClass}" onclick="openRoutinesLogModal(${JSON.stringify(site)},${year},${m})" title="${esc(site)} — ${MONTHS_FULL[m-1]} ${year}">
+              ${dayHtml}${autoHtml}${dotHtml}
+            </button>
+          </td>`;
+        }
+        rows += `<tr class="rtn-tr">${cells}</tr>`;
+      });
+
+      return `
+        <div class="rtn-page">
+          <div class="rtn-top-bar">
+            <div class="rtn-year-nav">
+              <button class="rtn-year-btn" onclick="routinesChangeYear(-1)">&#8249;</button>
+              <span class="rtn-year-label">${year}</span>
+              <button class="rtn-year-btn" onclick="routinesChangeYear(1)">&#8250;</button>
+            </div>
+            <button class="rtn-edit-btn" onclick="openRoutinesSitePicker()">Edit Sites</button>
+          </div>
+          <div class="rtn-grid-scroll">
+            <table class="rtn-table">
+              <thead><tr>${headCells}</tr></thead>
+              <tbody>${rows}</tbody>
+            </table>
+          </div>
+        </div>`;
+    }
+
+    function routinesChangeYear(delta) {
+      state.routinesYear += delta;
+      render();
+    }
+
+    // ── Site picker ──────────────────────────────────────────────
+    let _rtnPickerSearch = '';
+
+    function openRoutinesSitePicker() {
+      closeThemeMenu();
+      state.routinesPickerSites = state.routines ? [...(state.routines.selectedSites || [])] : [];
+      _rtnPickerSearch = '';
+      const picker = document.getElementById('rtn-picker-modal');
+      if (picker) picker.classList.add('open');
+      renderRoutinesPickerList('');
+      const inp = document.getElementById('rtn-picker-search');
+      if (inp) { inp.value = ''; }
+    }
+
+    function closeRoutinesSitePicker() {
+      const picker = document.getElementById('rtn-picker-modal');
+      if (picker) picker.classList.remove('open');
+    }
+
+    function filterRoutinesPicker(val) {
+      _rtnPickerSearch = val;
+      renderRoutinesPickerList(val);
+    }
+
+    function renderRoutinesPickerList(search) {
+      const el = document.getElementById('rtn-picker-list');
+      if (!el) return;
+      const q = search.trim().toLowerCase();
+
+      // Get all unique location names from TOWNS (exchanges)
+      const allSites = (TOWNS || []).map(t => ({ name: t.name, code: t.code }));
+
+      // Filter
+      const filtered = q
+        ? allSites.filter(s => s.name.toLowerCase().includes(q) || s.code.toLowerCase().includes(q))
+        : allSites;
+
+      const selected = state.routinesPickerSites;
+      const selectedSet = new Set(selected);
+
+      let html = '';
+
+      // Selected sites at top (only when no search)
+      if (!q && selected.length > 0) {
+        html += `<div class="rtn-picker-section-lbl">Selected (${selected.length}/20)</div>`;
+        selected.forEach(name => {
+          const town = allSites.find(s => s.name === name);
+          const sub = town ? town.code : '';
+          html += rtnPickerRowHtml(name, sub, true);
+        });
+      }
+
+      // All / filtered sites
+      const label = q ? `Results (${filtered.length})` : 'All Locations';
+      html += `<div class="rtn-picker-section-lbl">${label}</div>`;
+      if (filtered.length === 0) {
+        html += `<div style="padding:20px 14px;color:var(--text-muted);font-size:14px;">No locations found</div>`;
+      }
+      filtered.forEach(s => {
+        html += rtnPickerRowHtml(s.name, s.code, selectedSet.has(s.name));
+      });
+
+      el.innerHTML = html;
+    }
+
+    function rtnPickerRowHtml(name, sub, checked) {
+      const checkHtml = checked
+        ? `<div class="rtn-picker-chk checked"><svg width="13" height="13" viewBox="0 0 13 13" fill="none"><polyline points="2,7 5,10 11,3" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>`
+        : `<div class="rtn-picker-chk"></div>`;
+      const subHtml = sub ? `<span class="rtn-picker-row-sub">${esc(sub)}</span>` : '';
+      return `<div class="rtn-picker-row" onclick="toggleRoutinesSite(${JSON.stringify(name)})">
+        ${checkHtml}
+        <div style="flex:1;min-width:0;">
+          <div class="rtn-picker-row-name">${esc(name)}</div>
+          ${subHtml}
+        </div>
+      </div>`;
+    }
+
+    function toggleRoutinesSite(name) {
+      const sel = state.routinesPickerSites;
+      const idx = sel.indexOf(name);
+      if (idx >= 0) {
+        sel.splice(idx, 1);
+      } else {
+        if (sel.length >= 20) { showToast('Maximum 20 sites'); return; }
+        sel.push(name);
+      }
+      renderRoutinesPickerList(_rtnPickerSearch);
+    }
+
+    async function saveRoutinesSites() {
+      if (!state.routines) state.routines = { selectedSites: [], visits: {} };
+      state.routines.selectedSites = [...state.routinesPickerSites];
+      closeRoutinesSitePicker();
+      render();
+      await fsSetRoutines().catch(() => {});
+    }
+
+    // ── Log / Detail modal ────────────────────────────────────────
+    let _rtnLogCtx = null;
+
+    function openRoutinesLogModal(site, year, month) {
+      const key = rtnKey(site, year, month);
+      const manual = state.routines && state.routines.visits ? state.routines.visits[key] : null;
+      const auto = state.routinesAutoVisits[key];
+      const existing = manual || auto;
+      const isAuto = !manual && !!auto;
+
+      _rtnLogCtx = { site, year, month, key, isAuto };
+
+      const titleEl = document.getElementById('rtn-log-title');
+      const subEl = document.getElementById('rtn-log-sub');
+      const srcEl = document.getElementById('rtn-log-source');
+      const dateEl = document.getElementById('rtn-log-date');
+      const btnsEl = document.getElementById('rtn-log-btns');
+      const dateWrap = document.getElementById('rtn-log-date-wrap');
+
+      if (!titleEl) return;
+
+      titleEl.textContent = site;
+      subEl.textContent = MONTHS_FULL[month - 1] + ' ' + year;
+
+      if (isAuto && auto) {
+        srcEl.style.display = '';
+        srcEl.textContent = '📋 Auto-filled from timesheet';
+        dateWrap.style.display = '';
+        dateEl.value = year + '-' + String(month).padStart(2,'0') + '-' + String(auto.day).padStart(2,'0');
+        btnsEl.innerHTML = `
+          <button class="rtn-log-btn primary" onclick="saveRoutinesVisit()">Update date</button>
+          <button class="rtn-log-btn danger" onclick="removeRoutinesVisit()">Remove</button>
+          <button class="rtn-log-btn cancel" onclick="closeRoutinesLogModal()">Cancel</button>`;
+      } else if (manual) {
+        srcEl.style.display = 'none';
+        dateWrap.style.display = '';
+        dateEl.value = year + '-' + String(month).padStart(2,'0') + '-' + String(manual.day).padStart(2,'0');
+        btnsEl.innerHTML = `
+          <button class="rtn-log-btn primary" onclick="saveRoutinesVisit()">Update</button>
+          <button class="rtn-log-btn danger" onclick="removeRoutinesVisit()">Remove</button>
+          <button class="rtn-log-btn cancel" onclick="closeRoutinesLogModal()">Cancel</button>`;
+      } else {
+        srcEl.style.display = 'none';
+        dateWrap.style.display = '';
+        // Default to first day of month
+        const today = new Date();
+        const defaultDay = (today.getFullYear() === year && today.getMonth() + 1 === month) ? today.getDate() : 1;
+        dateEl.value = year + '-' + String(month).padStart(2,'0') + '-' + String(defaultDay).padStart(2,'0');
+        btnsEl.innerHTML = `
+          <button class="rtn-log-btn primary" onclick="saveRoutinesVisit()">Log visit</button>
+          <button class="rtn-log-btn cancel" onclick="closeRoutinesLogModal()">Cancel</button>`;
+      }
+
+      document.getElementById('rtn-log-modal').classList.add('open');
+    }
+
+    function closeRoutinesLogModal() {
+      const el = document.getElementById('rtn-log-modal');
+      if (el) el.classList.remove('open');
+      _rtnLogCtx = null;
+    }
+
+    async function saveRoutinesVisit() {
+      if (!_rtnLogCtx || !state.routines) return;
+      const { site, year, month, key } = _rtnLogCtx;
+      const dateEl = document.getElementById('rtn-log-date');
+      if (!dateEl || !dateEl.value) return;
+      const parts = dateEl.value.split('-');
+      const day = parseInt(parts[2]);
+      if (!day) return;
+      if (!state.routines.visits) state.routines.visits = {};
+      state.routines.visits[key] = { day };
+      closeRoutinesLogModal();
+      render();
+      await fsSetRoutines().catch(() => {});
+    }
+
+    async function removeRoutinesVisit() {
+      if (!_rtnLogCtx || !state.routines) return;
+      const { key } = _rtnLogCtx;
+      if (state.routines.visits) delete state.routines.visits[key];
+      closeRoutinesLogModal();
+      render();
+      await fsSetRoutines().catch(() => {});
     }
 
     async function init() {
@@ -7916,7 +8369,7 @@
       }
 
       const lastView = localStorage.getItem('lastView');
-      if (lastView === 'notes' || lastView === 'history' || lastView === 'exchanges') state.view = lastView;
+      if (lastView === 'notes' || lastView === 'history' || lastView === 'exchanges' || lastView === 'routines') state.view = lastView;
 
       await Promise.all([initDB(), loadCodes(), loadTowns(), loadCabinets()]);
 
@@ -7954,6 +8407,7 @@
         await loadWeek(dateToStr(friday));
 
         if (state.view === 'notes') loadNotes();
+        else if (state.view === 'routines') loadRoutines();
       });
     }
 
