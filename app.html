@@ -8076,7 +8076,8 @@
           day.activities.forEach(act => {
             const desc = (act.description || '').trim().toLowerCase();
             if (desc !== 'routines') return;
-            const loc = (act.location || '').trim();
+            // Location modal stores "Name (CODE)" — strip the code suffix to match picker keys
+            const loc = (act.location || '').trim().replace(/\s*\([^)]+\)$/, '');
             if (!loc) return;
             // Parse the date to get year/month
             const parts = day.date.split('-');
