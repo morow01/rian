@@ -360,6 +360,61 @@
       color: var(--accent, #2D6BE4);
     }
 
+    /* Code Groups Styles */
+    .group-card {
+      background: white;
+      border: 2px dashed #D4E0EC;
+      border-radius: 16px;
+      padding: 16px;
+      margin: 8px 12px 16px 12px;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+    }
+    .group-card:active {
+      transform: scale(0.97);
+    }
+    .group-card.selected {
+      border-color: var(--accent);
+      background: var(--accent-light);
+    }
+    .group-badge {
+      font-size: 9px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--accent);
+      background: #EBF1FD;
+      padding: 2px 6px;
+      border-radius: 4px;
+      margin-bottom: 6px;
+      display: inline-block;
+    }
+    .group-title {
+       font-size: 15px;
+       font-weight: 800;
+       color: var(--text-primary);
+       margin-bottom: 2px;
+    }
+    .group-desc {
+       font-size: 12px;
+       color: var(--text-secondary);
+       margin-bottom: 10px;
+    }
+    .group-codes-row {
+       display: flex;
+       flex-wrap: wrap;
+       gap: 4px;
+    }
+    .group-code-tag {
+       font-size: 10px;
+       font-family: var(--font-mono);
+       background: rgba(0,0,0,0.05);
+       color: var(--text-muted);
+       padding: 2px 6px;
+       border-radius: 4px;
+    }
+
     .act-missing-warn {
       font-size: 11px;
       color: var(--btn-danger-color);
@@ -3993,6 +4048,7 @@
     // Edit codes.xlsx, run update-codes.py, then push to deploy changes
     // ============================================================
     let WORK_CODES = [];
+    let CODE_GROUPS = [];
 
     // ============================================================
     // TOWNS AUTOCOMPLETE
@@ -4233,10 +4289,20 @@
         const res = await fetch('codes.json?v=' + VERSION);
         if (!res.ok) throw new Error('fetch failed');
         const data = await res.json();
-        WORK_CODES = data.map(e => ({ a: e.category, d: e.description, c: e.code }));
+        
+        if (data && data.codes && Array.isArray(data.codes)) {
+          // New format with groups
+          WORK_CODES = data.codes.map(e => ({ a: e.category, d: e.description, c: e.code }));
+          CODE_GROUPS = data.groups || [];
+        } else if (Array.isArray(data)) {
+          // Legacy format (flat array)
+          WORK_CODES = data.map(e => ({ a: e.category, d: e.description, c: e.code }));
+          CODE_GROUPS = [];
+        }
       } catch (_) {
         // offline or missing — use embedded fallback so the app still works
         WORK_CODES = FALLBACK_CODES;
+        CODE_GROUPS = [];
       }
     }
 
@@ -7179,12 +7245,51 @@
     function renderCodeList() {
       const el = document.getElementById('code-list');
       const selected = new Set(codeModalCtx.selected.map(c => c.c));
+      const query = document.getElementById('code-search').value.toLowerCase();
 
-      // Group by activity
-      const groups = {};
-      filteredCodes.forEach(c => { (groups[c.a] = groups[c.a] || []).push(c); });
+      let html = '';
 
-      el.innerHTML = Object.entries(groups).map(([grp, codes]) => `
+      // Render Groups (only if no active search or if group names match)
+      const visibleGroups = CODE_GROUPS.filter(g => !query || g.name.toLowerCase().includes(query));
+      if (visibleGroups.length > 0) {
+        html += `
+          <div class="px-4 py-2.5 text-xs font-black uppercase tracking-widest sticky top-0 z-10 flex items-center justify-between" 
+               style="background:var(--bg-code-group); color:var(--accent)">
+            <span>Quick Code Groups</span>
+          </div>
+          <div class="pb-2">
+            ${visibleGroups.map(g => {
+              // Check if all codes in group are already selected
+              const allSelected = g.codes.every(gc => selected.has(gc.c));
+              return `
+                <div class="group-card ${allSelected ? 'selected' : ''}" onclick="toggleCodeGroup('${g.id}')">
+                  <div class="flex justify-between">
+                    <div>
+                      <span class="group-badge">Multi-Select Bundle</span>
+                      <div class="group-title">${g.name}</div>
+                    </div>
+                    <div class="w-8 h-8 rounded-full flex items-center justify-center transition-colors" style="background:${allSelected ? 'var(--accent)' : 'var(--bg-page)'}; color:${allSelected ? 'white' : 'var(--accent)'}">
+                       ${allSelected ? '✓' : `
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                          <path d="M12 5v14M5 12h14" stroke-linecap="round"/>
+                        </svg>`}
+                    </div>
+                  </div>
+                  <div class="group-desc">${g.description}</div>
+                  <div class="group-codes-row">
+                    ${g.codes.map(gc => `<span class="group-code-tag">${gc.c}</span>`).join('')}
+                  </div>
+                </div>`;
+            }).join('')}
+          </div>
+        `;
+      }
+
+      // Group by activity for individual codes
+      const categories = {};
+      filteredCodes.forEach(c => { (categories[c.a] = categories[c.a] || []).push(c); });
+
+      html += Object.entries(categories).map(([grp, codes]) => `
     <div>
       <div class="px-4 py-2 text-xs font-bold uppercase tracking-wide sticky top-0 z-10" style="background:var(--bg-code-group);color:var(--text-muted)">${grp}</div>
       ${codes.map(c => {
@@ -7201,6 +7306,8 @@
         </button>`;
       }).join('')}
     </div>`).join('');
+
+      el.innerHTML = html;
     }
 
     function toggleCode(code, desc, activity) {
@@ -7208,6 +7315,31 @@
       const idx = sel.findIndex(c => c.c === code);
       if (idx >= 0) sel.splice(idx, 1);
       else sel.push({ c: code, d: desc, a: activity });
+      renderCodeList();
+    }
+
+    function toggleCodeGroup(groupId) {
+      const group = CODE_GROUPS.find(g => g.id === groupId);
+      if (!group) return;
+
+      const sel = codeModalCtx.selected;
+      const currentCodes = new Set(sel.map(c => c.c));
+      const allIncluded = group.codes.every(gc => currentCodes.has(gc.c));
+
+      if (allIncluded) {
+        // Remove all codes in group
+        group.codes.forEach(gc => {
+          const idx = sel.findIndex(c => c.c === gc.c);
+          if (idx >= 0) sel.splice(idx, 1);
+        });
+      } else {
+        // Add missing codes
+        group.codes.forEach(gc => {
+          if (!currentCodes.has(gc.c)) {
+            sel.push({ c: gc.c, d: gc.d, a: gc.a });
+          }
+        });
+      }
       renderCodeList();
     }
 

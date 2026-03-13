@@ -1,4 +1,5 @@
-[
+{
+  "codes": [
   {
     "category": "COW & Escort",
     "description": "COW-Escort; Meteor",
@@ -804,4 +805,17 @@
     "description": "Test Field No 3",
     "code": "Y789"
   }
-]
+  ],
+  "groups": [
+    {
+      "id": "routines-bundle",
+      "name": "Routines Bundle",
+      "description": "Adds 3 codes: Power RSU, DSL, and SDH.",
+      "codes": [
+        { "c": "MXY0005A10", "d": "Routine Power RSU", "a": "Routines" },
+        { "c": "MCY0003A10", "d": "Routine DSL", "a": "Routines" },
+        { "c": "MTX0005A10", "d": "Routine SDH", "a": "Routines" }
+      ]
+    }
+  ]
+}
