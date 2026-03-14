@@ -4170,7 +4170,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '4.0.1';
+    const VERSION = '4.0.2';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -8598,14 +8598,15 @@
         result.ordinary = '0.25';
       }
 
-      // ── Location: longest matching town name or code ─────────────
+      // ── Location: word-boundary match to avoid "BLI" matching inside "Dublin" ──
+      const voiceWB = needle => new RegExp('\\b' + needle.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\b', 'i');
       let bestTown = null, bestLen = 0;
       for (const town of (TOWNS || [])) {
         const name = town.name.toLowerCase();
         const code = town.code.toLowerCase();
-        if (t.includes(name) && name.length > bestLen) {
+        if (voiceWB(name).test(t) && name.length > bestLen) {
           bestTown = town; bestLen = name.length;
-        } else if (t.includes(code) && code.length > bestLen) {
+        } else if (voiceWB(code).test(t) && code.length > bestLen) {
           bestTown = town; bestLen = code.length;
         }
       }
