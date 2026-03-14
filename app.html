@@ -4173,7 +4173,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '4.1.4';
+    const VERSION = '4.1.5';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -8893,8 +8893,22 @@ Rules:
         if (!dayMatched && /\byesterday\b/i.test(text)) { result.dayIndex = todayIdx > 0 ? todayIdx - 1 : 0; dayMatched = true; }
         if (!dayMatched) result.dayIndex = todayIdx; // default to today when no day mentioned
 
-        // ── Location: match by name OR code (e.g. "SLS" → Sallins) ──
-        if (p.location) {
+        // ── Location: scan original transcript first for spoken codes (most reliable),
+        //    then fall back to Gemini's suggested name ──
+        const wbRe = n => new RegExp('\\b' + n.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\b', 'i');
+        let locTown = null, locLen = 0;
+        for (const town of (TOWNS || [])) {
+          // Code match beats name match for same length; longer always wins
+          if (wbRe(town.code).test(text) && town.code.length >= locLen) {
+            locTown = town; locLen = town.code.length;
+          } else if (wbRe(town.name).test(text) && town.name.length > locLen) {
+            locTown = town; locLen = town.name.length;
+          }
+        }
+        if (locTown) {
+          result.location = `${locTown.name} (${locTown.code})`;
+        } else if (p.location) {
+          // Gemini's guess — try to match it against towns as a fallback
           const loc = p.location.toLowerCase();
           const match = (TOWNS || []).find(t =>
             t.name.toLowerCase() === loc ||
