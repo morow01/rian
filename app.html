@@ -4173,7 +4173,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '4.1.2';
+    const VERSION = '4.1.3';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -8820,7 +8820,8 @@
         ? (() => { const i = state.weekData.days.findIndex(d => d.date === dateToStr(new Date())); return i >= 0 ? i : 0; })()
         : 0;
 
-      const locs = (TOWNS || []).map(t => t.name).join(', ');
+      // Include both name and code so Gemini can match spoken abbreviations like "SLS" → Sallins
+      const locs = (TOWNS || []).map(t => `${t.name} (${t.code})`).join(', ');
 
       const prompt = `You are a field engineer timesheet assistant. Extract structured data from this spoken entry.
 
@@ -8842,7 +8843,7 @@ Return ONLY valid JSON:
 
 Rules:
 - description: extract the SPECIFIC task or fault type — NOT generic words like "work" or "working". Examples: "fiber break"→"Fiber Break", "cable fault"→"Cable Fault", "pole replacement"→"Pole Replacement", "site survey"→"Site Survey". If routines/routine/rtn → "Routines" and isRoutines=true.
-- location: fuzzy-match the place name against known locations. Return matched name only (no code). If not in list, return what was said. Empty string only if no place mentioned.
+- location: match against known locations by name OR code abbreviation (e.g. "SLS"→Sallins, "DUB"→Dublin). Return matched name only, no code, no brackets. If not in list, return what was said. Empty string only if no place mentioned.
 - hours: ordinary/regular hours as a number. Convert words (two=2, three=3, half=0.5). 0 if not mentioned.
 - overtime: overtime hours as a number. Look for words like "overtime", "OT", "over time". Convert words to digits. 0 if not mentioned.
 - dayIndex: integer index from week days. Use today (${todayIdx}) if no day mentioned.`;
@@ -8875,13 +8876,27 @@ Rules:
         result.description = p.description || '';
         result.ordinary    = p.hours > 0 ? String(p.hours) : '';
         result.overtime    = p.overtime > 0 ? String(p.overtime) : '';
-        result.dayIndex    = typeof p.dayIndex === 'number' ? p.dayIndex : todayIdx;
 
+        // ── Day: re-match against actual week days in JS — more reliable than trusting Gemini's index ──
+        const tLow = text.toLowerCase();
+        let dayMatched = false;
+        if (state.weekData) {
+          for (let i = 0; i < DAY_NAMES.length; i++) {
+            if (tLow.includes(DAY_NAMES[i].toLowerCase())) {
+              result.dayIndex = i; dayMatched = true; break;
+            }
+          }
+        }
+        if (!dayMatched) result.dayIndex = typeof p.dayIndex === 'number' ? p.dayIndex : todayIdx;
+
+        // ── Location: match by name OR code (e.g. "SLS" → Sallins) ──
         if (p.location) {
+          const loc = p.location.toLowerCase();
           const match = (TOWNS || []).find(t =>
-            t.name.toLowerCase() === p.location.toLowerCase() ||
-            t.name.toLowerCase().includes(p.location.toLowerCase()) ||
-            p.location.toLowerCase().includes(t.name.toLowerCase())
+            t.name.toLowerCase() === loc ||
+            t.code.toLowerCase() === loc ||
+            t.name.toLowerCase().includes(loc) ||
+            loc.includes(t.name.toLowerCase())
           );
           result.location = match ? `${match.name} (${match.code})` : p.location;
         }
