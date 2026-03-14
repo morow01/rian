@@ -3926,6 +3926,16 @@
     .vl-btn { padding:12px 28px; border-radius:24px; border:none; font-size:15px; font-weight:700; cursor:pointer; }
     .vl-btn.done { background:#fff; color:#0F1C2E; }
     .vl-btn.cancel { background:rgba(255,255,255,0.12); color:#fff; }
+    /* Text fallback mode */
+    #voice-listen-modal.text-mode .vl-ring { display:none; }
+    #voice-listen-modal.text-mode .vl-transcript { display:none; }
+    #voice-listen-modal.text-mode .vl-btn.done { display:none; }
+    .vl-text-wrap { display:none; flex-direction:column; align-items:center; gap:14px; width:100%; max-width:340px; }
+    #voice-listen-modal.text-mode .vl-text-wrap { display:flex; }
+    .vl-text-title { color:#fff; font-size:18px; font-weight:700; text-align:center; }
+    .vl-text-input { width:100%; box-sizing:border-box; padding:14px 16px; border-radius:14px; border:none; font-size:15px; background:rgba(255,255,255,0.12); color:#fff; outline:none; }
+    .vl-text-input::placeholder { color:rgba(255,255,255,0.4); }
+    .vl-btn.submit { background:var(--accent); color:#fff; }
     /* Confirm bottom sheet */
     #voice-confirm-modal { display:none; position:fixed; inset:0; z-index:520; background:rgba(0,0,0,0.5); align-items:flex-end; justify-content:center; }
     #voice-confirm-modal.open { display:flex; }
@@ -4154,7 +4164,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '3.9.8';
+    const VERSION = '3.9.9';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -8443,7 +8453,15 @@
 
     function startVoiceEntry() {
       if (!voiceSupported()) {
-        showToast('Voice not supported in this browser — use Chrome');
+        // Text fallback for Firefox, Brave, Safari, etc.
+        const modal = document.getElementById('voice-listen-modal');
+        const hint = document.getElementById('vl-hint');
+        const submitBtn = document.getElementById('vl-submit-btn');
+        const textInput = document.getElementById('vl-text-input');
+        if (modal) { modal.classList.add('open'); modal.classList.add('text-mode'); }
+        if (hint) hint.style.display = 'none';
+        if (submitBtn) submitBtn.style.display = '';
+        if (textInput) { textInput.value = ''; setTimeout(() => textInput.focus(), 100); }
         return;
       }
       voiceRawTranscript = '';
@@ -8451,7 +8469,7 @@
       const modal = document.getElementById('voice-listen-modal');
       const ring = document.getElementById('vl-ring');
       const txt = document.getElementById('vl-transcript');
-      if (modal) modal.classList.add('open');
+      if (modal) { modal.classList.add('open'); modal.classList.remove('text-mode'); }
       if (ring) ring.classList.add('active');
       if (txt) txt.textContent = 'Listening…';
       // Update FAB
@@ -8500,13 +8518,25 @@
       const fab = document.getElementById('voice-fab');
       if (fab) fab.classList.remove('listening');
       const listenModal = document.getElementById('voice-listen-modal');
-      if (listenModal) listenModal.classList.remove('open');
+      if (listenModal) { listenModal.classList.remove('open'); listenModal.classList.remove('text-mode'); }
 
       const transcript = voiceRawTranscript.trim();
       if (!transcript) { showToast('Nothing heard — try again'); return; }
 
       const parsed = parseVoiceText(transcript);
       showVoiceConfirm(parsed, transcript);
+    }
+
+    function submitTextFallback() {
+      const input = document.getElementById('vl-text-input');
+      const text = (input ? input.value : '').trim();
+      if (!text) { showToast('Please type your entry first'); return; }
+      const listenModal = document.getElementById('voice-listen-modal');
+      if (listenModal) { listenModal.classList.remove('open'); listenModal.classList.remove('text-mode'); }
+      const submitBtn = document.getElementById('vl-submit-btn');
+      if (submitBtn) submitBtn.style.display = 'none';
+      const parsed = parseVoiceText(text);
+      showVoiceConfirm(parsed, text);
     }
 
     function parseVoiceText(text) {
@@ -8641,8 +8671,10 @@
       if (fab) fab.classList.remove('listening');
       ['voice-listen-modal', 'voice-confirm-modal'].forEach(id => {
         const el = document.getElementById(id);
-        if (el) el.classList.remove('open');
+        if (el) { el.classList.remove('open'); el.classList.remove('text-mode'); }
       });
+      const submitBtn = document.getElementById('vl-submit-btn');
+      if (submitBtn) submitBtn.style.display = 'none';
     }
 
     async function init() {
@@ -8728,9 +8760,16 @@
       </svg>
     </div>
     <div class="vl-transcript" id="vl-transcript">Listening…</div>
-    <div class="vl-hint">Speak clearly — e.g. "Routines in Kildare, 2 hours, Wednesday"</div>
+    <div class="vl-hint" id="vl-hint">Speak clearly — e.g. "Routines in Kildare, 2 hours, Wednesday"</div>
+    <!-- Text fallback (shown when voice not supported) -->
+    <div class="vl-text-wrap" id="vl-text-wrap">
+      <div class="vl-text-title">Quick Entry</div>
+      <input class="vl-text-input" id="vl-text-input" type="text" placeholder='e.g. "Routines in Kildare, 2 hours, Wednesday"' autocomplete="off">
+      <div style="color:rgba(255,255,255,0.45);font-size:12px;text-align:center;">Voice not available in this browser. Type your entry above.</div>
+    </div>
     <div class="vl-btns">
       <button class="vl-btn done" onclick="stopVoiceRecognition()">Done</button>
+      <button class="vl-btn submit" id="vl-submit-btn" style="display:none" onclick="submitTextFallback()">Add</button>
       <button class="vl-btn cancel" onclick="cancelVoice()">Cancel</button>
     </div>
   </div>
