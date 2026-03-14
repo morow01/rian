@@ -292,7 +292,7 @@
     .act-field-label-ot {
       color: var(--text-ot);
     }
-    .act-dictate-bar { display:flex; align-items:center; justify-content:center; gap:6px; padding:8px 12px; border-top:1px solid var(--border); background:var(--bg-card-alt); color:var(--text-muted); font-size:12px; font-weight:600; cursor:pointer; -webkit-tap-highlight-color:transparent; transition:background 0.15s, color 0.15s; border-radius:0 0 10px 10px; }
+    .act-dictate-bar { display:flex; align-items:center; justify-content:center; gap:6px; padding:9px 12px; margin:10px -14px 0; border-top:1px solid var(--border); background:var(--bg-card-alt); color:var(--text-muted); font-size:12px; font-weight:600; cursor:pointer; -webkit-tap-highlight-color:transparent; transition:background 0.15s, color 0.15s; border-radius:0 0 8px 8px; }
     .act-dictate-bar:active { background:var(--accent-light); color:var(--accent); }
     .act-dictate-bar svg { color:var(--accent); flex-shrink:0; }
     .act-dictate-bar.listening { background:var(--accent-light); color:#e53935; }
@@ -670,7 +670,7 @@
 
     .notes-panel-body.open {
       max-height: 400px;
-      padding: 14px;
+      padding: 14px 14px 0;
       border-top: 1.5px solid #EBEBEA;
     }
 
@@ -4213,7 +4213,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '4.1.16';
+    const VERSION = '4.1.17';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
