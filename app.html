@@ -4173,7 +4173,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '4.0.7';
+    const VERSION = '4.0.8';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -8757,10 +8757,10 @@
             body: JSON.stringify({ contents: [{ parts: [{ text: 'Reply with the single word OK' }] }] })
           }
         );
-        const err = await res.json().catch(() => ({}));
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({}));
           const code = res.status;
           const msg = err?.error?.message || err?.error?.status || ('HTTP ' + code);
-          // Always show raw status + first 120 chars of message so we can diagnose
           if (status) {
             status.textContent = `❌ [${code}] ${msg.substring(0, 120)}`;
             status.style.color = '#e53935';
