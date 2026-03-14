@@ -4170,7 +4170,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '4.0.2';
+    const VERSION = '4.0.3';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -8584,6 +8584,24 @@
         result.codes = VOICE_ROUTINES_BUNDLE
           .map(code => WORK_CODES.find(c => c.c === code))
           .filter(Boolean);
+      } else {
+        // General description extraction — stops before location or hours cues
+        // Handles: "on a fibre fault", "doing maintenance", "working on installation"
+        const numWords = 'one|two|three|four|five|six|seven|eight|nine|ten';
+        const stop = `(?=\\s+(?:for\\s+(?:\\d|${numWords})\\b|in\\b|at\\b)|[,.]|\\s*$)`;
+        const descPats = [
+          new RegExp(`\\bworking\\s+on\\s+(?:a\\s+|an\\s+|the\\s+)?([\\w][\\w ]+?)${stop}`, 'i'),
+          new RegExp(`\\bdoing\\s+(?:a\\s+|an\\s+|the\\s+)?([\\w][\\w ]+?)${stop}`, 'i'),
+          new RegExp(`\\bon\\s+(?:a\\s+|an\\s+|the\\s+)([\\w][\\w ]+?)${stop}`, 'i'),
+          new RegExp(`\\bfor\\s+(?:a\\s+|an\\s+|the\\s+)([\\w][\\w ]+?)${stop}`, 'i'),
+        ];
+        for (const pat of descPats) {
+          const m = text.match(pat);
+          if (m) {
+            result.description = m[1].trim().replace(/\b\w/g, c => c.toUpperCase());
+            break;
+          }
+        }
       }
 
       // ── Hours: "2 hours", "two hours", "half an hour", etc. ────────
