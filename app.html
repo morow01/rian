@@ -3925,6 +3925,16 @@
     .voice-fab:active { transform:scale(0.9); }
     .voice-fab.vf-hidden { opacity:0; pointer-events:none; }
     .voice-fab.listening { background:#e53935; animation:voiceFabPulse 1s ease-in-out infinite; }
+    .note-voice-fab { position:fixed; right:20px; bottom:28px; z-index:500; width:56px; height:56px; border-radius:50%; background:#7c3aed; color:#fff; border:none; box-shadow:0 4px 18px rgba(124,58,237,0.45); display:flex; align-items:center; justify-content:center; cursor:pointer; -webkit-tap-highlight-color:transparent; transition:transform 0.15s, opacity 0.2s; }
+    .note-voice-fab:active { transform:scale(0.9); }
+    .note-voice-fab.vf-hidden { opacity:0; pointer-events:none; }
+    .note-voice-fab.listening { background:#e53935; animation:voiceFabPulse 1s ease-in-out infinite; }
+    /* Note voice confirm priority chips */
+    .nvc-pri-wrap { display:flex; gap:8px; flex-wrap:wrap; }
+    .nvc-pri-btn { flex:1; padding:9px 4px; border:2px solid var(--border); border-radius:10px; background:var(--bg-page); color:var(--text-secondary); font-size:13px; font-weight:700; cursor:pointer; transition:all 0.15s; }
+    .nvc-pri-btn.sel-high { border-color:#ef4444; background:#fef2f2; color:#ef4444; }
+    .nvc-pri-btn.sel-medium { border-color:#f59e0b; background:#fffbeb; color:#f59e0b; }
+    .nvc-pri-btn.sel-low { border-color:#22c55e; background:#f0fdf4; color:#22c55e; }
     @keyframes voiceFabPulse { 0%,100%{box-shadow:0 4px 18px rgba(229,57,53,0.5)} 50%{box-shadow:0 4px 28px rgba(229,57,53,0.85)} }
     /* Listening overlay */
     #voice-listen-modal { display:none; position:fixed; inset:0; z-index:510; background:rgba(10,18,30,0.82); align-items:center; justify-content:center; flex-direction:column; gap:22px; padding:20px; }
@@ -3949,8 +3959,8 @@
     .vl-text-input::placeholder { color:rgba(255,255,255,0.4); }
     .vl-btn.submit { background:var(--accent); color:#fff; }
     /* Confirm bottom sheet */
-    #voice-confirm-modal { display:none; position:fixed; inset:0; z-index:520; background:rgba(0,0,0,0.5); align-items:flex-end; justify-content:center; }
-    #voice-confirm-modal.open { display:flex; }
+    #voice-confirm-modal, #note-voice-confirm-modal { display:none; position:fixed; inset:0; z-index:520; background:rgba(0,0,0,0.5); align-items:flex-end; justify-content:center; }
+    #voice-confirm-modal.open, #note-voice-confirm-modal.open { display:flex; }
     .vc-sheet { background:var(--bg-modal); border-radius:24px 24px 0 0; padding:22px 18px 36px; width:100%; max-width:480px; max-height:88vh; overflow-y:auto; }
     .vc-heard { font-size:12px; color:var(--text-muted); background:var(--bg-card-alt); border-radius:8px; padding:8px 12px; margin-bottom:16px; line-height:1.5; }
     .vc-heard strong { color:var(--text-secondary); }
@@ -4176,7 +4186,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '4.1.6';
+    const VERSION = '4.1.7';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -5319,9 +5329,11 @@
       requestAnimationFrame(fixTimelineLines);
       // Sync sticky header width/scroll for Routines view
       if (state.view === 'routines') requestAnimationFrame(initRtnStickyHeader);
-      // Show voice FAB on the week view (always visible — unsupported browsers get a toast on tap)
+      // Show voice FAB on the week view, note voice FAB on the notes view
       const fab = document.getElementById('voice-fab');
       if (fab) fab.classList.toggle('vf-hidden', state.view !== 'week');
+      const noteFab = document.getElementById('note-voice-fab');
+      if (noteFab) noteFab.classList.toggle('vf-hidden', state.view !== 'notes');
     }
 
     function fixTimelineLines() {
@@ -8481,12 +8493,30 @@
     let voiceRec = null;
     let voiceRawTranscript = '';
     let voiceConfirmCodes = []; // array of {a,d,c} objects currently selected in confirm sheet
+    let voiceMode = 'timesheet'; // 'timesheet' | 'note'
+    let nvcPriority = 'medium'; // selected priority in note voice confirm
 
     function voiceSupported() {
       return !!(window.SpeechRecognition || window.webkitSpeechRecognition);
     }
 
+    function startNoteVoice() {
+      voiceMode = 'note';
+      const hint = document.getElementById('vl-hint');
+      if (hint) hint.textContent = 'Speak your note — e.g. "Fix router in Kildare, high priority"';
+      const textInput = document.getElementById('vl-text-input');
+      if (textInput) textInput.placeholder = 'e.g. "Fix router in Kildare, high priority"';
+      startVoiceEntry();
+    }
+
     function startVoiceEntry() {
+      // Reset hint for timesheet mode (note mode sets its own hint before calling this)
+      if (voiceMode === 'timesheet') {
+        const hint = document.getElementById('vl-hint');
+        if (hint) hint.textContent = 'Speak clearly — e.g. "Routines in Kildare, 2 hours, Wednesday"';
+        const textInput = document.getElementById('vl-text-input');
+        if (textInput) textInput.placeholder = 'e.g. "Routines in Kildare, 2 hours, Wednesday"';
+      }
       if (!voiceSupported()) {
         // Text fallback for Firefox, Brave, Safari, etc.
         const modal = document.getElementById('voice-listen-modal');
@@ -8507,9 +8537,11 @@
       if (modal) { modal.classList.add('open'); modal.classList.remove('text-mode'); }
       if (ring) ring.classList.add('active');
       if (txt) txt.textContent = 'Listening…';
-      // Update FAB
+      // Update the relevant FAB
       const fab = document.getElementById('voice-fab');
       if (fab) fab.classList.add('listening');
+      const noteFab = document.getElementById('note-voice-fab');
+      if (noteFab) noteFab.classList.add('listening');
 
       const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
       voiceRec = new SR();
@@ -8552,7 +8584,11 @@
       const transcript = voiceRawTranscript.trim();
       if (!transcript) { showToast('Nothing heard — try again'); return; }
 
-      await processEntryText(transcript);
+      if (voiceMode === 'note') {
+        await processNoteText(transcript);
+      } else {
+        await processEntryText(transcript);
+      }
     }
 
     async function submitTextFallback() {
@@ -8563,7 +8599,11 @@
       if (listenModal) { listenModal.classList.remove('open'); listenModal.classList.remove('text-mode'); }
       const submitBtn = document.getElementById('vl-submit-btn');
       if (submitBtn) submitBtn.style.display = 'none';
-      await processEntryText(text);
+      if (voiceMode === 'note') {
+        await processNoteText(text);
+      } else {
+        await processEntryText(text);
+      }
     }
 
     async function processEntryText(text) {
@@ -8752,6 +8792,181 @@
       scheduleAutoSave();
       render();
       showToast('Entry added ✓');
+    }
+
+    // ══════════════════════════════════════════════
+    //  NOTE VOICE FEATURE
+    // ══════════════════════════════════════════════
+
+    async function processNoteText(text) {
+      const modal = document.getElementById('note-voice-confirm-modal');
+      const sheet = modal ? modal.querySelector('.vc-sheet') : null;
+      if (modal) modal.classList.add('open');
+      if (sheet) sheet.style.opacity = '0.5';
+      const heardEl = document.getElementById('nvc-heard-text');
+      if (heardEl) heardEl.textContent = text;
+      const titleEl = modal ? modal.querySelector('.vc-title') : null;
+
+      let parsed;
+      if (state.geminiKey) {
+        if (titleEl) titleEl.textContent = 'Parsing with AI…';
+        const geminiResult = await parseNoteWithGemini(text);
+        parsed = geminiResult || parseNoteVoiceText(text);
+      } else {
+        parsed = parseNoteVoiceText(text);
+      }
+
+      if (sheet) sheet.style.opacity = '';
+      if (titleEl) titleEl.textContent = 'Add Note';
+      showNoteVoiceConfirm(parsed, text);
+    }
+
+    function parseNoteVoiceText(text) {
+      const result = { description: '', location: '', priority: 'medium' };
+
+      // ── Priority ─────────────────────────────────
+      if (/\b(urgent|critical|important|high priority|asap)\b/i.test(text)) {
+        result.priority = 'high';
+      } else if (/\b(low priority|minor|whenever|not urgent)\b/i.test(text)) {
+        result.priority = 'low';
+      } else if (/\b(medium|normal|moderate)\b/i.test(text)) {
+        result.priority = 'medium';
+      }
+
+      // ── Location ─────────────────────────────────
+      const wbRe = n => new RegExp('\\b' + n.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\b', 'i');
+      let locTown = null, locLen = 0;
+      for (const town of (TOWNS || [])) {
+        if (wbRe(town.code).test(text) && town.code.length >= locLen) {
+          locTown = town; locLen = town.code.length;
+        } else if (wbRe(town.name).test(text) && town.name.length > locLen) {
+          locTown = town; locLen = town.name.length;
+        }
+      }
+      if (locTown) result.location = `${locTown.name} (${locTown.code})`;
+
+      // ── Description ──────────────────────────────
+      // Strip out priority and location words, clean up what remains
+      let desc = text;
+      if (locTown) {
+        desc = desc.replace(wbRe(locTown.code), '').replace(wbRe(locTown.name), '');
+      }
+      desc = desc
+        .replace(/\b(urgent|critical|important|high priority|asap|low priority|minor|whenever|not urgent|medium|normal|moderate)\b/gi, '')
+        .replace(/\b(in|at|near|for|the|a|an)\b/gi, ' ')
+        .replace(/\s+/g, ' ').trim();
+      result.description = desc.replace(/\b\w/g, c => c.toUpperCase());
+
+      return result;
+    }
+
+    async function parseNoteWithGemini(text) {
+      const key = state.geminiKey;
+      if (!key) return null;
+
+      let model = state.geminiModel;
+      if (!model) {
+        model = await discoverGeminiModel(key);
+        if (model) { state.geminiModel = model; localStorage.setItem('geminiModel', model); }
+      }
+      if (!model) return null;
+
+      const locationSample = (TOWNS || []).slice(0, 40).map(t => `${t.name} (${t.code})`).join(', ');
+
+      const prompt = `Extract details from this spoken note. Return ONLY valid JSON, no markdown, no extra text.
+Input: "${text.replace(/"/g, "'")}"
+Known locations (name, code): ${locationSample} … (and more)
+Return: { "description": "...", "location": "...", "priority": "high|medium|low" }
+Rules:
+- description: the main task, reminder, or subject. Be specific. Title-case it.
+- location: if a town/exchange is mentioned by name or code, return "Name (CODE)". Otherwise return "".
+- priority: "high" if urgent/critical/important/asap, "low" if minor/low/whenever, else "medium".`;
+
+      try {
+        const res = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+          }
+        );
+        if (!res.ok) return null;
+        const data = await res.json();
+        const raw = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+        const jsonStr = raw.replace(/```json\s*/gi, '').replace(/```/g, '').trim();
+        const p = JSON.parse(jsonStr);
+
+        const result = { description: p.description || '', location: '', priority: 'medium' };
+
+        // Trust JS location scan over Gemini (more reliable with spoken codes)
+        const wbRe = n => new RegExp('\\b' + n.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\b', 'i');
+        let locTown = null, locLen = 0;
+        for (const town of (TOWNS || [])) {
+          if (wbRe(town.code).test(text) && town.code.length >= locLen) {
+            locTown = town; locLen = town.code.length;
+          } else if (wbRe(town.name).test(text) && town.name.length > locLen) {
+            locTown = town; locLen = town.name.length;
+          }
+        }
+        if (locTown) {
+          result.location = `${locTown.name} (${locTown.code})`;
+        } else if (p.location) {
+          result.location = p.location;
+        }
+
+        if (['high', 'medium', 'low'].includes(p.priority)) result.priority = p.priority;
+
+        return result;
+      } catch(e) {
+        return null;
+      }
+    }
+
+    function showNoteVoiceConfirm(parsed, transcript) {
+      nvcPriority = parsed.priority || 'medium';
+      const heardEl = document.getElementById('nvc-heard-text');
+      if (heardEl) heardEl.textContent = transcript;
+      const descEl = document.getElementById('nvc-desc');
+      if (descEl) descEl.value = parsed.description || '';
+      const locEl = document.getElementById('nvc-loc');
+      if (locEl) locEl.value = parsed.location || '';
+      renderNvcPriorityChips();
+      const modal = document.getElementById('note-voice-confirm-modal');
+      if (modal) modal.classList.add('open');
+    }
+
+    function renderNvcPriorityChips() {
+      ['high', 'medium', 'low'].forEach(p => {
+        const btn = document.querySelector(`#nvc-priority-chips [data-pri="${p}"]`);
+        if (btn) btn.className = `nvc-pri-btn${nvcPriority === p ? ' sel-' + p : ''}`;
+      });
+    }
+
+    function setNvcPriority(p) {
+      nvcPriority = p;
+      renderNvcPriorityChips();
+    }
+
+    function confirmNoteVoice() {
+      const desc = (document.getElementById('nvc-desc').value || '').trim();
+      const loc  = (document.getElementById('nvc-loc').value || '').trim();
+      const transcript = (document.getElementById('nvc-heard-text').textContent || '').trim();
+
+      const note = createNote();
+      note.description = desc;
+      note.location = loc;
+      note.priority = nvcPriority;
+      if (transcript) note.notes = '🎙 ' + transcript;
+
+      state.notes.unshift(note);
+      state.expandedNotes.add(note.id);
+      state.notesFilter = 'all';
+
+      cancelVoice();
+      scheduleNotesSave();
+      render();
+      showToast('Note added ✓');
     }
 
     function saveGeminiKey() {
@@ -8945,12 +9160,15 @@ Rules:
       if (voiceRec) { try { voiceRec.stop(); } catch(e) {} voiceRec = null; }
       const fab = document.getElementById('voice-fab');
       if (fab) fab.classList.remove('listening');
-      ['voice-listen-modal', 'voice-confirm-modal'].forEach(id => {
+      const noteFab = document.getElementById('note-voice-fab');
+      if (noteFab) noteFab.classList.remove('listening');
+      ['voice-listen-modal', 'voice-confirm-modal', 'note-voice-confirm-modal'].forEach(id => {
         const el = document.getElementById(id);
         if (el) { el.classList.remove('open'); el.classList.remove('text-mode'); }
       });
       const submitBtn = document.getElementById('vl-submit-btn');
       if (submitBtn) submitBtn.style.display = 'none';
+      voiceMode = 'timesheet';
     }
 
     async function init() {
@@ -9016,6 +9234,15 @@ Rules:
   </script>
 
   <!-- ===== VOICE FAB ===== -->
+  <button class="note-voice-fab vf-hidden" id="note-voice-fab" onclick="startNoteVoice()" title="Voice note" aria-label="Voice note">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="9" y="2" width="6" height="12" rx="3"/>
+      <path d="M5 10a7 7 0 0 0 14 0"/>
+      <line x1="12" y1="19" x2="12" y2="22"/>
+      <line x1="8" y1="22" x2="16" y2="22"/>
+    </svg>
+  </button>
+
   <button class="voice-fab vf-hidden" id="voice-fab" onclick="startVoiceEntry()" title="Voice entry" aria-label="Voice entry">
     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
       <rect x="9" y="2" width="6" height="12" rx="3"/>
@@ -9081,6 +9308,34 @@ Rules:
       </div>
       <div class="vc-btns">
         <button class="vc-btn primary" onclick="confirmVoiceEntry()">Add to Timesheet</button>
+        <button class="vc-btn secondary" onclick="cancelVoice()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== NOTE VOICE CONFIRM SHEET ===== -->
+  <div id="note-voice-confirm-modal">
+    <div class="vc-sheet">
+      <div class="vc-title">Add Note</div>
+      <div class="vc-heard"><strong>Heard:</strong> <span id="nvc-heard-text"></span></div>
+      <div class="vc-field">
+        <label class="vc-label">Description</label>
+        <input id="nvc-desc" class="vc-input" type="text" placeholder="e.g. Fix router">
+      </div>
+      <div class="vc-field">
+        <label class="vc-label">Location</label>
+        <input id="nvc-loc" class="vc-input" type="text" placeholder="Town name or code">
+      </div>
+      <div class="vc-field">
+        <label class="vc-label">Priority</label>
+        <div id="nvc-priority-chips" class="nvc-pri-wrap">
+          <button class="nvc-pri-btn" data-pri="high" onclick="setNvcPriority('high')">High</button>
+          <button class="nvc-pri-btn sel-medium" data-pri="medium" onclick="setNvcPriority('medium')">Medium</button>
+          <button class="nvc-pri-btn" data-pri="low" onclick="setNvcPriority('low')">Low</button>
+        </div>
+      </div>
+      <div class="vc-btns">
+        <button class="vc-btn primary" onclick="confirmNoteVoice()">Add Note</button>
         <button class="vc-btn secondary" onclick="cancelVoice()">Cancel</button>
       </div>
     </div>
