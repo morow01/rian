@@ -292,6 +292,10 @@
     .act-field-label-ot {
       color: var(--text-ot);
     }
+    .act-field-label-row { display:flex; align-items:center; justify-content:space-between; }
+    .act-mic-btn { background:none; border:none; padding:0; margin:0; cursor:pointer; color:var(--accent); opacity:0.7; display:flex; align-items:center; line-height:1; -webkit-tap-highlight-color:transparent; }
+    .act-mic-btn:active { opacity:1; transform:scale(0.9); }
+    .act-mic-btn.listening { color:#e53935; opacity:1; animation:voiceFabPulse 1s ease-in-out infinite; }
 
     .act-codes-wrap {
       background: #fff;
@@ -4208,7 +4212,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '4.1.12';
+    const VERSION = '4.1.13';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -6132,7 +6136,12 @@
         <div class="activity-detail ${isExpanded ? 'open' : ''}" style="${isExpanded ? '' : 'display:none'}">
           <div class="act-detail-inner">
             <div class="flex flex-col gap-1.5">
-              <span class="act-field-label">Description</span>
+              <div class="act-field-label-row">
+                <span class="act-field-label">Description</span>
+                <button class="act-mic-btn" id="act-mic-desc-${act.id}" onclick="startActFieldVoice('${act.id}',${di},'description')" title="Voice input">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="8" y1="22" x2="16" y2="22"/></svg>
+                </button>
+              </div>
               <textarea placeholder="Description of work" rows="1"
                 class="act-textarea"
                 data-field="description" data-act="${act.id}" data-day="${di}" oninput="updateField(this);autoGrow(this)">${esc(act.description)}</textarea>
@@ -6211,6 +6220,12 @@
                 </svg>
               </div>
               <div class="notes-panel-body ${notesOpen ? 'open' : ''}" data-notes-wrap="${act.id}">
+                <div class="act-field-label-row" style="padding:6px 10px 0;">
+                  <span></span>
+                  <button class="act-mic-btn" id="act-mic-note-${act.id}" onclick="startActFieldVoice('${act.id}',${di},'notes')" title="Voice note">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="8" y1="22" x2="16" y2="22"/></svg>
+                  </button>
+                </div>
                 <textarea placeholder="Notes…" rows="2"
                   class="act-notes-area"
                   data-field="notes" data-act="${act.id}" data-day="${di}" oninput="updateField(this);autoGrow(this)">${esc(act.notes || '')}</textarea>
@@ -8522,6 +8537,46 @@
       return !!(window.SpeechRecognition || window.webkitSpeechRecognition);
     }
 
+    let actVoiceCtx = { actId: null, di: null, field: null };
+
+    function startActFieldVoice(actId, di, field) {
+      actVoiceCtx = { actId, di, field };
+      voiceMode = 'act-field';
+      const hint = document.getElementById('vl-hint');
+      const isDesc = field === 'description';
+      if (hint) hint.textContent = isDesc ? 'Describe the work — e.g. "Fibre break repair"' : 'Speak your note…';
+      const textInput = document.getElementById('vl-text-input');
+      if (textInput) textInput.placeholder = isDesc ? 'e.g. "Fibre break repair"' : 'Type your note…';
+      const btn = document.getElementById(`act-mic-${field === 'description' ? 'desc' : 'note'}-${actId}`);
+      if (btn) btn.classList.add('listening');
+      startVoiceEntry();
+    }
+
+    function processActFieldText(text) {
+      const { actId, di, field } = actVoiceCtx;
+      if (!actId || di === null) return;
+
+      // For description: title-case the transcript
+      // For notes: append to existing (with newline if already has content)
+      const value = field === 'description'
+        ? text.trim().replace(/\b\w/g, c => c.toUpperCase())
+        : text.trim();
+
+      // Find the live textarea and update it
+      const ta = document.querySelector(`textarea[data-field="${field}"][data-act="${actId}"]`);
+      if (ta) {
+        if (field === 'notes' && ta.value.trim()) {
+          ta.value = ta.value.trimEnd() + '\n' + value;
+        } else {
+          ta.value = value;
+        }
+        autoGrow(ta);
+        updateField(ta);
+      }
+      cancelVoice();
+      showToast(field === 'description' ? 'Description updated ✓' : 'Note added ✓');
+    }
+
     function startLocationVoice() {
       voiceMode = 'location';
       const hint = document.getElementById('vl-hint');
@@ -8634,6 +8689,8 @@
         processFinderText(transcript);
       } else if (voiceMode === 'location') {
         processLocationText(transcript);
+      } else if (voiceMode === 'act-field') {
+        processActFieldText(transcript);
       } else {
         await processEntryText(transcript);
       }
@@ -8653,6 +8710,8 @@
         processFinderText(text);
       } else if (voiceMode === 'location') {
         processLocationText(text);
+      } else if (voiceMode === 'act-field') {
+        processActFieldText(text);
       } else {
         await processEntryText(text);
       }
@@ -9267,6 +9326,8 @@ Rules:
       if (finderBtn) finderBtn.classList.remove('listening');
       const locBtn = document.getElementById('location-mic-btn');
       if (locBtn) locBtn.classList.remove('listening');
+      // Clear any act-field mic buttons
+      document.querySelectorAll('.act-mic-btn.listening').forEach(b => b.classList.remove('listening'));
       ['voice-listen-modal', 'voice-confirm-modal', 'note-voice-confirm-modal'].forEach(id => {
         const el = document.getElementById(id);
         if (el) { el.classList.remove('open'); el.classList.remove('text-mode'); }
