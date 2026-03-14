@@ -292,7 +292,7 @@
     .act-field-label-ot {
       color: var(--text-ot);
     }
-    .act-dictate-bar { display:flex; align-items:center; justify-content:center; gap:6px; padding:9px 12px; margin:10px -14px 0; border-top:1px solid var(--border); background:var(--bg-card-alt); color:var(--text-muted); font-size:12px; font-weight:600; cursor:pointer; -webkit-tap-highlight-color:transparent; transition:background 0.15s, color 0.15s; border-radius:0 0 8px 8px; }
+    .act-dictate-bar { display:flex; align-items:center; justify-content:center; gap:6px; padding:9px 12px; border-top:1px solid var(--border); background:var(--bg-card-alt); color:var(--text-muted); font-size:12px; font-weight:600; cursor:pointer; -webkit-tap-highlight-color:transparent; transition:background 0.15s, color 0.15s; border-radius:0 0 8px 8px; width:100%; box-sizing:border-box; }
     .act-dictate-bar:active { background:var(--accent-light); color:var(--accent); }
     .act-dictate-bar svg { color:var(--accent); flex-shrink:0; }
     .act-dictate-bar.listening { background:var(--accent-light); color:#e53935; }
@@ -664,15 +664,15 @@
       background: #ffffff;
       max-height: 0;
       overflow: hidden;
-      padding: 0 14px;
-      transition: max-height 0.25s ease, padding 0.25s ease;
+      transition: max-height 0.25s ease;
     }
 
     .notes-panel-body.open {
       max-height: 400px;
-      padding: 14px 14px 0;
       border-top: 1.5px solid #EBEBEA;
     }
+
+    .notes-ta-wrap { padding: 14px 14px 10px; }
 
     .hrs-box {
       flex: 1;
@@ -4213,7 +4213,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '4.1.17';
+    const VERSION = '4.1.18';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -6216,9 +6216,11 @@
                 </svg>
               </div>
               <div class="notes-panel-body ${notesOpen ? 'open' : ''}" data-notes-wrap="${act.id}">
-                <textarea placeholder="Notes…" rows="2"
-                  class="act-notes-area"
-                  data-field="notes" data-act="${act.id}" data-day="${di}" oninput="updateField(this);autoGrow(this)">${esc(act.notes || '')}</textarea>
+                <div class="notes-ta-wrap">
+                  <textarea placeholder="Notes…" rows="2"
+                    class="act-notes-area"
+                    data-field="notes" data-act="${act.id}" data-day="${di}" oninput="updateField(this);autoGrow(this)">${esc(act.notes || '')}</textarea>
+                </div>
                 <button class="act-dictate-bar" id="act-mic-note-${act.id}" onclick="startActFieldVoice('${act.id}',${di},'notes')">
                   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="8" y1="22" x2="16" y2="22"/></svg>
                   Tap to dictate
