@@ -2981,6 +2981,23 @@
     .ai-source-date { font-size: 10px; font-weight: 700; color: #f59e0b; margin-bottom: 3px; }
     .ai-source-desc { font-size: 11px; font-weight: 600; color: var(--text-primary); margin-bottom: 3px; }
     .ai-source-notes { font-size: 11px; color: var(--text-secondary); line-height: 1.45; }
+    .ai-note-card {
+      background: var(--bg-card); border-radius: 10px; padding: 10px 12px;
+      margin-bottom: 8px; border: 1px solid #6ee7b7;
+      cursor: pointer; touch-action: manipulation; -webkit-tap-highlight-color: transparent;
+      transition: border-color 0.15s, background 0.15s;
+    }
+    .ai-note-card:active { opacity: 0.75; }
+    .ai-note-card-footer { font-size: 10px; color: #10b981; margin-top: 5px; }
+    .ai-note-card-date { font-size: 10px; font-weight: 700; color: #10b981; margin-bottom: 3px; }
+    .ai-note-card-desc { font-size: 12px; font-weight: 600; color: var(--text-primary); margin-bottom: 2px; }
+    .ai-note-card-loc { font-size: 11px; color: var(--text-secondary); }
+    .ai-note-status-badge {
+      display: inline-block; font-size: 9px; font-weight: 700; text-transform: uppercase;
+      padding: 1px 5px; border-radius: 4px; margin-left: 5px; vertical-align: middle;
+    }
+    .ai-note-status-open { background: #fef3c7; color: #92400e; }
+    .ai-note-status-done { background: #d1fae5; color: #065f46; }
     .ai-stats-row { display: flex; gap: 8px; }
     .ai-stat-tile {
       flex: 1; background: var(--bg-card); border-radius: 10px; padding: 10px 8px;
@@ -5400,7 +5417,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '4.2.5';
+    const VERSION = '4.2.6';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -11249,6 +11266,21 @@ Rules:
       return matches.sort((a, b) => b.hitCount - a.hitCount || b.date.localeCompare(a.date));
     }
 
+    // Search state.notes (open + done) for keyword matches
+    function searchMatchingNotes(query) {
+      const stopWords = new Set(['the','and','for','that','this','with','from','have','been','was','are','will','not','but','you','your','they','them','their','what','when','how','all','can','its']);
+      const keywords = query.toLowerCase().split(/\s+/).filter(w => w.length >= 3 && !stopWords.has(w));
+      if (!keywords.length || !state.notes?.length) return [];
+      return state.notes
+        .map(n => {
+          const text = [n.description, n.location].filter(Boolean).join(' ').toLowerCase();
+          const hitCount = keywords.filter(kw => text.includes(kw)).length;
+          return { id: n.id, description: n.description, location: n.location, date: n.date, status: n.status, priority: n.priority, hitCount };
+        })
+        .filter(n => n.hitCount > 0)
+        .sort((a, b) => b.hitCount - a.hitCount || (b.date || '').localeCompare(a.date || ''));
+    }
+
     // Build a full timesheet context for Gemini
     async function buildTimesheetContext() {
       const allWeeks = await dbGetAll('weeks');
@@ -11418,13 +11450,14 @@ QUESTION: ${query}`;
       state.aiError = null;
       renderFaultAssistantModal();
       try {
-        // Build full timesheet context + search fault notes in parallel
+        // Build full timesheet context + search fault notes + search notes in parallel
         const [timesheetContext, faultSources] = await Promise.all([
           buildTimesheetContext(),
           searchFaultNotes(query)
         ]);
+        const noteMatches = searchMatchingNotes(query);
         const answer = await askGemini(query, timesheetContext, faultSources);
-        state.aiResult = { answer, sources: faultSources.slice(0, 5) };
+        state.aiResult = { answer, sources: faultSources.slice(0, 5), noteMatches: noteMatches.slice(0, 5) };
         // Save to recent queries
         state.aiRecentQueries = [query, ...state.aiRecentQueries.filter(q => q !== query)].slice(0, 8);
         localStorage.setItem('rian_ai_recent', JSON.stringify(state.aiRecentQueries));
@@ -11455,6 +11488,18 @@ QUESTION: ${query}`;
       state.aiError = null;
       state.aiQuery = '';
       renderFaultAssistantModal();
+    }
+
+    async function goToNote(noteId) {
+      if (!noteId) return;
+      closeFaultAssistant();
+      await setView('notes');
+      state.expandedNotes.add(noteId);
+      render();
+      setTimeout(() => {
+        const card = document.querySelector(`.note-card[data-note-id="${noteId}"]`);
+        if (card) card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 120);
     }
 
     // Open the Fault Assistant as a full-screen overlay
@@ -11569,6 +11614,25 @@ QUESTION: ${query}`;
             <div class="ai-source-card-footer">↗ Tap to open this day</div>
           </div>`).join('')}
         </div>` : '';
+        const noteMatchesHtml = state.aiResult.noteMatches && state.aiResult.noteMatches.length ? `
+        <div class="ai-section" style="margin-top:6px;">
+          <div class="ai-section-label">📝 Matching notes (${state.aiResult.noteMatches.length})</div>
+          ${state.aiResult.noteMatches.map(n => {
+            const statusBadge = `<span class="ai-note-status-badge ${n.status === 'done' ? 'ai-note-status-done' : 'ai-note-status-open'}">${n.status === 'done' ? '✓ done' : 'open'}</span>`;
+            const dateStr = n.date ? `${n.date} · ` : '';
+            return `<div class="ai-note-card" data-note-id="${n.id}" onclick="goToNote(this.getAttribute('data-note-id'))">
+              <div class="ai-note-card-date">${dateStr}${n.priority ? n.priority + ' priority' : ''}${statusBadge}</div>
+              <div class="ai-note-card-desc">${n.description || '(no description)'}</div>
+              ${n.location ? `<div class="ai-note-card-loc">📍 ${n.location}</div>` : ''}
+              <div class="ai-note-card-footer">↗ Tap to open this note</div>
+            </div>`;
+          }).join('')}
+        </div>` : '';
+        const hasExtras = state.aiResult.sources.length || (state.aiResult.noteMatches && state.aiResult.noteMatches.length);
+        const footerParts = [];
+        if (state.aiResult.sources.length) footerParts.push(`${state.aiResult.sources.length} fault note${state.aiResult.sources.length === 1 ? '' : 's'}`);
+        if (state.aiResult.noteMatches && state.aiResult.noteMatches.length) footerParts.push(`${state.aiResult.noteMatches.length} saved note${state.aiResult.noteMatches.length === 1 ? '' : 's'}`);
+        const footerText = footerParts.length ? `Also found ${footerParts.join(' and ')} ↓` : 'Based on your full timesheet history';
         resultHtml = `
         <div class="ai-section" id="ai-result-top">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
@@ -11578,10 +11642,11 @@ QUESTION: ${query}`;
           <div class="ai-answer-card">
             <div class="ai-answer-label">🤖 Gemini</div>
             <div class="ai-answer-text">${state.aiResult.answer.replace(/\n/g, '<br>')}</div>
-            <div class="ai-answer-footer">${state.aiResult.sources.length ? `Also found ${state.aiResult.sources.length} matching fault note${state.aiResult.sources.length === 1 ? '' : 's'} ↓` : 'Based on your full timesheet history'}</div>
+            <div class="ai-answer-footer">${footerText}</div>
           </div>
         </div>
-        ${sourcesHtml}`;
+        ${sourcesHtml}
+        ${noteMatchesHtml}`;
       }
 
       body.innerHTML = `<div class="ai-view">
