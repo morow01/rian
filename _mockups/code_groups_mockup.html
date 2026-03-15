@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Code Groups Mockup - TimeSheet App</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root {
+            --bg-page: #E8EEF5;
+            --bg-header: #0F1C2E;
+            --accent: #2D6BE4;
+            --text-primary: #0F1C2E;
+            --text-secondary: #4A6580;
+            --text-muted: #8BA5BE;
+            --border: #D4E0EC;
+            --bg-modal: #FFFFFF;
+            --bg-modal-search: #F4F7FA;
+            --bg-input: #F4F7FA;
+            --bg-code-group: #F4F7FA;
+            --bg-code-item: #FFFFFF;
+        }
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: #777;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+        .mockup-container {
+            width: 375px;
+            height: 667px;
+            background: var(--bg-modal);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+            border-radius: 20px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+        .group-badge {
+            font-size: 10px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--accent);
+            background: #EBF1FD;
+            padding: 2px 6px;
+            border-radius: 4px;
+            margin-bottom: 4px;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+    <div class="mockup-container">
+        <!-- Header -->
+        <div style="background:var(--bg-header)" class="text-white px-4 py-4 flex items-center gap-3">
+            <span class="text-white p-1 text-xl leading-none cursor-pointer">✕</span>
+            <h2 class="text-base font-semibold flex-1">Select Code(s)</h2>
+            <button class="bg-amber-500 text-white px-4 py-1.5 rounded-full text-sm font-bold shadow-lg">Done</button>
+        </div>
+
+        <!-- Search Area -->
+        <div class="p-3 sticky top-0 z-10" style="background:var(--bg-modal-search);border-bottom:1px solid var(--border)">
+            <input type="text" placeholder="Search description or code..."
+                   class="w-full rounded-xl px-4 py-2.5 text-base shadow-sm"
+                   style="border:1px solid var(--border-input);background:var(--bg-input)">
+            <p class="text-xs mt-1.5 px-1" style="color:var(--text-secondary)">Tap to select. Multiple allowed for routines.</p>
+        </div>
+
+        <!-- Scrollable List -->
+        <div class="flex-1 overflow-y-auto pb-6">
+            
+            <!-- NEW SECTION: CODE GROUPS -->
+            <div>
+                <div class="px-4 py-3 text-xs font-black uppercase tracking-widest sticky top-0 z-10 flex items-center justify-between" 
+                     style="background:var(--bg-code-group); color:var(--accent)">
+                    <span>Quick Code Groups</span>
+                    <span class="bg-blue-100 text-blue-600 px-2 py-0.5 rounded text-[9px]">NEW</span>
+                </div>
+                
+                <!-- Routine Group Card -->
+                <div class="px-3 py-2">
+                    <button class="w-full text-left bg-white border-2 border-dashed border-blue-200 rounded-2xl p-4 transition-all active:scale-95 shadow-sm"
+                            style="background: linear-gradient(135deg, #ffffff 0%, #f0f7ff 100%);">
+                        <div class="flex justify-between items-start mb-2">
+                            <div>
+                                <span class="group-badge">Multi-Select Bundle</span>
+                                <h3 class="text-base font-bold text-gray-900">Routines Bundle</h3>
+                            </div>
+                            <div class="bg-blue-600 text-white p-1.5 rounded-lg">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                                    <path d="M12 5v14M5 12h14" stroke-linecap="round"/>
+                                </svg>
+                            </div>
+                        </div>
+                        <p class="text-xs text-gray-500 mb-3">Adds 3 codes: Power RSU, DSL, and SDH.</p>
+                        <div class="flex flex-wrap gap-1.5">
+                            <span class="text-[10px] bg-gray-100 text-gray-600 px-2 py-1 rounded font-mono">MXY0005A10</span>
+                            <span class="text-[10px] bg-gray-100 text-gray-600 px-2 py-1 rounded font-mono">MCY0003A10</span>
+                            <span class="text-[10px] bg-gray-100 text-gray-600 px-2 py-1 rounded font-mono">MTX0005A10</span>
+                        </div>
+                    </button>
+                </div>
+
+                <div class="px-3 pb-4">
+                     <button class="w-full text-left bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 flex items-center gap-3 opacity-60">
+                        <div class="bg-gray-200 p-2 rounded-lg">
+                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M12 5v14M5 12h14" stroke-linecap="round"/>
+                            </svg>
+                        </div>
+                        <span class="text-sm font-semibold text-gray-500 italic">+ Create custom group...</span>
+                     </button>
+                </div>
+            </div>
+
+            <!-- Standard Groups -->
+            <div>
+                <div class="px-4 py-2 text-xs font-bold uppercase tracking-wide sticky top-0 z-10" 
+                     style="background:var(--bg-code-group);color:var(--text-muted)">Indirect</div>
+                
+                <button class="w-full flex items-center gap-3 px-4 py-4 border-b text-left transition-colors active:bg-blue-50">
+                    <span class="flex-shrink-0 w-6 h-6 rounded border-2 flex items-center justify-center border-gray-300"></span>
+                    <span class="flex-1 min-w-0">
+                        <span class="block text-sm font-medium" style="color:var(--text-primary)">Annual Leave</span>
+                        <span class="text-xs font-mono" style="color:var(--text-muted)">UWA0001A99</span>
+                    </span>
+                </button>
+
+                <button class="w-full flex items-center gap-3 px-4 py-4 border-b text-left transition-colors active:bg-blue-50">
+                    <span class="flex-shrink-0 w-6 h-6 rounded border-2 flex items-center justify-center border-gray-300"></span>
+                    <span class="flex-1 min-w-0">
+                        <span class="block text-sm font-medium" style="color:var(--text-primary)">Sick Leave</span>
+                        <span class="text-xs font-mono" style="color:var(--text-muted)">UWS0001A99</span>
+                    </span>
+                </button>
+            </div>
+
+            <div>
+                 <div class="px-4 py-2 text-xs font-bold uppercase tracking-wide sticky top-0 z-10" 
+                     style="background:var(--bg-code-group);color:var(--text-muted)">COW & Escort</div>
+                
+                <button class="w-full flex items-center gap-3 px-4 py-4 border-b text-left transition-colors active:bg-blue-50">
+                    <span class="flex-shrink-0 w-6 h-6 rounded border-2 flex items-center justify-center border-gray-300"></span>
+                    <span class="flex-1 min-w-0">
+                        <span class="block text-sm font-medium" style="color:var(--text-primary)">COW-Escort; Meteor</span>
+                        <span class="text-xs font-mono" style="color:var(--text-muted)">RLB0002A10</span>
+                    </span>
+                </button>
+            </div>
+
+        </div>
+    </div>
+</body>
+</html>

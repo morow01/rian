@@ -2973,7 +2973,11 @@
     .ai-source-card {
       background: var(--bg-card); border-radius: 10px; padding: 10px 12px;
       margin-bottom: 8px; border: 1px solid var(--border);
+      cursor: pointer; touch-action: manipulation; -webkit-tap-highlight-color: transparent;
+      transition: border-color 0.15s, background 0.15s;
     }
+    .ai-source-card:active { opacity: 0.75; }
+    .ai-source-card-footer { font-size: 10px; color: #818cf8; margin-top: 5px; }
     .ai-source-date { font-size: 10px; font-weight: 700; color: #f59e0b; margin-bottom: 3px; }
     .ai-source-desc { font-size: 11px; font-weight: 600; color: var(--text-primary); margin-bottom: 3px; }
     .ai-source-notes { font-size: 11px; color: var(--text-secondary); line-height: 1.45; }
@@ -2988,7 +2992,8 @@
       display: inline-flex; align-items: center; gap: 5px;
       background: var(--bg-card); border: 1px solid var(--border); border-radius: 20px;
       padding: 5px 12px; font-size: 12px; color: var(--text-primary); cursor: pointer;
-      margin: 0 6px 6px 0;
+      margin: 0 6px 6px 0; touch-action: manipulation; -webkit-tap-highlight-color: transparent;
+      font-family: inherit;
     }
     .ai-recent-chip:active { opacity: 0.7; }
     .ai-setup-card {
@@ -5390,7 +5395,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '4.1.37';
+    const VERSION = '4.1.41';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -11227,7 +11232,7 @@ Rules:
             const text = [act.description, act.notes].filter(Boolean).join(' ').toLowerCase();
             const hitCount = keywords.filter(kw => text.includes(kw)).length;
             if (hitCount > 0) {
-              matches.push({ date: day.date, description: act.description || '', notes: act.notes, hitCount });
+              matches.push({ date: day.date, actId: act.id, description: act.description || '', notes: act.notes, hitCount });
             }
           });
         });
@@ -11315,11 +11320,11 @@ QUESTION: ${query}`;
 
     function aiRecentTap(q) {
       state.aiQuery = q;
-      renderFaultAssistantModal();
-      setTimeout(() => {
-        const el = document.getElementById('ai-query-input');
-        if (el) { el.value = q; el.focus(); runAIQuery(); }
-      }, 50);
+      state.aiResult = null;
+      state.aiError = null;
+      const el = document.getElementById('ai-query-input');
+      if (el) el.value = q;
+      runAIQuery();
     }
 
     function clearAIResult() {
@@ -11347,6 +11352,34 @@ QUESTION: ${query}`;
     function closeFaultAssistant() {
       const modal = document.getElementById('ai-fault-modal');
       if (modal) modal.classList.add('hidden');
+    }
+
+    async function goToFaultDay(dateStr, actId) {
+      if (!dateStr) return;
+      const weekStart = getNearestFriday(dateStr);
+      closeFaultAssistant();
+      closeThemeMenu();
+      await loadWeek(weekStart);
+      if (!state.weekData) return;
+      // Expand the specific day
+      const di = state.weekData.days.findIndex(d => d.date === dateStr);
+      if (di < 0) return;
+      state.expandedDays.clear();
+      state.expandedDays.add(di);
+      // Expand the activity and open its notes panel
+      if (actId) {
+        state.activitiesExpanded.add(actId);
+        state.notesOpen.set(actId, true);
+      }
+      saveUiState();
+      render();
+      // Scroll to the activity card if we have an actId, otherwise scroll to the day
+      setTimeout(() => {
+        const target = actId
+          ? document.querySelector(`.activity-card[data-act-id="${actId}"]`)
+          : document.querySelector(`.day-card[data-day-idx="${di}"]`);
+        if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 120);
     }
 
     // Render fault assistant content into the modal body
@@ -11379,7 +11412,7 @@ QUESTION: ${query}`;
       <div class="ai-section">
         <div class="ai-section-label">Recent searches</div>
         <div style="display:flex;flex-wrap:wrap;padding-top:2px;">
-          ${state.aiRecentQueries.map(q => `<div class="ai-recent-chip" onclick="aiRecentTap(${JSON.stringify(q)})">🔍 ${q}</div>`).join('')}
+          ${state.aiRecentQueries.map(q => `<button type="button" class="ai-recent-chip" data-q="${q.replace(/"/g,'&quot;')}" onclick="aiRecentTap(this.getAttribute('data-q'))">🔍 ${q}</button>`).join('')}
         </div>
       </div>` : '';
 
@@ -11406,9 +11439,10 @@ QUESTION: ${query}`;
         <div class="ai-section" style="margin-top:6px;">
           <div class="ai-section-label">Matching past notes (${state.aiResult.sources.length})</div>
           ${state.aiResult.sources.map(s => `
-          <div class="ai-source-card">
+          <div class="ai-source-card" data-date="${s.date}" data-act-id="${s.actId || ''}" onclick="goToFaultDay(this.getAttribute('data-date'), this.getAttribute('data-act-id'))">
             <div class="ai-source-date">${s.date} · ${s.description || 'No description'}</div>
             <div class="ai-source-notes">${s.notes.length > 220 ? s.notes.slice(0, 220) + '…' : s.notes}</div>
+            <div class="ai-source-card-footer">↗ Tap to open this day</div>
           </div>`).join('')}
         </div>` : '';
         resultHtml = `

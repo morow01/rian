@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Auto Work Code Suggester — UI Options</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; background: #f1f5f9; padding: 20px; color: #1e293b; }
+  h1 { font-size: 15px; font-weight: 700; color: #475569; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 20px; }
+  .options { display: flex; flex-direction: column; gap: 28px; max-width: 420px; margin: 0 auto; }
+  .option-label { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; color: #94a3b8; margin-bottom: 10px; }
+  .option-title { font-size: 13px; font-weight: 700; color: #334155; margin-bottom: 12px; }
+
+  /* ── Shared card shell (mimics Rian day card) ── */
+  .card { background: #fff; border-radius: 14px; border: 1px solid #e2e8f0; overflow: hidden; }
+  .card-header { background: #4A6580; color: #fff; padding: 10px 14px; font-size: 13px; font-weight: 800; }
+  .card-body { padding: 12px 14px; display: flex; flex-direction: column; gap: 10px; }
+  .field-row { display: flex; flex-direction: column; gap: 4px; }
+  .field-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #94a3b8; }
+  .field-input { width: 100%; border: 1.5px solid #e2e8f0; border-radius: 8px; padding: 8px 11px; font-size: 13px; color: #1e293b; background: #f8fafc; outline: none; }
+  .field-input.typing { border-color: #2d6be4; background: #fff; }
+
+  /* Code chips */
+  .code-chips { display: flex; flex-wrap: wrap; gap: 6px; padding: 8px 10px; background: #f8fafc; border: 1.5px dashed #cbd5e1; border-radius: 8px; min-height: 36px; align-items: center; }
+  .chip { display: flex; align-items: center; gap: 5px; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 6px; padding: 3px 8px 3px 7px; }
+  .chip-code { font-family: monospace; font-size: 11px; font-weight: 700; color: #1d4ed8; }
+  .chip-desc { font-size: 11px; color: #475569; }
+  .chip-x { font-size: 11px; color: #94a3b8; cursor: pointer; }
+  .add-code-btn { font-size: 11px; color: #2d6be4; background: none; border: 1.5px dashed #93c5fd; border-radius: 6px; padding: 3px 9px; cursor: pointer; font-weight: 600; }
+
+  /* ── OPTION A: Inline autocomplete dropdown ── */
+  .autocomplete-wrap { position: relative; }
+  .autocomplete-dropdown { position: absolute; top: calc(100% + 4px); left: 0; right: 0; background: #fff; border: 1.5px solid #bfdbfe; border-radius: 10px; box-shadow: 0 8px 24px rgba(45,107,228,0.13); z-index: 10; overflow: hidden; }
+  .ac-header { padding: 7px 12px; background: #eff6ff; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #2d6be4; }
+  .ac-item { display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-bottom: 1px solid #f1f5f9; cursor: pointer; }
+  .ac-item:last-child { border-bottom: none; }
+  .ac-item.highlighted { background: #eff6ff; }
+  .ac-item-code { font-family: monospace; font-size: 11px; font-weight: 700; color: #1d4ed8; white-space: nowrap; }
+  .ac-item-desc { font-size: 12px; color: #475569; flex: 1; }
+  .ac-item-match { font-size: 10px; color: #64748b; background: #f1f5f9; border-radius: 4px; padding: 1px 6px; white-space: nowrap; }
+  .ac-item-match.ai { background: #fdf4ff; color: #9333ea; }
+
+  /* ── OPTION B: Suggest button ── */
+  .codes-row { display: flex; align-items: flex-start; gap: 8px; }
+  .codes-row .code-chips { flex: 1; }
+  .suggest-btn { flex-shrink: 0; display: flex; align-items: center; gap: 5px; background: linear-gradient(135deg, #7c3aed, #2d6be4); color: #fff; border: none; border-radius: 8px; padding: 7px 11px; font-size: 11px; font-weight: 700; cursor: pointer; white-space: nowrap; box-shadow: 0 2px 8px rgba(124,58,237,0.3); }
+  .suggest-btn svg { opacity: 0.9; }
+
+  .suggest-popover { background: #fdf4ff; border: 1.5px solid #e9d5ff; border-radius: 10px; padding: 10px 12px; margin-top: 8px; }
+  .suggest-popover-title { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #9333ea; margin-bottom: 8px; }
+  .suggest-row { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+  .suggest-row:last-child { margin-bottom: 0; }
+  .suggest-chip { display: flex; align-items: center; gap: 5px; background: #fff; border: 1px solid #d8b4fe; border-radius: 6px; padding: 3px 8px; flex: 1; }
+  .suggest-chip-code { font-family: monospace; font-size: 11px; font-weight: 700; color: #7c3aed; }
+  .suggest-chip-desc { font-size: 11px; color: #475569; }
+  .suggest-add { font-size: 11px; font-weight: 700; color: #7c3aed; background: none; border: 1.5px solid #d8b4fe; border-radius: 6px; padding: 3px 9px; cursor: pointer; }
+  .suggest-add-all { width: 100%; margin-top: 8px; padding: 7px; background: #7c3aed; color: #fff; border: none; border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer; }
+  .suggest-footer { font-size: 10px; color: #a78bfa; margin-top: 6px; text-align: center; }
+
+  /* ── OPTION C: Post-entry toast prompt ── */
+  .mock-week { display: flex; flex-direction: column; gap: 0; }
+  .suggestion-toast { background: #fff; border: 1.5px solid #e9d5ff; border-radius: 12px; box-shadow: 0 4px 20px rgba(124,58,237,0.15); padding: 12px 14px; margin-top: 10px; position: relative; }
+  .st-header { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .st-icon { font-size: 16px; }
+  .st-title { font-size: 12px; font-weight: 700; color: #7c3aed; flex: 1; }
+  .st-close { font-size: 14px; color: #c4b5fd; cursor: pointer; }
+  .st-body { font-size: 12px; color: #475569; margin-bottom: 10px; line-height: 1.5; }
+  .st-body strong { color: #1e293b; }
+  .st-chips { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 10px; }
+  .st-chip { font-family: monospace; font-size: 11px; font-weight: 700; color: #7c3aed; background: #fdf4ff; border: 1px solid #d8b4fe; border-radius: 6px; padding: 3px 8px; }
+  .st-btns { display: flex; gap: 8px; }
+  .st-btn-yes { flex: 1; padding: 8px; background: #7c3aed; color: #fff; border: none; border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer; }
+  .st-btn-no  { flex: 1; padding: 8px; background: none; color: #7c3aed; border: 1.5px solid #d8b4fe; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; }
+  .st-source { font-size: 10px; color: #a78bfa; text-align: center; margin-top: 6px; }
+
+  /* divider */
+  .divider { border: none; border-top: 2px dashed #e2e8f0; margin: 4px 0; }
+</style>
+</head>
+<body>
+
+<h1>Auto Work Code Suggester — 3 UX Options</h1>
+
+<div class="options">
+
+  <!-- ══════════════════════════════════════════ -->
+  <!-- OPTION A: Inline autocomplete              -->
+  <!-- ══════════════════════════════════════════ -->
+  <div>
+    <div class="option-label">Option A</div>
+    <div class="option-title">Live autocomplete — suggestions appear as you type the description</div>
+    <div class="card">
+      <div class="card-header">Monday</div>
+      <div class="card-body">
+        <div class="field-row">
+          <div class="field-label">Description</div>
+          <div class="autocomplete-wrap">
+            <input class="field-input typing" value="Routines M" readonly>
+            <div class="autocomplete-dropdown">
+              <div class="ac-header">✨ Suggested codes</div>
+              <div class="ac-item highlighted">
+                <span class="ac-item-code">RTN0001A10</span>
+                <span class="ac-item-desc">Routine Maintenance</span>
+                <span class="ac-item-match ai">AI</span>
+              </div>
+              <div class="ac-item">
+                <span class="ac-item-code">MDS0002A10</span>
+                <span class="ac-item-desc">Maintenance – Data Services</span>
+                <span class="ac-item-match">history</span>
+              </div>
+              <div class="ac-item">
+                <span class="ac-item-code">WWO0001A99</span>
+                <span class="ac-item-desc">Wayleave Works – Outside</span>
+                <span class="ac-item-match">history</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field-label">Work Codes</div>
+          <div class="code-chips">
+            <span style="font-size:11px;color:#94a3b8;font-style:italic;">Tap a suggestion above to add…</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div style="margin-top:8px;font-size:11px;color:#64748b;padding:0 4px;">
+      ✅ Fast &amp; seamless &nbsp;·&nbsp; ⚠️ Can clutter the screen &nbsp;·&nbsp; Needs Gemini key or history data
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- ══════════════════════════════════════════ -->
+  <!-- OPTION B: On-demand Suggest button         -->
+  <!-- ══════════════════════════════════════════ -->
+  <div>
+    <div class="option-label">Option B</div>
+    <div class="option-title">✨ Suggest button — tap it when you want a recommendation</div>
+    <div class="card">
+      <div class="card-header">Monday</div>
+      <div class="card-body">
+        <div class="field-row">
+          <div class="field-label">Description</div>
+          <input class="field-input" value="Routines Moate" readonly>
+        </div>
+        <div class="field-row">
+          <div class="field-label">Work Codes</div>
+          <div class="codes-row">
+            <div class="code-chips">
+              <button class="add-code-btn">+ Code</button>
+            </div>
+            <button class="suggest-btn">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg>
+              Suggest
+            </button>
+          </div>
+          <!-- Popover shown after tapping Suggest -->
+          <div class="suggest-popover">
+            <div class="suggest-popover-title">✨ Based on your history &amp; description</div>
+            <div class="suggest-row">
+              <div class="suggest-chip">
+                <span class="suggest-chip-code">RTN0001A10</span>
+                <span class="suggest-chip-desc">Routine Maintenance</span>
+              </div>
+              <button class="suggest-add">Add</button>
+            </div>
+            <div class="suggest-row">
+              <div class="suggest-chip">
+                <span class="suggest-chip-code">MDS0002A10</span>
+                <span class="suggest-chip-desc">Maintenance – Data</span>
+              </div>
+              <button class="suggest-add">Add</button>
+            </div>
+            <div class="suggest-row">
+              <div class="suggest-chip">
+                <span class="suggest-chip-code">WWO0001A99</span>
+                <span class="suggest-chip-desc">Wayleave – Outside</span>
+              </div>
+              <button class="suggest-add">Add</button>
+            </div>
+            <button class="suggest-add-all">Add All 3</button>
+            <div class="suggest-footer">Matched from 6 previous "Routines" entries</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div style="margin-top:8px;font-size:11px;color:#64748b;padding:0 4px;">
+      ✅ You stay in control &nbsp;·&nbsp; ✅ No clutter unless asked &nbsp;·&nbsp; ✅ Works with or without Gemini
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- ══════════════════════════════════════════ -->
+  <!-- OPTION C: Post-entry smart prompt          -->
+  <!-- ══════════════════════════════════════════ -->
+  <div>
+    <div class="option-label">Option C</div>
+    <div class="option-title">Smart prompt — appears after you fill in hours, if codes are missing</div>
+    <div class="card">
+      <div class="card-header">Monday</div>
+      <div class="card-body">
+        <div class="field-row">
+          <div class="field-label">Description</div>
+          <input class="field-input" value="Routines Moate" readonly>
+        </div>
+        <div class="field-row">
+          <div class="field-label">Work Codes</div>
+          <div class="code-chips">
+            <span style="font-size:11px;color:#94a3b8;font-style:italic;">No codes yet</span>
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field-label">Ordinary Hours</div>
+          <input class="field-input" value="8" readonly style="width:80px;">
+        </div>
+      </div>
+    </div>
+    <!-- Prompt card appears below after hours entered -->
+    <div class="suggestion-toast">
+      <div class="st-header">
+        <span class="st-icon">🤖</span>
+        <span class="st-title">Code suggestion for "Routines Moate"</span>
+        <span class="st-close">✕</span>
+      </div>
+      <div class="st-body">
+        Last time you used <strong>Routines</strong>, you picked these 3 codes — want to apply them?
+      </div>
+      <div class="st-chips">
+        <span class="st-chip">RTN0001A10</span>
+        <span class="st-chip">MDS0002A10</span>
+        <span class="st-chip">WWO0001A99</span>
+      </div>
+      <div class="st-btns">
+        <button class="st-btn-yes">✓ Yes, apply all</button>
+        <button class="st-btn-no">No thanks</button>
+      </div>
+      <div class="st-source">Matched from 6 previous "Routines" entries</div>
+    </div>
+    <div style="margin-top:8px;font-size:11px;color:#64748b;padding:0 4px;">
+      ✅ Non-intrusive &nbsp;·&nbsp; ✅ Only fires when codes are missing &nbsp;·&nbsp; ⚠️ Slightly delayed feedback
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,3 @@
+@echo off
+echo Starting TimeSheet Local Server...
+npx serve -l 3000
