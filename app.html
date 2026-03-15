@@ -5309,7 +5309,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '4.1.32';
+    const VERSION = '4.1.33';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -6870,12 +6870,6 @@
         const acts = day.activities.filter(a =>
           a.description || a.codes.length || parseFloat(a.ordinary) > 0 || parseFloat(a.overtime) > 0
         );
-
-        // ── 1. Empty weekday (past or today) ──────────────────
-        if (!isWE && isPast && acts.length === 0) {
-          issues.push({ severity: 'warn', icon: '📭', dayIdx: di,
-            msg: `<strong>${day.dayName}</strong> has no activities recorded.` });
-        }
 
         // ── 2. Empty weekday with 0 total hours ───────────────
         if (!isWE && isPast && acts.length > 0) {
