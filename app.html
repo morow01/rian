@@ -5400,7 +5400,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '4.2.2';
+    const VERSION = '4.2.3';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -11274,9 +11274,12 @@ Rules:
             if (act.location) parts.push('@ ' + act.location);
             if (parseFloat(act.ordinary)) parts.push(act.ordinary + 'h ord');
             if (parseFloat(act.overtime)) parts.push(act.overtime + 'h OT');
-            dayActs.push('    - ' + parts.join(' '));
+            dayActs.push(parts.join(' '));
           });
-          if (dayActs.length) m.dayDetails[day.date] = dayActs.join('\n');
+          if (dayActs.length) {
+            const lines = dayActs.map((a, i) => `    ${i + 1}. ${a}`).join('\n');
+            m.dayDetails[day.date] = `(${dayActs.length} task${dayActs.length > 1 ? 's' : ''}):\n${lines}`;
+          }
         });
       };
 
@@ -11358,7 +11361,7 @@ QUESTION: ${query}`;
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             contents: [{ parts: [{ text: prompt }] }],
-            generationConfig: { temperature: 0.2, maxOutputTokens: 600 }
+            generationConfig: { temperature: 0.2, maxOutputTokens: 1200 }
           })
         }
       );
