@@ -5395,7 +5395,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '4.1.42';
+    const VERSION = '4.1.43';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -6776,7 +6776,7 @@
       const _hdrOT = Math.round(_hdrSummary.reduce((s, r) => s + r.overtime, 0));
       const _hdrTasks = state.weekData ? state.weekData.days.reduce((s, d) =>
         s + d.activities.filter(a => a.description || a.codes.length || parseFloat(a.ordinary) > 0 || parseFloat(a.overtime) > 0).length, 0) : 0;
-      const _hdrChevron = `<svg class="hdr-week-chevron${state.headerExpanded ? ' open' : ''}" width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="rgba(255,255,255,0.85)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+      const _hdrChevron = `<svg class="hdr-week-chevron${state.headerExpanded ? ' open' : ''}" width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 4l4 4-4 4" stroke="rgba(255,255,255,0.85)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
 
       return `
   <header class="shadow-lg" style="background:var(--bg-header);color:var(--text-header)">
