@@ -5390,7 +5390,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '4.1.36';
+    const VERSION = '4.1.37';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -11172,16 +11172,13 @@ Rules:
     async function loadAIStats() {
       try {
         const allWeeks = await dbGetAll('weeks');
-        // Include current week from memory if not already in the DB results
-        const weeksToScan = [...allWeeks];
-        if (state.weekData && !weeksToScan.find(w => w.weekStart === state.weekData.weekStart)) {
-          weeksToScan.push(state.weekData);
-        }
         let noteCount = 0;
         const faultTypes = new Set();
         let oldestDate = '';
-        weeksToScan.forEach(week => {
-          if (!week.days) return;
+        // Scan IndexedDB records — stored as { weekStart, data: weekData, ... }
+        allWeeks.forEach(record => {
+          const week = record.data;
+          if (!week?.days) return;
           week.days.forEach(day => {
             (day.activities || []).forEach(act => {
               if (act.notes && act.notes.trim()) {
@@ -11192,6 +11189,19 @@ Rules:
             });
           });
         });
+        // Also scan current week from memory (in case write is still pending)
+        const currentWeekInDB = allWeeks.find(w => w.weekStart === state.weekData?.weekStart);
+        if (state.weekData && !currentWeekInDB) {
+          state.weekData.days?.forEach(day => {
+            (day.activities || []).forEach(act => {
+              if (act.notes && act.notes.trim()) {
+                noteCount++;
+                if (act.description && act.description.trim()) faultTypes.add(act.description.toLowerCase().trim());
+                if (!oldestDate || day.date < oldestDate) oldestDate = day.date;
+              }
+            });
+          });
+        }
         let monthsBack = 0;
         if (oldestDate) {
           const diff = new Date() - new Date(oldestDate);
@@ -11209,15 +11219,9 @@ Rules:
       const keywords = query.toLowerCase().split(/\s+/).filter(w => w.length >= 3 && !stopWords.has(w));
       if (!keywords.length) return [];
       const allWeeks = await dbGetAll('weeks');
-      // Also include current week from memory in case IndexedDB write is still pending
-      const weeksToScan = [...allWeeks];
-      if (state.weekData && !weeksToScan.find(w => w.weekStart === state.weekData.weekStart)) {
-        weeksToScan.push(state.weekData);
-      }
       const matches = [];
-      weeksToScan.forEach(week => {
-        if (!week.days) return;
-        week.days.forEach(day => {
+      const scanDays = (days) => {
+        days.forEach(day => {
           (day.activities || []).forEach(act => {
             if (!act.notes || !act.notes.trim()) return;
             const text = [act.description, act.notes].filter(Boolean).join(' ').toLowerCase();
@@ -11227,7 +11231,16 @@ Rules:
             }
           });
         });
+      };
+      // Scan IndexedDB records — stored as { weekStart, data: weekData, ... }
+      allWeeks.forEach(record => {
+        if (record.data?.days) scanDays(record.data.days);
       });
+      // Also scan current week from memory in case IndexedDB write is still pending
+      if (state.weekData?.days) {
+        const inDB = allWeeks.find(w => w.weekStart === state.weekData.weekStart);
+        if (!inDB) scanDays(state.weekData.days);
+      }
       return matches.sort((a, b) => b.hitCount - a.hitCount || b.date.localeCompare(a.date));
     }
 
