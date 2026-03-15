@@ -4570,31 +4570,6 @@
       padding: 0 10px 7px;
     }
 
-    /* ===== LIVE ACTIVITY VALIDATION WARNING ===== */
-    .act-live-warn {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin: 0 0 10px;
-      padding: 8px 12px;
-      background: #fff7ed;
-      border: 1.5px solid #fed7aa;
-      border-radius: 9px;
-      font-size: 12px;
-      color: #9a3412;
-      font-weight: 600;
-      animation: warnFadeIn 0.18s ease;
-    }
-    .act-live-warn.error {
-      background: #fef2f2;
-      border-color: #fecaca;
-      color: #991b1b;
-    }
-    @keyframes warnFadeIn {
-      from { opacity: 0; transform: translateY(-4px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-
     /* ===== ANOMALY ALERT BANNER ===== */
     .anomaly-banner {
       margin: 0 0 10px;
@@ -5334,7 +5309,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '4.1.28';
+    const VERSION = '4.1.29';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -7432,6 +7407,21 @@
         }
         if (chevron) chevron.style.transform = 'rotate(0deg)';
 
+        // Re-evaluate red border on collapse (renderActivity doesn't re-run here)
+        let act = null;
+        for (const day of state.weekData.days) {
+          act = day.activities.find(a => a.id === actId);
+          if (act) break;
+        }
+        if (act) {
+          const ord = parseFloat(act.ordinary) || 0;
+          const ot = parseFloat(act.overtime) || 0;
+          const isMissingHours = act.codes.length > 0 && ord === 0 && ot === 0;
+          if (isMissingHours) {
+            card.style.borderColor = 'var(--btn-danger-color)';
+            card.style.boxShadow = '0 0 8px rgba(232, 69, 60, 0.2)';
+          }
+        }
         syncTimelineAnimation();
       }
     }
@@ -7691,13 +7681,19 @@
       const isExpanded = state.activitiesExpanded.has(act.id);
       const ordinary = parseFloat(act.ordinary) || 0;
       const overtime = parseFloat(act.overtime) || 0;
+      const isMissingCode = (ordinary > 0 || overtime > 0) && act.codes.length === 0;
+      const isMissingHours = act.codes.length > 0 && ordinary === 0 && overtime === 0;
+      const isInvalid = isMissingCode || isMissingHours;
+      // Hours with no code → red immediately
+      // Code with no hours → red only on collapse (grace period while entering hours)
+      const showRedBorder = isMissingCode || (isMissingHours && !isExpanded);
       const numTasks = act.codes.length || 1;
       const hrsPerTask = ordinary > 0 ? Math.round(ordinary / numTasks) : '—';
       const otPerTask = overtime > 0 ? Math.round(overtime / numTasks) : '—';
       const notesOpen = state.notesOpen.has(act.id) ? state.notesOpen.get(act.id) : !!act.notes;
 
       return `
-      <div class="activity-card ${isExpanded ? 'expanded' : ''}" data-act-id="${act.id}">
+      <div class="activity-card ${isExpanded ? 'expanded' : ''}" data-act-id="${act.id}" style="${showRedBorder ? 'border-color:var(--btn-danger-color); box-shadow: 0 0 8px rgba(232, 69, 60, 0.2)' : ''}">
         <div class="flex items-center gap-3 px-3.5 py-3 cursor-pointer" onclick="toggleActivityDetails('${act.id}')">
           <div class="task-num">${actIndex + 1}</div>
           <div class="flex-1 min-w-0 act-meta">
@@ -7709,8 +7705,8 @@
                 ${act.location ? `<span style="margin-right:2px">📍</span>${esc(act.location)}` : '<span style="opacity:0.4">No location</span>'}
               </div>
               <div class="act-pill-row">
-                <span data-row-hrs="${act.id}" style="display:none"></span>
-                <span data-row-ot="${act.id}" style="display:none"></span>
+                ${ordinary > 0 ? `<span data-row-hrs="${act.id}" class="pill-hrs">${ordinary}h</span>` : `<span data-row-hrs="${act.id}" style="display:none"></span>`}
+                ${overtime > 0 ? `<span data-row-ot="${act.id}" class="pill-ot">+${overtime} OT</span>` : `<span data-row-ot="${act.id}" style="display:none"></span>`}
               </div>
             </div>
           </div>
@@ -7718,7 +7714,6 @@
         </div>
         <div class="activity-detail ${isExpanded ? 'open' : ''}" style="${isExpanded ? '' : 'display:none'}">
           <div class="act-detail-inner">
-            <div id="act-live-warn-${act.id}"></div>
             <div class="flex flex-col gap-1.5">
               <span class="act-field-label">Description</span>
               <textarea placeholder="Description of work" rows="1"
@@ -7761,6 +7756,8 @@
                 </button>
               </div>
               <div id="suggest-wrap-${act.id}"></div>
+              ${isMissingCode ? `<div class="act-missing-warn">⚠️ Missing work code</div>` : ''}
+              ${isMissingHours ? `<div class="act-missing-warn">⚠️ Missing hours</div>` : ''}
             </div>
 
             <div class="flex gap-3">
@@ -7846,44 +7843,6 @@
 
       scheduleAutoSave();
       render(); // Guaranteed UI sync
-      liveValidateActivity(actId, di);
-    }
-
-    function liveValidateActivity(actId, di) {
-      const wrap = document.getElementById('act-live-warn-' + actId);
-      if (!wrap) return;
-      const act = state.weekData?.days[di]?.activities.find(a => a.id === actId);
-      if (!act) return;
-
-      const hasDesc  = !!(act.description && act.description.trim());
-      const hasHrs   = (parseFloat(act.ordinary) || 0) > 0 || (parseFloat(act.overtime) || 0) > 0;
-      const hasCodes = act.codes && act.codes.length > 0;
-      const hasNotes = !!(act.notes && act.notes.trim());
-      const hasAny   = hasDesc || hasHrs || hasCodes || hasNotes;
-
-      // No data at all — no warning needed
-      if (!hasAny) { wrap.innerHTML = ''; return; }
-
-      // All three core fields filled — all good
-      if (hasDesc && hasHrs && hasCodes) { wrap.innerHTML = ''; return; }
-
-      // Build the message based on what's missing
-      const missing = [];
-      if (!hasDesc)  missing.push('description');
-      if (!hasHrs)   missing.push('hours');
-      if (!hasCodes) missing.push('work code');
-
-      // Only warn when entry is partial (1 or 2 fields filled, not zero)
-      const filledCount = [hasDesc, hasHrs, hasCodes].filter(Boolean).length;
-      if (filledCount === 0) { wrap.innerHTML = ''; return; }
-
-      const isError = !hasCodes && hasHrs; // hours without a code is the critical case
-      const icon = isError ? '🔴' : '⚠️';
-      const missingStr = missing.length === 1
-        ? missing[0]
-        : missing.slice(0, -1).join(', ') + ' and ' + missing[missing.length - 1];
-
-      wrap.innerHTML = `<div class="act-live-warn${isError ? ' error' : ''}">${icon} Missing ${missingStr}</div>`;
     }
 
     function updateField(el) {
@@ -7925,7 +7884,6 @@
         if (rowOtPill) { rowOtPill.textContent = ot > 0 ? `+${ot} OT` : ''; rowOtPill.style.display = ot > 0 ? '' : 'none'; }
         updateSummaryDisplay();
       }
-      liveValidateActivity(actId, parseInt(di));
       scheduleAutoSave();
     }
 
@@ -7965,7 +7923,6 @@
       act.codes = act.codes.filter(c => c.c !== code);
       scheduleAutoSave();
       render();
-      liveValidateActivity(actId, di);
     }
 
     function updateSummaryDisplay() {
@@ -9109,7 +9066,6 @@
         if (selected.length > 1 && !act.tasks) act.tasks = String(selected.length);
         scheduleAutoSave();
         render();
-        liveValidateActivity(actId, di);
       }
       closeCodeModal();
     }
