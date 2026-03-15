@@ -4439,6 +4439,137 @@
       border: 1px solid var(--border);
     }
 
+    /* ===== AUTO WORK CODE SUGGESTER ===== */
+    .act-suggest-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 11px;
+      font-weight: 700;
+      color: #7c3aed;
+      background: #faf5ff;
+      border: 1.5px solid #ddd6fe;
+      border-radius: 20px;
+      padding: 3px 9px;
+      cursor: pointer;
+      line-height: 1;
+      transition: background 0.15s, border-color 0.15s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .act-suggest-btn:active { background: #ede9fe; }
+    .act-suggest-panel {
+      margin-top: 6px;
+      background: #faf5ff;
+      border: 1.5px solid #ddd6fe;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    .suggest-panel-head {
+      display: flex;
+      align-items: center;
+      padding: 7px 10px;
+      background: #ede9fe;
+      gap: 6px;
+    }
+    .suggest-panel-head-title {
+      flex: 1;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: #6d28d9;
+    }
+    .suggest-panel-dismiss {
+      background: none;
+      border: none;
+      font-size: 15px;
+      line-height: 1;
+      color: #a78bfa;
+      cursor: pointer;
+      padding: 0 2px;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .suggest-panel-loading {
+      padding: 12px;
+      font-size: 12px;
+      color: #7c3aed;
+      text-align: center;
+    }
+    .suggest-panel-empty {
+      padding: 12px;
+      font-size: 12px;
+      color: #94a3b8;
+      text-align: center;
+      font-style: italic;
+    }
+    .suggest-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 10px;
+      border-bottom: 1px solid #ede9fe;
+    }
+    .suggest-item:last-of-type { border-bottom: none; }
+    .suggest-item-info { flex: 1; min-width: 0; }
+    .suggest-item-code {
+      font-family: monospace;
+      font-size: 11px;
+      font-weight: 700;
+      color: #6d28d9;
+    }
+    .suggest-item-desc {
+      font-size: 11px;
+      color: #475569;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .suggest-item-badge {
+      font-size: 10px;
+      color: #a78bfa;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .suggest-item-add {
+      flex-shrink: 0;
+      font-size: 11px;
+      font-weight: 700;
+      color: #6d28d9;
+      background: #fff;
+      border: 1.5px solid #ddd6fe;
+      border-radius: 20px;
+      padding: 3px 10px;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .suggest-item-add:active { background: #ede9fe; }
+    .suggest-item-add.added {
+      color: #16a34a;
+      border-color: #bbf7d0;
+      background: #f0fdf4;
+    }
+    .suggest-add-all-btn {
+      display: block;
+      width: calc(100% - 20px);
+      margin: 7px 10px;
+      padding: 7px;
+      background: #7c3aed;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .suggest-add-all-btn:active { background: #6d28d9; }
+    .suggest-source-note {
+      text-align: center;
+      font-size: 10px;
+      color: #a78bfa;
+      padding: 0 10px 7px;
+    }
+
     /* ===== ANOMALY ALERT BANNER ===== */
     .anomaly-banner {
       margin: 0 0 10px;
@@ -5178,7 +5309,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '4.1.23';
+    const VERSION = '4.1.24';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -7361,6 +7492,189 @@
 </div>`;
     }
 
+    // ============================================================
+    // AUTO WORK CODE SUGGESTER
+    // ============================================================
+    // Track which panels are open: Map<actId, suggestions[]>
+    const activeSuggestions = new Map();
+
+    async function suggestCodes(actId, di) {
+      // If panel already open, dismiss it
+      if (activeSuggestions.has(actId)) {
+        dismissSuggestions(actId);
+        return;
+      }
+
+      // Show loading state immediately
+      activeSuggestions.set(actId, null);
+      renderSuggestPanel(actId, di, null, true);
+
+      const act = state.weekData?.days[di]?.activities.find(a => a.id === actId);
+      const desc = (act?.description || '').trim();
+
+      const suggestions = await buildSuggestions(desc, act?.codes || []);
+      activeSuggestions.set(actId, suggestions);
+      renderSuggestPanel(actId, di, suggestions, false);
+    }
+
+    function dismissSuggestions(actId) {
+      activeSuggestions.delete(actId);
+      const panel = document.getElementById('suggest-panel-' + actId);
+      if (panel) panel.remove();
+      // Reset button look
+      const btn = document.getElementById('suggest-btn-' + actId);
+      if (btn) btn.style.opacity = '';
+    }
+
+    function renderSuggestPanel(actId, di, suggestions, loading) {
+      const wrap = document.getElementById('suggest-wrap-' + actId);
+      if (!wrap) return;
+
+      let inner = '';
+      if (loading) {
+        inner = `<div class="suggest-panel-loading">⏳ Scanning your history…</div>`;
+      } else if (!suggestions || suggestions.length === 0) {
+        inner = `<div class="suggest-panel-empty">No patterns found yet.<br>Add a few weeks of data and try again.</div>`;
+      } else {
+        const items = suggestions.map((s, i) => `
+          <div class="suggest-item">
+            <div class="suggest-item-info">
+              <div class="suggest-item-code">${esc(s.code)}</div>
+              <div class="suggest-item-desc">${esc(s.description)}</div>
+            </div>
+            <span class="suggest-item-badge">${s.count}×</span>
+            <button class="suggest-item-add" id="suggest-add-${actId}-${i}"
+              onclick="addSuggestedCode('${actId}',${di},'${s.code}','${s.description.replace(/'/g,"\\'")}',${i})">Add</button>
+          </div>`).join('');
+
+        const addAllLabel = suggestions.length > 1 ? `Add All ${suggestions.length}` : 'Add';
+        inner = `${items}
+          <button class="suggest-add-all-btn" onclick="addAllSuggestedCodes('${actId}',${di})">✓ ${addAllLabel}</button>
+          <div class="suggest-source-note">Based on ${suggestions[0].totalMatches} matching entries in your history</div>`;
+      }
+
+      wrap.innerHTML = `
+        <div class="act-suggest-panel" id="suggest-panel-${actId}">
+          <div class="suggest-panel-head">
+            <span class="suggest-panel-head-title">✨ Suggested codes</span>
+            <button class="suggest-panel-dismiss" onclick="dismissSuggestions('${actId}')" aria-label="Dismiss">✕</button>
+          </div>
+          ${inner}
+        </div>`;
+    }
+
+    async function buildSuggestions(description, existingCodes) {
+      const existingSet = new Set((existingCodes || []).map(c => c.c));
+      const desc = description.toLowerCase().trim();
+      if (!desc) return [];
+
+      // Extract meaningful keywords (3+ chars, skip common words)
+      const stopWords = new Set(['and','the','for','with','from','that','this','has','have','are','was','been']);
+      const keywords = desc.split(/\s+/).filter(w => w.length >= 3 && !stopWords.has(w));
+      if (keywords.length === 0) return [];
+
+      const codeCounts = {}; // { code: { code, description, count, totalMatches } }
+
+      // Scan all locally stored weeks
+      try {
+        const allWeeks = await dbGetAll('weeks');
+        allWeeks.forEach(record => {
+          const weekData = record.data;
+          if (!weekData?.days) return;
+          weekData.days.forEach(day => {
+            (day.activities || []).forEach(act => {
+              if (!act.description || !act.codes?.length) return;
+              const actDesc = act.description.toLowerCase();
+              const isMatch = keywords.some(kw => actDesc.includes(kw));
+              if (!isMatch) return;
+              act.codes.forEach(c => {
+                if (existingSet.has(c.c)) return; // skip already-added codes
+                if (!codeCounts[c.c]) {
+                  codeCounts[c.c] = { code: c.c, description: c.d || c.c, count: 0, totalMatches: 0 };
+                }
+                codeCounts[c.c].count++;
+              });
+            });
+          });
+        });
+      } catch (e) { /* offline or empty */ }
+
+      // Also scan current week in memory
+      (state.weekData?.days || []).forEach(day => {
+        (day.activities || []).forEach(act => {
+          if (!act.description || !act.codes?.length) return;
+          const actDesc = act.description.toLowerCase();
+          const isMatch = keywords.some(kw => actDesc.includes(kw));
+          if (!isMatch) return;
+          act.codes.forEach(c => {
+            if (existingSet.has(c.c)) return;
+            if (!codeCounts[c.c]) {
+              codeCounts[c.c] = { code: c.c, description: c.d || c.c, count: 0, totalMatches: 0 };
+            }
+            codeCounts[c.c].count++;
+          });
+        });
+      });
+
+      const results = Object.values(codeCounts).sort((a, b) => b.count - a.count).slice(0, 5);
+
+      // Look up full description from WORK_CODES master list if short
+      results.forEach(r => {
+        const master = WORK_CODES.find(c => c.c === r.code);
+        if (master) r.description = master.d;
+        r.totalMatches = r.count;
+      });
+
+      return results;
+    }
+
+    function addSuggestedCode(actId, di, code, description, itemIndex) {
+      const act = state.weekData?.days[di]?.activities.find(a => a.id === actId);
+      if (!act) return;
+      if (act.codes.find(c => c.c === code)) return; // already there
+      act.codes.push({ c: code, d: description });
+      scheduleSave();
+      // Mark button as added
+      const btn = document.getElementById(`suggest-add-${actId}-${itemIndex}`);
+      if (btn) { btn.textContent = '✓'; btn.classList.add('added'); btn.disabled = true; }
+      // Update the chip list in the DOM without full re-render
+      refreshActivityCodes(actId, di);
+    }
+
+    function addAllSuggestedCodes(actId, di) {
+      const suggestions = activeSuggestions.get(actId);
+      if (!suggestions) return;
+      const act = state.weekData?.days[di]?.activities.find(a => a.id === actId);
+      if (!act) return;
+      suggestions.forEach(s => {
+        if (!act.codes.find(c => c.c === s.code)) {
+          act.codes.push({ c: s.code, d: s.description });
+        }
+      });
+      scheduleSave();
+      dismissSuggestions(actId);
+      refreshActivityCodes(actId, di);
+    }
+
+    function refreshActivityCodes(actId, di) {
+      // Lightweight DOM update — refresh just the codes chips area without full render
+      const act = state.weekData?.days[di]?.activities.find(a => a.id === actId);
+      if (!act) return;
+      const codesWrap = document.querySelector(`.act-codes-wrap[data-act-codes="${actId}"]`);
+      if (!codesWrap) return;
+      const chipsHtml = act.codes.map(c => `
+        <div class="act-code-chip">
+          ${esc(c.d)}
+          <span class="act-code-mono">${esc(c.c)}</span>
+          <button onclick="removeCode('${actId}',${di},'${c.c}')" class="act-code-del">×</button>
+        </div>`).join('');
+      codesWrap.innerHTML = chipsHtml + `
+        <button onclick="openCodeModal(${di},'${actId}')" class="act-add-code">
+          <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M5 1v8M1 5h8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          Code
+        </button>`;
+    }
+
     function renderActivity(act, di, actIndex) {
       const isExpanded = state.activitiesExpanded.has(act.id);
       const ordinary = parseFloat(act.ordinary) || 0;
@@ -7417,8 +7731,15 @@
             </div>
 
             <div class="flex flex-col gap-1.5">
-              <span class="act-field-label">Work Codes</span>
-              <div class="act-codes-wrap">
+              <div style="display:flex;align-items:center;justify-content:space-between;">
+                <span class="act-field-label">Work Codes</span>
+                <button id="suggest-btn-${act.id}" class="act-suggest-btn"
+                  onclick="suggestCodes('${act.id}',${di})">
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg>
+                  Suggest
+                </button>
+              </div>
+              <div class="act-codes-wrap" data-act-codes="${act.id}">
                 ${act.codes.map(c => `
                   <div class="act-code-chip">
                     ${c.d}
@@ -7432,6 +7753,7 @@
                   Code
                 </button>
               </div>
+              <div id="suggest-wrap-${act.id}"></div>
               ${isMissingCode ? `<div class="act-missing-warn">⚠️ Missing work code</div>` : ''}
               ${isMissingHours ? `<div class="act-missing-warn">⚠️ Missing hours</div>` : ''}
             </div>
