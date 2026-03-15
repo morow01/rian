@@ -2944,6 +2944,87 @@
       border: 1px solid var(--border);
     }
 
+    /* ===== AI FAULT ASSISTANT ===== */
+    .ai-view { padding: 0 0 80px; }
+    .ai-search-wrap { padding: 14px 14px 0; }
+    .ai-search-row { display: flex; gap: 8px; align-items: center; }
+    .ai-search-input {
+      flex: 1; padding: 10px 14px; border-radius: 12px; font-size: 14px;
+      border: 1.5px solid var(--border); background: var(--bg-input);
+      color: var(--text-primary); outline: none;
+    }
+    .ai-search-input:focus { border-color: #818cf8; }
+    .ai-ask-btn {
+      padding: 10px 16px; border-radius: 12px; font-size: 13px; font-weight: 700;
+      background: #818cf8; color: #fff; border: none; cursor: pointer; white-space: nowrap;
+      transition: opacity .2s;
+    }
+    .ai-ask-btn:disabled { opacity: 0.5; cursor: default; }
+    .ai-section { padding: 14px 14px 0; }
+    .ai-section-label { font-size: 10px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 8px; }
+    .ai-answer-card {
+      background: #f3f2ff; border-radius: 12px; padding: 14px;
+      border-left: 3px solid #818cf8;
+    }
+    .dark .ai-answer-card { background: #1e1b3a; }
+    .ai-answer-label { font-size: 10px; font-weight: 700; color: #818cf8; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+    .ai-answer-text { font-size: 13px; color: var(--text-primary); line-height: 1.6; }
+    .ai-answer-footer { font-size: 11px; color: var(--text-muted); margin-top: 8px; font-style: italic; }
+    .ai-source-card {
+      background: var(--bg-card); border-radius: 10px; padding: 10px 12px;
+      margin-bottom: 8px; border: 1px solid var(--border);
+    }
+    .ai-source-date { font-size: 10px; font-weight: 700; color: #f59e0b; margin-bottom: 3px; }
+    .ai-source-desc { font-size: 11px; font-weight: 600; color: var(--text-primary); margin-bottom: 3px; }
+    .ai-source-notes { font-size: 11px; color: var(--text-secondary); line-height: 1.45; }
+    .ai-stats-row { display: flex; gap: 8px; }
+    .ai-stat-tile {
+      flex: 1; background: var(--bg-card); border-radius: 10px; padding: 10px 8px;
+      text-align: center; border: 1px solid var(--border);
+    }
+    .ai-stat-val { font-size: 22px; font-weight: 800; color: #818cf8; }
+    .ai-stat-lbl { font-size: 10px; color: var(--text-muted); margin-top: 2px; }
+    .ai-recent-chip {
+      display: inline-flex; align-items: center; gap: 5px;
+      background: var(--bg-card); border: 1px solid var(--border); border-radius: 20px;
+      padding: 5px 12px; font-size: 12px; color: var(--text-primary); cursor: pointer;
+      margin: 0 6px 6px 0;
+    }
+    .ai-recent-chip:active { opacity: 0.7; }
+    .ai-setup-card {
+      margin: 20px 14px; background: var(--bg-card); border-radius: 14px;
+      padding: 20px; border: 1px solid var(--border); text-align: center;
+    }
+    .ai-setup-icon { font-size: 40px; margin-bottom: 12px; }
+    .ai-setup-title { font-size: 16px; font-weight: 700; color: var(--text-primary); margin-bottom: 6px; }
+    .ai-setup-sub { font-size: 12px; color: var(--text-muted); line-height: 1.5; margin-bottom: 16px; }
+    .ai-key-input {
+      width: 100%; padding: 10px 12px; border-radius: 10px; font-size: 12px;
+      border: 1.5px solid var(--border); background: var(--bg-input);
+      color: var(--text-primary); outline: none; margin-bottom: 10px; font-family: monospace;
+    }
+    .ai-key-input:focus { border-color: #818cf8; }
+    .ai-save-btn {
+      width: 100%; padding: 11px; border-radius: 10px; font-size: 14px; font-weight: 700;
+      background: #818cf8; color: #fff; border: none; cursor: pointer;
+    }
+    .ai-how-steps { text-align: left; margin: 14px 0; }
+    .ai-how-step { font-size: 12px; color: var(--text-secondary); padding: 4px 0; display: flex; gap: 8px; }
+    .ai-how-step-num { color: #818cf8; font-weight: 700; min-width: 18px; }
+    .ai-loading-dots { display: inline-flex; gap: 4px; align-items: center; }
+    .ai-loading-dots span {
+      width: 6px; height: 6px; border-radius: 50%; background: #818cf8;
+      animation: aiDot 1.2s infinite ease-in-out;
+    }
+    .ai-loading-dots span:nth-child(2) { animation-delay: .2s; }
+    .ai-loading-dots span:nth-child(3) { animation-delay: .4s; }
+    @keyframes aiDot { 0%,80%,100%{transform:scale(.6);opacity:.4} 40%{transform:scale(1);opacity:1} }
+    .ai-empty-state { text-align: center; padding: 30px 20px; color: var(--text-muted); font-size: 13px; line-height: 1.6; }
+    .ai-error-card { background: #fff1f2; border-radius: 12px; padding: 12px 14px; border-left: 3px solid #ef4444; margin-bottom: 8px; }
+    .dark .ai-error-card { background: #2d0a0f; }
+    .ai-error-text { font-size: 12px; color: #dc2626; }
+    .ai-key-change { font-size: 11px; color: #818cf8; text-decoration: underline; cursor: pointer; text-align: right; margin-top: 6px; }
+
     /* ===== FIELD NOTES ===== */
     .notes-view {
       padding-bottom: 24px;
@@ -5309,7 +5390,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '4.1.33';
+    const VERSION = '4.1.34';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -5764,7 +5845,13 @@
     // STATE
     // ============================================================
     let state = {
-      view: 'week',         // 'week' | 'history' | 'exchanges' (NEW)
+      view: 'week',         // 'week' | 'history' | 'exchanges' | 'ai'
+      aiQuery: '',          // current AI search query
+      aiLoading: false,     // Gemini API call in progress
+      aiResult: null,       // { answer, sources: [] }
+      aiError: null,        // error message string
+      aiStats: null,        // { noteCount, faultTypeCount, monthsBack }
+      aiRecentQueries: JSON.parse(localStorage.getItem('rian_ai_recent') || '[]'),
       weekStart: null,      // 'YYYY-MM-DD'
       weekData: null,       // { weekStart, days: [...] }
       currentUser: null,    // Firebase Auth user
@@ -6620,6 +6707,8 @@
         viewBody = renderNotesView();
       } else if (state.view === 'routines') {
         viewBody = renderRoutinesView();
+      } else if (state.view === 'ai') {
+        viewBody = renderAIView();
       } else { // Default to 'week' view
         // In table mode break out of the narrow max-w-2xl container
         app.classList.toggle('tbl-mode', state.view === 'week' && state.layoutMode === 'table');
@@ -6835,15 +6924,18 @@
       </div>
     </div>
     <div class="flex" style="background:var(--bg-header-tab)">
-      <button onclick="setView('week')" class="flex-1 py-2.5 text-[11px] font-bold tracking-widest uppercase relative" style="color:${state.view === 'week' ? '#F5A623' : 'var(--text-header-sub)'};${state.view === 'week' ? 'border-bottom:2.5px solid #F5A623' : ''}">
+      <button onclick="setView('week')" class="flex-1 py-2.5 text-[10px] font-bold tracking-widest uppercase relative" style="color:${state.view === 'week' ? '#F5A623' : 'var(--text-header-sub)'};${state.view === 'week' ? 'border-bottom:2.5px solid #F5A623' : ''}">
         Timesheet
       </button>
-      <button onclick="setView('notes')" class="flex-1 py-2.5 text-[11px] font-bold tracking-widest uppercase relative" style="color:${state.view === 'notes' ? '#F5A623' : 'var(--text-header-sub)'};${state.view === 'notes' ? 'border-bottom:2.5px solid #F5A623' : ''}">
+      <button onclick="setView('notes')" class="flex-1 py-2.5 text-[10px] font-bold tracking-widest uppercase relative" style="color:${state.view === 'notes' ? '#F5A623' : 'var(--text-header-sub)'};${state.view === 'notes' ? 'border-bottom:2.5px solid #F5A623' : ''}">
         Notes
         ${{ pending: '#f97316', syncing: '#3b82f6', error: '#ef4444' }[state.notesSyncStatus] ? `<span class="notes-sync-dot" style="background:${{ pending: '#f97316', syncing: '#3b82f6', error: '#ef4444' }[state.notesSyncStatus]}"></span>` : ''}
       </button>
-      <button onclick="setView('exchanges')" class="flex-1 py-2.5 text-[11px] font-bold tracking-widest uppercase" style="color:${state.view === 'exchanges' ? '#F5A623' : 'var(--text-header-sub)'};${state.view === 'exchanges' ? 'border-bottom:2.5px solid #F5A623' : ''}">
+      <button onclick="setView('exchanges')" class="flex-1 py-2.5 text-[10px] font-bold tracking-widest uppercase" style="color:${state.view === 'exchanges' ? '#F5A623' : 'var(--text-header-sub)'};${state.view === 'exchanges' ? 'border-bottom:2.5px solid #F5A623' : ''}">
         Finder
+      </button>
+      <button onclick="setView('ai')" class="flex-1 py-2.5 text-[10px] font-bold tracking-widest uppercase relative" style="color:${state.view === 'ai' ? '#818cf8' : 'var(--text-header-sub)'};${state.view === 'ai' ? 'border-bottom:2.5px solid #818cf8' : ''}">
+        🤖 AI
       </button>
     </div>
   </header>`;
@@ -8016,6 +8108,7 @@
         render();
       }
       else if (v === 'routines') await loadRoutines();
+      else if (v === 'ai') { await loadAIStats(); render(); }
       else render();
     }
 
@@ -11071,6 +11164,270 @@ Rules:
     }
 
     init();
+
+    // ============================================================
+    // AI FAULT ASSISTANT
+    // ============================================================
+
+    // Load knowledge base stats from IndexedDB
+    async function loadAIStats() {
+      try {
+        const allWeeks = await dbGetAll('weeks');
+        let noteCount = 0;
+        const faultTypes = new Set();
+        let oldestDate = '';
+        allWeeks.forEach(week => {
+          if (!week.days) return;
+          week.days.forEach(day => {
+            (day.activities || []).forEach(act => {
+              if (act.notes && act.notes.trim()) {
+                noteCount++;
+                if (act.description && act.description.trim()) faultTypes.add(act.description.toLowerCase().trim());
+                if (!oldestDate || day.date < oldestDate) oldestDate = day.date;
+              }
+            });
+          });
+        });
+        let monthsBack = 0;
+        if (oldestDate) {
+          const diff = new Date() - new Date(oldestDate);
+          monthsBack = Math.max(1, Math.round(diff / (1000 * 60 * 60 * 24 * 30)));
+        }
+        state.aiStats = { noteCount, faultTypeCount: faultTypes.size, monthsBack };
+      } catch (e) {
+        state.aiStats = { noteCount: 0, faultTypeCount: 0, monthsBack: 0 };
+      }
+    }
+
+    // Search local IndexedDB for activities with notes matching query keywords
+    async function searchFaultNotes(query) {
+      const stopWords = new Set(['the','and','for','that','this','with','from','have','been','was','are','will','not','but','you','your','they','them','their','what','when','how','all','can','its']);
+      const keywords = query.toLowerCase().split(/\s+/).filter(w => w.length >= 3 && !stopWords.has(w));
+      if (!keywords.length) return [];
+      const allWeeks = await dbGetAll('weeks');
+      const matches = [];
+      allWeeks.forEach(week => {
+        if (!week.days) return;
+        week.days.forEach(day => {
+          (day.activities || []).forEach(act => {
+            if (!act.notes || !act.notes.trim()) return;
+            const text = [act.description, act.notes].filter(Boolean).join(' ').toLowerCase();
+            const hitCount = keywords.filter(kw => text.includes(kw)).length;
+            if (hitCount > 0) {
+              matches.push({ date: day.date, description: act.description || '', notes: act.notes, hitCount });
+            }
+          });
+        });
+      });
+      return matches.sort((a, b) => b.hitCount - a.hitCount || b.date.localeCompare(a.date));
+    }
+
+    // Call Gemini API with fault notes as context
+    async function askGemini(query, sources) {
+      const apiKey = localStorage.getItem('rian_gemini_key');
+      if (!apiKey) throw new Error('No API key configured.');
+      const notesContext = sources.slice(0, 12).map(n =>
+        `Date: ${n.date}\nFault: ${n.description || '(no description)'}\nNotes: ${n.notes}`
+      ).join('\n\n---\n\n');
+      const prompt = `You are a fault diagnosis assistant for a field telecommunications technician.
+Based ONLY on the technician's past fault notes provided below, answer the question.
+Be concise and practical. Focus on causes found and steps taken to resolve the fault.
+If the notes don't contain relevant information, say so clearly.
+
+PAST FAULT NOTES:
+${notesContext}
+
+QUESTION: ${query}`;
+      const resp = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: prompt }] }],
+            generationConfig: { temperature: 0.2, maxOutputTokens: 600 }
+          })
+        }
+      );
+      if (!resp.ok) {
+        const err = await resp.json().catch(() => ({}));
+        throw new Error(err.error?.message || `API error ${resp.status}`);
+      }
+      const data = await resp.json();
+      return data.candidates?.[0]?.content?.parts?.[0]?.text || 'No response received.';
+    }
+
+    // Main query handler
+    async function runAIQuery() {
+      const query = (document.getElementById('ai-query-input')?.value || state.aiQuery).trim();
+      if (!query || state.aiLoading) return;
+      state.aiQuery = query;
+      state.aiLoading = true;
+      state.aiResult = null;
+      state.aiError = null;
+      render();
+      try {
+        const sources = await searchFaultNotes(query);
+        if (!sources.length) {
+          state.aiResult = { answer: "I couldn't find any past fault notes matching your query. Try different keywords, or make sure you've been adding notes to your timesheet activities.", sources: [] };
+        } else {
+          const answer = await askGemini(query, sources);
+          state.aiResult = { answer, sources: sources.slice(0, 5) };
+        }
+        // Save to recent queries
+        state.aiRecentQueries = [query, ...state.aiRecentQueries.filter(q => q !== query)].slice(0, 8);
+        localStorage.setItem('rian_ai_recent', JSON.stringify(state.aiRecentQueries));
+      } catch (e) {
+        state.aiError = e.message;
+      } finally {
+        state.aiLoading = false;
+        render();
+        setTimeout(() => document.getElementById('ai-result-top')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+      }
+    }
+
+    function aiQueryKeydown(e) {
+      if (e.key === 'Enter') runAIQuery();
+    }
+
+    function aiRecentTap(q) {
+      state.aiQuery = q;
+      render();
+      setTimeout(() => {
+        const el = document.getElementById('ai-query-input');
+        if (el) { el.value = q; el.focus(); }
+      }, 50);
+    }
+
+    function clearAIResult() {
+      state.aiResult = null;
+      state.aiError = null;
+      state.aiQuery = '';
+      render();
+    }
+
+    function saveGeminiKey() {
+      const key = (document.getElementById('ai-key-input')?.value || '').trim();
+      if (!key) { showToast('Please paste your API key first.'); return; }
+      localStorage.setItem('rian_gemini_key', key);
+      showToast('API key saved ✓');
+      loadAIStats().then(() => render());
+    }
+
+    function clearGeminiKey() {
+      if (!confirm('Remove Gemini API key? The AI feature will stop working until you re-enter a key.')) return;
+      localStorage.removeItem('rian_gemini_key');
+      state.aiResult = null;
+      state.aiError = null;
+      render();
+    }
+
+    // Render the AI tab
+    function renderAIView() {
+      const apiKey = localStorage.getItem('rian_gemini_key') || '';
+      if (!apiKey) return renderAISetup();
+
+      const stats = state.aiStats;
+      const statsHtml = stats ? `
+      <div class="ai-section">
+        <div class="ai-section-label">Your Knowledge Base</div>
+        <div class="ai-stats-row">
+          <div class="ai-stat-tile"><div class="ai-stat-val">${stats.noteCount}</div><div class="ai-stat-lbl">fault notes</div></div>
+          <div class="ai-stat-tile"><div class="ai-stat-val">${stats.faultTypeCount}</div><div class="ai-stat-lbl">fault types</div></div>
+          <div class="ai-stat-tile"><div class="ai-stat-val">${stats.monthsBack || '—'}</div><div class="ai-stat-lbl">months data</div></div>
+        </div>
+        ${stats.noteCount === 0 ? `<div class="ai-empty-state" style="margin-top:10px;">💡 Start adding <strong>Notes</strong> to your timesheet activities when you're on a fault. The more detail you add, the smarter the suggestions become.</div>` : ''}
+      </div>` : '';
+
+      const recentHtml = state.aiRecentQueries.length ? `
+      <div class="ai-section">
+        <div class="ai-section-label">Recent searches</div>
+        <div style="display:flex;flex-wrap:wrap;padding-top:2px;">
+          ${state.aiRecentQueries.map(q => `<div class="ai-recent-chip" onclick="aiRecentTap(${JSON.stringify(q)})">🔍 ${q}</div>`).join('')}
+        </div>
+      </div>` : '';
+
+      let resultHtml = '';
+      if (state.aiLoading) {
+        resultHtml = `
+        <div class="ai-section" id="ai-result-top">
+          <div class="ai-answer-card">
+            <div class="ai-answer-label">🤖 Thinking <div class="ai-loading-dots"><span></span><span></span><span></span></div></div>
+            <div class="ai-answer-text" style="color:var(--text-muted);">Searching your fault history and asking Gemini…</div>
+          </div>
+        </div>`;
+      } else if (state.aiError) {
+        resultHtml = `
+        <div class="ai-section" id="ai-result-top">
+          <div class="ai-error-card">
+            <div class="ai-answer-label" style="color:#dc2626;">⚠️ Error</div>
+            <div class="ai-error-text">${state.aiError}</div>
+          </div>
+          <div class="ai-key-change" onclick="clearGeminiKey()">Wrong API key? Tap to change it</div>
+        </div>`;
+      } else if (state.aiResult) {
+        const sourcesHtml = state.aiResult.sources.length ? `
+        <div class="ai-section" style="margin-top:6px;">
+          <div class="ai-section-label">Matching past notes (${state.aiResult.sources.length})</div>
+          ${state.aiResult.sources.map(s => `
+          <div class="ai-source-card">
+            <div class="ai-source-date">${s.date} · ${s.description || 'No description'}</div>
+            <div class="ai-source-notes">${s.notes.length > 220 ? s.notes.slice(0, 220) + '…' : s.notes}</div>
+          </div>`).join('')}
+        </div>` : '';
+        resultHtml = `
+        <div class="ai-section" id="ai-result-top">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+            <div class="ai-section-label" style="margin:0;">AI Answer</div>
+            <div style="font-size:11px;color:#818cf8;cursor:pointer;" onclick="clearAIResult()">✕ Clear</div>
+          </div>
+          <div class="ai-answer-card">
+            <div class="ai-answer-label">🤖 Gemini</div>
+            <div class="ai-answer-text">${state.aiResult.answer.replace(/\n/g, '<br>')}</div>
+            <div class="ai-answer-footer">Based on ${state.aiResult.sources.length} matching entr${state.aiResult.sources.length === 1 ? 'y' : 'ies'} from your fault history</div>
+          </div>
+        </div>
+        ${sourcesHtml}`;
+      }
+
+      return `<div class="ai-view">
+      <div class="ai-search-wrap">
+        <div class="ai-section-label" style="margin-bottom:6px;">Ask about a past fault</div>
+        <div class="ai-search-row">
+          <input id="ai-query-input" class="ai-search-input" type="text" placeholder="e.g. CN Isolated, fibre break, no signal…"
+            value="${(state.aiQuery || '').replace(/"/g, '&quot;')}"
+            onkeydown="aiQueryKeydown(event)">
+          <button class="ai-ask-btn" onclick="runAIQuery()" ${state.aiLoading ? 'disabled' : ''}>Ask</button>
+        </div>
+      </div>
+      ${resultHtml}
+      ${!state.aiResult && !state.aiLoading ? recentHtml : ''}
+      ${!state.aiResult && !state.aiLoading ? statsHtml : ''}
+      <div style="padding:14px;text-align:right;">
+        <span style="font-size:11px;color:var(--text-muted);cursor:pointer;" onclick="clearGeminiKey()">⚙️ Change API key</span>
+      </div>
+    </div>`;
+    }
+
+    // Render the API key setup screen (shown when no key is stored)
+    function renderAISetup() {
+      return `<div class="ai-view">
+      <div class="ai-setup-card">
+        <div class="ai-setup-icon">🤖</div>
+        <div class="ai-setup-title">Fault Assistant Setup</div>
+        <div class="ai-setup-sub">Connect to Google Gemini to search your fault history with AI. Your notes are sent securely to Gemini to generate answers.</div>
+        <div class="ai-how-steps">
+          <div class="ai-how-step"><span class="ai-how-step-num">1.</span><span>Go to <strong>aistudio.google.com</strong></span></div>
+          <div class="ai-how-step"><span class="ai-how-step-num">2.</span><span>Sign in with your Google account</span></div>
+          <div class="ai-how-step"><span class="ai-how-step-num">3.</span><span>Click <strong>Get API key</strong> → Create API key</span></div>
+          <div class="ai-how-step"><span class="ai-how-step-num">4.</span><span>Copy the key and paste it below</span></div>
+        </div>
+        <input id="ai-key-input" class="ai-key-input" type="password" placeholder="Paste your Gemini API key here…">
+        <button class="ai-save-btn" onclick="saveGeminiKey()">Save & Connect</button>
+      </div>
+    </div>`;
+    }
+
   </script>
 
   <!-- ===== VOICE FAB ===== -->
