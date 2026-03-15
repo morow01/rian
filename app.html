@@ -5395,7 +5395,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '4.1.41';
+    const VERSION = '4.1.42';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -5867,7 +5867,7 @@
       notesSyncStatus: 'idle',  // 'idle' | 'pending' | 'syncing' | 'synced' | 'error'
       syncStatus: 'idle',   // 'idle' | 'pending' | 'syncing' | 'synced' | 'error'
       showSummary: false,
-      headerExpanded: true,
+      headerExpanded: localStorage.getItem('rian_headerExpanded') === 'true',
       expandedDays: new Set(),  // track which day indices are expanded
       notesOpen: new Map(), // explicit open/closed per actId; default = open if note has content
       selectionMode: false,
@@ -8060,6 +8060,7 @@
 
     function toggleHeader() {
       state.headerExpanded = !state.headerExpanded;
+      localStorage.setItem('rian_headerExpanded', state.headerExpanded);
       // Update DOM directly without full re-render for smoothness
       const tiles = document.querySelector('.hdr-metrics');
       const chev = document.querySelector('.hdr-week-chevron');
