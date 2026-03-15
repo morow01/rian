@@ -4439,6 +4439,100 @@
       border: 1px solid var(--border);
     }
 
+    /* ===== ANOMALY ALERT BANNER ===== */
+    .anomaly-banner {
+      margin: 0 0 10px;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1.5px solid #fed7aa;
+      background: #fff7ed;
+      box-shadow: 0 1px 6px rgba(234,88,12,0.08);
+    }
+    .anomaly-banner.all-ok {
+      border-color: #bbf7d0;
+      background: #f0fdf4;
+    }
+    .anomaly-banner-head {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      cursor: pointer;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    .anomaly-banner-icon {
+      font-size: 18px;
+      line-height: 1;
+      flex-shrink: 0;
+    }
+    .anomaly-banner-title {
+      flex: 1;
+      font-size: 13px;
+      font-weight: 700;
+      color: #c2410c;
+    }
+    .anomaly-banner.all-ok .anomaly-banner-title { color: #15803d; }
+    .anomaly-banner-count {
+      font-size: 11px;
+      font-weight: 700;
+      background: #fb923c;
+      color: #fff;
+      border-radius: 999px;
+      padding: 1px 8px;
+      flex-shrink: 0;
+    }
+    .anomaly-banner-chevron {
+      color: #c2410c;
+      transition: transform 0.2s;
+      flex-shrink: 0;
+    }
+    .anomaly-banner-chevron.open { transform: rotate(180deg); }
+    .anomaly-banner-body {
+      display: none;
+      border-top: 1px solid #fed7aa;
+    }
+    .anomaly-banner-body.open { display: block; }
+    .anomaly-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 9px 14px;
+      border-bottom: 1px solid #fde8cf;
+      font-size: 12.5px;
+      color: #1e293b;
+    }
+    .anomaly-item:last-child { border-bottom: none; }
+    .anomaly-item-icon { flex-shrink: 0; font-size: 14px; margin-top: 1px; }
+    .anomaly-item-msg { flex: 1; line-height: 1.45; }
+    .anomaly-item-msg strong { color: #9a3412; }
+    .anomaly-item-goto {
+      flex-shrink: 0;
+      font-size: 11px;
+      font-weight: 700;
+      color: #ea580c;
+      background: none;
+      border: 1.5px solid #fb923c;
+      border-radius: 999px;
+      padding: 2px 10px;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .anomaly-banner-dismiss {
+      display: block;
+      width: 100%;
+      padding: 8px;
+      font-size: 11px;
+      color: #9a3412;
+      background: none;
+      border: none;
+      border-top: 1px solid #fed7aa;
+      cursor: pointer;
+      text-align: center;
+      opacity: 0.7;
+    }
+    .anomaly-banner-dismiss:hover { opacity: 1; }
+
     /* ===== VOICE-TO-TASK ===== */
     /* Floating mic button */
     .voice-fab {
@@ -5084,7 +5178,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '4.1.21';
+    const VERSION = '4.1.22';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -6598,6 +6692,149 @@
       if (el) el.outerHTML = renderHeader();
     }
 
+    // ============================================================
+    // ANOMALY DETECTION
+    // ============================================================
+    function detectAnomalies(weekData) {
+      if (!weekData) return [];
+      const today = dateToStr(new Date());
+      const issues = [];
+
+      weekData.days.forEach((day, di) => {
+        const isWeekend = di === 0 || di === 6; // Sun=0, Sat=6
+        // weekData days are Mon–Sun (di 0=Mon … 6=Sun)
+        // weekend = Sat(di=5) or Sun(di=6)
+        const isWE = di === 5 || di === 6;
+        const isPast = day.date <= today;
+
+        const acts = day.activities.filter(a =>
+          a.description || a.codes.length || parseFloat(a.ordinary) > 0 || parseFloat(a.overtime) > 0
+        );
+
+        // ── 1. Empty weekday (past or today) ──────────────────
+        if (!isWE && isPast && acts.length === 0) {
+          issues.push({ severity: 'warn', icon: '📭', dayIdx: di,
+            msg: `<strong>${day.dayName}</strong> has no activities recorded.` });
+        }
+
+        // ── 2. Empty weekday with 0 total hours ───────────────
+        if (!isWE && isPast && acts.length > 0) {
+          const dayOrd = acts.reduce((s, a) => s + (parseFloat(a.ordinary) || 0), 0);
+          const dayOT  = acts.reduce((s, a) => s + (parseFloat(a.overtime)  || 0), 0);
+          if (dayOrd === 0 && dayOT === 0) {
+            issues.push({ severity: 'warn', icon: '⏱️', dayIdx: di,
+              msg: `<strong>${day.dayName}</strong> has tasks but <strong>0 hours</strong> recorded.` });
+          }
+        }
+
+        // ── Per-activity checks ───────────────────────────────
+        acts.forEach(act => {
+          const ord = parseFloat(act.ordinary) || 0;
+          const ot  = parseFloat(act.overtime)  || 0;
+
+          // 3. Has hours but no work codes
+          if ((ord > 0 || ot > 0) && act.codes.length === 0) {
+            const desc = act.description ? `"${act.description}"` : 'an activity';
+            issues.push({ severity: 'error', icon: '🔴', dayIdx: di,
+              msg: `<strong>${day.dayName}</strong>: ${desc} has hours but <strong>no work code</strong>.` });
+          }
+
+          // 4. Has codes but no hours
+          if (act.codes.length > 0 && ord === 0 && ot === 0) {
+            const desc = act.description ? `"${act.description}"` : 'an activity';
+            issues.push({ severity: 'warn', icon: '⚠️', dayIdx: di,
+              msg: `<strong>${day.dayName}</strong>: ${desc} has a code but <strong>no hours</strong> entered.` });
+          }
+
+          // 5. Has hours but no description
+          if ((ord > 0 || ot > 0) && !act.description) {
+            issues.push({ severity: 'warn', icon: '📝', dayIdx: di,
+              msg: `<strong>${day.dayName}</strong>: An activity with ${ord}h has <strong>no description</strong>.` });
+          }
+        });
+
+        // ── 6. Unusually high day total ───────────────────────
+        if (!isWE) {
+          const dayOrd = acts.reduce((s, a) => s + (parseFloat(a.ordinary) || 0), 0);
+          const dayOT  = acts.reduce((s, a) => s + (parseFloat(a.overtime)  || 0), 0);
+          if (dayOrd > 12) {
+            issues.push({ severity: 'warn', icon: '🕐', dayIdx: di,
+              msg: `<strong>${day.dayName}</strong>: Ordinary hours (<strong>${Math.round(dayOrd)}h</strong>) look unusually high.` });
+          }
+          if (dayOT > 0 && dayOrd === 0) {
+            issues.push({ severity: 'warn', icon: '⚠️', dayIdx: di,
+              msg: `<strong>${day.dayName}</strong>: Has <strong>overtime</strong> but no ordinary hours.` });
+          }
+        }
+      });
+
+      return issues;
+    }
+
+    function anomalyDismissKey() {
+      return 'anomaly_dismissed_' + (state.weekStart || '');
+    }
+
+    function isAnomalyDismissed() {
+      return localStorage.getItem(anomalyDismissKey()) === '1';
+    }
+
+    function dismissAnomalyBanner() {
+      localStorage.setItem(anomalyDismissKey(), '1');
+      const banner = document.getElementById('anomaly-banner');
+      if (banner) banner.style.display = 'none';
+    }
+
+    function toggleAnomalyBanner() {
+      const body = document.getElementById('anomaly-banner-body');
+      const chev = document.getElementById('anomaly-banner-chev');
+      if (!body) return;
+      const isOpen = body.classList.toggle('open');
+      if (chev) chev.classList.toggle('open', isOpen);
+    }
+
+    function gotoAnomalyDay(di) {
+      // Expand the day and scroll to it
+      state.expandedDays.add(di);
+      render();
+      setTimeout(() => {
+        const card = document.querySelector(`.day-card[data-day-idx="${di}"]`);
+        if (card) card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 60);
+    }
+
+    function renderAnomalyBanner(weekData) {
+      if (isAnomalyDismissed()) return '';
+      const issues = detectAnomalies(weekData);
+      if (issues.length === 0) return '';
+
+      const errorCount = issues.filter(i => i.severity === 'error').length;
+      const titleText  = errorCount > 0
+        ? `${issues.length} issue${issues.length > 1 ? 's' : ''} found — ${errorCount} error${errorCount > 1 ? 's' : ''}`
+        : `${issues.length} warning${issues.length > 1 ? 's' : ''} — review before submitting`;
+
+      const itemsHtml = issues.map(issue => `
+        <div class="anomaly-item">
+          <span class="anomaly-item-icon">${issue.icon}</span>
+          <span class="anomaly-item-msg">${issue.msg}</span>
+          ${issue.dayIdx != null ? `<button class="anomaly-item-goto" onclick="gotoAnomalyDay(${issue.dayIdx})">Go →</button>` : ''}
+        </div>`).join('');
+
+      return `
+      <div class="anomaly-banner" id="anomaly-banner">
+        <div class="anomaly-banner-head" onclick="toggleAnomalyBanner()">
+          <span class="anomaly-banner-icon">⚠️</span>
+          <span class="anomaly-banner-title">${titleText}</span>
+          <span class="anomaly-banner-count">${issues.length}</span>
+          <svg id="anomaly-banner-chev" class="anomaly-banner-chevron" width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="anomaly-banner-body" id="anomaly-banner-body">
+          ${itemsHtml}
+          <button class="anomaly-banner-dismiss" onclick="dismissAnomalyBanner()">Dismiss for this week</button>
+        </div>
+      </div>`;
+    }
+
     function renderWeekView() {
       if (!state.weekData) return `<div class="p-8 text-center" style="color:var(--text-muted)">Loading…</div>`;
       return state.layoutMode === 'table' ? renderTableView() : renderCardView();
@@ -6669,7 +6906,8 @@
     </div>
   </div>`;
 
-      return `<main class="pb-6"><div class="week-list">${daysHtml}</div>${summaryHtml}</main>`;
+      const anomalyHtml = renderAnomalyBanner(state.weekData);
+      return `<main class="pb-6">${anomalyHtml ? `<div style="padding:10px 12px 0">${anomalyHtml}</div>` : ''}<div class="week-list">${daysHtml}</div>${summaryHtml}</main>`;
     }
 
     // ============================================================
@@ -6728,8 +6966,10 @@
     </div>` : ''}
   </div>`;
 
+      const tblAnomalyHtml = renderAnomalyBanner(state.weekData);
       return `
 <main class="pb-6">
+  ${tblAnomalyHtml ? `<div style="padding:10px 12px 0">${tblAnomalyHtml}</div>` : ''}
   <div class="table-view-wrap">
     <table class="timesheet-table">
       <colgroup>
