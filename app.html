@@ -4704,7 +4704,7 @@
       transition: transform 0.2s;
       flex-shrink: 0;
     }
-    .anomaly-banner-chevron.open { transform: rotate(180deg); }
+    .anomaly-banner-chevron.open { transform: rotate(90deg); }
     .anomaly-banner-body {
       display: none;
       border-top: 1px solid #fed7aa;
@@ -5395,7 +5395,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '4.1.43';
+    const VERSION = '4.1.44';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -7077,7 +7077,7 @@
           <span class="anomaly-banner-icon">⚠️</span>
           <span class="anomaly-banner-title">${titleText}</span>
           <span class="anomaly-banner-count">${issues.length}</span>
-          <svg id="anomaly-banner-chev" class="anomaly-banner-chevron" width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <svg id="anomaly-banner-chev" class="anomaly-banner-chevron" width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 4l4 4-4 4" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </div>
         <div class="anomaly-banner-body" id="anomaly-banner-body">
           ${itemsHtml}
