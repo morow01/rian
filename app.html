@@ -3059,10 +3059,17 @@
     #note-fs-editor .ql-toolbar button.ql-active svg .ql-stroke { stroke: #818cf8; }
     #note-fs-editor .ql-toolbar button:hover svg .ql-fill,
     #note-fs-editor .ql-toolbar button.ql-active svg .ql-fill { fill: #818cf8; }
-    #note-fs-editor .ql-toolbar .ql-picker-label { color: var(--text-secondary); }
+    #note-fs-editor .ql-toolbar .ql-picker-label { color: var(--text-secondary); border-color: var(--border); }
+    #note-fs-editor .ql-toolbar .ql-picker-label:hover { color: #818cf8; }
+    #note-fs-editor .ql-toolbar .ql-picker-options { background: var(--bg-card); border-color: var(--border); }
+    #note-fs-editor .ql-toolbar .ql-picker-item:hover { color: #818cf8; }
+    #note-fs-editor .ql-toolbar .ql-color-picker .ql-picker-label svg,
+    #note-fs-editor .ql-toolbar .ql-background .ql-picker-label svg { width: 18px; height: 18px; }
     #note-fs-editor .ql-snow.ql-toolbar button,
-    #note-fs-editor .ql-snow .ql-toolbar button { width: 32px; height: 32px; }
-    #note-fs-editor .ql-formats { margin-right: 12px; }
+    #note-fs-editor .ql-snow .ql-toolbar button { width: 30px; height: 30px; }
+    #note-fs-editor .ql-formats { margin-right: 8px; }
+    #note-fs-editor .ql-toolbar .ql-color-picker.ql-color .ql-picker-label::before { content: 'A'; font-weight:700; font-size:13px; color:var(--text-secondary); }
+    #note-fs-editor .ql-toolbar .ql-color-picker.ql-background .ql-picker-label::before { content: '▌'; font-size:16px; color:var(--text-secondary); }
 
     .ai-ask-btn {
       padding: 10px 16px;
@@ -5864,7 +5871,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '4.3.6';
+    const VERSION = '4.3.7';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -12036,8 +12043,10 @@ QUESTION: ${query}`;
             theme: 'snow',
             modules: {
               toolbar: [
-                ['bold', 'italic', 'underline'],
-                [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+                ['bold', 'italic', 'underline', 'strike'],
+                [{ 'color': ['#000000','#e53935','#f57c00','#2e7d32','#1565c0','#6a1b9a','#ffffff'] },
+                 { 'background': ['','#ffeb3b','#a5d6a7','#ef9a9a','#90caf9','#ce93d8','#ffe0b2'] }],
+                [{ 'header': 3 }, { 'list': 'ordered' }, { 'list': 'bullet' }],
                 ['clean']
               ]
             }
