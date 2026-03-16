@@ -5955,7 +5955,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '4.4.9';
+    const VERSION = '4.5.0';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -12140,6 +12140,10 @@ QUESTION: ${query}`;
                 [{ 'header': 3 }]
               ]
             }
+          });
+          // Kill Quill's built-in 15px group margin so toolbar fits on one row
+          document.querySelectorAll('#note-fs-editor .ql-formats').forEach(el => {
+            el.style.marginRight = '0';
           });
         }
         // Load current value — detect if it's HTML or plain text
