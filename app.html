@@ -502,7 +502,8 @@
       color: var(--text-primary);
       outline: none;
       resize: none;
-      overflow: hidden;
+      overflow-y: auto;
+      max-height: 140px;
     }
 
     .act-delete-btn {
@@ -5774,7 +5775,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '4.2.20';
+    const VERSION = '4.3.0';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -8324,10 +8325,17 @@
                 </svg>
               </div>
               <div class="notes-panel-body ${notesOpen ? 'open' : ''}" data-notes-wrap="${act.id}">
-                <div class="notes-ta-wrap">
-                  <textarea placeholder="Notes…" rows="2"
+                <div class="notes-ta-wrap" style="position:relative;">
+                  <textarea placeholder="Notes…" rows="3"
                     class="act-notes-area"
-                    data-field="notes" data-act="${act.id}" data-day="${di}" oninput="updateField(this);autoGrow(this)">${esc(act.notes || '')}</textarea>
+                    data-field="notes" data-act="${act.id}" data-day="${di}" oninput="updateField(this)">${esc(act.notes || '')}</textarea>
+                  <button onclick="openNoteFullscreen('${act.id}',${di})" title="Full screen"
+                    style="position:absolute;top:0;right:0;background:none;border:none;cursor:pointer;color:var(--text-muted);padding:4px;line-height:1;">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                      <polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/>
+                      <line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/>
+                    </svg>
+                  </button>
                 </div>
                 <button class="act-dictate-bar" id="act-mic-note-${act.id}" onclick="startActFieldVoice('${act.id}',${di},'notes')">
                   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="8" y1="22" x2="16" y2="22"/></svg>
@@ -11878,12 +11886,53 @@ QUESTION: ${query}`;
       }, 120);
     }
 
+    // ── AI query voice input ─────────────────────────────────────
+    function startAIVoice() {
+      const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SR) { alert('Voice not supported in this browser. Try Chrome.'); return; }
+      const btn = document.getElementById('ai-mic-btn');
+      const input = document.getElementById('ai-query-input');
+      const rec = new SR();
+      rec.lang = 'en-IE';
+      rec.interimResults = false;
+      rec.maxAlternatives = 1;
+      if (btn) { btn.style.background = '#ef4444'; btn.style.color = '#fff'; }
+      rec.onresult = e => {
+        const t = e.results[0][0].transcript;
+        state.aiQuery = t;
+        if (input) input.value = t;
+      };
+      rec.onend = () => { if (btn) { btn.style.background = ''; btn.style.color = ''; } };
+      rec.onerror = () => { if (btn) { btn.style.background = ''; btn.style.color = ''; } };
+      rec.start();
+    }
+
+    // ── Note fullscreen editor ───────────────────────────────────
+    let _noteFsActId = null, _noteFsDi = null;
+    function openNoteFullscreen(actId, di) {
+      _noteFsActId = actId; _noteFsDi = di;
+      const ta = document.querySelector(`.act-notes-area[data-act="${actId}"]`);
+      const fsTa = document.getElementById('note-fs-ta');
+      if (fsTa && ta) fsTa.value = ta.value;
+      fsTa.oninput = function() {
+        const mainTa = document.querySelector(`.act-notes-area[data-act="${actId}"]`);
+        if (mainTa) { mainTa.value = this.value; updateField(mainTa); }
+      };
+      document.getElementById('note-fs-modal').classList.remove('hidden');
+      setTimeout(() => fsTa?.focus(), 100);
+    }
+    function closeNoteFullscreen() {
+      document.getElementById('note-fs-modal').classList.add('hidden');
+      _noteFsActId = null; _noteFsDi = null;
+    }
+
     // Open the Fault Assistant as a full-screen overlay
     async function openFaultAssistant() {
       closeThemeMenu();
       const modal = document.getElementById('ai-fault-modal');
       if (!modal) return;
       modal.classList.remove('hidden');
+      document.getElementById('note-voice-fab')?.classList.add('vf-hidden');
       if (!state.aiStats) await loadAIStats();
       renderFaultAssistantModal();
       // Update header stat chip
@@ -11896,6 +11945,9 @@ QUESTION: ${query}`;
     function closeFaultAssistant() {
       const modal = document.getElementById('ai-fault-modal');
       if (modal) modal.classList.add('hidden');
+      // Restore note voice fab if Notes view is active
+      const noteFab = document.getElementById('note-voice-fab');
+      if (noteFab && state.view === 'notes') noteFab.classList.remove('vf-hidden');
     }
 
     async function goToFaultDay(dateStr, actId) {
@@ -12033,6 +12085,13 @@ QUESTION: ${query}`;
           <input id="ai-query-input" class="ai-search-input" type="text" placeholder="e.g. OT hours last month? Most visited site? Fibre break fix?"
             value="${(state.aiQuery || '').replace(/"/g, '&quot;')}"
             onkeydown="aiQueryKeydown(event)">
+          <button id="ai-mic-btn" type="button" onclick="startAIVoice()" title="Voice input"
+            style="flex-shrink:0;width:38px;height:38px;border-radius:50%;background:var(--bg-card);border:1.5px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-muted);transition:background 0.2s,color 0.2s;padding:0;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0"/>
+              <line x1="12" y1="19" x2="12" y2="22"/><line x1="8" y1="22" x2="16" y2="22"/>
+            </svg>
+          </button>
           <button class="ai-ask-btn" onclick="runAIQuery()" ${state.aiLoading ? 'disabled' : ''}>Ask</button>
         </div>
       </div>
@@ -12132,13 +12191,27 @@ QUESTION: ${query}`;
   </div>
 
   <!-- ===== AI FAULT ASSISTANT MODAL ===== -->
-  <div id="ai-fault-modal" class="hidden fixed inset-0 z-50 flex flex-col" style="background:var(--bg-modal)">
-    <div style="background:var(--bg-header)" class="text-white px-4 py-3 flex items-center gap-3 safe-top">
-      <button onclick="closeFaultAssistant()" class="text-white p-1 text-xl leading-none">✕</button>
-      <h2 class="text-base font-semibold flex-1">🤖 AI Assistant</h2>
-      <span style="font-size:11px;color:rgba(255,255,255,0.5);" id="ai-fault-kb-stat"></span>
+  <div id="ai-fault-modal" class="hidden fixed inset-0 z-50 flex flex-col items-center" style="background:var(--bg-main)">
+    <div class="flex flex-col w-full flex-1 overflow-hidden" style="max-width:672px;">
+      <div style="background:var(--bg-header)" class="text-white px-4 py-3 flex items-center gap-3 safe-top">
+        <button onclick="closeFaultAssistant()" class="text-white p-1 text-xl leading-none">✕</button>
+        <h2 class="text-base font-semibold flex-1">🤖 AI Assistant</h2>
+        <span style="font-size:11px;color:rgba(255,255,255,0.5);" id="ai-fault-kb-stat"></span>
+      </div>
+      <div id="ai-fault-body" class="flex-1 overflow-y-auto" style="background:var(--bg-main)"></div>
     </div>
-    <div id="ai-fault-body" class="flex-1 overflow-y-auto" style="background:var(--bg-main)"></div>
+  </div>
+
+  <!-- ===== NOTE FULLSCREEN MODAL ===== -->
+  <div id="note-fs-modal" class="hidden fixed inset-0 z-50 flex flex-col items-center" style="background:var(--bg-main)">
+    <div class="flex flex-col w-full flex-1 overflow-hidden" style="max-width:672px;">
+      <div style="background:var(--bg-header)" class="text-white px-4 py-3 flex items-center gap-3 safe-top">
+        <button onclick="closeNoteFullscreen()" class="text-white p-1 text-xl leading-none">✕</button>
+        <h2 class="text-base font-semibold flex-1">Edit Note</h2>
+        <button onclick="closeNoteFullscreen()" style="font-size:13px;color:#fff;padding:5px 14px;border-radius:8px;background:rgba(255,255,255,0.15);border:none;cursor:pointer;font-weight:600;">Done</button>
+      </div>
+      <textarea id="note-fs-ta" class="flex-1 w-full" style="background:var(--bg-main);color:var(--text-primary);border:none;outline:none;resize:none;font-size:14px;line-height:1.7;padding:16px;"></textarea>
+    </div>
   </div>
 
   <!-- ===== EMAIL PREVIEW MODAL ===== -->
