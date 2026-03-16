@@ -516,17 +516,25 @@
     }
 
     .act-notes-area {
+      display: none; /* hidden — used only for data storage / dictation */
+    }
+
+    .act-notes-rich-preview {
       width: 100%;
-      background: transparent;
-      border: none;
-      padding: 0;
+      min-height: 44px;
       font-size: 13px;
       color: var(--text-primary);
-      outline: none;
-      resize: none;
-      overflow-y: auto;
-      max-height: 140px;
+      line-height: 1.6;
+      cursor: pointer;
     }
+    .act-notes-rich-preview p { margin: 0 0 4px; }
+    .act-notes-rich-preview p:last-child { margin-bottom: 0; }
+    .act-notes-rich-preview ul, .act-notes-rich-preview ol { margin: 0 0 4px; padding-left: 20px; }
+    .notes-rich-placeholder {
+      color: var(--text-muted);
+      font-style: italic;
+    }
+    .notes-ta-wrap:hover .act-notes-rich-preview { opacity: 0.85; }
 
     .act-delete-btn {
       width: 100%;
@@ -5854,7 +5862,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '4.3.4';
+    const VERSION = '4.3.5';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -8396,7 +8404,7 @@
                   <path d="M2 10.5L3.5 9H11V1H2v9.5z" stroke="#BBBBB8" stroke-width="1.4" stroke-linejoin="round"/>
                   <path d="M4 4.5h5M4 6.5h3" stroke="#BBBBB8" stroke-width="1.3" stroke-linecap="round"/>
                 </svg>
-                <div class="notes-panel-preview ${act.notes && act.notes.trim() ? 'has-note' : ''}">
+                <div class="notes-panel-preview ${act.notes && act.notes.trim() ? 'has-note' : ''}" data-notes-header="${act.id}">
                   ${act.notes && act.notes.trim() ? esc(stripHtml(act.notes)).replace(/\n/g, ' ') : 'Add a note…'}
                 </div>
                 <svg class="notes-chevron" data-notes-btn="${act.id}" width="12" height="12" viewBox="0 0 12 12" fill="none"
@@ -8405,10 +8413,14 @@
                 </svg>
               </div>
               <div class="notes-panel-body ${notesOpen ? 'open' : ''}" data-notes-wrap="${act.id}">
-                <div class="notes-ta-wrap">
-                  <textarea placeholder="Notes…" rows="3"
-                    class="act-notes-area"
-                    data-field="notes" data-act="${act.id}" data-day="${di}" oninput="updateField(this)">${esc(act.notes || '')}</textarea>
+                <div class="notes-ta-wrap" onclick="event.stopPropagation();openNoteFullscreen('${act.id}',${di})">
+                  <div class="act-notes-rich-preview" data-notes-preview="${act.id}">
+                    ${act.notes && act.notes.trim()
+                      ? (act.notes.trim().startsWith('<') ? act.notes : esc(act.notes).replace(/\n/g, '<br>'))
+                      : '<span class="notes-rich-placeholder">Tap to add a note…</span>'}
+                  </div>
+                  <textarea class="act-notes-area"
+                    data-field="notes" data-act="${act.id}" data-day="${di}">${esc(act.notes || '')}</textarea>
                 </div>
                 <div class="act-dictate-wrap">
                   <button class="act-dictate-bar" id="act-mic-note-${act.id}" onclick="startActFieldVoice('${act.id}',${di},'notes')">
@@ -8477,6 +8489,22 @@
         if (locEl) locEl.innerHTML = val
           ? `<span style="margin-right:2px">📍</span>${esc(val)}`
           : '<span style="opacity:0.4">No location</span>';
+      }
+
+      // Live-update note preview divs when notes change
+      if (field === 'notes') {
+        const richPreview = document.querySelector(`[data-notes-preview="${actId}"]`);
+        if (richPreview) {
+          richPreview.innerHTML = val && val.trim()
+            ? (val.trim().startsWith('<') ? val : esc(val).replace(/\n/g, '<br>'))
+            : '<span class="notes-rich-placeholder">Tap to add a note…</span>';
+        }
+        const headerPreview = document.querySelector(`[data-notes-header="${actId}"]`);
+        if (headerPreview) {
+          const plain = stripHtml(val);
+          headerPreview.innerHTML = plain ? esc(plain) : 'Add a note…';
+          headerPreview.classList.toggle('has-note', !!plain);
+        }
       }
 
       // Live-update calculated displays when hours change
@@ -10761,11 +10789,15 @@
       const ta = document.querySelector(`textarea[data-field="${field}"][data-act="${actId}"]`);
       if (ta) {
         if (field === 'notes' && ta.value.trim()) {
-          ta.value = ta.value.trimEnd() + '\n' + value;
+          // If existing note is HTML (from Quill), append as a new paragraph
+          if (ta.value.trim().startsWith('<')) {
+            ta.value = ta.value.trimEnd() + '<p>' + esc(value) + '</p>';
+          } else {
+            ta.value = ta.value.trimEnd() + '\n' + value;
+          }
         } else {
           ta.value = value;
         }
-        autoGrow(ta);
         updateField(ta);
       }
       cancelVoice();
