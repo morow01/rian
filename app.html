@@ -3151,10 +3151,15 @@
       color: var(--text-secondary);
     }
 
-    /* Size picker — labels set via JS (data-label attr), rendered via content: attr() */
-    #note-fs-editor .ql-snow .ql-picker.ql-size { width: 66px; }
-    #note-fs-editor .ql-snow .ql-picker.ql-size .ql-picker-item::before { content: attr(data-label) !important; }
-    #note-fs-editor .ql-snow .ql-picker.ql-size .ql-picker-label::before { content: 'Size' !important; }
+    /* Size picker — target by position, no data-value dependency */
+    #note-fs-editor .ql-snow .ql-picker.ql-size { width: 62px; }
+    #note-fs-editor .ql-size .ql-picker-label::before { content: 'Size' !important; }
+    #note-fs-editor .ql-size .ql-picker-item:nth-child(1)::before { content: 'Small'   !important; font-size: 11px; }
+    #note-fs-editor .ql-size .ql-picker-item:nth-child(2)::before { content: 'Default' !important; font-size: 13px; }
+    #note-fs-editor .ql-size .ql-picker-item:nth-child(3)::before { content: 'Normal'  !important; font-size: 15px; }
+    #note-fs-editor .ql-size .ql-picker-item:nth-child(4)::before { content: 'Large'   !important; font-size: 18px; }
+    #note-fs-editor .ql-size .ql-picker-item:nth-child(5)::before { content: 'Bigger'  !important; font-size: 22px; }
+    #note-fs-editor .ql-size .ql-picker-item:nth-child(6)::before { content: 'Huge'    !important; font-size: 28px; }
 
     .ai-ask-btn {
       padding: 10px 16px;
@@ -5956,7 +5961,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '4.3.9';
+    const VERSION = '4.4.0';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -12141,12 +12146,6 @@ QUESTION: ${query}`;
                 ['clean']
               ]
             }
-          });
-          // Set human-readable labels on size picker items (Quill doesn't expose data-value
-          // reliably for style-based sizes, so we label by known index order instead)
-          const _sizeLabels = ['Small', 'Default', 'Normal', 'Large', 'Bigger', 'Huge'];
-          document.querySelectorAll('#note-fs-editor .ql-size .ql-picker-item').forEach((el, i) => {
-            el.setAttribute('data-label', _sizeLabels[i] || el.getAttribute('data-value') || '?');
           });
         }
         // Load current value — detect if it's HTML or plain text
