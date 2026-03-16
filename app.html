@@ -531,7 +531,7 @@
       min-height: 44px;
       max-height: 140px;
       overflow-y: auto;
-      font-size: 13px;
+      font-size: 15px;
       color: var(--text-primary);
       line-height: 1.6;
       cursor: pointer;
@@ -3066,7 +3066,7 @@
 
     #note-fs-editor .ql-container {
       border: none;
-      font-size: 14px;
+      font-size: 15px;
       font-family: inherit;
       flex: 1;
       overflow-y: auto;
@@ -5954,7 +5954,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '4.4.2';
+    const VERSION = '4.4.3';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -12131,11 +12131,12 @@ QUESTION: ${query}`;
             theme: 'snow',
             modules: {
               toolbar: [
-                ['bold', 'italic', 'underline', 'strike', 'clean'],
                 [{ 'size': ['small', false, 'large', 'huge'] },
-                 { 'color': ['#000000', '#e53935', '#f57c00', '#2e7d32', '#1565c0', '#6a1b9a', '#ffffff'] },
-                 { 'background': ['', '#ffeb3b', '#a5d6a7', '#ef9a9a', '#90caf9', '#ce93d8', '#ffe0b2'] }],
-                [{ 'header': 3 }, { 'list': 'ordered' }, { 'list': 'bullet' }]
+                 'bold', 'italic', 'underline', 'strike', 'clean',
+                 { 'list': 'ordered' }],
+                [{ 'color': ['#000000', '#e53935', '#f57c00', '#2e7d32', '#1565c0', '#6a1b9a', '#ffffff'] },
+                 { 'background': ['', '#ffeb3b', '#a5d6a7', '#ef9a9a', '#90caf9', '#ce93d8', '#ffe0b2'] },
+                 { 'header': 3 }, { 'list': 'bullet' }]
               ]
             }
           });
