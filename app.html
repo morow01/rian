@@ -79,23 +79,24 @@
 
     /* ===== SHARED LAYOUT (Phase 2) ===== */
     .week-list {
-      background: var(--bg-page);
-      padding: 8px 8px 4px;
+      background: #FFFFFF;
+      border-top: 1px solid #E0E8F0;
+      border-bottom: 1px solid #E0E8F0;
     }
 
     /* ── Day Card ── */
     .day-card {
-      margin: 0 0 8px;
+      margin: 0;
       background: #FFFFFF;
-      border-radius: 14px;
+      border-radius: 0;
       border: none;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.07), 0 4px 12px rgba(0,0,0,0.05);
+      border-bottom: 1px solid #EAEFF5;
       overflow: clip;
       position: relative;
     }
 
     .day-card:last-child {
-      margin-bottom: 4px;
+      border-bottom: none;
     }
 
     .day-card.day-weekend {
@@ -117,7 +118,7 @@
       top: 0;
       z-index: 10;
       transition: background 0.15s;
-      border-radius: 14px 14px 0 0;
+      border-radius: 0;
       gap: 10px;
     }
 
@@ -126,7 +127,7 @@
     }
 
     .day-card.expanded .day-header {
-      border-radius: 14px 14px 0 0;
+      border-radius: 0;
       border-bottom: 1px solid var(--border);
     }
 
@@ -6017,7 +6018,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.5.8';
+    const VERSION = '4.5.9';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
