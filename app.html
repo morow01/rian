@@ -6021,7 +6021,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.5.12';
+    const VERSION = '4.5.13';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -8427,7 +8427,7 @@
 
     function addSuggestedCode(actId, di, code, itemIndex) {
       const act = state.weekData?.days[di]?.activities.find(a => a.id === actId);
-      if (!act) return;
+      if (!act) { console.warn('[suggest] act not found', actId, di); return; }
       if (act.codes.find(c => c.c === code)) return; // already there
       const description = activeSuggestions.get(actId)?.[itemIndex]?.description || code;
       act.codes.push({ c: code, d: description });
@@ -8435,15 +8435,15 @@
       // Mark button as added
       const btn = document.getElementById(`suggest-add-${actId}-${itemIndex}`);
       if (btn) { btn.textContent = '✓'; btn.classList.add('added'); btn.disabled = true; }
-      // Update the chip list in the DOM without full re-render
-      refreshActivityCodes(actId, di);
+      // Try lightweight update first, fall back to full render
+      if (!refreshActivityCodes(actId, di)) render();
     }
 
     function addAllSuggestedCodes(actId, di) {
       const suggestions = activeSuggestions.get(actId);
       if (!suggestions) return;
       const act = state.weekData?.days[di]?.activities.find(a => a.id === actId);
-      if (!act) return;
+      if (!act) { console.warn('[suggest] act not found', actId, di); return; }
       suggestions.forEach(s => {
         if (!act.codes.find(c => c.c === s.code)) {
           act.codes.push({ c: s.code, d: s.description });
@@ -8451,15 +8451,16 @@
       });
       scheduleSave();
       dismissSuggestions(actId);
-      refreshActivityCodes(actId, di);
+      render();
     }
 
     function refreshActivityCodes(actId, di) {
       // Lightweight DOM update — refresh just the codes chips area without full render
+      // Returns true if successful, false if element not found (caller should fall back to render())
       const act = state.weekData?.days[di]?.activities.find(a => a.id === actId);
-      if (!act) return;
+      if (!act) return false;
       const codesWrap = document.querySelector(`.act-codes-wrap[data-act-codes="${actId}"]`);
-      if (!codesWrap) return;
+      if (!codesWrap) { console.warn('[suggest] codesWrap not found for', actId); return false; }
       const chipsHtml = act.codes.map(c => `
         <div class="act-code-chip">
           ${esc(c.d)}
@@ -8471,6 +8472,7 @@
           <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M5 1v8M1 5h8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
           Code
         </button>`;
+      return true;
     }
 
     function renderActivity(act, di, actIndex) {
