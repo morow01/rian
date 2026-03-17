@@ -3062,6 +3062,9 @@
       background: var(--bg-card);
       padding: 8px 12px;
       flex-shrink: 0;
+      display: flex !important;
+      flex-wrap: wrap !important;
+      align-items: center;
     }
 
     #note-fs-editor .ql-container {
@@ -3086,11 +3089,14 @@
       color: var(--text-muted);
       font-style: normal;
     }
+
     #note-fs-editor .ql-editor h1,
     #note-fs-editor .ql-editor h2,
     #note-fs-editor .ql-editor h3 {
       padding-top: 12px;
+      color: #d35b5b;
     }
+
     #note-fs-editor .ql-editor h1:first-child,
     #note-fs-editor .ql-editor h2:first-child,
     #note-fs-editor .ql-editor h3:first-child {
@@ -3148,9 +3154,18 @@
     #note-fs-editor .ql-toolbar.ql-snow .ql-formats {
       margin-right: 0 !important;
     }
+    /* Force row 1 full-width so row 2 wraps below it */
+    #note-fs-editor .ql-toolbar.ql-snow .ql-formats:nth-child(1) {
+      width: 100%;
+    }
+    /* Push undo/redo to the right on row 2 */
+    #note-fs-editor .ql-toolbar button.ql-undo {
+      margin-left: auto;
+    }
     #note-fs-editor .ql-toolbar button.ql-undo svg,
     #note-fs-editor .ql-toolbar button.ql-redo svg {
-      width: 18px; height: 18px;
+      width: 18px;
+      height: 18px;
     }
 
     #note-fs-editor .ql-toolbar .ql-color-picker.ql-color .ql-picker-label::before {
@@ -3167,7 +3182,9 @@
     }
 
     /* Size picker — using Quill's built-in named sizes (Snow CSS already labels these) */
-    #note-fs-editor .ql-snow .ql-picker.ql-size { width: 72px; }
+    #note-fs-editor .ql-snow .ql-picker.ql-size {
+      width: 72px;
+    }
 
     .ai-ask-btn {
       padding: 10px 16px;
@@ -5968,7 +5985,7 @@
 
   <script>
     // Inject Quill margin override immediately at script start — before Quill loads
-    (function() {
+    (function () {
       const s = document.createElement('style');
       s.textContent = '.ql-toolbar.ql-snow .ql-formats{margin-right:0!important;margin-left:0!important;}';
       document.head.appendChild(s);
@@ -12167,16 +12184,16 @@ QUESTION: ${query}`;
               history: { delay: 1000, maxStack: 100, userOnly: true },
               toolbar: {
                 container: [
-                  ['undo', 'redo'],
                   [{ 'size': ['small', false, 'large', 'huge'] },
-                   'bold', 'italic', 'underline', 'strike', 'clean',
-                   { 'list': 'ordered' }, { 'list': 'bullet' },
+                   'bold', 'italic', 'underline', 'strike', 'clean'],
+                  [{ 'list': 'ordered' }, { 'list': 'bullet' },
                    { 'color': ['#000000', '#e53935', '#f57c00', '#2e7d32', '#1565c0', '#6a1b9a', '#ffffff'] },
-                   { 'background': ['', '#ffeb3b', '#a5d6a7', '#ef9a9a', '#90caf9', '#ce93d8', '#ffe0b2'] }]
+                   { 'background': ['', '#ffeb3b', '#a5d6a7', '#ef9a9a', '#90caf9', '#ce93d8', '#ffe0b2'] },
+                   'undo', 'redo']
                 ],
                 handlers: {
-                  'undo': function() { this.quill.history.undo(); },
-                  'redo': function() { this.quill.history.redo(); }
+                  'undo': function () { this.quill.history.undo(); },
+                  'redo': function () { this.quill.history.redo(); }
                 }
               }
             }
