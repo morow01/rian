@@ -6021,7 +6021,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.5.13';
+    const VERSION = '4.5.14';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -8431,7 +8431,7 @@
       if (act.codes.find(c => c.c === code)) return; // already there
       const description = activeSuggestions.get(actId)?.[itemIndex]?.description || code;
       act.codes.push({ c: code, d: description });
-      scheduleSave();
+      scheduleAutoSave();
       // Mark button as added
       const btn = document.getElementById(`suggest-add-${actId}-${itemIndex}`);
       if (btn) { btn.textContent = '✓'; btn.classList.add('added'); btn.disabled = true; }
@@ -8449,7 +8449,7 @@
           act.codes.push({ c: s.code, d: s.description });
         }
       });
-      scheduleSave();
+      scheduleAutoSave();
       dismissSuggestions(actId);
       render();
     }
