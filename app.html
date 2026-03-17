@@ -3138,6 +3138,10 @@
     #note-fs-editor .ql-toolbar.ql-snow .ql-formats {
       margin-right: 0 !important;
     }
+    #note-fs-editor .ql-toolbar button.ql-undo svg,
+    #note-fs-editor .ql-toolbar button.ql-redo svg {
+      width: 18px; height: 18px;
+    }
 
     #note-fs-editor .ql-toolbar .ql-color-picker.ql-color .ql-picker-label::before {
       content: 'A';
@@ -5962,7 +5966,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.5.3';
+    const VERSION = '4.5.4';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -9347,7 +9351,7 @@
       });
     }
 
-    const GOOGLE_MAPS_API_KEY = 'AIzaSyCneaCqGcnmNxPCsTYEvdyZAQJCtKlOOMQ';
+    const GOOGLE_MAPS_API_KEY = 'AIzaSyBEF1HpXtE4x6U57kfGgkB5HlCtV_B2pYg';
 
     function renderExchangeDetails(ex) {
       return `
@@ -10096,13 +10100,20 @@
         </div>`;
     }
 
+    let _signingIn = false;
     async function signInWithGoogle() {
+      if (_signingIn) return;
+      _signingIn = true;
       const provider = new firebase.auth.GoogleAuthProvider();
       provider.setCustomParameters({ prompt: 'select_account' });
       try {
         await auth_fb.signInWithPopup(provider);
       } catch (e) {
-        showToast('Sign-in failed: ' + (e.message || 'Unknown error'));
+        if (e.code !== 'auth/cancelled-popup-request' && e.code !== 'auth/popup-closed-by-user') {
+          showToast('Sign-in failed: ' + (e.message || 'Unknown error'));
+        }
+      } finally {
+        _signingIn = false;
       }
     }
 
@@ -12135,16 +12146,29 @@ QUESTION: ${query}`;
           Size.whitelist = ['small', 'large', 'huge'];
           Quill.register(Size, true);
 
+          // Register SVG icons for undo/redo
+          const icons = Quill.import('ui/icons');
+          icons['undo'] = `<svg viewBox="0 0 18 18"><polygon class="ql-fill ql-stroke" points="6 10 4 12 2 10 6 10"/><path class="ql-stroke" d="M8.09,13.91A4.6,4.6,0,0,0,9,14,5,5,0,1,0,4,9"/></svg>`;
+          icons['redo'] = `<svg viewBox="0 0 18 18"><polygon class="ql-fill ql-stroke" points="12 10 14 12 16 10 12 10"/><path class="ql-stroke" d="M9.91,13.91A4.6,4.6,0,0,1,9,14,5,5,0,1,1,14,9"/></svg>`;
+
           _quillInstance = new Quill('#note-fs-editor', {
             theme: 'snow',
             modules: {
-              toolbar: [
-                [{ 'size': ['small', false, 'large', 'huge'] },
-                 'bold', 'italic', 'underline', 'strike', 'clean',
-                 { 'list': 'ordered' }, { 'list': 'bullet' },
-                 { 'color': ['#000000', '#e53935', '#f57c00', '#2e7d32', '#1565c0', '#6a1b9a', '#ffffff'] },
-                 { 'background': ['', '#ffeb3b', '#a5d6a7', '#ef9a9a', '#90caf9', '#ce93d8', '#ffe0b2'] }]
-              ]
+              history: { delay: 1000, maxStack: 100, userOnly: true },
+              toolbar: {
+                container: [
+                  ['undo', 'redo'],
+                  [{ 'size': ['small', false, 'large', 'huge'] },
+                   'bold', 'italic', 'underline', 'strike', 'clean',
+                   { 'list': 'ordered' }, { 'list': 'bullet' },
+                   { 'color': ['#000000', '#e53935', '#f57c00', '#2e7d32', '#1565c0', '#6a1b9a', '#ffffff'] },
+                   { 'background': ['', '#ffeb3b', '#a5d6a7', '#ef9a9a', '#90caf9', '#ce93d8', '#ffe0b2'] }]
+                ],
+                handlers: {
+                  'undo': function() { this.quill.history.undo(); },
+                  'redo': function() { this.quill.history.redo(); }
+                }
+              }
             }
           });
           // Kill Quill's built-in 15px group margin so toolbar fits on one row
