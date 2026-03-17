@@ -91,7 +91,7 @@
       box-shadow: 0 1px 3px rgba(0, 0, 0, 0.07), 0 3px 10px rgba(0, 0, 0, 0.05);
       overflow: clip;
       position: relative;
-      border: 1px solid #e5e7eb;
+      border: 1.5px solid #e5e7eb;
     }
 
     .day-card:last-child {
@@ -633,7 +633,7 @@
     .day-activities {
       padding-top: 14px;
       padding-bottom: 4px;
-      background-color: var(--bg-page);
+      background-color: var(--bg-card-alt);
       position: relative;
       /* Timeline gutter - Persistent during collapse */
       padding-left: 36px;
@@ -6021,7 +6021,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.5.9';
+    const VERSION = '4.6.0';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -8092,7 +8092,7 @@
       const card = document.querySelector(`.day-card[data-day-idx="${di}"]`);
       if (card) {
         const header = card.querySelector('.day-header');
-        const chevron = card.querySelector('.chevron');
+        const chevron = card.querySelector('.day-chevron');
         const activities = card.querySelector('.day-activities');
 
         if (isExpanded) {
@@ -8101,6 +8101,7 @@
           activities.offsetHeight; // force reflow
 
           activities.classList.remove('active');
+          card.classList.remove('expanded');
           // DO NOT add 'hidden' yet as it might contain display:none (Tailwind)
 
           activities.style.maxHeight = '0px';
@@ -8121,6 +8122,7 @@
 
           activities.classList.add('active');
           activities.classList.remove('hidden');
+          card.classList.add('expanded');
           activities.style.maxHeight = activities.scrollHeight + 'px';
           if (chevron) chevron.style.transform = 'rotate(90deg)';
           // Trigger autoGrow for all textareas within the expanded day
