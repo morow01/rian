@@ -5993,7 +5993,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.5.5';
+    const VERSION = '4.5.6';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -7311,6 +7311,8 @@
         viewBody = renderNotesView();
       } else if (state.view === 'routines') {
         viewBody = renderRoutinesView();
+      } else if (state.view === 'ai') {
+        viewBody = `<div id="ai-fault-body" style="min-height:calc(100vh - 120px);background:var(--bg-page);"></div>`;
       } else { // Default to 'week' view
         // In table mode break out of the narrow max-w-2xl container
         app.classList.toggle('tbl-mode', state.view === 'week' && state.layoutMode === 'table');
@@ -7332,6 +7334,14 @@
       if (fab) fab.classList.toggle('vf-hidden', state.view !== 'week');
       const noteFab = document.getElementById('note-voice-fab');
       if (noteFab) noteFab.classList.toggle('vf-hidden', state.view !== 'notes');
+      // Populate AI view content after render
+      if (state.view === 'ai') {
+        (async () => {
+          if (!state.aiStats) await loadAIStats();
+          renderFaultAssistantModal();
+          setTimeout(() => document.getElementById('ai-query-input')?.focus(), 100);
+        })();
+      }
     }
 
     function fixTimelineLines() {
@@ -7541,7 +7551,7 @@
       <button onclick="setView('exchanges')" class="flex-1 py-2.5 text-[11px] font-bold tracking-widest uppercase" style="color:${state.view === 'exchanges' ? '#F5A623' : 'var(--text-header-sub)'};${state.view === 'exchanges' ? 'border-bottom:2.5px solid #F5A623' : ''}">
         Finder
       </button>
-      <button onclick="openFaultAssistant()" class="py-2.5 text-[11px] font-bold tracking-widest uppercase" style="color:var(--text-header-sub);padding-left:20px;padding-right:20px;">
+      <button onclick="setView('ai')" class="py-2.5 text-[11px] font-bold tracking-widest uppercase" style="color:${state.view === 'ai' ? '#F5A623' : 'var(--text-header-sub)'};padding-left:20px;padding-right:20px;${state.view === 'ai' ? 'border-bottom:2.5px solid #F5A623' : ''}">
         AI
       </button>
     </div>
