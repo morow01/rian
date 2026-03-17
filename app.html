@@ -85,17 +85,17 @@
     }
 
     .day-card {
-      margin: 0;
+      margin: 0 8px 8px;
       background: #FFFFFF;
-      border-radius: 0;
+      border-radius: 14px;
       border: none;
-      border-bottom: 1px solid #EAEFF5;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.07), 0 3px 10px rgba(0,0,0,0.05);
       overflow: clip;
       position: relative;
     }
 
     .day-card:last-child {
-      border-bottom: none;
+      margin-bottom: 8px;
     }
 
     .day-card.day-weekend {
@@ -109,15 +109,14 @@
     .day-header {
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      padding: 13px 16px;
+      padding: 8px 12px 8px 8px;
       background: transparent;
       cursor: pointer;
       position: sticky;
       top: 0;
       z-index: 10;
       transition: background 0.15s;
-      border-radius: 0;
+      border-radius: 14px;
       gap: 10px;
     }
 
@@ -126,14 +125,55 @@
     }
 
     .day-card.expanded .day-header {
-      border-radius: 0;
+      border-radius: 14px 14px 0 0;
       border-bottom: 1px solid var(--border);
     }
 
-    .day-left {
+    /* Date badge — the FRI/13 block on the left */
+    .date-badge {
       display: flex;
+      flex-direction: column;
       align-items: center;
-      gap: 10px;
+      justify-content: center;
+      width: 48px;
+      min-width: 48px;
+      height: 48px;
+      border-radius: 10px;
+      background: #1e2d4a;
+      color: #fff;
+      flex-shrink: 0;
+      transition: background 0.2s;
+    }
+
+    .date-badge .badge-dow {
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      opacity: 0.72;
+      line-height: 1;
+      margin-bottom: 3px;
+    }
+
+    .date-badge .badge-dom {
+      font-size: 20px;
+      font-weight: 800;
+      line-height: 1;
+    }
+
+    /* Today — accent coloured badge */
+    .day-today .date-badge {
+      background: var(--accent);
+    }
+
+    /* Weekend — slightly muted badge */
+    .day-weekend .date-badge {
+      background: #3a4a6a;
+      opacity: 0.75;
+    }
+
+    /* Day info — name + pills */
+    .day-info {
+      flex: 1;
       min-width: 0;
     }
 
@@ -142,6 +182,7 @@
       font-weight: 800;
       color: var(--text-primary);
       letter-spacing: -0.02em;
+      margin-bottom: 4px;
     }
 
     .day-weekend .day-name {
@@ -149,33 +190,27 @@
       font-weight: 600;
     }
 
-    .day-date {
-      font-size: 12px;
-      font-weight: 500;
-      color: var(--text-muted);
-    }
-
     .day-pills {
       display: flex;
       gap: 5px;
       align-items: center;
-      flex-shrink: 0;
+      flex-wrap: wrap;
     }
 
-    /* Rounded-square chip wrapping the day chevron — matches template */
-    .day-expand-btn {
+    /* Chevron on the right */
+    .day-chevron {
       width: 20px;
       height: 20px;
-      border-radius: 6px;
-      background: #f2f4fa;
       display: flex;
       align-items: center;
       justify-content: center;
       flex-shrink: 0;
+      color: #c0c8d8;
+      transition: transform 0.25s cubic-bezier(0.4,0,0.2,1);
     }
 
-    .day-weekend .day-expand-btn {
-      opacity: 0.45;
+    .day-card.expanded .day-chevron {
+      transform: rotate(90deg);
     }
 
     .pill {
@@ -206,16 +241,7 @@
       font-weight: 500;
     }
 
-    .day-today .day-header::before {
-      content: "";
-      position: absolute;
-      left: 0;
-      top: 0;
-      bottom: 0;
-      width: 4px;
-      background: var(--accent);
-      z-index: 20;
-    }
+    /* today indicator now shown via .date-badge background colour */
 
     /* Task row hour pills */
     .pill-hrs {
@@ -1537,8 +1563,7 @@
       position: sticky;
       top: 0;
       z-index: 5;
-      background: var(--bg-day-header);
-      box-shadow: 0 3px 10px -2px rgba(0, 0, 0, 0.18);
+      background: var(--bg-card);
     }
 
     .day-weekend .day-header {
@@ -5993,7 +6018,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.5.6';
+    const VERSION = '4.5.7';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -8219,19 +8244,28 @@
         return ((ord > 0 || ot > 0) && a.codes.length === 0) || (a.codes.length > 0 && ord === 0 && ot === 0);
       });
 
+      const _dateNum = day.date ? parseInt(day.date.split('-')[2], 10) : '';
+      const _dayAbbr = day.dayName ? day.dayName.substring(0, 3).toUpperCase() : '';
       return `
 <div class="day-card ${isWeekend ? 'day-weekend' : ''} ${isExpanded ? 'expanded' : ''} ${day.date === dateToStr(new Date()) ? 'day-today' : ''}" data-day-idx="${di}">
   <div class="day-header" onclick="toggleDay(${di})">
-    <div class="day-left">
-      <div class="day-expand-btn"><svg class="chevron" width="8" height="8" viewBox="0 0 10 10" style="transition:transform 0.2s;transform:${isExpanded ? 'rotate(90deg)' : 'rotate(0deg)'}"><polygon points="0,0 10,5 0,10" fill="#b4b8cc"/></svg></div>
-      <span class="day-name">${day.dayName}</span>
-      <span class="day-date">${formatDate(day.date)}</span>
+    <div class="date-badge">
+      <span class="badge-dow">${_dayAbbr}</span>
+      <span class="badge-dom">${_dateNum}</span>
     </div>
-    <div class="day-pills" data-day-pills="${di}">
-      ${actCount > 0 ? `<span class="pill pill-slate">${actCount} task${actCount !== 1 ? 's' : ''}</span>` : (isWeekend ? '' : `<span style="font-size:11px;color:var(--border);font-weight:600">No entries</span>`)}
-      ${ord > 0 ? `<span class="pill pill-blue">${Math.round(ord) === ord ? ord : ord.toFixed(1)}h</span>` : ''}
-      ${ot > 0 ? `<span class="pill pill-amber">+${Math.round(ot) === ot ? ot : ot.toFixed(1)} OT</span>` : ''}
-      ${hasMissingCode ? `<span class="dot-flash animate-pulse" title="Missing work code"></span>` : ''}
+    <div class="day-info">
+      <div class="day-name">${day.dayName}</div>
+      <div class="day-pills" data-day-pills="${di}">
+        ${actCount > 0 ? `<span class="pill pill-slate">${actCount} task${actCount !== 1 ? 's' : ''}</span>` : (isWeekend ? '' : `<span style="font-size:11px;color:var(--border);font-weight:600">No entries</span>`)}
+        ${ord > 0 ? `<span class="pill pill-blue">${Math.round(ord) === ord ? ord : ord.toFixed(1)}h</span>` : ''}
+        ${ot > 0 ? `<span class="pill pill-amber">+${Math.round(ot) === ot ? ot : ot.toFixed(1)} OT</span>` : ''}
+        ${hasMissingCode ? `<span class="dot-flash animate-pulse" title="Missing work code"></span>` : ''}
+      </div>
+    </div>
+    <div class="day-chevron">
+      <svg width="8" height="13" viewBox="0 0 8 14" fill="none">
+        <path d="M1.5 1.5L6.5 7L1.5 12.5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
     </div>
   </div>
   <div class="day-activities ${isExpanded ? 'active' : 'hidden'}" id="day-${di}-activities" style="${isExpanded ? '' : 'display:none'}">
