@@ -6021,7 +6021,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.5.11';
+    const VERSION = '4.5.12';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -8328,13 +8328,12 @@
               <div class="suggest-item-desc">${esc(s.description)}</div>
             </div>
             <span class="suggest-item-badge">${s.count}×</span>
-            <button class="suggest-item-add" id="suggest-add-${actId}-${i}"
-              onclick="addSuggestedCode('${actId}',${di},'${s.code}',${i})">Add</button>
+            <button class="suggest-item-add" id="suggest-add-${actId}-${i}" data-idx="${i}">Add</button>
           </div>`).join('');
 
         const addAllLabel = suggestions.length > 1 ? `Add All ${suggestions.length}` : 'Add';
         inner = `${items}
-          <button class="suggest-add-all-btn" onclick="addAllSuggestedCodes('${actId}',${di})">✓ ${addAllLabel}</button>
+          <button class="suggest-add-all-btn" id="suggest-add-all-${actId}">✓ ${addAllLabel}</button>
           <div class="suggest-source-note">Based on ${suggestions[0].totalMatches} matching entries in your history</div>`;
       }
 
@@ -8342,10 +8341,22 @@
         <div class="act-suggest-panel" id="suggest-panel-${actId}">
           <div class="suggest-panel-head">
             <span class="suggest-panel-head-title">✨ Suggested codes</span>
-            <button class="suggest-panel-dismiss" onclick="dismissSuggestions('${actId}')" aria-label="Dismiss">✕</button>
+            <button class="suggest-panel-dismiss" id="suggest-dismiss-${actId}" aria-label="Dismiss">✕</button>
           </div>
           ${inner}
         </div>`;
+
+      // Attach listeners directly — avoids any inline-onclick encoding issues
+      wrap.querySelectorAll('.suggest-item-add').forEach(btn => {
+        btn.addEventListener('click', e => {
+          e.stopPropagation();
+          addSuggestedCode(actId, di, suggestions[+btn.dataset.idx].code, +btn.dataset.idx);
+        });
+      });
+      const addAllBtn = document.getElementById('suggest-add-all-' + actId);
+      if (addAllBtn) addAllBtn.addEventListener('click', e => { e.stopPropagation(); addAllSuggestedCodes(actId, di); });
+      const dismissBtn = document.getElementById('suggest-dismiss-' + actId);
+      if (dismissBtn) dismissBtn.addEventListener('click', e => { e.stopPropagation(); dismissSuggestions(actId); });
     }
 
     async function buildSuggestions(description, existingCodes, notes) {
