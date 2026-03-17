@@ -80,22 +80,22 @@
     /* ===== SHARED LAYOUT (Phase 2) ===== */
     .week-list {
       background: #FFFFFF;
-
+      border-top: 1px solid #E0E8F0;
+      border-bottom: 1px solid #E0E8F0;
     }
 
     .day-card {
-      margin: 0 8px 11px;
+      margin: 0;
       background: #FFFFFF;
-      border-radius: 14px;
+      border-radius: 0;
       border: none;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.07), 0 3px 10px rgba(0, 0, 0, 0.05);
+      border-bottom: 1px solid #EAEFF5;
       overflow: clip;
       position: relative;
-      border: 1.5px solid #e5e7eb;
     }
 
     .day-card:last-child {
-      margin-bottom: 8px;
+      border-bottom: none;
     }
 
     .day-card.day-weekend {
@@ -109,14 +109,15 @@
     .day-header {
       display: flex;
       align-items: center;
-      padding: 16px 15px 16px 18px;
+      justify-content: space-between;
+      padding: 13px 16px;
       background: transparent;
       cursor: pointer;
       position: sticky;
       top: 0;
       z-index: 10;
       transition: background 0.15s;
-      border-radius: 14px;
+      border-radius: 0;
       gap: 10px;
     }
 
@@ -125,55 +126,14 @@
     }
 
     .day-card.expanded .day-header {
-      border-radius: 14px 14px 0 0;
+      border-radius: 0;
       border-bottom: 1px solid var(--border);
     }
 
-    /* Date badge — the FRI/13 block on the left */
-    .date-badge {
+    .day-left {
       display: flex;
-      flex-direction: column;
       align-items: center;
-      justify-content: center;
-      width: 48px;
-      min-width: 48px;
-      height: 48px;
-      border-radius: 10px;
-      background: #7a8ba8;
-      color: #fff;
-      flex-shrink: 0;
-      transition: background 0.2s;
-    }
-
-    .date-badge .badge-dow {
-      font-size: 9px;
-      font-weight: 700;
-      letter-spacing: 0.08em;
-      opacity: 0.72;
-      line-height: 1;
-      margin-bottom: 3px;
-    }
-
-    .date-badge .badge-dom {
-      font-size: 20px;
-      font-weight: 800;
-      line-height: 1;
-    }
-
-    /* Today — accent coloured badge */
-    .day-today .date-badge {
-      background: var(--accent);
-    }
-
-    /* Weekend — slightly muted badge */
-    .day-weekend .date-badge {
-      background: #7a8ba8;
-      opacity: 0.6;
-    }
-
-    /* Day info — name + pills */
-    .day-info {
-      flex: 1;
+      gap: 10px;
       min-width: 0;
     }
 
@@ -182,7 +142,6 @@
       font-weight: 800;
       color: var(--text-primary);
       letter-spacing: -0.02em;
-      margin-bottom: 4px;
     }
 
     .day-weekend .day-name {
@@ -190,27 +149,33 @@
       font-weight: 600;
     }
 
+    .day-date {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-muted);
+    }
+
     .day-pills {
       display: flex;
       gap: 5px;
       align-items: center;
-      flex-wrap: wrap;
+      flex-shrink: 0;
     }
 
-    /* Chevron on the right */
-    .day-chevron {
+    /* Rounded-square chip wrapping the day chevron — matches template */
+    .day-expand-btn {
       width: 20px;
       height: 20px;
+      border-radius: 6px;
+      background: #f2f4fa;
       display: flex;
       align-items: center;
       justify-content: center;
       flex-shrink: 0;
-      color: #c0c8d8;
-      transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
-    .day-card.expanded .day-chevron {
-      transform: rotate(90deg);
+    .day-weekend .day-expand-btn {
+      opacity: 0.45;
     }
 
     .pill {
@@ -241,12 +206,21 @@
       font-weight: 500;
     }
 
-    /* today indicator now shown via .date-badge background colour */
+    .day-today .day-header::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 4px;
+      background: var(--accent);
+      z-index: 20;
+    }
 
     /* Task row hour pills */
     .pill-hrs {
       padding: 2px 7px;
-      border-radius: 8px;
+      border-radius: 20px;
       font-size: 11px;
       font-weight: 500;
       background: #EBF1FD;
@@ -256,7 +230,7 @@
 
     .pill-ot {
       padding: 2px 7px;
-      border-radius: 8px;
+      border-radius: 20px;
       font-size: 11px;
       font-weight: 500;
       background: #FEF3DC;
@@ -633,10 +607,10 @@
     .day-activities {
       padding-top: 14px;
       padding-bottom: 4px;
-      background-color: var(--bg-card-alt);
+      background-color: var(--bg-page);
       position: relative;
       /* Timeline gutter - Persistent during collapse */
-      padding-left: 27px;
+      padding-left: 36px;
       overflow: hidden;
       transition: max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1);
     }
@@ -649,7 +623,7 @@
     .day-activities::before {
       content: "";
       position: absolute;
-      left: 17px;
+      left: 26px;
       /* Center of day expand button */
       /* height is set dynamically via --tl-height so the line ends exactly
          at the last task node. Top is offset to connect into header. */
@@ -738,7 +712,6 @@
     .activity-detail {
       background: #FAFCFE;
       border-top: 1.5px solid var(--border);
-      border-radius: 0 0 10px 10px;
       padding: 16px;
       overflow: hidden;
       max-height: 0;
@@ -1564,7 +1537,8 @@
       position: sticky;
       top: 0;
       z-index: 5;
-      background: var(--bg-card);
+      background: var(--bg-day-header);
+      box-shadow: 0 3px 10px -2px rgba(0, 0, 0, 0.18);
     }
 
     .day-weekend .day-header {
@@ -3180,17 +3154,14 @@
     #note-fs-editor .ql-toolbar.ql-snow .ql-formats {
       margin-right: 0 !important;
     }
-
     /* Force row 1 full-width so row 2 wraps below it */
     #note-fs-editor .ql-toolbar.ql-snow .ql-formats:nth-child(1) {
       width: 100%;
     }
-
     /* Push undo/redo to the right on row 2 */
     #note-fs-editor .ql-toolbar button.ql-undo {
       margin-left: auto;
     }
-
     #note-fs-editor .ql-toolbar button.ql-undo svg,
     #note-fs-editor .ql-toolbar button.ql-redo svg {
       width: 18px;
@@ -6022,7 +5993,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.6.3';
+    const VERSION = '4.5.6';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -7815,7 +7786,7 @@
   </div>`;
 
       const anomalyHtml = renderAnomalyBanner(state.weekData);
-      return `<main class="pb-6" style="background:#fff">${anomalyHtml ? `<div style="padding:10px 12px 0">${anomalyHtml}</div>` : ''}<div class="week-list">${daysHtml}</div>${summaryHtml}</main>`;
+      return `<main class="pb-6">${anomalyHtml ? `<div style="padding:10px 12px 0">${anomalyHtml}</div>` : ''}<div class="week-list">${daysHtml}</div>${summaryHtml}</main>`;
     }
 
     // ============================================================
@@ -8093,7 +8064,7 @@
       const card = document.querySelector(`.day-card[data-day-idx="${di}"]`);
       if (card) {
         const header = card.querySelector('.day-header');
-        const chevron = card.querySelector('.day-chevron');
+        const chevron = card.querySelector('.chevron');
         const activities = card.querySelector('.day-activities');
 
         if (isExpanded) {
@@ -8102,7 +8073,6 @@
           activities.offsetHeight; // force reflow
 
           activities.classList.remove('active');
-          card.classList.remove('expanded');
           // DO NOT add 'hidden' yet as it might contain display:none (Tailwind)
 
           activities.style.maxHeight = '0px';
@@ -8123,7 +8093,6 @@
 
           activities.classList.add('active');
           activities.classList.remove('hidden');
-          card.classList.add('expanded');
           activities.style.maxHeight = activities.scrollHeight + 'px';
           if (chevron) chevron.style.transform = 'rotate(90deg)';
           // Trigger autoGrow for all textareas within the expanded day
@@ -8250,28 +8219,19 @@
         return ((ord > 0 || ot > 0) && a.codes.length === 0) || (a.codes.length > 0 && ord === 0 && ot === 0);
       });
 
-      const _dateNum = day.date ? parseInt(day.date.split('-')[2], 10) : '';
-      const _dayAbbr = day.dayName ? day.dayName.substring(0, 3).toUpperCase() : '';
       return `
 <div class="day-card ${isWeekend ? 'day-weekend' : ''} ${isExpanded ? 'expanded' : ''} ${day.date === dateToStr(new Date()) ? 'day-today' : ''}" data-day-idx="${di}">
   <div class="day-header" onclick="toggleDay(${di})">
-    <div class="date-badge">
-      <span class="badge-dow">${_dayAbbr}</span>
-      <span class="badge-dom">${_dateNum}</span>
+    <div class="day-left">
+      <div class="day-expand-btn"><svg class="chevron" width="8" height="8" viewBox="0 0 10 10" style="transition:transform 0.2s;transform:${isExpanded ? 'rotate(90deg)' : 'rotate(0deg)'}"><polygon points="0,0 10,5 0,10" fill="#b4b8cc"/></svg></div>
+      <span class="day-name">${day.dayName}</span>
+      <span class="day-date">${formatDate(day.date)}</span>
     </div>
-    <div class="day-info">
-      <div class="day-name">${day.dayName}</div>
-      <div class="day-pills" data-day-pills="${di}">
-        ${actCount > 0 ? `<span class="pill pill-slate">${actCount} task${actCount !== 1 ? 's' : ''}</span>` : (isWeekend ? '' : `<span style="font-size:11px;color:var(--border);font-weight:600">No entries</span>`)}
-        ${ord > 0 ? `<span class="pill pill-blue">${Math.round(ord) === ord ? ord : ord.toFixed(1)}h</span>` : ''}
-        ${ot > 0 ? `<span class="pill pill-amber">+${Math.round(ot) === ot ? ot : ot.toFixed(1)} OT</span>` : ''}
-        ${hasMissingCode ? `<span class="dot-flash animate-pulse" title="Missing work code"></span>` : ''}
-      </div>
-    </div>
-    <div class="day-chevron">
-      <svg width="8" height="13" viewBox="0 0 8 14" fill="none">
-        <path d="M1.5 1.5L6.5 7L1.5 12.5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
+    <div class="day-pills" data-day-pills="${di}">
+      ${actCount > 0 ? `<span class="pill pill-slate">${actCount} task${actCount !== 1 ? 's' : ''}</span>` : (isWeekend ? '' : `<span style="font-size:11px;color:var(--border);font-weight:600">No entries</span>`)}
+      ${ord > 0 ? `<span class="pill pill-blue">${Math.round(ord) === ord ? ord : ord.toFixed(1)}h</span>` : ''}
+      ${ot > 0 ? `<span class="pill pill-amber">+${Math.round(ot) === ot ? ot : ot.toFixed(1)} OT</span>` : ''}
+      ${hasMissingCode ? `<span class="dot-flash animate-pulse" title="Missing work code"></span>` : ''}
     </div>
   </div>
   <div class="day-activities ${isExpanded ? 'active' : 'hidden'}" id="day-${di}-activities" style="${isExpanded ? '' : 'display:none'}">
@@ -12235,11 +12195,11 @@ QUESTION: ${query}`;
               toolbar: {
                 container: [
                   [{ 'size': ['small', false, 'large', 'huge'] },
-                    'bold', 'italic', 'underline', 'strike', 'clean'],
+                   'bold', 'italic', 'underline', 'strike', 'clean'],
                   [{ 'list': 'ordered' }, { 'list': 'bullet' },
-                  { 'color': ['#000000', '#e53935', '#f57c00', '#2e7d32', '#1565c0', '#6a1b9a', '#ffffff'] },
-                  { 'background': ['', '#ffeb3b', '#a5d6a7', '#ef9a9a', '#90caf9', '#ce93d8', '#ffe0b2'] },
-                    'undo', 'redo']
+                   { 'color': ['#000000', '#e53935', '#f57c00', '#2e7d32', '#1565c0', '#6a1b9a', '#ffffff'] },
+                   { 'background': ['', '#ffeb3b', '#a5d6a7', '#ef9a9a', '#90caf9', '#ce93d8', '#ffe0b2'] },
+                   'undo', 'redo']
                 ],
                 handlers: {
                   'undo': function () { this.quill.history.undo(); },
@@ -12554,8 +12514,7 @@ QUESTION: ${query}`;
         <h2 class="text-base font-semibold flex-1">🤖 AI Assistant</h2>
         <span style="font-size:11px;color:rgba(255,255,255,0.5);" id="ai-fault-kb-stat"></span>
         <button class="theme-menu-btn more-menu-btn" onclick="toggleThemeMenu(event)" title="Menu">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
-            stroke-linecap="round">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
             <line x1="3" y1="12" x2="21" y2="12"></line>
             <line x1="3" y1="6" x2="21" y2="6"></line>
             <line x1="3" y1="18" x2="21" y2="18"></line>
