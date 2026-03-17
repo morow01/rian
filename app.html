@@ -111,7 +111,7 @@
     .day-header {
       display: flex;
       align-items: center;
-      padding: 8px 12px 8px 8px;
+      padding: 11px 16px 11px 12px;
       background: transparent;
       cursor: pointer;
       position: sticky;
@@ -6018,7 +6018,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.5.9';
+    const VERSION = '4.5.10';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -8251,9 +8251,9 @@
     <div class="day-info">
       <div class="day-name">${day.dayName}</div>
       <div class="day-pills" data-day-pills="${di}">
-        ${actCount > 0 ? `<span class="pill pill-slate">${actCount} task${actCount !== 1 ? 's' : ''}</span>` : (isWeekend ? '' : `<span style="font-size:11px;color:var(--border);font-weight:600">No entries</span>`)}
-        ${ord > 0 ? `<span class="pill pill-blue">${Math.round(ord) === ord ? ord : ord.toFixed(1)}h</span>` : ''}
-        ${ot > 0 ? `<span class="pill pill-amber">+${Math.round(ot) === ot ? ot : ot.toFixed(1)} OT</span>` : ''}
+        ${actCount > 0 ? `<span class="pill-hrs" style="background:#EDF1F5;color:#5A7289">${actCount} task${actCount !== 1 ? 's' : ''}</span>` : (isWeekend ? '' : `<span style="font-size:11px;color:var(--border);font-weight:600">No entries</span>`)}
+        ${ord > 0 ? `<span class="pill-hrs">${Math.round(ord) === ord ? ord : ord.toFixed(1)}h</span>` : ''}
+        ${ot > 0 ? `<span class="pill-ot">+${Math.round(ot) === ot ? ot : ot.toFixed(1)} OT</span>` : ''}
         ${hasMissingCode ? `<span class="dot-flash animate-pulse" title="Missing work code"></span>` : ''}
       </div>
     </div>
