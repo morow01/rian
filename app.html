@@ -3257,10 +3257,12 @@
       transition: all .3s ease;
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
     }
+
     .ai-search-stacked:focus-within {
       border-color: var(--accent);
       box-shadow: 0 4px 16px rgba(45, 107, 228, 0.1);
     }
+
     .ai-expanding-input {
       width: 100%;
       background: transparent;
@@ -3275,6 +3277,7 @@
       max-height: 240px;
       line-height: 1.5;
     }
+
     .ai-action-row {
       display: flex;
       align-items: center;
@@ -3283,6 +3286,7 @@
       border-top: 1px solid var(--border);
       margin-top: 2px;
     }
+
     .ai-mic-btn {
       width: 36px;
       height: 36px;
@@ -3294,15 +3298,18 @@
       cursor: pointer;
       transition: all .2s;
     }
+
     .ai-mic-btn:hover {
       background: var(--bg-page);
       color: var(--accent);
     }
+
     .ai-mic-btn.listening {
       background: #ef4444 !important;
       color: #fff !important;
       animation: aiPulse 1.5s infinite;
     }
+
     .ai-send-btn {
       height: 36px;
       padding: 0 16px;
@@ -3320,19 +3327,29 @@
       cursor: pointer;
       transition: all .2s;
     }
+
     .ai-send-btn:disabled {
       background: var(--border);
       color: var(--text-muted);
       cursor: default;
     }
+
     .ai-send-btn:not(:disabled):active {
       transform: scale(0.96);
     }
 
     @keyframes aiPulse {
-      0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
-      70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
-      100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+      0% {
+        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4);
+      }
+
+      70% {
+        box-shadow: 0 0 0 10px rgba(239, 68, 68, 0);
+      }
+
+      100% {
+        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+      }
     }
 
     /* Finder Search Redesign */
@@ -3346,10 +3363,12 @@
       transition: all 0.3s ease;
       height: 48px;
     }
+
     .finder-search-wrap:focus-within {
       border-color: var(--accent);
       box-shadow: 0 4px 16px rgba(45, 107, 228, 0.1);
     }
+
     .finder-search-input {
       flex: 1;
       background: transparent;
@@ -3359,6 +3378,7 @@
       font-size: 15px;
       color: var(--text-primary);
     }
+
     .finder-v-separator {
       width: 1px;
       height: 20px;
@@ -3366,6 +3386,7 @@
       margin: 0 8px;
       opacity: 0.6;
     }
+
     .finder-mic-btn-inline {
       width: 38px;
       height: 38px;
@@ -3377,9 +3398,11 @@
       cursor: pointer;
       transition: all 0.2s;
     }
+
     .finder-mic-btn-inline:hover {
       background: var(--bg-page);
     }
+
     .finder-mic-btn-inline.listening {
       background: #fee2e2;
       color: #ef4444;
@@ -5988,11 +6011,10 @@
         <button onclick="closeFinderModal()" class="text-white p-1 text-xl leading-none">✕</button>
         <h2 class="text-base font-semibold flex-1" id="finder-modal-title">Search Exchanges</h2>
       </div>
-      <div class="px-3 pb-3 sticky top-0 z-10"
+      <div class="p-3 sticky top-0 z-10"
         style="background:var(--bg-modal-search);border-bottom:1px solid var(--border)">
         <div class="finder-search-wrap">
-          <input id="finder-modal-search" type="text" placeholder="Name or Code…"
-            class="finder-search-input"
+          <input id="finder-modal-search" type="text" placeholder="Name or Code…" class="finder-search-input"
             oninput="filterFinderModal(this.value)">
           <div class="finder-v-separator"></div>
           <div class="finder-mic-btn-inline" id="finder-mic-btn" onclick="startFinderVoice()" title="Voice search">
@@ -12622,7 +12644,7 @@ QUESTION: ${query}`;
           </button>
           
           <button class="ai-send-btn" onclick="runAIQuery()" ${state.aiLoading ? 'disabled' : ''}>
-            <span>${state.aiLoading ? 'Thinking' : 'Ask'}</span>
+            <span>${state.aiLoading ? 'Thinking' : 'Submit'}</span>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
               <line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/>
             </svg>
