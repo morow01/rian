@@ -142,6 +142,7 @@ Use this file to avoid re-asking about folders the user has already confirmed.
 - `Drozda_Zdenek-Kosi_hnizdo_128kbps`
 - `Durych_Jaroslav-Bozi_duha_128kbps`
 - `Francisco Coloane - Země zapomnění`
+- `Gary_Romain-Prislib_usvitu`
 - `Giovanni Boccaccio - Dekameron`
 - `Golombek_Bedrich-Vysazena_okna_128kbps`
 - `Grmolec_Zdenek-Kasja_VBR-HQ`
@@ -156,6 +157,7 @@ Use this file to avoid re-asking about folders the user has already confirmed.
 - `Jaroslav Rudis - Nebe pod Berlinem`
 - `Klukanova L-Jeden ze zapomenutych plukovnik Josef Jiri Svec`
 - `Kosiner Bernard-Pohadka o trech kouzelnicich casu VBR-HQ`
+- `Kosatik Pavel-Baronka v opere 128kbps`
 - `Kubin Alfred-Zeme snivcu 128kbps`
 - `Lagerkvist Pär-Trpaslik 128kbps`
 - `Landsmann Ivan-Fotr 128kbps`
@@ -181,10 +183,24 @@ Use this file to avoid re-asking about folders the user has already confirmed.
 - `Pollack Martin-Americky cisar 128kbps`
 - `Pristav vola`
 - `Robert James Waller - Madisonske mosty 4CD`
+- `Roth Joseph-Kapucinska krypta 128kbps`
+- `Roth Joseph-Zpoved vraha vypravena behem jedne noci 128kbps`
 - `Sacher-Masoch-Venuse v kozichu 128kbps`
+- `Saint-Exupery Antoine-Zeme lidi 128kbps`
+- `Schulz Bruno-Skoricove kramy 128kbps`
+- `Sklovskij Viktor-Sentimentalni cesta 128kbps`
+- `Skvorecky - Lvíče`
+- `Smid Jan-Ciste radosti meho zivota 128kbps`
 - `Smid Jan-Ciste radosti meho zivota VBR-HQ`
 - `Sny-Karel IV 2016 05 14-23 58 04 VBR-HQ OK`
 - `Spanelske pohadky VBR-HQ`
 - `Steklac Vojtech - Borikovy lapalie [CRo] (2006)`
+- `Thoreau Henry David-Walden aneb Zivot v lesich 128kbps`
+- `Topol Jachym-Citlivy clovek 128kbps`
 - `Tor Age Bringsvaerd - Jakou me chces`
+- `Vaculik Ludvik-Sekyra 128kbps`
+- `Vladislav Vancura-Utek do Budina 128kbps`
 - `Wallace Edgar-Kriminalni pribehy Johna G Reedera 128kbps`
+- `Wolfe Thomas-K domovu se divej andele 128kbps`
+- `Wolfe Thomas-K domovu se divej andele VBR-HQ`
+- `Wyndham John-Den trifidu 128kbps`
