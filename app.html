@@ -403,7 +403,7 @@
       gap: 6px;
       background: var(--bg-page);
       border: none;
-      border-radius: 7px;
+      border-radius: 12px;
       padding: 5px 10px;
       font-size: 12px;
       font-weight: 500;
@@ -5989,8 +5989,7 @@
       <div class="p-3 sticky top-0 z-10"
         style="background:var(--bg-modal-search);border-bottom:1px solid var(--border)">
         <div class="finder-search-wrap">
-          <input id="location-search" type="text" placeholder="Town name or code…"
-            class="finder-search-input"
+          <input id="location-search" type="text" placeholder="Town name or code…" class="finder-search-input"
             oninput="filterLocations(this.value)">
           <div class="finder-v-separator"></div>
           <div class="finder-mic-btn-inline" id="location-mic-btn" onclick="startLocationVoice()" title="Voice search">
@@ -6186,7 +6185,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.5.18';
+    const VERSION = '4.5.19';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -12756,8 +12755,22 @@ QUESTION: ${query}`;
     style="background:var(--bg-page);z-index:9999;">
     <div class="flex flex-col w-full flex-1 overflow-hidden" style="max-width:672px;background:var(--bg-page);">
       <div style="background:var(--bg-header)" class="text-white px-4 py-3 flex items-center gap-3 safe-top">
-        <button onclick="closeFaultAssistant()" class="text-white p-1 flex items-center justify-center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
-        <h2 class="text-base font-semibold flex-1 flex items-center gap-2"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8V4H8"/><rect x="4" y="8" width="16" height="12" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></svg> AI Assistant</h2>
+        <button onclick="closeFaultAssistant()" class="text-white p-1 flex items-center justify-center"><svg width="20"
+            height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+            stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
+          </svg></button>
+        <h2 class="text-base font-semibold flex-1 flex items-center gap-2"><svg width="18" height="18"
+            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"
+            stroke-linejoin="round">
+            <path d="M12 8V4H8" />
+            <rect x="4" y="8" width="16" height="12" rx="2" />
+            <path d="M2 14h2" />
+            <path d="M20 14h2" />
+            <path d="M15 13v2" />
+            <path d="M9 13v2" />
+          </svg> AI Assistant</h2>
         <span style="font-size:11px;color:rgba(255,255,255,0.5);" id="ai-fault-kb-stat"></span>
         <button class="theme-menu-btn more-menu-btn" onclick="toggleThemeMenu(event)" title="Menu">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
@@ -12777,7 +12790,12 @@ QUESTION: ${query}`;
     style="background:var(--bg-page);z-index:9999;">
     <div class="flex flex-col w-full flex-1 overflow-hidden" style="max-width:672px;background:var(--bg-page);">
       <div style="background:var(--bg-header)" class="text-white px-4 py-3 flex items-center gap-3 safe-top">
-        <button onclick="closeNoteFullscreen()" class="text-white p-1 flex items-center justify-center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+        <button onclick="closeNoteFullscreen()" class="text-white p-1 flex items-center justify-center"><svg width="20"
+            height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+            stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
+          </svg></button>
         <h2 class="text-base font-semibold flex-1">Edit Note</h2>
         <button onclick="closeNoteFullscreen()"
           style="font-size:13px;color:#fff;padding:5px 14px;border-radius:8px;background:rgba(255,255,255,0.15);border:none;cursor:pointer;font-weight:600;">Done</button>
@@ -12790,14 +12808,26 @@ QUESTION: ${query}`;
   <div id="email-preview-modal" class="hidden fixed inset-0 z-50 flex flex-col" style="background:var(--bg-modal)">
     <div class="flex flex-col flex-1 overflow-hidden">
       <div style="background:var(--bg-header)" class="text-white px-4 py-3 flex items-center gap-3 safe-top">
-        <button onclick="closeEmailPreview()" class="text-white p-1 flex items-center justify-center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+        <button onclick="closeEmailPreview()" class="text-white p-1 flex items-center justify-center"><svg width="20"
+            height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+            stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
+          </svg></button>
         <h2 class="text-base font-semibold flex-1">Weekly Summary</h2>
-        <button onclick="sendWeeklyEmailFromPreview()"
-          class="bg-amber-500 text-white px-4 py-1.5 text-sm font-bold" style="border-radius:12px;">Send Email</button>
+        <button onclick="sendWeeklyEmailFromPreview()" class="bg-amber-500 text-white px-4 py-1.5 text-sm font-bold"
+          style="border-radius:12px;">Send Email</button>
       </div>
       <div
         style="background:#eff6ff;border-bottom:1px solid #bfdbfe;padding:8px 16px;font-size:12px;color:#2563eb;text-align:center;">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-2px;margin-right:4px;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg> Tap any <span style="text-decoration:underline;text-decoration-style:dotted;">underlined value</span> to copy
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+          stroke-linecap="round" stroke-linejoin="round"
+          style="display:inline-block;vertical-align:-2px;margin-right:4px;">
+          <circle cx="12" cy="12" r="10" />
+          <line x1="12" y1="16" x2="12" y2="12" />
+          <line x1="12" y1="8" x2="12.01" y2="8" />
+        </svg> Tap any <span style="text-decoration:underline;text-decoration-style:dotted;">underlined value</span> to
+        copy
         it to clipboard
       </div>
       <div id="email-preview-body" class="flex-1 overflow-y-auto" style="background:#f1f5f9;padding:16px 12px;"></div>
