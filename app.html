@@ -9052,6 +9052,15 @@
       window.scrollTo(0, 0);
 
       if (v === 'notes') await loadNotes();
+      else if (v === 'ai') {
+        if (!state.aiStats) await loadAIStats();
+        if (!state.notes || state.notes.length === 0) {
+          await loadNotes();
+        } else {
+          render();
+        }
+        setTimeout(() => document.getElementById('ai-query-input')?.focus(), 100);
+      }
       else if (v === 'exchanges') {
         if (!state.exchanges.length || !state.cabinets.length) {
           await Promise.all([loadTowns(), loadCabinets()]);
