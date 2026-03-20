@@ -1612,13 +1612,19 @@
       transition: background 0.3s ease, color 0.3s ease;
     }
 
-    /* ── Sticky tab bar: lives in document flow so it NEVER overlaps content ── */
-    #sticky-tabs {
-      position: sticky;
+    /* ── Mini nav: fixed tab bar, appears/disappears instantly (no transition = no slide-over) ── */
+    #mini-nav {
+      position: fixed;
       top: 0;
+      left: 0;
+      right: 0;
       z-index: 50;
+      display: none;
       background: var(--bg-header-tab);
-      transition: top 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+      border-bottom: 1px solid var(--border);
+    }
+    #mini-nav.visible {
+      display: block;
     }
 
     input,
@@ -6418,7 +6424,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.5.63';
+    const VERSION = '4.5.64';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -7988,11 +7994,17 @@
       </div>
     </div>
     </div><!-- /hdr-top -->
-  </header>
-  <div id="sticky-tabs">
-    <div class="flex">
+    <div class="flex" style="background:var(--bg-header-tab);">
       <button onclick="setView('week')" class="flex-1 py-2.5 text-[11px] font-bold tracking-widest uppercase relative" style="color:${state.view === 'week' ? '#F5A623' : 'var(--text-header-sub)'};${state.view === 'week' ? 'border-bottom:2.5px solid #F5A623' : ''}">Timesheet</button>
       <button onclick="setView('notes')" class="flex-1 py-2.5 text-[11px] font-bold tracking-widest uppercase relative" style="color:${state.view === 'notes' ? '#F5A623' : 'var(--text-header-sub)'};${state.view === 'notes' ? 'border-bottom:2.5px solid #F5A623' : ''}">Notes${{ pending: 'var(--priority-medium)', syncing: '#3b82f6', error: 'var(--priority-high)' }[state.notesSyncStatus] ? `<span class="notes-sync-dot" style="background:${{ pending: 'var(--priority-medium)', syncing: '#3b82f6', error: 'var(--priority-high)' }[state.notesSyncStatus]}"></span>` : ''}</button>
+      <button onclick="setView('exchanges')" class="flex-1 py-2.5 text-[11px] font-bold tracking-widest uppercase" style="color:${state.view === 'exchanges' ? '#F5A623' : 'var(--text-header-sub)'};${state.view === 'exchanges' ? 'border-bottom:2.5px solid #F5A623' : ''}">Finder</button>
+      <button onclick="setView('ai')" class="py-2.5 text-[11px] font-bold tracking-widest uppercase" style="color:${state.view === 'ai' ? '#F5A623' : 'var(--text-header-sub)'};padding-left:20px;padding-right:20px;${state.view === 'ai' ? 'border-bottom:2.5px solid #F5A623' : ''}">AI</button>
+    </div>
+  </header>
+  <div id="mini-nav">
+    <div class="flex">
+      <button onclick="setView('week')" class="flex-1 py-2.5 text-[11px] font-bold tracking-widest uppercase relative" style="color:${state.view === 'week' ? '#F5A623' : 'var(--text-header-sub)'};${state.view === 'week' ? 'border-bottom:2.5px solid #F5A623' : ''}">Timesheet</button>
+      <button onclick="setView('notes')" class="flex-1 py-2.5 text-[11px] font-bold tracking-widest uppercase relative" style="color:${state.view === 'notes' ? '#F5A623' : 'var(--text-header-sub)'};${state.view === 'notes' ? 'border-bottom:2.5px solid #F5A623' : ''}">Notes</button>
       <button onclick="setView('exchanges')" class="flex-1 py-2.5 text-[11px] font-bold tracking-widest uppercase" style="color:${state.view === 'exchanges' ? '#F5A623' : 'var(--text-header-sub)'};${state.view === 'exchanges' ? 'border-bottom:2.5px solid #F5A623' : ''}">Finder</button>
       <button onclick="setView('ai')" class="py-2.5 text-[11px] font-bold tracking-widest uppercase" style="color:${state.view === 'ai' ? '#F5A623' : 'var(--text-header-sub)'};padding-left:20px;padding-right:20px;${state.view === 'ai' ? 'border-bottom:2.5px solid #F5A623' : ''}">AI</button>
     </div>
@@ -8000,13 +8012,13 @@
     }
 
     function updateHeaderStatus() {
+      // Only replace the <header> element — never touch #mini-nav (managed by scroll listener)
       const rendered = renderHeader();
       const tmp = document.createElement('div');
       tmp.innerHTML = rendered;
       const oldHeader = document.querySelector('header');
-      const oldTabs   = document.getElementById('sticky-tabs');
-      if (oldHeader) oldHeader.outerHTML = tmp.querySelector('header').outerHTML;
-      if (oldTabs)   oldTabs.outerHTML   = tmp.querySelector('#sticky-tabs').outerHTML;
+      const newHeader = tmp.querySelector('header');
+      if (oldHeader && newHeader) oldHeader.outerHTML = newHeader.outerHTML;
     }
 
     // ============================================================
@@ -9228,9 +9240,8 @@
       state.view = v;
       localStorage.setItem('lastView', v);
       window.scrollTo(0, 0);
-      // Reset sticky tab bar when switching views (full header will be visible)
-      const _tabsEl = document.getElementById('sticky-tabs');
-      if (_tabsEl) _tabsEl.style.top = '0px';
+      // Hide mini-nav when switching views (full header will be visible at top)
+      document.getElementById('mini-nav')?.classList.remove('visible');
       _scrollDelta = 0;
 
       if (v === 'notes') await loadNotes();
@@ -10608,7 +10619,7 @@
     // ============================================================
     // INIT
     // ============================================================
-    // Save scroll position per view + hide/show sticky tab bar on scroll direction
+    // Save scroll position per view + hide/show mini nav on scroll direction
     let _scrollTimer = null;
     let _lastScrollY = 0;
     let _scrollDelta = 0;
@@ -10620,24 +10631,33 @@
       _scrollDelta += delta;
       _lastScrollY = y;
 
-      const tabs   = document.getElementById('sticky-tabs');
-      const header = document.querySelector('header');
+      const miniNav = document.getElementById('mini-nav');
+      const header  = document.querySelector('header');
       const headerH = header ? header.offsetHeight : 0;
 
-      if (tabs) {
-        const tabH = tabs.offsetHeight;
+      if (miniNav) {
+        const miniH = miniNav.offsetHeight || 40;
+
+        const show = () => {
+          if (miniNav.classList.contains('visible')) return;
+          // Scroll UP first (same paint frame) so the newly fixed bar
+          // sits over the area that was already above the viewport — not over the day the user was reading.
+          const newY = Math.max(0, y - miniH);
+          window.scrollTo(0, newY);
+          _lastScrollY = newY;
+          miniNav.classList.add('visible');
+        };
+
+        const hide = () => {
+          miniNav.classList.remove('visible');
+        };
+
         if (y <= headerH) {
-          // At page top — full header visible, reset tabs to natural sticky position
-          tabs.style.top = '0px';
-          _scrollDelta = 0;
+          hide(); _scrollDelta = 0;
         } else if (_scrollDelta > HIDE_THRESHOLD) {
-          // Scrolling down — slide tab bar above viewport
-          tabs.style.top = '-' + (tabH + 2) + 'px';
-          _scrollDelta = HIDE_THRESHOLD;
+          hide(); _scrollDelta = HIDE_THRESHOLD;
         } else if (_scrollDelta < -SHOW_THRESHOLD) {
-          // Scrolling up — bring tab bar back
-          tabs.style.top = '0px';
-          _scrollDelta = -SHOW_THRESHOLD;
+          show(); _scrollDelta = -SHOW_THRESHOLD;
         }
       }
 
