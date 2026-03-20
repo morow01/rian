@@ -1626,6 +1626,10 @@
     #mini-nav.visible {
       transform: translateY(0);
     }
+    /* Push content down to match mini-nav height when visible */
+    #app {
+      transition: padding-top 0.26s cubic-bezier(0.4, 0, 0.2, 1);
+    }
 
     input,
     select,
@@ -9246,6 +9250,8 @@
       window.scrollTo(0, 0);
       // Hide mini-nav when switching tabs (full header will be visible)
       document.getElementById('mini-nav')?.classList.remove('visible');
+      const _appEl = document.getElementById('app');
+      if (_appEl) _appEl.style.paddingTop = '0px';
       _scrollDelta = 0;
 
       if (v === 'notes') await loadNotes();
@@ -10640,18 +10646,22 @@
       const headerH = header ? header.offsetHeight : 0;
 
       if (miniNav) {
-        if (y <= headerH) {
-          // Within the natural header — hide mini-nav, full header is visible
-          miniNav.classList.remove('visible');
-          _scrollDelta = 0;
-        } else if (_scrollDelta > HIDE_THRESHOLD) {
-          // Scrolling down — hide mini-nav
-          miniNav.classList.remove('visible');
-          _scrollDelta = HIDE_THRESHOLD;
-        } else if (_scrollDelta < -SHOW_THRESHOLD) {
-          // Scrolling up — show mini-nav
+        const app = document.getElementById('app');
+        const miniH = miniNav.offsetHeight;
+        const show = () => {
           miniNav.classList.add('visible');
-          _scrollDelta = -SHOW_THRESHOLD;
+          if (app) app.style.paddingTop = miniH + 'px';
+        };
+        const hide = () => {
+          miniNav.classList.remove('visible');
+          if (app) app.style.paddingTop = '0px';
+        };
+        if (y <= headerH) {
+          hide(); _scrollDelta = 0;
+        } else if (_scrollDelta > HIDE_THRESHOLD) {
+          hide(); _scrollDelta = HIDE_THRESHOLD;
+        } else if (_scrollDelta < -SHOW_THRESHOLD) {
+          show(); _scrollDelta = -SHOW_THRESHOLD;
         }
       }
 
