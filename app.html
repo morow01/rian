@@ -1612,13 +1612,19 @@
       transition: background 0.3s ease, color 0.3s ease;
     }
 
-    /* ── Sticky hide-on-scroll header ── */
-    header {
-      position: sticky;
+    /* ── Mini nav: fixed tab bar that slides in on scroll-up ── */
+    #mini-nav {
+      position: fixed;
       top: 0;
-      z-index: 40;
-      transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+      left: 0;
+      right: 0;
+      z-index: 50;
+      transform: translateY(-100%);
+      transition: transform 0.26s cubic-bezier(0.4, 0, 0.2, 1);
       will-change: transform;
+    }
+    #mini-nav.visible {
+      transform: translateY(0);
     }
 
     input,
@@ -8003,7 +8009,15 @@
         AI
       </button>
     </div>
-  </header>`;
+  </header>
+  <div id="mini-nav" style="background:var(--bg-header-tab);">
+    <div class="flex">
+      <button onclick="setView('week')" class="flex-1 py-2.5 text-[11px] font-bold tracking-widest uppercase relative" style="color:${state.view === 'week' ? '#F5A623' : 'var(--text-header-sub)'};${state.view === 'week' ? 'border-bottom:2.5px solid #F5A623' : ''}">Timesheet</button>
+      <button onclick="setView('notes')" class="flex-1 py-2.5 text-[11px] font-bold tracking-widest uppercase relative" style="color:${state.view === 'notes' ? '#F5A623' : 'var(--text-header-sub)'};${state.view === 'notes' ? 'border-bottom:2.5px solid #F5A623' : ''}">Notes</button>
+      <button onclick="setView('exchanges')" class="flex-1 py-2.5 text-[11px] font-bold tracking-widest uppercase" style="color:${state.view === 'exchanges' ? '#F5A623' : 'var(--text-header-sub)'};${state.view === 'exchanges' ? 'border-bottom:2.5px solid #F5A623' : ''}">Finder</button>
+      <button onclick="setView('ai')" class="py-2.5 text-[11px] font-bold tracking-widest uppercase" style="color:${state.view === 'ai' ? '#F5A623' : 'var(--text-header-sub)'};padding-left:20px;padding-right:20px;${state.view === 'ai' ? 'border-bottom:2.5px solid #F5A623' : ''}">AI</button>
+    </div>
+  </div>`;
     }
 
     function updateHeaderStatus() {
@@ -9230,10 +9244,8 @@
       state.view = v;
       localStorage.setItem('lastView', v);
       window.scrollTo(0, 0);
-      // Always show full header when switching tabs
-      const _hdr = document.querySelector('header');
-      if (_hdr) _hdr.style.transform = 'translateY(0)';
-      _navState = 0;
+      // Hide mini-nav when switching tabs (full header will be visible)
+      document.getElementById('mini-nav')?.classList.remove('visible');
       _scrollDelta = 0;
 
       if (v === 'notes') await loadNotes();
@@ -10615,35 +10627,32 @@
     let _scrollTimer = null;
     let _lastScrollY = 0;
     let _scrollDelta = 0;
-    const HIDE_THRESHOLD = 60;   // px scrolled down before header hides
-    const SHOW_THRESHOLD = 10;   // px scrolled up before tab bar peeks in
-    // 0 = full header, 1 = tab-bar only, 2 = fully hidden
-    let _navState = 0;
+    const HIDE_THRESHOLD = 40;
+    const SHOW_THRESHOLD = 10;
     window.addEventListener('scroll', () => {
       const y = window.scrollY;
       const delta = y - _lastScrollY;
       _scrollDelta += delta;
       _lastScrollY = y;
 
-      const header = document.querySelector('header');
-      const hdrTop = document.getElementById('hdr-top');
-      if (!header) return;
-      const topH = hdrTop ? hdrTop.offsetHeight : 0;
+      const miniNav = document.getElementById('mini-nav');
+      const header  = document.querySelector('header');
+      const headerH = header ? header.offsetHeight : 0;
 
-      if (y < 10) {
-        // At very top — show full header
-        if (_navState !== 0) { header.style.transform = 'translateY(0)'; _navState = 0; }
-        _scrollDelta = 0;
-      } else if (_scrollDelta > HIDE_THRESHOLD && _navState !== 2) {
-        // Scrolling down — hide everything
-        header.style.transform = `translateY(-100%)`;
-        _navState = 2;
-        _scrollDelta = HIDE_THRESHOLD;
-      } else if (_scrollDelta < -SHOW_THRESHOLD && _navState !== 1) {
-        // Scrolling up — show only tab bar
-        header.style.transform = `translateY(-${topH}px)`;
-        _navState = 1;
-        _scrollDelta = -SHOW_THRESHOLD;
+      if (miniNav) {
+        if (y <= headerH) {
+          // Within the natural header — hide mini-nav, full header is visible
+          miniNav.classList.remove('visible');
+          _scrollDelta = 0;
+        } else if (_scrollDelta > HIDE_THRESHOLD) {
+          // Scrolling down — hide mini-nav
+          miniNav.classList.remove('visible');
+          _scrollDelta = HIDE_THRESHOLD;
+        } else if (_scrollDelta < -SHOW_THRESHOLD) {
+          // Scrolling up — show mini-nav
+          miniNav.classList.add('visible');
+          _scrollDelta = -SHOW_THRESHOLD;
+        }
       }
 
       clearTimeout(_scrollTimer);
