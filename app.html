@@ -64,6 +64,21 @@
       --summary-even: #F4F7FA;
       --tab-active: #F5A623;
       --overlay: rgba(15, 28, 46, 0.55);
+      /* ── Priority / status colours (notes, AI results, sync) ── */
+      --priority-high: #ef4444;
+      --priority-high-dark: #dc2626;
+      --priority-high-bg: rgba(239, 68, 68, 0.08);
+      --priority-high-bg-strong: rgba(239, 68, 68, 0.1);
+      --priority-high-border: rgba(239, 68, 68, 0.3);
+      --priority-medium: #f97316;
+      --priority-medium-bg: rgba(249, 115, 22, 0.08);
+      --priority-medium-bg-strong: rgba(249, 115, 22, 0.1);
+      --priority-medium-border: rgba(249, 115, 22, 0.3);
+      --priority-low: #22c55e;
+      --priority-low-dark: #16a34a;
+      --priority-low-bg: rgba(34, 197, 94, 0.08);
+      --priority-low-bg-strong: rgba(34, 197, 94, 0.1);
+      --priority-low-border: rgba(34, 197, 94, 0.3);
     }
 
     /* Force .font-mono to use the theme font instead of Tailwind's monospace stack.
@@ -3688,7 +3703,7 @@
       background: #fff1f2;
       border-radius: 12px;
       padding: 12px 14px;
-      border-left: 3px solid #ef4444;
+      border-left: 3px solid var(--priority-high);
       margin-bottom: 8px;
     }
 
@@ -3698,7 +3713,7 @@
 
     .ai-error-text {
       font-size: 12px;
-      color: #dc2626;
+      color: var(--priority-high-dark);
     }
 
     .ai-key-change {
@@ -3890,15 +3905,15 @@
     }
 
     .bulk-btn.delete {
-      background: rgba(239, 68, 68, 0.08);
-      color: #ef4444;
-      border: 1px solid rgba(239, 68, 68, 0.3);
+      background: var(--priority-high-bg);
+      color: var(--priority-high);
+      border: 1px solid var(--priority-high-border);
     }
 
     .bulk-btn.done {
-      background: rgba(34, 197, 94, 0.08);
-      color: #16a34a;
-      border: 1px solid rgba(34, 197, 94, 0.3);
+      background: var(--priority-low-bg);
+      color: var(--priority-low-dark);
+      border: 1px solid var(--priority-low-border);
     }
 
     .bulk-btn:disabled {
@@ -3917,21 +3932,21 @@
     }
 
     .notes-chip.high {
-      background: rgba(239, 68, 68, 0.08);
-      color: #ef4444;
-      border-color: rgba(239, 68, 68, 0.3);
+      background: var(--priority-high-bg);
+      color: var(--priority-high);
+      border-color: var(--priority-high-border);
     }
 
     .notes-chip.medium {
-      background: rgba(249, 115, 22, 0.08);
-      color: #f97316;
-      border-color: rgba(249, 115, 22, 0.3);
+      background: var(--priority-medium-bg);
+      color: var(--priority-medium);
+      border-color: var(--priority-medium-border);
     }
 
     .notes-chip.low {
-      background: rgba(34, 197, 94, 0.08);
-      color: #22c55e;
-      border-color: rgba(34, 197, 94, 0.3);
+      background: var(--priority-low-bg);
+      color: var(--priority-low);
+      border-color: var(--priority-low-border);
     }
 
     .notes-chip.done {
@@ -4138,21 +4153,21 @@
     }
 
     .note-pri-chip.sel-high {
-      background: rgba(239, 68, 68, 0.1);
-      color: #ef4444;
-      border-color: #ef4444;
+      background: var(--priority-high-bg-strong);
+      color: var(--priority-high);
+      border-color: var(--priority-high);
     }
 
     .note-pri-chip.sel-medium {
-      background: rgba(249, 115, 22, 0.1);
-      color: #f97316;
-      border-color: #f97316;
+      background: var(--priority-medium-bg-strong);
+      color: var(--priority-medium);
+      border-color: var(--priority-medium);
     }
 
     .note-pri-chip.sel-low {
-      background: rgba(34, 197, 94, 0.1);
-      color: #22c55e;
-      border-color: #22c55e;
+      background: var(--priority-low-bg-strong);
+      color: var(--priority-low);
+      border-color: var(--priority-low);
     }
 
     .note-actions {
@@ -4179,15 +4194,15 @@
     }
 
     .note-action-btn.danger {
-      background: rgba(239, 68, 68, 0.08);
-      color: #ef4444;
-      border-color: rgba(239, 68, 68, 0.3);
+      background: var(--priority-high-bg);
+      color: var(--priority-high);
+      border-color: var(--priority-high-border);
     }
 
     .note-action-btn.success {
-      background: rgba(34, 197, 94, 0.08);
-      color: #16a34a;
-      border-color: rgba(34, 197, 94, 0.3);
+      background: var(--priority-low-bg);
+      color: var(--priority-low-dark);
+      border-color: var(--priority-low-border);
     }
 
     .note-action-btn.remind {
@@ -4209,9 +4224,9 @@
     }
 
     .note-action-done {
-      background: rgba(34, 197, 94, 0.08);
-      color: #16a34a;
-      border-color: rgba(34, 197, 94, 0.3);
+      background: var(--priority-low-bg);
+      color: var(--priority-low-dark);
+      border-color: var(--priority-low-border);
     }
 
     .note-action-delete {
@@ -5351,9 +5366,9 @@
     }
 
     .suggest-item-add.added {
-      color: #16a34a;
-      border-color: #bbf7d0;
-      background: #f0fdf4;
+      color: var(--priority-low-dark);
+      border-color: var(--priority-low-border);
+      background: var(--priority-low-bg-strong);
     }
 
     .suggest-add-all-btn {
@@ -5607,21 +5622,21 @@
     }
 
     .nvc-pri-btn.sel-high {
-      border-color: #ef4444;
-      background: #fef2f2;
-      color: #ef4444;
+      border-color: var(--priority-high);
+      background: var(--priority-high-bg-strong);
+      color: var(--priority-high);
     }
 
     .nvc-pri-btn.sel-medium {
-      border-color: #f59e0b;
-      background: #fffbeb;
-      color: #f59e0b;
+      border-color: var(--priority-medium);
+      background: var(--priority-medium-bg-strong);
+      color: var(--priority-medium);
     }
 
     .nvc-pri-btn.sel-low {
-      border-color: #22c55e;
-      background: #f0fdf4;
-      color: #22c55e;
+      border-color: var(--priority-low);
+      background: var(--priority-low-bg-strong);
+      color: var(--priority-low);
     }
 
     @keyframes voiceFabPulse {
@@ -6161,7 +6176,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.5.30';
+    const VERSION = '4.5.31';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -7727,7 +7742,7 @@
       </button>
       <button onclick="setView('notes')" class="flex-1 py-2.5 text-[11px] font-bold tracking-widest uppercase relative" style="color:${state.view === 'notes' ? '#F5A623' : 'var(--text-header-sub)'};${state.view === 'notes' ? 'border-bottom:2.5px solid #F5A623' : ''}">
         Notes
-        ${{ pending: '#f97316', syncing: '#3b82f6', error: '#ef4444' }[state.notesSyncStatus] ? `<span class="notes-sync-dot" style="background:${{ pending: '#f97316', syncing: '#3b82f6', error: '#ef4444' }[state.notesSyncStatus]}"></span>` : ''}
+        ${{ pending: 'var(--priority-medium)', syncing: '#3b82f6', error: 'var(--priority-high)' }[state.notesSyncStatus] ? `<span class="notes-sync-dot" style="background:${{ pending: 'var(--priority-medium)', syncing: '#3b82f6', error: 'var(--priority-high)' }[state.notesSyncStatus]}"></span>` : ''}
       </button>
       <button onclick="setView('exchanges')" class="flex-1 py-2.5 text-[11px] font-bold tracking-widest uppercase" style="color:${state.view === 'exchanges' ? '#F5A623' : 'var(--text-header-sub)'};${state.view === 'exchanges' ? 'border-bottom:2.5px solid #F5A623' : ''}">
         Finder
@@ -8005,16 +8020,16 @@
           ${(() => {
             const adjOrd = adjOrdHrs(summary, totalOrd); return summary.map((row, i) => {
               const isUncat = row.isUncategorized;
-              const bgStyle = isUncat ? 'background:rgba(239,68,68,0.1)' : (i % 2 === 0 ? '' : 'background:var(--summary-even)');
-              const textColor = isUncat ? 'color:#ef4444' : 'color:var(--text-secondary)';
-              const accentColor = isUncat ? 'color:#ef4444;font-weight:bold' : 'color:var(--accent)';
+              const bgStyle = isUncat ? 'background:var(--priority-high-bg-strong)' : (i % 2 === 0 ? '' : 'background:var(--summary-even)');
+              const textColor = isUncat ? 'color:var(--priority-high)' : 'color:var(--text-secondary)';
+              const accentColor = isUncat ? 'color:var(--priority-high);font-weight:bold' : 'color:var(--accent)';
 
               return `
           <tr class="summary-row" style="${bgStyle}">
             <td class="px-3 py-2 font-mono text-xs whitespace-nowrap" style="${accentColor}">${row.code}</td>
             <td class="px-3 py-2 text-xs" style="${textColor}">${row.description}</td>
-            <td class="px-3 py-2 text-right font-semibold" style="${isUncat ? 'color:#ef4444' : 'color:var(--text-primary)'}">${adjOrd[i]}</td>
-            <td class="px-3 py-2 text-right font-semibold" style="${isUncat ? 'color:#ef4444' : 'color:var(--text-ot)'}">${row.overtime > 0 ? fmtHrs(row.overtime) : '—'}</td>
+            <td class="px-3 py-2 text-right font-semibold" style="${isUncat ? 'color:var(--priority-high)' : 'color:var(--text-primary)'}">${adjOrd[i]}</td>
+            <td class="px-3 py-2 text-right font-semibold" style="${isUncat ? 'color:var(--priority-high)' : 'color:var(--text-ot)'}">${row.overtime > 0 ? fmtHrs(row.overtime) : '—'}</td>
           </tr>`;
             }).join('');
           })()}
@@ -12590,7 +12605,7 @@ QUESTION: ${query}`;
         resultHtml = `
         <div class="ai-section" id="ai-result-top">
           <div class="ai-error-card">
-            <div class="ai-answer-label" style="color:#dc2626;">⚠️ Error</div>
+            <div class="ai-answer-label" style="color:var(--priority-high-dark);">⚠️ Error</div>
             <div class="ai-error-text">${state.aiError}</div>
           </div>
           <div class="ai-key-change" onclick="closeFaultAssistant()">Close and check your API key in ☰ Menu → AI Settings</div>
