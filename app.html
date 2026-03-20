@@ -574,6 +574,57 @@
       cursor: pointer;
     }
 
+    /* Quill size classes — apply both inside editor and in the card preview */
+    .ql-size-small {
+      font-size: 0.75em !important;
+      color: var(--text-muted);
+    }
+
+    .ql-size-large {
+      font-size: 1.5em !important;
+      font-weight: 600;
+      color: var(--accent);
+    }
+
+    .ql-size-huge {
+      font-size: 2.2em !important;
+      font-weight: 700;
+      color: #d35b5b;
+      line-height: 1.2;
+    }
+
+    /* Quill font family classes — editor content + card preview */
+    .ql-font-serif {
+      font-family: Georgia, 'Times New Roman', serif !important;
+    }
+
+    .ql-font-monospace {
+      font-family: 'DM Mono', 'Courier New', monospace !important;
+    }
+
+    /* Font picker width */
+    #note-fs-editor .ql-snow .ql-picker.ql-font {
+      width: 88px;
+    }
+
+    /* Font picker dropdown — label each option in its own typeface */
+    #note-fs-editor .ql-snow .ql-picker.ql-font .ql-picker-label::before,
+    #note-fs-editor .ql-snow .ql-picker.ql-font .ql-picker-item::before {
+      content: 'Sans';
+    }
+
+    #note-fs-editor .ql-snow .ql-picker.ql-font .ql-picker-label[data-value="serif"]::before,
+    #note-fs-editor .ql-snow .ql-picker.ql-font .ql-picker-item[data-value="serif"]::before {
+      content: 'Serif';
+      font-family: Georgia, serif !important;
+    }
+
+    #note-fs-editor .ql-snow .ql-picker.ql-font .ql-picker-label[data-value="monospace"]::before,
+    #note-fs-editor .ql-snow .ql-picker.ql-font .ql-picker-item[data-value="monospace"]::before {
+      content: 'Mono';
+      font-family: 'DM Mono', monospace !important;
+    }
+
     .act-notes-rich-preview p {
       margin: 0 0 4px;
     }
@@ -3116,8 +3167,17 @@
       border-color: var(--border);
     }
 
-    #note-fs-editor .ql-toolbar .ql-picker-label:hover {
-      color: #818cf8;
+    /* Override Quill's blue active label — element + ::before */
+    #note-fs-editor .ql-toolbar .ql-picker-label.ql-active,
+    #note-fs-editor .ql-toolbar .ql-picker-label.ql-active::before {
+      color: var(--text-secondary) !important;
+    }
+
+    /* Hover only on real pointer devices — prevents colour sticking on mobile after tap */
+    @media (hover: hover) {
+      #note-fs-editor .ql-toolbar .ql-picker-label:hover {
+        color: #818cf8;
+      }
     }
 
     #note-fs-editor .ql-toolbar .ql-picker-options {
@@ -3145,14 +3205,24 @@
       margin-right: 0 !important;
     }
 
-    /* Force row 1 full-width so row 2 wraps below it */
+    /* Row 1: Font + Size — full width, forces rows 2 & 3 onto next line */
     #note-fs-editor .ql-toolbar.ql-snow .ql-formats:nth-child(1) {
       width: 100%;
     }
 
-    /* Push undo/redo to the right on row 2 */
-    #note-fs-editor .ql-toolbar button.ql-undo {
+    /* Row 2: Bold/Italic/etc — grow to fill space */
+    #note-fs-editor .ql-toolbar.ql-snow .ql-formats:nth-child(2) {
+      flex: 1;
+    }
+
+    /* Row 3: Lists + Colour + Undo/Redo — push to right */
+    #note-fs-editor .ql-toolbar.ql-snow .ql-formats:nth-child(3) {
       margin-left: auto;
+    }
+
+    /* Undo/redo no longer need their own margin-left trick */
+    #note-fs-editor .ql-toolbar button.ql-undo {
+      margin-left: 0;
     }
 
     #note-fs-editor .ql-toolbar button.ql-undo svg,
@@ -3174,10 +3244,22 @@
       color: var(--text-secondary);
     }
 
-    /* Size picker — using Quill's built-in named sizes (Snow CSS already labels these) */
+    /* Size picker — default Quill named sizes */
     #note-fs-editor .ql-snow .ql-picker.ql-size {
       width: 72px;
     }
+
+    /* Lock toolbar picker labels to plain text colour — prevent size/font colours bleeding in */
+    #note-fs-editor .ql-toolbar .ql-picker-label::before,
+    #note-fs-editor .ql-toolbar .ql-picker-label {
+      color: var(--text-secondary) !important;
+      font-size: 13px !important;
+      font-weight: 500 !important;
+    }
+
+    /* Fix blue up/down arrows on picker dropdowns */
+    #note-fs-editor .ql-toolbar .ql-picker-label svg .ql-stroke { stroke: var(--text-secondary) !important; }
+    #note-fs-editor .ql-toolbar .ql-picker-label svg .ql-fill   { fill:   var(--text-secondary) !important; }
 
     .ai-ask-btn {
       padding: 10px 16px;
@@ -3447,7 +3529,8 @@
       font-size: 13px;
       color: var(--text-primary);
       line-height: 1.6;
-      max-height: 168px; /* ~8 lines */
+      max-height: 168px;
+      /* ~8 lines */
       overflow-y: auto;
       overscroll-behavior: contain;
       padding-right: 4px;
@@ -6311,7 +6394,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.5.38';
+    const VERSION = '4.5.59';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -11890,7 +11973,7 @@ Rules:
 
     function toggleKeyVisibility() {
       const input = document.getElementById('menu-gemini-key');
-      const icon  = document.getElementById('menu-key-eye-icon');
+      const icon = document.getElementById('menu-key-eye-icon');
       if (!input) return;
       const showing = input.type === 'text';
       input.type = showing ? 'password' : 'text';
@@ -12341,9 +12424,9 @@ Rules:
       if (text.includes(kw)) return true;
       if (kw.endsWith('ies') && kw.length > 4) return text.includes(kw.slice(0, -3) + 'y');
       if (kw.endsWith('ing') && kw.length > 5) return text.includes(kw.slice(0, -3)) || text.includes(kw.slice(0, -3) + 'e');
-      if (kw.endsWith('ed')  && kw.length > 4) return text.includes(kw.slice(0, -2)) || text.includes(kw.slice(0, -1));
-      if (kw.endsWith('es')  && kw.length > 4) return text.includes(kw.slice(0, -2)) || text.includes(kw.slice(0, -1));
-      if (kw.endsWith('s')   && kw.length > 4) return text.includes(kw.slice(0, -1));
+      if (kw.endsWith('ed') && kw.length > 4) return text.includes(kw.slice(0, -2)) || text.includes(kw.slice(0, -1));
+      if (kw.endsWith('es') && kw.length > 4) return text.includes(kw.slice(0, -2)) || text.includes(kw.slice(0, -1));
+      if (kw.endsWith('s') && kw.length > 4) return text.includes(kw.slice(0, -1));
       return false;
     }
     // ────────────────────────────────────────────────────────────────────────────
@@ -12687,20 +12770,25 @@ QUESTION: ${query}`;
       // Populate header with description + location context
       const act = state.weekData?.days[di]?.activities?.find(a => a.id === actId);
       const titleEl = document.getElementById('note-fs-title');
-      const subEl   = document.getElementById('note-fs-subtitle');
+      const subEl = document.getElementById('note-fs-subtitle');
       if (titleEl) titleEl.textContent = act?.description || 'Edit Note';
       if (subEl) {
         const loc = act?.location?.trim();
-        subEl.textContent = loc || '';
+        subEl.innerHTML = loc ? `<svg width="11" height="11" viewBox="0 0 24 24" fill="rgba(255,255,255,0.6)" style="display:inline-block;vertical-align:-1px;margin-right:3px;flex-shrink:0;"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 010-5 2.5 2.5 0 010 5z"/></svg>${loc}` : '';
         subEl.style.display = loc ? 'block' : 'none';
       }
       document.getElementById('note-fs-modal').classList.remove('hidden');
       setTimeout(() => {
         if (!_quillInstance) {
-          // Use class-based named sizes — Quill Snow CSS already labels these correctly
+          // Use class-based named sizes
           const Size = Quill.import('attributors/class/size');
           Size.whitelist = ['small', 'large', 'huge'];
           Quill.register(Size, true);
+
+          // Font family attributor
+          const Font = Quill.import('attributors/class/font');
+          Font.whitelist = ['serif', 'monospace'];
+          Quill.register(Font, true);
 
           // Register SVG icons for undo/redo
           const icons = Quill.import('ui/icons');
@@ -12713,8 +12801,8 @@ QUESTION: ${query}`;
               history: { delay: 1000, maxStack: 100, userOnly: true },
               toolbar: {
                 container: [
-                  [{ 'size': ['small', false, 'large', 'huge'] },
-                    'bold', 'italic', 'underline', 'strike', 'clean'],
+                  [{ 'font': ['', 'serif', 'monospace'] }, { 'size': ['small', false, 'large', 'huge'] }],
+                  ['bold', 'italic', 'underline', 'strike', 'clean'],
                   [{ 'list': 'ordered' }, { 'list': 'bullet' },
                   { 'color': ['#000000', '#e53935', '#f57c00', '#2e7d32', '#1565c0', '#6a1b9a', '#ffffff'] },
                   { 'background': ['', '#ffeb3b', '#a5d6a7', '#ef9a9a', '#90caf9', '#ce93d8', '#ffe0b2'] },
@@ -12733,6 +12821,26 @@ QUESTION: ${query}`;
           });
           _killMargin();
           setTimeout(_killMargin, 200);
+
+          // Inject style after Quill's CDN CSS — exact same selectors, last in cascade wins
+          if (!document.getElementById('_ql-color-fix')) {
+            const _s = document.createElement('style');
+            _s.id = '_ql-color-fix';
+            _s.textContent = `
+              .ql-snow.ql-toolbar .ql-picker-label:hover,
+              .ql-snow .ql-toolbar .ql-picker-label:hover,
+              .ql-snow.ql-toolbar .ql-picker-label.ql-active,
+              .ql-snow .ql-toolbar .ql-picker-label.ql-active { color: #475569 !important; }
+
+              .ql-snow.ql-toolbar .ql-picker-label:hover .ql-stroke,
+              .ql-snow .ql-toolbar .ql-picker-label:hover .ql-stroke,
+              .ql-snow.ql-toolbar .ql-picker-label.ql-active .ql-stroke,
+              .ql-snow .ql-toolbar .ql-picker-label.ql-active .ql-stroke { stroke: #475569 !important; }
+            `;
+            document.head.appendChild(_s);
+          }
+
+
         }
         // Load current value — detect if it's HTML or plain text
         if (currentValue && currentValue.trim().startsWith('<')) {
@@ -12965,8 +13073,8 @@ QUESTION: ${query}`;
       <div class="ai-scope-bar">
         ${[
           { key: 'savedNotes', label: 'Saved Notes' },
-          { key: 'taskNotes',  label: 'Task Notes'  },
-          { key: 'timesheet',  label: 'Timesheet'   }
+          { key: 'taskNotes', label: 'Task Notes' },
+          { key: 'timesheet', label: 'Timesheet' }
         ].map(({ key, label }) => {
           const on = state.aiScope[key];
           return `<button class="ai-scope-seg${on ? ' active' : ''}" onclick="toggleAIScope('${key}')">${on ? '✓ ' : ''}${label}</button>`;
@@ -13134,8 +13242,12 @@ QUESTION: ${query}`;
             <line x1="6" y1="6" x2="18" y2="18" />
           </svg></button>
         <div class="flex-1" style="min-width:0;">
-          <div id="note-fs-title" style="font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Edit Note</div>
-          <div id="note-fs-subtitle" style="font-size:11px;opacity:0.7;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:none;"></div>
+          <div id="note-fs-title"
+            style="font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Edit Note
+          </div>
+          <div id="note-fs-subtitle"
+            style="font-size:11px;opacity:0.7;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:none;">
+          </div>
         </div>
         <button onclick="closeNoteFullscreen()"
           style="font-size:13px;color:#fff;padding:5px 14px;border-radius:8px;background:rgba(255,255,255,0.15);border:none;cursor:pointer;font-weight:600;flex-shrink:0;">Done</button>
