@@ -12508,10 +12508,19 @@ Rules:
         if (!inDB) weekMap[state.weekData.weekStart] = state.weekData;
       }
 
+      // --- Code → category lookup (WORK_CODES stores { a: category, d: description, c: code }) ---
+      const codeToCategory = {};
+      (window.WORK_CODES || []).forEach(wc => { if (wc.c && wc.a) codeToCategory[wc.c] = wc.a; });
+
       // --- Build month aggregates (for older data summary) ---
       const months = {};
       const actLine = (act) => {
-        const parts = [act.description || 'unnamed'];
+        const desc = act.description?.trim();
+        // Derive category from stored codes when possible
+        const cats = [...new Set((act.codes || []).map(c => codeToCategory[c.c]).filter(Boolean))];
+        const label = desc || (cats.length ? cats.join('/') : 'unnamed');
+        const parts = [cats.length ? `[${cats.join('/')}] ${label === cats.join('/') ? (desc || '') : label}`.replace(/\s+/g, ' ').trim() : label];
+        if (act.codes?.length) parts[0] += ' (' + act.codes.map(c => c.c).join(', ') + ')';
         if (act.location?.trim()) parts.push('@ ' + act.location.trim());
         if (parseFloat(act.ordinary)) parts.push(parseFloat(act.ordinary) + 'h ord');
         if (parseFloat(act.overtime)) parts.push(parseFloat(act.overtime) + 'h OT');
@@ -12521,7 +12530,7 @@ Rules:
         weekData.days.forEach(day => {
           if (!day.date) return;
           const month = day.date.slice(0, 7);
-          if (!months[month]) months[month] = { ord: 0, ot: 0, actCount: 0, locations: {}, descriptions: {} };
+          if (!months[month]) months[month] = { ord: 0, ot: 0, actCount: 0, locations: {}, descriptions: {}, categories: {} };
           const m = months[month];
           (day.activities || []).forEach(act => {
             const hasData = act.description || act.codes?.length || parseFloat(act.ordinary) > 0 || parseFloat(act.overtime) > 0;
@@ -12531,6 +12540,11 @@ Rules:
             m.actCount++;
             if (act.location?.trim()) m.locations[act.location.trim()] = (m.locations[act.location.trim()] || 0) + 1;
             if (act.description?.trim()) m.descriptions[act.description.trim()] = (m.descriptions[act.description.trim()] || 0) + 1;
+            // Aggregate by work code category
+            (act.codes || []).forEach(c => {
+              const cat = codeToCategory[c.c];
+              if (cat) m.categories[cat] = (m.categories[cat] || 0) + 1;
+            });
           });
         });
       });
@@ -12581,7 +12595,9 @@ Work week = Friday to Thursday.
             const label = new Date(month + '-15').toLocaleDateString('en-IE', { month: 'long', year: 'numeric' });
             const topLocs = Object.entries(m.locations).sort((a, b) => b[1] - a[1]).slice(0, 8).map(([k, v]) => `${k}(${v}x)`).join(', ');
             const topDescs = Object.entries(m.descriptions).sort((a, b) => b[1] - a[1]).slice(0, 6).map(([k, v]) => `${k}(${v}x)`).join(', ');
+            const topCats = Object.entries(m.categories).sort((a, b) => b[1] - a[1]).map(([k, v]) => `${k}(${v}x)`).join(', ');
             ctx += `  ${label}: ${m.ord.toFixed(1)}h ord, ${m.ot.toFixed(1)}h OT, ${m.actCount} entries`;
+            if (topCats) ctx += ` | Categories: ${topCats}`;
             if (topLocs) ctx += ` | Sites: ${topLocs}`;
             if (topDescs) ctx += ` | Tasks: ${topDescs}`;
             ctx += '\n';
