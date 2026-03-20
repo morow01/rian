@@ -1620,9 +1620,6 @@
       transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
       will-change: transform;
     }
-    header.nav-hidden {
-      transform: translateY(-100%);
-    }
 
     input,
     select,
@@ -9233,8 +9230,10 @@
       state.view = v;
       localStorage.setItem('lastView', v);
       window.scrollTo(0, 0);
-      // Always reveal header when switching tabs
-      document.querySelector('header')?.classList.remove('nav-hidden');
+      // Always show full header when switching tabs
+      const _hdr = document.querySelector('header');
+      if (_hdr) _hdr.style.transform = 'translateY(0)';
+      _navState = 0;
       _scrollDelta = 0;
 
       if (v === 'notes') await loadNotes();
@@ -10617,7 +10616,9 @@
     let _lastScrollY = 0;
     let _scrollDelta = 0;
     const HIDE_THRESHOLD = 60;   // px scrolled down before header hides
-    const SHOW_THRESHOLD = 10;   // px scrolled up before header reveals
+    const SHOW_THRESHOLD = 10;   // px scrolled up before tab bar peeks in
+    // 0 = full header, 1 = tab-bar only, 2 = fully hidden
+    let _navState = 0;
     window.addEventListener('scroll', () => {
       const y = window.scrollY;
       const delta = y - _lastScrollY;
@@ -10625,17 +10626,24 @@
       _lastScrollY = y;
 
       const header = document.querySelector('header');
-      if (header) {
-        if (y < 10) {
-          header.classList.remove('nav-hidden');
-          _scrollDelta = 0;
-        } else if (_scrollDelta > HIDE_THRESHOLD) {
-          header.classList.add('nav-hidden');
-          _scrollDelta = HIDE_THRESHOLD;
-        } else if (_scrollDelta < -SHOW_THRESHOLD) {
-          header.classList.remove('nav-hidden');
-          _scrollDelta = -SHOW_THRESHOLD;
-        }
+      const hdrTop = document.getElementById('hdr-top');
+      if (!header) return;
+      const topH = hdrTop ? hdrTop.offsetHeight : 0;
+
+      if (y < 10) {
+        // At very top — show full header
+        if (_navState !== 0) { header.style.transform = 'translateY(0)'; _navState = 0; }
+        _scrollDelta = 0;
+      } else if (_scrollDelta > HIDE_THRESHOLD && _navState !== 2) {
+        // Scrolling down — hide everything
+        header.style.transform = `translateY(-100%)`;
+        _navState = 2;
+        _scrollDelta = HIDE_THRESHOLD;
+      } else if (_scrollDelta < -SHOW_THRESHOLD && _navState !== 1) {
+        // Scrolling up — show only tab bar
+        header.style.transform = `translateY(-${topH}px)`;
+        _navState = 1;
+        _scrollDelta = -SHOW_THRESHOLD;
       }
 
       clearTimeout(_scrollTimer);
