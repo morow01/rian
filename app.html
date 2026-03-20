@@ -3225,10 +3225,14 @@
       display: flex;
       align-items: center;
       gap: 3px;
-      background: var(--bg-page);
+      background: rgba(148, 163, 184, 0.18);
       border-radius: 12px;
       padding: 3px;
       margin: 0 0 8px;
+    }
+
+    .dark .ai-scope-bar {
+      background: rgba(255, 255, 255, 0.07);
     }
 
     .ai-scope-seg {
@@ -3248,13 +3252,14 @@
     }
 
     .ai-scope-seg.active {
-      background: var(--bg-card);
+      background: #fff;
       color: var(--accent);
-      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
     }
 
     .dark .ai-scope-seg.active {
-      box-shadow: 0 1px 6px rgba(0, 0, 0, 0.3);
+      background: var(--bg-card);
+      box-shadow: 0 1px 6px rgba(0, 0, 0, 0.35);
     }
 
     .ai-scope-seg:active {
@@ -6217,7 +6222,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.5.35';
+    const VERSION = '4.5.36';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -12811,10 +12816,7 @@ QUESTION: ${query}`;
           </button>
           
           <button class="ai-send-btn" onclick="runAIQuery()" ${state.aiLoading ? 'disabled' : ''}>
-            <span>${state.aiLoading ? 'Thinking' : 'Submit'}</span>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-              <line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/>
-            </svg>
+            <span>${state.aiLoading ? 'Thinking…' : 'Submit'}</span>
           </button>
         </div>
       </div>
