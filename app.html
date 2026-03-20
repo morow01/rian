@@ -1621,7 +1621,7 @@
       will-change: transform;
     }
     header.nav-hidden {
-      transform: translateY(-100%);
+      transform: translateY(var(--hdr-top-h, -60px));
     }
 
     input,
@@ -7831,6 +7831,7 @@
 
       return `
   <header class="shadow-lg" style="background:var(--bg-header);color:var(--text-header)">
+    <div id="hdr-top">
     <div class="flex items-center px-4 py-3 gap-2">
       <button onclick="prevWeek()" class="hdr-nav-btn"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
       <div class="flex-1 text-center">
@@ -7989,6 +7990,7 @@
         <div class="hdr-metric-lbl">Tasks</div>
       </div>
     </div>
+    </div><!-- /hdr-top -->
     <div class="flex" style="background:var(--bg-header-tab);">
       <button onclick="setView('week')" class="flex-1 py-2.5 text-[11px] font-bold tracking-widest uppercase relative" style="color:${state.view === 'week' ? '#F5A623' : 'var(--text-header-sub)'};${state.view === 'week' ? 'border-bottom:2.5px solid #F5A623' : ''}">
         Timesheet
@@ -10624,8 +10626,11 @@
 
       const header = document.querySelector('header');
       if (header) {
+        // Keep CSS var in sync with actual hdr-top height (changes when metrics expand/collapse)
+        const hdrTop = document.getElementById('hdr-top');
+        if (hdrTop) header.style.setProperty('--hdr-top-h', `-${hdrTop.offsetHeight}px`);
+
         if (y < 10) {
-          // Always show at top of page
           header.classList.remove('nav-hidden');
           _scrollDelta = 0;
         } else if (_scrollDelta > HIDE_THRESHOLD) {
