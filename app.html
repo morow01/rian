@@ -44,7 +44,6 @@
       --text-muted: #8BA5BE;
       --border: #D4E0EC;
       --border-input: #D4E0EC;
-      --border-dashed: #D4E0EC;
       --bg-ot: #FEF3DC;
       --text-ot: #F5A623;
       --text-day: #0F1C2E;
@@ -54,7 +53,6 @@
       --btn-danger-bg: #FDECEA;
       --btn-danger-border: rgba(232, 69, 60, 0.22);
       --bg-input: #F4F7FA;
-      --bg-hours: #F4F7FA;
       --bg-code-btn: #EBF1FD;
       --bg-modal: #FFFFFF;
       --bg-modal-search: #F4F7FA;
@@ -63,12 +61,9 @@
       --bg-code-item-sel: #EBF1FD;
       --text-input: #0F1C2E;
       --shadow-card: 0 1px 4px rgba(15, 28, 46, 0.08);
-      --shadow-card-hover: 0 4px 16px rgba(15, 28, 46, 0.12);
-      --act-number-bg: #2D6BE4;
-      --act-number-text: #FFFFFF;
       --summary-even: #F4F7FA;
       --tab-active: #F5A623;
-      --radius: 12px;
+      --overlay: rgba(15, 28, 46, 0.55);
     }
 
     /* Force .font-mono to use the theme font instead of Tailwind's monospace stack.
@@ -906,12 +901,11 @@
     .hdr-metrics {
       display: flex;
       gap: 8px;
-      padding: 0 16px 14px;
+      padding: 0 16px;
       overflow: hidden;
       max-height: 0;
       opacity: 0;
       transition: max-height 0.28s ease, opacity 0.22s ease, padding 0.28s ease;
-      padding-bottom: 0;
     }
 
     .hdr-metrics.open {
@@ -6167,7 +6161,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.5.29';
+    const VERSION = '4.5.30';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
