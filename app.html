@@ -4323,33 +4323,23 @@
     .note-detail-row {
       margin-bottom: 10px;
     }
-    .desc-collapse-wrap {
+    /* Note description: scrollable textarea with fullscreen button */
+    .note-desc-wrap {
       position: relative;
-      max-height: 5.6em;       /* ~4 lines collapsed */
-      overflow: hidden;
     }
-    .desc-collapse-wrap.expanded {
-      max-height: 300px;        /* expanded but scrollable */
-      overflow-y: auto;
+    .note-desc-wrap textarea {
+      max-height: 120px;
+      overflow-y: auto !important;
       -webkit-overflow-scrolling: touch;
     }
-    .desc-collapse-wrap:not(.expanded)::after {
-      content: '';
-      position: absolute;
-      bottom: 0; left: 0; right: 0;
-      height: 28px;
-      background: linear-gradient(transparent, #f8fafc);
-      pointer-events: none;
-    }
-    [data-theme="dark"] .desc-collapse-wrap:not(.expanded)::after {
-      background: linear-gradient(transparent, var(--bg-page));
-    }
-    .desc-show-more {
-      display: block;
+    .note-desc-expand-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
       background: none;
       border: none;
       color: var(--accent);
-      font-size: 12px;
+      font-size: 11px;
       font-weight: 700;
       cursor: pointer;
       padding: 6px 0 0;
@@ -6443,7 +6433,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.5.67';
+    const VERSION = '4.5.68';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -6913,7 +6903,6 @@
       notes: [],            // all field notes
       notesFilter: 'all',   // 'all' | 'high' | 'medium' | 'low' | 'done'
       expandedNotes: new Set(), // note IDs that are expanded
-      expandedDescs: new Set(), // note IDs whose description is fully shown
       activitiesExpanded: new Set(), // activity IDs that are expanded for details
       notesSyncStatus: 'idle',  // 'idle' | 'pending' | 'syncing' | 'synced' | 'error'
       syncStatus: 'idle',   // 'idle' | 'pending' | 'syncing' | 'synced' | 'error'
@@ -9425,13 +9414,19 @@
           <div class="note-detail">
             <div class="note-detail-row">
               <span class="field-label" style="display:block; margin-bottom: 6px; font-size: 11px; font-weight: 800; color: #94a3b8; text-transform: uppercase;">Description</span>
-              <div class="desc-collapse-wrap ${state.expandedDescs.has(note.id) ? 'expanded' : ''}" data-desc-wrap="${note.id}">
+              <div class="note-desc-wrap">
                 <textarea data-note-id="${note.id}" data-note-field="description" rows="1"
-                  style="resize:none;overflow:hidden"
+                  style="resize:none"
                   oninput="updateNoteField(this);autoGrow(this)">${esc(note.description)}</textarea>
               </div>
-              ${note.description && note.description.length > 120
-                ? `<button class="desc-show-more" onclick="toggleDescExpand('${note.id}')">${state.expandedDescs.has(note.id) ? '▲ Show less' : '▼ Show more'}</button>`
+              ${note.description && note.description.length > 100
+                ? `<button class="note-desc-expand-btn" onclick="openDescFullscreen('${note.id}')">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                      <polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/>
+                      <line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/>
+                    </svg>
+                    Open fullscreen
+                  </button>`
                 : ''}
             </div>
             <div class="note-detail-row">
@@ -9655,27 +9650,83 @@
       }, 80);
     }
 
-    function toggleDescExpand(id) {
-      if (state.expandedDescs.has(id)) {
-        state.expandedDescs.delete(id);
-      } else {
-        state.expandedDescs.add(id);
+    // ── Note description fullscreen (reuses Quill modal) ──
+    let _descFsNoteId = null;
+
+    function openDescFullscreen(noteId) {
+      const note = state.notes.find(n => n.id === noteId);
+      if (!note) return;
+      _descFsNoteId = noteId;
+      // Borrow the existing fullscreen modal
+      const titleEl = document.getElementById('note-fs-title');
+      const subEl = document.getElementById('note-fs-subtitle');
+      if (titleEl) titleEl.textContent = note.description?.slice(0, 50) || 'Edit Description';
+      if (subEl) {
+        const loc = note.location?.trim();
+        subEl.innerHTML = loc ? `<svg width="11" height="11" viewBox="0 0 24 24" fill="rgba(255,255,255,0.6)" style="display:inline-block;vertical-align:-1px;margin-right:3px;flex-shrink:0;"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 010-5 2.5 2.5 0 010 5z"/></svg>${loc}` : '';
+        subEl.style.display = loc ? 'block' : 'none';
       }
-      // Update DOM directly without full re-render
-      const wrap = document.querySelector(`[data-desc-wrap="${id}"]`);
-      if (wrap) {
-        wrap.classList.toggle('expanded', state.expandedDescs.has(id));
-        // Re-grow textarea inside
-        const ta = wrap.querySelector('textarea');
-        if (ta) autoGrow(ta);
-      }
-      // Update button text
-      const card = document.querySelector(`.note-card[data-note-id="${id}"]`);
-      if (card) {
-        const btn = card.querySelector('.desc-show-more');
-        if (btn) btn.innerHTML = state.expandedDescs.has(id) ? '&#9650; Show less' : '&#9660; Show more';
-      }
+      document.getElementById('note-fs-modal').classList.remove('hidden');
+      setTimeout(() => {
+        if (!_quillInstance) {
+          // Initialise Quill the same way as openNoteFullscreen
+          const Size = Quill.import('attributors/class/size');
+          Size.whitelist = ['small', 'large', 'huge'];
+          Quill.register(Size, true);
+          const Font = Quill.import('attributors/class/font');
+          Font.whitelist = ['serif', 'monospace'];
+          Quill.register(Font, true);
+          const icons = Quill.import('ui/icons');
+          icons['undo'] = `<svg viewBox="0 0 18 18"><polygon class="ql-fill ql-stroke" points="6 10 4 12 2 10 6 10"/><path class="ql-stroke" d="M8.09,13.91A4.6,4.6,0,0,0,9,14,5,5,0,1,0,4,9"/></svg>`;
+          icons['redo'] = `<svg viewBox="0 0 18 18"><polygon class="ql-fill ql-stroke" points="12 10 14 12 16 10 12 10"/><path class="ql-stroke" d="M9.91,13.91A4.6,4.6,0,0,1,9,14,5,5,0,1,1,14,9"/></svg>`;
+          _quillInstance = new Quill('#note-fs-editor', {
+            theme: 'snow',
+            modules: {
+              history: { delay: 1000, maxStack: 100, userOnly: true },
+              toolbar: {
+                container: [
+                  [{ 'font': ['', 'serif', 'monospace'] }, { 'size': ['small', false, 'large', 'huge'] }],
+                  ['bold', 'italic', 'underline', 'strike', 'clean'],
+                  [{ 'list': 'ordered' }, { 'list': 'bullet' },
+                  { 'color': ['#000000', '#e53935', '#f57c00', '#2e7d32', '#1565c0', '#6a1b9a', '#ffffff'] },
+                  { 'background': ['', '#ffeb3b', '#a5d6a7', '#ef9a9a', '#90caf9', '#ce93d8', '#ffe0b2'] },
+                    'undo', 'redo']
+                ],
+                handlers: {
+                  'undo': function () { this.quill.history.undo(); },
+                  'redo': function () { this.quill.history.redo(); }
+                }
+              }
+            }
+          });
+          document.querySelectorAll('#note-fs-editor .ql-formats').forEach(el => {
+            el.style.setProperty('margin-right', '0', 'important');
+          });
+        }
+        // Load description text
+        const val = note.description || '';
+        if (val.trim().startsWith('<')) {
+          _quillInstance.root.innerHTML = val;
+        } else {
+          _quillInstance.setText(val);
+        }
+        // Wire changes back to note description
+        _quillInstance.off('text-change');
+        _quillInstance.on('text-change', () => {
+          const text = _quillInstance.getText().trim();
+          const n = state.notes.find(x => x.id === noteId);
+          if (n) {
+            n.description = text;
+            n.updatedAt = new Date().toISOString();
+            saveState();
+          }
+        });
+        _quillInstance.focus();
+      }, 80);
     }
+
+    // Patch closeNoteFullscreen to also handle description fullscreen
+    const _origCloseNoteFs = closeNoteFullscreen;
 
     function toggleNote(id) {
       const isExpanded = state.expandedNotes.has(id);
@@ -12998,6 +13049,11 @@ QUESTION: ${query}`;
     function closeNoteFullscreen() {
       if (_quillInstance) _quillInstance.off('text-change');
       document.getElementById('note-fs-modal').classList.add('hidden');
+      // If we were editing a note description, re-render the notes view to reflect changes
+      if (_descFsNoteId) {
+        _descFsNoteId = null;
+        render();
+      }
       _noteFsActId = null; _noteFsDi = null;
     }
 
