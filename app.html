@@ -1621,7 +1621,7 @@
       will-change: transform;
     }
     header.nav-hidden {
-      transform: translateY(var(--hdr-top-h, -60px));
+      transform: translateY(-100%);
     }
 
     input,
@@ -6421,7 +6421,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.5.59';
+    const VERSION = '4.5.60';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -10626,10 +10626,6 @@
 
       const header = document.querySelector('header');
       if (header) {
-        // Keep CSS var in sync with actual hdr-top height (changes when metrics expand/collapse)
-        const hdrTop = document.getElementById('hdr-top');
-        if (hdrTop) header.style.setProperty('--hdr-top-h', `-${hdrTop.offsetHeight}px`);
-
         if (y < 10) {
           header.classList.remove('nav-hidden');
           _scrollDelta = 0;
