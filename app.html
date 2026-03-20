@@ -3220,6 +3220,55 @@
       line-height: 1.5;
     }
 
+    .ai-scope-row {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      padding: 8px 14px 4px;
+      flex-wrap: wrap;
+    }
+
+    .ai-scope-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      flex-shrink: 0;
+      margin-right: 2px;
+    }
+
+    .ai-scope-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 10px;
+      border-radius: 20px;
+      border: 1.5px solid var(--border);
+      background: transparent;
+      color: var(--text-muted);
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+      white-space: nowrap;
+      line-height: 1;
+    }
+
+    .ai-scope-pill.active {
+      border-color: var(--accent);
+      background: rgba(45, 107, 228, 0.08);
+      color: var(--accent);
+    }
+
+    .dark .ai-scope-pill.active {
+      background: rgba(45, 107, 228, 0.18);
+    }
+
+    .ai-scope-pill:active {
+      transform: scale(0.95);
+    }
+
     .ai-action-row {
       display: flex;
       align-items: center;
@@ -6176,7 +6225,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.5.33';
+    const VERSION = '4.5.34';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -6639,6 +6688,7 @@
       aiError: null,        // error message string
       aiStats: null,        // { noteCount, faultTypeCount, monthsBack }
       aiRecentQueries: JSON.parse(localStorage.getItem('rian_ai_recent') || '[]'),
+      aiScope: JSON.parse(localStorage.getItem('rian_ai_scope') || '{"savedNotes":true,"taskNotes":true,"timesheet":true}'),
       weekStart: null,      // 'YYYY-MM-DD'
       weekData: null,       // { weekStart, days: [...] }
       currentUser: null,    // Firebase Auth user
@@ -12244,7 +12294,6 @@ Rules:
       });
 
       const sortedMonths = Object.keys(months).sort().reverse();
-      if (!sortedMonths.length) return 'No timesheet data available yet.';
 
       // --- Build context ---
       let ctx = `DATE REFERENCES (use these exact ranges for time words in the question):
@@ -12256,43 +12305,50 @@ Work week = Friday to Thursday.
 
 `;
 
-      // SECTION 1: Recent 8 weeks — explicit per-day, per-activity breakdown
-      const sortedWeeks = Object.keys(weekMap).sort().reverse().slice(0, 8);
-      ctx += `RECENT WEEKS (full detail — list EVERY activity, do not skip any):\n`;
-      sortedWeeks.forEach(ws => {
-        const weekData = weekMap[ws];
-        const we = addDays(ws, 6);
-        const label = ws === thisWeekStart ? ' ← THIS WEEK' : ws === lastWeekStart ? ' ← LAST WEEK' : '';
-        ctx += `\nWeek ${ws} to ${we}${label}:\n`;
-        weekData.days.forEach((day, di) => {
-          const acts = (day.activities || []).filter(a => a.description || a.codes?.length || parseFloat(a.ordinary) > 0 || parseFloat(a.overtime) > 0);
-          const totOrd = acts.reduce((s, a) => s + (parseFloat(a.ordinary) || 0), 0);
-          const totOT = acts.reduce((s, a) => s + (parseFloat(a.overtime) || 0), 0);
-          const dayLabel = `  ${dayNames[di]} ${day.date}`;
-          if (!acts.length) {
-            ctx += `${dayLabel}: (no entries)\n`;
-          } else {
-            ctx += `${dayLabel}: ${acts.length} task${acts.length > 1 ? 's' : ''}, ${totOrd}h ord${totOT ? ' + ' + totOT + 'h OT' : ''}\n`;
-            acts.forEach((act, i) => { ctx += `    ${i + 1}. ${actLine(act)}\n`; });
-          }
-        });
-      });
+      // SECTION 1 & 2: Timesheet hours/history (gated by Timesheet scope toggle)
+      if (state.aiScope.timesheet) {
+        if (!sortedMonths.length) {
+          ctx += 'No timesheet data available yet.\n';
+        } else {
+          // SECTION 1: Recent 8 weeks — explicit per-day, per-activity breakdown
+          const sortedWeeks = Object.keys(weekMap).sort().reverse().slice(0, 8);
+          ctx += `RECENT WEEKS (full detail — list EVERY activity, do not skip any):\n`;
+          sortedWeeks.forEach(ws => {
+            const weekData = weekMap[ws];
+            const we = addDays(ws, 6);
+            const label = ws === thisWeekStart ? ' ← THIS WEEK' : ws === lastWeekStart ? ' ← LAST WEEK' : '';
+            ctx += `\nWeek ${ws} to ${we}${label}:\n`;
+            weekData.days.forEach((day, di) => {
+              const acts = (day.activities || []).filter(a => a.description || a.codes?.length || parseFloat(a.ordinary) > 0 || parseFloat(a.overtime) > 0);
+              const totOrd = acts.reduce((s, a) => s + (parseFloat(a.ordinary) || 0), 0);
+              const totOT = acts.reduce((s, a) => s + (parseFloat(a.overtime) || 0), 0);
+              const dayLabel = `  ${dayNames[di]} ${day.date}`;
+              if (!acts.length) {
+                ctx += `${dayLabel}: (no entries)\n`;
+              } else {
+                ctx += `${dayLabel}: ${acts.length} task${acts.length > 1 ? 's' : ''}, ${totOrd}h ord${totOT ? ' + ' + totOT + 'h OT' : ''}\n`;
+                acts.forEach((act, i) => { ctx += `    ${i + 1}. ${actLine(act)}\n`; });
+              }
+            });
+          });
 
-      // SECTION 2: Monthly summaries for all history
-      ctx += `\nMONTHLY SUMMARIES (for questions about longer periods):\n`;
-      sortedMonths.forEach(month => {
-        const m = months[month];
-        const label = new Date(month + '-15').toLocaleDateString('en-IE', { month: 'long', year: 'numeric' });
-        const topLocs = Object.entries(m.locations).sort((a, b) => b[1] - a[1]).slice(0, 8).map(([k, v]) => `${k}(${v}x)`).join(', ');
-        const topDescs = Object.entries(m.descriptions).sort((a, b) => b[1] - a[1]).slice(0, 6).map(([k, v]) => `${k}(${v}x)`).join(', ');
-        ctx += `  ${label}: ${m.ord.toFixed(1)}h ord, ${m.ot.toFixed(1)}h OT, ${m.actCount} entries`;
-        if (topLocs) ctx += ` | Sites: ${topLocs}`;
-        if (topDescs) ctx += ` | Tasks: ${topDescs}`;
-        ctx += '\n';
-      });
+          // SECTION 2: Monthly summaries for all history
+          ctx += `\nMONTHLY SUMMARIES (for questions about longer periods):\n`;
+          sortedMonths.forEach(month => {
+            const m = months[month];
+            const label = new Date(month + '-15').toLocaleDateString('en-IE', { month: 'long', year: 'numeric' });
+            const topLocs = Object.entries(m.locations).sort((a, b) => b[1] - a[1]).slice(0, 8).map(([k, v]) => `${k}(${v}x)`).join(', ');
+            const topDescs = Object.entries(m.descriptions).sort((a, b) => b[1] - a[1]).slice(0, 6).map(([k, v]) => `${k}(${v}x)`).join(', ');
+            ctx += `  ${label}: ${m.ord.toFixed(1)}h ord, ${m.ot.toFixed(1)}h OT, ${m.actCount} entries`;
+            if (topLocs) ctx += ` | Sites: ${topLocs}`;
+            if (topDescs) ctx += ` | Tasks: ${topDescs}`;
+            ctx += '\n';
+          });
+        }
+      }
 
-      // SECTION 3: Saved Notes (standalone Notes tab — issues, faults & reminders)
-      if (state.notes?.length) {
+      // SECTION 3: Saved Notes (standalone Notes tab — gated by Saved Notes scope toggle)
+      if (state.aiScope.savedNotes && state.notes?.length) {
         const open = state.notes.filter(n => n.status !== 'done').sort((a, b) => (b.date || '').localeCompare(a.date || ''));
         const done = state.notes.filter(n => n.status === 'done').sort((a, b) => (b.date || '').localeCompare(a.date || ''));
         const noteLine = n => {
@@ -12367,12 +12423,13 @@ QUESTION: ${query}`;
       state.aiError = null;
       renderFaultAssistantModal();
       try {
-        // Build full timesheet context + search fault notes + search notes in parallel
+        // Build context and run searches — each gated by the user's scope toggles
+        const scope = state.aiScope;
         const [timesheetContext, faultSources] = await Promise.all([
-          buildTimesheetContext(),
-          searchFaultNotes(query)
+          buildTimesheetContext(),                                            // scope-aware internally
+          scope.taskNotes ? searchFaultNotes(query) : Promise.resolve([])   // skip if Task Notes unchecked
         ]);
-        const noteMatches = searchMatchingNotes(query);
+        const noteMatches = scope.savedNotes ? searchMatchingNotes(query) : [];
         const answer = await askGemini(query, timesheetContext, faultSources, noteMatches);
         state.aiResult = { answer, sources: faultSources.slice(0, 5), noteMatches: noteMatches.slice(0, 5) };
         // Save to recent queries
@@ -12411,6 +12468,12 @@ QUESTION: ${query}`;
         aiQueryInputEvent(el);
       }
       runAIQuery();
+    }
+
+    function toggleAIScope(key) {
+      state.aiScope[key] = !state.aiScope[key];
+      localStorage.setItem('rian_ai_scope', JSON.stringify(state.aiScope));
+      renderFaultAssistantModal();
     }
 
     function clearAIResult() {
@@ -12731,11 +12794,24 @@ QUESTION: ${query}`;
         <div class="ai-section-label" style="margin-bottom:6px;">Ask about your timesheet & notes</div>
       </div>
       <div class="ai-search-stacked">
-        <textarea id="ai-query-input" class="ai-expanding-input" 
+        <textarea id="ai-query-input" class="ai-expanding-input"
           placeholder="e.g. OT hours last month? Most visited site? Fibre break fix?"
           onkeydown="aiQueryKeydown(event)"
           oninput="aiQueryInputEvent(this)">${(state.aiQuery || '').replace(/"/g, '&quot;')}</textarea>
-        
+
+        <div class="ai-scope-row">
+          <span class="ai-scope-label">Search in</span>
+          ${[
+            { key: 'savedNotes', label: 'Saved Notes' },
+            { key: 'taskNotes',  label: 'Task Notes'  },
+            { key: 'timesheet',  label: 'Timesheet'   }
+          ].map(({ key, label }) => {
+            const on = state.aiScope[key];
+            const tick = on ? '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>' : '';
+            return `<button class="ai-scope-pill${on ? ' active' : ''}" onclick="toggleAIScope('${key}')">${tick}${label}</button>`;
+          }).join('')}
+        </div>
+
         <div class="ai-action-row">
           <button id="ai-mic-btn" type="button" onclick="startAIVoice()" title="Voice input" class="ai-mic-btn">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
