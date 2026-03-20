@@ -6176,7 +6176,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.5.31';
+    const VERSION = '4.5.32';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -12121,10 +12121,27 @@ Rules:
       }
     }
 
+    // ── Shared keyword helpers ──────────────────────────────────────────────────
+    // Strip punctuation, split into clean keywords, remove stop words.
+    const _searchStopWords = new Set(['the', 'and', 'for', 'that', 'this', 'with', 'from', 'have', 'been', 'was', 'are', 'will', 'not', 'but', 'you', 'your', 'they', 'them', 'their', 'what', 'when', 'how', 'all', 'can', 'its', 'any', 'has', 'did']);
+    function parseSearchKeywords(query) {
+      return query.toLowerCase().replace(/[^a-z0-9\s]/g, ' ').split(/\s+/).filter(w => w.length >= 3 && !_searchStopWords.has(w));
+    }
+    // Returns true if text contains keyword or a common stem variant (plural ↔ singular, verb forms).
+    function kwMatches(text, kw) {
+      if (text.includes(kw)) return true;
+      if (kw.endsWith('ies') && kw.length > 4) return text.includes(kw.slice(0, -3) + 'y');
+      if (kw.endsWith('ing') && kw.length > 5) return text.includes(kw.slice(0, -3)) || text.includes(kw.slice(0, -3) + 'e');
+      if (kw.endsWith('ed')  && kw.length > 4) return text.includes(kw.slice(0, -2)) || text.includes(kw.slice(0, -1));
+      if (kw.endsWith('es')  && kw.length > 4) return text.includes(kw.slice(0, -2)) || text.includes(kw.slice(0, -1));
+      if (kw.endsWith('s')   && kw.length > 4) return text.includes(kw.slice(0, -1));
+      return false;
+    }
+    // ────────────────────────────────────────────────────────────────────────────
+
     // Search IndexedDB + current week in memory for activities with notes matching query
     async function searchFaultNotes(query) {
-      const stopWords = new Set(['the', 'and', 'for', 'that', 'this', 'with', 'from', 'have', 'been', 'was', 'are', 'will', 'not', 'but', 'you', 'your', 'they', 'them', 'their', 'what', 'when', 'how', 'all', 'can', 'its']);
-      const keywords = query.toLowerCase().split(/\s+/).filter(w => w.length >= 3 && !stopWords.has(w));
+      const keywords = parseSearchKeywords(query);
       if (!keywords.length) return [];
       const allWeeks = await dbGetAll('weeks');
       const matches = [];
@@ -12134,7 +12151,7 @@ Rules:
             if (!act.notes || !act.notes.trim()) return;
             const plainNotes = stripHtml(act.notes);
             const text = [act.description, plainNotes].filter(Boolean).join(' ').toLowerCase();
-            const hitCount = keywords.filter(kw => text.includes(kw)).length;
+            const hitCount = keywords.filter(kw => kwMatches(text, kw)).length;
             if (hitCount > 0) {
               matches.push({
                 date: day.date,
@@ -12162,13 +12179,12 @@ Rules:
 
     // Search state.notes (open + done) for keyword matches
     function searchMatchingNotes(query) {
-      const stopWords = new Set(['the', 'and', 'for', 'that', 'this', 'with', 'from', 'have', 'been', 'was', 'are', 'will', 'not', 'but', 'you', 'your', 'they', 'them', 'their', 'what', 'when', 'how', 'all', 'can', 'its']);
-      const keywords = query.toLowerCase().split(/\s+/).filter(w => w.length >= 3 && !stopWords.has(w));
+      const keywords = parseSearchKeywords(query);
       if (!keywords.length || !state.notes?.length) return [];
       return state.notes
         .map(n => {
           const text = [n.description, n.location].filter(Boolean).join(' ').toLowerCase();
-          const hitCount = keywords.filter(kw => text.includes(kw)).length;
+          const hitCount = keywords.filter(kw => kwMatches(text, kw)).length;
           return { id: n.id, description: n.description, location: n.location, date: n.date, status: n.status, priority: n.priority, hitCount };
         })
         .filter(n => n.hitCount > 0)
@@ -12301,19 +12317,22 @@ Work week = Friday to Thursday.
     }
 
     // Call Gemini API with full timesheet context — uses shared state.geminiKey
-    async function askGemini(query, timesheetContext, faultSources) {
+    async function askGemini(query, timesheetContext, faultSources, noteMatches) {
       const apiKey = state.geminiKey;
       if (!apiKey) throw new Error('No API key. Add your Gemini key in ☰ Menu → AI Settings.');
       const model = state.geminiModel || 'gemini-2.0-flash';
       const faultNotesSection = faultSources?.length
         ? `\nMATCHING FAULT NOTES:\n${faultSources.slice(0, 10).map(n => `Date: ${n.date} | Task: ${n.description || '(no description)'}\nNotes: ${n.notes}`).join('\n---\n')}\n`
         : '';
+      const savedNotesSection = noteMatches?.length
+        ? `\nMATCHING SAVED NOTES:\n${noteMatches.slice(0, 10).map(n => `[${n.status?.toUpperCase() || 'OPEN'}] ${n.description || '(no description)'}${n.location ? ' @ ' + n.location : ''}${n.date ? ' [' + n.date + ']' : ''}`).join('\n')}\n`
+        : '';
       const prompt = `You are a personal timesheet assistant for a telecommunications field technician.
 You have their full work history. Answer their question directly and confidently using the data below.
 Use the DATE REFERENCES section to resolve any time words like "last week", "this month", "yesterday".
 Be specific — include actual numbers, dates, and site names. Do not hedge or say the data is unclear when it is present.
 
-${timesheetContext}${faultNotesSection}
+${timesheetContext}${faultNotesSection}${savedNotesSection}
 QUESTION: ${query}`;
       const resp = await fetch(
         `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
@@ -12350,7 +12369,7 @@ QUESTION: ${query}`;
           searchFaultNotes(query)
         ]);
         const noteMatches = searchMatchingNotes(query);
-        const answer = await askGemini(query, timesheetContext, faultSources);
+        const answer = await askGemini(query, timesheetContext, faultSources, noteMatches);
         state.aiResult = { answer, sources: faultSources.slice(0, 5), noteMatches: noteMatches.slice(0, 5) };
         // Save to recent queries
         state.aiRecentQueries = [query, ...state.aiRecentQueries.filter(q => q !== query)].slice(0, 8);
