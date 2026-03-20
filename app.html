@@ -4325,12 +4325,13 @@
     }
     .desc-collapse-wrap {
       position: relative;
-      max-height: 5.6em;       /* ~4 lines of text */
+      max-height: 5.6em;       /* ~4 lines collapsed */
       overflow: hidden;
-      transition: max-height 0.25s ease;
     }
     .desc-collapse-wrap.expanded {
-      max-height: none;
+      max-height: 300px;        /* expanded but scrollable */
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
     }
     .desc-collapse-wrap:not(.expanded)::after {
       content: '';
@@ -6442,7 +6443,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.5.66';
+    const VERSION = '4.5.67';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
