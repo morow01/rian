@@ -6688,7 +6688,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.5.98';
+    const VERSION = '4.5.99';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -6703,7 +6703,7 @@
     db_fs.enablePersistence({ synchronizeTabs: true }).catch(e => console.warn('[Rian]', e));
     const DAY_NAMES = ['Friday', 'Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday'];
     const DB_NAME = 'timesheet-db';
-    const DB_VERSION = 3;
+    const DB_VERSION = 2;
     const esc = s => String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
     const escAttr = s => esc(s).replace(/'/g, '&#39;').replace(/"/g, '&quot;').replace(/\n/g, ' ').replace(/\r/g, '');
     const stripHtml = s => String(s || '').replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').trim();
@@ -7217,9 +7217,9 @@
           const d = e.target.result;
           if (!d.objectStoreNames.contains('weeks')) d.createObjectStore('weeks', { keyPath: 'weekStart' });
           if (!d.objectStoreNames.contains('notes')) d.createObjectStore('notes', { keyPath: 'id' });
-          if (!d.objectStoreNames.contains('reminders')) d.createObjectStore('reminders', { keyPath: 'id' });
         };
         req.onsuccess = e => { db = e.target.result; res(); };
+        req.onblocked = () => { console.warn('[Rian] IDB upgrade blocked — reloading'); window.location.reload(); };
         req.onerror = rej;
       });
     }
@@ -9963,7 +9963,7 @@
     function saveReminders(arr) {
       remindersData = arr;
       // Persist to IDB
-      dbPut('reminders', { id: 'reminders_all', userId: state.currentUser?.uid || null, data: arr, updatedAt: Date.now() }).catch(() => {});
+      dbPut('notes', { id: 'reminders_all', userId: state.currentUser?.uid || null, data: arr, updatedAt: Date.now() }).catch(() => {});
       // Persist to Firestore
       if (state.currentUser) fsSetReminders(arr).catch(e => console.warn('[Rian] fsSetReminders', e));
     }
@@ -10193,7 +10193,7 @@
     // On app load, schedule any pending reminders
     async function initReminders() {
       // Load from IDB first
-      const stored = await dbGet('reminders', 'reminders_all').catch(() => null);
+      const stored = await dbGet('notes', 'reminders_all').catch(() => null);
       if (stored && Array.isArray(stored.data)) {
         remindersData = stored.data;
       }
@@ -10234,7 +10234,7 @@
             Object.keys(reminderTimers).forEach(id => { clearTimeout(reminderTimers[id]); delete reminderTimers[id]; });
 
             remindersData = remote.reminders;
-            dbPut('reminders', { id: 'reminders_all', userId: state.currentUser?.uid || null, data: remindersData, updatedAt: remote._updatedAt || Date.now() }).catch(() => {});
+            dbPut('notes', { id: 'reminders_all', userId: state.currentUser?.uid || null, data: remindersData, updatedAt: remote._updatedAt || Date.now() }).catch(() => {});
 
             // Re-schedule pending reminders from synced data
             remindersData.filter(r => !r.fired).forEach(r => scheduleReminderTimer(r));
@@ -12289,7 +12289,7 @@
             //    The active onSnapshot will receive the empty week and update
             //    all connected clients automatically — no cache clear needed.
             await _deleteAllFirestoreData(ws);
-            await Promise.allSettled([dbClear('weeks'), dbClear('notes'), dbClear('reminders')]);
+            await Promise.allSettled([dbClear('weeks'), dbClear('notes')]);
             // 3. Notes: reload (listener was unsubscribed above)
             if (state.view === 'notes') loadNotes();
             showToast('All data deleted.');
@@ -12370,7 +12370,7 @@
       state.routines = null;
       state.routinesAutoVisits = {};
       // Wipe local IDB so the next user never sees this user's cached data
-      await Promise.allSettled([dbClear('weeks'), dbClear('notes'), dbClear('reminders')]);
+      await Promise.allSettled([dbClear('weeks'), dbClear('notes')]);
       if (weekUnsubscribe) { weekUnsubscribe(); weekUnsubscribe = null; }
       if (notesUnsubscribe) { notesUnsubscribe(); notesUnsubscribe = null; }
       if (remindersUnsubscribe) { remindersUnsubscribe(); remindersUnsubscribe = null; }
