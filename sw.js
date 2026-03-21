@@ -1,4 +1,33 @@
-const CACHE = 'timesheet-v398';
+// Import Firebase SDKs for push messaging support
+importScripts('https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js');
+importScripts('https://www.gstatic.com/firebasejs/10.12.0/firebase-messaging-compat.js');
+
+firebase.initializeApp({
+  apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
+  authDomain: "eir-fieldlog.firebaseapp.com",
+  projectId: "eir-fieldlog",
+  storageBucket: "eir-fieldlog.firebasestorage.app",
+  messagingSenderId: "670175047784",
+  appId: "1:670175047784:web:b48dc899508a925652cbdd"
+});
+
+const fcmMessaging = firebase.messaging();
+
+// Handle background FCM messages (when app is closed/backgrounded)
+fcmMessaging.onBackgroundMessage((payload) => {
+  const data = payload.data || {};
+  if (data.type === 'reminder') {
+    self.registration.showNotification(data.title || 'Rian Reminder', {
+      body: data.body || '',
+      icon: BASE + 'icon-192.png',
+      tag: 'rian-remind-' + (data.reminderId || Date.now()),
+      vibrate: [200, 100, 200],
+      requireInteraction: true
+    });
+  }
+});
+
+const CACHE = 'timesheet-v399';
 
 // Detect base path dynamically — works on GitHub Pages AND localhost
 const BASE = self.location.pathname.replace(/sw\.js$/, '');
@@ -58,28 +87,6 @@ self.addEventListener('fetch', e => {
       });
     })
   );
-});
-
-// Handle FCM push notifications (data-only messages from Cloud Function)
-self.addEventListener('push', e => {
-  if (!e.data) return;
-  try {
-    const payload = e.data.json();
-    const data = payload.data || {};
-    if (data.type === 'reminder') {
-      e.waitUntil(
-        self.registration.showNotification(data.title || 'Rian Reminder', {
-          body: data.body || '',
-          icon: BASE + 'icon-192.png',
-          tag: 'rian-remind-' + (data.reminderId || Date.now()),
-          vibrate: [200, 100, 200],
-          requireInteraction: true
-        })
-      );
-    }
-  } catch (err) {
-    console.warn('[Rian SW] push parse error:', err);
-  }
 });
 
 // Handle notification click — open or focus the app
