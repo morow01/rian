@@ -5,7 +5,7 @@ importScripts('https://www.gstatic.com/firebasejs/10.12.0/firebase-messaging-com
 // Detect base path dynamically — works on GitHub Pages AND localhost
 const BASE = self.location.pathname.replace(/sw\.js$/, '');
 
-const CACHE = 'timesheet-v401';
+const CACHE = 'timesheet-v402';
 const ASSETS = [
   BASE,
   BASE + 'index.html',

@@ -6689,7 +6689,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.7.6';
+    const VERSION = '4.7.7';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -9977,25 +9977,29 @@
         console.log('[Rian FCM] permission denied'); return;
       }
       try {
-        console.log('[Rian FCM] getting SW registration...');
-        const swReg = await navigator.serviceWorker.ready;
-        const swUrl = swReg.active ? swReg.active.scriptURL : 'no-active';
-        console.log('[Rian FCM] SW ready, scope:', swReg.scope, 'scriptURL:', swUrl);
-
-        // Check if push manager is available
-        if (!swReg.pushManager) {
-          showToast('FCM: no pushManager on SW');
-          return;
+        // Explicitly register our SW and wait for it to be fully active
+        // This ensures the NEW sw.js (with Firebase SDK) is used, not a stale one
+        console.log('[Rian FCM] registering SW explicitly...');
+        const swReg = await navigator.serviceWorker.register('sw.js');
+        // Wait for the new SW to be active (handles installing/waiting states)
+        if (swReg.installing || swReg.waiting) {
+          const sw = swReg.installing || swReg.waiting;
+          await new Promise(resolve => {
+            sw.addEventListener('statechange', function handler() {
+              if (sw.state === 'activated') { sw.removeEventListener('statechange', handler); resolve(); }
+            });
+            if (sw.state === 'activated') resolve();
+          });
+          console.log('[Rian FCM] new SW activated');
         }
+        console.log('[Rian FCM] SW active:', swReg.active ? swReg.active.scriptURL : 'none');
 
-        // Clear any stale push subscription that may conflict with new VAPID key
+        // Clear any stale push subscription from old SW
         const existingSub = await swReg.pushManager.getSubscription();
         if (existingSub) {
-          console.log('[Rian FCM] unsubscribing stale push sub...');
+          console.log('[Rian FCM] clearing stale push sub...');
           await existingSub.unsubscribe();
         }
-
-        // Delete any old FCM token so we get a fresh one
         try { await fcm.deleteToken(); } catch (_) { /* ok if none */ }
 
         console.log('[Rian FCM] calling getToken...');
@@ -10003,9 +10007,8 @@
           vapidKey: 'BMIaAzivNSOgU4v3XnOpZmZ6YIMQdSIRBmCoaKTG5MtOB2liQUDT6tk8EHzywdu7uMneWeaAKAkmK8YNlSqJl_E',
           serviceWorkerRegistration: swReg
         });
-        console.log('[Rian FCM] token result:', token ? token.substring(0, 20) + '...' : 'null');
+        console.log('[Rian FCM] token:', token ? token.substring(0, 20) + '...' : 'null');
         if (!token) return;
-        // Save token to Firestore — merge into array of device tokens
         const ref = userDoc('data/fcm_tokens');
         if (!ref) return;
         const doc = await ref.get();
@@ -10018,8 +10021,7 @@
           console.log('[Rian FCM] token already exists');
         }
       } catch (e) {
-        console.error('[Rian FCM] registration FAILED:', e);
-        // Show more detail: error code + message
+        console.error('[Rian FCM] FAILED:', e);
         const errDetail = (e.code ? e.code + ': ' : '') + (e.message || 'unknown');
         showToast('FCM err: ' + errDetail.substring(0, 80));
       }
