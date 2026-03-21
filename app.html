@@ -4323,14 +4323,43 @@
     .note-detail-row {
       margin-bottom: 10px;
     }
-    /* Note description: scrollable textarea with fullscreen button */
-    .note-desc-wrap {
-      position: relative;
-    }
-    .note-desc-wrap textarea {
+    /* Note description: rich preview (read-only) with fullscreen edit */
+    .note-desc-preview {
+      width: 100%;
+      min-height: 36px;
       max-height: 120px;
-      overflow-y: hidden;
+      overflow-y: auto;
       -webkit-overflow-scrolling: touch;
+      font-size: 14px;
+      color: var(--text-primary);
+      line-height: 1.6;
+      cursor: pointer;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 12px 14px;
+    }
+    [data-theme="dark"] .note-desc-preview {
+      background: var(--bg-card);
+      border-color: var(--border);
+    }
+    .note-desc-preview:hover {
+      opacity: 0.85;
+    }
+    .note-desc-preview p {
+      margin: 0 0 4px;
+    }
+    .note-desc-preview p:last-child {
+      margin-bottom: 0;
+    }
+    .note-desc-preview ul,
+    .note-desc-preview ol {
+      margin: 0 0 4px;
+      padding-left: 20px;
+    }
+    .note-desc-placeholder {
+      color: var(--text-muted);
+      font-style: italic;
     }
     .note-desc-expand-btn {
       display: inline-flex;
@@ -6433,7 +6462,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.5.70';
+    const VERSION = '4.5.71';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -9073,10 +9102,6 @@
     function autoGrow(el) {
       el.style.height = 'auto';
       el.style.height = el.scrollHeight + 'px';
-      // If inside a note description wrapper, toggle overflow based on whether content overflows
-      if (el.closest('.note-desc-wrap')) {
-        el.style.overflowY = el.scrollHeight > 120 ? 'auto' : 'hidden';
-      }
     }
 
     function stepHrs(actId, di, field, delta) {
@@ -9375,7 +9400,10 @@
         const isExpanded = state.expandedNotes.has(note.id);
         const isNew = !note.description && !note.location;
         const dotCls = { high: 'note-dot-high', medium: 'note-dot-medium', low: 'note-dot-low' }[note.priority] || 'note-dot-none';
-        const titleText = note.description || (isNew ? 'New note…' : 'Untitled');
+        // Strip HTML tags for the collapsed title (description may contain rich text)
+        const rawDesc = note.description || '';
+        const plainTitle = rawDesc.startsWith('<') ? rawDesc.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim() : rawDesc;
+        const titleText = plainTitle || (isNew ? 'New note…' : 'Untitled');
 
         let metaHtml = '';
         if (note.location || note.date) {
@@ -9418,20 +9446,18 @@
           <div class="note-detail">
             <div class="note-detail-row">
               <span class="field-label" style="display:block; margin-bottom: 6px; font-size: 11px; font-weight: 800; color: #94a3b8; text-transform: uppercase;">Description</span>
-              <div class="note-desc-wrap">
-                <textarea data-note-id="${note.id}" data-note-field="description" rows="1"
-                  style="resize:none"
-                  oninput="updateNoteField(this);autoGrow(this)">${esc(note.description)}</textarea>
+              <div class="note-desc-preview" onclick="openDescFullscreen('${note.id}')" data-desc-preview="${note.id}">
+                ${note.description && note.description.trim()
+                  ? (note.description.trim().startsWith('<') ? note.description : esc(note.description).replace(/\n/g, '<br>'))
+                  : '<span class="note-desc-placeholder">Tap to edit description…</span>'}
               </div>
-              ${note.description && note.description.length > 100
-                ? `<button class="note-desc-expand-btn" onclick="openDescFullscreen('${note.id}')">
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                      <polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/>
-                      <line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/>
-                    </svg>
-                    Open fullscreen
-                  </button>`
-                : ''}
+              <button class="note-desc-expand-btn" onclick="openDescFullscreen('${note.id}')">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/>
+                  <line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/>
+                </svg>
+                Edit fullscreen
+              </button>
             </div>
             <div class="note-detail-row">
               <span class="field-label" style="display:block; margin-bottom: 6px; font-size: 11px; font-weight: 800; color: #94a3b8; text-transform: uppercase;">Location</span>
@@ -9664,7 +9690,11 @@
       // Borrow the existing fullscreen modal
       const titleEl = document.getElementById('note-fs-title');
       const subEl = document.getElementById('note-fs-subtitle');
-      if (titleEl) titleEl.textContent = note.description?.slice(0, 50) || 'Edit Description';
+      // Extract plain text from description (may be HTML)
+      const _tmpDiv = document.createElement('div');
+      _tmpDiv.innerHTML = note.description || '';
+      const plainDesc = _tmpDiv.textContent || _tmpDiv.innerText || '';
+      if (titleEl) titleEl.textContent = plainDesc.slice(0, 50) || 'Edit Description';
       if (subEl) {
         const loc = note.location?.trim();
         subEl.innerHTML = loc ? `<svg width="11" height="11" viewBox="0 0 24 24" fill="rgba(255,255,255,0.6)" style="display:inline-block;vertical-align:-1px;margin-right:3px;flex-shrink:0;"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 010-5 2.5 2.5 0 010 5z"/></svg>${loc}` : '';
@@ -9714,13 +9744,14 @@
         } else {
           _quillInstance.setText(val);
         }
-        // Wire changes back to note description
+        // Wire changes back to note description (save HTML to preserve formatting)
         _quillInstance.off('text-change');
         _quillInstance.on('text-change', () => {
-          const text = _quillInstance.getText().trim();
+          const html = _quillInstance.root.innerHTML;
           const n = state.notes.find(x => x.id === noteId);
           if (n) {
-            n.description = text;
+            // Store HTML; empty editor = clear description
+            n.description = (html === '<p><br></p>' || html === '') ? '' : html;
             n.updatedAt = new Date().toISOString();
             saveState();
           }
@@ -12647,7 +12678,8 @@ Rules:
       if (!keywords.length || !state.notes?.length) return [];
       return state.notes
         .map(n => {
-          const text = [n.description, n.location].filter(Boolean).join(' ').toLowerCase();
+          const desc = n.description ? n.description.replace(/<[^>]*>/g, ' ') : '';
+          const text = [desc, n.location].filter(Boolean).join(' ').toLowerCase();
           const hitCount = keywords.filter(kw => kwMatches(text, kw)).length;
           return { id: n.id, description: n.description, location: n.location, date: n.date, status: n.status, priority: n.priority, hitCount };
         })
