@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Copy Task - Mockups</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Nunito', sans-serif; background: #e8eef5; padding: 20px; color: #1e293b; }
+  h1 { text-align: center; font-size: 22px; color: #1e3a8a; margin-bottom: 8px; }
+  .subtitle { text-align: center; font-size: 13px; color: #64748b; margin-bottom: 30px; }
+  .mockup { max-width: 420px; margin: 0 auto 40px; background: #f1f5f9; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+  .mockup-label { background: #1e3a8a; color: #fff; padding: 12px 16px; font-size: 13px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; }
+  .mockup-desc { padding: 12px 16px; font-size: 12px; color: #475569; background: #e0e7ff; line-height: 1.5; }
+  .mockup-body { padding: 12px; }
+
+  /* Day card styles */
+  .day-card { background: #fff; border-radius: 12px; margin-bottom: 10px; border: 1px solid #e2e8f0; overflow: hidden; }
+  .day-header { display: flex; align-items: center; gap: 12px; padding: 12px 14px; }
+  .date-badge { width: 42px; height: 46px; border-radius: 10px; background: #EDF1F5; display: flex; flex-direction: column; align-items: center; justify-content: center; flex-shrink: 0; }
+  .date-badge .dow { font-size: 9px; font-weight: 800; color: #8BA5BE; text-transform: uppercase; letter-spacing: 0.08em; }
+  .date-badge .dom { font-size: 18px; font-weight: 800; color: #2d4a6a; line-height: 1; }
+  .day-name { font-size: 14px; font-weight: 800; color: #1e293b; }
+  .day-pills { display: flex; gap: 6px; margin-top: 2px; }
+  .pill-hrs { font-size: 11px; font-weight: 700; color: #1e3a8a; background: #dbeafe; padding: 2px 8px; border-radius: 6px; }
+  .pill-ot { font-size: 11px; font-weight: 700; color: #c2410c; background: #fef3c7; padding: 2px 8px; border-radius: 6px; }
+
+  /* Activity card */
+  .act-card { background: #fff; border-radius: 10px; border: 1px solid #e8eef5; margin: 0 12px 8px; padding: 12px 14px; }
+  .act-row1 { display: flex; align-items: center; gap: 10px; }
+  .task-num { width: 22px; height: 22px; border-radius: 50%; background: #EDF1F5; color: #5A7289; font-size: 11px; font-weight: 800; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .act-desc { font-size: 14px; font-weight: 700; color: #1e293b; flex: 1; }
+  .act-row2 { display: flex; align-items: center; justify-content: space-between; margin-top: 4px; padding-left: 32px; }
+  .act-loc { font-size: 12px; color: #64748b; display: flex; align-items: center; gap: 3px; }
+  .act-loc svg { flex-shrink: 0; }
+  .act-pills { display: flex; gap: 4px; }
+
+  /* Copy button styles */
+  .copy-btn { display: flex; align-items: center; gap: 5px; background: none; border: 1.5px dashed #cbd5e1; color: #64748b; font-size: 11px; font-weight: 700; padding: 6px 10px; border-radius: 8px; cursor: pointer; transition: all 0.15s; }
+  .copy-btn:hover { border-color: #1e3a8a; color: #1e3a8a; background: #eff6ff; }
+
+  /* Bottom sheet / modal */
+  .sheet-overlay { background: rgba(0,0,0,0.3); border-radius: 12px; padding: 20px 12px 12px; margin-top: 8px; }
+  .sheet { background: #fff; border-radius: 16px; overflow: hidden; }
+  .sheet-handle { width: 36px; height: 4px; background: #cbd5e1; border-radius: 2px; margin: 10px auto 0; }
+  .sheet-title { font-size: 15px; font-weight: 800; color: #1e293b; padding: 14px 16px 8px; }
+  .sheet-subtitle { font-size: 12px; color: #64748b; padding: 0 16px 12px; }
+  .sheet-days { padding: 0 12px 12px; }
+  .sheet-day { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 10px; border: 1px solid #e8eef5; margin-bottom: 6px; cursor: pointer; transition: all 0.15s; }
+  .sheet-day:hover { background: #eff6ff; border-color: #93c5fd; }
+  .sheet-day.selected { background: #dbeafe; border-color: #3b82f6; }
+  .sheet-day-name { font-size: 13px; font-weight: 700; color: #1e293b; flex: 1; }
+  .sheet-day-date { font-size: 11px; color: #94a3b8; }
+  .sheet-day-check { width: 20px; height: 20px; border-radius: 50%; border: 2px solid #cbd5e1; display: flex; align-items: center; justify-content: center; }
+  .sheet-day-check.checked { background: #3b82f6; border-color: #3b82f6; }
+  .sheet-actions { display: flex; gap: 8px; padding: 8px 12px 14px; }
+  .btn-cancel { flex: 1; padding: 12px; border-radius: 10px; border: 1.5px solid #e2e8f0; background: #fff; font-size: 13px; font-weight: 700; color: #64748b; cursor: pointer; }
+  .btn-copy { flex: 1; padding: 12px; border-radius: 10px; border: none; background: #1e3a8a; font-size: 13px; font-weight: 700; color: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; }
+
+  /* Long press menu */
+  .context-menu { background: #fff; border-radius: 12px; box-shadow: 0 8px 30px rgba(0,0,0,0.18); overflow: hidden; margin: 8px 12px; }
+  .ctx-item { display: flex; align-items: center; gap: 10px; padding: 12px 16px; font-size: 13px; font-weight: 600; color: #1e293b; border-bottom: 1px solid #f1f5f9; cursor: pointer; }
+  .ctx-item:last-child { border-bottom: none; }
+  .ctx-item:hover { background: #f8fafc; }
+  .ctx-item svg { flex-shrink: 0; color: #64748b; }
+  .ctx-item.danger { color: #dc2626; }
+  .ctx-item.danger svg { color: #dc2626; }
+
+  /* Swipe action */
+  .swipe-demo { position: relative; overflow: hidden; border-radius: 10px; margin: 0 12px 8px; }
+  .swipe-action { position: absolute; right: 0; top: 0; bottom: 0; width: 70px; background: #1e3a8a; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; color: #fff; font-size: 10px; font-weight: 700; }
+  .swipe-card { background: #fff; border-radius: 10px; border: 1px solid #e8eef5; padding: 12px 14px; transform: translateX(-70px); }
+
+  /* Option A: inside expanded card */
+  .act-actions-row { display: flex; gap: 8px; margin-top: 10px; padding-top: 10px; border-top: 1px solid #f1f5f9; }
+  .act-action-btn { flex: 1; display: flex; align-items: center; justify-content: center; gap: 5px; padding: 9px; border-radius: 8px; font-size: 11px; font-weight: 700; cursor: pointer; border: none; }
+  .act-action-copy { background: #eff6ff; color: #1e3a8a; }
+  .act-action-delete { background: #fef2f2; color: #dc2626; }
+
+  .divider { height: 1px; background: #e2e8f0; margin: 20px 0; }
+  .option-tag { display: inline-block; background: #fbbf24; color: #1e293b; font-size: 10px; font-weight: 800; padding: 2px 8px; border-radius: 4px; letter-spacing: 0.05em; margin-bottom: 4px; }
+</style>
+</head>
+<body>
+
+<h1>Copy Task to Another Day</h1>
+<p class="subtitle">3 UI approaches — pick one or mix elements</p>
+
+<!-- ============ OPTION A ============ -->
+<div class="mockup">
+  <div class="mockup-label">Option A — Copy Button Inside Expanded Task</div>
+  <div class="mockup-desc">
+    <span class="option-tag">RECOMMENDED</span><br>
+    A "Copy to…" button appears alongside Delete when a task is expanded. Tapping it opens a day picker bottom sheet. Simple, discoverable, no new gestures to learn.
+  </div>
+  <div class="mockup-body">
+    <!-- Day card -->
+    <div class="day-card">
+      <div class="day-header">
+        <div class="date-badge"><span class="dow">FRI</span><span class="dom">13</span></div>
+        <div>
+          <div class="day-name">Friday</div>
+          <div class="day-pills"><span class="pill-hrs">3 tasks</span><span class="pill-hrs">7h</span><span class="pill-ot">+5 OT</span></div>
+        </div>
+      </div>
+      <!-- Expanded activity -->
+      <div class="act-card" style="border-color: #93c5fd; box-shadow: 0 0 0 1px #93c5fd;">
+        <div class="act-row1">
+          <div class="task-num">3</div>
+          <div class="act-desc">Fault</div>
+        </div>
+        <div class="act-row2">
+          <div class="act-loc">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="#e8453c"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 010-5 2.5 2.5 0 010 5z"/></svg>
+            Leighlinbridge
+          </div>
+          <div class="act-pills"><span class="pill-hrs">3h</span><span class="pill-ot">+5 OT</span></div>
+        </div>
+        <!-- Actions row with Copy -->
+        <div class="act-actions-row">
+          <button class="act-action-btn act-action-copy">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            Copy to…
+          </button>
+          <button class="act-action-btn act-action-delete">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+            Delete
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Day picker sheet -->
+    <div class="sheet-overlay">
+      <div class="sheet">
+        <div class="sheet-handle"></div>
+        <div class="sheet-title">Copy "Fault" to…</div>
+        <div class="sheet-subtitle">Select one or more days. Codes, hours & location will be copied.</div>
+        <div class="sheet-days">
+          <div class="sheet-day" style="opacity: 0.4; pointer-events: none;">
+            <div class="sheet-day-check"></div>
+            <div class="sheet-day-name">Friday <span style="font-weight:400;color:#94a3b8;">— current</span></div>
+            <div class="sheet-day-date">13 Mar</div>
+          </div>
+          <div class="sheet-day">
+            <div class="sheet-day-check"></div>
+            <div class="sheet-day-name">Saturday</div>
+            <div class="sheet-day-date">14 Mar</div>
+          </div>
+          <div class="sheet-day">
+            <div class="sheet-day-check"></div>
+            <div class="sheet-day-name">Sunday</div>
+            <div class="sheet-day-date">15 Mar</div>
+          </div>
+          <div class="sheet-day selected">
+            <div class="sheet-day-check checked">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+            <div class="sheet-day-name">Monday</div>
+            <div class="sheet-day-date">16 Mar</div>
+          </div>
+          <div class="sheet-day selected">
+            <div class="sheet-day-check checked">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+            <div class="sheet-day-name">Tuesday</div>
+            <div class="sheet-day-date">17 Mar</div>
+          </div>
+          <div class="sheet-day">
+            <div class="sheet-day-check"></div>
+            <div class="sheet-day-name">Wednesday</div>
+            <div class="sheet-day-date">18 Mar</div>
+          </div>
+          <div class="sheet-day">
+            <div class="sheet-day-check"></div>
+            <div class="sheet-day-name">Thursday</div>
+            <div class="sheet-day-date">19 Mar</div>
+          </div>
+        </div>
+        <div class="sheet-actions">
+          <button class="btn-cancel">Cancel</button>
+          <button class="btn-copy">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            Copy to 2 days
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ OPTION B ============ -->
+<div class="mockup">
+  <div class="mockup-label">Option B — Long Press Context Menu</div>
+  <div class="mockup-desc">
+    Long-press on any collapsed task to reveal a context menu with Copy, Move, and Delete options. Keeps the card clean with no extra buttons visible. Same day picker sheet opens when "Copy to…" is tapped.
+  </div>
+  <div class="mockup-body">
+    <div class="day-card">
+      <div class="day-header">
+        <div class="date-badge"><span class="dow">FRI</span><span class="dom">13</span></div>
+        <div>
+          <div class="day-name">Friday</div>
+          <div class="day-pills"><span class="pill-hrs">3 tasks</span><span class="pill-hrs">7h</span><span class="pill-ot">+5 OT</span></div>
+        </div>
+      </div>
+
+      <div class="act-card" style="opacity:0.5;">
+        <div class="act-row1">
+          <div class="task-num">3</div>
+          <div class="act-desc">Fault</div>
+        </div>
+        <div class="act-row2">
+          <div class="act-loc">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="#e8453c"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 010-5 2.5 2.5 0 010 5z"/></svg>
+            Leighlinbridge
+          </div>
+          <div class="act-pills"><span class="pill-hrs">3h</span><span class="pill-ot">+5 OT</span></div>
+        </div>
+      </div>
+
+      <!-- Context menu -->
+      <div class="context-menu">
+        <div class="ctx-item">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          Copy to…
+        </div>
+        <div class="ctx-item">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
+          Move to…
+        </div>
+        <div class="ctx-item danger">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+          Delete task
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ OPTION C ============ -->
+<div class="mockup">
+  <div class="mockup-label">Option C — Swipe to Reveal Copy</div>
+  <div class="mockup-desc">
+    Swipe a collapsed task card left to reveal a "Copy" action button (like swipe-to-delete in iOS). Quick one-handed operation. Same day picker sheet opens after swipe.
+  </div>
+  <div class="mockup-body">
+    <div class="day-card">
+      <div class="day-header">
+        <div class="date-badge"><span class="dow">FRI</span><span class="dom">13</span></div>
+        <div>
+          <div class="day-name">Friday</div>
+          <div class="day-pills"><span class="pill-hrs">3 tasks</span><span class="pill-hrs">7h</span><span class="pill-ot">+5 OT</span></div>
+        </div>
+      </div>
+
+      <div class="act-card" style="margin: 0 12px 8px;">
+        <div class="act-row1">
+          <div class="task-num">1</div>
+          <div class="act-desc">General Admin</div>
+        </div>
+        <div class="act-row2">
+          <div class="act-loc">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="#e8453c"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 010-5 2.5 2.5 0 010 5z"/></svg>
+            Naas
+          </div>
+          <div class="act-pills"><span class="pill-hrs">2h</span></div>
+        </div>
+      </div>
+
+      <!-- Swiped card -->
+      <div class="swipe-demo">
+        <div class="swipe-action">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          Copy
+        </div>
+        <div class="swipe-card">
+          <div class="act-row1">
+            <div class="task-num">2</div>
+            <div class="act-desc">Van</div>
+          </div>
+          <div class="act-row2">
+            <div class="act-loc">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="#e8453c"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 010-5 2.5 2.5 0 010 5z"/></svg>
+              Naas
+            </div>
+            <div class="act-pills"><span class="pill-hrs">2h</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div style="text-align:center;padding:8px;font-size:11px;color:#94a3b8;font-style:italic;">← swipe left to reveal</div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
