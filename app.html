@@ -6689,7 +6689,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.7.2';
+    const VERSION = '4.7.3';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -9967,7 +9967,15 @@
     async function registerFCMToken() {
       if (!state.currentUser) { console.log('[Rian FCM] no user'); return; }
       if (!('Notification' in window)) { console.log('[Rian FCM] no Notification API'); return; }
-      if (Notification.permission !== 'granted') { console.log('[Rian FCM] permission:', Notification.permission); return; }
+      // Request permission if not yet granted (needed for FCM push)
+      if (Notification.permission === 'default') {
+        console.log('[Rian FCM] requesting permission...');
+        const perm = await Notification.requestPermission();
+        console.log('[Rian FCM] permission result:', perm);
+        if (perm !== 'granted') return;
+      } else if (Notification.permission !== 'granted') {
+        console.log('[Rian FCM] permission denied'); return;
+      }
       try {
         console.log('[Rian FCM] getting SW registration...');
         const swReg = await navigator.serviceWorker.ready;
