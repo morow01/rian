@@ -10014,8 +10014,7 @@
         const subs = (doc.exists && doc.data().subs) ? doc.data().subs : {};
         subs[getDeviceName()] = pushData;
         await ref.set({ subs, _updatedAt: Date.now() });
-        showToast('Push v' + VERSION + ' ✓ key:' + vapidKey.substring(0, 8));
-        console.log('[Rian Push] subscription saved for', getDeviceName(), 'vapid prefix:', vapidKey.substring(0, 10), 'endpoint:', subJson.endpoint.substring(0, 60));
+        console.log('[Rian Push] subscription saved for', getDeviceName());
       } catch (e) {
         console.error('[Rian Push] FAILED:', e);
         showToast('Push err: ' + (e.message || 'unknown').substring(0, 60));
