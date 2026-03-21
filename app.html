@@ -6689,7 +6689,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.8.6';
+    const VERSION = '4.8.7';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -10318,7 +10318,10 @@
         if (ref) {
           remindersUnsubscribe = ref.onSnapshot({ includeMetadataChanges: true }, snap => {
             if (snap.metadata.hasPendingWrites) return;
-            remindersFirestoreSynced = true; // Firestore data is now fresh
+            // CRITICAL: only trust non-cached snapshots for sync state.
+            // The first snapshot from Firestore SDK is often from local cache (stale).
+            const isFromServer = !snap.metadata.fromCache;
+            if (isFromServer) remindersFirestoreSynced = true;
             if (!snap.exists) {
               // No reminders on server — push local only if we have data
               if (remindersData.length > 0) {
@@ -10335,12 +10338,11 @@
             remindersData = remote.reminders;
             dbPut('notes', { id: 'reminders_all', userId: state.currentUser?.uid || null, data: remindersData, updatedAt: remote._updatedAt || Date.now() }).catch(() => {});
 
-            // Re-schedule pending reminders from synced data (now safe — data is fresh)
-            remindersFirestoreSynced = true;
-            remindersData.filter(r => !r.fired).forEach(r => scheduleReminderTimer(r));
-
-            // Check for any missed reminders in the synced data
-            checkMissedReminders();
+            // Only schedule/fire reminders once we have confirmed server data
+            if (remindersFirestoreSynced) {
+              remindersData.filter(r => !r.fired).forEach(r => scheduleReminderTimer(r));
+              checkMissedReminders();
+            }
 
             // Re-render notes view if visible (to update Reminded badges)
             if (state.view === 'notes') render();
