@@ -6689,7 +6689,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.7.1';
+    const VERSION = '4.7.2';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -9965,15 +9965,19 @@
     // FCM PUSH NOTIFICATION REGISTRATION
     // ============================================================
     async function registerFCMToken() {
-      if (!state.currentUser) return;
-      if (!('Notification' in window) || Notification.permission !== 'granted') return;
+      if (!state.currentUser) { console.log('[Rian FCM] no user'); return; }
+      if (!('Notification' in window)) { console.log('[Rian FCM] no Notification API'); return; }
+      if (Notification.permission !== 'granted') { console.log('[Rian FCM] permission:', Notification.permission); return; }
       try {
-        // Get the service worker registration for FCM
+        console.log('[Rian FCM] getting SW registration...');
         const swReg = await navigator.serviceWorker.ready;
+        console.log('[Rian FCM] SW ready, scope:', swReg.scope, 'active:', !!swReg.active);
+        console.log('[Rian FCM] calling getToken...');
         const token = await fcm.getToken({
           vapidKey: 'BMIaAzivNSOgU4v3XnOpZmZ6YIMQdSIRBmCoaKTG5MtOB2liQUDT6tk8EHzywdu7uMneWeaAKAkmK8YNlSqJl_E',
           serviceWorkerRegistration: swReg
         });
+        console.log('[Rian FCM] token result:', token ? token.substring(0, 20) + '...' : 'null');
         if (!token) return;
         // Save token to Firestore — merge into array of device tokens
         const ref = userDoc('data/fcm_tokens');
@@ -9983,10 +9987,14 @@
         if (!tokens.includes(token)) {
           tokens.push(token);
           await ref.set({ tokens, _updatedAt: Date.now() });
-          console.log('[Rian] FCM token registered');
+          console.log('[Rian FCM] token saved to Firestore');
+        } else {
+          console.log('[Rian FCM] token already exists');
         }
       } catch (e) {
-        console.warn('[Rian] FCM registration failed:', e);
+        console.error('[Rian FCM] registration FAILED:', e.message || e);
+        // Show visible error for debugging
+        showToast('FCM: ' + (e.message || 'failed').substring(0, 50));
       }
     }
 
