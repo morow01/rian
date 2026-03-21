@@ -6689,7 +6689,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.8.0';
+    const VERSION = '4.8.1';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -9975,7 +9975,7 @@
         const swReg = await navigator.serviceWorker.ready;
 
         // Convert VAPID public key to Uint8Array
-        const vapidKey = 'BMIaAzivNSOgU4v3XnOpZmZ6YIMQdSIRBmCoaKTG5MtOB2liQUDT6tk8EHzywdu7uMneWeaAKAkmK8YNlSqJl_E';
+        const vapidKey = 'BDJe4av7QjifE6l7dqNpb3ee-19fkGJcpaYaLNOv54NWLd-pyejhZBnzCx78fHxy1zDOWXyaSY_SjfhFHN4bQkE';
         const padding = '='.repeat((4 - vapidKey.length % 4) % 4);
         const b64 = (vapidKey + padding).replace(/-/g, '+').replace(/_/g, '/');
         const raw = atob(b64);

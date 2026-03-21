@@ -8,8 +8,8 @@ const db = admin.firestore();
 // VAPID keys for web push (same public key used in the client)
 webpush.setVapidDetails(
   "mailto:morow01@gmail.com",
-  "BMIaAzivNSOgU4v3XnOpZmZ6YIMQdSIRBmCoaKTG5MtOB2liQUDT6tk8EHzywdu7uMneWeaAKAkmK8YNlSqJl_E",
-  "w3aqjgfK_tL-ee5oaXw0HcG7UgSupVG8cpvX3lwGUeU"
+  "BDJe4av7QjifE6l7dqNpb3ee-19fkGJcpaYaLNOv54NWLd-pyejhZBnzCx78fHxy1zDOWXyaSY_SjfhFHN4bQkE",
+  "CFIQosadsS5MzPNvgfQuE3LIwbXkIgUxwvlJnJH_M7g"
 );
 
 /**
