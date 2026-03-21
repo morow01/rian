@@ -6689,7 +6689,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.7.0';
+    const VERSION = '4.7.1';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -9971,6 +9971,7 @@
         // Get the service worker registration for FCM
         const swReg = await navigator.serviceWorker.ready;
         const token = await fcm.getToken({
+          vapidKey: 'BMIaAzivNSOgU4v3XnOpZmZ6YIMQdSIRBmCoaKTG5MtOB2liQUDT6tk8EHzywdu7uMneWeaAKAkmK8YNlSqJl_E',
           serviceWorkerRegistration: swReg
         });
         if (!token) return;
