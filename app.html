@@ -4610,17 +4610,33 @@
       display: flex; align-items: flex-end; justify-content: center;
       animation: fadeIn 0.15s ease;
     }
+    .remind-overlay { overflow-y: auto; }
     .remind-sheet {
       background: #fff; border-radius: 20px 20px 0 0; width: 100%; max-width: 480px;
       animation: slideUp 0.2s ease; padding: 0;
-      max-height: 80vh; overflow-y: auto;
       display: flex; flex-direction: column;
+      margin-top: auto; /* push to bottom on mobile */
     }
-    .remind-sheet-body { flex: 1; overflow-y: auto; padding: 0; }
+    .remind-sheet-body { padding: 0; }
     .remind-actions-sticky {
-      position: sticky; bottom: 0; background: #fff;
+      background: #fff;
       padding: 10px 12px; padding-bottom: max(12px, env(safe-area-inset-bottom, 12px));
       border-top: 1px solid #f1f5f9;
+    }
+    .remind-existing {
+      background: #fefce8; border: 1px solid #fde68a; border-radius: 10px;
+      padding: 10px 14px; margin: 0 12px 12px; font-size: 12px; color: #854d0e;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .remind-existing-icon { font-size: 16px; flex-shrink: 0; }
+    .remind-existing-text { flex: 1; font-weight: 600; }
+    .remind-existing-cancel {
+      padding: 4px 10px; border-radius: 6px; border: 1px solid #f59e0b;
+      background: #fff; font-size: 11px; font-weight: 700; color: #b45309;
+      cursor: pointer; font-family: inherit; flex-shrink: 0;
+    }
+    .note-action-remind.remind-active {
+      background: #fefce8 !important; border-color: #f59e0b !important; color: #854d0e !important;
     }
     .remind-handle { width: 36px; height: 4px; background: #cbd5e1; border-radius: 2px; margin: 10px auto 0; }
     .remind-title { font-size: 15px; font-weight: 800; color: #1e293b; padding: 14px 16px 2px; }
@@ -4662,8 +4678,7 @@
       border-radius: 50%; background: #eab308; border: 2px solid #fff;
     }
     @media (min-width: 640px) {
-      .remind-overlay { align-items: center; }
-      .remind-sheet { border-radius: 20px; }
+      .remind-sheet { border-radius: 20px; margin: auto; }
     }
 
     /* Task picker dialog (Note to Task) */
@@ -6673,7 +6688,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.5.95';
+    const VERSION = '4.5.96';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -9938,33 +9953,54 @@
       localStorage.setItem('rian_reminders', JSON.stringify(arr));
     }
 
+    function hasActiveReminder(noteId) {
+      return getReminders().some(r => r.noteId === noteId && !r.fired);
+    }
+
     function openNoteReminder(noteId) {
       const note = state.notes.find(n => n.id === noteId);
       if (!note) return;
       remindState.noteId = noteId;
       const desc = note.description || 'Unnamed';
       const loc = note.location || '';
-      const now = new Date();
-      // Default to tomorrow 9am
-      const tomorrow = new Date(now);
-      tomorrow.setDate(tomorrow.getDate() + 1);
-      const defaultDate = dateToStr(tomorrow);
-      const defaultTime = '09:00';
+
+      // Check for existing active reminder on this note
+      const existing = getReminders().find(r => r.noteId === noteId && !r.fired);
+      let defaultDate, defaultTime, existingHtml = '';
+      if (existing) {
+        const dt = new Date(existing.remindAt);
+        defaultDate = dateToStr(dt);
+        defaultTime = dt.toTimeString().slice(0, 5);
+        const dateLabel = formatDate(defaultDate);
+        const timeLabel = dt.toLocaleTimeString('en-IE', { hour: '2-digit', minute: '2-digit' });
+        existingHtml = `<div class="remind-existing">
+          <span class="remind-existing-icon">&#128276;</span>
+          <span class="remind-existing-text">Reminder set for ${dateLabel} at ${timeLabel}</span>
+          <button class="remind-existing-cancel" onclick="cancelNoteReminder('${existing.id}')">Cancel</button>
+        </div>`;
+      } else {
+        const now = new Date();
+        const tomorrow = new Date(now);
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        defaultDate = dateToStr(tomorrow);
+        defaultTime = '09:00';
+      }
 
       const modal = document.getElementById('remind-modal');
       modal.innerHTML = `<div class="remind-overlay" onclick="if(event.target===this)closeReminder()">
         <div class="remind-sheet">
           <div class="remind-sheet-body">
             <div class="remind-handle"></div>
-            <div class="remind-title">Set Reminder</div>
-            <div class="remind-sub">You'll get a notification at the chosen time.</div>
+            <div class="remind-title">${existing ? 'Update Reminder' : 'Set Reminder'}</div>
+            <div class="remind-sub">${existing ? 'Change the time or cancel the existing reminder.' : 'You\'ll get a notification at the chosen time.'}</div>
+            ${existingHtml}
             <div class="remind-preview">
               ${esc(desc)}
               ${loc ? '<div class="remind-preview-meta"><svg width="10" height="10" viewBox="0 0 24 24" fill="#94a3b8"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 010-5 2.5 2.5 0 010 5z"/></svg> ' + esc(loc) + '</div>' : ''}
             </div>
             <div class="remind-presets">
               <button class="remind-preset" onclick="setReminderPreset('1h')">In 1 hour</button>
-              <button class="remind-preset active" onclick="setReminderPreset('tomorrow')">Tomorrow 9am</button>
+              <button class="remind-preset${!existing ? ' active' : ''}" onclick="setReminderPreset('tomorrow')">Tomorrow 9am</button>
               <button class="remind-preset" onclick="setReminderPreset('nextmon')">Next Mon 9am</button>
               <button class="remind-preset" onclick="setReminderPreset('3d')">In 3 days</button>
             </div>
@@ -9984,13 +10020,25 @@
               <button class="btn-cancel" onclick="closeReminder()">Cancel</button>
               <button class="btn-remind" onclick="executeSetReminder()">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-                Set Reminder
+                ${existing ? 'Update Reminder' : 'Set Reminder'}
               </button>
             </div>
           </div>
         </div>
       </div>`;
       modal.classList.remove('hidden');
+    }
+
+    function cancelNoteReminder(reminderId) {
+      const reminders = getReminders();
+      const idx = reminders.findIndex(r => r.id === reminderId);
+      if (idx >= 0) {
+        if (reminderTimers[reminderId]) { clearTimeout(reminderTimers[reminderId]); delete reminderTimers[reminderId]; }
+        reminders.splice(idx, 1);
+        saveReminders(reminders);
+      }
+      closeReminder();
+      showToast('Reminder cancelled');
     }
 
     function closeReminder() {
@@ -10045,6 +10093,15 @@
       const remindAt = new Date(dateVal + 'T' + timeVal + ':00').getTime();
       if (remindAt <= Date.now()) { showToast('Please pick a future time'); return; }
 
+      // Remove any existing reminder for this note (update flow)
+      const reminders = getReminders();
+      const oldIdx = reminders.findIndex(r => r.noteId === noteId && !r.fired);
+      if (oldIdx >= 0) {
+        const oldId = reminders[oldIdx].id;
+        if (reminderTimers[oldId]) { clearTimeout(reminderTimers[oldId]); delete reminderTimers[oldId]; }
+        reminders.splice(oldIdx, 1);
+      }
+
       const reminder = {
         id: uid(),
         noteId,
@@ -10054,7 +10111,6 @@
         createdAt: Date.now(),
         fired: false
       };
-      const reminders = getReminders();
       reminders.push(reminder);
       saveReminders(reminders);
       scheduleReminderTimer(reminder);
@@ -10063,7 +10119,7 @@
       const dt = new Date(remindAt);
       const dateLabel = formatDate(dateToStr(dt));
       const timeLabel = dt.toLocaleTimeString('en-IE', { hour: '2-digit', minute: '2-digit' });
-      showToast(`Reminder set for ${dateLabel} at ${timeLabel}`);
+      showToast(`Reminder ${oldIdx >= 0 ? 'updated' : 'set'} for ${dateLabel} at ${timeLabel}`);
     }
 
     // Timer management
@@ -10533,9 +10589,9 @@
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
                   → Task
                 </button>
-                <button class="note-action-btn note-action-remind" style="padding:9px 6px;font-size:10.5px;" onclick="openNoteReminder('${note.id}')">
+                <button class="note-action-btn note-action-remind${hasActiveReminder(note.id) ? ' remind-active' : ''}" style="padding:9px 6px;font-size:10.5px;" onclick="openNoteReminder('${note.id}')">
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-                  Remind
+                  ${hasActiveReminder(note.id) ? 'Reminded' : 'Remind'}
                 </button>
                 <button class="note-action-btn note-action-gcal" style="padding:9px 6px;font-size:10.5px;" onclick="addNoteToGCal('${note.id}')">
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="12" y1="14" x2="12" y2="18"/><line x1="10" y1="16" x2="14" y2="16"/></svg>
