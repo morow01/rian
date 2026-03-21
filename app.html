@@ -6689,7 +6689,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.8.7';
+    const VERSION = '4.8.8';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -10012,6 +10012,11 @@
         if (!ref) return;
         const doc = await ref.get();
         const subs = (doc.exists && doc.data().subs) ? doc.data().subs : {};
+        // Clean up old generic key (e.g. "Chrome · Android") that this device used before migration
+        const genericName = _detectDeviceName();
+        if (subs[genericName] && getDeviceName() !== genericName) {
+          delete subs[genericName];
+        }
         subs[getDeviceName()] = pushData;
         await ref.set({ subs, _updatedAt: Date.now() });
         console.log('[Rian Push] subscription saved for', getDeviceName());
@@ -12172,8 +12177,15 @@
 
     function getDeviceName() {
       let name = localStorage.getItem('deviceName');
+      // Migration: old names like "Chrome · Android" collide across devices — add unique suffix
+      if (name && !/ [a-z0-9]{4}$/.test(name)) {
+        const rid = Math.random().toString(36).substring(2, 6);
+        name = name + ' ' + rid;
+        localStorage.setItem('deviceName', name);
+      }
       if (!name) {
-        name = _detectDeviceName();
+        const rid = Math.random().toString(36).substring(2, 6);
+        name = _detectDeviceName() + ' ' + rid;
         localStorage.setItem('deviceName', name);
       }
       return name;
