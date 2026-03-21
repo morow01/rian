@@ -6410,7 +6410,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.5.74';
+    const VERSION = '4.5.75';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -9266,6 +9266,33 @@
       }, 1000);
     }
 
+    // Strip HTML from note descriptions & split long ones into desc + noteContent
+    function migrateNotesHTML(notes) {
+      let migrated = false;
+      notes.forEach(n => {
+        const desc = n.description || '';
+        const plain = desc.includes('<') ? desc.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim() : desc;
+        if (plain !== desc) {
+          n.description = plain;
+          migrated = true;
+        }
+        if (!n.noteContent && plain.length > 100) {
+          const sentenceEnd = plain.search(/[.!?\n]/);
+          if (sentenceEnd > 0 && sentenceEnd < 120) {
+            n.description = plain.slice(0, sentenceEnd + 1).trim();
+            n.noteContent = desc;
+          } else {
+            const cut = plain.lastIndexOf(' ', 80);
+            n.description = (cut > 20 ? plain.slice(0, cut) : plain.slice(0, 80)).trim() + '…';
+            n.noteContent = desc;
+          }
+          migrated = true;
+        }
+      });
+      if (migrated) scheduleNotesSave();
+      return migrated;
+    }
+
     async function loadNotes() {
       state.notesSyncStatus = 'idle';
 
@@ -9276,34 +9303,8 @@
       if (state.notes.length === 0 && stored && stored.data.length > 0) {
         state.notes = stored.data;
       }
-      // One-time migration: strip HTML from descriptions, split long ones into desc + noteContent
-      if (!localStorage.getItem('rian_notes_migrated_v74')) {
-        let migrated = false;
-        state.notes.forEach(n => {
-          const desc = n.description || '';
-          // Step 1: strip HTML tags from description (Quill may have wrapped text in <p> tags)
-          const plain = desc.includes('<') ? desc.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim() : desc;
-          if (plain !== desc) {
-            n.description = plain;
-            migrated = true;
-          }
-          // Step 2: for long descriptions without noteContent, split into desc + noteContent
-          if (!n.noteContent && plain.length > 100) {
-            const sentenceEnd = plain.search(/[.!?\n]/);
-            if (sentenceEnd > 0 && sentenceEnd < 120) {
-              n.description = plain.slice(0, sentenceEnd + 1).trim();
-              n.noteContent = desc; // full original (may contain HTML for rich display)
-            } else {
-              const cut = plain.lastIndexOf(' ', 80);
-              n.description = (cut > 20 ? plain.slice(0, cut) : plain.slice(0, 80)).trim() + '…';
-              n.noteContent = desc;
-            }
-            migrated = true;
-          }
-        });
-        if (migrated) scheduleNotesSave();
-        localStorage.setItem('rian_notes_migrated_v74', '1');
-      }
+      // Migrate notes: strip HTML from descriptions, split long ones into desc + noteContent
+      migrateNotesHTML(state.notes);
       render();
 
       if (!state.currentUser) return;
@@ -9325,6 +9326,8 @@
         if (!Array.isArray(remote.notes)) return;
 
         state.notes = deepCopy(remote.notes);
+        // Strip any HTML still in descriptions from remote data
+        migrateNotesHTML(state.notes);
         dbPut('notes', { id: 'notes_all', userId: state.currentUser?.uid || null, data: state.notes, updatedAt: remote._updatedAt || Date.now() });
 
         const active = document.activeElement;
@@ -9376,7 +9379,8 @@
         const isExpanded = state.expandedNotes.has(note.id);
         const isNew = !note.description && !note.location;
         const dotCls = { high: 'note-dot-high', medium: 'note-dot-medium', low: 'note-dot-low' }[note.priority] || 'note-dot-none';
-        const titleText = note.description || (isNew ? 'New note…' : 'Untitled');
+        const rawDesc = note.description || '';
+        const titleText = (rawDesc.includes('<') ? rawDesc.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim() : rawDesc) || (isNew ? 'New note…' : 'Untitled');
 
         let metaHtml = '';
         if (note.location || note.date) {
