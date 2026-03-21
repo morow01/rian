@@ -1,7 +1,7 @@
 {
   "name": "rian-functions",
   "description": "Cloud Functions for Rian reminder push notifications",
-  "engines": { "node": "18" },
+  "engines": { "node": "22" },
   "main": "index.js",
   "dependencies": {
     "firebase-admin": "^12.0.0",
