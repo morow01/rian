@@ -2,6 +2,20 @@
 importScripts('https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js');
 importScripts('https://www.gstatic.com/firebasejs/10.12.0/firebase-messaging-compat.js');
 
+// Detect base path dynamically — works on GitHub Pages AND localhost
+const BASE = self.location.pathname.replace(/sw\.js$/, '');
+
+const CACHE = 'timesheet-v400';
+const ASSETS = [
+  BASE,
+  BASE + 'index.html',
+  BASE + 'app.html',
+  BASE + 'codes.json',
+  BASE + 'exchanges.json',
+  BASE + 'cabinets.json',
+];
+
+// Initialize Firebase in service worker context
 firebase.initializeApp({
   apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
   authDomain: "eir-fieldlog.firebaseapp.com",
@@ -15,6 +29,7 @@ const fcmMessaging = firebase.messaging();
 
 // Handle background FCM messages (when app is closed/backgrounded)
 fcmMessaging.onBackgroundMessage((payload) => {
+  console.log('[Rian SW] background message received:', payload);
   const data = payload.data || {};
   if (data.type === 'reminder') {
     self.registration.showNotification(data.title || 'Rian Reminder', {
@@ -27,20 +42,8 @@ fcmMessaging.onBackgroundMessage((payload) => {
   }
 });
 
-const CACHE = 'timesheet-v399';
-
-// Detect base path dynamically — works on GitHub Pages AND localhost
-const BASE = self.location.pathname.replace(/sw\.js$/, '');
-const ASSETS = [
-  BASE,
-  BASE + 'index.html',
-  BASE + 'app.html',
-  BASE + 'codes.json',
-  BASE + 'exchanges.json',
-  BASE + 'cabinets.json',
-];
-
 self.addEventListener('install', e => {
+  console.log('[Rian SW] installing, cache:', CACHE);
   e.waitUntil(
     caches.open(CACHE).then(async c => {
       // Cache each asset individually — one failure won't abort the whole install
@@ -51,6 +54,7 @@ self.addEventListener('install', e => {
 });
 
 self.addEventListener('activate', e => {
+  console.log('[Rian SW] activating, cache:', CACHE);
   e.waitUntil(caches.keys().then(keys =>
     Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))
   ));

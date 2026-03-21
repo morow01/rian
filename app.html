@@ -6689,7 +6689,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.7.4';
+    const VERSION = '4.7.5';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -9979,7 +9979,19 @@
       try {
         console.log('[Rian FCM] getting SW registration...');
         const swReg = await navigator.serviceWorker.ready;
-        console.log('[Rian FCM] SW ready, scope:', swReg.scope, 'active:', !!swReg.active);
+        const swUrl = swReg.active ? swReg.active.scriptURL : 'no-active';
+        console.log('[Rian FCM] SW ready, scope:', swReg.scope, 'scriptURL:', swUrl);
+
+        // Check if push manager is available
+        if (!swReg.pushManager) {
+          showToast('FCM: no pushManager on SW');
+          return;
+        }
+
+        // Check existing push subscription
+        const existingSub = await swReg.pushManager.getSubscription();
+        console.log('[Rian FCM] existing push sub:', existingSub ? 'yes' : 'none');
+
         console.log('[Rian FCM] calling getToken...');
         const token = await fcm.getToken({
           vapidKey: 'BMIaAzivNSOgU4v3XnOpZmZ6YIMQdSIRBmCoaKTG5MtOB2liQUDT6tk8EHzywdu7uMneWeaAKAkmK8YNlSqJl_E',
@@ -9995,14 +10007,15 @@
         if (!tokens.includes(token)) {
           tokens.push(token);
           await ref.set({ tokens, _updatedAt: Date.now() });
-          console.log('[Rian FCM] token saved to Firestore');
+          showToast('FCM token registered ✓');
         } else {
           console.log('[Rian FCM] token already exists');
         }
       } catch (e) {
-        console.error('[Rian FCM] registration FAILED:', e.message || e);
-        // Show visible error for debugging
-        showToast('FCM: ' + (e.message || 'failed').substring(0, 50));
+        console.error('[Rian FCM] registration FAILED:', e);
+        // Show more detail: error code + message
+        const errDetail = (e.code ? e.code + ': ' : '') + (e.message || 'unknown');
+        showToast('FCM err: ' + errDetail.substring(0, 80));
       }
     }
 
