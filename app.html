@@ -6689,7 +6689,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.9.0';
+    const VERSION = '4.9.1';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -10070,14 +10070,28 @@
       });
     }
 
-    // Check URL hash for note deep link (from notification tap when app was closed)
-    function checkNoteDeepLink() {
+    // Check for pending note deep link (from notification tap when app was closed)
+    async function checkNoteDeepLink() {
+      // Also check URL hash as fallback
       const hash = window.location.hash;
       if (hash.startsWith('#note=')) {
         const noteId = hash.substring(6);
-        window.location.hash = ''; // clean up
-        if (noteId) navigateToNote(noteId);
+        history.replaceState(null, '', window.location.pathname);
+        if (noteId) { navigateToNote(noteId); return; }
       }
+      // Primary method: read from SW cache (reliable on Android PWA)
+      try {
+        const cache = await caches.open('rian-pending-note');
+        const resp = await cache.match('/__pending_note__');
+        if (resp) {
+          await cache.delete('/__pending_note__');
+          const data = await resp.json();
+          // Only act on recent entries (within last 30s) to avoid stale deep links
+          if (data.noteId && data.ts && (Date.now() - data.ts) < 30000) {
+            navigateToNote(data.noteId);
+          }
+        }
+      } catch (e) { console.warn('[Rian] checkNoteDeepLink:', e); }
     }
 
     // ============================================================

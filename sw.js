@@ -1,4 +1,4 @@
-const CACHE = 'timesheet-v415';
+const CACHE = 'timesheet-v416';
 const BASE = self.location.pathname.replace(/sw\.js$/, '');
 const ASSETS = [
   BASE,
@@ -39,18 +39,23 @@ self.addEventListener('notificationclick', e => {
   e.notification.close();
   const noteId = e.notification.data && e.notification.data.noteId;
   e.waitUntil(
-    clients.matchAll({ type: 'window', includeUncontrolled: true }).then(list => {
-      for (const c of list) {
-        if (c.url.includes('app.html') || c.url.endsWith('/')) {
-          // Tell the open app to navigate to this note
-          if (noteId) c.postMessage({ type: 'openNote', noteId });
-          return c.focus();
+    // Store noteId for the app to read on load (hash/query params unreliable in PWA)
+    (noteId
+      ? caches.open('rian-pending-note').then(c =>
+          c.put('/__pending_note__', new Response(JSON.stringify({ noteId, ts: Date.now() })))
+        )
+      : Promise.resolve()
+    ).then(() =>
+      clients.matchAll({ type: 'window', includeUncontrolled: true }).then(list => {
+        for (const c of list) {
+          if (c.url.includes('app.html') || c.url.endsWith('/')) {
+            if (noteId) c.postMessage({ type: 'openNote', noteId });
+            return c.focus();
+          }
         }
-      }
-      // No open window — open with hash so the app can pick it up on load
-      const url = BASE + 'app.html' + (noteId ? '#note=' + noteId : '');
-      return clients.openWindow(url);
-    })
+        return clients.openWindow(BASE + 'app.html');
+      })
+    )
   );
 });
 
