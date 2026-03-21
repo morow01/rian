@@ -4613,6 +4613,8 @@
     .remind-sheet {
       background: #fff; border-radius: 20px 20px 0 0; width: 100%; max-width: 480px;
       animation: slideUp 0.2s ease; padding: 0 0 14px;
+      padding-bottom: env(safe-area-inset-bottom, 14px);
+      max-height: 85vh; overflow-y: auto;
     }
     .remind-handle { width: 36px; height: 4px; background: #cbd5e1; border-radius: 2px; margin: 10px auto 0; }
     .remind-title { font-size: 15px; font-weight: 800; color: #1e293b; padding: 14px 16px 2px; }
@@ -4637,7 +4639,7 @@
       width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid #e2e8f0;
       font-family: inherit; font-size: 14px; color: #1e293b; background: #fff;
     }
-    .remind-actions { display: flex; gap: 8px; padding: 0 12px; }
+    .remind-actions { display: flex; gap: 8px; padding: 0 12px 16px; }
     .remind-actions .btn-cancel {
       flex: 1; padding: 12px; border-radius: 10px; border: 1.5px solid #e2e8f0;
       background: #fff; font-size: 13px; font-weight: 700; color: #64748b;
@@ -6665,7 +6667,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.5.93';
+    const VERSION = '4.5.94';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -10081,14 +10083,24 @@
       const r = reminders.find(x => x.id === reminder.id);
       if (r) { r.fired = true; saveReminders(reminders); }
 
-      // Show notification
+      // Show notification (prefer service worker for mobile support)
       if ('Notification' in window && Notification.permission === 'granted') {
-        const n = new Notification('Rian Reminder', {
-          body: reminder.description + (reminder.location ? ' — ' + reminder.location : ''),
+        const body = reminder.description + (reminder.location ? ' — ' + reminder.location : '');
+        const opts = {
+          body,
           icon: 'https://morow01.github.io/rian/icon-192.png',
-          tag: 'rian-remind-' + reminder.id
-        });
-        n.onclick = () => { window.focus(); n.close(); };
+          tag: 'rian-remind-' + reminder.id,
+          vibrate: [200, 100, 200],
+          requireInteraction: true
+        };
+        // Use service worker showNotification (works on mobile PWA)
+        if (navigator.serviceWorker && navigator.serviceWorker.controller) {
+          navigator.serviceWorker.ready.then(reg => reg.showNotification('Rian Reminder', opts)).catch(() => {
+            try { new Notification('Rian Reminder', opts); } catch(e) {}
+          });
+        } else {
+          try { const n = new Notification('Rian Reminder', opts); n.onclick = () => { window.focus(); n.close(); }; } catch(e) {}
+        }
       }
       // Also show in-app toast
       showToast('⏰ ' + (reminder.description || 'Reminder'));

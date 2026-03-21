@@ -1,4 +1,4 @@
-const CACHE = 'timesheet-v381';
+const CACHE = 'timesheet-v383';
 
 // Detect base path dynamically — works on GitHub Pages AND localhost
 const BASE = self.location.pathname.replace(/sw\.js$/, '');
@@ -56,6 +56,21 @@ self.addEventListener('fetch', e => {
         caches.open(CACHE).then(c => c.put(e.request, clone));
         return res;
       });
+    })
+  );
+});
+
+// Handle notification click — open or focus the app
+self.addEventListener('notificationclick', e => {
+  e.notification.close();
+  e.waitUntil(
+    clients.matchAll({ type: 'window', includeUncontrolled: true }).then(list => {
+      for (const c of list) {
+        if (c.url.includes('app.html') || c.url.endsWith('/')) {
+          return c.focus();
+        }
+      }
+      return clients.openWindow(BASE + 'app.html');
     })
   );
 });
