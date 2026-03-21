@@ -6410,7 +6410,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.5.73';
+    const VERSION = '4.5.74';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -9276,30 +9276,33 @@
       if (state.notes.length === 0 && stored && stored.data.length > 0) {
         state.notes = stored.data;
       }
-      // One-time migration: split long descriptions into description + noteContent
-      if (!localStorage.getItem('rian_notes_migrated_v73')) {
+      // One-time migration: strip HTML from descriptions, split long ones into desc + noteContent
+      if (!localStorage.getItem('rian_notes_migrated_v74')) {
         let migrated = false;
         state.notes.forEach(n => {
-          if (n.noteContent) return; // already has noteContent, skip
           const desc = n.description || '';
-          if (desc.length <= 100) return; // short description, no migration needed
-          // Extract first sentence for description, move rest to noteContent
-          // Handle HTML descriptions: strip tags first for splitting, keep HTML in noteContent
-          const plain = desc.startsWith('<') ? desc.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim() : desc;
-          const sentenceEnd = plain.search(/[.!?\n]/);
-          if (sentenceEnd > 0 && sentenceEnd < 120) {
-            n.description = plain.slice(0, sentenceEnd + 1).trim();
-            n.noteContent = desc; // full original (may contain HTML)
-          } else {
-            // No clear sentence boundary — take first ~80 chars at a word boundary
-            const cut = plain.lastIndexOf(' ', 80);
-            n.description = (cut > 20 ? plain.slice(0, cut) : plain.slice(0, 80)).trim() + '…';
-            n.noteContent = desc;
+          // Step 1: strip HTML tags from description (Quill may have wrapped text in <p> tags)
+          const plain = desc.includes('<') ? desc.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim() : desc;
+          if (plain !== desc) {
+            n.description = plain;
+            migrated = true;
           }
-          migrated = true;
+          // Step 2: for long descriptions without noteContent, split into desc + noteContent
+          if (!n.noteContent && plain.length > 100) {
+            const sentenceEnd = plain.search(/[.!?\n]/);
+            if (sentenceEnd > 0 && sentenceEnd < 120) {
+              n.description = plain.slice(0, sentenceEnd + 1).trim();
+              n.noteContent = desc; // full original (may contain HTML for rich display)
+            } else {
+              const cut = plain.lastIndexOf(' ', 80);
+              n.description = (cut > 20 ? plain.slice(0, cut) : plain.slice(0, 80)).trim() + '…';
+              n.noteContent = desc;
+            }
+            migrated = true;
+          }
         });
         if (migrated) scheduleNotesSave();
-        localStorage.setItem('rian_notes_migrated_v73', '1');
+        localStorage.setItem('rian_notes_migrated_v74', '1');
       }
       render();
 
