@@ -6462,7 +6462,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.5.71';
+    const VERSION = '4.5.72';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -9752,8 +9752,8 @@
           if (n) {
             // Store HTML; empty editor = clear description
             n.description = (html === '<p><br></p>' || html === '') ? '' : html;
-            n.updatedAt = new Date().toISOString();
-            saveState();
+            n.updatedAt = Date.now();
+            scheduleNotesSave();
           }
         });
         _quillInstance.focus();
