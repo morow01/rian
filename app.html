@@ -4584,6 +4584,137 @@
       border-color: var(--btn-danger-border);
     }
 
+    .note-action-task {
+      background: var(--btn-primary-bg, #eff6ff);
+      color: var(--btn-primary-text, #1e3a8a);
+      border-color: #bfdbfe;
+    }
+
+    .note-action-remind {
+      background: #fefce8;
+      color: #854d0e;
+      border-color: #fde68a;
+    }
+
+    .note-action-gcal {
+      background: #f0fdf4;
+      color: #166534;
+      border-color: #86efac;
+    }
+
+    .note-actions-wrap { display: flex; flex-direction: column; gap: 6px; }
+
+    /* Reminder dialog */
+    .remind-overlay {
+      position: fixed; inset: 0; z-index: 60; background: rgba(0,0,0,0.4);
+      display: flex; align-items: flex-end; justify-content: center;
+      animation: fadeIn 0.15s ease;
+    }
+    .remind-sheet {
+      background: #fff; border-radius: 20px 20px 0 0; width: 100%; max-width: 480px;
+      animation: slideUp 0.2s ease; padding: 0 0 14px;
+    }
+    .remind-handle { width: 36px; height: 4px; background: #cbd5e1; border-radius: 2px; margin: 10px auto 0; }
+    .remind-title { font-size: 15px; font-weight: 800; color: #1e293b; padding: 14px 16px 2px; }
+    .remind-sub { font-size: 12px; color: #64748b; padding: 0 16px 10px; }
+    .remind-preview {
+      background: #f8fafc; border-radius: 12px; padding: 12px 14px; margin: 0 12px 12px;
+      border: 1px solid #e2e8f0; font-size: 13px; font-weight: 600; color: #1e293b;
+    }
+    .remind-preview-meta { font-size: 11px; color: #64748b; margin-top: 4px; display: flex; align-items: center; gap: 6px; }
+    .remind-presets { display: flex; gap: 6px; flex-wrap: wrap; padding: 0 12px; margin-bottom: 12px; }
+    .remind-preset {
+      padding: 7px 12px; border-radius: 8px; border: 1px solid #e2e8f0;
+      background: #fff; font-size: 11px; font-weight: 600; color: #64748b;
+      cursor: pointer; font-family: inherit;
+    }
+    .remind-preset:hover { background: #fefce8; border-color: #f59e0b; color: #854d0e; }
+    .remind-preset.active { background: #fefce8; border-color: #f59e0b; color: #854d0e; }
+    .remind-fields { display: flex; gap: 10px; padding: 0 12px; margin-bottom: 14px; }
+    .remind-field { flex: 1; }
+    .remind-field label { display: block; font-size: 11px; font-weight: 800; color: #94a3b8; text-transform: uppercase; margin-bottom: 5px; }
+    .remind-field input {
+      width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid #e2e8f0;
+      font-family: inherit; font-size: 14px; color: #1e293b; background: #fff;
+    }
+    .remind-actions { display: flex; gap: 8px; padding: 0 12px; }
+    .remind-actions .btn-cancel {
+      flex: 1; padding: 12px; border-radius: 10px; border: 1.5px solid #e2e8f0;
+      background: #fff; font-size: 13px; font-weight: 700; color: #64748b;
+      cursor: pointer; font-family: inherit;
+    }
+    .remind-actions .btn-remind {
+      flex: 1; padding: 12px; border-radius: 10px; border: none;
+      background: #eab308; font-size: 13px; font-weight: 700; color: #fff;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      gap: 6px; font-family: inherit;
+    }
+    .remind-badge {
+      position: absolute; top: -3px; right: -3px; width: 8px; height: 8px;
+      border-radius: 50%; background: #eab308; border: 2px solid #fff;
+    }
+    @media (min-width: 640px) {
+      .remind-overlay { align-items: center; }
+      .remind-sheet { border-radius: 20px; }
+    }
+
+    /* Task picker dialog (Note to Task) */
+    .task-picker-overlay {
+      position: fixed; inset: 0; z-index: 60; background: rgba(0,0,0,0.4);
+      display: flex; align-items: flex-end; justify-content: center;
+      animation: fadeIn 0.15s ease;
+    }
+    .task-picker-sheet {
+      background: #fff; border-radius: 20px 20px 0 0; width: 100%; max-width: 480px;
+      max-height: 80vh; display: flex; flex-direction: column;
+      animation: slideUp 0.2s ease;
+    }
+    .task-picker-handle { width: 36px; height: 4px; background: #cbd5e1; border-radius: 2px; margin: 10px auto 0; }
+    .task-picker-title { font-size: 15px; font-weight: 800; color: #1e293b; padding: 14px 16px 2px; }
+    .task-picker-sub { font-size: 12px; color: #64748b; padding: 0 16px 8px; }
+    .task-picker-preview {
+      background: #f8fafc; border-radius: 12px; padding: 14px 16px; margin: 0 12px 12px;
+      border: 1px solid #e2e8f0;
+    }
+    .task-picker-preview-label { font-size: 10px; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px; }
+    .task-picker-preview-title { font-size: 14px; font-weight: 700; color: #1e293b; }
+    .task-picker-preview-meta { font-size: 11px; color: #64748b; margin-top: 4px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+    .task-picker-days { overflow-y: auto; padding: 0 12px 8px; flex: 1; }
+    .task-picker-day {
+      display: flex; align-items: center; gap: 10px; padding: 10px 12px;
+      border-radius: 10px; border: 1px solid #e8eef5; margin-bottom: 6px;
+      cursor: pointer; transition: all 0.15s;
+    }
+    .task-picker-day:hover { background: #fff7ed; border-color: #fdba74; }
+    .task-picker-day.selected { background: #fff7ed; border-color: #f97316; }
+    .task-picker-day.today { border-color: #3b82f6; }
+    .task-picker-day.today.selected { border-color: #f97316; }
+    .task-picker-day-check {
+      width: 20px; height: 20px; border-radius: 50%; border: 2px solid #cbd5e1;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .task-picker-day-check.checked { background: #f97316; border-color: #f97316; }
+    .task-picker-day-name { font-size: 13px; font-weight: 700; color: #1e293b; flex: 1; }
+    .task-picker-day-date { font-size: 11px; color: #94a3b8; }
+    .task-picker-day-today { font-size: 9px; font-weight: 800; background: #3b82f6; color: #fff; padding: 2px 6px; border-radius: 4px; margin-left: 4px; text-transform: uppercase; }
+    .task-picker-actions { display: flex; gap: 8px; padding: 8px 12px 14px; }
+    .task-picker-actions .btn-cancel {
+      flex: 1; padding: 12px; border-radius: 10px; border: 1.5px solid #e2e8f0;
+      background: #fff; font-size: 13px; font-weight: 700; color: #64748b;
+      cursor: pointer; font-family: inherit;
+    }
+    .task-picker-actions .btn-add-task {
+      flex: 1; padding: 12px; border-radius: 10px; border: none;
+      background: #f97316; font-size: 13px; font-weight: 700; color: #fff;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      gap: 6px; font-family: inherit;
+    }
+    .task-picker-actions .btn-add-task:disabled { opacity: 0.4; cursor: not-allowed; }
+    @media (min-width: 640px) {
+      .task-picker-overlay { align-items: center; }
+      .task-picker-sheet { border-radius: 20px; max-height: 70vh; }
+    }
+
     /* notes town dropdown */
     .note-location-wrap {
       position: relative;
@@ -6517,6 +6648,10 @@
   <div id="copy-picker-modal" class="hidden"></div>
   <!-- Add task to notes confirmation -->
   <div id="note-confirm-modal" class="hidden"></div>
+  <!-- Note to task day picker -->
+  <div id="task-picker-modal" class="hidden"></div>
+  <!-- Reminder dialog -->
+  <div id="remind-modal" class="hidden"></div>
 
   <div id="toast" class="toast hidden"></div>
 
@@ -6530,7 +6665,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.5.88';
+    const VERSION = '4.5.93';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -6547,6 +6682,7 @@
     const DB_NAME = 'timesheet-db';
     const DB_VERSION = 2;
     const esc = s => String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    const escAttr = s => esc(s).replace(/'/g, '&#39;').replace(/"/g, '&quot;').replace(/\n/g, ' ').replace(/\r/g, '');
     const stripHtml = s => String(s || '').replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').trim();
 
     // ============================================================
@@ -8555,7 +8691,7 @@
           onmouseleave="hideNoteTooltip()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg></button>
       </td>
       <td>
-        <button class="tbl-del-btn" onclick="showConfirm('Delete task?','${esc(act.description || 'Unnamed')}',()=>removeActivity('${act.id}',${di}))" title="Delete"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button>
+        <button class="tbl-del-btn" onclick="showConfirm('Delete task?','${escAttr(act.description || 'Unnamed')}',()=>removeActivity('${act.id}',${di}))" title="Delete"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button>
       </td>`;
     }
 
@@ -9178,7 +9314,7 @@
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
                 + Note
               </button>
-              <button onclick="showConfirm('Delete task?','${esc(act.description || 'Unnamed')}',()=>removeActivity('${act.id}',${di}))" class="act-action-btn act-action-delete" style="padding:9px 6px;font-size:10.5px;">
+              <button onclick="showConfirm('Delete task?','${escAttr(act.description || 'Unnamed')}',()=>removeActivity('${act.id}',${di}))" class="act-action-btn act-action-delete" style="padding:9px 6px;font-size:10.5px;">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
                 Delete
               </button>
@@ -9511,7 +9647,8 @@
       const dayDate = state.weekData.days[di]?.date || '';
       const dateLabel = dayDate ? formatDate(dayDate) : '';
       const calIcon = '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>';
-      const hasNotes = act.notes ? `<div style="margin-top:6px;font-size:11px;color:#64748b;"><span style="font-weight:700;color:#94a3b8;">Note:</span> ${esc(act.notes.length > 80 ? act.notes.slice(0, 80) + '…' : act.notes)}</div>` : '';
+      const notePlain = act.notes ? act.notes.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim() : '';
+      const hasNotes = notePlain ? `<div style="margin-top:6px;font-size:11px;color:#64748b;"><span style="font-weight:700;color:#94a3b8;">Note:</span> ${esc(notePlain.length > 80 ? notePlain.slice(0, 80) + '…' : notePlain)}</div>` : '';
       const modal = document.getElementById('note-confirm-modal');
       modal.innerHTML = `<div class="note-confirm-overlay" onclick="if(event.target===this)closeAddToNotes()">
         <div class="note-confirm-sheet">
@@ -9584,6 +9721,416 @@
 
       closeAddToNotes();
       showToast('Added to Notes');
+    }
+
+    // ============================================================
+    // ADD NOTE TO TASK (Note → Timesheet)
+    // ============================================================
+    const taskPickerState = { noteId: null, viewingWeekStart: null, selectedDate: null };
+
+    function openNoteToTask(noteId) {
+      const note = state.notes.find(n => n.id === noteId);
+      if (!note) return;
+      taskPickerState.noteId = noteId;
+      taskPickerState.viewingWeekStart = state.weekStart;
+      taskPickerState.selectedDate = null;
+      renderTaskPicker(true);
+    }
+
+    function closeTaskPicker() {
+      document.getElementById('task-picker-modal').classList.add('hidden');
+      document.getElementById('task-picker-modal').innerHTML = '';
+    }
+
+    function taskPickerNavWeek(delta) {
+      const d = strToDate(taskPickerState.viewingWeekStart);
+      d.setDate(d.getDate() + (delta * 7));
+      taskPickerState.viewingWeekStart = dateToStr(d);
+      renderTaskPicker();
+    }
+
+    function selectTaskDay(dateStr) {
+      taskPickerState.selectedDate = taskPickerState.selectedDate === dateStr ? null : dateStr;
+      renderTaskPicker();
+    }
+
+    function buildTaskPickerDaysHtml(ws) {
+      const todayStr = dateToStr(new Date());
+      let html = '';
+      for (let i = 0; i < 7; i++) {
+        const d = new Date(ws + 'T00:00:00');
+        d.setDate(d.getDate() + i);
+        const dateStr = dateToStr(d);
+        const dayName = DAY_NAMES[i];
+        const isToday = dateStr === todayStr;
+        const isSelected = taskPickerState.selectedDate === dateStr;
+        let cls = 'task-picker-day';
+        if (isSelected) cls += ' selected';
+        if (isToday) cls += ' today';
+        const checkCls = isSelected ? 'task-picker-day-check checked' : 'task-picker-day-check';
+        const checkSvg = isSelected ? '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>' : '';
+        const todayBadge = isToday ? '<span class="task-picker-day-today">Today</span>' : '';
+        html += `<div class="${cls}" onclick="selectTaskDay('${dateStr}')">
+          <div class="${checkCls}">${checkSvg}</div>
+          <div class="task-picker-day-name">${dayName}${todayBadge}</div>
+          <div class="task-picker-day-date">${formatDate(dateStr)}</div>
+        </div>`;
+      }
+      return html;
+    }
+
+    function getSelectedDayName() {
+      if (!taskPickerState.selectedDate) return '';
+      const ws = taskPickerState.viewingWeekStart;
+      for (let i = 0; i < 7; i++) {
+        const d = new Date(ws + 'T00:00:00');
+        d.setDate(d.getDate() + i);
+        if (dateToStr(d) === taskPickerState.selectedDate) return DAY_NAMES[i];
+      }
+      // If selected date is from another week
+      const d = strToDate(taskPickerState.selectedDate);
+      const dayOfWeek = d.getDay();
+      const dayIdx = [5, 6, 0, 1, 2, 3, 4][dayOfWeek]; // map JS getDay to Friday-based
+      return DAY_NAMES[dayIdx] || '';
+    }
+
+    function renderTaskPicker(fullRebuild) {
+      const modal = document.getElementById('task-picker-modal');
+      const ws = taskPickerState.viewingWeekStart;
+      const hasSelection = !!taskPickerState.selectedDate;
+
+      // Patch mode
+      if (!fullRebuild && modal.querySelector('.task-picker-sheet')) {
+        const daysEl = modal.querySelector('.task-picker-days');
+        if (daysEl) daysEl.innerHTML = buildTaskPickerDaysHtml(ws);
+        const endD = new Date(ws + 'T00:00:00');
+        endD.setDate(endD.getDate() + 6);
+        const weekLabel = `${formatDate(ws)} – ${formatDate(dateToStr(endD))}`;
+        const isCurrent = ws === state.weekStart;
+        const labelEl = modal.querySelector('.copy-picker-weeknav > div');
+        if (labelEl) labelEl.innerHTML = `<span class="copy-picker-weeknav-label">${weekLabel}</span>${isCurrent ? '<span class="copy-picker-weeknav-badge">current</span>' : ''}`;
+        const addBtn = modal.querySelector('.task-picker-actions .btn-add-task');
+        if (addBtn) {
+          addBtn.disabled = !hasSelection;
+          const dayLabel = hasSelection ? getSelectedDayName() : '…';
+          addBtn.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="12" y1="14" x2="12" y2="18"/><line x1="10" y1="16" x2="14" y2="16"/></svg> Add to ${dayLabel}`;
+        }
+        return;
+      }
+
+      // Full rebuild
+      const note = state.notes.find(n => n.id === taskPickerState.noteId);
+      if (!note) return;
+      const desc = note.description || 'Unnamed';
+      const loc = note.location || '';
+      const noteContentPlain = note.noteContent ? note.noteContent.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim() : '';
+      const notePreview = noteContentPlain ? `<span style="color:#cbd5e1">·</span> <span style="font-size:11px;color:#64748b;">Note: ${esc(noteContentPlain.length > 60 ? noteContentPlain.slice(0, 60) + '…' : noteContentPlain)}</span>` : '';
+      const isCurrent = ws === state.weekStart;
+      const endD = new Date(ws + 'T00:00:00');
+      endD.setDate(endD.getDate() + 6);
+      const weekLabel = `${formatDate(ws)} – ${formatDate(dateToStr(endD))}`;
+
+      modal.innerHTML = `<div class="task-picker-overlay" onclick="if(event.target===this)closeTaskPicker()">
+        <div class="task-picker-sheet">
+          <div class="task-picker-handle"></div>
+          <div class="task-picker-title">Add to Timesheet?</div>
+          <div class="task-picker-sub">This will create a new task from the note details.</div>
+          <div class="task-picker-preview">
+            <div class="task-picker-preview-label">Task Preview</div>
+            <div class="task-picker-preview-title">${esc(desc)}</div>
+            <div class="task-picker-preview-meta">
+              ${loc ? '<svg width="10" height="10" viewBox="0 0 24 24" fill="#94a3b8"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 010-5 2.5 2.5 0 010 5z"/></svg> ' + esc(loc) : ''}
+              ${notePreview}
+            </div>
+          </div>
+          <div style="padding:0 12px 4px;"><span style="font-size:11px;font-weight:800;color:#94a3b8;text-transform:uppercase;">Select Day</span></div>
+          <div class="copy-picker-weeknav" style="margin:0 12px 6px;">
+            <button onclick="taskPickerNavWeek(-1)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
+            <div><span class="copy-picker-weeknav-label">${weekLabel}</span>${isCurrent ? '<span class="copy-picker-weeknav-badge">current</span>' : ''}</div>
+            <button onclick="taskPickerNavWeek(1)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></button>
+          </div>
+          <div class="task-picker-days">${buildTaskPickerDaysHtml(ws)}</div>
+          <div class="task-picker-actions">
+            <button class="btn-cancel" onclick="closeTaskPicker()">Cancel</button>
+            <button class="btn-add-task" disabled onclick="executeNoteToTask()">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="12" y1="14" x2="12" y2="18"/><line x1="10" y1="16" x2="14" y2="16"/></svg>
+              Add to …
+            </button>
+          </div>
+        </div>
+      </div>`;
+      modal.classList.remove('hidden');
+    }
+
+    async function executeNoteToTask() {
+      const { noteId, selectedDate } = taskPickerState;
+      if (!noteId || !selectedDate) return;
+      const note = state.notes.find(n => n.id === noteId);
+      if (!note) return;
+
+      // Determine which week the selected date belongs to (Friday-based)
+      const d = strToDate(selectedDate);
+      const dayOfWeek = d.getDay(); // 0=Sun..6=Sat
+      const back = [2, 3, 4, 5, 6, 0, 1][dayOfWeek];
+      const fri = new Date(d);
+      fri.setDate(fri.getDate() - back);
+      const targetWeekStart = dateToStr(fri);
+
+      const newAct = createActivity();
+      newAct.description = note.description || '';
+      newAct.location = note.location || '';
+      if (note.noteContent) newAct.notes = note.noteContent;
+
+      if (targetWeekStart === state.weekStart) {
+        // Current week — add in-memory
+        const dayIdx = state.weekData.days.findIndex(dd => dd.date === selectedDate);
+        if (dayIdx < 0) { closeTaskPicker(); return; }
+        state.weekData.days[dayIdx].activities.push(newAct);
+        scheduleAutoSave();
+      } else {
+        // Different week — load, modify, save
+        try {
+          const local = await dbGet('weeks', targetWeekStart);
+          const userId = state.currentUser?.uid || null;
+          let weekData;
+          if (local && local.userId === userId) {
+            weekData = deepCopy(local.data);
+          } else {
+            weekData = createEmptyWeek(targetWeekStart);
+          }
+          enforceCorrectDates(targetWeekStart, weekData);
+          const dayIdx = weekData.days.findIndex(dd => dd.date === selectedDate);
+          if (dayIdx >= 0) {
+            weekData.days[dayIdx].activities.push(newAct);
+            weekData._updatedAt = Date.now();
+            await dbPut('weeks', { weekStart: targetWeekStart, userId, data: weekData, updatedAt: weekData._updatedAt });
+            if (state.currentUser) await fsSetWeek(targetWeekStart, weekData).catch(e => console.warn('[Rian] note-to-task fsSetWeek', e));
+          }
+        } catch (e) {
+          console.warn('[Rian] note-to-task other week', targetWeekStart, e);
+        }
+      }
+
+      closeTaskPicker();
+      render();
+      const dayLabel = getSelectedDayName();
+      showToast(`Task added to ${dayLabel}`);
+    }
+
+    // ============================================================
+    // NOTE REMINDERS
+    // ============================================================
+    let remindState = { noteId: null };
+
+    // Load reminders from localStorage
+    function getReminders() {
+      try { return JSON.parse(localStorage.getItem('rian_reminders') || '[]'); } catch { return []; }
+    }
+    function saveReminders(arr) {
+      localStorage.setItem('rian_reminders', JSON.stringify(arr));
+    }
+
+    function openNoteReminder(noteId) {
+      const note = state.notes.find(n => n.id === noteId);
+      if (!note) return;
+      remindState.noteId = noteId;
+      const desc = note.description || 'Unnamed';
+      const loc = note.location || '';
+      const now = new Date();
+      // Default to tomorrow 9am
+      const tomorrow = new Date(now);
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      const defaultDate = dateToStr(tomorrow);
+      const defaultTime = '09:00';
+
+      const modal = document.getElementById('remind-modal');
+      modal.innerHTML = `<div class="remind-overlay" onclick="if(event.target===this)closeReminder()">
+        <div class="remind-sheet">
+          <div class="remind-handle"></div>
+          <div class="remind-title">Set Reminder</div>
+          <div class="remind-sub">You'll get a notification at the chosen time.</div>
+          <div class="remind-preview">
+            ${esc(desc)}
+            ${loc ? '<div class="remind-preview-meta"><svg width="10" height="10" viewBox="0 0 24 24" fill="#94a3b8"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 010-5 2.5 2.5 0 010 5z"/></svg> ' + esc(loc) + '</div>' : ''}
+          </div>
+          <div class="remind-presets">
+            <button class="remind-preset" onclick="setReminderPreset('1h')">In 1 hour</button>
+            <button class="remind-preset active" onclick="setReminderPreset('tomorrow')">Tomorrow 9am</button>
+            <button class="remind-preset" onclick="setReminderPreset('nextmon')">Next Mon 9am</button>
+            <button class="remind-preset" onclick="setReminderPreset('3d')">In 3 days</button>
+          </div>
+          <div class="remind-fields">
+            <div class="remind-field">
+              <label>Date</label>
+              <input type="date" id="remind-date" value="${defaultDate}">
+            </div>
+            <div class="remind-field">
+              <label>Time</label>
+              <input type="time" id="remind-time" value="${defaultTime}">
+            </div>
+          </div>
+          <div class="remind-actions">
+            <button class="btn-cancel" onclick="closeReminder()">Cancel</button>
+            <button class="btn-remind" onclick="executeSetReminder()">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+              Set Reminder
+            </button>
+          </div>
+        </div>
+      </div>`;
+      modal.classList.remove('hidden');
+    }
+
+    function closeReminder() {
+      const modal = document.getElementById('remind-modal');
+      modal.classList.add('hidden');
+      modal.innerHTML = '';
+    }
+
+    function setReminderPreset(preset) {
+      const now = new Date();
+      let d, t;
+      if (preset === '1h') {
+        d = new Date(now.getTime() + 60 * 60 * 1000);
+        t = d.toTimeString().slice(0, 5);
+        d = dateToStr(d);
+      } else if (preset === 'tomorrow') {
+        d = new Date(now); d.setDate(d.getDate() + 1);
+        d = dateToStr(d); t = '09:00';
+      } else if (preset === 'nextmon') {
+        d = new Date(now);
+        const dow = d.getDay();
+        const daysUntilMon = dow === 0 ? 1 : dow === 1 ? 7 : (8 - dow);
+        d.setDate(d.getDate() + daysUntilMon);
+        d = dateToStr(d); t = '09:00';
+      } else if (preset === '3d') {
+        d = new Date(now); d.setDate(d.getDate() + 3);
+        d = dateToStr(d); t = '09:00';
+      }
+      document.getElementById('remind-date').value = d;
+      document.getElementById('remind-time').value = t;
+      // Update active preset button
+      document.querySelectorAll('.remind-preset').forEach(b => b.classList.remove('active'));
+      event.target.classList.add('active');
+    }
+
+    async function executeSetReminder() {
+      const noteId = remindState.noteId;
+      const note = state.notes.find(n => n.id === noteId);
+      if (!note) return;
+      const dateVal = document.getElementById('remind-date').value;
+      const timeVal = document.getElementById('remind-time').value;
+      if (!dateVal || !timeVal) { showToast('Please pick a date and time'); return; }
+
+      // Request notification permission if needed
+      if ('Notification' in window && Notification.permission === 'default') {
+        await Notification.requestPermission();
+      }
+      if ('Notification' in window && Notification.permission !== 'granted') {
+        showToast('Please allow notifications in your browser settings');
+      }
+
+      const remindAt = new Date(dateVal + 'T' + timeVal + ':00').getTime();
+      if (remindAt <= Date.now()) { showToast('Please pick a future time'); return; }
+
+      const reminder = {
+        id: uid(),
+        noteId,
+        description: note.description || '',
+        location: note.location || '',
+        remindAt,
+        createdAt: Date.now(),
+        fired: false
+      };
+      const reminders = getReminders();
+      reminders.push(reminder);
+      saveReminders(reminders);
+      scheduleReminderTimer(reminder);
+
+      closeReminder();
+      const dt = new Date(remindAt);
+      const dateLabel = formatDate(dateToStr(dt));
+      const timeLabel = dt.toLocaleTimeString('en-IE', { hour: '2-digit', minute: '2-digit' });
+      showToast(`Reminder set for ${dateLabel} at ${timeLabel}`);
+    }
+
+    // Timer management
+    const reminderTimers = {};
+
+    function scheduleReminderTimer(reminder) {
+      if (reminder.fired) return;
+      const delay = reminder.remindAt - Date.now();
+      if (delay <= 0) {
+        fireReminder(reminder);
+        return;
+      }
+      // Cap setTimeout at ~24 days (max safe interval)
+      const maxDelay = 2147483647;
+      reminderTimers[reminder.id] = setTimeout(() => {
+        if (delay > maxDelay) {
+          scheduleReminderTimer(reminder); // re-check
+        } else {
+          fireReminder(reminder);
+        }
+      }, Math.min(delay, maxDelay));
+    }
+
+    function fireReminder(reminder) {
+      // Mark as fired
+      const reminders = getReminders();
+      const r = reminders.find(x => x.id === reminder.id);
+      if (r) { r.fired = true; saveReminders(reminders); }
+
+      // Show notification
+      if ('Notification' in window && Notification.permission === 'granted') {
+        const n = new Notification('Rian Reminder', {
+          body: reminder.description + (reminder.location ? ' — ' + reminder.location : ''),
+          icon: 'https://morow01.github.io/rian/icon-192.png',
+          tag: 'rian-remind-' + reminder.id
+        });
+        n.onclick = () => { window.focus(); n.close(); };
+      }
+      // Also show in-app toast
+      showToast('⏰ ' + (reminder.description || 'Reminder'));
+    }
+
+    // On app load, schedule any pending reminders
+    function initReminders() {
+      const reminders = getReminders();
+      // Clean up old fired reminders (older than 7 days)
+      const cutoff = Date.now() - 7 * 24 * 60 * 60 * 1000;
+      const active = reminders.filter(r => !r.fired || r.remindAt > cutoff);
+      if (active.length !== reminders.length) saveReminders(active);
+      active.filter(r => !r.fired).forEach(r => scheduleReminderTimer(r));
+    }
+
+    // ============================================================
+    // GOOGLE CALENDAR INTEGRATION
+    // ============================================================
+    function addNoteToGCal(noteId) {
+      const note = state.notes.find(n => n.id === noteId);
+      if (!note) return;
+
+      const title = encodeURIComponent(note.description || 'Note');
+      const location = encodeURIComponent(note.location || '');
+      const noteContentPlain = note.noteContent
+        ? note.noteContent.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim()
+        : '';
+      const details = encodeURIComponent(noteContentPlain);
+
+      // Format date for Google Calendar (YYYYMMDD)
+      const noteDate = note.date || dateToStr(new Date());
+      const dateClean = noteDate.replace(/-/g, '');
+      // All-day event: dates format is YYYYMMDD/YYYYMMDD (end is exclusive, so +1 day)
+      const startD = new Date(noteDate + 'T00:00:00');
+      const endD = new Date(startD);
+      endD.setDate(endD.getDate() + 1);
+      const endClean = dateToStr(endD).replace(/-/g, '');
+      const dates = `${dateClean}/${endClean}`;
+
+      const url = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${dates}&location=${location}&details=${details}`;
+      window.open(url, '_blank');
+      showToast('Opening Google Calendar…');
     }
 
     function removeCode(actId, di, code) {
@@ -9930,15 +10477,31 @@
               <span class="field-label" style="display:block; margin-bottom: 6px; font-size: 11px; font-weight: 800; color: #94a3b8; text-transform: uppercase;">Priority</span>
               <div class="note-priority-row">${priChips}</div>
             </div>
-            <div class="note-footer">
-              <button class="note-action-btn note-action-done" onclick="markNoteDone('${note.id}')">
-                ${note.status === 'done'
-            ? `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6"/><path d="M10 14L21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg> Reopen`
-            : `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Mark Done`}
-              </button>
-              <button class="note-action-btn note-action-delete" onclick="deleteNote('${note.id}')">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg> Delete
-              </button>
+            <div class="note-actions-wrap">
+              <div class="note-footer" style="gap:6px;">
+                <button class="note-action-btn note-action-task" style="padding:9px 6px;font-size:10.5px;" onclick="openNoteToTask('${note.id}')">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                  → Task
+                </button>
+                <button class="note-action-btn note-action-remind" style="padding:9px 6px;font-size:10.5px;" onclick="openNoteReminder('${note.id}')">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                  Remind
+                </button>
+                <button class="note-action-btn note-action-gcal" style="padding:9px 6px;font-size:10.5px;" onclick="addNoteToGCal('${note.id}')">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="12" y1="14" x2="12" y2="18"/><line x1="10" y1="16" x2="14" y2="16"/></svg>
+                  Calendar
+                </button>
+              </div>
+              <div class="note-footer" style="gap:6px;">
+                <button class="note-action-btn note-action-done" style="padding:9px 6px;font-size:10.5px;" onclick="markNoteDone('${note.id}')">
+                  ${note.status === 'done'
+              ? `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6"/><path d="M10 14L21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg> Reopen`
+              : `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Mark Done`}
+                </button>
+                <button class="note-action-btn note-action-delete" style="padding:9px 6px;font-size:10.5px;" onclick="deleteNote('${note.id}')">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg> Delete
+                </button>
+              </div>
             </div>
           </div>`;
 
@@ -12888,6 +13451,9 @@ Rules:
 
         if (state.view === 'notes') loadNotes();
         else if (state.view === 'routines') loadRoutines();
+
+        // Init local reminders
+        initReminders();
 
         // Seed local history cache for Suggest feature (runs silently in background)
         syncHistoryCache(user.uid).catch(e => console.warn('[Rian]', e));
