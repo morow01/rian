@@ -655,7 +655,46 @@
       cursor: pointer; border: none; font-family: inherit;
     }
     .act-action-copy { background: var(--btn-primary-bg, #eff6ff); color: var(--btn-primary-text, #1e3a8a); }
+    .act-action-note { background: #f0fdf4; color: #15803d; border: 1.5px solid #bbf7d0; }
     .act-action-delete { background: var(--btn-danger-bg); color: var(--btn-danger-color); }
+
+    /* Add-to-notes confirmation modal */
+    .note-confirm-overlay {
+      position: fixed; inset: 0; z-index: 60; background: rgba(0,0,0,0.4);
+      display: flex; align-items: center; justify-content: center; padding: 16px;
+      animation: fadeIn 0.15s ease;
+    }
+    .note-confirm-sheet {
+      background: #fff; border-radius: 16px; width: 100%; max-width: 380px;
+      padding: 20px; animation: fadeIn 0.15s ease;
+    }
+    .note-confirm-title { font-size: 15px; font-weight: 800; color: #1e293b; margin-bottom: 4px; }
+    .note-confirm-sub { font-size: 12px; color: #64748b; margin-bottom: 14px; }
+    .note-confirm-preview {
+      background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px;
+      padding: 12px; margin-bottom: 14px;
+    }
+    .note-confirm-preview-label { font-size: 10px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px; }
+    .note-confirm-preview-title { font-size: 14px; font-weight: 700; color: #1e293b; }
+    .note-confirm-preview-meta { font-size: 12px; color: #64748b; margin-top: 4px; display: flex; align-items: center; gap: 6px; }
+    .note-confirm-field { margin-bottom: 14px; }
+    .note-confirm-field label { display: block; font-size: 11px; font-weight: 700; color: #64748b; margin-bottom: 4px; }
+    .note-confirm-field select {
+      width: 100%; padding: 8px 12px; border: 1.5px solid #e2e8f0; border-radius: 8px;
+      font-size: 13px; font-family: inherit; color: #1e293b; background: #fff;
+    }
+    .note-confirm-actions { display: flex; gap: 8px; }
+    .note-confirm-actions .btn-cancel {
+      flex: 1; padding: 12px; border-radius: 10px; border: 1.5px solid #e2e8f0;
+      background: #fff; font-size: 13px; font-weight: 700; color: #64748b;
+      cursor: pointer; font-family: inherit;
+    }
+    .note-confirm-actions .btn-add {
+      flex: 1; padding: 12px; border-radius: 10px; border: none;
+      background: #15803d; font-size: 13px; font-weight: 700; color: #fff;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      gap: 6px; font-family: inherit;
+    }
 
     .act-delete-btn {
       width: 100%;
@@ -6476,6 +6515,8 @@
 
   <!-- Copy task day picker -->
   <div id="copy-picker-modal" class="hidden"></div>
+  <!-- Add task to notes confirmation -->
+  <div id="note-confirm-modal" class="hidden"></div>
 
   <div id="toast" class="toast hidden"></div>
 
@@ -6489,7 +6530,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.5.86';
+    const VERSION = '4.5.87';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -9128,13 +9169,17 @@
               </div>
             </div>
 
-            <div class="act-actions-row">
-              <button onclick="openCopyPicker('${act.id}',${di})" class="act-action-btn act-action-copy">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            <div class="act-actions-row" style="gap:6px;">
+              <button onclick="openCopyPicker('${act.id}',${di})" class="act-action-btn act-action-copy" style="padding:9px 6px;font-size:10.5px;">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
                 Copy to…
               </button>
-              <button onclick="showConfirm('Delete task?','${esc(act.description || 'Unnamed')}',()=>removeActivity('${act.id}',${di}))" class="act-action-btn act-action-delete">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+              <button onclick="openAddToNotes('${act.id}',${di})" class="act-action-btn act-action-note" style="padding:9px 6px;font-size:10.5px;">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                + Note
+              </button>
+              <button onclick="showConfirm('Delete task?','${esc(act.description || 'Unnamed')}',()=>removeActivity('${act.id}',${di}))" class="act-action-btn act-action-delete" style="padding:9px 6px;font-size:10.5px;">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
                 Delete
               </button>
             </div>
@@ -9447,6 +9492,82 @@
       closeCopyPicker();
       render();
       showToast(`Task copied to ${selectedDates.size} day${selectedDates.size !== 1 ? 's' : ''}`);
+    }
+
+    // ============================================================
+    // ADD TASK TO NOTES
+    // ============================================================
+    let noteConfirmState = { actId: null, di: null };
+
+    function openAddToNotes(actId, di) {
+      const act = state.weekData.days[di]?.activities.find(a => a.id === actId);
+      if (!act) return;
+      noteConfirmState = { actId, di };
+      const desc = act.description || 'Unnamed';
+      const loc = act.location || '';
+      const dayDate = state.weekData.days[di]?.date || '';
+      const dateLabel = dayDate ? formatDate(dayDate) : '';
+      const modal = document.getElementById('note-confirm-modal');
+      modal.innerHTML = `<div class="note-confirm-overlay" onclick="if(event.target===this)closeAddToNotes()">
+        <div class="note-confirm-sheet">
+          <div class="note-confirm-title">Add to Notes?</div>
+          <div class="note-confirm-sub">This will create a new note from the task details.</div>
+          <div class="note-confirm-preview">
+            <div class="note-confirm-preview-label">Note preview</div>
+            <div class="note-confirm-preview-title">${esc(desc)}</div>
+            <div class="note-confirm-preview-meta">
+              ${loc ? '<svg width="10" height="10" viewBox="0 0 24 24" fill="#94a3b8"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 010-5 2.5 2.5 0 010 5z"/></svg> ' + esc(loc) + ' <span style="color:#cbd5e1">·</span> ' : ''}
+              ${dateLabel}
+            </div>
+          </div>
+          <div class="note-confirm-field">
+            <label>Priority</label>
+            <select id="note-confirm-priority" class="note-confirm-field select" style="width:100%;padding:8px 12px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:13px;font-family:inherit;color:#1e293b;background:#fff;">
+              <option value="low">Low</option>
+              <option value="medium" selected>Medium</option>
+              <option value="high">High</option>
+            </select>
+          </div>
+          <div class="note-confirm-actions">
+            <button class="btn-cancel" onclick="closeAddToNotes()">Cancel</button>
+            <button class="btn-add" onclick="executeAddToNotes()">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              Add to Notes
+            </button>
+          </div>
+        </div>
+      </div>`;
+      modal.classList.remove('hidden');
+    }
+
+    function closeAddToNotes() {
+      const modal = document.getElementById('note-confirm-modal');
+      modal.classList.add('hidden');
+      modal.innerHTML = '';
+    }
+
+    async function executeAddToNotes() {
+      const { actId, di } = noteConfirmState;
+      const act = state.weekData.days[di]?.activities.find(a => a.id === actId);
+      if (!act) return;
+      const priority = document.getElementById('note-confirm-priority')?.value || 'medium';
+      const dayDate = state.weekData.days[di]?.date || dateToStr(new Date());
+
+      // Ensure notes are loaded
+      if (!state.notes || !state.notes.length) await loadNotes();
+
+      const note = createNote();
+      note.description = act.description || '';
+      note.location = act.location || '';
+      note.date = dayDate;
+      note.priority = priority;
+      // Put task notes into noteContent if present
+      if (act.notes) note.noteContent = act.notes;
+      state.notes.unshift(note);
+      scheduleNotesSave();
+
+      closeAddToNotes();
+      showToast('Added to Notes');
     }
 
     function removeCode(actId, di, code) {
