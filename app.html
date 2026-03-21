@@ -6689,7 +6689,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.8.5';
+    const VERSION = '4.8.6';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -10039,6 +10039,7 @@
     // In-memory reminders array (synced to IDB + Firestore)
     let remindersData = [];
     let remindersUnsubscribe = null;
+    let remindersFirestoreSynced = false; // true once first Firestore snapshot arrives
 
     function getReminders() {
       return remindersData;
@@ -10228,14 +10229,13 @@
       if (reminder.fired) return;
       const delay = reminder.remindAt - Date.now();
       if (delay <= 0) {
-        // Delay past-due reminders by 5s to let Firestore sync arrive first
-        // (prevents double-notification when server already pushed)
-        reminderTimers[reminder.id] = setTimeout(() => {
-          const fresh = getReminders().find(x => x.id === reminder.id);
-          if (fresh && fresh.firedBy === 'server') return; // server already handled it
-          if (fresh && fresh.fired) return; // another device handled it
-          fireReminder(reminder);
-        }, 5000);
+        // Past-due: only fire locally if Firestore has synced (so we have fresh data).
+        // If not synced yet, skip — the onSnapshot handler will call checkMissedReminders().
+        if (!remindersFirestoreSynced) return;
+        const fresh = getReminders().find(x => x.id === reminder.id);
+        if (fresh && fresh.firedBy === 'server') return;
+        if (fresh && fresh.fired) return;
+        fireReminder(reminder);
         return;
       }
       // Cap setTimeout at ~24 days (max safe interval)
@@ -10318,6 +10318,7 @@
         if (ref) {
           remindersUnsubscribe = ref.onSnapshot({ includeMetadataChanges: true }, snap => {
             if (snap.metadata.hasPendingWrites) return;
+            remindersFirestoreSynced = true; // Firestore data is now fresh
             if (!snap.exists) {
               // No reminders on server — push local only if we have data
               if (remindersData.length > 0) {
@@ -10334,7 +10335,8 @@
             remindersData = remote.reminders;
             dbPut('notes', { id: 'reminders_all', userId: state.currentUser?.uid || null, data: remindersData, updatedAt: remote._updatedAt || Date.now() }).catch(() => {});
 
-            // Re-schedule pending reminders from synced data
+            // Re-schedule pending reminders from synced data (now safe — data is fresh)
+            remindersFirestoreSynced = true;
             remindersData.filter(r => !r.fired).forEach(r => scheduleReminderTimer(r));
 
             // Check for any missed reminders in the synced data
@@ -10346,9 +10348,16 @@
         }
       }
 
+      // Offline fallback: if Firestore hasn't synced after 30s, allow local firing
+      setTimeout(() => {
+        if (!remindersFirestoreSynced) {
+          console.log('[Rian] Firestore reminder sync timeout — enabling local fallback');
+          remindersFirestoreSynced = true;
+          checkMissedReminders();
+        }
+      }, 30000);
+
       // Mobile fix: setTimeout dies when phone sleeps / browser is backgrounded.
-      // Delay checkMissedReminders on resume to let Firestore sync arrive first —
-      // prevents double-notification when another device already fired the reminder.
       let resumeTimer = null;
       document.addEventListener('visibilitychange', () => {
         if (document.visibilityState === 'visible') {
@@ -10361,6 +10370,8 @@
     }
 
     function checkMissedReminders() {
+      // Don't fire past-due reminders from stale IDB — wait for Firestore sync
+      if (!remindersFirestoreSynced) return;
       const now = Date.now();
       const reminders = getReminders();
       let changed = false;
@@ -10595,14 +10606,26 @@
           return;
         }
 
+        const active = document.activeElement;
+        const editingNoteId = active && (active.tagName === 'TEXTAREA' || active.tagName === 'INPUT')
+          ? active.dataset.noteId : null;
+
+        // Preserve the note being actively edited (prevent Firestore echo from overwriting mid-typing)
+        const localEditing = editingNoteId ? state.notes.find(n => n.id === editingNoteId) : null;
+
         state.notes = deepCopy(remote.notes);
         // Strip any HTML still in descriptions from remote data
         migrateNotesHTML(state.notes);
+
+        // Restore locally-edited note to prevent data loss
+        if (localEditing) {
+          const idx = state.notes.findIndex(n => n.id === localEditing.id);
+          if (idx >= 0) state.notes[idx] = localEditing;
+        }
+
         dbPut('notes', { id: 'notes_all', userId: state.currentUser?.uid || null, data: state.notes, updatedAt: remote._updatedAt || Date.now() });
 
-        const active = document.activeElement;
-        const userEditing = active && (active.tagName === 'TEXTAREA' || active.tagName === 'INPUT');
-        if (state.view === 'notes' && !userEditing) render();
+        if (state.view === 'notes' && !editingNoteId) render();
 
         state.notesSyncStatus = 'synced';
         updateHeaderStatus();
