@@ -8,16 +8,14 @@ const messaging = admin.messaging();
 /**
  * Runs every minute. Checks all users for pending reminders that are due,
  * sends FCM push notifications, and marks them as fired.
- *
- * Also handles the case where a client (open browser tab) already fired the
- * reminder locally — clients can only show local notifications, not push to
- * other devices, so the server still needs to send the FCM push.
  */
 exports.checkReminders = onSchedule("* * * * *", async () => {
   const now = Date.now();
+  console.log(`[checkReminders] Running at ${new Date(now).toISOString()}`);
 
   // Get all users
   const usersSnap = await db.collection("users").get();
+  console.log(`[checkReminders] Found ${usersSnap.size} users`);
 
   for (const userDoc of usersSnap.docs) {
     const uid = userDoc.id;
@@ -33,32 +31,34 @@ exports.checkReminders = onSchedule("* * * * *", async () => {
     const reminders = data.reminders;
     const TWO_MINUTES = 2 * 60 * 1000;
 
+    const pending = reminders.filter(r => !r.fired && r.remindAt <= now);
+    const clientFired = reminders.filter(r => r.fired && r.firedBy && r.firedBy !== "server" && r.firedAt && (now - r.firedAt) < TWO_MINUTES);
+    console.log(`[checkReminders] User ${uid}: ${reminders.length} total, ${pending.length} due, ${clientFired.length} client-fired recently`);
+
     for (const r of reminders) {
-      // Case 1: Unfired reminder that's due — fire it
-      // Case 2: Client fired it recently (not server) — still send FCM push
-      //         because clients can only notify locally, not push to other devices.
-      //         The notification tag prevents duplicates on the device that already showed it.
       const needsFiring = !r.fired && r.remindAt <= now;
       const clientFiredRecently = r.fired && r.firedBy && r.firedBy !== "server"
         && r.firedAt && (now - r.firedAt) < TWO_MINUTES;
 
       if (needsFiring || clientFiredRecently) {
+        console.log(`[checkReminders] Processing reminder "${r.description}" (${needsFiring ? 'unfired' : 'client-fired'})`);
+
         if (needsFiring) {
           r.fired = true;
           r.firedBy = "server";
           r.firedAt = Date.now();
           changed = true;
         } else if (clientFiredRecently) {
-          // Update firedBy to server so we don't re-send next minute
           r.firedBy = "server";
           changed = true;
         }
 
         // Get user's FCM tokens
         const tokensDoc = await db.doc(`users/${uid}/data/fcm_tokens`).get();
-        if (!tokensDoc.exists) continue;
+        if (!tokensDoc.exists) { console.log(`[checkReminders] No fcm_tokens doc for user`); continue; }
 
         const tokens = tokensDoc.data().tokens || [];
+        console.log(`[checkReminders] Found ${tokens.length} FCM tokens`);
         if (tokens.length === 0) continue;
 
         // Build notification
@@ -76,6 +76,12 @@ exports.checkReminders = onSchedule("* * * * *", async () => {
 
         try {
           const result = await messaging.sendEachForMulticast(message);
+          console.log(`[checkReminders] FCM result: ${result.successCount} success, ${result.failureCount} failures`);
+          result.responses.forEach((resp, i) => {
+            if (!resp.success) {
+              console.error(`[checkReminders] Token ${i} failed:`, resp.error?.code, resp.error?.message);
+            }
+          });
           // Remove any invalid tokens
           const invalidTokens = [];
           result.responses.forEach((resp, i) => {
@@ -91,15 +97,17 @@ exports.checkReminders = onSchedule("* * * * *", async () => {
               { tokens: validTokens, _updatedAt: Date.now() },
               { merge: true }
             );
+            console.log(`[checkReminders] Removed ${invalidTokens.length} invalid tokens`);
           }
         } catch (e) {
-          console.error(`FCM send failed for user ${uid}:`, e);
+          console.error(`[checkReminders] FCM send failed:`, e);
         }
       }
     }
 
     if (changed) {
       await db.doc(`users/${uid}/data/reminders`).update({ reminders, _updatedAt: Date.now() });
+      console.log(`[checkReminders] Updated reminders in Firestore`);
     }
   }
 });
