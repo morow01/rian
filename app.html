@@ -6416,7 +6416,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.5.80';
+    const VERSION = '4.5.81';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -7438,6 +7438,8 @@
       weekData.days.forEach(day => {
         const acts = day.activities.filter(a => a.description || a.codes.length || parseFloat(a.ordinary) > 0);
         if (!acts.length) return;
+        const dayOrd = acts.reduce((s, a) => s + Math.round(parseFloat(a.ordinary) || 0), 0);
+        const dayOT = acts.reduce((s, a) => s + Math.round(parseFloat(a.overtime) || 0), 0);
         let actsHtml = '';
         acts.forEach(act => {
           const ord = Math.round(parseFloat(act.ordinary) || 0);
@@ -7457,9 +7459,15 @@
         });
         daysHtml += `
           <div style="margin-bottom:12px;border-radius:10px;overflow:hidden;border:1px solid ${C.border};background:${C.cardBg};">
-            <div style="padding:10px 14px;background:${C.dayBg};">
-              <span style="font-size:13px;font-weight:800;color:${C.dayTxt};">${esc(day.dayName)}</span>
-              <span style="font-size:12px;color:${C.dayDate};margin-left:8px;">${esc(formatDate(day.date))}</span>
+            <div style="padding:10px 14px;background:${C.dayBg};display:flex;align-items:center;justify-content:space-between;">
+              <div>
+                <span style="font-size:13px;font-weight:800;color:${C.dayTxt};">${esc(day.dayName)}</span>
+                <span style="font-size:12px;color:${C.dayDate};margin-left:8px;">${esc(formatDate(day.date))}</span>
+              </div>
+              <div style="display:flex;gap:12px;">
+                <span style="font-family:monospace;font-size:13px;font-weight:700;color:${C.dayTxt};">${dayOrd}</span>
+                <span style="font-family:monospace;font-size:13px;font-weight:700;color:${dayOT > 0 ? C.ot : C.dayDate};">${dayOT > 0 ? dayOT : '—'}</span>
+              </div>
             </div>
             <table width="100%" cellpadding="0" cellspacing="0">
               <thead>
@@ -7614,6 +7622,8 @@
       weekData.days.forEach(day => {
         const acts = day.activities.filter(a => a.description || a.codes.length || parseFloat(a.ordinary) > 0);
         if (!acts.length) return;
+        const dayOrd = acts.reduce((s, a) => s + Math.round(parseFloat(a.ordinary) || 0), 0);
+        const dayOT = acts.reduce((s, a) => s + Math.round(parseFloat(a.overtime) || 0), 0);
         let actsHtml = '';
         acts.forEach(act => {
           const ord = Math.round(parseFloat(act.ordinary) || 0);
@@ -7633,9 +7643,15 @@
           </tr>`;
         });
         daysHtml += `<div style="margin-bottom:12px;border-radius:10px;overflow:hidden;border:1px solid ${C.border};background:${C.cardBg};">
-          <div style="padding:10px 14px;background:${C.dayBg};">
-            <span style="font-size:13px;font-weight:800;color:${C.dayTxt};">${esc(day.dayName)}</span>
-            <span style="font-size:12px;color:${C.dayDate};margin-left:8px;">${esc(formatDate(day.date))}</span>
+          <div style="padding:10px 14px;background:${C.dayBg};display:flex;align-items:center;justify-content:space-between;">
+            <div>
+              <span style="font-size:13px;font-weight:800;color:${C.dayTxt};">${esc(day.dayName)}</span>
+              <span style="font-size:12px;color:${C.dayDate};margin-left:8px;">${esc(formatDate(day.date))}</span>
+            </div>
+            <div style="display:flex;gap:12px;">
+              <span style="font-family:monospace;font-size:13px;font-weight:700;color:${C.dayTxt};">${dayOrd}</span>
+              <span style="font-family:monospace;font-size:13px;font-weight:700;color:${dayOT > 0 ? C.ot : C.dayDate};">${dayOT > 0 ? dayOT : '—'}</span>
+            </div>
           </div>
           <table width="100%" cellpadding="0" cellspacing="0">
             <thead><tr style="background:${C.headBg};">
