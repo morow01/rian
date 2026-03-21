@@ -6688,7 +6688,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.5.99';
+    const VERSION = '4.6.0';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -10223,8 +10223,10 @@
           remindersUnsubscribe = ref.onSnapshot({ includeMetadataChanges: true }, snap => {
             if (snap.metadata.hasPendingWrites) return;
             if (!snap.exists) {
-              // No reminders on server — push local
-              fsSetReminders(remindersData).catch(e => console.warn('[Rian]', e));
+              // No reminders on server — push local only if we have data
+              if (remindersData.length > 0) {
+                fsSetReminders(remindersData).catch(e => console.warn('[Rian]', e));
+              }
               return;
             }
             const remote = snap.data();
@@ -10469,8 +10471,10 @@
         if (snap.metadata.hasPendingWrites) return;
 
         if (!snap.exists) {
-          // No notes on server yet — push local
-          fsSetNotes(state.notes).catch(e => console.warn('[Rian]', e));
+          // No notes on server yet — push local only if we actually have data
+          if (state.notes.length > 0) {
+            fsSetNotes(state.notes).catch(e => console.warn('[Rian]', e));
+          }
           state.notesSyncStatus = 'synced';
           updateHeaderStatus();
           return;
