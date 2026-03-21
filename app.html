@@ -4677,9 +4677,6 @@
       position: absolute; top: -3px; right: -3px; width: 8px; height: 8px;
       border-radius: 50%; background: #eab308; border: 2px solid #fff;
     }
-    .remind-sheet.input-focused .remind-sheet-body { display: none; }
-    .remind-sheet.input-focused .remind-actions-sticky { display: none; }
-    .remind-sheet.input-focused { min-height: 0; background: transparent; }
     @media (min-width: 640px) {
       .remind-sheet { border-radius: 20px; margin: auto; }
     }
@@ -6691,7 +6688,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.5.97';
+    const VERSION = '4.5.98';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -6706,7 +6703,7 @@
     db_fs.enablePersistence({ synchronizeTabs: true }).catch(e => console.warn('[Rian]', e));
     const DAY_NAMES = ['Friday', 'Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday'];
     const DB_NAME = 'timesheet-db';
-    const DB_VERSION = 2;
+    const DB_VERSION = 3;
     const esc = s => String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
     const escAttr = s => esc(s).replace(/'/g, '&#39;').replace(/"/g, '&quot;').replace(/\n/g, ' ').replace(/\r/g, '');
     const stripHtml = s => String(s || '').replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').trim();
@@ -7220,6 +7217,7 @@
           const d = e.target.result;
           if (!d.objectStoreNames.contains('weeks')) d.createObjectStore('weeks', { keyPath: 'weekStart' });
           if (!d.objectStoreNames.contains('notes')) d.createObjectStore('notes', { keyPath: 'id' });
+          if (!d.objectStoreNames.contains('reminders')) d.createObjectStore('reminders', { keyPath: 'id' });
         };
         req.onsuccess = e => { db = e.target.result; res(); };
         req.onerror = rej;
@@ -7288,6 +7286,12 @@
       const ref = userDoc('data/notes');
       if (!ref) return;
       await ref.set({ notes, _updatedAt: Date.now() });
+    }
+
+    async function fsSetReminders(reminders) {
+      const ref = userDoc('data/reminders');
+      if (!ref) return;
+      await ref.set({ reminders, _updatedAt: Date.now() });
     }
 
     // ============================================================
@@ -9949,11 +9953,19 @@
     let remindState = { noteId: null };
 
     // Load reminders from localStorage
+    // In-memory reminders array (synced to IDB + Firestore)
+    let remindersData = [];
+    let remindersUnsubscribe = null;
+
     function getReminders() {
-      try { return JSON.parse(localStorage.getItem('rian_reminders') || '[]'); } catch { return []; }
+      return remindersData;
     }
     function saveReminders(arr) {
-      localStorage.setItem('rian_reminders', JSON.stringify(arr));
+      remindersData = arr;
+      // Persist to IDB
+      dbPut('reminders', { id: 'reminders_all', userId: state.currentUser?.uid || null, data: arr, updatedAt: Date.now() }).catch(() => {});
+      // Persist to Firestore
+      if (state.currentUser) fsSetReminders(arr).catch(e => console.warn('[Rian] fsSetReminders', e));
     }
 
     function hasActiveReminder(noteId) {
@@ -10031,15 +10043,6 @@
       </div>`;
       modal.classList.remove('hidden');
 
-      // On narrow screens (e.g. Fold outer), hide the sheet while native
-      // date/time picker is open so it isn't clipped
-      const sheet = modal.querySelector('.remind-sheet');
-      const onFocus = () => { if (window.innerWidth < 360) sheet.classList.add('input-focused'); };
-      const onBlur = () => { setTimeout(() => sheet.classList.remove('input-focused'), 200); };
-      ['remind-date', 'remind-time'].forEach(id => {
-        const el = document.getElementById(id);
-        if (el) { el.addEventListener('focus', onFocus); el.addEventListener('blur', onBlur); }
-      });
     }
 
     function cancelNoteReminder(reminderId) {
@@ -10188,16 +10191,61 @@
     }
 
     // On app load, schedule any pending reminders
-    function initReminders() {
-      const reminders = getReminders();
+    async function initReminders() {
+      // Load from IDB first
+      const stored = await dbGet('reminders', 'reminders_all').catch(() => null);
+      if (stored && Array.isArray(stored.data)) {
+        remindersData = stored.data;
+      }
+      // Migrate from localStorage if IDB is empty (one-time migration)
+      if (remindersData.length === 0) {
+        try {
+          const ls = JSON.parse(localStorage.getItem('rian_reminders') || '[]');
+          if (ls.length > 0) {
+            remindersData = ls;
+            saveReminders(remindersData);
+            localStorage.removeItem('rian_reminders');
+          }
+        } catch {}
+      }
+
       // Clean up old fired reminders (older than 7 days)
       const cutoff = Date.now() - 7 * 24 * 60 * 60 * 1000;
-      const active = reminders.filter(r => !r.fired || r.remindAt > cutoff);
-      if (active.length !== reminders.length) saveReminders(active);
+      const active = remindersData.filter(r => !r.fired || r.remindAt > cutoff);
+      if (active.length !== remindersData.length) saveReminders(active);
       active.filter(r => !r.fired).forEach(r => scheduleReminderTimer(r));
 
+      // Subscribe to Firestore real-time updates for reminders
+      if (state.currentUser) {
+        if (remindersUnsubscribe) { remindersUnsubscribe(); remindersUnsubscribe = null; }
+        const ref = userDoc('data/reminders');
+        if (ref) {
+          remindersUnsubscribe = ref.onSnapshot({ includeMetadataChanges: true }, snap => {
+            if (snap.metadata.hasPendingWrites) return;
+            if (!snap.exists) {
+              // No reminders on server — push local
+              fsSetReminders(remindersData).catch(e => console.warn('[Rian]', e));
+              return;
+            }
+            const remote = snap.data();
+            if (!Array.isArray(remote.reminders)) return;
+
+            // Clear all existing timers
+            Object.keys(reminderTimers).forEach(id => { clearTimeout(reminderTimers[id]); delete reminderTimers[id]; });
+
+            remindersData = remote.reminders;
+            dbPut('reminders', { id: 'reminders_all', userId: state.currentUser?.uid || null, data: remindersData, updatedAt: remote._updatedAt || Date.now() }).catch(() => {});
+
+            // Re-schedule pending reminders from synced data
+            remindersData.filter(r => !r.fired).forEach(r => scheduleReminderTimer(r));
+
+            // Re-render notes view if visible (to update Reminded badges)
+            if (state.view === 'notes') render();
+          }, () => {});
+        }
+      }
+
       // Mobile fix: setTimeout dies when phone sleeps / browser is backgrounded.
-      // Re-check pending reminders whenever the user returns to the app.
       document.addEventListener('visibilitychange', () => {
         if (document.visibilityState === 'visible') {
           checkMissedReminders();
@@ -12234,12 +12282,14 @@
             // 1. Kill notes listener (week listener must stay alive to receive
             //    the empty-week snapshot that clears other devices)
             if (notesUnsubscribe) { notesUnsubscribe(); notesUnsubscribe = null; }
+            if (remindersUnsubscribe) { remindersUnsubscribe(); remindersUnsubscribe = null; }
             state.notes = [];
+            remindersData = [];
             // 2. Write empty current week + delete all others in one batch.
             //    The active onSnapshot will receive the empty week and update
             //    all connected clients automatically — no cache clear needed.
             await _deleteAllFirestoreData(ws);
-            await Promise.allSettled([dbClear('weeks'), dbClear('notes')]);
+            await Promise.allSettled([dbClear('weeks'), dbClear('notes'), dbClear('reminders')]);
             // 3. Notes: reload (listener was unsubscribed above)
             if (state.view === 'notes') loadNotes();
             showToast('All data deleted.');
@@ -12262,8 +12312,10 @@
             if (saveTimer) { clearTimeout(saveTimer); saveTimer = null; }
             if (notesSaveTimer) { clearTimeout(notesSaveTimer); notesSaveTimer = null; }
             state.weekData = null; state.notes = [];
+            remindersData = [];
             if (weekUnsubscribe) { weekUnsubscribe(); weekUnsubscribe = null; }
             if (notesUnsubscribe) { notesUnsubscribe(); notesUnsubscribe = null; }
+            if (remindersUnsubscribe) { remindersUnsubscribe(); remindersUnsubscribe = null; }
 
             // Firebase requires a recent sign-in for account deletion.
             // If the session is stale, re-authenticate silently then retry.
@@ -12314,12 +12366,14 @@
       }
       state.weekData = null;
       state.notes = [];
+      remindersData = [];
       state.routines = null;
       state.routinesAutoVisits = {};
       // Wipe local IDB so the next user never sees this user's cached data
-      await Promise.allSettled([dbClear('weeks'), dbClear('notes')]);
+      await Promise.allSettled([dbClear('weeks'), dbClear('notes'), dbClear('reminders')]);
       if (weekUnsubscribe) { weekUnsubscribe(); weekUnsubscribe = null; }
       if (notesUnsubscribe) { notesUnsubscribe(); notesUnsubscribe = null; }
+      if (remindersUnsubscribe) { remindersUnsubscribe(); remindersUnsubscribe = null; }
       await auth_fb.signOut();
       window.location.href = './index.html';
     }
@@ -13545,6 +13599,7 @@ Rules:
           // Signed out — tear down listeners and show login
           if (weekUnsubscribe) { weekUnsubscribe(); weekUnsubscribe = null; }
           if (notesUnsubscribe) { notesUnsubscribe(); notesUnsubscribe = null; }
+          if (remindersUnsubscribe) { remindersUnsubscribe(); remindersUnsubscribe = null; }
           renderLogin();
           return;
         }
