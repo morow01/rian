@@ -6688,7 +6688,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.6.3';
+    const VERSION = '4.6.4';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -10172,11 +10172,15 @@
     }
 
     function fireReminder(reminder, alreadySaved) {
+      // Double-fire guard: check if already fired (another device may have beaten us)
+      const current = getReminders().find(x => x.id === reminder.id);
+      if (current && current.fired) return;
+
       // Mark as fired (skip if caller already saved)
       if (!alreadySaved) {
         const reminders = getReminders();
         const r = reminders.find(x => x.id === reminder.id);
-        if (r) { r.fired = true; saveReminders(reminders); }
+        if (r) { r.fired = true; r.firedBy = getDeviceName(); r.firedAt = Date.now(); saveReminders(reminders); }
       }
 
       // Show notification (prefer service worker for mobile support)
@@ -10276,6 +10280,8 @@
       reminders.forEach(r => {
         if (!r.fired && r.remindAt <= now) {
           r.fired = true;
+          r.firedBy = getDeviceName();
+          r.firedAt = Date.now();
           changed = true;
           // Clear any existing timer
           if (reminderTimers[r.id]) { clearTimeout(reminderTimers[r.id]); delete reminderTimers[r.id]; }
