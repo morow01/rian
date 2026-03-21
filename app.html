@@ -21,6 +21,7 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-messaging-compat.js"></script>
   <style>
     /* ===== THEME VARIABLES ===== */
     :root {
@@ -6688,7 +6689,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.6.5';
+    const VERSION = '4.7.0';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -6700,6 +6701,7 @@
     firebase.initializeApp(firebaseConfig);
     const db_fs = firebase.firestore();
     const auth_fb = firebase.auth();
+    const fcm = firebase.messaging();
     db_fs.enablePersistence({ synchronizeTabs: true }).catch(e => console.warn('[Rian]', e));
     const DAY_NAMES = ['Friday', 'Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday'];
     const DB_NAME = 'timesheet-db';
@@ -9958,6 +9960,43 @@
       const dayLabel = getSelectedDayName();
       showToast(`Task added to ${dayLabel}`);
     }
+
+    // ============================================================
+    // FCM PUSH NOTIFICATION REGISTRATION
+    // ============================================================
+    async function registerFCMToken() {
+      if (!state.currentUser) return;
+      if (!('Notification' in window) || Notification.permission !== 'granted') return;
+      try {
+        // Get the service worker registration for FCM
+        const swReg = await navigator.serviceWorker.ready;
+        const token = await fcm.getToken({
+          serviceWorkerRegistration: swReg
+        });
+        if (!token) return;
+        // Save token to Firestore — merge into array of device tokens
+        const ref = userDoc('data/fcm_tokens');
+        if (!ref) return;
+        const doc = await ref.get();
+        let tokens = (doc.exists && Array.isArray(doc.data().tokens)) ? doc.data().tokens : [];
+        if (!tokens.includes(token)) {
+          tokens.push(token);
+          await ref.set({ tokens, _updatedAt: Date.now() });
+          console.log('[Rian] FCM token registered');
+        }
+      } catch (e) {
+        console.warn('[Rian] FCM registration failed:', e);
+      }
+    }
+
+    // Listen for token refresh
+    fcm.onMessage((payload) => {
+      // In-app message while app is in foreground — show toast
+      const data = payload.data || {};
+      if (data.type === 'reminder') {
+        showToast('⏰ ' + (data.body || 'Reminder'));
+      }
+    });
 
     // ============================================================
     // NOTE REMINDERS
@@ -13715,6 +13754,9 @@ Rules:
 
         // Init local reminders
         initReminders();
+
+        // Register FCM push token for background notifications
+        registerFCMToken();
 
         // Seed local history cache for Suggest feature (runs silently in background)
         syncHistoryCache(user.uid).catch(e => console.warn('[Rian]', e));

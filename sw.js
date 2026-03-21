@@ -1,4 +1,4 @@
-const CACHE = 'timesheet-v394';
+const CACHE = 'timesheet-v395';
 
 // Detect base path dynamically — works on GitHub Pages AND localhost
 const BASE = self.location.pathname.replace(/sw\.js$/, '');
@@ -58,6 +58,28 @@ self.addEventListener('fetch', e => {
       });
     })
   );
+});
+
+// Handle FCM push notifications (data-only messages from Cloud Function)
+self.addEventListener('push', e => {
+  if (!e.data) return;
+  try {
+    const payload = e.data.json();
+    const data = payload.data || {};
+    if (data.type === 'reminder') {
+      e.waitUntil(
+        self.registration.showNotification(data.title || 'Rian Reminder', {
+          body: data.body || '',
+          icon: BASE + 'icon-192.png',
+          tag: 'rian-remind-' + (data.reminderId || Date.now()),
+          vibrate: [200, 100, 200],
+          requireInteraction: true
+        })
+      );
+    }
+  } catch (err) {
+    console.warn('[Rian SW] push parse error:', err);
+  }
 });
 
 // Handle notification click — open or focus the app
