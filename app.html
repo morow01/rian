@@ -6821,7 +6821,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.12.15';
+    const VERSION = '4.12.16';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -14722,7 +14722,10 @@ Work week = Friday to Thursday.
           const parts = [n.description || '(no description)'];
           if (n.location) parts.push('@ ' + n.location);
           if (n.date) parts.push('[' + n.date + ']');
-          if (n.priority && n.priority !== 'medium') parts.push(n.priority + ' priority');
+          if (n.priority && n.priority !== 'medium') parts.push('(' + n.priority + ' priority)');
+          // Include note body content (stripped of HTML) so AI can search it
+          const body = n.noteContent ? n.noteContent.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim() : '';
+          if (body && body !== (n.description || '').trim()) parts.push('| Note: ' + body.slice(0, 200));
           return '    - ' + parts.join(' ');
         };
         ctx += `\nSAVED NOTES (Notes tab — standalone issues, faults & reminders, NOT timesheet task notes):\n`;
@@ -14755,7 +14758,8 @@ You have their full work history. Answer their question directly and confidently
 Use the DATE REFERENCES section to resolve any time words like "last week", "this month", "yesterday".
 Be specific — include actual numbers, dates, and site names. Do not hedge or say the data is unclear when it is present.
 
-When the user asks about "issues" or "problems", check BOTH the TIMESHEET ISSUES section (tasks with missing codes/hours) AND the SAVED NOTES section (open faults/issues). Report both categories.
+When the user asks about "issues" or "problems", check BOTH the TIMESHEET ISSUES section (tasks with missing codes/hours) AND the SAVED NOTES section (open faults/issues). Report ALL matching items from both categories — never omit a match.
+When the user searches for a keyword (e.g. "battery"), list EVERY note and task entry that contains that keyword. Do not skip any matches — completeness matters.
 
 DATA DICTIONARY — two distinct note types exist in this app:
 - SAVED NOTES (Notes tab): standalone issue/fault/reminder records the user creates independently. When the user says "show my notes" or "recent notes" they almost always mean SAVED NOTES.
