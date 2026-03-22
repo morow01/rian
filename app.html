@@ -6689,7 +6689,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.9.9';
+    const VERSION = '4.9.10';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -10039,11 +10039,7 @@
           await ref.set({ subs: subsObj, _updatedAt: Date.now() });
           console.log('[Rian Push] Created new doc for', deviceKey);
         }
-        // Verify: read back and confirm both devices are saved
-        const verify = await ref.get();
-        const savedDevices = verify.exists ? Object.keys(verify.data().subs || {}) : [];
-        console.log('[Rian Push] Verified devices:', savedDevices.join(', '));
-        showToast('Push OK: ' + savedDevices.join(', '), 3000);
+        console.log('[Rian Push] subscription saved for', deviceKey);
       } catch (e) {
         console.error('[Rian Push] FAILED:', e);
         showToast('Push err: ' + (e.message || 'unknown').substring(0, 60));
