@@ -7886,7 +7886,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.15.0';
+    const VERSION = '4.15.1';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -15556,10 +15556,33 @@
         if (nodeMatch) result.siteCode = nodeMatch[1].toUpperCase();
       }
 
-      // Match site code against exchanges list
+      // Match site code against exchanges list (all codes are 3 chars)
       if (result.siteCode && TOWNS.length > 0) {
-        const town = TOWNS.find(t => t.code.toUpperCase() === result.siteCode);
-        if (town) result.site = town.name + ' (' + town.code + ')';
+        // Try exact match first, then try first 3 chars (e.g. DeviceName code "PAN" is already 3)
+        let town = TOWNS.find(t => t.code.toUpperCase() === result.siteCode);
+        if (!town && result.siteCode.length > 3) {
+          town = TOWNS.find(t => t.code.toUpperCase() === result.siteCode.substring(0, 3));
+        }
+        if (town) { result.site = town.name + ' (' + town.code + ')'; result.siteCode = town.code; }
+      }
+
+      // Fallback: scan for 3-char exchange code in summary/fault (e.g. "RSNA01" → RSN)
+      // Codes are always 3 uppercase letters. Scan right-to-left since the device
+      // identifier (containing the exchange code) is typically at the end of the fault text.
+      if (!result.site && TOWNS.length > 0) {
+        const scanText = (result.fault || '') + ' ' + (t.match(/FAULT:\s*(.+)/i)?.[1] || '');
+        const words = scanText.match(/[A-Z]{3,}/g) || [];
+        // Reverse so we check from the end of the string first (device codes are at the end)
+        words.reverse();
+        for (const w of words) {
+          const code3 = w.substring(0, 3);
+          const town = TOWNS.find(t => t.code.toUpperCase() === code3);
+          if (town) {
+            result.site = town.name + ' (' + town.code + ')';
+            result.siteCode = town.code;
+            break;
+          }
+        }
       }
 
       // Monolith
