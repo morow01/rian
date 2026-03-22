@@ -7773,7 +7773,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.12.43';
+    const VERSION = '4.13.0';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -9367,6 +9367,22 @@
                     </div>
                     <div class="menu-ai-key-status" id="menu-gemini-status">${state.geminiKey ? '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:text-bottom;margin-right:4px;"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3m-3-3l-4-4"/></svg>Key saved' : ''}</div>
                   </div>
+                </div>
+              </div>
+
+              <div class="menu-section-wrap">
+                <div class="menu-section-label">Transfer Data</div>
+                <div class="menu-card">
+                  <button class="menu-row" onclick="exportAllData();closeThemeMenu()">
+                    <span class="menu-row-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></span>
+                    <span class="menu-row-body"><span class="menu-row-label">Export All Data</span><span class="menu-row-sub">Download weeks, notes &amp; settings as JSON</span></span>
+                    ${chev}
+                  </button>
+                  <button class="menu-row" onclick="importAllData();closeThemeMenu()">
+                    <span class="menu-row-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></span>
+                    <span class="menu-row-body"><span class="menu-row-label">Import Data</span><span class="menu-row-sub">Load exported JSON into this account</span></span>
+                    ${chev}
+                  </button>
                 </div>
               </div>
 
@@ -13861,6 +13877,133 @@
       // Delete notes and user profile
       await userDoc('data/notes').delete().catch(e => console.warn('[Rian]', e));
       await db_fs.doc(`users/${uid}`).delete().catch(e => console.warn('[Rian]', e));
+    }
+
+    // ============================================================
+    // EXPORT / IMPORT — full account data transfer
+    // ============================================================
+    async function exportAllData() {
+      if (!state.currentUser) { showToast('Sign in first'); return; }
+      const uid = state.currentUser.uid;
+      showToast('Exporting data…');
+      try {
+        // 1. Weeks from Firestore
+        const weeksSnap = await db_fs.collection(`users/${uid}/weeks`).get().catch(() => null);
+        const weeks = {};
+        if (weeksSnap) weeksSnap.docs.forEach(d => { weeks[d.id] = d.data(); });
+        // 2. Notes from Firestore
+        const notesDoc = await userDoc('data/notes')?.get().catch(() => null);
+        const notes = notesDoc?.exists ? notesDoc.data() : null;
+        // 3. Reminders from Firestore
+        const remDoc = await userDoc('data/reminders')?.get().catch(() => null);
+        const reminders = remDoc?.exists ? remDoc.data() : null;
+        // 4. Settings from localStorage
+        const lsKeys = ['geminiKey','geminiModel','theme','layoutMode','headerExpanded',
+                        'rian_ai_scope','rian_ai_recent','exchangeTab','deviceName'];
+        const settings = {};
+        lsKeys.forEach(k => { const v = localStorage.getItem(k); if (v !== null) settings[k] = v; });
+        // Build export object
+        const exp = {
+          _format: 'rian-export-v1',
+          _exportedAt: new Date().toISOString(),
+          _sourceUid: uid,
+          _sourceEmail: state.currentUser.email || '',
+          _version: VERSION,
+          weeks, notes, reminders, settings
+        };
+        const blob = new Blob([JSON.stringify(exp, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `rian-export-${new Date().toISOString().slice(0, 10)}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        showToast('Export complete — file downloaded.');
+      } catch (e) { showToast('Export failed: ' + e.message); }
+    }
+
+    function importAllData() {
+      if (!state.currentUser) { showToast('Sign in first'); return; }
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = '.json';
+      input.onchange = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        try {
+          const text = await file.text();
+          const data = JSON.parse(text);
+          if (data._format !== 'rian-export-v1') {
+            showToast('Invalid export file — not a Rian export.');
+            return;
+          }
+          const weekCount = Object.keys(data.weeks || {}).length;
+          const noteCount = data.notes?.notes?.length || 0;
+          const remCount = data.reminders?.reminders?.length || 0;
+          showConfirm(
+            'Import Data?',
+            `This will MERGE ${weekCount} week(s), ${noteCount} note(s), and ${remCount} reminder(s) into your current account (${state.currentUser.email}). Existing entries for the same weeks will be OVERWRITTEN. Continue?`,
+            () => _doImport(data)
+          );
+        } catch (err) { showToast('Could not read file: ' + err.message); }
+      };
+      input.click();
+    }
+
+    async function _doImport(data) {
+      const uid = state.currentUser.uid;
+      showToast('Importing data…');
+      try {
+        // 1. Import weeks — batch write to Firestore
+        const weekEntries = Object.entries(data.weeks || {});
+        if (weekEntries.length > 0) {
+          // Firestore batches max 500 ops
+          for (let i = 0; i < weekEntries.length; i += 400) {
+            const chunk = weekEntries.slice(i, i + 400);
+            const batch = db_fs.batch();
+            chunk.forEach(([ws, wData]) => {
+              const ref = db_fs.doc(`users/${uid}/weeks/${ws}`);
+              batch.set(ref, { ...wData, _updatedAt: Date.now() });
+            });
+            await batch.commit();
+          }
+          // Update IndexedDB cache
+          for (const [ws, wData] of weekEntries) {
+            await dbPut('weeks', { weekStart: ws, userId: uid, data: wData, updatedAt: Date.now() });
+          }
+        }
+        // 2. Import notes
+        if (data.notes?.notes) {
+          const ref = userDoc('data/notes');
+          if (ref) await ref.set({ notes: data.notes.notes, _updatedAt: Date.now() });
+          state.notes = data.notes.notes;
+          await dbPut('notes', { id: 'notes_all', userId: uid, data: state.notes, updatedAt: Date.now() });
+        }
+        // 3. Import reminders
+        if (data.reminders?.reminders) {
+          const ref = userDoc('data/reminders');
+          if (ref) await ref.set({ reminders: data.reminders.reminders, _updatedAt: Date.now() });
+          remindersData = data.reminders.reminders;
+          await dbPut('notes', { id: 'reminders_all', userId: uid, data: remindersData, updatedAt: Date.now() });
+        }
+        // 4. Import settings
+        if (data.settings) {
+          Object.entries(data.settings).forEach(([k, v]) => localStorage.setItem(k, v));
+          // Apply theme immediately
+          if (data.settings.theme) document.documentElement.setAttribute('data-theme', data.settings.theme);
+          if (data.settings.geminiKey) state.geminiKey = data.settings.geminiKey;
+        }
+        // 5. Reload current week to reflect imported data
+        const ws = state.weekStart || dateToStr(getCurrentFriday());
+        const imported = weekEntries.find(([k]) => k === ws);
+        if (imported) {
+          state.weekData = imported[1];
+          render();
+        }
+        showToast(`Imported ${weekEntries.length} weeks, ${data.notes?.notes?.length || 0} notes, ${data.reminders?.reminders?.length || 0} reminders.`);
+      } catch (e) { showToast('Import failed: ' + e.message); }
     }
 
     function clearAllData() {
