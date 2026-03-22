@@ -7836,6 +7836,35 @@
     </div>
   </div>
 
+  <!-- Paste Ticket modal -->
+  <div id="paste-ticket-modal" class="hidden fixed inset-0 z-50 flex items-end justify-center"
+    style="background:var(--overlay)">
+    <div class="w-full max-w-md shadow-2xl" style="background:var(--bg-modal);border-radius:16px 16px 0 0;padding:20px 24px 24px">
+      <div id="paste-ticket-step1">
+        <h2 class="text-lg font-bold" style="color:var(--text-primary);margin:0 0 4px">Paste Ticket Email</h2>
+        <p class="text-sm" style="color:var(--text-secondary);margin:0 0 12px">Copy the email body from Gmail and paste it below.</p>
+        <textarea id="paste-ticket-input" rows="6" placeholder="Paste email text here…"
+          style="width:100%;border:1.5px solid var(--border);border-radius:10px;padding:12px;font-size:14px;resize:vertical;background:var(--bg-card);color:var(--text-primary);font-family:inherit"></textarea>
+        <div class="flex gap-3" style="margin-top:16px">
+          <button onclick="closePasteTicket()" class="flex-1 py-3 rounded-xl font-medium"
+            style="border:2px solid var(--border);color:var(--text-secondary)">Cancel</button>
+          <button onclick="parsePasteTicket()" class="flex-1 py-3 rounded-xl font-bold text-white"
+            style="background:var(--accent)">Parse</button>
+        </div>
+      </div>
+      <div id="paste-ticket-step2" style="display:none">
+        <h2 class="text-lg font-bold" style="color:var(--text-primary);margin:0 0 12px">Confirm Details</h2>
+        <div id="paste-ticket-preview" style="display:flex;flex-direction:column;gap:10px"></div>
+        <div class="flex gap-3" style="margin-top:16px">
+          <button onclick="pasteTicketBack()" class="flex-1 py-3 rounded-xl font-medium"
+            style="border:2px solid var(--border);color:var(--text-secondary)">Back</button>
+          <button onclick="pasteTicketCreate()" class="flex-1 py-3 rounded-xl font-bold text-white"
+            style="background:var(--accent)">Create Callout</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Copy task day picker -->
   <div id="copy-picker-modal" class="hidden"></div>
   <!-- Add task to notes confirmation -->
@@ -7857,7 +7886,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.14.20';
+    const VERSION = '4.15.0';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -14945,9 +14974,14 @@
           <div style="font-size:15px;font-weight:700;color:var(--text-primary)">${esc(rangeStr)}</div>
           <div style="font-size:12px;color:var(--text-muted)">${allCallouts.length} callout${allCallouts.length !== 1 ? 's' : ''}</div>
         </div>
-        <button onclick="coOpenAdd()" style="display:flex;align-items:center;gap:4px;padding:7px 12px;background:var(--accent);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Add
-        </button>
+        <div style="display:flex;gap:6px">
+          <button onclick="openPasteTicket()" style="display:flex;align-items:center;gap:4px;padding:7px 10px;background:var(--bg-card);color:var(--accent);border:1.5px solid var(--accent);border-radius:8px;font-size:13px;font-weight:600;cursor:pointer" title="Paste ticket email">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="4" rx="1"/><rect x="4" y="4" width="16" height="18" rx="2"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="8" y1="16" x2="12" y2="16"/></svg> Paste
+          </button>
+          <button onclick="coOpenAdd()" style="display:flex;align-items:center;gap:4px;padding:7px 12px;background:var(--accent);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Add
+          </button>
+        </div>
       </div>`;
 
       if (sortedDates.length === 0 && state.calloutsExpandedId !== '__new__') {
@@ -15459,6 +15493,177 @@
           }
         }
       );
+    }
+
+    // ============================================================
+    // PASTE TICKET — parse email and create callout
+    // ============================================================
+    let _pasteTicketParsed = null;
+
+    function openPasteTicket() {
+      _pasteTicketParsed = null;
+      document.getElementById('paste-ticket-input').value = '';
+      document.getElementById('paste-ticket-step1').style.display = '';
+      document.getElementById('paste-ticket-step2').style.display = 'none';
+      document.getElementById('paste-ticket-modal').classList.remove('hidden');
+      setTimeout(() => document.getElementById('paste-ticket-input').focus(), 100);
+    }
+
+    function closePasteTicket() {
+      document.getElementById('paste-ticket-modal').classList.add('hidden');
+      _pasteTicketParsed = null;
+    }
+
+    function pasteTicketBack() {
+      document.getElementById('paste-ticket-step1').style.display = '';
+      document.getElementById('paste-ticket-step2').style.display = 'none';
+    }
+
+    function _parseTicketEmail(text) {
+      // Normalize: remove quoted-printable soft line breaks and =3D → =
+      let t = text.replace(/=\r?\n/g, '').replace(/=3D/g, '=');
+      const result = { ticket: '', fault: '', site: '', siteCode: '', priority: '', monolith: '', notes: '', date: '' };
+
+      // Ticket number: Incident R followed by digits
+      const ticketMatch = t.match(/Incident\s+(R\d{5,})/i);
+      if (ticketMatch) result.ticket = ticketMatch[1];
+
+      // Priority
+      const prioMatch = t.match(/Priority:\s*\n?\s*(\w+)/i);
+      if (prioMatch) result.priority = prioMatch[1];
+
+      // Summary / Fault — try Summary first, then FAULT
+      const sumMatch = t.match(/Summary:\s*\n?\s*(.+)/i);
+      if (sumMatch) result.fault = sumMatch[1].trim();
+      if (!result.fault) {
+        const faultMatch = t.match(/FAULT:\s*(.+)/i);
+        if (faultMatch) result.fault = faultMatch[1].trim();
+      }
+
+      // DeviceName — extract site code from hostname
+      const devMatch = t.match(/DeviceName\s*=\s*(\S+)/i);
+      if (devMatch) {
+        const hostname = devMatch[1];
+        // Pattern: device.CODE.network.eircom.net
+        const parts = hostname.split('.');
+        if (parts.length >= 2) {
+          result.siteCode = parts[1].toUpperCase();
+        }
+      }
+      // Fallback: Node = CODE
+      if (!result.siteCode) {
+        const nodeMatch = t.match(/Node\s*=\s*(\w+)/i);
+        if (nodeMatch) result.siteCode = nodeMatch[1].toUpperCase();
+      }
+
+      // Match site code against exchanges list
+      if (result.siteCode && TOWNS.length > 0) {
+        const town = TOWNS.find(t => t.code.toUpperCase() === result.siteCode);
+        if (town) result.site = town.name + ' (' + town.code + ')';
+      }
+
+      // Monolith
+      const monoMatch = t.match(/Monolith\s+(\d+)/i);
+      if (monoMatch) result.monolith = monoMatch[1];
+
+      // Date — try "Sent:" line from forwarded email
+      const sentMatch = t.match(/Sent:\s*(.+)/i);
+      if (sentMatch) {
+        try {
+          const d = new Date(sentMatch[1].trim());
+          if (!isNaN(d)) result.date = dateToStr(d);
+        } catch (e) { /* ignore */ }
+      }
+      if (!result.date) result.date = dateToStr(new Date());
+
+      // Build notes field with extra info
+      const notesParts = [];
+      if (result.priority) notesParts.push('Priority: ' + result.priority);
+      if (devMatch) notesParts.push('Device: ' + devMatch[1]);
+      const sevMatch = t.match(/Severity\s*=\s*(\w+)/i);
+      if (sevMatch) notesParts.push('Severity: ' + sevMatch[1]);
+      if (result.monolith) notesParts.push('Monolith: ' + result.monolith);
+      // Engineer / assigned by
+      const engMatch = t.match(/\/\/(\w+)\s*$/m);
+      if (engMatch) notesParts.push('Assigned by: ' + engMatch[1]);
+      result.notes = notesParts.join('\n');
+
+      return result;
+    }
+
+    function parsePasteTicket() {
+      const text = document.getElementById('paste-ticket-input').value.trim();
+      if (!text) { showToast('Paste the email text first'); return; }
+
+      _pasteTicketParsed = _parseTicketEmail(text);
+
+      // Build preview
+      const p = _pasteTicketParsed;
+      const previewEl = document.getElementById('paste-ticket-preview');
+      const row = (label, value, id) => `
+        <div>
+          <div style="font-size:12px;font-weight:600;color:var(--text-secondary);margin-bottom:3px">${label}</div>
+          <input id="pt-${id}" type="text" value="${escAttr(value)}" class="act-input"
+            style="width:100%;font-size:14px;padding:8px 10px;border-radius:8px;border:1.5px solid var(--border);background:var(--bg-card);color:var(--text-primary)">
+        </div>`;
+      previewEl.innerHTML =
+        row('Ticket Number', p.ticket, 'ticket') +
+        row('Fault / Description', p.fault, 'fault') +
+        row('Site', p.site || (p.siteCode ? p.siteCode + ' (not matched)' : ''), 'site') +
+        `<div>
+          <div style="font-size:12px;font-weight:600;color:var(--text-secondary);margin-bottom:3px">Date</div>
+          <input id="pt-date" type="date" value="${p.date}" class="act-input"
+            style="width:100%;font-size:14px;padding:8px 10px;border-radius:8px;border:1.5px solid var(--border);background:var(--bg-card);color:var(--text-primary)">
+        </div>` +
+        `<div>
+          <div style="font-size:12px;font-weight:600;color:var(--text-secondary);margin-bottom:3px">Notes</div>
+          <textarea id="pt-notes" rows="3" class="act-input"
+            style="width:100%;font-size:14px;padding:8px 10px;border-radius:8px;border:1.5px solid var(--border);background:var(--bg-card);color:var(--text-primary);resize:vertical;font-family:inherit">${esc(p.notes)}</textarea>
+        </div>`;
+
+      // Switch to preview step
+      document.getElementById('paste-ticket-step1').style.display = 'none';
+      document.getElementById('paste-ticket-step2').style.display = '';
+    }
+
+    function pasteTicketCreate() {
+      // Read editable fields from preview
+      const ticket = document.getElementById('pt-ticket')?.value?.trim() || '';
+      const fault = document.getElementById('pt-fault')?.value?.trim() || '';
+      const site = document.getElementById('pt-site')?.value?.trim() || '';
+      const date = document.getElementById('pt-date')?.value || dateToStr(new Date());
+      const notes = document.getElementById('pt-notes')?.value?.trim() || '';
+
+      closePasteTicket();
+
+      // Ensure the current week exists
+      const weekStart = state.calloutsSelectedWeek || dateToStr(getCurrentFriday());
+      if (!state.callouts) state.callouts = { weeks: {} };
+      if (!state.callouts.weeks[weekStart]) {
+        state.callouts.weeks[weekStart] = { startDate: weekStart, callouts: [] };
+      }
+      const weekData = state.callouts.weeks[weekStart];
+      if (!weekData.callouts) weekData.callouts = [];
+
+      // Create the callout record
+      const id = Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+      const co = { id, date, ticket, site, fault, engineerOnSite: '', notes };
+      weekData.callouts.push(co);
+
+      // Save and render
+      saveCallouts();
+      // Open the newly created callout expanded
+      state.calloutsExpandedId = id;
+      state.calloutsEditId = id;
+      state.calloutsNotesOpen = false;
+      render();
+      showToast('Callout created from ticket');
+
+      // Scroll to new card
+      setTimeout(() => {
+        const card = document.querySelector(`[data-co-id="${id}"]`);
+        if (card) card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 200);
     }
 
     // ============================================================
