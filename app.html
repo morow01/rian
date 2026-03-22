@@ -3825,8 +3825,9 @@
 
     .ai-answer-text hr {
       border: none;
-      border-top: 1px solid var(--border);
-      margin: 8px 0;
+      border-top: 1px dashed var(--border);
+      margin: 10px 0 6px;
+      opacity: 0.6;
     }
 
     .ai-answer-text::-webkit-scrollbar {
@@ -6919,7 +6920,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.12.35';
+    const VERSION = '4.12.36';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -14614,6 +14615,10 @@ Rules:
           out.push(`<h3>${inline(line.trim())}</h3>`);
         } else {
           closeList();
+          // Add separator before "**Task:**" lines (visual task boundary)
+          if (/^\s*\*\*Task:?\*\*/.test(line) && out.length > 0 && out[out.length - 1] !== '<hr>') {
+            out.push('<hr>');
+          }
           out.push(`<p>${inline(line)}</p>`);
         }
       });
@@ -15050,27 +15055,42 @@ QUESTION: ${query}`;
           }).filter(Boolean).sort((a, b) => b.hitCount - a.hitCount);
           if (mentioned.length > 0) noteMatches = mentioned;
         }
-        // Post-filter timesheet entries: only keep entries whose description Gemini actually referenced
+        // Post-filter timesheet entries: only keep entries whose description Gemini specifically listed
         if (timesheetEntries.length > 1) {
           const answerLower = answer.toLowerCase();
           const filtered = timesheetEntries.filter(e => {
             const desc = (e.description || '').toLowerCase().trim();
             if (!desc || desc.length < 3) return false;
-            // Check if the full description (or a substantial part) appears in Gemini's answer
-            if (answerLower.includes(desc)) return true;
-            // For longer descriptions, check first 4+ significant words as a phrase
             const words = desc.replace(/[^a-z0-9\s]/g, ' ').split(/\s+/).filter(w => w.length >= 3);
+            // Long descriptions (3+ words): check if a multi-word phrase appears in the answer
             if (words.length >= 3) {
+              // Try the full description first
+              if (answerLower.includes(desc)) return true;
+              // Try first 4-5 significant words as phrase
               const phrase = words.slice(0, Math.min(words.length, 5)).join(' ');
               if (answerLower.includes(phrase)) return true;
+              // Try any consecutive 3-word window from the description
+              for (let i = 0; i <= words.length - 3; i++) {
+                if (answerLower.includes(words.slice(i, i + 3).join(' '))) return true;
+              }
+              return false;
             }
-            // For short descriptions (1-2 words like "Fault"), check description + location combo
-            if (words.length <= 2 && e.location) {
+            // Short descriptions (1-2 words like "Routines", "Fault"):
+            // Must appear as "Task: <desc>" or "Task "<desc>" pattern in Gemini answer to confirm it's specifically referenced
+            const taskPatterns = [
+              `task: ${desc}`, `task "${desc}`, `task: "${desc}`, `"${desc}"`,
+              `task: ${desc.replace(/\s*\?$/, '')}` // without trailing ?
+            ];
+            if (taskPatterns.some(p => answerLower.includes(p))) return true;
+            // Also check description + location as a specific reference (e.g. "Fault (MXY0002A10) @ Mucklagh")
+            if (e.location) {
               const loc = e.location.toLowerCase().replace(/[^a-z0-9\s]/g, ' ').trim();
+              // The description + a location word must appear near each other
               const locWords = loc.split(/\s+/).filter(w => w.length >= 3);
-              const combo = [...words, ...locWords].filter(w => w.length >= 3);
-              const hits = combo.filter(w => answerLower.includes(w)).length;
-              if (hits >= 2) return true;
+              for (const lw of locWords) {
+                const combined = `${desc}.*${lw}|${lw}.*${desc}`;
+                try { if (new RegExp(combined).test(answerLower)) return true; } catch(e) {}
+              }
             }
             return false;
           });
