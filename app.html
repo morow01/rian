@@ -14753,6 +14753,9 @@ Work week = Friday to Thursday.
       const matchingSavedNotesSection = noteMatches?.length
         ? `\nMATCHING SAVED NOTES (standalone notes from the Notes tab that match the query):\n${noteMatches.slice(0, 10).map(n => `[${n.status?.toUpperCase() || 'OPEN'}] ${n.description || '(no description)'}${n.location ? ' @ ' + n.location : ''}${n.date ? ' [' + n.date + ']' : ''}`).join('\n')}\n`
         : '';
+      console.log('[Rian AI] Full context:', timesheetContext);
+      console.log('[Rian AI] Note matches:', noteMatches?.length, noteMatches);
+      console.log('[Rian AI] Fault sources:', faultSources?.length);
       const prompt = `You are a personal timesheet assistant for a telecommunications field technician.
 You have their full work history. Answer their question directly and confidently using the data below.
 Use the DATE REFERENCES section to resolve any time words like "last week", "this month", "yesterday".
