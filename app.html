@@ -5319,27 +5319,6 @@
     }
     .snap-restore-btn:active { opacity: 0.8; }
 
-    .snap-day-group { margin-bottom: 4px; }
-    .snap-day-header {
-      display: flex; align-items: center; gap: 8px;
-      padding: 8px 4px; cursor: pointer; user-select: none;
-    }
-    .snap-day-label {
-      font-size: 12px; font-weight: 800; color: var(--text-secondary);
-      text-transform: uppercase; letter-spacing: 0.5px;
-    }
-    .snap-day-count {
-      font-size: 10px; font-weight: 700; color: var(--text-secondary);
-      background: var(--border); border-radius: 8px; padding: 1px 7px;
-      opacity: 0.7;
-    }
-    .snap-day-chevron {
-      margin-left: auto; color: var(--text-secondary); opacity: 0.5;
-      transition: transform 0.2s;
-    }
-    .snap-day-group.collapsed .snap-day-chevron { transform: rotate(-90deg); }
-    .snap-day-group.collapsed .snap-day-items { display: none; }
-
     .snap-empty {
       text-align: center;
       color: var(--text-secondary);
@@ -6749,6 +6728,15 @@
           </svg>
           Save snapshot now
         </button>
+        <div id="snap-day-picker" style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
+          <button onclick="snapDayNav(-1)" style="width:34px;height:34px;border-radius:10px;border:1px solid var(--border);background:var(--bg-card);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-secondary)" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+          </button>
+          <div id="snap-day-label" style="flex:1;text-align:center;font-size:13px;font-weight:700;color:var(--text-primary);"></div>
+          <button onclick="snapDayNav(1)" style="width:34px;height:34px;border-radius:10px;border:1px solid var(--border);background:var(--bg-card);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-secondary)" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+          </button>
+        </div>
         <div id="snapshot-list"></div>
       </div>
     </div>
@@ -6817,7 +6805,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.12.0';
+    const VERSION = '4.12.1';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -12669,46 +12657,53 @@
         </div>`;
     }
 
+    let _snapAllSnaps = [];  // cached snapshot list
+    let _snapDays = [];      // unique days with snapshots, sorted newest first
+    let _snapDayIndex = 0;   // currently selected day index
+
     async function renderSnapshotList(weekStart) {
       const el = document.getElementById('snapshot-list');
       if (!el) return;
       el.innerHTML = '<div class="snap-empty">Loading…</div>';
-      const snaps = await listSnapshots(weekStart);
-      if (!snaps.length) {
+      _snapAllSnaps = await listSnapshots(weekStart);
+      if (!_snapAllSnaps.length) {
         el.innerHTML = '<div class="snap-empty">No snapshots yet for this week.<br>Snapshots are taken automatically as you save.</div>';
+        document.getElementById('snap-day-picker').style.display = 'none';
         return;
       }
-      // Group snapshots by day
+      // Extract unique days, sorted newest first
+      const daySet = new Set();
+      _snapAllSnaps.forEach(s => daySet.add(dateToStr(new Date(s._savedAt))));
+      _snapDays = [...daySet].sort((a, b) => b.localeCompare(a));
+      _snapDayIndex = 0; // start on most recent day
+      document.getElementById('snap-day-picker').style.display = 'flex';
+      _renderSnapDay();
+    }
+
+    function _renderSnapDay() {
+      const el = document.getElementById('snapshot-list');
+      const labelEl = document.getElementById('snap-day-label');
+      if (!el || !_snapDays.length) return;
+      const dayKey = _snapDays[_snapDayIndex];
       const today = dateToStr(new Date());
       const yesterday = dateToStr(new Date(Date.now() - 86400000));
       const dayNames = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
-      const groups = new Map();
-      snaps.forEach(s => {
-        const dayKey = dateToStr(new Date(s._savedAt));
-        if (!groups.has(dayKey)) groups.set(dayKey, []);
-        groups.get(dayKey).push(s);
-      });
-      let html = '';
-      for (const [dayKey, daySnaps] of groups) {
-        let dayLabel;
-        if (dayKey === today) dayLabel = 'Today';
-        else if (dayKey === yesterday) dayLabel = 'Yesterday';
-        else {
-          const d = new Date(dayKey + 'T12:00:00');
-          dayLabel = dayNames[d.getDay()] + ', ' + d.getDate() + ' ' + d.toLocaleString('en', { month: 'short' });
-        }
-        html += `<div class="snap-day-group">
-          <div class="snap-day-header" onclick="this.parentElement.classList.toggle('collapsed')">
-            <span class="snap-day-label">${dayLabel}</span>
-            <span class="snap-day-count">${daySnaps.length}</span>
-            <svg class="snap-day-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
-          </div>
-          <div class="snap-day-items">
-            ${daySnaps.map(s => _renderSnapCard(s)).join('')}
-          </div>
-        </div>`;
+      let dayLabel;
+      if (dayKey === today) dayLabel = 'Today';
+      else if (dayKey === yesterday) dayLabel = 'Yesterday';
+      else {
+        const d = new Date(dayKey + 'T12:00:00');
+        dayLabel = dayNames[d.getDay()] + ', ' + d.getDate() + ' ' + d.toLocaleString('en', { month: 'short' });
       }
-      el.innerHTML = html;
+      const daySnaps = _snapAllSnaps.filter(s => dateToStr(new Date(s._savedAt)) === dayKey);
+      labelEl.textContent = dayLabel + ' (' + daySnaps.length + ')';
+      el.innerHTML = daySnaps.map(s => _renderSnapCard(s)).join('');
+    }
+
+    function snapDayNav(dir) {
+      if (!_snapDays.length) return;
+      _snapDayIndex = Math.max(0, Math.min(_snapDays.length - 1, _snapDayIndex + dir));
+      _renderSnapDay();
     }
 
     function confirmRestoreSnapshot(snapId, savedAt) {
