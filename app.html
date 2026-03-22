@@ -7778,33 +7778,60 @@
   </div>
 
   <!-- Export options modal -->
-  <div id="export-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4"
+  <div id="export-modal" class="hidden fixed inset-0 z-50 flex items-end justify-center"
     style="background:var(--overlay)">
-    <div class="rounded-2xl p-6 w-full max-w-sm shadow-2xl" style="background:var(--bg-modal)">
-      <h2 class="text-lg font-bold mb-1" style="color:var(--text-primary)">Export Data</h2>
-      <p class="mb-4 text-sm" style="color:var(--text-secondary)">Choose what to include in your export file.</p>
-      <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:20px">
-        <label style="display:flex;align-items:center;gap:10px;cursor:pointer;padding:10px 12px;border-radius:10px;border:1.5px solid var(--border);color:var(--text-primary);font-size:14px;font-weight:500">
-          <input type="checkbox" id="exp-weeks" checked style="width:18px;height:18px;accent-color:#F5A623"> Timesheet (weeks)
-        </label>
-        <label style="display:flex;align-items:center;gap:10px;cursor:pointer;padding:10px 12px;border-radius:10px;border:1.5px solid var(--border);color:var(--text-primary);font-size:14px;font-weight:500">
-          <input type="checkbox" id="exp-notes" checked style="width:18px;height:18px;accent-color:#F5A623"> Field Notes
-        </label>
-        <label style="display:flex;align-items:center;gap:10px;cursor:pointer;padding:10px 12px;border-radius:10px;border:1.5px solid var(--border);color:var(--text-primary);font-size:14px;font-weight:500">
-          <input type="checkbox" id="exp-reminders" checked style="width:18px;height:18px;accent-color:#F5A623"> Reminders
-        </label>
-        <label style="display:flex;align-items:center;gap:10px;cursor:pointer;padding:10px 12px;border-radius:10px;border:1.5px solid var(--border);color:var(--text-primary);font-size:14px;font-weight:500">
-          <input type="checkbox" id="exp-callouts" checked style="width:18px;height:18px;accent-color:#F5A623"> Callouts
-        </label>
-        <label style="display:flex;align-items:center;gap:10px;cursor:pointer;padding:10px 12px;border-radius:10px;border:1.5px solid var(--border);color:var(--text-primary);font-size:14px;font-weight:500">
-          <input type="checkbox" id="exp-settings" checked style="width:18px;height:18px;accent-color:#F5A623"> Settings
-        </label>
-      </div>
-      <div class="flex gap-3">
+    <div class="w-full max-w-md shadow-2xl" style="background:var(--bg-modal);border-radius:16px 16px 0 0;padding:20px 24px 24px">
+      <h2 class="text-lg font-bold" style="color:var(--text-primary);margin:0 0 4px">Export Data</h2>
+      <p class="text-sm" style="color:var(--text-secondary);margin:0 0 12px">Choose what to include in your backup file.</p>
+      <div id="exp-list" style="border-top:1px solid var(--border)"></div>
+      <div class="flex gap-3" style="margin-top:16px">
         <button onclick="document.getElementById('export-modal').classList.add('hidden')" class="flex-1 py-3 rounded-xl font-medium"
           style="border:2px solid var(--border);color:var(--text-secondary)">Cancel</button>
-        <button onclick="doExportWithOptions()" class="flex-1 py-3 rounded-xl font-bold text-white"
+        <button onclick="doExportWithOptions()" id="exp-btn" class="flex-1 py-3 rounded-xl font-bold text-white"
           style="background:#F5A623">Export</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Import modal -->
+  <div id="import-modal" class="hidden fixed inset-0 z-50 flex items-end justify-center"
+    style="background:var(--overlay)">
+    <div class="w-full max-w-md shadow-2xl" style="background:var(--bg-modal);border-radius:16px 16px 0 0;padding:20px 24px 24px">
+      <div id="import-step-file">
+        <h2 class="text-lg font-bold" style="color:var(--text-primary);margin:0 0 4px">Import Data</h2>
+        <p class="text-sm" style="color:var(--text-secondary);margin:0 0 16px">Select a previously exported JSON backup file.</p>
+        <button onclick="importPickFile()" style="width:100%;padding:28px 20px;border-radius:12px;border:2px dashed var(--border);background:var(--bg-card);cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px">
+          <span style="font-size:24px">📁</span>
+          <span style="font-weight:600;font-size:14px;color:var(--text-primary)">Choose File</span>
+          <span style="font-size:12px;color:var(--text-secondary)">JSON backup files only</span>
+        </button>
+        <div class="flex gap-3" style="margin-top:16px">
+          <button onclick="document.getElementById('import-modal').classList.add('hidden')" class="flex-1 py-3 rounded-xl font-medium"
+            style="border:2px solid var(--border);color:var(--text-secondary)">Cancel</button>
+        </div>
+      </div>
+      <div id="import-step-preview" style="display:none">
+        <h2 class="text-lg font-bold" style="color:var(--text-primary);margin:0 0 8px">Import Data</h2>
+        <div id="import-file-chip" style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:8px;background:var(--bg-card);border:1px solid var(--border);margin-bottom:12px">
+          <span style="font-size:15px">📄</span>
+          <div style="flex:1;min-width:0">
+            <div id="import-file-name" style="font-size:13px;font-weight:600;color:var(--text-primary);overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></div>
+            <div id="import-file-size" style="font-size:11px;color:var(--text-secondary)"></div>
+          </div>
+          <button onclick="importChangeFile()" style="background:none;border:none;color:#2563eb;font-size:13px;font-weight:600;cursor:pointer">Change</button>
+        </div>
+        <p class="text-sm" style="color:var(--text-secondary);margin:0 0 8px">Select what to import. Data will be merged with existing records.</p>
+        <div style="display:flex;gap:8px;align-items:flex-start;padding:10px 12px;border-radius:8px;background:#fefce8;border:1px solid #fde68a;margin-bottom:8px">
+          <span style="font-size:14px;line-height:1.4">⚠️</span>
+          <span style="color:#92400e;font-size:12px;line-height:1.4">Importing will replace your existing data for each selected type.</span>
+        </div>
+        <div id="imp-list" style="border-top:1px solid var(--border)"></div>
+        <div class="flex gap-3" style="margin-top:16px">
+          <button onclick="document.getElementById('import-modal').classList.add('hidden')" class="flex-1 py-3 rounded-xl font-medium"
+            style="border:2px solid var(--border);color:var(--text-secondary)">Cancel</button>
+          <button onclick="doImportWithOptions()" id="imp-btn" class="flex-1 py-3 rounded-xl font-bold text-white"
+            style="background:#16a34a">Import</button>
+        </div>
       </div>
     </div>
   </div>
@@ -7830,7 +7857,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.14.16';
+    const VERSION = '4.14.17';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -14047,12 +14074,41 @@
     // ============================================================
     // EXPORT / IMPORT — full account data transfer
     // ============================================================
+    // ── Section icons for export/import dialogs ──
+    const _eiIcons = {
+      timesheet: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>',
+      notes: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>',
+      reminders: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>',
+      callouts: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>',
+      settings: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>'
+    };
+
+    function _eiCheckboxRow(id, icon, label, count, checked, disabled) {
+      const opacity = disabled ? 'opacity:0.4;' : '';
+      const countHtml = count ? `<span style="font-size:13px;color:var(--text-secondary);white-space:nowrap">${esc(count)}</span>` : '';
+      return `<label style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);cursor:${disabled ? 'default' : 'pointer'};${opacity}">
+        <input type="checkbox" id="${id}" ${checked ? 'checked' : ''} ${disabled ? 'disabled' : ''} style="width:20px;height:20px;accent-color:#F5A623;cursor:${disabled ? 'default' : 'pointer'};flex-shrink:0">
+        <span style="display:flex;align-items:center;color:var(--text-secondary);flex-shrink:0">${icon}</span>
+        <span style="flex:1;font-size:15px;color:${disabled ? 'var(--text-secondary)' : 'var(--text-primary)'};font-weight:500">${label}</span>
+        ${countHtml}
+      </label>`;
+    }
+
     function exportAllData() {
       if (!state.currentUser) { showToast('Sign in first'); return; }
-      // Reset checkboxes to all checked
-      ['exp-weeks','exp-notes','exp-reminders','exp-callouts','exp-settings'].forEach(id => {
-        const el = document.getElementById(id); if (el) el.checked = true;
-      });
+      // Build checkbox list with counts
+      const uid = state.currentUser.uid;
+      const weekCount = state.weekData ? '' : ''; // counts loaded async
+      const noteCount = state.notes?.length || 0;
+      const remCount = remindersData?.length || 0;
+      const coCount = state.callouts?.weeks ? Object.values(state.callouts.weeks).reduce((s, w) => s + (w.callouts?.length || 0), 0) : 0;
+      const list = document.getElementById('exp-list');
+      list.innerHTML =
+        _eiCheckboxRow('exp-weeks', _eiIcons.timesheet, 'Timesheet', '', true, false) +
+        _eiCheckboxRow('exp-notes', _eiIcons.notes, 'Field Notes', noteCount ? noteCount + ' notes' : '', true, false) +
+        _eiCheckboxRow('exp-reminders', _eiIcons.reminders, 'Reminders', remCount ? remCount + ' reminders' : '', true, false) +
+        _eiCheckboxRow('exp-callouts', _eiIcons.callouts, 'Callouts', coCount ? coCount + ' callouts' : '', true, false) +
+        _eiCheckboxRow('exp-settings', _eiIcons.settings, 'Settings', '', true, false);
       document.getElementById('export-modal').classList.remove('hidden');
     }
 
@@ -14077,28 +14133,23 @@
           _sourceEmail: state.currentUser.email || '',
           _version: VERSION
         };
-        // 1. Weeks
         if (incWeeks) {
           const weeksSnap = await db_fs.collection(`users/${uid}/weeks`).get().catch(() => null);
           exp.weeks = {};
           if (weeksSnap) weeksSnap.docs.forEach(d => { exp.weeks[d.id] = d.data(); });
         }
-        // 2. Notes
         if (incNotes) {
           const notesDoc = await userDoc('data/notes')?.get().catch(() => null);
           exp.notes = notesDoc?.exists ? notesDoc.data() : null;
         }
-        // 3. Reminders
         if (incReminders) {
           const remDoc = await userDoc('data/reminders')?.get().catch(() => null);
           exp.reminders = remDoc?.exists ? remDoc.data() : null;
         }
-        // 4. Callouts
         if (incCallouts) {
           const calloutsDoc = await userDoc('data/callouts')?.get().catch(() => null);
           exp.callouts = calloutsDoc?.exists ? calloutsDoc.data() : null;
         }
-        // 5. Settings
         if (incSettings) {
           const lsKeys = ['geminiKey', 'geminiModel', 'theme', 'layoutMode', 'headerExpanded',
             'rian_ai_scope', 'rian_ai_recent', 'exchangeTab', 'deviceName'];
@@ -14118,8 +14169,19 @@
       } catch (e) { showToast('Export failed: ' + e.message); }
     }
 
+    // ── Import with selection dialog ──
+    let _importParsedData = null;
+
     function importAllData() {
       if (!state.currentUser) { showToast('Sign in first'); return; }
+      _importParsedData = null;
+      // Show file-select step
+      document.getElementById('import-step-file').style.display = '';
+      document.getElementById('import-step-preview').style.display = 'none';
+      document.getElementById('import-modal').classList.remove('hidden');
+    }
+
+    function importPickFile() {
       const input = document.createElement('input');
       input.type = 'file';
       input.accept = '.json';
@@ -14133,40 +14195,94 @@
             showToast('Invalid export file — not a Rian export.');
             return;
           }
-          const weekCount = Object.keys(data.weeks || {}).length;
-          const noteCount = data.notes?.notes?.length || 0;
-          const remCount = data.reminders?.reminders?.length || 0;
-          const coWeeks = Object.keys(data.callouts?.weeks || {}).length;
-          const coCount = coWeeks ? Object.values(data.callouts.weeks).reduce((s, w) => s + (w.callouts?.length || 0), 0) : 0;
-          showConfirm(
-            'Import Data?',
-            `This will REPLACE all data in your current account (${state.currentUser.email}) with ${weekCount} week(s), ${noteCount} note(s), ${remCount} reminder(s)${coCount ? `, and ${coCount} callout(s)` : ''} from the export file. Any existing data will be deleted first. Continue?`,
-            () => _doImport(data)
-          );
+          _importParsedData = data;
+          _importShowPreview(file.name, text.length);
         } catch (err) { showToast('Could not read file: ' + err.message); }
       };
       input.click();
     }
 
+    function importChangeFile() {
+      _importParsedData = null;
+      document.getElementById('import-step-file').style.display = '';
+      document.getElementById('import-step-preview').style.display = 'none';
+    }
+
+    function _importShowPreview(fileName, fileSize) {
+      const data = _importParsedData;
+      // File info
+      document.getElementById('import-file-name').textContent = fileName;
+      const sizeKB = (fileSize / 1024).toFixed(0);
+      document.getElementById('import-file-size').textContent = sizeKB + ' KB';
+
+      // Count what's in the file
+      const hasWeeks = data.weeks && Object.keys(data.weeks).length > 0;
+      const weekCount = hasWeeks ? Object.keys(data.weeks).length + ' weeks' : '';
+      const hasNotes = data.notes?.notes?.length > 0;
+      const noteCount = hasNotes ? data.notes.notes.length + ' notes' : '';
+      const hasReminders = data.reminders?.reminders?.length > 0;
+      const remCount = hasReminders ? data.reminders.reminders.length + ' reminders' : '';
+      const hasCallouts = data.callouts?.weeks && Object.keys(data.callouts.weeks).length > 0;
+      const coTotal = hasCallouts ? Object.values(data.callouts.weeks).reduce((s, w) => s + (w.callouts?.length || 0), 0) : 0;
+      const coCount = hasCallouts ? coTotal + ' callouts' : '';
+      const hasSettings = data.settings && Object.keys(data.settings).length > 0;
+
+      const list = document.getElementById('imp-list');
+      list.innerHTML =
+        _eiCheckboxRow('imp-weeks', _eiIcons.timesheet, 'Timesheet', hasWeeks ? weekCount : 'Not in file', hasWeeks, !hasWeeks) +
+        _eiCheckboxRow('imp-notes', _eiIcons.notes, 'Field Notes', hasNotes ? noteCount : 'Not in file', hasNotes, !hasNotes) +
+        _eiCheckboxRow('imp-reminders', _eiIcons.reminders, 'Reminders', hasReminders ? remCount : 'Not in file', hasReminders, !hasReminders) +
+        _eiCheckboxRow('imp-callouts', _eiIcons.callouts, 'Callouts', hasCallouts ? coCount : 'Not in file', hasCallouts, !hasCallouts) +
+        _eiCheckboxRow('imp-settings', _eiIcons.settings, 'Settings', hasSettings ? '' : 'Not in file', hasSettings, !hasSettings);
+
+      // Switch to preview step
+      document.getElementById('import-step-file').style.display = 'none';
+      document.getElementById('import-step-preview').style.display = '';
+    }
+
+    function doImportWithOptions() {
+      if (!_importParsedData) return;
+      const data = _importParsedData;
+      const incWeeks = document.getElementById('imp-weeks')?.checked;
+      const incNotes = document.getElementById('imp-notes')?.checked;
+      const incReminders = document.getElementById('imp-reminders')?.checked;
+      const incCallouts = document.getElementById('imp-callouts')?.checked;
+      const incSettings = document.getElementById('imp-settings')?.checked;
+      if (!incWeeks && !incNotes && !incReminders && !incCallouts && !incSettings) {
+        showToast('Nothing selected to import'); return;
+      }
+      document.getElementById('import-modal').classList.add('hidden');
+      // Build filtered data object — only include selected types
+      const filtered = {
+        _format: data._format,
+        weeks: incWeeks ? data.weeks : null,
+        notes: incNotes ? data.notes : null,
+        reminders: incReminders ? data.reminders : null,
+        callouts: incCallouts ? data.callouts : null,
+        settings: incSettings ? data.settings : null
+      };
+      showConfirm(
+        'Replace Data?',
+        'This will replace your existing data for each selected type. This cannot be undone. Continue?',
+        () => _doImport(filtered)
+      );
+    }
+
     async function _doImport(data) {
       const uid = state.currentUser.uid;
-      showToast('Clearing existing data…');
+      showToast('Importing data…');
       try {
-        // 0. Clear ALL existing data first (full replace, not merge)
-        const existingWeeks = await db_fs.collection(`users/${uid}/weeks`).get().catch(() => null);
-        if (existingWeeks) {
-          const delBatch = db_fs.batch();
-          existingWeeks.docs.forEach(d => delBatch.delete(d.ref));
-          await delBatch.commit();
-        }
-        await userDoc('data/notes')?.delete().catch(() => { });
-        await userDoc('data/reminders')?.delete().catch(() => { });
-        await Promise.allSettled([dbClear('weeks'), dbClear('notes')]);
-        showToast('Importing data…');
-        // 1. Import weeks — batch write to Firestore
+        const parts = [];
+        // 1. Import weeks — clear existing first, then batch write
         const weekEntries = Object.entries(data.weeks || {});
         if (weekEntries.length > 0) {
-          // Firestore batches max 500 ops
+          const existingWeeks = await db_fs.collection(`users/${uid}/weeks`).get().catch(() => null);
+          if (existingWeeks && existingWeeks.docs.length) {
+            const delBatch = db_fs.batch();
+            existingWeeks.docs.forEach(d => delBatch.delete(d.ref));
+            await delBatch.commit();
+          }
+          await dbClear('weeks');
           for (let i = 0; i < weekEntries.length; i += 400) {
             const chunk = weekEntries.slice(i, i + 400);
             const batch = db_fs.batch();
@@ -14176,10 +14292,10 @@
             });
             await batch.commit();
           }
-          // Update IndexedDB cache
           for (const [ws, wData] of weekEntries) {
             await dbPut('weeks', { weekStart: ws, userId: uid, data: wData, updatedAt: Date.now() });
           }
+          parts.push(weekEntries.length + ' weeks');
         }
         // 2. Import notes
         if (data.notes?.notes) {
@@ -14187,6 +14303,7 @@
           if (ref) await ref.set({ notes: data.notes.notes, _updatedAt: Date.now() });
           state.notes = data.notes.notes;
           await dbPut('notes', { id: 'notes_all', userId: uid, data: state.notes, updatedAt: Date.now() });
+          parts.push(data.notes.notes.length + ' notes');
         }
         // 3. Import reminders
         if (data.reminders?.reminders) {
@@ -14194,6 +14311,7 @@
           if (ref) await ref.set({ reminders: data.reminders.reminders, _updatedAt: Date.now() });
           remindersData = data.reminders.reminders;
           await dbPut('notes', { id: 'reminders_all', userId: uid, data: remindersData, updatedAt: Date.now() });
+          parts.push(data.reminders.reminders.length + ' reminders');
         }
         // 4. Import callouts
         if (data.callouts?.weeks) {
@@ -14201,22 +14319,26 @@
           if (ref) await ref.set({ weeks: data.callouts.weeks, _updatedAt: Date.now() });
           state.callouts = { weeks: data.callouts.weeks };
           await dbPut('notes', { id: 'callouts_all', userId: uid, data: state.callouts, updatedAt: Date.now() });
+          const coTotal = Object.values(data.callouts.weeks).reduce((s, w) => s + (w.callouts?.length || 0), 0);
+          parts.push(coTotal + ' callouts');
         }
         // 5. Import settings
         if (data.settings) {
           Object.entries(data.settings).forEach(([k, v]) => localStorage.setItem(k, v));
-          // Apply theme immediately
           if (data.settings.theme) document.documentElement.setAttribute('data-theme', data.settings.theme);
           if (data.settings.geminiKey) state.geminiKey = data.settings.geminiKey;
+          parts.push('settings');
         }
         // 6. Reload current week to reflect imported data
-        const ws = state.weekStart || dateToStr(getCurrentFriday());
-        const imported = weekEntries.find(([k]) => k === ws);
-        if (imported) {
-          state.weekData = imported[1];
-          render();
+        if (weekEntries.length > 0) {
+          const ws = state.weekStart || dateToStr(getCurrentFriday());
+          const imported = weekEntries.find(([k]) => k === ws);
+          if (imported) {
+            state.weekData = imported[1];
+            render();
+          }
         }
-        showToast(`Imported ${weekEntries.length} weeks, ${data.notes?.notes?.length || 0} notes, ${data.reminders?.reminders?.length || 0} reminders.`);
+        showToast('Imported ' + parts.join(', ') + '.');
       } catch (e) { showToast('Import failed: ' + e.message); }
     }
 
