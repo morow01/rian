@@ -6815,6 +6815,42 @@
       border: 1px solid var(--border);
     }
 
+    /* ===== CALLOUTS ===== */
+    .co-page { padding: 0 0 80px; background: var(--bg-page); min-height: calc(100vh - 56px); }
+    .co-top-bar { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; }
+    .co-top-title { font-size: 17px; font-weight: 600; color: var(--text-primary); }
+    .co-add-btn { display: flex; align-items: center; gap: 5px; padding: 8px 14px; background: var(--accent); color: #fff; border: none; border-radius: 8px; font-size: 13px; font-weight: 500; cursor: pointer; }
+    .co-active-week { margin: 0 16px 12px; padding: 12px 16px; background: var(--accent-light); border-radius: 12px; border: 1px solid var(--accent); cursor: pointer; }
+    .co-active-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--priority-low); display: inline-block; margin-right: 6px; box-shadow: 0 0 6px var(--priority-low); }
+    .co-section-label { padding: 8px 16px 4px; font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.8px; }
+    .co-week-card { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; margin: 0 12px 8px; background: var(--bg-card); border-radius: 10px; border: 1px solid var(--border); cursor: pointer; }
+    .co-week-label { font-size: 14px; font-weight: 500; color: var(--text-primary); }
+    .co-week-sub { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+    .co-back-btn { background: none; border: none; cursor: pointer; padding: 4px; display: flex; color: var(--accent); }
+    .co-day-label { padding: 12px 16px 6px; font-size: 12px; font-weight: 600; color: var(--accent); text-transform: uppercase; letter-spacing: 0.5px; }
+    .co-callout-card { margin: 0 12px 6px; padding: 10px 14px; background: var(--bg-card); border-radius: 10px; border: 1px solid var(--border); cursor: pointer; }
+    .co-ticket { font-size: 11px; font-family: var(--font-mono); padding: 2px 6px; background: var(--bg-code-group); border-radius: 4px; color: var(--text-secondary); }
+    .co-site-name { font-size: 13px; font-weight: 600; color: var(--text-primary); }
+    .co-fault-text { font-size: 12px; color: var(--text-secondary); line-height: 1.4; margin-top: 4px; }
+    .co-time-badge { display: flex; align-items: center; gap: 3px; color: var(--text-muted); font-size: 12px; white-space: nowrap; }
+    /* Add/Edit form */
+    .co-form { background: var(--bg-page); }
+    .co-form-row { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; background: var(--bg-card); border-bottom: 1px solid var(--border); cursor: pointer; }
+    .co-form-label { font-size: 12px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+    .co-form-value { font-size: 14px; color: var(--text-primary); margin-top: 2px; }
+    .co-form-placeholder { font-size: 14px; color: var(--text-muted); font-style: italic; margin-top: 2px; }
+    .co-form-input { border: none; outline: none; font-size: 14px; color: var(--text-primary); width: 100%; padding: 2px 0; background: transparent; font-family: var(--font-mono); }
+    .co-save-btn { width: calc(100% - 32px); margin: 20px 16px; padding: 14px; background: var(--accent); color: #fff; border: none; border-radius: 12px; font-size: 15px; font-weight: 600; cursor: pointer; }
+    .co-save-btn:disabled { background: var(--text-muted); cursor: default; }
+    .co-delete-btn { width: calc(100% - 32px); margin: 0 16px 16px; padding: 12px; background: none; color: var(--priority-high); border: 1.5px solid var(--priority-high); border-radius: 12px; font-size: 14px; font-weight: 500; cursor: pointer; }
+    .co-notes-panel { margin: 0 16px; border: 1.5px solid var(--border); border-radius: 10px; overflow: hidden; background: var(--bg-card); }
+    .co-notes-header { display: flex; align-items: center; gap: 8px; padding: 12px 14px; cursor: pointer; }
+    .co-notes-ta { width: 100%; min-height: 80px; padding: 10px 14px; border: none; border-top: 1.5px solid var(--border); outline: none; font-size: 13px; color: var(--text-primary); font-family: var(--font-body); resize: vertical; box-sizing: border-box; background: var(--bg-card); }
+    .co-empty { text-align: center; padding: 60px 24px; }
+    .co-empty-icon { font-size: 48px; margin-bottom: 12px; }
+    .co-empty-title { font-size: 16px; font-weight: 600; color: var(--text-primary); margin-bottom: 6px; }
+    .co-empty-sub { font-size: 13px; color: var(--text-muted); line-height: 1.5; }
+
     /* ===== AUTO WORK CODE SUGGESTER ===== */
     .act-suggest-btn {
       display: inline-flex;
@@ -7782,7 +7818,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.13.4';
+    const VERSION = '4.14.0';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -7947,13 +7983,27 @@
     function selectLocationFromModal(idx) {
       const t = locationModalCtx._results[idx];
       if (!t) return;
-      _applyLocationValue(t.name + ' (' + t.code + ')');
-      closeLocationModal();
+      const siteName = t.name + ' (' + t.code + ')';
+      if (_coSiteCallback) {
+        _coSiteCallback(siteName);
+        _coSiteCallback = null;
+        closeLocationModal();
+      } else {
+        _applyLocationValue(siteName);
+        closeLocationModal();
+      }
     }
 
     function confirmLocationModal() {
-      _applyLocationValue(document.getElementById('location-search').value.trim());
-      closeLocationModal();
+      const val = document.getElementById('location-search').value.trim();
+      if (_coSiteCallback) {
+        _coSiteCallback(val);
+        _coSiteCallback = null;
+        closeLocationModal();
+      } else {
+        _applyLocationValue(val);
+        closeLocationModal();
+      }
     }
 
     function _applyLocationValue(val) {
@@ -8301,6 +8351,11 @@
       routinesPickerSites: [],  // working copy while picker is open
       geminiKey: localStorage.getItem('geminiKey') || '',
       geminiModel: localStorage.getItem('geminiModel') || '',
+      // Callouts
+      callouts: null,          // { weeks: {} } loaded from Firestore
+      calloutsView: 'list',    // 'list' | 'week' | 'add'
+      calloutsSelectedWeek: null, // weekStart key
+      calloutsEditId: null,    // callout id being edited, or null for new
     };
 
     let codeModalCtx = { dayIndex: null, activityId: null, selected: [] };
@@ -8400,6 +8455,38 @@
       const ref = userDoc('data/reminders');
       if (!ref) return;
       await ref.set({ reminders, _updatedAt: Date.now() });
+    }
+
+    async function fsSetCallouts(data) {
+      const ref = userDoc('data/callouts');
+      if (!ref) return;
+      await ref.set({ ...data, _updatedAt: Date.now() });
+    }
+
+    async function loadCallouts() {
+      const uid = state.currentUser?.uid;
+      if (!uid) return;
+      // Try IndexedDB first
+      const stored = await dbGet('notes', 'callouts_all').catch(() => null);
+      if (stored?.data) state.callouts = stored.data;
+      // Then fetch from Firestore
+      const ref = userDoc('data/callouts');
+      if (!ref) return;
+      const doc = await ref.get().catch(() => null);
+      if (doc?.exists) {
+        const remote = doc.data();
+        state.callouts = { weeks: remote.weeks || {} };
+        await dbPut('notes', { id: 'callouts_all', userId: uid, data: state.callouts, updatedAt: remote._updatedAt || Date.now() });
+      }
+      if (!state.callouts) state.callouts = { weeks: {} };
+      render();
+    }
+
+    async function saveCallouts() {
+      const uid = state.currentUser?.uid;
+      if (!uid || !state.callouts) return;
+      await dbPut('notes', { id: 'callouts_all', userId: uid, data: state.callouts, updatedAt: Date.now() });
+      await fsSetCallouts(state.callouts);
     }
 
     // Rolling notes backup — separate from main notes doc, never overwritten with empty
@@ -9181,6 +9268,8 @@
         viewBody = renderNotesView();
       } else if (state.view === 'routines') {
         viewBody = renderRoutinesView();
+      } else if (state.view === 'callouts') {
+        viewBody = renderCalloutsView();
       } else if (state.view === 'ai') {
         viewBody = `<div id="ai-fault-body" style="min-height:calc(100vh - 120px);background:var(--bg-page);"></div>`;
       } else { // Default to 'week' view
@@ -9318,6 +9407,11 @@
                   <button class="menu-row" onclick="setView('routines');closeThemeMenu()">
                     <span class="menu-row-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M9 9h6M9 13h6M9 17h4"/><circle cx="6" cy="9" r="1.2" fill="currentColor"/><circle cx="6" cy="13" r="1.2" fill="currentColor"/><circle cx="6" cy="17" r="1.2" fill="currentColor"/></svg></span>
                     <span class="menu-row-body"><span class="menu-row-label">Routines</span><span class="menu-row-sub">Track monthly site visits</span></span>
+                    ${chev}
+                  </button>
+                  <button class="menu-row" onclick="setView('callouts');closeThemeMenu()">
+                    <span class="menu-row-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg></span>
+                    <span class="menu-row-body"><span class="menu-row-label">Callouts</span><span class="menu-row-sub">On-call incident log</span></span>
                     ${chev}
                   </button>
                   <button class="menu-row" onclick="openDateModal();closeThemeMenu()">
@@ -11817,6 +11911,9 @@
         render();
       }
       else if (v === 'routines') await loadRoutines();
+      else if (v === 'callouts') {
+        await loadCallouts();
+      }
       else render();
     }
 
@@ -13914,7 +14011,10 @@
         // 3. Reminders from Firestore
         const remDoc = await userDoc('data/reminders')?.get().catch(() => null);
         const reminders = remDoc?.exists ? remDoc.data() : null;
-        // 4. Settings from localStorage
+        // 4. Callouts from Firestore
+        const calloutsDoc = await userDoc('data/callouts')?.get().catch(() => null);
+        const callouts = calloutsDoc?.exists ? calloutsDoc.data() : null;
+        // 5. Settings from localStorage
         const lsKeys = ['geminiKey', 'geminiModel', 'theme', 'layoutMode', 'headerExpanded',
           'rian_ai_scope', 'rian_ai_recent', 'exchangeTab', 'deviceName'];
         const settings = {};
@@ -13926,7 +14026,7 @@
           _sourceUid: uid,
           _sourceEmail: state.currentUser.email || '',
           _version: VERSION,
-          weeks, notes, reminders, settings
+          weeks, notes, reminders, callouts, settings
         };
         const blob = new Blob([JSON.stringify(exp, null, 2)], { type: 'application/json' });
         const url = URL.createObjectURL(blob);
@@ -14016,14 +14116,21 @@
           remindersData = data.reminders.reminders;
           await dbPut('notes', { id: 'reminders_all', userId: uid, data: remindersData, updatedAt: Date.now() });
         }
-        // 4. Import settings
+        // 4. Import callouts
+        if (data.callouts?.weeks) {
+          const ref = userDoc('data/callouts');
+          if (ref) await ref.set({ weeks: data.callouts.weeks, _updatedAt: Date.now() });
+          state.callouts = { weeks: data.callouts.weeks };
+          await dbPut('notes', { id: 'callouts_all', userId: uid, data: state.callouts, updatedAt: Date.now() });
+        }
+        // 5. Import settings
         if (data.settings) {
           Object.entries(data.settings).forEach(([k, v]) => localStorage.setItem(k, v));
           // Apply theme immediately
           if (data.settings.theme) document.documentElement.setAttribute('data-theme', data.settings.theme);
           if (data.settings.geminiKey) state.geminiKey = data.settings.geminiKey;
         }
-        // 5. Reload current week to reflect imported data
+        // 6. Reload current week to reflect imported data
         const ws = state.weekStart || dateToStr(getCurrentFriday());
         const imported = weekEntries.find(([k]) => k === ws);
         if (imported) {
@@ -14508,6 +14615,323 @@
       closeRoutinesLogModal();
       render();
       await fsSetRoutines().catch(e => console.warn('[Rian]', e));
+    }
+
+    // ============================================================
+    // CALLOUTS — on-call incident logging
+    // ============================================================
+    let _coSiteCallback = null;
+
+    function getDayNameFromDate(dateStr) {
+      // Returns day name from 'YYYY-MM-DD' string
+      const d = strToDate(dateStr);
+      const dayIndex = d.getDay();
+      // Map JS getDay (0=Sun, 1=Mon, ..., 5=Fri, 6=Sat) to DAY_NAMES index
+      // DAY_NAMES = [Friday, Saturday, Sunday, Monday, Tuesday, Wednesday, Thursday]
+      return DAY_NAMES[dayIndex === 5 ? 0 : dayIndex === 0 ? 2 : dayIndex - 1];
+    }
+
+    function renderCalloutsView() {
+      if (!state.callouts) return `<div class="co-page"><div class="co-empty"><div class="co-empty-title">Loading…</div></div></div>`;
+
+      if (state.calloutsView === 'list') {
+        return renderCalloutsList();
+      } else if (state.calloutsView === 'week') {
+        return renderCalloutsWeek();
+      } else if (state.calloutsView === 'add') {
+        return renderCalloutsForm();
+      }
+      return '';
+    }
+
+    function renderCalloutsList() {
+      const weeks = Object.entries(state.callouts.weeks || {}).sort().reverse();
+      const now = new Date();
+      const curWeekStart = dateToStr(getCurrentFriday());
+      const hasCurrentWeek = weeks.some(([k]) => k === curWeekStart);
+
+      let html = `<div class="co-page">
+        <div class="co-top-bar">
+          <div class="co-top-title">Callouts</div>
+          <button class="co-add-btn" onclick="coAddWeek()">
+            <span>+</span> <span>Week</span>
+          </button>
+        </div>`;
+
+      if (!hasCurrentWeek && state.currentUser) {
+        html += `<div class="co-active-week" onclick="coAddWeek()">
+          <span class="co-active-dot"></span> <strong>Add current week</strong>
+        </div>`;
+      }
+
+      if (weeks.length === 0) {
+        html += `<div class="co-empty">
+          <div class="co-empty-icon">📞</div>
+          <div class="co-empty-title">No on-call weeks yet</div>
+          <div class="co-empty-sub">Track your callout incidents by adding an on-call week.</div>
+        </div>`;
+      } else {
+        html += `<div class="co-section-label">All weeks</div>`;
+        weeks.forEach(([weekKey, weekData]) => {
+          const startDate = strToDate(weekKey);
+          const endDate = new Date(startDate);
+          endDate.setDate(endDate.getDate() + 6);
+          const rangeStr = formatWeekRange(weekKey);
+          const calloutCount = (weekData.callouts || []).length;
+          html += `<div class="co-week-card" onclick="coSelectWeek('${weekKey}')">
+            <div>
+              <div class="co-week-label">${rangeStr}</div>
+              <div class="co-week-sub">${calloutCount} incident${calloutCount !== 1 ? 's' : ''}</div>
+            </div>
+            <span style="color:var(--text-muted)">›</span>
+          </div>`;
+        });
+      }
+      html += `</div>`;
+      return html;
+    }
+
+    function renderCalloutsWeek() {
+      if (!state.calloutsSelectedWeek || !state.callouts.weeks[state.calloutsSelectedWeek]) {
+        return `<div class="co-page"><div class="co-empty"><div class="co-empty-title">Week not found</div></div></div>`;
+      }
+      const weekData = state.callouts.weeks[state.calloutsSelectedWeek];
+      const rangeStr = formatWeekRange(state.calloutsSelectedWeek);
+      const calloutsByDate = {};
+
+      (weekData.callouts || []).forEach(co => {
+        if (!calloutsByDate[co.date]) calloutsByDate[co.date] = [];
+        calloutsByDate[co.date].push(co);
+      });
+
+      const sortedDates = Object.keys(calloutsByDate).sort();
+
+      let html = `<div class="co-page">
+        <div class="co-top-bar">
+          <button class="co-back-btn" onclick="coBack()">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+          </button>
+          <div class="co-top-title">${esc(rangeStr)}</div>
+          <button class="co-add-btn" onclick="coOpenAdd()">
+            <span>+</span> <span>Add</span>
+          </button>
+        </div>`;
+
+      if (sortedDates.length === 0) {
+        html += `<div class="co-empty" style="padding:40px 24px">
+          <div class="co-empty-icon">📋</div>
+          <div class="co-empty-title">No callouts this week</div>
+          <div class="co-empty-sub">Add your first incident to get started.</div>
+        </div>`;
+      } else {
+        sortedDates.forEach(dateStr => {
+          const d = strToDate(dateStr);
+          const dayName = getDayNameFromDate(dateStr);
+          const dayNum = d.getDate();
+          html += `<div class="co-day-label">${dayName} ${dayNum}</div>`;
+
+          calloutsByDate[dateStr].forEach(co => {
+            const timeStr = co.engineerOnSite ? co.engineerOnSite : '—';
+            html += `<div class="co-callout-card" onclick="coOpenEdit('${esc(state.calloutsSelectedWeek)}', '${esc(co.id)}')">
+              <div style="margin-bottom:6px">
+                <span class="co-ticket">${esc(co.ticket || '—')}</span>
+              </div>
+              <div class="co-site-name">${esc(co.site || 'Unknown Site')}</div>
+              <div class="co-fault-text">${esc((co.fault || '').substring(0, 80))}${(co.fault || '').length > 80 ? '…' : ''}</div>
+              <div class="co-time-badge">
+                <span>⏱</span> <span>${esc(timeStr)}</span>
+              </div>
+            </div>`;
+          });
+        });
+      }
+      html += `</div>`;
+      return html;
+    }
+
+    function renderCalloutsForm() {
+      const isNew = !state.calloutsEditId;
+      const weekData = state.calloutsSelectedWeek ? state.callouts.weeks[state.calloutsSelectedWeek] : null;
+      let callout = null;
+      if (!isNew && weekData) {
+        callout = (weekData.callouts || []).find(c => c.id === state.calloutsEditId);
+      }
+
+      const defaultDate = state.calloutsSelectedWeek || dateToStr(getCurrentFriday());
+      const formDate = callout?.date || defaultDate;
+      const formTicket = callout?.ticket || '';
+      const formSite = callout?.site || '';
+      const formFault = callout?.fault || '';
+      const formTime = callout?.engineerOnSite || '';
+      const formNotes = callout?.notes || '';
+
+      let html = `<div class="co-page co-form">
+        <div class="co-top-bar">
+          <button class="co-back-btn" onclick="coBack()">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+          </button>
+          <div class="co-top-title">${isNew ? 'New Callout' : 'Edit Callout'}</div>
+          <div style="width:30px"></div>
+        </div>
+
+        <!-- Date -->
+        <div class="co-form-row">
+          <div>
+            <div class="co-form-label">Date</div>
+            <div class="co-form-value">${fmtDateAI(formDate, getDayNameFromDate(formDate))}</div>
+          </div>
+          <input type="date" id="co-date-input" value="${formDate}" style="display:none">
+        </div>
+
+        <!-- Ticket -->
+        <div class="co-form-row">
+          <div>
+            <div class="co-form-label">Ticket #</div>
+            <input type="text" id="co-ticket-input" class="co-form-input" placeholder="e.g., TK001234" value="${esc(formTicket)}">
+          </div>
+        </div>
+
+        <!-- Site -->
+        <div class="co-form-row" onclick="(() => { _coSiteCallback = (name) => { document.getElementById('co-site-display').textContent = name; }; openLocationModal(); })()">
+          <div>
+            <div class="co-form-label">Site</div>
+            <div id="co-site-display" class="co-form-value">${formSite ? esc(formSite) : ''}</div>
+            ${!formSite ? `<div class="co-form-placeholder">Tap to select location</div>` : ''}
+          </div>
+          <span style="color:var(--text-muted)">›</span>
+        </div>
+
+        <!-- Fault -->
+        <div class="co-form-row">
+          <div style="width:100%">
+            <div class="co-form-label">Fault Description</div>
+            <input type="text" id="co-fault-input" class="co-form-input" placeholder="Describe the issue" value="${esc(formFault)}">
+          </div>
+        </div>
+
+        <!-- On-site time -->
+        <div class="co-form-row">
+          <div>
+            <div class="co-form-label">On-Site Time</div>
+            <input type="time" id="co-time-input" value="${formTime}" style="font-size:14px;color:var(--text-primary);border:none;background:transparent;outline:none">
+          </div>
+        </div>
+
+        <!-- Notes -->
+        <div style="padding:16px">
+          <div class="co-notes-panel">
+            <div class="co-notes-header" onclick="document.getElementById('co-notes-ta')?.focus()">
+              <span>📝</span>
+              <span style="font-weight:500;color:var(--text-primary)">Notes</span>
+            </div>
+            <textarea id="co-notes-ta" class="co-notes-ta" placeholder="Additional details…">${esc(formNotes)}</textarea>
+          </div>
+        </div>
+
+        <button class="co-save-btn" onclick="coSave()">Save Callout</button>
+        ${!isNew ? `<button class="co-delete-btn" onclick="coDelete()">Delete Callout</button>` : ''}
+      </div>`;
+      return html;
+    }
+
+    function coSelectWeek(weekStart) {
+      state.calloutsSelectedWeek = weekStart;
+      state.calloutsView = 'week';
+      state.calloutsEditId = null;
+      render();
+    }
+
+    function coAddWeek() {
+      const weekStart = dateToStr(getCurrentFriday());
+      if (!state.callouts.weeks[weekStart]) {
+        state.callouts.weeks[weekStart] = { startDate: weekStart, callouts: [] };
+        saveCallouts();
+      }
+      coSelectWeek(weekStart);
+    }
+
+    function coOpenAdd(date) {
+      state.calloutsView = 'add';
+      state.calloutsEditId = null;
+      render();
+    }
+
+    function coOpenEdit(weekStart, calloutId) {
+      state.calloutsSelectedWeek = weekStart;
+      state.calloutsView = 'add';
+      state.calloutsEditId = calloutId;
+      render();
+    }
+
+    function coBack() {
+      if (state.calloutsView === 'add') {
+        state.calloutsView = 'week';
+      } else if (state.calloutsView === 'week') {
+        state.calloutsView = 'list';
+        state.calloutsSelectedWeek = null;
+      }
+      state.calloutsEditId = null;
+      render();
+    }
+
+    async function coSave() {
+      const weekStart = state.calloutsSelectedWeek || dateToStr(getCurrentFriday());
+      if (!state.callouts.weeks[weekStart]) {
+        state.callouts.weeks[weekStart] = { startDate: weekStart, callouts: [] };
+      }
+      const weekData = state.callouts.weeks[weekStart];
+      if (!weekData.callouts) weekData.callouts = [];
+
+      const date = document.getElementById('co-date-input')?.value || weekStart;
+      const ticket = document.getElementById('co-ticket-input')?.value?.trim() || '';
+      const site = document.getElementById('co-site-display')?.textContent?.trim() || '';
+      const fault = document.getElementById('co-fault-input')?.value?.trim() || '';
+      const engineerOnSite = document.getElementById('co-time-input')?.value || '';
+      const notes = document.getElementById('co-notes-ta')?.value?.trim() || '';
+
+      if (!site) {
+        showToast('Please select a site');
+        return;
+      }
+
+      const isNew = !state.calloutsEditId;
+      if (isNew) {
+        const id = Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+        weekData.callouts.push({ id, date, ticket, site, fault, engineerOnSite, notes });
+      } else {
+        const idx = weekData.callouts.findIndex(c => c.id === state.calloutsEditId);
+        if (idx >= 0) {
+          weekData.callouts[idx] = { id: state.calloutsEditId, date, ticket, site, fault, engineerOnSite, notes };
+        }
+      }
+
+      await saveCallouts();
+      showToast(isNew ? 'Callout added' : 'Callout updated');
+      state.calloutsView = 'week';
+      state.calloutsEditId = null;
+      render();
+    }
+
+    function coDelete() {
+      if (!state.calloutsSelectedWeek || !state.calloutsEditId) return;
+      showConfirm(
+        'Delete Callout?',
+        'This cannot be undone.',
+        async () => {
+          const weekData = state.callouts.weeks[state.calloutsSelectedWeek];
+          if (weekData) {
+            const idx = weekData.callouts.findIndex(c => c.id === state.calloutsEditId);
+            if (idx >= 0) {
+              weekData.callouts.splice(idx, 1);
+              await saveCallouts();
+              showToast('Callout deleted');
+              state.calloutsView = 'week';
+              state.calloutsEditId = null;
+              render();
+            }
+          }
+        }
+      );
     }
 
     // ============================================================
