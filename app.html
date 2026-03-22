@@ -6805,7 +6805,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.12.10';
+    const VERSION = '4.12.11';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -9007,9 +9007,6 @@
 
       if (nowExpanded) {
         card.classList.add('expanded');
-        // Clear any collapse-triggered red border while editing
-        card.style.borderColor = '';
-        card.style.boxShadow = '';
         if (detail) {
           detail.style.display = 'block';
           // Force reflow before adding class to trigger transition
@@ -9342,7 +9339,7 @@
       const isInvalid = isMissingCode || isMissingHours;
       // Hours with no code → red immediately
       // Code with no hours → red only on collapse (grace period while entering hours)
-      const showRedBorder = isMissingCode || (isMissingHours && !isExpanded);
+      const showRedBorder = isMissingCode || isMissingHours;
       const numTasks = act.codes.length || 1;
       const hrsPerTask = ordinary > 0 ? Math.round(ordinary / numTasks) : '—';
       const otPerTask = overtime > 0 ? Math.round(overtime / numTasks) : '—';
