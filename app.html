@@ -6821,7 +6821,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.12.18';
+    const VERSION = '4.12.19';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -14822,7 +14822,18 @@ QUESTION: ${query}`;
           scope.taskNotes ? searchFaultNotes(query) : Promise.resolve([]),             // skip if Task Notes unchecked
           scope.timesheet ? searchTimesheetEntries(query) : Promise.resolve([])        // skip if Timesheet unchecked
         ]);
-        const noteMatches = scope.savedNotes ? searchMatchingNotes(query) : [];
+        let noteMatches = scope.savedNotes ? searchMatchingNotes(query) : [];
+        // For general queries like "any issues", "show notes", "problems" — show all open notes as cards
+        if (scope.savedNotes && noteMatches.length === 0) {
+          const generalPattern = /\b(issue|problem|note|open|outstanding|pending|todo|all|list|show|what)\b/i;
+          if (generalPattern.test(query)) {
+            const allNotes = state.notes || [];
+            noteMatches = allNotes.filter(n => n.status !== 'done').map(n => ({
+              id: n.id, description: n.description, noteContent: n.noteContent,
+              location: n.location, date: n.date, status: n.status, priority: n.priority, hitCount: 1
+            }));
+          }
+        }
         const answer = await askGemini(query, timesheetContext, faultSources, noteMatches);
         state.aiResult = { answer, sources: faultSources.slice(0, 5), noteMatches: noteMatches.slice(0, 5), timesheetEntries: timesheetEntries.slice(0, 10) };
         // Save to recent queries
