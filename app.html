@@ -3676,10 +3676,92 @@
       color: var(--text-primary);
       line-height: 1.6;
       max-height: 168px;
-      /* ~8 lines */
       overflow-y: auto;
       overscroll-behavior: contain;
       padding-right: 4px;
+    }
+
+    .ai-answer-text.expanded {
+      max-height: none;
+    }
+
+    .ai-expand-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      width: 100%;
+      padding: 6px 0 0;
+      font-size: 11px;
+      font-weight: 600;
+      color: #818cf8;
+      background: none;
+      border: none;
+      cursor: pointer;
+    }
+
+    .ai-expand-btn:hover {
+      text-decoration: underline;
+    }
+
+    /* Fullscreen overlay for AI answer */
+    .ai-fullscreen-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: var(--bg-page);
+      z-index: 10000;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .ai-fullscreen-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+
+    .ai-fullscreen-header .ai-answer-label {
+      margin: 0;
+    }
+
+    .ai-fullscreen-close {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 8px;
+      border-radius: 6px;
+    }
+
+    .ai-fullscreen-close:hover {
+      background: var(--bg-hover);
+    }
+
+    .ai-fullscreen-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .ai-fullscreen-body .ai-answer-text {
+      max-height: none;
+      overflow-y: visible;
+      font-size: 14px;
+      line-height: 1.7;
+    }
+
+    .ai-fullscreen-body .ai-answer-text::after {
+      display: none;
     }
 
     .ai-answer-text p {
@@ -6821,7 +6903,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.12.23';
+    const VERSION = '4.12.29';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -7455,6 +7537,14 @@
       const month = String(d.getMonth() + 1).padStart(2, '0');
       const day = String(d.getDate()).padStart(2, '0');
       return `${year}-${month}-${day}`;
+    }
+
+    const _aiMonthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+    function fmtDateAI(isoStr, dayAbbr) {
+      // "2026-03-20", "Fri" → "Fri 20. March 2026"
+      if (!isoStr) return '';
+      const p = isoStr.split('-');
+      return `${dayAbbr ? dayAbbr + ' ' : ''}${parseInt(p[2])}. ${_aiMonthNames[parseInt(p[1]) - 1]} ${p[0]}`;
     }
 
     function strToDate(s) {
@@ -12470,12 +12560,9 @@
       const provider = new firebase.auth.GoogleAuthProvider();
       provider.setCustomParameters({ prompt: 'select_account' });
       try {
-        await auth_fb.signInWithPopup(provider);
+        await auth_fb.signInWithRedirect(provider);
       } catch (e) {
-        if (e.code !== 'auth/cancelled-popup-request' && e.code !== 'auth/popup-closed-by-user') {
-          showToast('Sign-in failed: ' + (e.message || 'Unknown error'));
-        }
-      } finally {
+        showToast('Sign-in redirect failed: ' + (e.message || 'Unknown error'));
         _signingIn = false;
       }
     }
@@ -14195,21 +14282,49 @@ Rules:
     }
 
     async function init() {
-      initTheme();
+      try { initTheme(); } catch(e) { console.warn('[Rian] Theme blocked by browser:', e); }
+
       if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('sw.js').catch(e => console.warn('[Rian]', e));
       }
 
-      const lastView = localStorage.getItem('lastView');
-      if (lastView === 'notes' || lastView === 'history' || lastView === 'exchanges' || lastView === 'routines' || lastView === 'ai') state.view = lastView;
+      try {
+        const lastView = localStorage.getItem('lastView');
+        if (lastView === 'notes' || lastView === 'history' || lastView === 'exchanges' || lastView === 'routines' || lastView === 'ai') state.view = lastView;
+      } catch(e) { console.warn('[Rian] LocalStorage blocked:', e); }
 
-      await Promise.all([initDB(), loadCodes(), loadTowns(), loadCabinets()]);
-
-      // Show login screen immediately while waiting for auth state
+      // Show login immediately while waiting
       renderLogin();
+
+      try {
+        await Promise.race([
+          Promise.all([
+            initDB().catch(e => console.warn('IDB init failed:', e)), 
+            loadCodes(), 
+            loadTowns(), 
+            loadCabinets()
+          ]),
+          new Promise(res => setTimeout(() => {
+            console.warn('[Rian] Initialization took >4s, proceeding anyway...');
+            res();
+          }, 4000))
+        ]);
+      } catch (e) {
+        console.warn('[Rian] App data load error:', e);
+      }
+
+      try {
+        console.log('[Rian Debug] Checking getRedirectResult (to see if Brave dropped the token)');
+        const redir = await auth_fb.getRedirectResult();
+        console.log('[Rian Debug] Redirect Result:', redir);
+      } catch (err) {
+        console.error('[Rian Debug] Redirect Result ERROR (Brave wiped the token?):', err);
+        showToast('Brave blocked login: ' + err.message);
+      }
 
       // Firebase auth state observer — drives the whole app lifecycle
       auth_fb.onAuthStateChanged(async user => {
+        console.log('[Rian Debug] onAuthStateChanged fired. User:', user ? user.uid : 'null');
         state.currentUser = user;
         if (!user) {
           // Signed out — tear down listeners and show login
@@ -14419,7 +14534,11 @@ Rules:
         .replace(/\*\*\*(.+?)\*\*\*/g, '<strong><em>$1</em></strong>')
         .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
         .replace(/\*(.+?)\*/g, '<em>$1</em>')
-        .replace(/`(.+?)`/g, '<code style="font-family:monospace;font-size:12px;background:var(--bg-page);padding:1px 4px;border-radius:4px;">$1</code>');
+        .replace(/`(.+?)`/g, '<code style="font-family:monospace;font-size:12px;background:var(--bg-page);padding:1px 4px;border-radius:4px;">$1</code>')
+        .replace(/⚠/g, '<span style="color:#e8a73c;">⚠</span>');
+
+      // Detect Gemini section-like lines
+      const isSectionLine = s => /^(Here are|I also found|I found|I checked|Additionally|The following|Below are|No )/i.test(s.trim());
 
       lines.forEach(line => {
         const h3 = line.match(/^###\s+(.+)/);
@@ -14446,6 +14565,9 @@ Rules:
           out.push('<hr>');
         } else if (line.trim() === '') {
           closeList();
+        } else if (isSectionLine(line)) {
+          closeList();
+          out.push(`<h3>${inline(line.trim())}</h3>`);
         } else {
           closeList();
           out.push(`<p>${inline(line)}</p>`);
@@ -14664,7 +14786,7 @@ Work week = Friday to Thursday.
               const acts = (day.activities || []).filter(a => a.description || a.codes?.length || parseFloat(a.ordinary) > 0 || parseFloat(a.overtime) > 0);
               const totOrd = acts.reduce((s, a) => s + (parseFloat(a.ordinary) || 0), 0);
               const totOT = acts.reduce((s, a) => s + (parseFloat(a.overtime) || 0), 0);
-              const dayLabel = `  ${dayNames[di]} ${day.date}`;
+              const dayLabel = `  ${fmtDateAI(day.date, dayNames[di])}`;
               if (!acts.length) {
                 ctx += `${dayLabel}: (no entries)\n`;
               } else {
@@ -14705,12 +14827,12 @@ Work week = Friday to Thursday.
               const hasHours = ord > 0 || ot > 0;
               const hasDesc = !!act.description?.trim();
               if (hasHours && !hasCodes) {
-                issues.push(`${day.date} ${dayNames[di]}: Task "${act.description || '(no description)'}" has ${ord}h hours but NO work code assigned`);
+                issues.push(`${fmtDateAI(day.date, dayNames[di])}: Task "${act.description || '(no description)'}" has ${ord}h hours but NO work code assigned`);
               } else if (hasCodes && !hasHours) {
-                issues.push(`${day.date} ${dayNames[di]}: Task "${act.description || '(no description)'}" has work codes (${act.codes.map(c=>c.c).join(', ')}) but 0 hours`);
+                issues.push(`${fmtDateAI(day.date, dayNames[di])}: Task "${act.description || '(no description)'}" has work codes (${act.codes.map(c=>c.c).join(', ')}) but 0 hours`);
               }
               if (!hasDesc && (hasHours || hasCodes)) {
-                issues.push(`${day.date} ${dayNames[di]}: Task #${ai+1} has no description`);
+                issues.push(`${fmtDateAI(day.date, dayNames[di])}: Task #${ai+1} has no description`);
               }
             });
           });
@@ -14739,7 +14861,7 @@ Work week = Friday to Thursday.
         const noteLine = n => {
           const parts = [n.description || '(no description)'];
           if (n.location) parts.push('@ ' + n.location);
-          if (n.date) parts.push('[' + n.date + ']');
+          if (n.date) parts.push('[' + fmtDateAI(n.date) + ']');
           if (n.priority && n.priority !== 'medium') parts.push('(' + n.priority + ' priority)');
           // Include note body content (stripped of HTML) so AI can search it
           const body = n.noteContent ? n.noteContent.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim() : '';
@@ -14766,10 +14888,10 @@ Work week = Friday to Thursday.
       if (!apiKey) throw new Error('No API key. Add your Gemini key in ☰ Menu → AI Settings.');
       const model = state.geminiModel || 'gemini-2.0-flash';
       const matchingTaskNotesSection = faultSources?.length
-        ? `\nMATCHING TASK NOTES (field notes written inside timesheet work entries that match the query):\n${faultSources.slice(0, 10).map(n => `Date: ${n.date} | Task: ${n.description || '(no description)'}\nField note: ${n.notes}`).join('\n---\n')}\n`
+        ? `\nMATCHING TASK NOTES (field notes written inside timesheet work entries that match the query):\n${faultSources.slice(0, 10).map(n => `Date: ${fmtDateAI(n.date)} | Task: ${n.description || '(no description)'}\nField note: ${n.notes}`).join('\n---\n')}\n`
         : '';
       const matchingSavedNotesSection = noteMatches?.length
-        ? `\nMATCHING SAVED NOTES (standalone notes from the Notes tab that match the query):\n${noteMatches.slice(0, 10).map(n => `[${n.status?.toUpperCase() || 'OPEN'}] ${n.description || '(no description)'}${n.location ? ' @ ' + n.location : ''}${n.date ? ' [' + n.date + ']' : ''}`).join('\n')}\n`
+        ? `\nMATCHING SAVED NOTES (standalone notes from the Notes tab that match the query):\n${noteMatches.slice(0, 10).map(n => `[${n.status?.toUpperCase() || 'OPEN'}] ${n.description || '(no description)'}${n.location ? ' @ ' + n.location : ''}${n.date ? ' [' + fmtDateAI(n.date) + ']' : ''}`).join('\n')}\n`
         : '';
       const prompt = `You are a personal timesheet assistant for a telecommunications field technician.
 You have their full work history. Answer their question directly and confidently using the data below.
@@ -14817,7 +14939,7 @@ QUESTION: ${query}`;
       try {
         // Build context and run searches — each gated by the user's scope toggles
         const scope = state.aiScope;
-        const [timesheetContext, faultSources, timesheetEntries] = await Promise.all([
+        let [timesheetContext, faultSources, timesheetEntries] = await Promise.all([
           buildTimesheetContext(),                                                      // scope-aware internally
           scope.taskNotes ? searchFaultNotes(query) : Promise.resolve([]),             // skip if Task Notes unchecked
           scope.timesheet ? searchTimesheetEntries(query) : Promise.resolve([])        // skip if Timesheet unchecked
@@ -14846,12 +14968,49 @@ QUESTION: ${query}`;
                 const hits = specificKeywords.filter(kw => kwMatches(text, kw)).length;
                 return hits > 0 ? { id: n.id, description: n.description, noteContent: n.noteContent, location: n.location, date: n.date, status: n.status, priority: n.priority, hitCount: hits } : null;
               }).filter(Boolean).sort((a, b) => b.hitCount - a.hitCount);
-              // Only show cards for literal matches; if none, let the AI text answer handle it
-              noteMatches = filtered;
+              // Show literal matches if any, otherwise fall back to all open notes so cards appear
+              noteMatches = filtered.length > 0 ? filtered : allNotes.map(n => ({
+                id: n.id, description: n.description, noteContent: n.noteContent,
+                location: n.location, date: n.date, status: n.status, priority: n.priority, hitCount: 0
+              }));
             }
           }
         }
         const answer = await askGemini(query, timesheetContext, faultSources, noteMatches);
+        // Post-filter: if we fell back to all notes (hitCount 0), narrow to notes Gemini actually mentioned
+        if (noteMatches.length > 0 && noteMatches[0].hitCount === 0) {
+          const answerLower = answer.toLowerCase();
+          const stopW = new Set(['the','and','for','are','but','not','you','all','can','had','her','was','one','our','out','has','his','how','its','may','new','now','old','see','way','who','did','get','let','say','she','too','use','with','have','from','this','that','been','each','make','like','long','look','many','some','than','them','then','what','when','will','about','could','after','other','which','their','there','these','would','just','also','into','very','need','needs','any','open']);
+          const getWords = text => text.toLowerCase().replace(/<[^>]*>/g, ' ').replace(/[^a-z0-9\s]/g, ' ').split(/\s+/).filter(w => w.length >= 3 && !stopW.has(w));
+          const mentioned = noteMatches.map(n => {
+            // Combine description + noteContent for word extraction
+            const noteText = [n.description || '', n.noteContent || ''].join(' ');
+            const noteWords = [...new Set(getWords(noteText))];
+            if (noteWords.length === 0) return null;
+            const hits = noteWords.filter(w => answerLower.includes(w)).length;
+            const ratio = hits / noteWords.length;
+            // Need at least 2 word hits AND 30% word overlap with the AI answer
+            return (hits >= 2 && ratio >= 0.3) ? { ...n, hitCount: hits } : null;
+          }).filter(Boolean).sort((a, b) => b.hitCount - a.hitCount);
+          if (mentioned.length > 0) noteMatches = mentioned;
+        }
+        // Post-filter timesheet entries: narrow to ones Gemini actually referenced
+        if (timesheetEntries.length > 3) {
+          const answerLower = answer.toLowerCase();
+          const stopW2 = new Set(['the','and','for','are','but','not','you','all','can','had','her','was','one','our','out','has','his','how','its','may','new','now','old','see','way','who','did','get','let','say','she','too','use','with','have','from','this','that','been','each','make','like','long','look','many','some','than','them','then','what','when','will','about','could','after','other','which','their','there','these','would','just','also','into','very','need','needs','any','open','ord','hours','hour']);
+          const getW2 = text => text.toLowerCase().replace(/[^a-z0-9\s]/g, ' ').split(/\s+/).filter(w => w.length >= 3 && !stopW2.has(w));
+          const filtered = timesheetEntries.map(e => {
+            const entryText = [e.description || '', e.location || '', (e.categories || []).join(' ')].join(' ');
+            const words = [...new Set(getW2(entryText))];
+            if (words.length === 0) return null;
+            const hits = words.filter(w => answerLower.includes(w)).length;
+            const ratio = hits / words.length;
+            return (hits >= 2 && ratio >= 0.3) ? { ...e, aiHits: hits } : null;
+          }).filter(Boolean).sort((a, b) => b.aiHits - a.aiHits);
+          if (filtered.length > 0 && filtered.length < timesheetEntries.length) {
+            timesheetEntries = filtered;
+          }
+        }
         state.aiResult = { answer, sources: faultSources.slice(0, 5), noteMatches: noteMatches.slice(0, 10), timesheetEntries: timesheetEntries.slice(0, 10) };
         // Save to recent queries
         state.aiRecentQueries = [query, ...state.aiRecentQueries.filter(q => q !== query)].slice(0, 8);
@@ -14861,7 +15020,13 @@ QUESTION: ${query}`;
       } finally {
         state.aiLoading = false;
         renderFaultAssistantModal();
-        setTimeout(() => document.getElementById('ai-result-top')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+        setTimeout(() => {
+          document.getElementById('ai-result-top')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          // Hide expand button if content fits without overflow
+          const txt = document.getElementById('ai-answer-text-main');
+          const btn = document.getElementById('ai-expand-toggle');
+          if (txt && btn && txt.scrollHeight <= 172) btn.style.display = 'none';
+        }, 100);
       }
     }
 
@@ -14902,6 +15067,40 @@ QUESTION: ${query}`;
       state.aiError = null;
       state.aiQuery = '';
       renderFaultAssistantModal();
+    }
+
+    function toggleAIExpand() {
+      const el = document.getElementById('ai-answer-text-main');
+      const btn = document.getElementById('ai-expand-toggle');
+      if (!el || !btn) return;
+      const isExpanded = el.classList.toggle('expanded');
+      btn.innerHTML = isExpanded
+        ? '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg> Show less'
+        : '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg> Show more';
+    }
+
+    function openAIFullscreen() {
+      if (!state.aiResult) return;
+      const overlay = document.createElement('div');
+      overlay.className = 'ai-fullscreen-overlay';
+      overlay.id = 'ai-fullscreen-overlay';
+      overlay.innerHTML = `
+        <div class="ai-fullscreen-header">
+          <div class="ai-answer-label" style="margin:0;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-2px;margin-right:4px;"><path d="M12 8V4H8"/><rect x="4" y="8" width="16" height="12" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></svg> Gemini</div>
+          <button class="ai-fullscreen-close" onclick="closeAIFullscreen()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            Close
+          </button>
+        </div>
+        <div class="ai-fullscreen-body">
+          <div class="ai-answer-text">${renderMarkdown(state.aiResult.answer)}</div>
+        </div>`;
+      document.body.appendChild(overlay);
+    }
+
+    function closeAIFullscreen() {
+      const el = document.getElementById('ai-fullscreen-overlay');
+      if (el) el.remove();
     }
 
     async function goToNote(noteId) {
@@ -15259,8 +15458,17 @@ QUESTION: ${query}`;
             <div style="font-size:11px;color:#818cf8;cursor:pointer;" onclick="clearAIResult()">✕ Clear</div>
           </div>
           <div class="ai-answer-card">
-            <div class="ai-answer-label"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-2px;margin-right:4px;"><path d="M12 8V4H8"/><rect x="4" y="8" width="16" height="12" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></svg> Gemini</div>
-            <div class="ai-answer-text">${renderMarkdown(state.aiResult.answer)}</div>
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+              <div class="ai-answer-label"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-2px;margin-right:4px;"><path d="M12 8V4H8"/><rect x="4" y="8" width="16" height="12" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></svg> Gemini</div>
+              <button onclick="openAIFullscreen()" style="background:none;border:none;color:#818cf8;cursor:pointer;padding:2px;" title="Full screen">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
+              </button>
+            </div>
+            <div class="ai-answer-text" id="ai-answer-text-main">${renderMarkdown(state.aiResult.answer)}</div>
+            <button class="ai-expand-btn" id="ai-expand-toggle" onclick="toggleAIExpand()">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+              Show more
+            </button>
             <div class="ai-answer-footer">${footerText}</div>
           </div>
         </div>
