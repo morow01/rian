@@ -4527,6 +4527,7 @@
     }
     .note-pri-dots {
       display: flex; align-items: center; gap: 6px;
+      flex: 1;
     }
     .note-pri-dots-label {
       font-size: 10px; font-weight: 800; color: #94a3b8;
@@ -4553,7 +4554,7 @@
     }
     .note-toolbar-actions {
       display: flex; align-items: center; gap: 2px;
-      margin-left: auto;
+      flex: 1; justify-content: flex-end;
     }
     .note-tool-btn {
       display: flex; flex-direction: column; align-items: center; gap: 1px;
@@ -6806,7 +6807,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.10.8';
+    const VERSION = '4.10.9';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -10633,20 +10634,37 @@
         ? note.noteContent.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim()
         : '';
 
-      // Format date for ICS (YYYYMMDD) — all-day event
-      const noteDate = note.date || dateToStr(new Date());
-      const dateClean = noteDate.replace(/-/g, '');
-      const startD = new Date(noteDate + 'T00:00:00');
-      const endD = new Date(startD);
-      endD.setDate(endD.getDate() + 1);
-      const endClean = dateToStr(endD).replace(/-/g, '');
-
       // Escape special chars for ICS text fields
       const icsEscape = s => s.replace(/\\/g, '\\\\').replace(/;/g, '\\;').replace(/,/g, '\\,').replace(/\n/g, '\\n');
+      // Format date as ICS local datetime: YYYYMMDDTHHMMSS
+      const toIcsLocal = d => d.getFullYear() +
+        String(d.getMonth() + 1).padStart(2, '0') +
+        String(d.getDate()).padStart(2, '0') + 'T' +
+        String(d.getHours()).padStart(2, '0') +
+        String(d.getMinutes()).padStart(2, '0') +
+        String(d.getSeconds()).padStart(2, '0');
 
       const uid = noteId + '@rian-pwa';
       const now = new Date();
       const stamp = now.toISOString().replace(/[-:]/g, '').replace(/\.\d+/, '');
+
+      // Use reminder date/time if set, otherwise fall back to note date as all-day
+      const reminder = getReminderForNote(noteId);
+      let dtStart, dtEnd;
+      if (reminder && reminder.remindAt) {
+        const remDate = new Date(reminder.remindAt);
+        dtStart = `DTSTART:${toIcsLocal(remDate)}`;
+        const remEnd = new Date(remDate.getTime() + 60 * 60 * 1000); // 1 hour duration
+        dtEnd = `DTEND:${toIcsLocal(remEnd)}`;
+      } else {
+        const noteDate = note.date || dateToStr(new Date());
+        const dateClean = noteDate.replace(/-/g, '');
+        const endD = new Date(noteDate + 'T00:00:00');
+        endD.setDate(endD.getDate() + 1);
+        const endClean = dateToStr(endD).replace(/-/g, '');
+        dtStart = `DTSTART;VALUE=DATE:${dateClean}`;
+        dtEnd = `DTEND;VALUE=DATE:${endClean}`;
+      }
 
       const ics = [
         'BEGIN:VCALENDAR',
@@ -10655,8 +10673,8 @@
         'BEGIN:VEVENT',
         `UID:${uid}`,
         `DTSTAMP:${stamp}`,
-        `DTSTART;VALUE=DATE:${dateClean}`,
-        `DTEND;VALUE=DATE:${endClean}`,
+        dtStart,
+        dtEnd,
         `SUMMARY:${icsEscape(title)}`,
         location ? `LOCATION:${icsEscape(location)}` : '',
         noteContentPlain ? `DESCRIPTION:${icsEscape(noteContentPlain)}` : '',
