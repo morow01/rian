@@ -7786,7 +7786,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.14.14';
+    const VERSION = '4.14.15';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -8333,6 +8333,7 @@
     let db = null;
     let weekUnsubscribe = null;
     let notesUnsubscribe = null;
+    let calloutsUnsubscribe = null;
 
     // ============================================================
     // INDEXEDDB
@@ -8436,20 +8437,56 @@
     async function loadCallouts() {
       const uid = state.currentUser?.uid;
       if (!uid) return;
-      // Try IndexedDB first
+
+      // Unsubscribe from previous listener
+      if (calloutsUnsubscribe) { calloutsUnsubscribe(); calloutsUnsubscribe = null; }
+
+      // Try IndexedDB first for instant display
       const stored = await dbGet('notes', 'callouts_all').catch(() => null);
-      if (stored?.data) state.callouts = stored.data;
-      // Then fetch from Firestore
-      const ref = userDoc('data/callouts');
-      if (!ref) return;
-      const doc = await ref.get().catch(() => null);
-      if (doc?.exists) {
-        const remote = doc.data();
-        state.callouts = { weeks: remote.weeks || {} };
-        await dbPut('notes', { id: 'callouts_all', userId: uid, data: state.callouts, updatedAt: remote._updatedAt || Date.now() });
-      }
+      if (stored?.data && !state.callouts) state.callouts = stored.data;
       if (!state.callouts) state.callouts = { weeks: {} };
       render();
+
+      // Subscribe to Firestore real-time updates for callouts
+      const ref = userDoc('data/callouts');
+      if (!ref) return;
+      calloutsUnsubscribe = ref.onSnapshot({ includeMetadataChanges: true }, snap => {
+        if (snap.metadata.hasPendingWrites) return;
+
+        // If we have a pending local save, skip — our data is newer
+        if (_coSaveTimer) {
+          console.log('[Rian] callouts onSnapshot: skipping — local save pending');
+          return;
+        }
+
+        if (!snap.exists) {
+          // No callouts on server yet — push local if we have data
+          if (state.callouts && Object.keys(state.callouts.weeks).length > 0) {
+            fsSetCallouts(state.callouts).catch(e => console.warn('[Rian]', e));
+          }
+          return;
+        }
+
+        const remote = snap.data();
+        // Don't overwrite if user is actively editing a callout
+        if (state.calloutsExpandedId && state.calloutsExpandedId !== '__new__') {
+          // Merge: update all weeks except the one being edited
+          const editWeek = state.calloutsSelectedWeek;
+          const merged = { weeks: { ...remote.weeks } };
+          if (editWeek && state.callouts?.weeks?.[editWeek]) {
+            merged.weeks[editWeek] = state.callouts.weeks[editWeek];
+          }
+          state.callouts = merged;
+        } else {
+          state.callouts = { weeks: remote.weeks || {} };
+        }
+
+        dbPut('notes', { id: 'callouts_all', userId: uid, data: state.callouts, updatedAt: remote._updatedAt || Date.now() });
+
+        if (state.view === 'callouts') render();
+      }, () => {
+        console.warn('[Rian] callouts onSnapshot error');
+      });
     }
 
     async function saveCallouts() {
@@ -14126,6 +14163,7 @@
             //    the empty-week snapshot that clears other devices)
             if (notesUnsubscribe) { notesUnsubscribe(); notesUnsubscribe = null; }
             if (remindersUnsubscribe) { remindersUnsubscribe(); remindersUnsubscribe = null; }
+            if (calloutsUnsubscribe) { calloutsUnsubscribe(); calloutsUnsubscribe = null; }
             state.notes = [];
             remindersData = [];
             // 2. Write empty current week + delete all others in one batch.
@@ -14159,6 +14197,7 @@
             if (weekUnsubscribe) { weekUnsubscribe(); weekUnsubscribe = null; }
             if (notesUnsubscribe) { notesUnsubscribe(); notesUnsubscribe = null; }
             if (remindersUnsubscribe) { remindersUnsubscribe(); remindersUnsubscribe = null; }
+            if (calloutsUnsubscribe) { calloutsUnsubscribe(); calloutsUnsubscribe = null; }
 
             // Firebase requires a recent sign-in for account deletion.
             // If the session is stale, re-authenticate silently then retry.
@@ -14217,6 +14256,7 @@
       if (weekUnsubscribe) { weekUnsubscribe(); weekUnsubscribe = null; }
       if (notesUnsubscribe) { notesUnsubscribe(); notesUnsubscribe = null; }
       if (remindersUnsubscribe) { remindersUnsubscribe(); remindersUnsubscribe = null; }
+      if (calloutsUnsubscribe) { calloutsUnsubscribe(); calloutsUnsubscribe = null; }
       await auth_fb.signOut();
       window.location.href = './index.html';
     }
@@ -16095,6 +16135,7 @@ Rules:
           if (weekUnsubscribe) { weekUnsubscribe(); weekUnsubscribe = null; }
           if (notesUnsubscribe) { notesUnsubscribe(); notesUnsubscribe = null; }
           if (remindersUnsubscribe) { remindersUnsubscribe(); remindersUnsubscribe = null; }
+          if (calloutsUnsubscribe) { calloutsUnsubscribe(); calloutsUnsubscribe = null; }
           renderLogin();
           return;
         }
