@@ -6806,7 +6806,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.10.3';
+    const VERSION = '4.10.4';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -10664,9 +10664,12 @@
         'END:VCALENDAR'
       ].filter(Boolean).join('\r\n');
 
-      // Open .ics directly via data URI — triggers calendar app picker on mobile
-      const dataUri = 'data:text/calendar;charset=utf-8,' + encodeURIComponent(ics);
-      window.open(dataUri, '_self');
+      // Trigger .ics open — tries blob URL redirect which prompts calendar app on mobile
+      const blob = new Blob([ics], { type: 'text/calendar;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      // Use location.href to navigate to the blob — Android opens calendar app picker
+      window.location.href = url;
+      setTimeout(() => URL.revokeObjectURL(url), 10000);
       showToast('Opening calendar…');
     }
     // Keep old name as alias for backwards compatibility
