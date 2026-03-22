@@ -6821,7 +6821,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.12.20';
+    const VERSION = '4.12.21';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -14823,15 +14823,30 @@ QUESTION: ${query}`;
           scope.timesheet ? searchTimesheetEntries(query) : Promise.resolve([])        // skip if Timesheet unchecked
         ]);
         let noteMatches = scope.savedNotes ? searchMatchingNotes(query) : [];
-        // For general queries like "any issues", "show notes", "problems" — show all open notes as cards
+        // For general queries — show note cards even when keyword search finds nothing
         if (scope.savedNotes && noteMatches.length === 0) {
-          const generalPattern = /\b(issues?|problems?|notes?|open|outstanding|pending|todo|all|list|show|what)\b/i;
-          if (generalPattern.test(query)) {
-            const allNotes = state.notes || [];
-            noteMatches = allNotes.filter(n => n.status !== 'done').map(n => ({
-              id: n.id, description: n.description, noteContent: n.noteContent,
-              location: n.location, date: n.date, status: n.status, priority: n.priority, hitCount: 1
-            }));
+          const generalWords = new Set(['issue', 'issues', 'problem', 'problems', 'note', 'notes', 'open', 'outstanding', 'pending', 'todo', 'all', 'list', 'show', 'what', 'any', 'are', 'there', 'my', 'the', 'with', 'about', 'have', 'check', 'find']);
+          const queryWords = query.toLowerCase().replace(/[^a-z0-9\s]/g, ' ').split(/\s+/).filter(w => w.length >= 2);
+          const hasGeneralWord = queryWords.some(w => generalWords.has(w));
+          // Specific keywords = words that aren't general/stop words (min 3 chars)
+          const specificKeywords = queryWords.filter(w => w.length >= 3 && !generalWords.has(w) && !_searchStopWords.has(w));
+
+          if (hasGeneralWord) {
+            const allNotes = (state.notes || []).filter(n => n.status !== 'done');
+            if (specificKeywords.length === 0) {
+              // Pure general query like "any issues" → show all open notes
+              noteMatches = allNotes.map(n => ({
+                id: n.id, description: n.description, noteContent: n.noteContent,
+                location: n.location, date: n.date, status: n.status, priority: n.priority, hitCount: 1
+              }));
+            } else {
+              // Mixed query like "any power issues" → filter notes by specific keywords
+              noteMatches = allNotes.map(n => {
+                const text = [n.description || '', n.noteContent ? n.noteContent.replace(/<[^>]*>/g, ' ') : '', n.location || ''].join(' ').toLowerCase();
+                const hits = specificKeywords.filter(kw => kwMatches(text, kw)).length;
+                return hits > 0 ? { id: n.id, description: n.description, noteContent: n.noteContent, location: n.location, date: n.date, status: n.status, priority: n.priority, hitCount: hits } : null;
+              }).filter(Boolean).sort((a, b) => b.hitCount - a.hitCount);
+            }
           }
         }
         const answer = await askGemini(query, timesheetContext, faultSources, noteMatches);
