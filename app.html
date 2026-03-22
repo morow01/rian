@@ -7857,7 +7857,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.14.18';
+    const VERSION = '4.14.19';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -14097,22 +14097,29 @@
     async function exportAllData() {
       if (!state.currentUser) { showToast('Sign in first'); return; }
       const uid = state.currentUser.uid;
-      // Fetch week count from Firestore
-      let weekCount = 0;
+      // Fetch all counts from Firestore (fall back to IndexedDB/state)
+      let weekCount = 0, noteCount = 0, remCount = 0, coCount = 0;
       try {
-        const weeksSnap = await db_fs.collection(`users/${uid}/weeks`).get();
+        const [weeksSnap, notesDoc, remDoc, coDoc] = await Promise.all([
+          db_fs.collection(`users/${uid}/weeks`).get().catch(() => null),
+          userDoc('data/notes')?.get().catch(() => null),
+          userDoc('data/reminders')?.get().catch(() => null),
+          userDoc('data/callouts')?.get().catch(() => null)
+        ]);
         weekCount = weeksSnap?.size || 0;
-      } catch (e) { /* offline — try IndexedDB */ }
-      if (!weekCount) {
-        try {
-          const tx = (await dbOpen()).transaction('weeks', 'readonly');
-          const all = await new Promise((res, rej) => { const r = tx.objectStore('weeks').getAll(); r.onsuccess = () => res(r.result); r.onerror = rej; });
-          weekCount = all.filter(r => r.userId === uid).length;
-        } catch (e) { /* ignore */ }
+        noteCount = notesDoc?.exists ? (notesDoc.data()?.notes?.length || 0) : 0;
+        remCount = remDoc?.exists ? (remDoc.data()?.reminders?.length || 0) : 0;
+        if (coDoc?.exists) {
+          const weeks = coDoc.data()?.weeks || {};
+          coCount = Object.values(weeks).reduce((s, w) => s + (w.callouts?.length || 0), 0);
+        }
+      } catch (e) { /* offline — use in-memory state */ }
+      // Fall back to in-memory state if Firestore returned 0
+      if (!noteCount) noteCount = state.notes?.length || 0;
+      if (!remCount) remCount = remindersData?.length || 0;
+      if (!coCount && state.callouts?.weeks) {
+        coCount = Object.values(state.callouts.weeks).reduce((s, w) => s + (w.callouts?.length || 0), 0);
       }
-      const noteCount = state.notes?.length || 0;
-      const remCount = remindersData?.length || 0;
-      const coCount = state.callouts?.weeks ? Object.values(state.callouts.weeks).reduce((s, w) => s + (w.callouts?.length || 0), 0) : 0;
       const settingsCount = ['geminiKey', 'geminiModel', 'theme', 'layoutMode', 'headerExpanded',
         'rian_ai_scope', 'rian_ai_recent', 'exchangeTab', 'deviceName'].filter(k => localStorage.getItem(k) !== null).length;
       const list = document.getElementById('exp-list');
