@@ -6805,7 +6805,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.12.9';
+    const VERSION = '4.12.10';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -9050,8 +9050,9 @@
         if (act) {
           const ord = parseFloat(act.ordinary) || 0;
           const ot = parseFloat(act.overtime) || 0;
+          const isMissingCode = (ord > 0 || ot > 0) && act.codes.length === 0;
           const isMissingHours = act.codes.length > 0 && ord === 0 && ot === 0;
-          if (isMissingHours) {
+          if (isMissingCode || isMissingHours) {
             card.style.borderColor = 'var(--btn-danger-color)';
             card.style.boxShadow = '0 0 8px rgba(232, 69, 60, 0.2)';
           }
