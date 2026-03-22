@@ -3808,6 +3808,21 @@
       margin-bottom: 0;
     }
 
+    .ai-answer-text li.ai-task-start {
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px solid var(--border);
+      list-style: none;
+      margin-left: -18px;
+      padding-left: 18px;
+    }
+
+    .ai-answer-text li.ai-task-start:first-child {
+      margin-top: 0;
+      padding-top: 0;
+      border-top: none;
+    }
+
     .ai-answer-text hr {
       border: none;
       border-top: 1px solid var(--border);
@@ -6904,7 +6919,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.12.34';
+    const VERSION = '4.12.35';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -14583,7 +14598,8 @@ Rules:
         } else if (ul) {
           if (inOl) { out.push('</ol>'); inOl = false; }
           if (!inUl) { out.push('<ul>'); inUl = true; }
-          out.push(`<li>${inline(ul[1])}</li>`);
+          const isTaskStart = /^\*\*Task:?\*\*/.test(ul[1].trim());
+          out.push(`<li${isTaskStart ? ' class="ai-task-start"' : ''}>${inline(ul[1])}</li>`);
         } else if (ol) {
           if (inUl) { out.push('</ul>'); inUl = false; }
           if (!inOl) { out.push('<ol>'); inOl = true; }
@@ -14938,8 +14954,9 @@ FORMATTING RULES — follow these strictly:
   - **Location:** Site name (CODE)
   - **Issue:** ⚠ what's wrong (if applicable)
 - Do NOT include hours in the output — the user does not need hours shown.
-- Keep each entry visually distinct — do NOT cram everything into one long line
-- Be concise but structured — scannable is better than dense
+- Each entry MUST start with "- **Task:**" so the UI can detect entry boundaries and add visual separators.
+- Keep each entry visually distinct — do NOT cram everything into one long line.
+- Be concise but structured — scannable is better than dense.
 
 DATA DICTIONARY — two distinct note types exist in this app:
 - SAVED NOTES (Notes tab): standalone issue/fault/reminder records the user creates independently. When the user says "show my notes" or "recent notes" they almost always mean SAVED NOTES.
@@ -15033,23 +15050,31 @@ QUESTION: ${query}`;
           }).filter(Boolean).sort((a, b) => b.hitCount - a.hitCount);
           if (mentioned.length > 0) noteMatches = mentioned;
         }
-        // Post-filter timesheet entries: narrow to ones Gemini actually referenced
-        if (timesheetEntries.length > 5) {
+        // Post-filter timesheet entries: only keep entries whose description Gemini actually referenced
+        if (timesheetEntries.length > 1) {
           const answerLower = answer.toLowerCase();
-          const stopW2 = new Set(['the','and','for','are','but','not','you','all','can','had','her','was','one','our','out','has','his','how','its','may','new','now','old','see','way','who','did','get','let','say','she','too','use','with','have','from','this','that','been','each','make','like','long','look','many','some','than','them','then','what','when','will','about','could','after','other','which','their','there','these','would','just','also','into','very','need','needs','any','open','ord','hours','hour','task','work','code']);
-          const getW2 = text => text.toLowerCase().replace(/[^a-z0-9\s]/g, ' ').split(/\s+/).filter(w => w.length >= 3 && !stopW2.has(w));
-          const filtered = timesheetEntries.map(e => {
-            const entryText = [e.description || '', e.location || '', (e.categories || []).join(' ')].join(' ');
-            const words = [...new Set(getW2(entryText))];
-            if (words.length === 0) return null;
-            const hits = words.filter(w => answerLower.includes(w)).length;
-            const ratio = hits / Math.max(words.length, 1);
-            // Need at least 1 word hit AND 25% overlap
-            return (hits >= 1 && ratio >= 0.25) ? { ...e, aiHits: hits } : null;
-          }).filter(Boolean).sort((a, b) => b.aiHits - a.aiHits);
-          if (filtered.length > 0 && filtered.length < timesheetEntries.length) {
-            timesheetEntries = filtered;
-          }
+          const filtered = timesheetEntries.filter(e => {
+            const desc = (e.description || '').toLowerCase().trim();
+            if (!desc || desc.length < 3) return false;
+            // Check if the full description (or a substantial part) appears in Gemini's answer
+            if (answerLower.includes(desc)) return true;
+            // For longer descriptions, check first 4+ significant words as a phrase
+            const words = desc.replace(/[^a-z0-9\s]/g, ' ').split(/\s+/).filter(w => w.length >= 3);
+            if (words.length >= 3) {
+              const phrase = words.slice(0, Math.min(words.length, 5)).join(' ');
+              if (answerLower.includes(phrase)) return true;
+            }
+            // For short descriptions (1-2 words like "Fault"), check description + location combo
+            if (words.length <= 2 && e.location) {
+              const loc = e.location.toLowerCase().replace(/[^a-z0-9\s]/g, ' ').trim();
+              const locWords = loc.split(/\s+/).filter(w => w.length >= 3);
+              const combo = [...words, ...locWords].filter(w => w.length >= 3);
+              const hits = combo.filter(w => answerLower.includes(w)).length;
+              if (hits >= 2) return true;
+            }
+            return false;
+          });
+          if (filtered.length > 0) timesheetEntries = filtered;
         }
         state.aiResult = { answer, sources: faultSources.slice(0, 5), noteMatches: noteMatches.slice(0, 10), timesheetEntries: timesheetEntries.slice(0, 10) };
         // Save to recent queries
