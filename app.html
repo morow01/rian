@@ -7785,7 +7785,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.14.1';
+    const VERSION = '4.14.2';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -8323,6 +8323,8 @@
       calloutsView: 'list',    // 'list' | 'week' | 'add'
       calloutsSelectedWeek: null, // weekStart key
       calloutsEditId: null,    // callout id being edited, or null for new
+      calloutsExpandedId: null,  // which callout card is expanded (or '__new__' for add)
+      calloutsNotesOpen: false,  // whether notes panel is open in expanded callout
     };
 
     let codeModalCtx = { dayIndex: null, activityId: null, selected: [] };
@@ -14602,7 +14604,6 @@
       if (!state.callouts) return `<div class="co-page" style="text-align:center;padding:60px 24px"><div style="font-size:16px;font-weight:600;color:var(--text-primary)">Loading…</div></div>`;
       if (state.calloutsView === 'list') return renderCalloutsList();
       if (state.calloutsView === 'week') return renderCalloutsWeek();
-      if (state.calloutsView === 'add') return renderCalloutsForm();
       return '';
     }
 
@@ -14671,152 +14672,191 @@
       }
       const weekData = state.callouts.weeks[state.calloutsSelectedWeek];
       const rangeStr = formatWeekRange(state.calloutsSelectedWeek);
+      const allCallouts = weekData.callouts || [];
+
+      // Group by date
       const calloutsByDate = {};
-      (weekData.callouts || []).forEach(co => {
+      allCallouts.forEach(co => {
         if (!calloutsByDate[co.date]) calloutsByDate[co.date] = [];
         calloutsByDate[co.date].push(co);
       });
       const sortedDates = Object.keys(calloutsByDate).sort();
 
       let html = `<div class="co-page">`;
-      // Header with back button — same pattern as exchange detail
+      // Header
       html += `<div style="display:flex;align-items:center;gap:8px;padding:12px 14px;border-bottom:1px solid var(--border);background:var(--bg-card)">
         <button class="back-btn" onclick="coBack()"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg></button>
         <div style="flex:1">
           <div style="font-size:15px;font-weight:700;color:var(--text-primary)">${esc(rangeStr)}</div>
-          <div style="font-size:12px;color:var(--text-muted)">${(weekData.callouts || []).length} callouts</div>
+          <div style="font-size:12px;color:var(--text-muted)">${allCallouts.length} callout${allCallouts.length !== 1 ? 's' : ''}</div>
         </div>
         <button onclick="coOpenAdd()" style="display:flex;align-items:center;gap:4px;padding:7px 12px;background:var(--accent);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Add
         </button>
       </div>`;
 
-      if (sortedDates.length === 0) {
+      if (sortedDates.length === 0 && state.calloutsExpandedId !== '__new__') {
         html += `<div style="text-align:center;padding:40px 24px">
           <div style="font-size:48px;margin-bottom:12px">📋</div>
           <div style="font-size:16px;font-weight:600;color:var(--text-primary);margin-bottom:6px">No callouts this week</div>
           <div style="font-size:13px;color:var(--text-muted)">Tap "+ Add" to log your first incident.</div>
         </div>`;
       } else {
-        // Group callouts by day — using day-card pattern
+        html += `<div style="padding:8px 14px 0">`;
+        // Existing callouts grouped by day
+        let globalIdx = 0;
         sortedDates.forEach(dateStr => {
           const d = strToDate(dateStr);
           const dayName = getDayNameFromDate(dateStr);
           const dayNum = d.getDate();
+          const monthShort = d.toLocaleDateString('en-IE', { month: 'short' });
           const items = calloutsByDate[dateStr];
-          // Day header — same as timesheet day-header
-          html += `<div class="day-card" style="margin-bottom:2px">
-            <div class="day-header" style="cursor:default">
-              <div class="date-badge"><span class="dom">${dayNum}</span></div>
-              <div class="day-info">
-                <div class="day-name">${dayName}</div>
-                <div class="day-pills"><span class="pill-hrs">${items.length} callout${items.length !== 1 ? 's' : ''}</span></div>
-              </div>
-            </div>
-            <div class="day-activities active" style="padding:4px 0 8px">`;
-          // Callout cards — same as activity-card
-          items.forEach((co, idx) => {
-            const timeStr = co.engineerOnSite || '—';
-            html += `<div class="activity-card" style="cursor:pointer" onclick="coOpenEdit('${esc(state.calloutsSelectedWeek)}','${esc(co.id)}')">
-              <div class="flex items-center gap-3 px-3.5 py-3">
-                <div class="task-num">${idx + 1}</div>
-                <div class="flex-1 min-w-0 act-meta">
-                  <div class="act-desc-txt">${esc(co.site || 'Unknown Site')}</div>
-                  <div class="act-row2">
-                    <div class="act-loc-txt">${esc((co.fault || '').substring(0, 60))}${(co.fault || '').length > 60 ? '…' : ''}</div>
-                    <div class="act-pill-row">
-                      <span class="pill-hrs" style="font-family:var(--font-mono)">${esc(co.ticket || '—')}</span>
-                      <span class="pill-hrs" style="background:var(--bg-code-group)">${esc(timeStr)}</span>
-                    </div>
-                  </div>
-                </div>
-                <span style="font-size:14px;color:var(--text-muted)">›</span>
-              </div>
-            </div>`;
+          // Subtle day label
+          html += `<div style="display:flex;align-items:center;gap:8px;padding:10px 2px 6px">
+            <span style="font-size:12px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px">${dayName} ${dayNum} ${monthShort}</span>
+            <span style="font-size:11px;color:var(--border);font-weight:600">${items.length} callout${items.length !== 1 ? 's' : ''}</span>
+          </div>`;
+          items.forEach(co => {
+            globalIdx++;
+            html += renderCalloutCard(co, globalIdx, false);
           });
-          html += `</div></div>`;
         });
+        // New callout card (if adding)
+        if (state.calloutsExpandedId === '__new__') {
+          globalIdx++;
+          html += renderCalloutCard(null, globalIdx, true);
+        }
+        html += `</div>`;
       }
       // Add button at bottom — same dashed style as "Add Task"
-      html += `<button onclick="coOpenAdd()" style="margin:8px 14px 14px;width:calc(100% - 28px);display:flex;align-items:center;justify-content:center;gap:6px;padding:12px;border-radius:10px;border:1.5px dashed var(--border);background:transparent;font-size:13px;font-weight:700;color:var(--accent);cursor:pointer">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-        Add Callout
-      </button>`;
+      if (state.calloutsExpandedId !== '__new__') {
+        html += `<button onclick="coOpenAdd()" style="margin:8px 14px 14px;width:calc(100% - 28px);display:flex;align-items:center;justify-content:center;gap:6px;padding:12px;border-radius:10px;border:1.5px dashed var(--border);background:transparent;font-size:13px;font-weight:700;color:var(--accent);cursor:pointer">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Add Callout
+        </button>`;
+      }
       html += `</div>`;
       return html;
     }
 
-    function renderCalloutsForm() {
-      const isNew = !state.calloutsEditId;
-      const weekData = state.calloutsSelectedWeek ? state.callouts.weeks[state.calloutsSelectedWeek] : null;
-      let callout = null;
-      if (!isNew && weekData) callout = (weekData.callouts || []).find(c => c.id === state.calloutsEditId);
+    function renderCalloutCard(co, idx, isNew) {
+      const id = isNew ? '__new__' : co.id;
+      const isExpanded = state.calloutsExpandedId === id;
+      const site = isNew ? '' : (co.site || '');
+      const fault = isNew ? '' : (co.fault || '');
+      const ticket = isNew ? '' : (co.ticket || '');
+      const timeStr = isNew ? '' : (co.engineerOnSite || '');
+      const notes = isNew ? '' : (co.notes || '');
+      const date = isNew ? (state.calloutsSelectedWeek || dateToStr(getCurrentFriday())) : (co.date || '');
+      const notesOpen = state.calloutsNotesOpen && isExpanded;
+      const pinSvg = `<svg width="13" height="13" viewBox="0 0 24 24" fill="#e8453c" style="display:inline-block;vertical-align:-2px;margin-right:2px;flex-shrink:0"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 010-5 2.5 2.5 0 010 5z"/></svg>`;
+      const clockSvg = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline-block;vertical-align:-1px;margin-right:2px;flex-shrink:0"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`;
 
-      const defaultDate = state.calloutsSelectedWeek || dateToStr(getCurrentFriday());
-      const formDate = callout?.date || defaultDate;
-      const formTicket = callout?.ticket || '';
-      const formSite = callout?.site || '';
-      const formFault = callout?.fault || '';
-      const formTime = callout?.engineerOnSite || '';
-      const formNotes = callout?.notes || '';
-
-      let html = `<div class="co-page">`;
-      // Header
-      html += `<div style="display:flex;align-items:center;gap:8px;padding:12px 14px;border-bottom:1px solid var(--border);background:var(--bg-card)">
-        <button class="back-btn" onclick="coBack()"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg></button>
-        <div style="flex:1;font-size:16px;font-weight:700;color:var(--text-primary)">${isNew ? 'New Callout' : 'Edit Callout'}</div>
-      </div>`;
-      // Form — uses activity-detail pattern
-      html += `<div style="padding:16px 14px;display:flex;flex-direction:column;gap:14px">
-        <!-- Date -->
-        <div class="flex flex-col gap-1.5">
-          <span class="act-field-label">Date</span>
-          <div style="position:relative">
-            <input type="date" id="co-date-input" value="${formDate}" class="act-input" style="cursor:pointer">
-          </div>
-        </div>
-        <!-- Ticket -->
-        <div class="flex flex-col gap-1.5">
-          <span class="act-field-label">Ticket Number</span>
-          <input type="text" id="co-ticket-input" class="act-input" style="font-family:var(--font-mono)" placeholder="e.g. R23482335" value="${esc(formTicket)}">
-        </div>
-        <!-- Site -->
-        <div class="flex flex-col gap-1.5">
-          <span class="act-field-label">Site</span>
-          <div class="location-wrap">
-            <input type="text" id="co-site-display" class="act-input" style="cursor:pointer" readonly
-              placeholder="Tap to select location" value="${esc(formSite)}"
-              onclick="_coSiteCallback = (name) => { document.getElementById('co-site-display').value = name; }; openLocationModal();">
-          </div>
-        </div>
-        <!-- Fault -->
-        <div class="flex flex-col gap-1.5">
-          <span class="act-field-label">Fault Description</span>
-          <textarea id="co-fault-input" class="act-textarea" rows="2" placeholder="e.g. EXTERNAL ALARM: AC MAINS FAIL">${esc(formFault)}</textarea>
-        </div>
-        <!-- On-Site Time -->
-        <div class="flex flex-col gap-1.5">
-          <span class="act-field-label">Engineer On Site</span>
-          <input type="time" id="co-time-input" class="act-input" value="${formTime}">
-        </div>
-        <!-- Notes -->
-        <div class="notes-panel">
-          <div class="notes-panel-header" onclick="const w=document.querySelector('[data-co-notes-wrap]');const c=document.querySelector('[data-co-notes-chev]');if(w){w.classList.toggle('open');if(c)c.style.transform=w.classList.contains('open')?'rotate(90deg)':'rotate(0deg)';if(w.classList.contains('open'))document.getElementById('co-notes-ta')?.focus();}">
-            <svg width="15" height="15" viewBox="0 0 13 13" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="0.5" y="0.5" width="12" height="12" rx="2.5" stroke="#D0D0CE" fill="none"/><line x1="4" y1="4.5" x2="9" y2="4.5" stroke="#D0D0CE" stroke-width="1"/><line x1="4" y1="6.5" x2="9" y2="6.5" stroke="#D0D0CE" stroke-width="1"/><line x1="4" y1="8.5" x2="7" y2="8.5" stroke="#D0D0CE" stroke-width="1"/></svg>
-            <div class="notes-panel-preview ${formNotes ? 'has-note' : ''}">${formNotes ? esc(formNotes).replace(/\n/g, ' ') : 'Add a note…'}</div>
-            <svg data-co-notes-chev class="notes-chevron" width="12" height="12" viewBox="0 0 12 12" fill="none" style="flex-shrink:0;transition:transform 0.25s;transform:${formNotes ? 'rotate(90deg)' : 'rotate(0deg)'}"><path d="M4.5 3l3 3-3 3" stroke="#D0D0CE" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </div>
-          <div class="notes-panel-body ${formNotes ? 'open' : ''}" data-co-notes-wrap>
-            <div style="padding:14px 14px 10px">
-              <textarea id="co-notes-ta" style="width:100%;min-height:80px;border:none;outline:none;font-size:13px;color:var(--text-primary);font-family:var(--font-body);resize:vertical;box-sizing:border-box" placeholder="Additional details…">${esc(formNotes)}</textarea>
+      let cardHtml = `<div class="activity-card ${isExpanded ? 'expanded' : ''}" data-co-id="${esc(id)}" style="margin-bottom:8px;${isNew && !isExpanded ? 'border-style:dashed;' : ''}">`;
+      // Collapsed header row
+      cardHtml += `<div class="flex items-center gap-3 px-3.5 py-3 cursor-pointer" onclick="coToggleCard('${esc(id)}')">
+          <div class="task-num">${idx}</div>
+          <div class="flex-1 min-w-0 act-meta">
+            <div class="act-desc-txt">${isNew ? '<span style="opacity:0.4;font-weight:400;font-style:italic">New callout</span>' : (site ? `${pinSvg}${esc(site)}` : '<span style="opacity:0.4;font-weight:400;font-style:italic">No site</span>')}</div>
+            <div class="act-row2">
+              <div class="act-loc-txt">${esc((fault).substring(0, 60))}${fault.length > 60 ? '…' : ''}</div>
+              <div class="act-pill-row">
+                ${ticket ? `<span class="pill-hrs" style="font-family:var(--font-mono)">${esc(ticket)}</span>` : ''}
+                ${timeStr ? `<span class="pill-hrs" style="background:var(--bg-code-group)">${clockSvg}${esc(timeStr)}</span>` : ''}
+              </div>
             </div>
           </div>
+          <span class="chevron" style="font-size:14px;color:var(--text-muted);transform:${isExpanded ? 'rotate(90deg)' : 'rotate(0deg)'};transition:transform 0.2s;flex-shrink:0;">›</span>
+        </div>`;
+
+      // Expanded detail — same as activity-detail
+      cardHtml += `<div class="activity-detail ${isExpanded ? 'open' : ''}" style="${isExpanded ? '' : 'display:none'}">
+        <div class="act-detail-inner" style="display:flex;flex-direction:column;gap:14px">
+          <!-- Date -->
+          <div class="flex flex-col gap-1.5">
+            <span class="act-field-label">Date</span>
+            <input type="date" id="co-date-input" value="${date}" class="act-input" style="cursor:pointer">
+          </div>
+          <!-- Ticket -->
+          <div class="flex flex-col gap-1.5">
+            <span class="act-field-label">Ticket Number</span>
+            <input type="text" id="co-ticket-input" class="act-input" style="font-family:var(--font-mono)" placeholder="e.g. R23482335" value="${esc(ticket)}">
+          </div>
+          <!-- Site -->
+          <div class="flex flex-col gap-1.5">
+            <span class="act-field-label">Site</span>
+            <div class="location-wrap">
+              <input type="text" id="co-site-display" class="act-input" style="cursor:pointer" readonly
+                placeholder="Tap to select location" value="${esc(site)}"
+                onclick="_coSiteCallback = (name) => { document.getElementById('co-site-display').value = name; }; openLocationModal();">
+            </div>
+          </div>
+          <!-- Fault -->
+          <div class="flex flex-col gap-1.5">
+            <span class="act-field-label">Fault Description</span>
+            <textarea id="co-fault-input" class="act-textarea" rows="2" placeholder="e.g. EXTERNAL ALARM: AC MAINS FAIL">${esc(fault)}</textarea>
+          </div>
+          <!-- On-Site Time -->
+          <div class="flex flex-col gap-1.5">
+            <span class="act-field-label">Engineer On Site</span>
+            <input type="time" id="co-time-input" class="act-input" value="${timeStr}">
+          </div>
+          <!-- Notes — exact same as task notes panel -->
+          <div class="notes-panel">
+            <div class="notes-panel-header" onclick="event.stopPropagation(); coToggleNotes()">
+              <svg width="15" height="15" viewBox="0 0 13 13" fill="none">
+                <path d="M2 10.5L3.5 9H11V1H2v9.5z" stroke="#BBBBB8" stroke-width="1.4" stroke-linejoin="round"/>
+                <path d="M4 4.5h5M4 6.5h3" stroke="#BBBBB8" stroke-width="1.3" stroke-linecap="round"/>
+              </svg>
+              <div class="notes-panel-preview ${notes ? 'has-note' : ''}">${notes ? esc(notes).replace(/\n/g, ' ') : 'Add a note…'}</div>
+              <svg data-co-notes-chev class="notes-chevron" width="12" height="12" viewBox="0 0 12 12" fill="none"
+                style="flex-shrink:0; transition: transform 0.25s ease; transform: ${notesOpen ? 'rotate(90deg)' : 'rotate(0deg)'}">
+                <path d="M4.5 3l3 3-3 3" stroke="#D0D0CE" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <div class="notes-panel-body ${notesOpen ? 'open' : ''}" data-co-notes-wrap>
+              <div style="padding:14px 14px 10px">
+                <textarea id="co-notes-ta" style="width:100%;min-height:80px;border:none;outline:none;font-size:13px;color:var(--text-primary);font-family:var(--font-body);resize:vertical;box-sizing:border-box" placeholder="Additional details…">${esc(notes)}</textarea>
+              </div>
+            </div>
+          </div>
+          <!-- Save / Delete — same style as note-btn-done / note-btn-delete -->
+          <div class="note-bottom-actions">
+            <button class="note-btn-done" onclick="event.stopPropagation(); coSave()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Save Callout
+            </button>
+            ${!isNew ? `<button class="note-btn-delete" onclick="event.stopPropagation(); coDelete()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg> Delete
+            </button>` : ''}
+          </div>
         </div>
-        <!-- Save / Delete buttons — same style as action buttons -->
-        <button onclick="coSave()" style="width:100%;padding:14px;background:var(--accent);color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;margin-top:4px">Save Callout</button>
-        ${!isNew ? `<button onclick="coDelete()" class="act-action-btn act-action-delete" style="width:100%;padding:12px;font-size:14px;border-radius:10px">Delete Callout</button>` : ''}
-      </div></div>`;
-      return html;
+      </div>`;
+      cardHtml += `</div>`;
+      return cardHtml;
+    }
+
+    function coToggleCard(id) {
+      if (state.calloutsExpandedId === id) {
+        state.calloutsExpandedId = null;
+        state.calloutsEditId = null;
+        state.calloutsNotesOpen = false;
+      } else {
+        state.calloutsExpandedId = id;
+        state.calloutsEditId = id === '__new__' ? null : id;
+        state.calloutsNotesOpen = false;
+      }
+      render();
+    }
+
+    function coToggleNotes() {
+      const w = document.querySelector('[data-co-notes-wrap]');
+      const c = document.querySelector('[data-co-notes-chev]');
+      if (w) {
+        w.classList.toggle('open');
+        state.calloutsNotesOpen = w.classList.contains('open');
+        if (c) c.style.transform = state.calloutsNotesOpen ? 'rotate(90deg)' : 'rotate(0deg)';
+        if (state.calloutsNotesOpen) document.getElementById('co-notes-ta')?.focus();
+      }
     }
 
     function coSelectWeek(weekStart) {
@@ -14836,26 +14876,33 @@
     }
 
     function coOpenAdd(date) {
-      state.calloutsView = 'add';
+      state.calloutsExpandedId = '__new__';
       state.calloutsEditId = null;
+      state.calloutsNotesOpen = false;
       render();
+      // Scroll to new card
+      setTimeout(() => {
+        const card = document.querySelector('[data-co-id="__new__"]');
+        if (card) card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 100);
     }
 
     function coOpenEdit(weekStart, calloutId) {
       state.calloutsSelectedWeek = weekStart;
-      state.calloutsView = 'add';
+      state.calloutsExpandedId = calloutId;
       state.calloutsEditId = calloutId;
+      state.calloutsNotesOpen = false;
       render();
     }
 
     function coBack() {
-      if (state.calloutsView === 'add') {
-        state.calloutsView = 'week';
-      } else if (state.calloutsView === 'week') {
+      if (state.calloutsView === 'week') {
         state.calloutsView = 'list';
         state.calloutsSelectedWeek = null;
       }
       state.calloutsEditId = null;
+      state.calloutsExpandedId = null;
+      state.calloutsNotesOpen = false;
       render();
     }
 
@@ -14879,39 +14926,43 @@
         return;
       }
 
-      const isNew = !state.calloutsEditId;
+      const isNew = state.calloutsExpandedId === '__new__';
       if (isNew) {
         const id = Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
         weekData.callouts.push({ id, date, ticket, site, fault, engineerOnSite, notes });
       } else {
-        const idx = weekData.callouts.findIndex(c => c.id === state.calloutsEditId);
+        const editId = state.calloutsExpandedId;
+        const idx = weekData.callouts.findIndex(c => c.id === editId);
         if (idx >= 0) {
-          weekData.callouts[idx] = { id: state.calloutsEditId, date, ticket, site, fault, engineerOnSite, notes };
+          weekData.callouts[idx] = { id: editId, date, ticket, site, fault, engineerOnSite, notes };
         }
       }
 
       await saveCallouts();
       showToast(isNew ? 'Callout added' : 'Callout updated');
-      state.calloutsView = 'week';
+      state.calloutsExpandedId = null;
       state.calloutsEditId = null;
+      state.calloutsNotesOpen = false;
       render();
     }
 
     function coDelete() {
-      if (!state.calloutsSelectedWeek || !state.calloutsEditId) return;
+      const deleteId = state.calloutsExpandedId;
+      if (!state.calloutsSelectedWeek || !deleteId || deleteId === '__new__') return;
       showConfirm(
         'Delete Callout?',
         'This cannot be undone.',
         async () => {
           const weekData = state.callouts.weeks[state.calloutsSelectedWeek];
           if (weekData) {
-            const idx = weekData.callouts.findIndex(c => c.id === state.calloutsEditId);
+            const idx = weekData.callouts.findIndex(c => c.id === deleteId);
             if (idx >= 0) {
               weekData.callouts.splice(idx, 1);
               await saveCallouts();
               showToast('Callout deleted');
-              state.calloutsView = 'week';
+              state.calloutsExpandedId = null;
               state.calloutsEditId = null;
+              state.calloutsNotesOpen = false;
               render();
             }
           }
