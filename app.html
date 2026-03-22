@@ -6805,7 +6805,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.12.1';
+    const VERSION = '4.12.2';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -12529,28 +12529,40 @@
       await renderSnapshotList(state.weekStart);
     }
 
-    // Get GPS town name via reverse geocoding (non-blocking, best-effort)
+    // GPS town caching — fetch once, reuse for all snapshots
+    let _cachedGpsTown = null;
+    let _gpsLastFetch = 0;
+    const GPS_CACHE_MS = 600000; // refresh every 10 minutes
+
+    function _refreshGpsTown() {
+      if (!navigator.geolocation) return;
+      navigator.geolocation.getCurrentPosition(
+        async pos => {
+          try {
+            const { latitude: lat, longitude: lon } = pos.coords;
+            const resp = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json&zoom=10&addressdetails=1`, {
+              headers: { 'Accept-Language': 'en' }
+            });
+            if (!resp.ok) return;
+            const data = await resp.json();
+            const addr = data.address || {};
+            _cachedGpsTown = addr.town || addr.city || addr.village || addr.suburb || addr.county || null;
+            _gpsLastFetch = Date.now();
+            console.log('[Rian] GPS town:', _cachedGpsTown);
+          } catch(e) { console.warn('[Rian] GPS reverse geocode failed', e); }
+        },
+        err => console.warn('[Rian] Geolocation error:', err.code, err.message),
+        { enableHighAccuracy: false, timeout: 15000, maximumAge: 300000 }
+      );
+    }
+
+    // Start GPS fetch on app load
+    _refreshGpsTown();
+
     function _getGpsTown() {
-      return new Promise(resolve => {
-        if (!navigator.geolocation) { resolve(null); return; }
-        navigator.geolocation.getCurrentPosition(
-          async pos => {
-            try {
-              const { latitude: lat, longitude: lon } = pos.coords;
-              const resp = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json&zoom=10&addressdetails=1`, {
-                headers: { 'Accept-Language': 'en' }
-              });
-              if (!resp.ok) { resolve(null); return; }
-              const data = await resp.json();
-              const addr = data.address || {};
-              const town = addr.town || addr.city || addr.village || addr.suburb || addr.county || '';
-              resolve(town || null);
-            } catch { resolve(null); }
-          },
-          () => resolve(null),
-          { timeout: 5000, maximumAge: 300000 }
-        );
-      });
+      // Refresh if stale
+      if (Date.now() - _gpsLastFetch > GPS_CACHE_MS) _refreshGpsTown();
+      return _cachedGpsTown;
     }
 
     async function _writeSnapshot(weekStart, weekData, label) {
@@ -12558,8 +12570,8 @@
         const uid = state.currentUser.uid;
         const ts = Date.now();
         const summary = _snapshotSummary(weekData);
-        // Get GPS town (non-blocking, won't delay snapshot if it fails)
-        const geoTown = await Promise.race([_getGpsTown(), new Promise(r => setTimeout(() => r(null), 6000))]);
+        // Use cached GPS town (fetched on app load, refreshed every 10min)
+        const geoTown = _getGpsTown();
         const colRef = db_fs.collection(`users/${uid}/weeks/${weekStart}/snapshots`);
         const snapData = {
           weekStart,
