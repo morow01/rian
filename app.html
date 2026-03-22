@@ -7786,7 +7786,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.14.10';
+    const VERSION = '4.14.11';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -14934,20 +14934,43 @@
       if (_coSaveTimer) { clearTimeout(_coSaveTimer); _coSaveTimer = null; saveCallouts(); }
     }
 
-    // Get the currently-expanded callout object (or null)
-    function _coGetExpanded() {
+    // Get or create the currently-expanded callout object.
+    // For __new__ cards, auto-promotes to a real record on first field edit.
+    function _coGetOrCreate() {
       const eid = state.calloutsExpandedId;
-      if (!eid || eid === '__new__') return null;
+      if (!eid) return null;
       const weekStart = state.calloutsSelectedWeek || dateToStr(getCurrentFriday());
-      const wk = state.callouts?.weeks?.[weekStart];
-      if (!wk?.callouts) return null;
-      return wk.callouts.find(c => c.id === eid) || null;
+      if (!state.callouts) return null;
+      if (!state.callouts.weeks[weekStart]) {
+        state.callouts.weeks[weekStart] = { startDate: weekStart, callouts: [] };
+      }
+      const weekData = state.callouts.weeks[weekStart];
+      if (!weekData.callouts) weekData.callouts = [];
+
+      if (eid === '__new__') {
+        // Promote to real record immediately
+        const id = Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+        const co = {
+          id,
+          date: document.getElementById('co-date-input')?.value || weekStart,
+          ticket: '', site: '', fault: '', engineerOnSite: '', notes: ''
+        };
+        weekData.callouts.push(co);
+        state.calloutsExpandedId = id;
+        state.calloutsEditId = id;
+        // Update the DOM card's data-co-id so future queries find it
+        const card = document.querySelector('[data-co-id="__new__"]');
+        if (card) card.setAttribute('data-co-id', id);
+        return co;
+      }
+
+      return weekData.callouts.find(c => c.id === eid) || null;
     }
 
     // Called from every input/change handler on callout form fields
     function updateCoField(field, value) {
-      const co = _coGetExpanded();
-      if (!co) return; // new-card path handled separately
+      const co = _coGetOrCreate();
+      if (!co) return;
       co[field] = value;
       // Live-update collapsed header
       const card = document.querySelector(`[data-co-id="${co.id}"]`);
@@ -14969,46 +14992,15 @@
       _coScheduleSave();
     }
 
-    // Legacy wrapper — kept so existing oninput="coAutoSave()" on __new__ cards still works
+    // Wrapper for notes textarea and other paths that still call coAutoSave()
     function coAutoSave() {
-      const eid = state.calloutsExpandedId;
-      if (!eid) return;
-      if (eid !== '__new__') {
-        // For existing cards the individual updateCoField handlers already saved — but
-        // the notes textarea and site callback still call coAutoSave directly, so handle it:
-        const co = _coGetExpanded();
-        if (co) {
-          const notes = document.getElementById('co-notes-ta')?.value?.trim() || '';
-          co.notes = notes;
-          const h = document.querySelector('[data-co-notes-header]');
-          if (h) { h.textContent = notes ? stripHtml(notes) : 'Add a note…'; h.classList.toggle('has-note', !!notes); }
-          _coScheduleSave();
-        }
-        return;
-      }
-      // __new__ card — create record from DOM fields
-      const weekStart = state.calloutsSelectedWeek || dateToStr(getCurrentFriday());
-      if (!state.callouts) return;
-      if (!state.callouts.weeks[weekStart]) {
-        state.callouts.weeks[weekStart] = { startDate: weekStart, callouts: [] };
-      }
-      const weekData = state.callouts.weeks[weekStart];
-      if (!weekData.callouts) weekData.callouts = [];
-      const site = document.getElementById('co-site-display')?.value?.trim() || '';
-      if (!site) return; // need at least a site to create
-      const id = Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
-      weekData.callouts.push({
-        id,
-        date: document.getElementById('co-date-input')?.value || weekStart,
-        ticket: document.getElementById('co-ticket-input')?.value?.trim() || '',
-        site,
-        fault: document.getElementById('co-fault-input')?.value?.trim() || '',
-        engineerOnSite: document.getElementById('co-time-input')?.value || '',
-        notes: document.getElementById('co-notes-ta')?.value?.trim() || ''
-      });
-      state.calloutsExpandedId = id;
-      state.calloutsEditId = id;
-      saveCallouts();
+      const co = _coGetOrCreate();
+      if (!co) return;
+      const notes = document.getElementById('co-notes-ta')?.value?.trim() || '';
+      co.notes = notes;
+      const h = document.querySelector('[data-co-notes-header]');
+      if (h) { h.textContent = notes ? stripHtml(notes) : 'Add a note…'; h.classList.toggle('has-note', !!notes); }
+      _coScheduleSave();
     }
 
     // Callout note dictation — reuses voice system
