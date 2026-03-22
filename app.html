@@ -6806,7 +6806,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.10.1';
+    const VERSION = '4.10.2';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -10621,33 +10621,62 @@
     }
 
     // ============================================================
-    // GOOGLE CALENDAR INTEGRATION
+    // CALENDAR INTEGRATION (.ics file — works with any calendar app)
     // ============================================================
-    function addNoteToGCal(noteId) {
+    function addNoteToCalendar(noteId) {
       const note = state.notes.find(n => n.id === noteId);
       if (!note) return;
 
-      const title = encodeURIComponent(note.description || 'Note');
-      const location = encodeURIComponent(note.location || '');
+      const title = note.description || 'Note';
+      const location = note.location || '';
       const noteContentPlain = note.noteContent
         ? note.noteContent.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim()
         : '';
-      const details = encodeURIComponent(noteContentPlain);
 
-      // Format date for Google Calendar (YYYYMMDD)
+      // Format date for ICS (YYYYMMDD) — all-day event
       const noteDate = note.date || dateToStr(new Date());
       const dateClean = noteDate.replace(/-/g, '');
-      // All-day event: dates format is YYYYMMDD/YYYYMMDD (end is exclusive, so +1 day)
       const startD = new Date(noteDate + 'T00:00:00');
       const endD = new Date(startD);
       endD.setDate(endD.getDate() + 1);
       const endClean = dateToStr(endD).replace(/-/g, '');
-      const dates = `${dateClean}/${endClean}`;
 
-      const url = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${dates}&location=${location}&details=${details}`;
-      window.open(url, '_blank');
-      showToast('Opening Google Calendar…');
+      // Escape special chars for ICS text fields
+      const icsEscape = s => s.replace(/\\/g, '\\\\').replace(/;/g, '\\;').replace(/,/g, '\\,').replace(/\n/g, '\\n');
+
+      const uid = noteId + '@rian-pwa';
+      const now = new Date();
+      const stamp = now.toISOString().replace(/[-:]/g, '').replace(/\.\d+/, '');
+
+      const ics = [
+        'BEGIN:VCALENDAR',
+        'VERSION:2.0',
+        'PRODID:-//Rian PWA//EN',
+        'BEGIN:VEVENT',
+        `UID:${uid}`,
+        `DTSTAMP:${stamp}`,
+        `DTSTART;VALUE=DATE:${dateClean}`,
+        `DTEND;VALUE=DATE:${endClean}`,
+        `SUMMARY:${icsEscape(title)}`,
+        location ? `LOCATION:${icsEscape(location)}` : '',
+        noteContentPlain ? `DESCRIPTION:${icsEscape(noteContentPlain)}` : '',
+        'END:VEVENT',
+        'END:VCALENDAR'
+      ].filter(Boolean).join('\r\n');
+
+      const blob = new Blob([ics], { type: 'text/calendar;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = (title.substring(0, 40).replace(/[^a-zA-Z0-9 ]/g, '') || 'event') + '.ics';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(url), 5000);
+      showToast('Calendar event downloaded');
     }
+    // Keep old name as alias for backwards compatibility
+    function addNoteToGCal(noteId) { addNoteToCalendar(noteId); }
 
     function removeCode(actId, di, code) {
       const act = state.weekData.days[di].activities.find(a => a.id === actId);
@@ -11034,7 +11063,7 @@
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
                     <span>Task</span>
                   </button>
-                  <button class="note-tool-btn" onclick="addNoteToGCal('${note.id}')">
+                  <button class="note-tool-btn" onclick="addNoteToCalendar('${note.id}')">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01"/></svg>
                     <span>Calendar</span>
                   </button>
