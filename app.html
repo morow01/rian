@@ -7786,7 +7786,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.14.8';
+    const VERSION = '4.14.9';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -14029,9 +14029,11 @@
           const weekCount = Object.keys(data.weeks || {}).length;
           const noteCount = data.notes?.notes?.length || 0;
           const remCount = data.reminders?.reminders?.length || 0;
+          const coWeeks = Object.keys(data.callouts?.weeks || {}).length;
+          const coCount = coWeeks ? Object.values(data.callouts.weeks).reduce((s, w) => s + (w.callouts?.length || 0), 0) : 0;
           showConfirm(
             'Import Data?',
-            `This will REPLACE all data in your current account (${state.currentUser.email}) with ${weekCount} week(s), ${noteCount} note(s), and ${remCount} reminder(s) from the export file. Any existing data will be deleted first. Continue?`,
+            `This will REPLACE all data in your current account (${state.currentUser.email}) with ${weekCount} week(s), ${noteCount} note(s), ${remCount} reminder(s)${coCount ? `, and ${coCount} callout(s)` : ''} from the export file. Any existing data will be deleted first. Continue?`,
             () => _doImport(data)
           );
         } catch (err) { showToast('Could not read file: ' + err.message); }
@@ -14783,8 +14785,8 @@
           <!-- Ticket -->
           <div class="flex flex-col gap-1.5">
             <span class="act-field-label">Ticket Number</span>
-            <input type="text" id="co-ticket-input" class="act-input" style="font-family:var(--font-mono)" placeholder="e.g. R23482335" value="${esc(ticket)}"
-              autocomplete="one-time-code" data-lpignore="true" data-form-type="other"
+            <input type="text" id="co-ticket-input" name="co_ticket_ref_number" class="act-input" style="font-family:var(--font-mono)" placeholder="e.g. R23482335" value="${esc(ticket)}"
+              autocomplete="off" data-lpignore="true" data-form-type="other" data-1p-ignore="true" aria-autocomplete="none"
               oninput="updateCoField('ticket', this.value.trim())">
           </div>
           <!-- Site -->
@@ -16044,7 +16046,7 @@ Rules:
 
       try {
         const lastView = localStorage.getItem('lastView');
-        if (lastView === 'notes' || lastView === 'history' || lastView === 'exchanges' || lastView === 'routines' || lastView === 'ai') state.view = lastView;
+        if (lastView === 'notes' || lastView === 'history' || lastView === 'exchanges' || lastView === 'routines' || lastView === 'callouts' || lastView === 'ai') state.view = lastView;
       } catch (e) { console.warn('[Rian] LocalStorage blocked:', e); }
 
       // Show login immediately while waiting
@@ -16141,6 +16143,7 @@ Rules:
 
         if (state.view === 'notes') loadNotes();
         else if (state.view === 'routines') loadRoutines();
+        else if (state.view === 'callouts') loadCallouts();
 
         // Init local reminders
         initReminders();
