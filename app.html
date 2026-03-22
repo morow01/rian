@@ -6796,7 +6796,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.11.2';
+    const VERSION = '4.11.3';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -12461,8 +12461,10 @@
 
     function getDeviceName() {
       let name = localStorage.getItem('deviceName');
-      // Migration: old names like "Chrome · Android" collide across devices — add unique suffix
-      if (name && !/ [a-z0-9]{4}$/.test(name)) {
+      const userRenamed = localStorage.getItem('deviceRenamed') === '1';
+      // Migration: old auto-detected names like "Chrome · Android" collide across devices — add unique suffix
+      // Skip if user has manually renamed their device
+      if (name && !userRenamed && !/ [a-z0-9]{4}$/.test(name)) {
         const rid = Math.random().toString(36).substring(2, 6);
         name = name + ' ' + rid;
         localStorage.setItem('deviceName', name);
@@ -12597,16 +12599,12 @@
         const ordH = sum.totalOrd || 0;
         const otH = sum.totalOt || 0;
         const ent = sum.entries || 0;
-        const locs = (sum.locations || []);
-        // Also extract locations from snapshot days if summary doesn't have them (older snapshots)
-        // Only use the day the snapshot was taken, not the whole week
+        // Extract locations from the day the snapshot was taken (not the whole week)
         let locStr = '';
-        if (locs.length > 0) {
-          locStr = locs.join(', ');
-        } else if (s.days) {
-          const snapDate = s._savedAt ? dateToStr(new Date(s._savedAt)) : '';
+        if (s.days && s._savedAt) {
+          const snapDate = dateToStr(new Date(s._savedAt));
           const locSet = new Set();
-          s.days.filter(d => !snapDate || d.date === snapDate).forEach(d => (d.activities || []).forEach(a => {
+          s.days.filter(d => d.date === snapDate).forEach(d => (d.activities || []).forEach(a => {
             if (a.location) { const t = a.location.replace(/\s*\([^)]+\)$/, '').trim(); if (t) locSet.add(t); }
           }));
           locStr = [...locSet].join(', ');
@@ -12700,6 +12698,7 @@
       const name = prompt('Name this device:', current);
       if (name && name.trim()) {
         localStorage.setItem('deviceName', name.trim());
+        localStorage.setItem('deviceRenamed', '1');
         const lbl = document.getElementById('snap-device-label');
         if (lbl) lbl.textContent = 'This device: ' + name.trim();
         showToast('Device renamed.');
