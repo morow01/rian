@@ -6904,7 +6904,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.12.31';
+    const VERSION = '4.12.32';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -12565,21 +12565,22 @@
       const provider = new firebase.auth.GoogleAuthProvider();
       provider.setCustomParameters({ prompt: 'select_account' });
       try {
-        // Use popup (works on all browsers, avoids Firefox third-party cookie issue)
-        // Fall back to redirect on mobile PWA standalone mode where popups may be blocked
-        const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
-        if (isStandalone) {
-          await auth_fb.signInWithRedirect(provider);
-        } else {
-          await auth_fb.signInWithPopup(provider);
-        }
+        // Always try popup first — redirect is broken on many browsers
+        // (Firefox, Brave, and mobile browsers with storage partitioning)
+        await auth_fb.signInWithPopup(provider);
       } catch (e) {
-        // If popup blocked or failed, fall back to redirect
-        if (e.code === 'auth/popup-blocked' || e.code === 'auth/popup-closed-by-user') {
+        console.warn('[Rian] Popup sign-in error:', e.code, e.message);
+        // If popup was blocked (some mobile browsers), fall back to redirect
+        if (e.code === 'auth/popup-blocked') {
           try {
             await auth_fb.signInWithRedirect(provider);
             return;
           } catch (e2) { /* fall through */ }
+        }
+        // User closed the popup — not an error, just reset
+        if (e.code === 'auth/popup-closed-by-user') {
+          _signingIn = false;
+          return;
         }
         showToast('Sign-in failed: ' + (e.message || 'Unknown error'));
       } finally {
