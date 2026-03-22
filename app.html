@@ -6805,7 +6805,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.12.11';
+    const VERSION = '4.12.12';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -9007,6 +9007,24 @@
 
       if (nowExpanded) {
         card.classList.add('expanded');
+        // Clear "missing hours" red border while editing (grace period)
+        // but keep it for "missing code" since that means hours are set with no code
+        {
+          let act = null;
+          for (const day of state.weekData.days) {
+            act = day.activities.find(a => a.id === actId);
+            if (act) break;
+          }
+          if (act) {
+            const ord = parseFloat(act.ordinary) || 0;
+            const ot = parseFloat(act.overtime) || 0;
+            const isMissingCode = (ord > 0 || ot > 0) && act.codes.length === 0;
+            if (!isMissingCode) {
+              card.style.borderColor = '';
+              card.style.boxShadow = '';
+            }
+          }
+        }
         if (detail) {
           detail.style.display = 'block';
           // Force reflow before adding class to trigger transition
@@ -9339,7 +9357,8 @@
       const isInvalid = isMissingCode || isMissingHours;
       // Hours with no code → red immediately
       // Code with no hours → red only on collapse (grace period while entering hours)
-      const showRedBorder = isMissingCode || isMissingHours;
+      // Hours with no code → red always; Code with no hours → red only when collapsed (grace period)
+      const showRedBorder = isMissingCode || (isMissingHours && !isExpanded);
       const numTasks = act.codes.length || 1;
       const hrsPerTask = ordinary > 0 ? Math.round(ordinary / numTasks) : '—';
       const otPerTask = overtime > 0 ? Math.round(overtime / numTasks) : '—';
