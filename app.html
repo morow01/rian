@@ -6821,7 +6821,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.12.22';
+    const VERSION = '4.12.23';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -14846,11 +14846,8 @@ QUESTION: ${query}`;
                 const hits = specificKeywords.filter(kw => kwMatches(text, kw)).length;
                 return hits > 0 ? { id: n.id, description: n.description, noteContent: n.noteContent, location: n.location, date: n.date, status: n.status, priority: n.priority, hitCount: hits } : null;
               }).filter(Boolean).sort((a, b) => b.hitCount - a.hitCount);
-              // If specific keywords don't match any notes literally, show all (AI uses semantic understanding)
-              noteMatches = filtered.length > 0 ? filtered : allNotes.map(n => ({
-                id: n.id, description: n.description, noteContent: n.noteContent,
-                location: n.location, date: n.date, status: n.status, priority: n.priority, hitCount: 1
-              }));
+              // Only show cards for literal matches; if none, let the AI text answer handle it
+              noteMatches = filtered;
             }
           }
         }
