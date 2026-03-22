@@ -6806,7 +6806,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.10.7';
+    const VERSION = '4.10.8';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -10664,43 +10664,18 @@
         'END:VCALENDAR'
       ].filter(Boolean).join('\r\n');
 
+      // Download .ics file — user taps download notification to open in calendar app
+      const fileName = (title.substring(0, 40).replace(/[^a-zA-Z0-9 ]/g, '').trim() || 'event') + '.ics';
       const blob = new Blob([ics], { type: 'text/calendar;charset=utf-8' });
       const url = URL.createObjectURL(blob);
-
-      // Method 1: Try hidden iframe — can trigger calendar intent on Android
-      try {
-        let iframe = document.getElementById('ics-launcher');
-        if (!iframe) {
-          iframe = document.createElement('iframe');
-          iframe.id = 'ics-launcher';
-          iframe.style.display = 'none';
-          document.body.appendChild(iframe);
-        }
-        iframe.src = url;
-        showToast('Opening calendar…');
-        setTimeout(() => { URL.revokeObjectURL(url); }, 10000);
-        // Wait briefly, then check if it worked — if page still has focus, fall back
-        setTimeout(() => {
-          if (document.hasFocus()) {
-            // iframe didn't trigger calendar — try Web Share as method 2
-            const fileName = (title.substring(0, 40).replace(/[^a-zA-Z0-9 ]/g, '').trim() || 'event') + '.ics';
-            const file = new File([ics], fileName, { type: 'text/calendar' });
-            if (navigator.canShare && navigator.canShare({ files: [file] })) {
-              navigator.share({ files: [file], title: title }).catch(() => {});
-            }
-          }
-        }, 1500);
-      } catch(e) {
-        // Last resort: download
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'event.ics';
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        setTimeout(() => URL.revokeObjectURL(url), 5000);
-        showToast('Calendar event downloaded — tap notification to open');
-      }
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = fileName;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(url), 5000);
+      showToast('Event downloaded — tap notification to add to calendar');
     }
     // Keep old name as alias for backwards compatibility
     function addNoteToGCal(noteId) { addNoteToCalendar(noteId); }
