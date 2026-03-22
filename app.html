@@ -7786,7 +7786,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.14.13';
+    const VERSION = '4.14.14';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -14848,11 +14848,11 @@
             </div>
           </div>
           <!-- Delete only (auto-save handles saving) -->
-          ${!isNew ? `<div class="note-bottom-actions">
+          <div class="note-bottom-actions">
             <button class="note-btn-delete" onclick="event.stopPropagation(); coDelete()">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg> Delete Callout
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg> ${isNew ? 'Discard' : 'Delete Callout'}
             </button>
-          </div>` : ''}
+          </div>
         </div>
       </div>`;
       cardHtml += `</div>`;
@@ -14958,22 +14958,16 @@
         weekData.callouts.push(co);
         state.calloutsExpandedId = id;
         state.calloutsEditId = id;
-        // Update the DOM card's data-co-id, onclick handler, and inject Delete button
+        // Update the DOM card's data-co-id, onclick handler, and button label
         const card = document.querySelector('[data-co-id="__new__"]');
         if (card) {
           card.setAttribute('data-co-id', id);
           card.style.borderStyle = 'solid'; // remove dashed border
           const header = card.querySelector('[onclick*="coToggleCard"]');
           if (header) header.setAttribute('onclick', `coToggleCard('${id}')`);
-          // Inject Delete button (wasn't rendered for __new__)
-          const detailInner = card.querySelector('.act-detail-inner');
-          if (detailInner && !detailInner.querySelector('.note-btn-delete')) {
-            detailInner.insertAdjacentHTML('beforeend', `<div class="note-bottom-actions">
-              <button class="note-btn-delete" onclick="event.stopPropagation(); coDelete()">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg> Delete Callout
-              </button>
-            </div>`);
-          }
+          // Update button label from "Discard" to "Delete Callout"
+          const delBtn = card.querySelector('.note-btn-delete');
+          if (delBtn) delBtn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg> Delete Callout`;
         }
         return co;
       }
@@ -15185,7 +15179,15 @@
 
     function coDelete() {
       const deleteId = state.calloutsExpandedId;
-      if (!state.calloutsSelectedWeek || !deleteId || deleteId === '__new__') return;
+      if (!state.calloutsSelectedWeek || !deleteId) return;
+      if (deleteId === '__new__') {
+        // Discard unsaved new card — just close it
+        state.calloutsExpandedId = null;
+        state.calloutsEditId = null;
+        state.calloutsNotesOpen = false;
+        render();
+        return;
+      }
       showConfirm(
         'Delete Callout?',
         'This cannot be undone.',
