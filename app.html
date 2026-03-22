@@ -3808,20 +3808,6 @@
       margin-bottom: 0;
     }
 
-    .ai-answer-text li.ai-task-start {
-      margin-top: 10px;
-      padding-top: 10px;
-      border-top: 1px solid var(--border);
-      list-style: none;
-      margin-left: -18px;
-      padding-left: 18px;
-    }
-
-    .ai-answer-text li.ai-task-start:first-child {
-      margin-top: 0;
-      padding-top: 0;
-      border-top: none;
-    }
 
     .ai-answer-text hr {
       border: none;
@@ -6920,7 +6906,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.12.36';
+    const VERSION = '4.12.37';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -14577,9 +14563,15 @@ Rules:
       // Detect Gemini section-like lines
       const isSectionLine = s => /^(Here are|I also found|I found|I checked|Additionally|The following|Below are|No )/i.test(s.trim());
 
+      let _taskCount = 0;
       lines.forEach(rawLine => {
         // Strip leading bullet from lines that are actually headings
         let line = rawLine.replace(/^[\*\-]\s+(?=###?\s)/, '');
+        // Insert separator before **Task:** lines (any format: bullet, indented, or plain)
+        if (/(?:^[\*\-]\s+)?\s*\*\*Task:?\*\*/.test(line)) {
+          _taskCount++;
+          if (_taskCount > 1) { closeList(); out.push('<hr>'); }
+        }
         const h3 = line.match(/^###\s+(.+)/);
         const h2 = line.match(/^##\s+(.+)/);
         const h1 = line.match(/^#\s+(.+)/);
@@ -14599,8 +14591,7 @@ Rules:
         } else if (ul) {
           if (inOl) { out.push('</ol>'); inOl = false; }
           if (!inUl) { out.push('<ul>'); inUl = true; }
-          const isTaskStart = /^\*\*Task:?\*\*/.test(ul[1].trim());
-          out.push(`<li${isTaskStart ? ' class="ai-task-start"' : ''}>${inline(ul[1])}</li>`);
+          out.push(`<li>${inline(ul[1])}</li>`);
         } else if (ol) {
           if (inUl) { out.push('</ul>'); inUl = false; }
           if (!inOl) { out.push('<ol>'); inOl = true; }
@@ -14615,10 +14606,6 @@ Rules:
           out.push(`<h3>${inline(line.trim())}</h3>`);
         } else {
           closeList();
-          // Add separator before "**Task:**" lines (visual task boundary)
-          if (/^\s*\*\*Task:?\*\*/.test(line) && out.length > 0 && out[out.length - 1] !== '<hr>') {
-            out.push('<hr>');
-          }
           out.push(`<p>${inline(line)}</p>`);
         }
       });
@@ -14701,7 +14688,10 @@ Rules:
             const codeDescs = (act.codes || []).map(c => c.d || '').join(' ');
             const text = [act.description, act.location, cats.join(' '), codeDescs].filter(Boolean).join(' ').toLowerCase();
             const hitCount = keywords.filter(kw => kwMatches(text, kw)).length;
-            if (hitCount > 0) {
+            // Require multiple keyword hits, OR single hit but must be in description/location (not just code desc)
+            const coreText = [act.description, act.location].filter(Boolean).join(' ').toLowerCase();
+            const coreHits = keywords.filter(kw => kwMatches(coreText, kw)).length;
+            if (hitCount >= 2 || coreHits >= 1) {
               matches.push({
                 date: day.date,
                 actId: act.id,
@@ -15094,7 +15084,7 @@ QUESTION: ${query}`;
             }
             return false;
           });
-          if (filtered.length > 0) timesheetEntries = filtered;
+          timesheetEntries = filtered; // show only matched entries, or none if Gemini didn't reference any
         }
         state.aiResult = { answer, sources: faultSources.slice(0, 5), noteMatches: noteMatches.slice(0, 10), timesheetEntries: timesheetEntries.slice(0, 10) };
         // Save to recent queries
