@@ -7773,7 +7773,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.12.40';
+    const VERSION = '4.12.41';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -15929,7 +15929,10 @@ QUESTION: ${query}`;
               const ctxStart = Math.max(0, idx - 5);
               const ctxEnd = Math.min(answerLines.length, idx + 6);
               const ctx = answerLines.slice(ctxStart, ctxEnd).join(' ').toLowerCase();
-              const isRelevant = qWords.some(qw => ctx.includes(qw));
+              // Require ALL query words in context (for 1-2 words) or 60%+ (for 3+ words)
+              const ctxHits = qWords.filter(qw => ctx.includes(qw)).length;
+              const minHits = qWords.length <= 2 ? qWords.length : Math.ceil(qWords.length * 0.6);
+              const isRelevant = ctxHits >= minHits;
               if (isRelevant) taskDescs.push(m[1].trim().toLowerCase());
             });
             if (taskDescs.length > 0) {
