@@ -6817,6 +6817,7 @@
 
     /* ===== CALLOUTS (minimal — reuses existing card/form classes) ===== */
     .co-page { padding: 0 0 80px; background: var(--bg-page); min-height: calc(100vh - 56px); }
+    .co-card::before, .co-card::after { display: none !important; }
 
     /* ===== AUTO WORK CODE SUGGESTER ===== */
     .act-suggest-btn {
@@ -7785,7 +7786,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.14.2';
+    const VERSION = '4.14.3';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -14752,14 +14753,15 @@
       const pinSvg = `<svg width="13" height="13" viewBox="0 0 24 24" fill="#e8453c" style="display:inline-block;vertical-align:-2px;margin-right:2px;flex-shrink:0"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 010-5 2.5 2.5 0 010 5z"/></svg>`;
       const clockSvg = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline-block;vertical-align:-1px;margin-right:2px;flex-shrink:0"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`;
 
-      let cardHtml = `<div class="activity-card ${isExpanded ? 'expanded' : ''}" data-co-id="${esc(id)}" style="margin-bottom:8px;${isNew && !isExpanded ? 'border-style:dashed;' : ''}">`;
-      // Collapsed header row
+      // No timeline connectors — use co-card class to suppress ::before/::after
+      let cardHtml = `<div class="activity-card co-card ${isExpanded ? 'expanded' : ''}" data-co-id="${esc(id)}" style="margin:0 0 8px;${isNew && !isExpanded ? 'border-style:dashed;' : ''}">`;
+      // Collapsed header — fault (description) is large, site (location) is small below
       cardHtml += `<div class="flex items-center gap-3 px-3.5 py-3 cursor-pointer" onclick="coToggleCard('${esc(id)}')">
           <div class="task-num">${idx}</div>
           <div class="flex-1 min-w-0 act-meta">
-            <div class="act-desc-txt">${isNew ? '<span style="opacity:0.4;font-weight:400;font-style:italic">New callout</span>' : (site ? `${pinSvg}${esc(site)}` : '<span style="opacity:0.4;font-weight:400;font-style:italic">No site</span>')}</div>
+            <div class="act-desc-txt">${isNew ? '<span style="opacity:0.4;font-weight:400;font-style:italic">New callout</span>' : (fault ? esc(fault.substring(0, 80)) + (fault.length > 80 ? '…' : '') : '<span style="opacity:0.4;font-weight:400;font-style:italic">No description</span>')}</div>
             <div class="act-row2">
-              <div class="act-loc-txt">${esc((fault).substring(0, 60))}${fault.length > 60 ? '…' : ''}</div>
+              <div class="act-loc-txt">${site ? `${pinSvg}${esc(site)}` : '<span style="opacity:0.4">No site</span>'}</div>
               <div class="act-pill-row">
                 ${ticket ? `<span class="pill-hrs" style="font-family:var(--font-mono)">${esc(ticket)}</span>` : ''}
                 ${timeStr ? `<span class="pill-hrs" style="background:var(--bg-code-group)">${clockSvg}${esc(timeStr)}</span>` : ''}
@@ -14775,12 +14777,14 @@
           <!-- Date -->
           <div class="flex flex-col gap-1.5">
             <span class="act-field-label">Date</span>
-            <input type="date" id="co-date-input" value="${date}" class="act-input" style="cursor:pointer">
+            <input type="date" id="co-date-input" value="${date}" class="act-input" style="cursor:pointer"
+              onchange="coAutoSave()">
           </div>
           <!-- Ticket -->
           <div class="flex flex-col gap-1.5">
             <span class="act-field-label">Ticket Number</span>
-            <input type="text" id="co-ticket-input" class="act-input" style="font-family:var(--font-mono)" placeholder="e.g. R23482335" value="${esc(ticket)}">
+            <input type="text" id="co-ticket-input" class="act-input" style="font-family:var(--font-mono)" placeholder="e.g. R23482335" value="${esc(ticket)}"
+              oninput="coAutoSave()">
           </div>
           <!-- Site -->
           <div class="flex flex-col gap-1.5">
@@ -14788,18 +14792,20 @@
             <div class="location-wrap">
               <input type="text" id="co-site-display" class="act-input" style="cursor:pointer" readonly
                 placeholder="Tap to select location" value="${esc(site)}"
-                onclick="_coSiteCallback = (name) => { document.getElementById('co-site-display').value = name; }; openLocationModal();">
+                onclick="_coSiteCallback = (name) => { document.getElementById('co-site-display').value = name; coAutoSave(); }; openLocationModal();">
             </div>
           </div>
           <!-- Fault -->
           <div class="flex flex-col gap-1.5">
             <span class="act-field-label">Fault Description</span>
-            <textarea id="co-fault-input" class="act-textarea" rows="2" placeholder="e.g. EXTERNAL ALARM: AC MAINS FAIL">${esc(fault)}</textarea>
+            <textarea id="co-fault-input" class="act-textarea" rows="2" placeholder="e.g. EXTERNAL ALARM: AC MAINS FAIL"
+              oninput="coAutoSave()">${esc(fault)}</textarea>
           </div>
           <!-- On-Site Time -->
           <div class="flex flex-col gap-1.5">
             <span class="act-field-label">Engineer On Site</span>
-            <input type="time" id="co-time-input" class="act-input" value="${timeStr}">
+            <input type="time" id="co-time-input" class="act-input" value="${timeStr}"
+              onchange="coAutoSave()">
           </div>
           <!-- Notes — exact same as task notes panel -->
           <div class="notes-panel">
@@ -14808,27 +14814,42 @@
                 <path d="M2 10.5L3.5 9H11V1H2v9.5z" stroke="#BBBBB8" stroke-width="1.4" stroke-linejoin="round"/>
                 <path d="M4 4.5h5M4 6.5h3" stroke="#BBBBB8" stroke-width="1.3" stroke-linecap="round"/>
               </svg>
-              <div class="notes-panel-preview ${notes ? 'has-note' : ''}">${notes ? esc(notes).replace(/\n/g, ' ') : 'Add a note…'}</div>
+              <div class="notes-panel-preview ${notes ? 'has-note' : ''}" data-co-notes-header>${notes ? esc(notes).replace(/\n/g, ' ') : 'Add a note…'}</div>
               <svg data-co-notes-chev class="notes-chevron" width="12" height="12" viewBox="0 0 12 12" fill="none"
                 style="flex-shrink:0; transition: transform 0.25s ease; transform: ${notesOpen ? 'rotate(90deg)' : 'rotate(0deg)'}">
                 <path d="M4.5 3l3 3-3 3" stroke="#D0D0CE" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
             </div>
             <div class="notes-panel-body ${notesOpen ? 'open' : ''}" data-co-notes-wrap>
-              <div style="padding:14px 14px 10px">
-                <textarea id="co-notes-ta" style="width:100%;min-height:80px;border:none;outline:none;font-size:13px;color:var(--text-primary);font-family:var(--font-body);resize:vertical;box-sizing:border-box" placeholder="Additional details…">${esc(notes)}</textarea>
+              <div class="notes-ta-wrap" onclick="event.stopPropagation(); openCoNoteFullscreen()">
+                <div class="act-notes-rich-preview" data-co-notes-preview>
+                  ${notes && notes.trim()
+                    ? (notes.trim().startsWith('<') ? notes : esc(notes).replace(/\n/g, '<br>'))
+                    : '<span class="notes-rich-placeholder">Tap to add a note…</span>'}
+                </div>
+                <textarea class="act-notes-area" id="co-notes-ta"
+                  oninput="coAutoSave()">${esc(notes)}</textarea>
+              </div>
+              <div class="act-dictate-wrap">
+                <button class="act-dictate-bar" id="co-mic-note" onclick="event.stopPropagation(); startCoNoteDictation()">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="8" y1="22" x2="16" y2="22"/></svg>
+                  Tap to dictate
+                </button>
+                <button class="act-expand-note-btn" onclick="event.stopPropagation(); openCoNoteFullscreen()" title="Full screen">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/>
+                    <line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/>
+                  </svg>
+                </button>
               </div>
             </div>
           </div>
-          <!-- Save / Delete — same style as note-btn-done / note-btn-delete -->
-          <div class="note-bottom-actions">
-            <button class="note-btn-done" onclick="event.stopPropagation(); coSave()">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Save Callout
+          <!-- Delete only (auto-save handles saving) -->
+          ${!isNew ? `<div class="note-bottom-actions">
+            <button class="note-btn-delete" onclick="event.stopPropagation(); coDelete()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg> Delete Callout
             </button>
-            ${!isNew ? `<button class="note-btn-delete" onclick="event.stopPropagation(); coDelete()">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg> Delete
-            </button>` : ''}
-          </div>
+          </div>` : ''}
         </div>
       </div>`;
       cardHtml += `</div>`;
@@ -14836,16 +14857,57 @@
     }
 
     function coToggleCard(id) {
+      // If collapsing the currently expanded card, auto-save first
       if (state.calloutsExpandedId === id) {
+        if (id === '__new__') {
+          // For new card, do a save if site is filled
+          const site = document.getElementById('co-site-display')?.value?.trim();
+          if (site) coAutoSave();
+        }
+        // Surgical DOM collapse (same as toggleActivityDetails)
+        const card = document.querySelector(`[data-co-id="${id}"]`);
+        if (card) {
+          const detail = card.querySelector('.activity-detail');
+          const chevron = card.querySelector('.chevron');
+          card.classList.remove('expanded');
+          if (chevron) chevron.style.transform = 'rotate(0deg)';
+          if (detail) {
+            detail.classList.remove('open');
+            detail.style.transition = 'max-height 0.3s ease, padding 0.3s ease, opacity 0.3s ease';
+            detail.style.maxHeight = '0';
+            detail.style.opacity = '0';
+            detail.style.paddingTop = '0';
+            detail.style.paddingBottom = '0';
+            setTimeout(() => { detail.style.display = 'none'; }, 300);
+          }
+        }
         state.calloutsExpandedId = null;
         state.calloutsEditId = null;
         state.calloutsNotesOpen = false;
       } else {
+        // Collapse previous if any
+        if (state.calloutsExpandedId) {
+          if (state.calloutsExpandedId !== '__new__') coAutoSave();
+          const prev = document.querySelector(`[data-co-id="${state.calloutsExpandedId}"]`);
+          if (prev) {
+            const pd = prev.querySelector('.activity-detail');
+            const pc = prev.querySelector('.chevron');
+            prev.classList.remove('expanded');
+            if (pc) pc.style.transform = 'rotate(0deg)';
+            if (pd) { pd.classList.remove('open'); pd.style.display = 'none'; pd.style.maxHeight = '0'; pd.style.opacity = '0'; }
+          }
+        }
         state.calloutsExpandedId = id;
         state.calloutsEditId = id === '__new__' ? null : id;
         state.calloutsNotesOpen = false;
+        // Need full render to populate form fields with correct data
+        render();
+        // Scroll expanded card into view
+        setTimeout(() => {
+          const card = document.querySelector(`[data-co-id="${id}"]`);
+          if (card) card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }, 100);
       }
-      render();
     }
 
     function coToggleNotes() {
@@ -14857,6 +14919,132 @@
         if (c) c.style.transform = state.calloutsNotesOpen ? 'rotate(90deg)' : 'rotate(0deg)';
         if (state.calloutsNotesOpen) document.getElementById('co-notes-ta')?.focus();
       }
+    }
+
+    // Auto-save callout fields (debounced)
+    let _coSaveTimer = null;
+    function coAutoSave() {
+      if (_coSaveTimer) clearTimeout(_coSaveTimer);
+      _coSaveTimer = setTimeout(() => _coDoSave(), 800);
+    }
+    function _coDoSave() {
+      const weekStart = state.calloutsSelectedWeek || dateToStr(getCurrentFriday());
+      if (!state.callouts) return;
+      if (!state.callouts.weeks[weekStart]) {
+        state.callouts.weeks[weekStart] = { startDate: weekStart, callouts: [] };
+      }
+      const weekData = state.callouts.weeks[weekStart];
+      if (!weekData.callouts) weekData.callouts = [];
+
+      const date = document.getElementById('co-date-input')?.value || weekStart;
+      const ticket = document.getElementById('co-ticket-input')?.value?.trim() || '';
+      const site = document.getElementById('co-site-display')?.value?.trim() || '';
+      const fault = document.getElementById('co-fault-input')?.value?.trim() || '';
+      const engineerOnSite = document.getElementById('co-time-input')?.value || '';
+      const notes = document.getElementById('co-notes-ta')?.value?.trim() || '';
+
+      if (!site && !fault && !ticket) return; // don't save empty
+
+      const isNew = state.calloutsExpandedId === '__new__';
+      if (isNew) {
+        if (!site) return; // need at least a site
+        const id = Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+        weekData.callouts.push({ id, date, ticket, site, fault, engineerOnSite, notes });
+        // Switch from __new__ to the real id
+        state.calloutsExpandedId = id;
+        state.calloutsEditId = id;
+      } else {
+        const editId = state.calloutsExpandedId;
+        const idx = weekData.callouts.findIndex(c => c.id === editId);
+        if (idx >= 0) {
+          weekData.callouts[idx] = { id: editId, date, ticket, site, fault, engineerOnSite, notes };
+        }
+      }
+
+      saveCallouts();
+      // Live-update collapsed header text
+      const card = document.querySelector(`[data-co-id="${state.calloutsExpandedId}"]`);
+      if (card) {
+        const descEl = card.querySelector('.act-desc-txt');
+        const locEl = card.querySelector('.act-loc-txt');
+        const pinSvg = `<svg width="13" height="13" viewBox="0 0 24 24" fill="#e8453c" style="display:inline-block;vertical-align:-2px;margin-right:2px;flex-shrink:0"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 010-5 2.5 2.5 0 010 5z"/></svg>`;
+        if (descEl) descEl.innerHTML = fault ? esc(fault.substring(0, 80)) : '<span style="opacity:0.4;font-weight:400;font-style:italic">No description</span>';
+        if (locEl) locEl.innerHTML = site ? `${pinSvg}${esc(site)}` : '<span style="opacity:0.4">No site</span>';
+      }
+      // Update notes preview
+      const notesPrev = document.querySelector('[data-co-notes-header]');
+      if (notesPrev) {
+        notesPrev.textContent = notes || 'Add a note…';
+        notesPrev.classList.toggle('has-note', !!notes);
+      }
+    }
+
+    // Callout note dictation — reuses voice system
+    function startCoNoteDictation() {
+      voiceMode = 'co-note';
+      const hint = document.getElementById('vl-hint');
+      if (hint) hint.textContent = 'Speak your note…';
+      const textInput = document.getElementById('vl-text-input');
+      if (textInput) textInput.placeholder = 'Type your note…';
+      const btn = document.getElementById('co-mic-note');
+      if (btn) btn.classList.add('listening');
+      startVoiceEntry();
+    }
+
+    function processCoNoteText(text) {
+      const ta = document.getElementById('co-notes-ta');
+      if (ta) {
+        if (ta.value.trim()) {
+          ta.value = ta.value.trimEnd() + '\n' + text.trim();
+        } else {
+          ta.value = text.trim();
+        }
+        coAutoSave();
+        // Update rich preview
+        const preview = document.querySelector('[data-co-notes-preview]');
+        if (preview) preview.innerHTML = esc(ta.value).replace(/\n/g, '<br>');
+      }
+      cancelVoice();
+      showToast('Note added ✓');
+    }
+
+    // Callout note fullscreen — reuses the existing note-fs-modal with Quill
+    let _coNoteFsActive = false;
+    function openCoNoteFullscreen() {
+      _coNoteFsActive = true;
+      _noteFsActId = null; _noteFsDi = null; // ensure task path is cleared
+      const ta = document.getElementById('co-notes-ta');
+      const currentValue = ta ? ta.value : '';
+      const titleEl = document.getElementById('note-fs-title');
+      const subEl = document.getElementById('note-fs-subtitle');
+      if (titleEl) titleEl.textContent = 'Callout Note';
+      if (subEl) { subEl.textContent = ''; subEl.style.display = 'none'; }
+      document.getElementById('note-fs-modal').classList.remove('hidden');
+      setTimeout(() => {
+        if (!_quillInstance) {
+          // Quill not yet initialized — the first openNoteFullscreen call will handle it.
+          // For safety, trigger via the task path briefly
+          return;
+        }
+        if (currentValue && currentValue.trim().startsWith('<')) {
+          _quillInstance.root.innerHTML = currentValue;
+        } else {
+          _quillInstance.setText(currentValue || '');
+        }
+        _quillInstance.off('text-change');
+        _quillInstance.on('text-change', () => {
+          const html = _quillInstance.root.innerHTML;
+          const coTa = document.getElementById('co-notes-ta');
+          if (coTa) {
+            coTa.value = (html === '<p><br></p>' || html === '') ? '' : html;
+            coAutoSave();
+            // Update rich preview
+            const preview = document.querySelector('[data-co-notes-preview]');
+            if (preview) preview.innerHTML = coTa.value || '<span class="notes-rich-placeholder">Tap to add a note…</span>';
+          }
+        });
+        _quillInstance.focus();
+      }, 100);
     }
 
     function coSelectWeek(weekStart) {
@@ -14906,45 +15094,8 @@
       render();
     }
 
-    async function coSave() {
-      const weekStart = state.calloutsSelectedWeek || dateToStr(getCurrentFriday());
-      if (!state.callouts.weeks[weekStart]) {
-        state.callouts.weeks[weekStart] = { startDate: weekStart, callouts: [] };
-      }
-      const weekData = state.callouts.weeks[weekStart];
-      if (!weekData.callouts) weekData.callouts = [];
-
-      const date = document.getElementById('co-date-input')?.value || weekStart;
-      const ticket = document.getElementById('co-ticket-input')?.value?.trim() || '';
-      const site = document.getElementById('co-site-display')?.value?.trim() || '';
-      const fault = document.getElementById('co-fault-input')?.value?.trim() || '';
-      const engineerOnSite = document.getElementById('co-time-input')?.value || '';
-      const notes = document.getElementById('co-notes-ta')?.value?.trim() || '';
-
-      if (!site) {
-        showToast('Please select a site');
-        return;
-      }
-
-      const isNew = state.calloutsExpandedId === '__new__';
-      if (isNew) {
-        const id = Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
-        weekData.callouts.push({ id, date, ticket, site, fault, engineerOnSite, notes });
-      } else {
-        const editId = state.calloutsExpandedId;
-        const idx = weekData.callouts.findIndex(c => c.id === editId);
-        if (idx >= 0) {
-          weekData.callouts[idx] = { id: editId, date, ticket, site, fault, engineerOnSite, notes };
-        }
-      }
-
-      await saveCallouts();
-      showToast(isNew ? 'Callout added' : 'Callout updated');
-      state.calloutsExpandedId = null;
-      state.calloutsEditId = null;
-      state.calloutsNotesOpen = false;
-      render();
-    }
+    // coSave is now handled by coAutoSave — kept for backwards compat
+    function coSave() { _coDoSave(); }
 
     function coDelete() {
       const deleteId = state.calloutsExpandedId;
@@ -15144,6 +15295,8 @@
         processLocationText(transcript);
       } else if (voiceMode === 'act-field') {
         processActFieldText(transcript);
+      } else if (voiceMode === 'co-note') {
+        processCoNoteText(transcript);
       } else {
         await processEntryText(transcript);
       }
@@ -15165,6 +15318,8 @@
         processLocationText(text);
       } else if (voiceMode === 'act-field') {
         processActFieldText(text);
+      } else if (voiceMode === 'co-note') {
+        processCoNoteText(text);
       } else {
         await processEntryText(text);
       }
@@ -16836,6 +16991,18 @@ QUESTION: ${query}`;
     function closeNoteFullscreen() {
       if (_quillInstance) _quillInstance.off('text-change');
       document.getElementById('note-fs-modal').classList.add('hidden');
+      // If we were editing a callout note, update preview
+      if (_coNoteFsActive) {
+        _coNoteFsActive = false;
+        const coTa = document.getElementById('co-notes-ta');
+        const preview = document.querySelector('[data-co-notes-preview]');
+        if (coTa && preview) {
+          preview.innerHTML = coTa.value && coTa.value.trim()
+            ? (coTa.value.trim().startsWith('<') ? coTa.value : esc(coTa.value).replace(/\n/g, '<br>'))
+            : '<span class="notes-rich-placeholder">Tap to add a note…</span>';
+        }
+        return;
+      }
       // If we were editing a field note's noteContent, re-render to reflect changes
       if (_fnFsNoteId) {
         _fnFsNoteId = null;
