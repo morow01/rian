@@ -8140,7 +8140,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.18.0';
+    const VERSION = '4.18.1';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -14793,7 +14793,9 @@
       if (!state.currentUser) { render(); return; }
       const ref = userDoc('data/routines');
       try {
-        const snap = await ref.get();
+        // Prefer server data when online to avoid stale offline cache
+        const opts = navigator.onLine ? { source: 'server' } : {};
+        const snap = await ref.get(opts);
         if (snap.exists) {
           state.routines = snap.data();
           if (!state.routines.selectedSites) state.routines.selectedSites = [];
@@ -14802,7 +14804,19 @@
           state.routines = { selectedSites: [], visits: {} };
         }
       } catch (e) {
-        state.routines = state.routines || { selectedSites: [], visits: {} };
+        // Fallback: try cache if server fetch failed
+        try {
+          const snap = await ref.get({ source: 'cache' });
+          if (snap.exists) {
+            state.routines = snap.data();
+            if (!state.routines.selectedSites) state.routines.selectedSites = [];
+            if (!state.routines.visits) state.routines.visits = {};
+          } else {
+            state.routines = state.routines || { selectedSites: [], visits: {} };
+          }
+        } catch (e2) {
+          state.routines = state.routines || { selectedSites: [], visits: {} };
+        }
       }
       render();
       // Scan timesheet weeks in background for auto-visits
