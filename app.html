@@ -7071,15 +7071,20 @@
     }
 
     .oc-cell.oc-current {
-      border-color: var(--priority-low);
-      border-width: 2.5px;
       font-weight: 700;
       opacity: 1;
     }
 
+    .oc-cell.oc-current.oc-oncall {
+      box-shadow: 0 0 0 3.5px rgba(59, 130, 246, 0.5);
+    }
+
+    .oc-cell.oc-current.oc-extra {
+      box-shadow: 0 0 0 3.5px rgba(245, 158, 11, 0.55);
+    }
+
     .oc-cell.oc-current:not(.oc-oncall):not(.oc-extra) {
-      background: var(--priority-low-bg);
-      color: var(--priority-low);
+      box-shadow: 0 0 0 3.5px rgba(59, 130, 246, 0.3);
     }
 
     .oc-cell:active {
@@ -8227,7 +8232,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.18.11';
+    const VERSION = '4.18.12';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
