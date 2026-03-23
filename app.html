@@ -8227,7 +8227,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.18.6';
+    const VERSION = '4.18.7';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -15349,7 +15349,7 @@
       activeMonths.forEach((m, idx) => {
         const isLast = idx === activeMonths.length - 1;
         html += `<div class="oc-grid-row" style="padding:10px 12px;margin-bottom:0;${!isLast ? 'border-bottom:1px dashed var(--border)' : ''}">`;
-        html += `<div class="oc-month-label">${monthNames[m]}</div><div style="display:flex;gap:4px;flex-wrap:wrap">`;
+        html += `<div class="oc-month-label">${monthNames[m]}</div><div style="display:flex;gap:8px;flex-wrap:wrap">`;
         byMonth[m].forEach(f => {
           const dayNum = strToDate(f).getDate();
           const type = onCall[f];
