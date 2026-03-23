@@ -8227,7 +8227,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.18.10';
+    const VERSION = '4.18.11';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -15362,7 +15362,7 @@
           if (isCur) cls += ' oc-current';
           html += `<button class="${cls}" onclick="ocToggle('${f}')"
             oncontextmenu="event.preventDefault()"
-            ontouchstart="ocCellTouchStart(event,'${f}')" ontouchend="ocCellTouchEnd(event)" ontouchcancel="ocCellTouchEnd(event)"
+            ontouchstart="ocCellTouchStart(event,'${f}')" ontouchmove="ocCellTouchMove(event)" ontouchend="ocCellTouchEnd(event)" ontouchcancel="ocCellTouchCancel(event)"
             onmousedown="ocCellMouseDown(event,'${f}')" onmouseup="ocCellMouseUp(event)"
             title="${formatWeekRange(f)}">${dayNum}</button>`;
         });
@@ -16171,11 +16171,17 @@
       }
     }
 
-    // Mobile: touchstart/touchend (reliable, no pointercancel issues)
+    // Mobile: touchstart/touchmove/touchend
+    let _ocTouchStartX = 0, _ocTouchStartY = 0, _ocTouchScrolled = false;
+
     function ocCellTouchStart(e, weekKey) {
-      e.preventDefault(); // stop browser from firing touchcancel (context menu / text selection)
+      const t = e.touches[0];
+      _ocTouchStartX = t.clientX;
+      _ocTouchStartY = t.clientY;
+      _ocTouchScrolled = false;
       _ocCellLocked = false;
       _ocCellTimer = setTimeout(() => {
+        if (_ocTouchScrolled) return; // user is scrolling — ignore
         _ocCellTimer = null;
         _ocCellLocked = true;
         if (navigator.vibrate) navigator.vibrate(30);
@@ -16183,14 +16189,30 @@
       }, 500);
     }
 
+    function ocCellTouchMove(e) {
+      if (_ocTouchScrolled) return;
+      const t = e.touches[0];
+      const dx = Math.abs(t.clientX - _ocTouchStartX);
+      const dy = Math.abs(t.clientY - _ocTouchStartY);
+      if (dx > 8 || dy > 8) {
+        _ocTouchScrolled = true;
+        if (_ocCellTimer) { clearTimeout(_ocCellTimer); _ocCellTimer = null; }
+      }
+    }
+
     function ocCellTouchEnd(e) {
       if (_ocCellTimer) { clearTimeout(_ocCellTimer); _ocCellTimer = null; }
-      // Since we preventDefault on touchstart, the browser won't fire a synthetic click.
-      // We must manually trigger the tap action here if it wasn't a long-press.
-      if (!_ocCellLocked) {
+      if (!_ocCellLocked && !_ocTouchScrolled) {
         const btn = e.target.closest('.oc-cell');
         if (btn) btn.click();
       }
+      _ocTouchScrolled = false;
+    }
+
+    function ocCellTouchCancel(e) {
+      if (_ocCellTimer) { clearTimeout(_ocCellTimer); _ocCellTimer = null; }
+      _ocCellLocked = false;
+      _ocTouchScrolled = false;
     }
 
     // Desktop: mousedown/mouseup for right-click long-press alternative
