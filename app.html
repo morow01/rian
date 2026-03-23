@@ -4598,6 +4598,7 @@
     /* Callout Selection Mode Styles */
     .co-card.co-selectable .flex.items-center {
       padding-left: 44px;
+      position: relative;
     }
     .co-card.co-selected {
       border-color: var(--accent) !important;
@@ -7934,7 +7935,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.16.2';
+    const VERSION = '4.16.3';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -15591,6 +15592,10 @@
         if (!state.coSelectionMode) {
           state.coSelectionMode = true;
           state.selectedCallouts.clear();
+          // Collapse any expanded card so selection UI is clean
+          state.calloutsExpandedId = null;
+          state.calloutsEditId = null;
+          state.calloutsNotesOpen = false;
         }
         state.selectedCallouts.add(id);
         if (navigator.vibrate) navigator.vibrate(30);
