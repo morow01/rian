@@ -8232,7 +8232,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.18.18';
+    const VERSION = '4.18.19';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -8904,8 +8904,8 @@
       calloutsUnsubscribe = ref.onSnapshot({ includeMetadataChanges: true }, snap => {
         if (snap.metadata.hasPendingWrites) return;
 
-        // If we have a pending local save, skip — our data is newer
-        if (_coSaveTimer) {
+        // If we have a pending local save (timer or in-flight async), skip — our data is newer
+        if (_coSaveTimer || _coSavePending) {
           console.log('[Rian] callouts onSnapshot: skipping — local save pending');
           return;
         }
@@ -15820,12 +15820,22 @@
     // ── Callout field updates — same pattern as task updateField() ──
     // Write directly to the data object on every keystroke, debounce only the Firestore persist.
     let _coSaveTimer = null;
+    let _coSavePending = false;
     function _coScheduleSave() {
       if (_coSaveTimer) clearTimeout(_coSaveTimer);
-      _coSaveTimer = setTimeout(() => { _coSaveTimer = null; saveCallouts(); }, 800);
+      _coSaveTimer = setTimeout(async () => {
+        _coSaveTimer = null;
+        _coSavePending = true;
+        try { await saveCallouts(); } finally { _coSavePending = false; }
+      }, 800);
     }
     function _coFlushSave() {
-      if (_coSaveTimer) { clearTimeout(_coSaveTimer); _coSaveTimer = null; saveCallouts(); }
+      if (_coSaveTimer) {
+        clearTimeout(_coSaveTimer);
+        _coSaveTimer = null;
+        _coSavePending = true;
+        saveCallouts().finally(() => { _coSavePending = false; });
+      }
     }
 
     // Get or create the currently-expanded callout object.
