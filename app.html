@@ -8256,7 +8256,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.18.30';
+    const VERSION = '4.18.31';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -11842,8 +11842,8 @@
         }
         console.log('[Rian Push] subscription saved for', deviceKey);
       } catch (e) {
-        console.error('[Rian Push] FAILED:', e);
-        showToast('Push err: ' + (e.message || 'unknown').substring(0, 60));
+        // Push registration can fail in Brave (Shields) or Firefox — not critical, data sync is unaffected
+        console.warn('[Rian Push] registration failed (push notifications unavailable):', e.message || e);
       }
     }
 
