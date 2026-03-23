@@ -4585,6 +4585,44 @@
       transition: all 0.2s;
     }
 
+    /* Callout Selection Mode Styles */
+    .co-card.co-selectable .flex.items-center {
+      padding-left: 44px;
+    }
+    .co-card.co-selected {
+      border-color: var(--accent) !important;
+      box-shadow: 0 0 0 2px var(--accent);
+    }
+    .co-selection-check {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 22px;
+      height: 22px;
+      border-radius: 6px;
+      border: 2px solid #64748b;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #fff;
+      transition: all 0.2s;
+      z-index: 2;
+    }
+    .co-card.co-selected .co-selection-check {
+      background: var(--accent);
+      border-color: var(--accent);
+    }
+    .co-card.co-selected .co-selection-check svg {
+      opacity: 1;
+      transform: scale(1);
+    }
+    .co-selection-check svg {
+      opacity: 0;
+      transform: scale(0.5);
+      transition: all 0.2s;
+    }
+
     .bulk-action-bar {
       position: fixed;
       bottom: 0;
@@ -7886,7 +7924,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.15.1';
+    const VERSION = '4.16.0';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -8426,6 +8464,8 @@
       calloutsEditId: null,    // callout id being edited, or null for new
       calloutsExpandedId: null,  // which callout card is expanded (or '__new__' for add)
       calloutsNotesOpen: false,  // whether notes panel is open in expanded callout
+      coSelectionMode: false,
+      selectedCallouts: new Set(),
     };
 
     let codeModalCtx = { dayIndex: null, activityId: null, selected: [] };
@@ -14897,7 +14937,7 @@
       const activeWeek = weeks.find(([k]) => k === curWeekStart);
       const pastWeeks = weeks.filter(([k]) => k !== curWeekStart);
 
-      let html = `<div class="co-page">`;
+      let html = `<div class="co-page" style="${state.coSelectionMode ? 'padding-bottom:100px' : ''}">`;
       // Header bar — same pattern as routines top bar
       html += `<div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;">
         <span style="font-size:17px;font-weight:700;color:var(--text-primary)">Callouts</span>
@@ -14966,7 +15006,7 @@
       });
       const sortedDates = Object.keys(calloutsByDate).sort();
 
-      let html = `<div class="co-page">`;
+      let html = `<div class="co-page" style="${state.coSelectionMode ? 'padding-bottom:100px' : ''}">`;
       // Header
       html += `<div style="display:flex;align-items:center;gap:8px;padding:12px 14px;border-bottom:1px solid var(--border);background:var(--bg-card)">
         <button class="back-btn" onclick="coBack()"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg></button>
@@ -14983,6 +15023,19 @@
           </button>
         </div>
       </div>`;
+
+      // Selection banner (replaces normal view controls when in selection mode)
+      if (state.coSelectionMode) {
+        const allIds = allCallouts.map(c => c.id);
+        const isAllSel = allIds.length > 0 && allIds.every(id => state.selectedCallouts.has(id));
+        html += `<div class="notes-selection-banner">
+            <div style="display:flex;align-items:center;gap:10px;">
+              <span style="font-size:14px;font-weight:700;color:var(--text-primary);">${state.selectedCallouts.size} selected</span>
+              <button onclick="coToggleSelectAll()" style="background:none;border:none;color:var(--accent);font-size:12px;font-weight:700;cursor:pointer;padding:0;font-family:inherit;">${isAllSel ? 'Deselect all' : 'Select all'}</button>
+            </div>
+            <button onclick="coToggleSelectionMode()" style="background:none;border:none;color:var(--text-muted);font-size:13px;font-weight:600;cursor:pointer;padding:0;font-family:inherit;">Cancel</button>
+          </div>`;
+      }
 
       if (sortedDates.length === 0 && state.calloutsExpandedId !== '__new__') {
         html += `<div style="text-align:center;padding:40px 24px">
@@ -15024,6 +15077,18 @@
           Add Callout
         </button>`;
       }
+      // Bulk action bar
+      const noCoSel = state.selectedCallouts.size === 0;
+      html += `
+        <div class="bulk-action-bar ${state.coSelectionMode ? 'show' : ''}">
+          <div class="bulk-action-btns" style="width:100%;">
+            <button class="bulk-btn delete" onclick="coDeleteSelected()" ${noCoSel ? 'disabled' : ''}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+              Delete
+            </button>
+          </div>
+        </div>`;
+
       html += `</div>`;
       return html;
     }
@@ -15042,9 +15107,13 @@
       const clockSvg = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline-block;vertical-align:-1px;margin-right:2px;flex-shrink:0"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`;
 
       // No timeline connectors — use co-card class to suppress ::before/::after
-      let cardHtml = `<div class="activity-card co-card ${isExpanded ? 'expanded' : ''}" data-co-id="${esc(id)}" style="margin:0 0 8px;${isNew && !isExpanded ? 'border-style:dashed;' : ''}">`;
+      const isSel = state.coSelectionMode && state.selectedCallouts.has(id);
+      let cardHtml = `<div class="activity-card co-card ${isExpanded ? 'expanded' : ''} ${state.coSelectionMode && !isNew ? 'co-selectable' : ''} ${isSel ? 'co-selected' : ''}" data-co-id="${esc(id)}" style="margin:0 0 8px;position:relative;${isNew && !isExpanded ? 'border-style:dashed;' : ''}">`;
       // Collapsed header — fault (description) is large, site (location) is small below
-      cardHtml += `<div class="flex items-center gap-3 px-3.5 py-3 cursor-pointer" onclick="coToggleCard('${esc(id)}')">
+      cardHtml += `<div class="flex items-center gap-3 px-3.5 py-3 cursor-pointer"
+          ${!isNew ? `onpointerdown="coPressStart(event,'${esc(id)}')" onpointerup="coPressEnd(event)" onpointercancel="coPressEnd(event)" oncontextmenu="event.preventDefault()"` : ''}
+          onclick="${isNew ? `coToggleCard('${esc(id)}')` : `coPressClick(event,'${esc(id)}')`}">
+          ${state.coSelectionMode && !isNew ? `<div class="co-selection-check"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>` : ''}
           <div class="task-num">${idx}</div>
           <div class="flex-1 min-w-0 act-meta">
             <div class="act-desc-txt">${isNew ? '<span style="opacity:0.4;font-weight:400;font-style:italic">New callout</span>' : (fault ? esc(fault.substring(0, 80)) + (fault.length > 80 ? '…' : '') : '<span style="opacity:0.4;font-weight:400;font-style:italic">No description</span>')}</div>
@@ -15457,6 +15526,8 @@
       state.calloutsEditId = null;
       state.calloutsExpandedId = null;
       state.calloutsNotesOpen = false;
+      state.coSelectionMode = false;
+      state.selectedCallouts.clear();
       render();
     }
 
@@ -15493,6 +15564,85 @@
           }
         }
       );
+    }
+
+    // ---- Callout selection / bulk delete ----
+    let _coPressTimer = null;
+    let _coPressLocked = false;
+
+    function coPressStart(e, id) {
+      if (e.pointerType === 'mouse' && e.button !== 0) return;
+      _coPressLocked = false;
+      _coPressTimer = setTimeout(() => {
+        _coPressTimer = null;
+        _coPressLocked = true;
+        if (!state.coSelectionMode) {
+          state.coSelectionMode = true;
+          state.selectedCallouts.clear();
+        }
+        state.selectedCallouts.add(id);
+        if (navigator.vibrate) navigator.vibrate(30);
+        render();
+      }, 500);
+    }
+
+    function coPressEnd(e) {
+      if (_coPressTimer) { clearTimeout(_coPressTimer); _coPressTimer = null; }
+    }
+
+    function coPressClick(e, id) {
+      if (_coPressLocked) { _coPressLocked = false; return; }
+      if (state.coSelectionMode) { coToggleSelection(id); } else { coToggleCard(id); }
+    }
+
+    function coToggleSelectionMode() {
+      state.coSelectionMode = !state.coSelectionMode;
+      if (!state.coSelectionMode) {
+        state.selectedCallouts.clear();
+      }
+      render();
+    }
+
+    function coToggleSelection(id) {
+      if (state.selectedCallouts.has(id)) {
+        state.selectedCallouts.delete(id);
+      } else {
+        state.selectedCallouts.add(id);
+      }
+      render();
+    }
+
+    function coToggleSelectAll() {
+      const weekData = state.callouts.weeks[state.calloutsSelectedWeek];
+      if (!weekData) return;
+      const allIds = (weekData.callouts || []).map(c => c.id);
+      const allSelected = allIds.length > 0 && allIds.every(id => state.selectedCallouts.has(id));
+      if (allSelected) {
+        allIds.forEach(id => state.selectedCallouts.delete(id));
+      } else {
+        allIds.forEach(id => state.selectedCallouts.add(id));
+      }
+      render();
+    }
+
+    function coDeleteSelected() {
+      if (state.selectedCallouts.size === 0) return;
+      const count = state.selectedCallouts.size;
+      showConfirm('Delete callouts?', `Delete ${count} selected callout${count === 1 ? '' : 's'}?`, async () => {
+        const toDelete = Array.from(state.selectedCallouts);
+        const weekData = state.callouts.weeks[state.calloutsSelectedWeek];
+        if (weekData) {
+          weekData.callouts = (weekData.callouts || []).filter(c => !toDelete.includes(c.id));
+          await saveCallouts();
+        }
+        state.selectedCallouts.clear();
+        state.coSelectionMode = false;
+        state.calloutsExpandedId = null;
+        state.calloutsEditId = null;
+        state.calloutsNotesOpen = false;
+        render();
+        showToast(`${toDelete.length} callout${toDelete.length === 1 ? '' : 's'} deleted`);
+      });
     }
 
     // ============================================================
