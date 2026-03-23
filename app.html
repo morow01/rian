@@ -8232,7 +8232,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.18.17';
+    const VERSION = '4.18.18';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -15487,7 +15487,8 @@
       // ── Previous Weeks (unified: merge weeks with callouts + on-call marked weeks) ──
       // Build a single deduplicated list of all past weeks
       const allPastKeys = new Set();
-      pastWeeks.forEach(([wk]) => allPastKeys.add(wk));
+      // Only show weeks that are on-call/extra, or have actual fault entries
+      pastWeeks.forEach(([wk]) => { if (onCall[wk] || (state.callouts.weeks?.[wk]?.callouts?.length > 0)) allPastKeys.add(wk); });
       Object.keys(onCall).forEach(wk => { if (_ocIsPast(wk)) allPastKeys.add(wk); });
       const sortedPast = Array.from(allPastKeys).sort().reverse();
 
