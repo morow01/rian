@@ -6880,33 +6880,106 @@
       display: none !important;
     }
 
+    /* ===== ON-CALL SCHEDULE OVERLAY ===== */
+    .oc-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 200;
+      background: var(--bg);
+      transform: translateY(100%);
+      transition: transform 0.35s cubic-bezier(0.32, 0.72, 0, 1);
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    .oc-overlay.open {
+      transform: translateY(0);
+    }
+    .oc-overlay-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 16px 16px 12px;
+      position: sticky;
+      top: 0;
+      background: var(--bg);
+      z-index: 2;
+      border-bottom: 1px solid var(--border);
+    }
+    .oc-overlay-header h2 {
+      flex: 1;
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin: 0;
+    }
+    .oc-close-btn {
+      width: 30px; height: 30px; border-radius: 50%;
+      background: rgba(128,128,128,0.12); border: none;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; color: var(--text-muted);
+    }
+    .oc-year-nav {
+      display: flex; align-items: center; justify-content: center; gap: 16px;
+      padding: 14px 16px 8px;
+    }
+    .oc-year-nav button {
+      width: 32px; height: 32px; border-radius: 8px;
+      background: var(--bg-card); border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; color: var(--text-muted);
+    }
+    .oc-year-nav .oc-year-label {
+      font-size: 20px; font-weight: 700; color: var(--text-primary);
+    }
+    .oc-summary-bar {
+      display: flex; gap: 8px; padding: 6px 16px 12px; justify-content: center;
+    }
+    .oc-summary-pill {
+      padding: 6px 14px; border-radius: 20px;
+      background: var(--bg-card); border: 1px solid var(--border);
+      font-size: 12px; font-weight: 600; color: var(--text-primary);
+    }
+    .oc-cal-btn {
+      width: 36px; height: 36px; border-radius: 10px;
+      background: var(--accent-light); border: none;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; position: relative;
+      transition: transform 0.15s;
+    }
+    .oc-cal-btn:active { transform: scale(0.92); }
+    .oc-cal-btn .oc-dot {
+      position: absolute; top: 5px; right: 5px;
+      width: 7px; height: 7px; border-radius: 50%;
+      background: var(--accent); border: 1.5px solid var(--bg);
+    }
+
     /* ===== ON-CALL SCHEDULE GRID ===== */
     .oc-grid-row {
       display: flex;
       align-items: center;
-      gap: 4px;
-      margin-bottom: 3px;
+      gap: 5px;
+      margin-bottom: 6px;
     }
     .oc-month-label {
-      width: 32px;
-      font-size: 10px;
+      width: 38px;
+      font-size: 12px;
       font-weight: 700;
       color: var(--text-muted);
       letter-spacing: 0.3px;
       flex-shrink: 0;
     }
     .oc-cell {
-      width: 34px;
-      height: 28px;
-      border-radius: 7px;
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
       border: 1.5px solid var(--border);
-      font-size: 11px;
-      font-weight: 500;
+      font-size: 13px;
+      font-weight: 600;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      background: transparent;
+      background: var(--bg-card);
       color: var(--text-primary);
       padding: 0;
       transition: all 0.15s;
@@ -6939,7 +7012,7 @@
     }
     .oc-cell.oc-current {
       border-color: var(--priority-low);
-      border-width: 2px;
+      border-width: 2.5px;
       font-weight: 700;
       opacity: 1;
     }
@@ -8067,7 +8140,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.17.5';
+    const VERSION = '4.18.0';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -13757,7 +13830,9 @@
 
     // Browser / phone back button — navigate within app instead of closing
     window.addEventListener('popstate', (e) => {
-      if (state.view === 'callouts' && state.calloutsView === 'week') {
+      if (state.coScheduleOpen) {
+        ocCloseSchedule();
+      } else if (state.view === 'callouts' && state.calloutsView === 'week') {
         coBack();
       }
     });
@@ -15080,9 +15155,92 @@
 
     function renderCalloutsView() {
       if (!state.callouts) return `<div class="co-page" style="text-align:center;padding:60px 24px"><div style="font-size:16px;font-weight:600;color:var(--text-primary)">Loading…</div></div>`;
-      if (state.calloutsView === 'list') return renderCalloutsList();
-      if (state.calloutsView === 'week') return renderCalloutsWeek();
-      return '';
+      let out = '';
+      if (state.calloutsView === 'list') out = renderCalloutsList();
+      else if (state.calloutsView === 'week') out = renderCalloutsWeek();
+      // Append the schedule overlay (always in DOM, toggled via CSS class)
+      out += renderOcScheduleOverlay();
+      return out;
+    }
+
+    function renderOcScheduleOverlay() {
+      const onCall = state.callouts.onCall || {};
+      const year = state.coScheduleYear;
+      const fridays = _ocGetFridays(year);
+      const curWeekStart = dateToStr(getCurrentFriday());
+      const totalOnCall = Object.values(onCall).filter(v => v === 'oncall').length;
+      const totalExtra = Object.values(onCall).filter(v => v === 'extra').length;
+      let totalIncidents = 0;
+      Object.entries(onCall).forEach(([wk]) => {
+        const wd = state.callouts.weeks?.[wk];
+        totalIncidents += wd ? (wd.callouts || []).length : 0;
+      });
+
+      let html = `<div class="oc-overlay${state.coScheduleOpen ? ' open' : ''}" id="oc-schedule-overlay">`;
+      // Header
+      html += `<div class="oc-overlay-header">
+        <h2>On-Call Schedule</h2>
+        <button class="oc-close-btn" onclick="ocCloseSchedule()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>`;
+
+      // Year navigation
+      html += `<div class="oc-year-nav">
+        <button onclick="ocChangeYear(-1)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg></button>
+        <div class="oc-year-label">${year}</div>
+        <button onclick="ocChangeYear(1)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 6 15 12 9 18"/></svg></button>
+      </div>`;
+
+      // Summary pills
+      html += `<div class="oc-summary-bar">
+        <div class="oc-summary-pill"><span style="color:var(--accent);font-weight:700">${totalOnCall}</span> On-Call</div>
+        <div class="oc-summary-pill"><span style="color:#F59E0B;font-weight:700">${totalExtra}</span> Extra</div>
+        <div class="oc-summary-pill"><span style="color:#EF4444;font-weight:700">${totalIncidents}</span> Incidents</div>
+      </div>`;
+
+      // Legend
+      html += `<div class="oc-legend" style="justify-content:center;padding:0 20px 12px;font-size:12px">
+        <span><span class="oc-legend-dot" style="background:var(--accent)"></span>On-Call</span>
+        <span><span class="oc-legend-dot" style="background:#F59E0B"></span>Extra</span>
+        <span><span class="oc-legend-dot" style="border:2px solid var(--priority-low);width:8px;height:8px;border-radius:3px"></span>Now</span>
+      </div>`;
+
+      // Month grid — larger cells
+      html += `<div style="padding:0 14px 20px">`;
+      const monthNames = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+      const byMonth = {};
+      fridays.forEach(f => {
+        const m = strToDate(f).getMonth();
+        if (!byMonth[m]) byMonth[m] = [];
+        byMonth[m].push(f);
+      });
+      for (let m = 0; m < 12; m++) {
+        if (!byMonth[m]) continue;
+        html += `<div class="oc-grid-row"><div class="oc-month-label">${monthNames[m]}</div><div style="display:flex;gap:4px;flex-wrap:wrap">`;
+        byMonth[m].forEach(f => {
+          const dayNum = strToDate(f).getDate();
+          const type = onCall[f];
+          const isCur = f === curWeekStart;
+          const past = _ocIsPast(f);
+          let cls = 'oc-cell';
+          if (past && !type) cls += ' oc-past';
+          if (type === 'oncall') cls += ' oc-oncall';
+          if (type === 'extra') cls += ' oc-extra';
+          if (isCur) cls += ' oc-current';
+          html += `<button class="${cls}" onclick="ocToggle('${f}')"
+            oncontextmenu="event.preventDefault()"
+            ontouchstart="ocCellTouchStart(event,'${f}')" ontouchend="ocCellTouchEnd(event)" ontouchcancel="ocCellTouchEnd(event)"
+            onmousedown="ocCellMouseDown(event,'${f}')" onmouseup="ocCellMouseUp(event)"
+            title="${formatWeekRange(f)}">${dayNum}</button>`;
+        });
+        html += `</div></div>`;
+      }
+      html += `<div style="margin-top:10px;font-size:11px;color:var(--text-muted);font-style:italic;text-align:center">Tap = on-call · Long-press = extra shift</div>`;
+      html += `</div>`;
+
+      html += `</div>`;
+      return html;
     }
 
     // Generate all Friday week-starts for a given year
@@ -15111,22 +15269,9 @@
       const pastWeeks = weeks.filter(([k]) => k !== curWeekStart);
       const isCurrentOnCall = onCall[curWeekStart] === 'oncall' || onCall[curWeekStart] === 'extra';
 
-      let html = `<div class="co-page">`;
-      // Header bar
-      html += `<div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;">
-        <span style="font-size:17px;font-weight:700;color:var(--text-primary)">Callouts</span>
-        <button onclick="coAddWeek()" style="display:flex;align-items:center;gap:5px;padding:8px 14px;background:var(--accent);color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-          On-Call Week
-        </button>
-      </div>`;
-
-      // ── On-Call Schedule Card ──
-      const year = state.coScheduleYear;
-      const fridays = _ocGetFridays(year);
+      // ── Stats computation (used by header dot + stats bar) ──
       const totalOnCall = Object.values(onCall).filter(v => v === 'oncall').length;
       const totalExtra = Object.values(onCall).filter(v => v === 'extra').length;
-      // Count total incidents across on-call weeks
       let totalIncidents = 0;
       let pastOnCallCount = 0;
       Object.entries(onCall).forEach(([wk, type]) => {
@@ -15137,62 +15282,15 @@
       });
       const avgPerWeek = pastOnCallCount > 0 ? (totalIncidents / pastOnCallCount).toFixed(1) : '–';
 
-      html += `<div style="margin:0 14px 10px;background:var(--bg-card);border-radius:14px;border:1px solid var(--border);overflow:hidden">`;
-      // Schedule header (collapsible)
-      html += `<div onclick="ocToggleSchedule()" style="padding:12px 14px;display:flex;align-items:center;gap:10px;cursor:pointer">
-        <div style="width:34px;height:34px;border-radius:9px;background:var(--accent-light);display:flex;align-items:center;justify-content:center">
-          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-        </div>
-        <div style="flex:1">
-          <div style="font-size:14px;font-weight:700;color:var(--text-primary)">On-Call Schedule ${year}</div>
-          <div style="font-size:11px;color:var(--text-muted);margin-top:1px">${totalOnCall + totalExtra} week${(totalOnCall + totalExtra) !== 1 ? 's' : ''} · ${totalIncidents} incident${totalIncidents !== 1 ? 's' : ''}${totalExtra > 0 ? ` · <span style="color:#F59E0B;font-weight:600">${totalExtra} extra</span>` : ''}</div>
-        </div>
-        <svg id="oc-sched-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2.5" style="transition:transform 0.25s;transform:${state.coScheduleOpen ? 'rotate(90deg)' : 'rotate(0deg)'}"><polyline points="9 18 15 12 9 6"/></svg>
+      let html = `<div class="co-page">`;
+      // Header bar — calendar icon opens schedule overlay
+      html += `<div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;">
+        <span style="font-size:17px;font-weight:700;color:var(--text-primary)">Callouts</span>
+        <button class="oc-cal-btn" onclick="ocOpenSchedule()" title="On-Call Schedule">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          ${(totalOnCall + totalExtra) > 0 ? '<div class="oc-dot"></div>' : ''}
+        </button>
       </div>`;
-
-      html += `<div id="oc-sched-body" style="overflow:hidden;max-height:${state.coScheduleOpen ? '2000px' : '0'};opacity:${state.coScheduleOpen ? '1' : '0'};transition:max-height 0.35s ease,opacity 0.25s ease">`;
-      {
-        html += `<div style="border-top:1px solid var(--border);padding:10px 12px 14px">`;
-        // Legend
-        html += `<div class="oc-legend">
-          <span><span class="oc-legend-dot" style="background:var(--accent)"></span>On-Call</span>
-          <span><span class="oc-legend-dot" style="background:#F59E0B"></span>Extra</span>
-          <span><span class="oc-legend-dot" style="border:2px solid var(--priority-low);width:7px;height:7px"></span>Now</span>
-        </div>`;
-        // Month grid
-        const monthNames = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
-        const byMonth = {};
-        fridays.forEach(f => {
-          const m = strToDate(f).getMonth();
-          if (!byMonth[m]) byMonth[m] = [];
-          byMonth[m].push(f);
-        });
-        for (let m = 0; m < 12; m++) {
-          if (!byMonth[m]) continue;
-          html += `<div class="oc-grid-row"><div class="oc-month-label">${monthNames[m]}</div><div style="display:flex;gap:3px;flex-wrap:wrap">`;
-          byMonth[m].forEach(f => {
-            const dayNum = strToDate(f).getDate();
-            const type = onCall[f]; // 'oncall' | 'extra' | undefined
-            const isCur = f === curWeekStart;
-            const past = _ocIsPast(f);
-            let cls = 'oc-cell';
-            if (past && !type) cls += ' oc-past';
-            if (type === 'oncall') cls += ' oc-oncall';
-            if (type === 'extra') cls += ' oc-extra';
-            if (isCur) cls += ' oc-current';
-            html += `<button class="${cls}" onclick="ocToggle('${f}')"
-              oncontextmenu="event.preventDefault()"
-              ontouchstart="ocCellTouchStart(event,'${f}')" ontouchend="ocCellTouchEnd(event)" ontouchcancel="ocCellTouchEnd(event)"
-              onmousedown="ocCellMouseDown(event,'${f}')" onmouseup="ocCellMouseUp(event)"
-              title="${formatWeekRange(f)}">${dayNum}</button>`;
-          });
-          html += `</div></div>`;
-        }
-        html += `<div style="margin-top:8px;font-size:10px;color:var(--text-muted);font-style:italic">Tap = on-call · Long-press = extra shift</div>`;
-        html += `</div>`;
-      }
-      html += `</div>`;
-      html += `</div>`;
 
       // ── Current Week card (same style as Previous Weeks) ──
       if (activeWeek) {
@@ -15223,7 +15321,7 @@
         html += `<div style="text-align:center;padding:60px 24px">
           <div style="font-size:48px;margin-bottom:12px">📞</div>
           <div style="font-size:16px;font-weight:600;color:var(--text-primary);margin-bottom:6px">No on-call weeks yet</div>
-          <div style="font-size:13px;color:var(--text-muted);line-height:1.5">Tap "+ On-Call Week" to start tracking callout incidents.</div>
+          <div style="font-size:13px;color:var(--text-muted);line-height:1.5">Tap the <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" style="vertical-align:middle;margin:0 2px"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> icon to set your on-call schedule.</div>
         </div>`;
       }
 
@@ -15859,16 +15957,35 @@
       );
     }
 
-    // ---- On-Call schedule toggle/animate ----
-    function ocToggleSchedule() {
-      state.coScheduleOpen = !state.coScheduleOpen;
-      const body = document.getElementById('oc-sched-body');
-      const chevron = document.getElementById('oc-sched-chevron');
-      if (body) {
-        body.style.maxHeight = state.coScheduleOpen ? '2000px' : '0';
-        body.style.opacity = state.coScheduleOpen ? '1' : '0';
+    // ---- On-Call schedule overlay open/close ----
+    function ocOpenSchedule() {
+      state.coScheduleOpen = true;
+      history.pushState({ ocSchedule: true }, '');
+      // Animate open without full re-render
+      const el = document.getElementById('oc-schedule-overlay');
+      if (el) {
+        el.classList.add('open');
+      } else {
+        render(); // fallback
       }
-      if (chevron) chevron.style.transform = state.coScheduleOpen ? 'rotate(90deg)' : 'rotate(0deg)';
+    }
+
+    function ocCloseSchedule() {
+      state.coScheduleOpen = false;
+      const el = document.getElementById('oc-schedule-overlay');
+      if (el) {
+        el.classList.remove('open');
+      }
+    }
+
+    function ocChangeYear(delta) {
+      state.coScheduleYear += delta;
+      render();
+      // Re-open overlay since render rebuilds DOM
+      requestAnimationFrame(() => {
+        const el = document.getElementById('oc-schedule-overlay');
+        if (el) el.classList.add('open');
+      });
     }
 
     // ---- On-Call schedule toggle handlers ----
