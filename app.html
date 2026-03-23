@@ -8232,7 +8232,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.18.24';
+    const VERSION = '4.18.25';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -9457,11 +9457,11 @@
       let calloutsEmailHtml = '';
       if (_coEntries.length > 0) {
         const _coRows = _coEntries.map(co => {
-          const _dayName = co.date ? getDayNameFromDate(co.date) : '—';
+          const _dateLabel = co.date ? (()=>{ const p=co.date.split('-'); return p[2].replace(/^0/,'')+'.'+p[1].replace(/^0/,''); })() : '—';
           const _ticket = esc(co.ticket || '—');
           const _loc = esc(co.site ? co.site.replace(/\s*\([^)]+\)$/, '') : '—');
           return `<tr>
-            <td style="padding:8px 14px;border-bottom:1px solid ${C.rowBorder};font-size:13px;color:${C.txtSec};vertical-align:middle;">${_dayName}</td>
+            <td style="padding:8px 14px;border-bottom:1px solid ${C.rowBorder};font-family:monospace;font-size:13px;font-weight:500;color:${C.txt};vertical-align:middle;">${_dateLabel}</td>
             <td style="padding:8px 14px;border-bottom:1px solid ${C.rowBorder};font-family:monospace;font-size:13px;font-weight:500;color:${C.txt};vertical-align:middle;">${_ticket}</td>
             <td style="padding:8px 14px;border-bottom:1px solid ${C.rowBorder};font-size:13px;color:${C.txtSec};vertical-align:middle;">${_loc}</td>
           </tr>`;
@@ -9473,7 +9473,7 @@
           <div style="border-radius:12px;overflow:hidden;border:1px solid ${C.border};background:${C.cardBg};margin-bottom:20px;">
             <table width="100%" cellpadding="0" cellspacing="0">
               <thead><tr style="background:${C.headBg};">
-                <th style="padding:8px 14px;text-align:left;font-size:9px;font-weight:700;color:${C.label};text-transform:uppercase;letter-spacing:0.1em;">Day</th>
+                <th style="padding:8px 14px;text-align:left;font-size:9px;font-weight:700;color:${C.label};text-transform:uppercase;letter-spacing:0.1em;">Date</th>
                 <th style="padding:8px 14px;text-align:left;font-size:9px;font-weight:700;color:${C.label};text-transform:uppercase;letter-spacing:0.1em;">Ticket Number</th>
                 <th style="padding:8px 14px;text-align:left;font-size:9px;font-weight:700;color:${C.label};text-transform:uppercase;letter-spacing:0.1em;">Location</th>
               </tr></thead>
@@ -9676,11 +9676,11 @@
       let calloutsPreviewHtml = '';
       if (_pCoEntries.length > 0) {
         const _pCoRows = _pCoEntries.map(co => {
-          const _dayName = co.date ? getDayNameFromDate(co.date) : '—';
+          const _dateLabel = co.date ? (()=>{ const p=co.date.split('-'); return p[2].replace(/^0/,'')+'.'+p[1].replace(/^0/,''); })() : '—';
           const _ticket = co.ticket || '—';
           const _loc = co.site ? co.site.replace(/\s*\([^)]+\)$/, '') : '—';
           return `<tr>
-            <td style="padding:8px 14px;border-bottom:1px solid ${C.rowBorder};font-size:13px;color:${C.txtSec};vertical-align:middle;">${esc(_dayName)}</td>
+            <td style="padding:8px 14px;border-bottom:1px solid ${C.rowBorder};font-family:monospace;font-size:13px;font-weight:500;color:${C.txt};vertical-align:middle;">${_dateLabel}</td>
             <td style="padding:8px 14px;border-bottom:1px solid ${C.rowBorder};font-family:monospace;font-size:13px;font-weight:500;color:${C.txt};vertical-align:middle;">${co.ticket ? cpSpan(_ticket, `font-family:monospace;font-weight:500;`) : '—'}</td>
             <td style="padding:8px 14px;border-bottom:1px solid ${C.rowBorder};font-size:13px;color:${C.txtSec};vertical-align:middle;">${co.site ? cpSpan(_loc) : '—'}</td>
           </tr>`;
@@ -9690,7 +9690,7 @@
           <div style="border-radius:12px;overflow:hidden;border:1px solid ${C.border};background:${C.cardBg};margin-bottom:20px;">
             <table width="100%" cellpadding="0" cellspacing="0">
               <thead><tr style="background:${C.headBg};">
-                <th style="padding:8px 14px;text-align:left;font-size:9px;font-weight:700;color:${C.label};text-transform:uppercase;letter-spacing:0.1em;">Day</th>
+                <th style="padding:8px 14px;text-align:left;font-size:9px;font-weight:700;color:${C.label};text-transform:uppercase;letter-spacing:0.1em;">Date</th>
                 <th style="padding:8px 14px;text-align:left;font-size:9px;font-weight:700;color:${C.label};text-transform:uppercase;letter-spacing:0.1em;">Ticket Number</th>
                 <th style="padding:8px 14px;text-align:left;font-size:9px;font-weight:700;color:${C.label};text-transform:uppercase;letter-spacing:0.1em;">Location</th>
               </tr></thead>
