@@ -8232,7 +8232,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.18.27';
+    const VERSION = '4.18.28';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -17556,6 +17556,9 @@ Rules:
         if (state.view === 'notes') loadNotes();
         else if (state.view === 'routines') loadRoutines();
         else if (state.view === 'callouts') loadCallouts();
+
+        // Always pre-load callouts in background so email export works even if user never visits callouts tab
+        if (state.view !== 'callouts') loadCallouts();
 
         // Init local reminders
         initReminders();
