@@ -8256,7 +8256,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.18.29';
+    const VERSION = '4.18.30';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -15774,6 +15774,7 @@
           <div class="flex flex-col gap-1.5">
             <span class="act-field-label">Ticket Number</span>
             <textarea id="co-ticket-input" class="act-textarea" rows="1" style="resize:none;overflow:hidden" placeholder="e.g. R23482335"
+              autocomplete="off" data-lpignore="true" data-form-type="other"
               oninput="this.value=this.value.replace(/\\n/g,'');updateCoField('ticket', this.value.trim())"
               onkeydown="if(event.key==='Enter')event.preventDefault()">${esc(ticket)}</textarea>
           </div>
@@ -15782,6 +15783,7 @@
             <span class="act-field-label">Site</span>
             <div class="location-wrap">
               <textarea rows="1" id="co-site-display" class="act-input" style="cursor:pointer;resize:none;overflow:hidden" readonly
+                autocomplete="off" data-lpignore="true" data-form-type="other"
                 placeholder="Tap to select location"
                 onclick="_coSiteCallback = (name) => { document.getElementById('co-site-display').value = name; updateCoField('site', name); }; openLocationModal();">${esc(site)}</textarea>
             </div>
@@ -15790,6 +15792,7 @@
           <div class="flex flex-col gap-1.5">
             <span class="act-field-label">Fault Description</span>
             <textarea id="co-fault-input" class="act-textarea" rows="1" placeholder="e.g. EXTERNAL ALARM: AC MAINS FAIL"
+              autocomplete="off" data-lpignore="true" data-form-type="other"
               oninput="autoGrow(this);updateCoField('fault', this.value.trim())">${esc(fault)}</textarea>
           </div>
           <!-- On-Site Time -->
