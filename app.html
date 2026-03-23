@@ -8067,7 +8067,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.17.2';
+    const VERSION = '4.17.3';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -15227,11 +15227,28 @@
         </div>`;
       }
 
-      // ── Week cards with on-call badges ──
-      if (pastWeeks.length > 0) {
-        html += `<div class="act-field-label" style="padding:8px 16px 4px">Previous Weeks</div>`;
-        pastWeeks.forEach(([weekKey, weekData]) => {
-          const calloutCount = (weekData.callouts || []).length;
+      // ── Previous Weeks (unified: merge weeks with callouts + on-call marked weeks) ──
+      // Build a single deduplicated list of all past weeks
+      const allPastKeys = new Set();
+      pastWeeks.forEach(([wk]) => allPastKeys.add(wk));
+      Object.keys(onCall).forEach(wk => { if (_ocIsPast(wk)) allPastKeys.add(wk); });
+      const sortedPast = Array.from(allPastKeys).sort().reverse();
+
+      if (sortedPast.length > 0) {
+        // Stats bar
+        html += `<div style="margin:6px 14px 8px">`;
+        html += `<div class="oc-stats">
+          <div class="oc-stat"><div class="oc-stat-val" style="color:var(--accent)">${totalOnCall + totalExtra}</div><div class="oc-stat-label">On-Call Weeks</div></div>
+          <div class="oc-stat"><div class="oc-stat-val" style="color:#F59E0B">${totalExtra}</div><div class="oc-stat-label">Extra Shifts</div></div>
+          <div class="oc-stat"><div class="oc-stat-val" style="color:#EF4444">${totalIncidents}</div><div class="oc-stat-label">Total Incidents</div></div>
+          <div class="oc-stat"><div class="oc-stat-val" style="color:#8B5CF6">${avgPerWeek}</div><div class="oc-stat-label">Avg / Week</div></div>
+        </div>`;
+        html += `</div>`;
+
+        html += `<div class="act-field-label" style="padding:4px 16px 4px">Previous Weeks</div>`;
+        sortedPast.forEach(weekKey => {
+          const wd = state.callouts.weeks?.[weekKey];
+          const calloutCount = wd ? (wd.callouts || []).length : 0;
           const ocType = onCall[weekKey];
           const badgeHtml = ocType === 'oncall'
             ? `<span style="padding:2px 6px;border-radius:4px;font-size:9px;font-weight:700;background:var(--accent-light);color:var(--accent);margin-left:6px">ON-CALL</span>`
@@ -15239,50 +15256,15 @@
             ? `<span style="padding:2px 6px;border-radius:4px;font-size:9px;font-weight:700;background:#FEF3C7;color:#F59E0B;margin-left:6px">EXTRA</span>`
             : '';
           html += `<div class="activity-card" style="margin:0 14px 8px;cursor:pointer" onclick="coSelectWeek('${weekKey}')">
-            <div class="flex items-center gap-3 px-3.5 py-3">
-              <div class="task-num" style="background:${ocType === 'extra' ? '#FEF3C7' : 'var(--accent-light)'};color:${ocType === 'extra' ? '#F59E0B' : 'var(--accent)'}">${calloutCount}</div>
-              <div class="flex-1 min-w-0">
-                <div class="act-desc-txt">${formatWeekRange(weekKey)}${badgeHtml}</div>
-                <div class="act-loc-txt">${calloutCount} incident${calloutCount !== 1 ? 's' : ''}</div>
+            <div style="display:flex;align-items:center;gap:10px;padding:11px 14px">
+              <div style="flex:1;min-width:0">
+                <div style="font-size:14px;font-weight:600;color:var(--text-primary)">${formatWeekRange(weekKey)}${badgeHtml}</div>
+                <div style="font-size:11px;color:var(--text-muted);margin-top:2px">${calloutCount} incident${calloutCount !== 1 ? 's' : ''}${ocType === 'extra' ? '<span style="color:#F59E0B;font-weight:600;margin-left:6px">Extra shift</span>' : ''}</div>
               </div>
               <span style="font-size:14px;color:var(--text-muted)">›</span>
             </div>
           </div>`;
         });
-      }
-
-      // ── On-Call History with stats ──
-      const historyWeeks = Object.entries(onCall)
-        .filter(([wk]) => _ocIsPast(wk))
-        .sort().reverse();
-      if (historyWeeks.length > 0) {
-        html += `<div style="margin:12px 14px 0">`;
-        html += `<div style="display:flex;align-items:center;margin-bottom:8px">
-          <span style="font-size:12px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;flex:1">On-Call History</span>
-          <span style="font-size:11px;color:var(--text-muted)">${historyWeeks.length} weeks · ${totalIncidents} incidents</span>
-        </div>`;
-        // Stats
-        html += `<div class="oc-stats">
-          <div class="oc-stat"><div class="oc-stat-val" style="color:var(--accent)">${totalOnCall + totalExtra}</div><div class="oc-stat-label">On-Call Weeks</div></div>
-          <div class="oc-stat"><div class="oc-stat-val" style="color:#F59E0B">${totalExtra}</div><div class="oc-stat-label">Extra Shifts</div></div>
-          <div class="oc-stat"><div class="oc-stat-val" style="color:#EF4444">${totalIncidents}</div><div class="oc-stat-label">Total Incidents</div></div>
-          <div class="oc-stat"><div class="oc-stat-val" style="color:#8B5CF6">${avgPerWeek}</div><div class="oc-stat-label">Avg / Week</div></div>
-        </div>`;
-        // History rows
-        historyWeeks.forEach(([wk, type]) => {
-          const wd = state.callouts.weeks?.[wk];
-          const cnt = wd ? (wd.callouts || []).length : 0;
-          const isExtra = type === 'extra';
-          html += `<div class="oc-history-row" onclick="coSelectWeek('${wk}')">
-            <div class="oc-history-badge" style="background:${isExtra ? '#FEF3C7' : 'var(--accent-light)'};color:${isExtra ? '#F59E0B' : 'var(--accent)'}">${cnt}</div>
-            <div style="flex:1">
-              <div style="font-size:13px;font-weight:600;color:var(--text-primary)">${formatWeekRange(wk)}</div>
-              <div style="font-size:10px;color:var(--text-muted);margin-top:1px">${cnt} incident${cnt !== 1 ? 's' : ''}${isExtra ? '<span style="color:#F59E0B;font-weight:600;margin-left:6px">Extra shift</span>' : ''}</div>
-            </div>
-            <span style="font-size:14px;color:var(--text-muted)">›</span>
-          </div>`;
-        });
-        html += `</div>`;
       }
 
       html += `</div>`;
