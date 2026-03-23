@@ -8140,7 +8140,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.18.2';
+    const VERSION = '4.18.3';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -14829,6 +14829,44 @@
       loadRoutines(true);
     }
 
+    function exportRoutineSites() {
+      const sites = (state.routines && state.routines.selectedSites) || [];
+      if (!sites.length) { showToast('No sites to export'); return; }
+      const blob = new Blob([JSON.stringify(sites, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'rian-sites.json';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      showToast('Sites exported');
+    }
+
+    function importRoutineSites() {
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = '.json,application/json';
+      input.onchange = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        try {
+          const text = await file.text();
+          const sites = JSON.parse(text);
+          if (!Array.isArray(sites)) throw new Error('Invalid format');
+          if (!state.routines) state.routines = { selectedSites: [], visits: {} };
+          state.routines.selectedSites = sites;
+          await fsSetRoutines();
+          render();
+          showToast(`${sites.length} sites imported`);
+        } catch (err) {
+          showToast('Import failed: invalid file');
+        }
+      };
+      input.click();
+    }
+
     async function fsSetRoutines() {
       if (!state.currentUser || !state.routines) return;
       const ref = userDoc('data/routines');
@@ -14942,6 +14980,8 @@
             </div>
             <div style="display:flex;gap:6px;align-items:center">
               <button class="rtn-edit-btn" onclick="refreshRoutines()" title="Refresh data" style="padding:7px 10px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg></button>
+              <button class="rtn-edit-btn" onclick="exportRoutineSites()" title="Export sites">Export</button>
+              <button class="rtn-edit-btn" onclick="importRoutineSites()" title="Import sites">Import</button>
               <button class="rtn-edit-btn" onclick="openRoutinesSitePicker()">Edit Sites</button>
             </div>
           </div>
