@@ -8232,7 +8232,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.18.22';
+    const VERSION = '4.18.23';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -9451,6 +9451,44 @@
           </div>`;
       });
 
+      // ── Callouts section ──
+      const _coFriDate = new Date(strToDate(weekData.weekStart));
+      _coFriDate.setDate(_coFriDate.getDate() + 4);
+      const _coWeekKey = dateToStr(_coFriDate);
+      const _coEntries = state.callouts?.weeks?.[_coWeekKey]?.callouts || [];
+      let calloutsEmailHtml = '';
+      if (_coEntries.length > 0) {
+        const _coRows = _coEntries.map(co => {
+          const _d = strToDate(co.date);
+          const _dayName = DAY_NAMES[(_d.getDay() + 6) % 7] || co.date;
+          const _ticket = esc(co.ticket || '—');
+          const _loc = esc(co.site ? co.site.replace(/\s*\([^)]+\)$/, '') : '—');
+          return `<tr>
+            <td style="padding:8px 14px;border-bottom:1px solid ${C.rowBorder};font-size:13px;color:${C.txtSec};vertical-align:middle;">${_dayName}</td>
+            <td style="padding:8px 14px;border-bottom:1px solid ${C.rowBorder};font-family:monospace;font-size:13px;font-weight:500;color:${C.txt};vertical-align:middle;">${_ticket}</td>
+            <td style="padding:8px 14px;border-bottom:1px solid ${C.rowBorder};font-size:13px;color:${C.txtSec};vertical-align:middle;">${_loc}</td>
+          </tr>`;
+        }).join('');
+        calloutsEmailHtml = `
+          <!-- Section label -->
+          <div style="padding:0 4px 8px;font-size:11px;font-weight:700;letter-spacing:0.13em;text-transform:uppercase;color:${C.label};">Callouts</div>
+          <!-- Callouts table -->
+          <div style="border-radius:12px;overflow:hidden;border:1px solid ${C.border};background:${C.cardBg};margin-bottom:20px;">
+            <table width="100%" cellpadding="0" cellspacing="0">
+              <thead><tr style="background:${C.headBg};">
+                <th style="padding:8px 14px;text-align:left;font-size:9px;font-weight:700;color:${C.label};text-transform:uppercase;letter-spacing:0.1em;">Day</th>
+                <th style="padding:8px 14px;text-align:left;font-size:9px;font-weight:700;color:${C.label};text-transform:uppercase;letter-spacing:0.1em;">Ticket Number</th>
+                <th style="padding:8px 14px;text-align:left;font-size:9px;font-weight:700;color:${C.label};text-transform:uppercase;letter-spacing:0.1em;">Location</th>
+              </tr></thead>
+              <tbody>${_coRows}</tbody>
+              <tfoot><tr style="background:${C.totalBg};">
+                <td colspan="2" style="padding:10px 14px;font-size:10px;font-weight:700;color:${C.label};text-transform:uppercase;letter-spacing:0.1em;">Total</td>
+                <td style="padding:10px 14px;font-family:monospace;font-size:15px;font-weight:700;color:${C.ord};text-align:left;">${_coEntries.length}</td>
+              </tr></tfoot>
+            </table>
+          </div>`;
+      }
+
       return `<!DOCTYPE html><html><body style="margin:0;padding:0;background:${C.outerBg};font-family:-apple-system,BlinkMacSystemFont,Arial,sans-serif;">
         <table width="100%" cellpadding="0" cellspacing="0" style="background:${C.outerBg};padding:24px 0;">
           <tr><td align="center">
@@ -9489,6 +9527,8 @@
                     </tfoot>
                   </table>
                 </div>
+
+                ${calloutsEmailHtml}
 
                 <!-- Section label -->
                 <div style="padding:0 4px 8px;font-size:11px;font-weight:700;letter-spacing:0.13em;text-transform:uppercase;color:${C.label};">Daily Breakdown</div>
@@ -9633,6 +9673,42 @@
         </div>`;
       });
 
+      // ── Callouts section ──
+      const _pCoFriDate = new Date(strToDate(weekData.weekStart));
+      _pCoFriDate.setDate(_pCoFriDate.getDate() + 4);
+      const _pCoWeekKey = dateToStr(_pCoFriDate);
+      const _pCoEntries = state.callouts?.weeks?.[_pCoWeekKey]?.callouts || [];
+      let calloutsPreviewHtml = '';
+      if (_pCoEntries.length > 0) {
+        const _pCoRows = _pCoEntries.map(co => {
+          const _d = strToDate(co.date);
+          const _dayName = DAY_NAMES[(_d.getDay() + 6) % 7] || co.date;
+          const _ticket = co.ticket || '—';
+          const _loc = co.site ? co.site.replace(/\s*\([^)]+\)$/, '') : '—';
+          return `<tr>
+            <td style="padding:8px 14px;border-bottom:1px solid ${C.rowBorder};font-size:13px;color:${C.txtSec};vertical-align:middle;">${esc(_dayName)}</td>
+            <td style="padding:8px 14px;border-bottom:1px solid ${C.rowBorder};font-family:monospace;font-size:13px;font-weight:500;color:${C.txt};vertical-align:middle;">${co.ticket ? cpSpan(_ticket, `font-family:monospace;font-weight:500;`) : '—'}</td>
+            <td style="padding:8px 14px;border-bottom:1px solid ${C.rowBorder};font-size:13px;color:${C.txtSec};vertical-align:middle;">${co.site ? cpSpan(_loc) : '—'}</td>
+          </tr>`;
+        }).join('');
+        calloutsPreviewHtml = `
+          <div style="padding:0 4px 8px;font-size:11px;font-weight:700;letter-spacing:0.13em;text-transform:uppercase;color:${C.label};">Callouts</div>
+          <div style="border-radius:12px;overflow:hidden;border:1px solid ${C.border};background:${C.cardBg};margin-bottom:20px;">
+            <table width="100%" cellpadding="0" cellspacing="0">
+              <thead><tr style="background:${C.headBg};">
+                <th style="padding:8px 14px;text-align:left;font-size:9px;font-weight:700;color:${C.label};text-transform:uppercase;letter-spacing:0.1em;">Day</th>
+                <th style="padding:8px 14px;text-align:left;font-size:9px;font-weight:700;color:${C.label};text-transform:uppercase;letter-spacing:0.1em;">Ticket Number</th>
+                <th style="padding:8px 14px;text-align:left;font-size:9px;font-weight:700;color:${C.label};text-transform:uppercase;letter-spacing:0.1em;">Location</th>
+              </tr></thead>
+              <tbody>${_pCoRows}</tbody>
+              <tfoot><tr style="background:${C.totalBg};">
+                <td colspan="2" style="padding:10px 14px;font-size:10px;font-weight:700;color:${C.label};text-transform:uppercase;letter-spacing:0.1em;">Total</td>
+                <td style="padding:10px 14px;font-family:monospace;font-size:15px;font-weight:700;color:${C.ord};text-align:left;">${_pCoEntries.length}</td>
+              </tr></tfoot>
+            </table>
+          </div>`;
+      }
+
       return `<div style="max-width:600px;margin:0 auto;">
         <div style="background:${C.dayBg};border-radius:12px 12px 0 0;padding:20px 24px 16px;margin-bottom:0;">
           <div style="font-size:11px;font-weight:700;letter-spacing:0.13em;text-transform:uppercase;color:${C.dayDate};margin-bottom:6px;">Weekly Timesheet</div>
@@ -9656,6 +9732,7 @@
               </tr></tfoot>
             </table>
           </div>
+          ${calloutsPreviewHtml}
           <div style="padding:0 4px 8px;font-size:11px;font-weight:700;letter-spacing:0.13em;text-transform:uppercase;color:${C.label};">Daily Breakdown</div>
           ${daysHtml}
         </div>
