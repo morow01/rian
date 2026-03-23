@@ -8232,7 +8232,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.18.23';
+    const VERSION = '4.18.24';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -9451,16 +9451,13 @@
           </div>`;
       });
 
-      // ── Callouts section ──
-      const _coFriDate = new Date(strToDate(weekData.weekStart));
-      _coFriDate.setDate(_coFriDate.getDate() + 4);
-      const _coWeekKey = dateToStr(_coFriDate);
+      // ── Callouts section ── (weekStart IS the Friday key)
+      const _coWeekKey = weekData.weekStart;
       const _coEntries = state.callouts?.weeks?.[_coWeekKey]?.callouts || [];
       let calloutsEmailHtml = '';
       if (_coEntries.length > 0) {
         const _coRows = _coEntries.map(co => {
-          const _d = strToDate(co.date);
-          const _dayName = DAY_NAMES[(_d.getDay() + 6) % 7] || co.date;
+          const _dayName = co.date ? getDayNameFromDate(co.date) : '—';
           const _ticket = esc(co.ticket || '—');
           const _loc = esc(co.site ? co.site.replace(/\s*\([^)]+\)$/, '') : '—');
           return `<tr>
@@ -9673,16 +9670,13 @@
         </div>`;
       });
 
-      // ── Callouts section ──
-      const _pCoFriDate = new Date(strToDate(weekData.weekStart));
-      _pCoFriDate.setDate(_pCoFriDate.getDate() + 4);
-      const _pCoWeekKey = dateToStr(_pCoFriDate);
+      // ── Callouts section ── (weekStart IS the Friday key)
+      const _pCoWeekKey = weekData.weekStart;
       const _pCoEntries = state.callouts?.weeks?.[_pCoWeekKey]?.callouts || [];
       let calloutsPreviewHtml = '';
       if (_pCoEntries.length > 0) {
         const _pCoRows = _pCoEntries.map(co => {
-          const _d = strToDate(co.date);
-          const _dayName = DAY_NAMES[(_d.getDay() + 6) % 7] || co.date;
+          const _dayName = co.date ? getDayNameFromDate(co.date) : '—';
           const _ticket = co.ticket || '—';
           const _loc = co.site ? co.site.replace(/\s*\([^)]+\)$/, '') : '—';
           return `<tr>
