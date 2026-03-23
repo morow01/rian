@@ -8232,7 +8232,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.18.16';
+    const VERSION = '4.18.17';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -15488,10 +15488,7 @@
       // Build a single deduplicated list of all past weeks
       const allPastKeys = new Set();
       pastWeeks.forEach(([wk]) => allPastKeys.add(wk));
-      // Only include on-call weeks that have actual fault entries — empty schedule weeks stay off the list
-      Object.keys(onCall).forEach(wk => {
-        if (_ocIsPast(wk) && state.callouts.weeks?.[wk]?.callouts?.length > 0) allPastKeys.add(wk);
-      });
+      Object.keys(onCall).forEach(wk => { if (_ocIsPast(wk)) allPastKeys.add(wk); });
       const sortedPast = Array.from(allPastKeys).sort().reverse();
 
       if (sortedPast.length > 0) {
