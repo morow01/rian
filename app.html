@@ -8256,7 +8256,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.18.31';
+    const VERSION = '4.18.32';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -8748,6 +8748,7 @@
       currentUser: null,    // Firebase Auth user
       notes: [],            // all field notes
       notesFilter: 'all',   // 'all' | 'high' | 'medium' | 'low' | 'done'
+      notesSearch: '',      // live search query
       expandedNotes: new Set(), // note IDs that are expanded
       activitiesExpanded: new Set(), // activity IDs that are expanded for details
       notesSyncStatus: 'idle',  // 'idle' | 'pending' | 'syncing' | 'synced' | 'error'
@@ -12617,10 +12618,14 @@
     // ---- Notes filter helper ----
     function getFilteredNotes() {
       const f = state.notesFilter;
+      const q = (state.notesSearch || '').trim().toLowerCase();
       return state.notes.filter(n => {
-        if (f === 'done') return n.status === 'done';
-        if (f === 'all') return n.status !== 'done';
-        return n.status !== 'done' && n.priority === f;
+        if (f === 'done') { if (n.status !== 'done') return false; }
+        else if (f === 'all') { if (n.status === 'done') return false; }
+        else { if (n.status === 'done' || n.priority !== f) return false; }
+        if (!q) return true;
+        const haystack = [n.description || '', n.location || '', n.noteContent || ''].join(' ').toLowerCase();
+        return haystack.includes(q);
       }).sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
     }
 
@@ -12798,7 +12803,23 @@
       const isAllSelected = allIds.length > 0 && allIds.every(id => state.selectedNotes.has(id));
 
 
-      const headerRow = `<div style="margin-top:14px"></div>`;
+      const searchBar = `
+        <div style="padding:10px 12px 4px;position:relative;display:flex;align-items:center;gap:8px;">
+          <div style="flex:1;position:relative;">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
+              style="position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--text-muted);pointer-events:none">
+              <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+            <input id="notes-search-input" type="search" value="${esc(state.notesSearch)}"
+              placeholder="Search notes…"
+              autocomplete="off" data-lpignore="true" data-form-type="other"
+              oninput="notesSearchInput(this.value)"
+              style="width:100%;box-sizing:border-box;padding:9px 34px 9px 34px;border-radius:12px;border:1.5px solid var(--border);
+                background:var(--bg-card);color:var(--text-primary);font-size:14px;font-family:inherit;outline:none;-webkit-appearance:none;">
+            ${state.notesSearch ? `<button onclick="notesSearchInput('');document.getElementById('notes-search-input').value=''" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text-muted);font-size:16px;cursor:pointer;padding:2px;line-height:1">×</button>` : ''}
+          </div>
+        </div>`;
+      const headerRow = `<div style="margin-top:4px"></div>`;
 
       const openSection = visibleOpen.length
         ? `<div class="notes-section-label">Open</div>` +
@@ -12848,7 +12869,27 @@
           </div>
         </div>`;
 
-      return `<div class="notes-view" style="${state.selectionMode ? 'padding-bottom:120px' : ''}">${headerRow}<div class="notes-chips">${chips}</div>${addCard}${openSection}${doneSection}${bulkBar}</div>`;
+      const searchEmpty = state.notesSearch && !visibleOpen.length && !visibleDone.length
+        ? `<div class="notes-empty" style="margin-top:32px">No notes match "<strong>${esc(state.notesSearch)}</strong>"</div>` : '';
+
+      return `<div class="notes-view" style="${state.selectionMode ? 'padding-bottom:120px' : ''}">${headerRow}${searchBar}<div class="notes-chips">${chips}</div>${addCard}${searchEmpty}${openSection}${doneSection}${bulkBar}</div>`;
+    }
+
+    // ---- Notes search ----
+    let _notesSearchTimer = null;
+    function notesSearchInput(q) {
+      state.notesSearch = q;
+      // Debounce re-render slightly so typing stays fluid
+      if (_notesSearchTimer) clearTimeout(_notesSearchTimer);
+      _notesSearchTimer = setTimeout(() => {
+        _notesSearchTimer = null;
+        const el = document.getElementById('notes-search-input');
+        const pos = el ? el.selectionStart : null;
+        render();
+        // Restore focus and cursor after re-render
+        const el2 = document.getElementById('notes-search-input');
+        if (el2) { el2.focus(); if (pos !== null) { try { el2.setSelectionRange(pos, pos); } catch(e){} } }
+      }, 120);
     }
 
     // ---- Notes event handlers ----
