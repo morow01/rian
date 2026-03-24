@@ -8339,7 +8339,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.21.8';
+    const VERSION = '4.21.9';
 
     // ── Notes categories ──
     const NOTE_CATEGORIES = [
@@ -15891,7 +15891,8 @@
       const subtitleStr = yearOnCall === 0 && yearExtra === 0 ? 'No weeks scheduled' : `${weeksStr}${extraStr}`;
 
       let html = `<div class="oc-overlay${state.coScheduleOpen ? ' open' : ''}" id="oc-schedule-overlay">`;
-      // Header
+
+      // Header — title + subtitle outside the card
       html += `<div class="oc-overlay-header">
         <div>
           <h2 style="margin:0;line-height:1.2">On-Call Schedule ${year}</h2>
@@ -15902,25 +15903,23 @@
         </button>
       </div>`;
 
-      // Year navigation
-      html += `<div class="oc-year-nav">
+      // White card — contains everything else
+      html += `<div style="padding:0 14px 20px">`;
+      html += `<div style="background:var(--bg-card);border-radius:16px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,0.08);border:1px solid var(--border)">`;
+
+      // Year navigation inside card
+      html += `<div class="oc-year-nav" style="padding:10px 12px 0;margin-bottom:0">
         <button onclick="ocChangeYear(-1)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg></button>
         <div class="oc-year-label">${year}</div>
         <button onclick="ocChangeYear(1)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 6 15 12 9 18"/></svg></button>
       </div>`;
 
-      // Summary pills
-
-      // Legend
-      html += `<div class="oc-legend" style="justify-content:center;padding:0 20px 12px;font-size:12px">
+      // Legend inside card
+      html += `<div class="oc-legend" style="justify-content:center;padding:8px 20px 10px;font-size:12px;border-bottom:1px dashed var(--border)">
         <span><span class="oc-legend-dot" style="background:var(--accent)"></span>On-Call</span>
         <span><span class="oc-legend-dot" style="background:#F59E0B"></span>Extra</span>
         <span><span class="oc-legend-dot" style="border:2px solid var(--priority-low);width:8px;height:8px;border-radius:3px"></span>Now</span>
       </div>`;
-
-      // Month grid — white card with month rows separated by lines
-      html += `<div style="padding:0 14px 20px">`;
-      html += `<div style="background:var(--bg-card);border-radius:16px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,0.08);border:1px solid var(--border)">`;
       const monthNames = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
       const byMonth = {};
       fridays.forEach(f => {
@@ -15951,11 +15950,11 @@
         });
         html += `</div></div>`;
       });
-      html += `</div>`;
-      html += `<div style="margin-top:10px;font-size:12px;color:var(--text-muted);font-style:italic;text-align:center">Tap = on-call · Long-press = extra shift</div>`;
-      html += `</div>`;
+      html += `<div style="padding:10px 12px;font-size:12px;color:var(--text-muted);font-style:italic;text-align:center;border-top:1px dashed var(--border)">Tap = on-call · Long-press = extra shift</div>`;
+      html += `</div>`; // close white card inner
+      html += `</div>`; // close padding wrapper
 
-      html += `</div>`;
+      html += `</div>`; // close overlay
       return html;
     }
 
