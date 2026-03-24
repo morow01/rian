@@ -1,4 +1,4 @@
-const CACHE = 'timesheet-v4364';
+const CACHE = 'timesheet-v4365';
 const BASE = self.location.pathname.replace(/sw\.js$/, '');
 const ASSETS = [
   BASE,
@@ -19,6 +19,7 @@ self.addEventListener('push', (event) => {
   const options = {
     body: data.body || '',
     icon: BASE + 'icon-192.png',
+    badge: BASE + 'badge-96.png',
     tag: 'rian-remind-' + (data.reminderId || Date.now()),
     vibrate: [200, 100, 200],
     requireInteraction: true,
