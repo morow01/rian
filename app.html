@@ -8472,7 +8472,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.24.5';
+    const VERSION = '4.24.6';
 
     // ── Notes categories ──
     const NOTE_CATEGORIES = [
@@ -13648,7 +13648,7 @@
     }
 
     function setNotesFilter(f) {
-      state.notesFilter = f;
+      state.notesFilter = (state.notesFilter === f && f !== 'all') ? 'all' : f;
       render();
     }
 
