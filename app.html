@@ -8256,7 +8256,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.18.32';
+    const VERSION = '4.18.33';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -12810,7 +12810,7 @@
               style="position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--text-muted);pointer-events:none">
               <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
             </svg>
-            <input id="notes-search-input" type="search" value="${esc(state.notesSearch)}"
+            <input id="notes-search-input" type="text" value="${esc(state.notesSearch)}"
               placeholder="Search notes…"
               autocomplete="off" data-lpignore="true" data-form-type="other"
               oninput="notesSearchInput(this.value)"
