@@ -4841,29 +4841,18 @@
     .note-row-meta {
       display: flex;
       align-items: center;
-      flex-wrap: nowrap;
+      flex-wrap: wrap;
       gap: 10px;
       margin-top: 6px;
       font-size: 12px;
       font-weight: 500;
       color: var(--text-muted);
-      overflow: hidden;
     }
 
     .note-meta-item {
       display: flex;
       align-items: center;
       gap: 4px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      flex-shrink: 1;
-      min-width: 0;
-    }
-
-    .note-meta-item span {
-      overflow: hidden;
-      text-overflow: ellipsis;
       white-space: nowrap;
     }
 
@@ -8349,7 +8338,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.21.4';
+    const VERSION = '4.21.5';
 
     // ── Notes categories ──
     const NOTE_CATEGORIES = [
