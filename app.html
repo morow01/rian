@@ -8339,7 +8339,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.21.6';
+    const VERSION = '4.21.7';
 
     // ── Notes categories ──
     const NOTE_CATEGORIES = [
@@ -13054,7 +13054,9 @@
       const searchEmpty = state.notesSearch && !visibleOpen.length && !visibleDone.length
         ? `<div class="notes-empty" style="margin-top:32px">No notes match "<strong>${esc(state.notesSearch)}</strong>"</div>` : '';
 
-      return `<div class="notes-view" style="${state.selectionMode ? 'padding-bottom:120px' : ''}">${headerRow}${searchBar}<div class="notes-chips">${chips}</div>${addCard}${searchEmpty}${openSection}${doneSection}${bulkBar}</div>`;
+      const notesHint = !state.selectionMode ? `<div style="margin-top:12px;margin-bottom:4px;font-size:12px;color:var(--text-muted);font-style:italic;text-align:center">Tap = open · Long-press = select</div>` : '';
+
+      return `<div class="notes-view" style="${state.selectionMode ? 'padding-bottom:120px' : ''}">${headerRow}${searchBar}<div class="notes-chips">${chips}</div>${addCard}${searchEmpty}${openSection}${doneSection}${notesHint}${bulkBar}</div>`;
     }
 
     // ---- Notes search ----
