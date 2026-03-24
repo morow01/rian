@@ -8369,7 +8369,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.20.5';
+    const VERSION = '4.20.6';
 
     // ── Notes categories ──
     const NOTE_CATEGORIES = [
@@ -12906,7 +12906,9 @@
 
         const nc = note.noteContent || '';
         const ncText = stripHtml(nc).trim(); // strip HTML tags to get actual text content
-        const fnOpen = state.notesOpen.get(note.id) !== false; // open by default when card is expanded
+        // Open if has content (show it), closed if empty; user toggle always overrides
+        const fnDefault = !!ncText;
+        const fnOpen = state.notesOpen.has(note.id) ? state.notesOpen.get(note.id) : fnDefault;
         const detail = `
           <div class="note-detail">
             <div class="note-detail-row">
@@ -13258,11 +13260,11 @@
       if (isOpen) {
         wrap.classList.remove('open');
         if (chevron) chevron.style.transform = 'rotate(0deg)';
-        state.notesOpen.set(noteId, false); // explicitly closed
+        state.notesOpen.set(noteId, false); // user explicitly closed
       } else {
         wrap.classList.add('open');
         if (chevron) chevron.style.transform = 'rotate(90deg)';
-        state.notesOpen.delete(noteId); // back to default (open)
+        state.notesOpen.set(noteId, true); // user explicitly opened
       }
     }
 
