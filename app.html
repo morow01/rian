@@ -8336,7 +8336,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.21.0';
+    const VERSION = '4.21.1';
 
     // ── Notes categories ──
     const NOTE_CATEGORIES = [
@@ -12827,7 +12827,7 @@
         const isNew = !note.description && !note.location;
         const dotCls = { high: 'note-dot-high', medium: 'note-dot-medium', low: 'note-dot-low' }[note.priority] || 'note-dot-none';
         const noteCat = NOTE_CATEGORIES.find(c => c.key === (note.category || ''));
-        const accentBar = noteCat ? `<div class="note-accent-bar" style="background:${noteCat.color}"></div>` : '';
+        const accentColor = noteCat ? noteCat.color : '';
         const catBadge = noteCat ? `<span class="note-cat-badge" style="background:${noteCat.color}">${noteCat.icon.replace('width="18" height="18"','width="11" height="11"')} ${noteCat.label}</span>` : '';
         const rawDesc = note.description || '';
         let cleanDesc = rawDesc.includes('<') ? rawDesc.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim() : rawDesc;
@@ -12851,14 +12851,13 @@
         ).join('');
 
         const header = `
-          ${accentBar}
           <div class="note-row ${state.selectionMode ? 'selectable' : ''}"
             onpointerdown="notePressStart(event,'${note.id}')"
             onpointerup="notePressEnd(event)"
             onpointercancel="notePressEnd(event)"
             oncontextmenu="event.preventDefault()"
             onclick="notePressClick(event,'${note.id}')"
-            style="${isExpanded ? 'background:transparent' : ''}${noteCat ? 'padding-left:18px;' : ''}">
+            style="${isExpanded ? 'background:transparent' : ''}">
             <div class="note-dot ${dotCls}"></div>
             <div style="flex:1;min-width:0;">
               <div class="note-row-title" style="${note.status === 'done' ? 'text-decoration:line-through;color:var(--text-muted)' : ''}">${esc(titleText)}</div>
@@ -13006,12 +13005,20 @@
 
       const openSection = visibleOpen.length
         ? `<div class="notes-section-label">Open</div>` +
-        visibleOpen.map(n => `<div class="note-card ${state.expandedNotes.has(n.id) ? 'expanded' : ''} ${state.selectedNotes.has(n.id) ? 'selected' : ''}" data-note-id="${n.id}">${renderNote(n)}</div>`).join('')
+        visibleOpen.map(n => {
+          const nCat = NOTE_CATEGORIES.find(c => c.key === (n.category || ''));
+          const cardStyle = nCat ? `border-left:5px solid ${nCat.color};` : '';
+          return `<div class="note-card ${state.expandedNotes.has(n.id) ? 'expanded' : ''} ${state.selectedNotes.has(n.id) ? 'selected' : ''}" style="${cardStyle}" data-note-id="${n.id}">${renderNote(n)}</div>`;
+        }).join('')
         : (f !== 'done' ? `<div class="notes-empty">No ${f === 'all' ? 'open' : f} notes yet.</div>` : '');
 
       const doneSection = visibleDone.length
         ? `<div class="notes-section-label">Done</div>` +
-        visibleDone.map(n => `<div class="note-card done-card ${state.expandedNotes.has(n.id) ? 'expanded' : ''} ${state.selectedNotes.has(n.id) ? 'selected' : ''}" data-note-id="${n.id}">${renderNote(n)}</div>`).join('')
+        visibleDone.map(n => {
+          const nCat = NOTE_CATEGORIES.find(c => c.key === (n.category || ''));
+          const cardStyle = nCat ? `border-left:5px solid ${nCat.color};` : '';
+          return `<div class="note-card done-card ${state.expandedNotes.has(n.id) ? 'expanded' : ''} ${state.selectedNotes.has(n.id) ? 'selected' : ''}" style="${cardStyle}" data-note-id="${n.id}">${renderNote(n)}</div>`;
+        }).join('')
         : '';
 
       // Smart bulk action label — context-aware
