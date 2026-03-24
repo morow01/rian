@@ -8293,7 +8293,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.19.8';
+    const VERSION = '4.19.9';
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -10534,6 +10534,7 @@
 
       return `
       <td><input type="text" class="tbl-act-input" placeholder="Description…" value="${esc(act.description)}"
+        autocomplete="one-time-code" data-lpignore="true" data-form-type="other"
         data-field="description" data-act="${act.id}" data-day="${di}" oninput="updateField(this)"></td>
       <td>
         <div class="location-wrap">
@@ -10546,10 +10547,12 @@
       <td class="tbl-codes-cell">${codesHtml}</td>
       <td style="text-align:center">
         <input type="number" step="1" min="0" class="tbl-num-input" value="${act.ordinary || ''}" placeholder="0"
+          autocomplete="one-time-code" data-lpignore="true" data-form-type="other"
           data-field="ordinary" data-act="${act.id}" data-day="${di}" oninput="updateField(this)" onchange="updateField(this)" onblur="updateField(this)">
       </td>
       <td style="text-align:center">
         <input type="number" step="1" min="0" class="tbl-num-input tbl-ot-input" value="${act.overtime || ''}" placeholder="0"
+          autocomplete="one-time-code" data-lpignore="true" data-form-type="other"
           data-field="overtime" data-act="${act.id}" data-day="${di}" oninput="updateField(this)" onchange="updateField(this)" onblur="updateField(this)">
       </td>
       <td class="tbl-calc">${numTasks}</td>
@@ -11086,6 +11089,7 @@
               <span class="act-field-label">Description</span>
               <textarea placeholder="Description of work" rows="1"
                 class="act-textarea"
+                autocomplete="one-time-code" data-lpignore="true" data-form-type="other"
                 data-field="description" data-act="${act.id}" data-day="${di}" oninput="updateField(this);autoGrow(this)">${esc(act.description)}</textarea>
             </div>
 
