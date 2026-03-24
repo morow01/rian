@@ -8336,7 +8336,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.21.1';
+    const VERSION = '4.21.2';
 
     // ── Notes categories ──
     const NOTE_CATEGORIES = [
@@ -13007,7 +13007,7 @@
         ? `<div class="notes-section-label">Open</div>` +
         visibleOpen.map(n => {
           const nCat = NOTE_CATEGORIES.find(c => c.key === (n.category || ''));
-          const cardStyle = nCat ? `border-left:5px solid ${nCat.color};` : '';
+          const cardStyle = nCat ? `border-left:4px solid ${nCat.color};` : '';
           return `<div class="note-card ${state.expandedNotes.has(n.id) ? 'expanded' : ''} ${state.selectedNotes.has(n.id) ? 'selected' : ''}" style="${cardStyle}" data-note-id="${n.id}">${renderNote(n)}</div>`;
         }).join('')
         : (f !== 'done' ? `<div class="notes-empty">No ${f === 'all' ? 'open' : f} notes yet.</div>` : '');
@@ -13016,7 +13016,7 @@
         ? `<div class="notes-section-label">Done</div>` +
         visibleDone.map(n => {
           const nCat = NOTE_CATEGORIES.find(c => c.key === (n.category || ''));
-          const cardStyle = nCat ? `border-left:5px solid ${nCat.color};` : '';
+          const cardStyle = nCat ? `border-left:4px solid ${nCat.color};` : '';
           return `<div class="note-card done-card ${state.expandedNotes.has(n.id) ? 'expanded' : ''} ${state.selectedNotes.has(n.id) ? 'selected' : ''}" style="${cardStyle}" data-note-id="${n.id}">${renderNote(n)}</div>`;
         }).join('')
         : '';
