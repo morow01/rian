@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>On-Call Access Mockups</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #e8edf3; padding: 24px; }
+  h3 { font-size: 13px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; }
+  .desc { font-size: 12px; color: #94a3b8; margin-bottom: 12px; }
+  .section { margin-bottom: 32px; }
+  .phone { background: #f0f4f8; border-radius: 20px; padding: 0; width: 320px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+  .page-header { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; background: #f0f4f8; }
+  .page-title { font-size: 17px; font-weight: 700; color: #1e293b; }
+  .cal-icon-btn { width: 34px; height: 34px; border-radius: 10px; background: #e8eef5; border: none; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+  .content-area { padding: 0 12px 16px; display: flex; flex-direction: column; gap: 10px; }
+  .week-card { background: #fff; border-radius: 12px; padding: 12px 14px; border: 1px solid #e2e8f0; font-size: 13px; color: #64748b; }
+
+  /* Shared dot */
+  .dot { width: 9px; height: 9px; border-radius: 27%; display: inline-block; flex-shrink: 0; }
+
+  /* ── OPTION A: Banner card ── */
+  .opt-a-banner {
+    margin: 0 12px 4px;
+    background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+    border: 1px solid #bfdbfe;
+    border-radius: 14px;
+    padding: 12px 14px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+  }
+  .opt-a-icon { width: 40px; height: 40px; border-radius: 11px; background: #fff; display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 0 1px 4px rgba(59,130,246,0.15); }
+  .opt-a-text { flex: 1; }
+  .opt-a-title { font-size: 14px; font-weight: 700; color: #1e40af; }
+  .opt-a-sub { font-size: 12px; color: #3b82f6; margin-top: 2px; display: flex; gap: 10px; align-items: center; }
+  .opt-a-arrow { color: #93c5fd; font-size: 18px; }
+
+  /* ── OPTION B: Pill chip in header ── */
+  .opt-b-pill {
+    display: flex; align-items: center; gap: 6px;
+    background: #eff6ff; border: 1px solid #bfdbfe;
+    border-radius: 20px; padding: 6px 12px 6px 8px;
+    cursor: pointer; font-size: 13px; font-weight: 600; color: #2563eb;
+  }
+  .opt-b-pill svg { flex-shrink: 0; }
+
+  /* ── OPTION C: Row item like a menu entry ── */
+  .opt-c-row {
+    margin: 0 12px 4px;
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    padding: 13px 14px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+  }
+  .opt-c-icon { width: 36px; height: 36px; border-radius: 10px; background: #eff6ff; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .opt-c-text { flex: 1; }
+  .opt-c-title { font-size: 14px; font-weight: 600; color: #1e293b; }
+  .opt-c-sub { font-size: 12px; color: #94a3b8; margin-top: 2px; display: flex; gap: 8px; }
+  .opt-c-arrow { font-size: 16px; color: #cbd5e1; }
+
+  /* ── OPTION D: Tab/segment in header ── */
+  .opt-d-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 16px 10px; background: #f0f4f8;
+  }
+  .opt-d-tabs { display: flex; gap: 0; background: #e2e8f0; border-radius: 10px; padding: 3px; }
+  .opt-d-tab {
+    padding: 5px 12px; border-radius: 7px; font-size: 12px; font-weight: 600;
+    color: #64748b; cursor: pointer; border: none; background: transparent;
+  }
+  .opt-d-tab.active { background: #fff; color: #1e293b; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+
+  .grid { display: flex; gap: 20px; flex-wrap: wrap; }
+</style>
+</head>
+<body>
+
+<div class="grid">
+
+  <!-- OPTION A -->
+  <div class="section">
+    <h3>Option A</h3>
+    <p class="desc">Banner card below the header</p>
+    <div class="phone">
+      <div class="page-header">
+        <span class="page-title">Callouts</span>
+      </div>
+      <div class="opt-a-banner">
+        <div class="opt-a-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        </div>
+        <div class="opt-a-text">
+          <div class="opt-a-title">On-Call Schedule</div>
+          <div class="opt-a-sub">
+            <span><span class="dot" style="background:#3b82f6;margin-right:3px"></span>13 Weeks</span>
+            <span><span class="dot" style="background:#f59e0b;margin-right:3px"></span>3 Extra</span>
+          </div>
+        </div>
+        <span class="opt-a-arrow">›</span>
+      </div>
+      <div class="content-area">
+        <div class="week-card">Mar 14 – Mar 20 · Current week</div>
+        <div class="week-card">Mar 21 – Mar 27</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- OPTION B -->
+  <div class="section">
+    <h3>Option B</h3>
+    <p class="desc">Pill button in the header bar</p>
+    <div class="phone">
+      <div class="page-header">
+        <span class="page-title">Callouts</span>
+        <button class="opt-b-pill">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          On-Call Schedule
+        </button>
+      </div>
+      <div class="content-area">
+        <div class="week-card">Mar 14 – Mar 20 · Current week</div>
+        <div class="week-card">Mar 21 – Mar 27</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- OPTION C -->
+  <div class="section">
+    <h3>Option C</h3>
+    <p class="desc">Menu row card with counts</p>
+    <div class="phone">
+      <div class="page-header">
+        <span class="page-title">Callouts</span>
+      </div>
+      <div class="opt-c-row">
+        <div class="opt-c-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        </div>
+        <div class="opt-c-text">
+          <div class="opt-c-title">On-Call Schedule</div>
+          <div class="opt-c-sub">
+            <span style="color:#3b82f6;font-weight:600">13 Weeks</span>
+            <span style="color:#f59e0b;font-weight:600">3 Extra</span>
+          </div>
+        </div>
+        <span class="opt-c-arrow">›</span>
+      </div>
+      <div class="content-area">
+        <div class="week-card">Mar 14 – Mar 20 · Current week</div>
+        <div class="week-card">Mar 21 – Mar 27</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- OPTION D -->
+  <div class="section">
+    <h3>Option D</h3>
+    <p class="desc">Segment tabs in the header</p>
+    <div class="phone">
+      <div class="opt-d-header">
+        <span class="page-title">Callouts</span>
+        <div class="opt-d-tabs">
+          <button class="opt-d-tab active">Log</button>
+          <button class="opt-d-tab">On-Call</button>
+        </div>
+      </div>
+      <div class="content-area">
+        <div class="week-card">Mar 14 – Mar 20 · Current week</div>
+        <div class="week-card">Mar 21 – Mar 27</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,28 @@
+{
+  "_format": "rian-export-v1",
+  "_exportedAt": "2026-03-23T20:44:27.036111",
+  "_sourceEmail": "morow01@gmail.com",
+  "_version": "4.18.12",
+  "callouts": {
+    "weeks": {},
+    "onCall": {
+      "2025-11-28": "oncall",
+      "2025-12-26": "oncall",
+      "2026-01-23": "oncall",
+      "2026-02-20": "oncall",
+      "2026-03-20": "oncall",
+      "2026-04-17": "oncall",
+      "2026-05-15": "oncall",
+      "2026-06-05": "oncall",
+      "2026-06-12": "oncall",
+      "2026-07-10": "oncall",
+      "2026-07-31": "oncall",
+      "2026-08-07": "oncall",
+      "2026-09-04": "oncall",
+      "2026-10-02": "oncall",
+      "2026-10-30": "oncall",
+      "2026-11-27": "oncall",
+      "2026-12-25": "oncall"
+    }
+  }
+}

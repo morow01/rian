@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Noteflow – Android Mockup</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #F5F0E8;
+    --surface: #FFFCF5;
+    --surface2: #EDE8DC;
+    --ink: #1A1612;
+    --ink2: #5C5244;
+    --ink3: #9E9285;
+    --accent: #C4531A;
+    --accent2: #E8A87C;
+    --accent-light: #FBE9DC;
+    --green: #2E7D5A;
+    --green-light: #D6EDE3;
+    --blue: #1D5FA6;
+    --blue-light: #D6E8F7;
+    --purple: #6B3FA0;
+    --purple-light: #EDE0F7;
+    --yellow: #B8860B;
+    --yellow-light: #FEF5D4;
+    --red: #C0392B;
+    --red-light: #FAE0DC;
+    --border: #DDD5C5;
+    --shadow: 0 2px 12px rgba(26,22,18,0.08);
+    --shadow-lg: 0 8px 32px rgba(26,22,18,0.14);
+    --radius: 16px;
+    --radius-sm: 10px;
+  }
+
+  body {
+    background: #2C2520;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'DM Sans', sans-serif;
+    padding: 24px;
+  }
+
+  /* Phone Shell */
+  .phone {
+    width: 390px;
+    height: 844px;
+    background: var(--bg);
+    border-radius: 50px;
+    box-shadow: 0 0 0 10px #1A1410, 0 0 0 12px #3A3028, 0 30px 80px rgba(0,0,0,0.6);
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Status Bar */
+  .status-bar {
+    height: 44px;
+    background: var(--surface);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 28px 0 24px;
+    flex-shrink: 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .status-time { font-size: 15px; font-weight: 600; color: var(--ink); }
+  .status-icons { display: flex; gap: 6px; align-items: center; }
+  .status-icons svg { width: 16px; height: 16px; fill: var(--ink); }
+
+  /* Screen Switcher */
+  .screen { display: none; flex-direction: column; flex: 1; overflow: hidden; }
+  .screen.active { display: flex; }
+
+  /* ===== HOME SCREEN ===== */
+  .home-header {
+    background: var(--surface);
+    padding: 18px 20px 14px;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+  .home-header-top {
+    display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px;
+  }
+  .app-title { font-family: 'DM Serif Display', serif; font-size: 28px; color: var(--ink); }
+  .app-title span { color: var(--accent); }
+  .header-actions { display: flex; gap: 8px; }
+  .icon-btn {
+    width: 38px; height: 38px; border-radius: 50%; border: none; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--surface2); transition: all 0.2s;
+  }
+  .icon-btn:hover { background: var(--border); transform: scale(1.05); }
+  .icon-btn svg { width: 18px; height: 18px; stroke: var(--ink2); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+  /* Search */
+  .search-bar {
+    display: flex; align-items: center; gap: 10px;
+    background: var(--bg); border: 1.5px solid var(--border); border-radius: 12px;
+    padding: 10px 14px;
+  }
+  .search-bar svg { width: 16px; height: 16px; stroke: var(--ink3); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
+  .search-bar span { font-size: 14px; color: var(--ink3); }
+
+  /* Categories */
+  .categories-wrap { padding: 14px 20px 0; flex-shrink: 0; }
+  .categories-label { font-size: 11px; font-weight: 600; color: var(--ink3); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 10px; }
+  .categories {
+    display: flex; gap: 8px; overflow-x: auto; padding-bottom: 2px;
+    scrollbar-width: none;
+  }
+  .categories::-webkit-scrollbar { display: none; }
+  .cat-chip {
+    display: flex; align-items: center; gap: 6px; padding: 7px 14px;
+    border-radius: 100px; border: 1.5px solid var(--border); background: var(--surface);
+    font-size: 13px; font-weight: 500; color: var(--ink2); white-space: nowrap;
+    cursor: pointer; transition: all 0.2s; flex-shrink: 0;
+  }
+  .cat-chip.active, .cat-chip:hover { border-color: var(--accent); background: var(--accent-light); color: var(--accent); }
+  .cat-dot { width: 8px; height: 8px; border-radius: 50%; }
+
+  /* Notes List */
+  .notes-scroll { flex: 1; overflow-y: auto; padding: 14px 20px 80px; scrollbar-width: none; }
+  .notes-scroll::-webkit-scrollbar { display: none; }
+
+  .section-label {
+    font-size: 11px; font-weight: 600; color: var(--ink3); letter-spacing: 0.08em;
+    text-transform: uppercase; margin-bottom: 10px; margin-top: 4px;
+  }
+
+  .note-card {
+    background: var(--surface); border-radius: var(--radius); border: 1.5px solid var(--border);
+    padding: 14px 16px; margin-bottom: 10px; cursor: pointer;
+    transition: all 0.2s; box-shadow: var(--shadow);
+    position: relative; overflow: hidden;
+  }
+  .note-card:hover { transform: translateY(-1px); box-shadow: var(--shadow-lg); border-color: var(--accent2); }
+  .note-card-accent {
+    position: absolute; left: 0; top: 0; bottom: 0; width: 4px;
+  }
+  .note-card-top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 6px; }
+  .note-title { font-size: 15px; font-weight: 600; color: var(--ink); line-height: 1.3; flex: 1; }
+  .note-category-badge {
+    font-size: 10px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase;
+    padding: 3px 8px; border-radius: 100px; flex-shrink: 0; margin-left: 8px; margin-top: 1px;
+  }
+  .note-preview { font-size: 13px; color: var(--ink2); line-height: 1.5; margin-bottom: 10px;
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .note-meta { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .meta-item { display: flex; align-items: center; gap: 4px; font-size: 11px; color: var(--ink3); }
+  .meta-item svg { width: 11px; height: 11px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .priority-dot {
+    width: 8px; height: 8px; border-radius: 50%; display: inline-block;
+  }
+
+  /* FAB */
+  .fab {
+    position: absolute; bottom: 90px; right: 20px;
+    width: 56px; height: 56px; border-radius: 50%;
+    background: var(--accent); border: none; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 4px 20px rgba(196,83,26,0.4);
+    transition: all 0.2s; z-index: 10;
+  }
+  .fab:hover { transform: scale(1.08); box-shadow: 0 6px 28px rgba(196,83,26,0.5); }
+  .fab svg { width: 24px; height: 24px; stroke: white; fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+
+  /* Bottom Nav */
+  .bottom-nav {
+    height: 72px; background: var(--surface); border-top: 1.5px solid var(--border);
+    display: flex; align-items: center; justify-content: space-around; flex-shrink: 0;
+    padding: 0 10px 8px;
+  }
+  .nav-item {
+    display: flex; flex-direction: column; align-items: center; gap: 3px;
+    padding: 8px 16px; border-radius: var(--radius-sm); cursor: pointer;
+    transition: all 0.2s; border: none; background: none;
+  }
+  .nav-item.active { background: var(--accent-light); }
+  .nav-item svg { width: 22px; height: 22px; stroke: var(--ink3); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .nav-item.active svg { stroke: var(--accent); }
+  .nav-label { font-size: 10px; font-weight: 500; color: var(--ink3); }
+  .nav-item.active .nav-label { color: var(--accent); }
+
+  /* ===== NEW NOTE SCREEN ===== */
+  .new-note-header {
+    background: var(--surface); padding: 14px 16px;
+    border-bottom: 1px solid var(--border); flex-shrink: 0;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .back-btn {
+    width: 36px; height: 36px; border-radius: 50%; background: var(--surface2);
+    border: none; cursor: pointer; display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .back-btn svg { width: 18px; height: 18px; stroke: var(--ink); fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+  .new-note-title { font-family: 'DM Serif Display', serif; font-size: 20px; color: var(--ink); flex: 1; }
+  .save-btn {
+    background: var(--accent); color: white; border: none; border-radius: 10px;
+    padding: 9px 18px; font-size: 14px; font-weight: 600; cursor: pointer;
+    transition: all 0.2s; font-family: 'DM Sans', sans-serif;
+  }
+  .save-btn:hover { background: #A84416; }
+
+  .form-scroll { flex: 1; overflow-y: auto; padding: 20px; scrollbar-width: none; }
+  .form-scroll::-webkit-scrollbar { display: none; }
+
+  /* Category Selector */
+  .form-section { margin-bottom: 20px; }
+  .form-label {
+    font-size: 11px; font-weight: 600; color: var(--ink3); letter-spacing: 0.08em;
+    text-transform: uppercase; margin-bottom: 8px; display: block;
+  }
+  .cat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+  .cat-grid-item {
+    display: flex; flex-direction: column; align-items: center; gap: 5px;
+    padding: 10px 6px; border-radius: var(--radius-sm); border: 1.5px solid var(--border);
+    background: var(--surface); cursor: pointer; transition: all 0.2s;
+  }
+  .cat-grid-item.selected { border-color: var(--accent); background: var(--accent-light); }
+  .cat-icon { font-size: 20px; }
+  .cat-name { font-size: 10px; font-weight: 500; color: var(--ink2); text-align: center; line-height: 1.2; }
+  .cat-grid-item.selected .cat-name { color: var(--accent); }
+
+  /* Form Fields */
+  .field-group { margin-bottom: 14px; }
+  .field-input {
+    width: 100%; border: 1.5px solid var(--border); border-radius: var(--radius-sm);
+    background: var(--surface); padding: 12px 14px; font-size: 15px; font-weight: 500;
+    color: var(--ink); font-family: 'DM Sans', sans-serif; outline: none; transition: border-color 0.2s;
+    resize: none;
+  }
+  .field-input::placeholder { color: var(--ink3); font-weight: 400; }
+  .field-input:focus { border-color: var(--accent); }
+  textarea.field-input { min-height: 90px; line-height: 1.5; }
+
+  /* Two-col row */
+  .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px; }
+
+  /* Priority */
+  .priority-row { display: flex; gap: 8px; }
+  .priority-btn {
+    flex: 1; padding: 10px; border-radius: var(--radius-sm);
+    border: 1.5px solid var(--border); background: var(--surface);
+    font-size: 12px; font-weight: 600; color: var(--ink2); cursor: pointer;
+    transition: all 0.2s; display: flex; flex-direction: column; align-items: center; gap: 4px;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .priority-btn.low.selected { border-color: var(--green); background: var(--green-light); color: var(--green); }
+  .priority-btn.medium.selected { border-color: var(--yellow); background: var(--yellow-light); color: var(--yellow); }
+  .priority-btn.high.selected { border-color: var(--red); background: var(--red-light); color: var(--red); }
+  .priority-icon { font-size: 16px; }
+
+  /* Reminder toggle */
+  .reminder-row {
+    display: flex; align-items: center; justify-content: space-between;
+    background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--radius-sm);
+    padding: 12px 14px; margin-bottom: 14px;
+  }
+  .reminder-info { display: flex; align-items: center; gap: 10px; }
+  .reminder-info svg { width: 18px; height: 18px; stroke: var(--accent); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .reminder-text { font-size: 14px; font-weight: 500; color: var(--ink); }
+  .reminder-sub { font-size: 11px; color: var(--ink3); }
+  .toggle {
+    width: 44px; height: 26px; border-radius: 100px; background: var(--surface2);
+    position: relative; cursor: pointer; border: none; transition: background 0.25s; flex-shrink: 0;
+  }
+  .toggle.on { background: var(--accent); }
+  .toggle-knob {
+    width: 20px; height: 20px; border-radius: 50%; background: white;
+    position: absolute; top: 3px; left: 3px; transition: transform 0.25s;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+  }
+  .toggle.on .toggle-knob { transform: translateX(18px); }
+
+  /* Tags */
+  .tags-input {
+    display: flex; flex-wrap: wrap; gap: 6px; align-items: center;
+    background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--radius-sm);
+    padding: 8px 12px; min-height: 46px;
+  }
+  .tag-pill {
+    background: var(--blue-light); color: var(--blue); font-size: 12px; font-weight: 500;
+    padding: 3px 10px; border-radius: 100px; display: flex; align-items: center; gap: 4px;
+  }
+  .tag-pill span { cursor: pointer; font-size: 14px; line-height: 1; }
+  .tag-placeholder { font-size: 13px; color: var(--ink3); }
+
+  /* Attachment row */
+  .attachment-row {
+    display: flex; gap: 8px; margin-bottom: 20px;
+  }
+  .attach-btn {
+    flex: 1; display: flex; align-items: center; justify-content: center; gap: 7px;
+    padding: 10px; border-radius: var(--radius-sm); border: 1.5px dashed var(--border);
+    background: none; cursor: pointer; font-size: 12px; font-weight: 500; color: var(--ink3);
+    transition: all 0.2s; font-family: 'DM Sans', sans-serif;
+  }
+  .attach-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-light); }
+  .attach-btn svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+  /* ===== NOTE DETAIL SCREEN ===== */
+  .detail-header {
+    background: var(--surface); padding: 14px 16px;
+    border-bottom: 1px solid var(--border); flex-shrink: 0;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .detail-actions { display: flex; gap: 6px; margin-left: auto; }
+  .detail-scroll { flex: 1; overflow-y: auto; padding: 0 0 80px; scrollbar-width: none; }
+  .detail-scroll::-webkit-scrollbar { display: none; }
+  .detail-hero {
+    padding: 20px 20px 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  .detail-cat-badge {
+    display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px;
+    border-radius: 100px; font-size: 12px; font-weight: 600; margin-bottom: 12px;
+  }
+  .detail-title { font-family: 'DM Serif Display', serif; font-size: 26px; color: var(--ink); line-height: 1.25; margin-bottom: 10px; }
+  .detail-meta-row { display: flex; flex-wrap: wrap; gap: 12px; }
+  .detail-meta-item { display: flex; align-items: center; gap: 5px; font-size: 12px; color: var(--ink2); }
+  .detail-meta-item svg { width: 13px; height: 13px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+  .detail-body { padding: 20px; }
+  .detail-notes-label { font-size: 11px; font-weight: 600; color: var(--ink3); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 12px; }
+  .detail-notes-text { font-size: 15px; color: var(--ink); line-height: 1.7; }
+
+  .detail-info-card {
+    margin: 0 20px 14px; padding: 14px 16px; background: var(--surface);
+    border: 1.5px solid var(--border); border-radius: var(--radius);
+  }
+  .detail-info-row { display: flex; align-items: center; justify-content: space-between; padding: 8px 0; }
+  .detail-info-row:not(:last-child) { border-bottom: 1px solid var(--border); }
+  .detail-info-key { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--ink2); font-weight: 500; }
+  .detail-info-key svg { width: 14px; height: 14px; stroke: var(--ink3); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .detail-info-val { font-size: 13px; color: var(--ink); font-weight: 600; }
+
+  .tags-section { padding: 0 20px 16px; }
+  .tags-row { display: flex; flex-wrap: wrap; gap: 6px; }
+
+  /* Animations */
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .screen.active .note-card { animation: slideUp 0.3s ease both; }
+  .screen.active .note-card:nth-child(1) { animation-delay: 0.05s; }
+  .screen.active .note-card:nth-child(2) { animation-delay: 0.10s; }
+  .screen.active .note-card:nth-child(3) { animation-delay: 0.15s; }
+  .screen.active .note-card:nth-child(4) { animation-delay: 0.20s; }
+  .screen.active .note-card:nth-child(5) { animation-delay: 0.25s; }
+
+  /* Pinned badge */
+  .pin-badge {
+    position: absolute; top: 12px; right: 12px;
+    width: 20px; height: 20px; display: flex; align-items: center; justify-content: center;
+  }
+  .pin-badge svg { width: 14px; height: 14px; fill: var(--ink3); stroke: none; }
+</style>
+</head>
+<body>
+
+<div class="phone">
+
+  <!-- Status Bar -->
+  <div class="status-bar">
+    <span class="status-time">9:41</span>
+    <div class="status-icons">
+      <!-- Signal -->
+      <svg viewBox="0 0 24 24"><rect x="2" y="14" width="3" height="7" rx="0.5"/><rect x="7" y="10" width="3" height="11" rx="0.5"/><rect x="12" y="6" width="3" height="15" rx="0.5"/><rect x="17" y="2" width="3" height="19" rx="0.5"/></svg>
+      <!-- WiFi -->
+      <svg viewBox="0 0 24 24" style="fill:none;stroke:var(--ink);stroke-width:2;stroke-linecap:round"><path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><circle cx="12" cy="20" r="1" fill="var(--ink)"/></svg>
+      <!-- Battery -->
+      <svg viewBox="0 0 24 24" style="fill:none;stroke:var(--ink);stroke-width:2;stroke-linecap:round"><rect x="2" y="7" width="17" height="10" rx="2"/><path d="M22 11v2"/><rect x="4" y="9" width="11" height="6" rx="1" fill="var(--ink)"/></svg>
+    </div>
+  </div>
+
+  <!-- ==================== HOME SCREEN ==================== -->
+  <div class="screen active" id="screen-home">
+    <div class="home-header">
+      <div class="home-header-top">
+        <div class="app-title">Note<span>flow</span></div>
+        <div class="header-actions">
+          <button class="icon-btn" onclick="showScreen('screen-new')">
+            <!-- Edit icon -->
+            <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          </button>
+          <button class="icon-btn">
+            <!-- Grid / Sort icon -->
+            <svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+          </button>
+        </div>
+      </div>
+      <div class="search-bar">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <span>Search your notes…</span>
+      </div>
+    </div>
+
+    <!-- Categories -->
+    <div class="categories-wrap">
+      <div class="categories-label">Browse</div>
+      <div class="categories">
+        <div class="cat-chip active">
+          <span class="cat-dot" style="background:#C4531A"></span> All
+        </div>
+        <div class="cat-chip">
+          <span class="cat-dot" style="background:#1D5FA6"></span> Work
+        </div>
+        <div class="cat-chip">
+          <span class="cat-dot" style="background:#2E7D5A"></span> Health
+        </div>
+        <div class="cat-chip">
+          <span class="cat-dot" style="background:#6B3FA0"></span> Ideas
+        </div>
+        <div class="cat-chip">
+          <span class="cat-dot" style="background:#B8860B"></span> Finance
+        </div>
+        <div class="cat-chip">
+          <span class="cat-dot" style="background:#C0392B"></span> Personal
+        </div>
+        <div class="cat-chip">
+          <span class="cat-dot" style="background:#5C5244"></span> Travel
+        </div>
+      </div>
+    </div>
+
+    <!-- Notes List -->
+    <div class="notes-scroll">
+      <div class="section-label">📌 Pinned</div>
+
+      <!-- Note 1 -->
+      <div class="note-card" onclick="showScreen('screen-detail')">
+        <div class="note-card-accent" style="background:#1D5FA6"></div>
+        <div style="padding-left:8px">
+          <div class="note-card-top">
+            <div class="note-title">Q3 Product Roadmap Review</div>
+            <div class="note-category-badge" style="background:#D6E8F7;color:#1D5FA6">Work</div>
+          </div>
+          <div class="note-preview">Align on sprint goals before the Thursday call. Discuss feature prioritization with design lead — confirm timeline for onboarding revamp.</div>
+          <div class="note-meta">
+            <div class="meta-item">
+              <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              Mar 26
+            </div>
+            <div class="meta-item">
+              <svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+              HQ Office
+            </div>
+            <div class="meta-item">
+              <span class="priority-dot" style="background:#C0392B"></span> High
+            </div>
+          </div>
+        </div>
+        <div class="pin-badge"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2L9 9H2l5.5 4-2 7L12 16l6.5 4-2-7L22 9h-7z"/></svg></div>
+      </div>
+
+      <div class="section-label" style="margin-top:4px">Recent</div>
+
+      <!-- Note 2 -->
+      <div class="note-card">
+        <div class="note-card-accent" style="background:#2E7D5A"></div>
+        <div style="padding-left:8px">
+          <div class="note-card-top">
+            <div class="note-title">Morning Routine Tracker</div>
+            <div class="note-category-badge" style="background:#D6EDE3;color:#2E7D5A">Health</div>
+          </div>
+          <div class="note-preview">5:30 wake up, 10 min journaling, 30 min yoga. Track water intake goal: 2.5L. Schedule evening walk after dinner.</div>
+          <div class="note-meta">
+            <div class="meta-item">
+              <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              Today
+            </div>
+            <div class="meta-item">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              Reminder set
+            </div>
+            <div class="meta-item">
+              <span class="priority-dot" style="background:#2E7D5A"></span> Low
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Note 3 -->
+      <div class="note-card">
+        <div class="note-card-accent" style="background:#6B3FA0"></div>
+        <div style="padding-left:8px">
+          <div class="note-card-top">
+            <div class="note-title">App Monetisation Ideas</div>
+            <div class="note-category-badge" style="background:#EDE0F7;color:#6B3FA0">Ideas</div>
+          </div>
+          <div class="note-preview">Freemium tier with 50 notes limit. Pro plan at $4.99/mo — unlimited + AI summaries. Consider lifetime deal on launch.</div>
+          <div class="note-meta">
+            <div class="meta-item">
+              <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              Mar 22
+            </div>
+            <div class="meta-item">
+              <span class="priority-dot" style="background:#B8860B"></span> Medium
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Note 4 -->
+      <div class="note-card">
+        <div class="note-card-accent" style="background:#B8860B"></div>
+        <div style="padding-left:8px">
+          <div class="note-card-top">
+            <div class="note-title">Monthly Budget — April</div>
+            <div class="note-category-badge" style="background:#FEF5D4;color:#B8860B">Finance</div>
+          </div>
+          <div class="note-preview">Rent $1,400. Subscriptions audit — cancel Hulu & unused gym. Move $500 to savings this month.</div>
+          <div class="note-meta">
+            <div class="meta-item">
+              <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              Apr 1
+            </div>
+            <div class="meta-item">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              Reminder set
+            </div>
+            <div class="meta-item">
+              <span class="priority-dot" style="background:#C0392B"></span> High
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Note 5 -->
+      <div class="note-card">
+        <div class="note-card-accent" style="background:#5C5244"></div>
+        <div style="padding-left:8px">
+          <div class="note-card-top">
+            <div class="note-title">Kyoto Trip Planning</div>
+            <div class="note-category-badge" style="background:#EDE8DC;color:#5C5244">Travel</div>
+          </div>
+          <div class="note-preview">Book Fushimi Inari early morning. Try kaiseki at Kikunoi. Cherry blossom forecast: late March. JR Pass worth it for 10 days.</div>
+          <div class="note-meta">
+            <div class="meta-item">
+              <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              Mar 28
+            </div>
+            <div class="meta-item">
+              <svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+              Kyoto, Japan
+            </div>
+            <div class="meta-item">
+              <span class="priority-dot" style="background:#2E7D5A"></span> Low
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /notes-scroll -->
+
+    <!-- FAB -->
+    <button class="fab" onclick="showScreen('screen-new')">
+      <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+    </button>
+
+    <!-- Bottom Nav -->
+    <div class="bottom-nav">
+      <button class="nav-item active">
+        <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        <span class="nav-label">Home</span>
+      </button>
+      <button class="nav-item">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <span class="nav-label">Search</span>
+      </button>
+      <button class="nav-item">
+        <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        <span class="nav-label">Calendar</span>
+      </button>
+      <button class="nav-item">
+        <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        <span class="nav-label">Profile</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ==================== NEW NOTE SCREEN ==================== -->
+  <div class="screen" id="screen-new">
+    <div class="new-note-header">
+      <button class="back-btn" onclick="showScreen('screen-home')">
+        <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+      <span class="new-note-title">New Note</span>
+      <button class="save-btn" onclick="showScreen('screen-detail')">Save</button>
+    </div>
+
+    <div class="form-scroll">
+
+      <!-- Category -->
+      <div class="form-section">
+        <span class="form-label">Category</span>
+        <div class="cat-grid">
+          <div class="cat-grid-item selected" onclick="selectCat(this)">
+            <div class="cat-icon">💼</div>
+            <div class="cat-name">Work</div>
+          </div>
+          <div class="cat-grid-item" onclick="selectCat(this)">
+            <div class="cat-icon">🏃</div>
+            <div class="cat-name">Health</div>
+          </div>
+          <div class="cat-grid-item" onclick="selectCat(this)">
+            <div class="cat-icon">💡</div>
+            <div class="cat-name">Ideas</div>
+          </div>
+          <div class="cat-grid-item" onclick="selectCat(this)">
+            <div class="cat-icon">💰</div>
+            <div class="cat-name">Finance</div>
+          </div>
+          <div class="cat-grid-item" onclick="selectCat(this)">
+            <div class="cat-icon">✈️</div>
+            <div class="cat-name">Travel</div>
+          </div>
+          <div class="cat-grid-item" onclick="selectCat(this)">
+            <div class="cat-icon">👤</div>
+            <div class="cat-name">Personal</div>
+          </div>
+          <div class="cat-grid-item" onclick="selectCat(this)">
+            <div class="cat-icon">📚</div>
+            <div class="cat-name">Learning</div>
+          </div>
+          <div class="cat-grid-item" onclick="selectCat(this)">
+            <div class="cat-icon">➕</div>
+            <div class="cat-name">New</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Description -->
+      <div class="field-group">
+        <span class="form-label">Description</span>
+        <input class="field-input" type="text" placeholder="What's this note about?" value="Q3 Product Roadmap Review">
+      </div>
+
+      <!-- Notes -->
+      <div class="field-group">
+        <span class="form-label">Notes</span>
+        <textarea class="field-input" placeholder="Write your notes here…">Align on sprint goals before the Thursday call. Discuss feature prioritization with design lead — confirm timeline for onboarding revamp.</textarea>
+      </div>
+
+      <!-- Location -->
+      <div class="field-group">
+        <span class="form-label">Location</span>
+        <input class="field-input" type="text" placeholder="Add a location…" value="HQ Office, Building 3">
+      </div>
+
+      <!-- Date & Time row -->
+      <div class="field-row">
+        <div>
+          <span class="form-label">Date</span>
+          <input class="field-input" type="text" placeholder="Pick date" value="Mar 26, 2026">
+        </div>
+        <div>
+          <span class="form-label">Time</span>
+          <input class="field-input" type="text" placeholder="Pick time" value="10:00 AM">
+        </div>
+      </div>
+
+      <!-- Priority -->
+      <div class="form-section">
+        <span class="form-label">Priority</span>
+        <div class="priority-row">
+          <button class="priority-btn low" onclick="selectPriority(this)">
+            <span class="priority-icon">🟢</span> Low
+          </button>
+          <button class="priority-btn medium" onclick="selectPriority(this)">
+            <span class="priority-icon">🟡</span> Medium
+          </button>
+          <button class="priority-btn high selected" onclick="selectPriority(this)">
+            <span class="priority-icon">🔴</span> High
+          </button>
+        </div>
+      </div>
+
+      <!-- Reminder -->
+      <div class="reminder-row">
+        <div class="reminder-info">
+          <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+          <div>
+            <div class="reminder-text">Set Reminder</div>
+            <div class="reminder-sub">Get notified on Mar 26 at 9:00 AM</div>
+          </div>
+        </div>
+        <button class="toggle on" onclick="this.classList.toggle('on')">
+          <div class="toggle-knob"></div>
+        </button>
+      </div>
+
+      <!-- Tags -->
+      <div class="field-group">
+        <span class="form-label">Tags</span>
+        <div class="tags-input">
+          <div class="tag-pill">roadmap <span>×</span></div>
+          <div class="tag-pill">Q3 <span>×</span></div>
+          <div class="tag-pill">sprint <span>×</span></div>
+          <span class="tag-placeholder">+ Add tag…</span>
+        </div>
+      </div>
+
+      <!-- Attachments -->
+      <div class="form-section">
+        <span class="form-label">Attachments</span>
+        <div class="attachment-row">
+          <button class="attach-btn">
+            <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            Photo
+          </button>
+          <button class="attach-btn">
+            <svg viewBox="0 0 24 24"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+            File
+          </button>
+          <button class="attach-btn">
+            <svg viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+            Voice
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ==================== DETAIL SCREEN ==================== -->
+  <div class="screen" id="screen-detail">
+    <div class="detail-header">
+      <button class="back-btn" onclick="showScreen('screen-home')">
+        <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+      <div class="detail-actions">
+        <button class="icon-btn" onclick="showScreen('screen-new')">
+          <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        </button>
+        <button class="icon-btn">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="detail-scroll">
+      <div class="detail-hero">
+        <div class="detail-cat-badge" style="background:#D6E8F7;color:#1D5FA6">💼 Work</div>
+        <div class="detail-title">Q3 Product Roadmap Review</div>
+        <div class="detail-meta-row">
+          <div class="detail-meta-item">
+            <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            March 26, 2026
+          </div>
+          <div class="detail-meta-item">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            10:00 AM
+          </div>
+        </div>
+      </div>
+
+      <div class="detail-body">
+        <div class="detail-notes-label">Notes</div>
+        <div class="detail-notes-text">
+          Align on sprint goals before the Thursday call. Discuss feature prioritization with design lead — confirm timeline for onboarding revamp.<br><br>
+          Action items: pull latest user research report, prep competitive analysis slide, confirm who's presenting the demo.
+        </div>
+      </div>
+
+      <div class="detail-info-card">
+        <div class="detail-info-row">
+          <div class="detail-info-key">
+            <svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            Location
+          </div>
+          <div class="detail-info-val">HQ Office, Bldg 3</div>
+        </div>
+        <div class="detail-info-row">
+          <div class="detail-info-key">
+            <svg viewBox="0 0 24 24"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
+            Priority
+          </div>
+          <div class="detail-info-val" style="color:#C0392B">🔴 High</div>
+        </div>
+        <div class="detail-info-row">
+          <div class="detail-info-key">
+            <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+            Reminder
+          </div>
+          <div class="detail-info-val" style="color:#2E7D5A">Mar 26 · 9:00 AM</div>
+        </div>
+      </div>
+
+      <div class="tags-section">
+        <div class="form-label" style="margin-bottom:8px">Tags</div>
+        <div class="tags-row">
+          <div class="tag-pill">roadmap</div>
+          <div class="tag-pill">Q3</div>
+          <div class="tag-pill">sprint</div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Bottom Nav -->
+    <div class="bottom-nav">
+      <button class="nav-item" onclick="showScreen('screen-home')">
+        <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        <span class="nav-label">Home</span>
+      </button>
+      <button class="nav-item">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <span class="nav-label">Search</span>
+      </button>
+      <button class="nav-item">
+        <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        <span class="nav-label">Calendar</span>
+      </button>
+      <button class="nav-item">
+        <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        <span class="nav-label">Profile</span>
+      </button>
+    </div>
+  </div>
+
+</div><!-- /phone -->
+
+<script>
+  function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+  }
+  function selectCat(el) {
+    document.querySelectorAll('.cat-grid-item').forEach(c => c.classList.remove('selected'));
+    el.classList.add('selected');
+  }
+  function selectPriority(el) {
+    document.querySelectorAll('.priority-btn').forEach(b => b.classList.remove('selected'));
+    el.classList.add('selected');
+  }
+</script>
+</body>
+</html>
