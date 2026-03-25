@@ -8509,7 +8509,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.25.22';
+    const VERSION = '4.25.23';
 
     // ── Notes categories ──
     const NOTE_CATEGORIES = [
@@ -13142,8 +13142,13 @@
         if (note.date) {
           metaHtml += `<div class="note-meta-item"><svg class="note-meta-icon" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg><span>${formatDateShort(note.date)}</span></div>`;
         }
-        metaHtml += `<div class="note-dot ${dotCls}" style="margin-top:0"></div>`;
         metaHtml += '</div>';
+
+        // Priority dot + bell for the right column (aligned under category pill)
+        const dotBellHtml = `<div style="display:flex;align-items:center;justify-content:flex-end;gap:5px;margin-top:4px">
+          <div class="note-dot ${dotCls}" style="margin-top:0"></div>
+          ${hasActiveReminder(note.id) ? `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#F5A623" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>` : ''}
+        </div>`;
 
         const priChips = ['high', 'medium', 'low'].map(p =>
           `<div class="note-pri-chip ${note.priority === p ? 'sel-' + p : ''}" onclick="setNotePriority('${note.id}', '${p}')">${p[0].toUpperCase() + p.slice(1)}</div>`
@@ -13161,8 +13166,13 @@
               <div class="note-row-title" style="${note.status === 'done' ? 'text-decoration:line-through;color:var(--text-muted)' : ''}">${esc(titleText)}</div>
               ${metaHtml}
             </div>
-            ${catBadge}
-            <span class="note-expand-arrow ${isExpanded ? 'open' : ''}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
+            <div style="display:flex;flex-direction:column;align-items:flex-end;flex-shrink:0;margin-left:8px;">
+              <div style="display:flex;align-items:center;gap:4px;">
+                ${catBadge}
+                <span class="note-expand-arrow ${isExpanded ? 'open' : ''}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
+              </div>
+              ${dotBellHtml}
+            </div>
           </div>`;
 
         const nc = note.noteContent || '';
@@ -19919,149 +19929,4 @@ QUESTION: ${query}`;
       <div style="background:var(--bg-header)" class="text-white px-4 py-3 flex items-center gap-3 safe-top">
         <button onclick="closeFaultAssistant()" class="text-white p-1 flex items-center justify-center"><svg width="20"
             height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
-            stroke-linejoin="round">
-            <line x1="18" y1="6" x2="6" y2="18" />
-            <line x1="6" y1="6" x2="18" y2="18" />
-          </svg></button>
-        <h2 class="text-base font-semibold flex-1 flex items-center gap-2"><svg width="18" height="18"
-            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"
-            stroke-linejoin="round">
-            <path d="M12 8V4H8" />
-            <rect x="4" y="8" width="16" height="12" rx="2" />
-            <path d="M2 14h2" />
-            <path d="M20 14h2" />
-            <path d="M15 13v2" />
-            <path d="M9 13v2" />
-          </svg> AI Assistant</h2>
-        <span style="font-size:11px;color:rgba(255,255,255,0.5);" id="ai-fault-kb-stat"></span>
-        <button class="theme-menu-btn more-menu-btn" onclick="toggleThemeMenu(event)" title="Menu">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
-            stroke-linecap="round">
-            <line x1="3" y1="12" x2="21" y2="12"></line>
-            <line x1="3" y1="6" x2="21" y2="6"></line>
-            <line x1="3" y1="18" x2="21" y2="18"></line>
-          </svg>
-        </button>
-      </div>
-      <div id="ai-fault-body" class="flex-1 overflow-y-auto" style="background:var(--bg-page)"></div>
-    </div>
-  </div>
-
-  <!-- ===== NOTE FULLSCREEN MODAL ===== -->
-  <div id="note-fs-modal" class="hidden fixed inset-0 flex flex-col items-center"
-    style="background:var(--bg-page);z-index:9999;">
-    <div class="flex flex-col w-full flex-1 overflow-hidden" style="max-width:672px;background:var(--bg-page);">
-      <div style="background:var(--bg-header)" class="text-white px-4 py-3 flex items-center gap-3 safe-top">
-        <button onclick="closeNoteFullscreen()" class="text-white p-1 flex items-center justify-center"><svg width="20"
-            height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
-            stroke-linejoin="round">
-            <line x1="18" y1="6" x2="6" y2="18" />
-            <line x1="6" y1="6" x2="18" y2="18" />
-          </svg></button>
-        <div class="flex-1" style="min-width:0;">
-          <div id="note-fs-title"
-            style="font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Edit Note
-          </div>
-          <div id="note-fs-subtitle"
-            style="font-size:11px;opacity:0.7;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:none;">
-          </div>
-        </div>
-        <button id="fs-mic-btn" onclick="startFsDictation()" class="text-white p-1 flex items-center justify-center"
-          style="flex-shrink:0;border:none;background:none;cursor:pointer;-webkit-tap-highlight-color:transparent;"
-          title="Dictate">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
-            stroke-linecap="round" stroke-linejoin="round">
-            <rect x="9" y="2" width="6" height="12" rx="3" />
-            <path d="M5 10a7 7 0 0 0 14 0" />
-            <line x1="12" y1="19" x2="12" y2="22" />
-            <line x1="8" y1="22" x2="16" y2="22" />
-          </svg>
-        </button>
-        <button onclick="closeNoteFullscreen()"
-          style="font-size:13px;color:#fff;padding:5px 14px;border-radius:8px;background:#F5A623;border:none;cursor:pointer;font-weight:700;flex-shrink:0;">Done</button>
-      </div>
-      <div id="note-fs-editor" class="flex-1 overflow-hidden" style="display:flex;flex-direction:column;"></div>
-    </div>
-  </div>
-
-  <!-- ===== EMAIL PREVIEW MODAL ===== -->
-  <div id="email-preview-modal" class="hidden fixed inset-0 z-50 flex flex-col" style="background:#f1f5f9;">
-    <div class="flex flex-col flex-1 overflow-hidden max-w-2xl mx-auto w-full">
-      <div style="background:var(--bg-header)" class="text-white px-4 py-3 flex items-center gap-3 safe-top">
-        <button onclick="closeEmailPreview()" class="text-white p-1 flex items-center justify-center"><svg width="20"
-            height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
-            stroke-linejoin="round">
-            <line x1="18" y1="6" x2="6" y2="18" />
-            <line x1="6" y1="6" x2="18" y2="18" />
-          </svg></button>
-        <h2 class="text-base font-semibold flex-1">Weekly Summary</h2>
-        <button onclick="sendWeeklyEmailFromPreview()" class="bg-amber-500 text-white px-4 py-1.5 text-sm font-bold"
-          style="border-radius:12px;">Send Email</button>
-      </div>
-      <div
-        style="background:#eff6ff;border-bottom:1px solid #bfdbfe;padding:8px 16px;font-size:12px;color:#2563eb;text-align:center;">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
-          stroke-linecap="round" stroke-linejoin="round"
-          style="display:inline-block;vertical-align:-2px;margin-right:4px;">
-          <circle cx="12" cy="12" r="10" />
-          <line x1="12" y1="16" x2="12" y2="12" />
-          <line x1="12" y1="8" x2="12.01" y2="8" />
-        </svg> Tap any <span style="text-decoration:underline;text-decoration-style:dotted;">underlined value</span> to
-        copy
-        it to clipboard
-      </div>
-      <div id="email-preview-body" class="flex-1 overflow-y-auto" style="background:#f1f5f9;padding:16px 12px;"></div>
-    </div>
-  </div>
-
-  <!-- ===== NOTE VOICE CONFIRM SHEET ===== -->
-  <div id="note-voice-confirm-modal">
-    <div class="vc-sheet">
-      <div class="vc-title">Add Note</div>
-      <div class="vc-heard"><strong>Heard:</strong> <span id="nvc-heard-text"></span></div>
-      <div class="vc-field">
-        <label class="vc-label">Description</label>
-        <input id="nvc-desc" class="vc-input" type="text" placeholder="e.g. Fix router">
-      </div>
-      <div class="vc-field">
-        <label class="vc-label">Location</label>
-        <div style="display:flex;gap:8px;align-items:center">
-          <input id="nvc-loc" class="vc-input" type="text" placeholder="Town name or code" style="flex:1;min-width:0"
-            autocomplete="off" data-lpignore="true" data-form-type="other">
-          <button type="button"
-            onclick="_coSiteCallback=(name)=>{document.getElementById('nvc-loc').value=name;}; openLocationModal();"
-            style="flex-shrink:0;height:38px;padding:0 12px;border-radius:10px;border:1.5px solid var(--border);background:var(--bg-card);color:var(--text-primary);font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"
-              style="display:inline-block;vertical-align:-2px;margin-right:4px;color:#e8453c">
-              <path
-                d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 010-5 2.5 2.5 0 010 5z" />
-            </svg>Site
-          </button>
-        </div>
-      </div>
-      <div class="vc-field">
-        <label class="vc-label">Priority</label>
-        <div id="nvc-priority-chips" class="nvc-pri-wrap">
-          <button class="nvc-pri-btn" data-pri="high" onclick="setNvcPriority('high')">High</button>
-          <button class="nvc-pri-btn sel-medium" data-pri="medium" onclick="setNvcPriority('medium')">Medium</button>
-          <button class="nvc-pri-btn" data-pri="low" onclick="setNvcPriority('low')">Low</button>
-        </div>
-      </div>
-      <div class="vc-field">
-        <label class="vc-label">Category</label>
-        <div id="nvc-category-chips" style="display:flex;flex-wrap:wrap;gap:6px"></div>
-      </div>
-      <div class="vc-field">
-        <label class="vc-label">Reminder</label>
-        <div id="nvc-reminder-wrap"></div>
-      </div>
-      <div class="vc-btns">
-        <button class="vc-btn primary" onclick="confirmNoteVoice()">Add Note</button>
-        <button class="vc-btn secondary" onclick="cancelVoice()">Cancel</button>
-      </div>
-    </div>
-  </div>
-
-</body>
-
-</html>
+            s
