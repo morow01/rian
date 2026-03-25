@@ -8472,7 +8472,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.24.8';
+    const VERSION = '4.24.9';
 
     // ── Notes categories ──
     const NOTE_CATEGORIES = [
@@ -13512,7 +13512,7 @@
       const isExpanded = state.expandedNotes.has(id);
       if (isExpanded) {
         state.expandedNotes.delete(id);
-        state.notesOpen.delete(id); // reset so panel reopens next time card is opened
+        state.notesOpen.set(id, false); // preserve collapsed state so note field stays closed on next open
       } else {
         state.expandedNotes.add(id);
       }
