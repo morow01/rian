@@ -8513,7 +8513,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.25.43';
+    const VERSION = '4.25.44';
 
     // ── Notes categories ──
     const NOTE_CATEGORIES = [
@@ -16236,9 +16236,9 @@
       // Returns day name from 'YYYY-MM-DD' string
       const d = strToDate(dateStr);
       const dayIndex = d.getDay();
-      // Map JS getDay (0=Sun, 1=Mon, ..., 5=Fri, 6=Sat) to DAY_NAMES index
-      // DAY_NAMES = [Friday, Saturday, Sunday, Monday, Tuesday, Wednesday, Thursday]
-      return DAY_NAMES[dayIndex === 5 ? 0 : dayIndex === 0 ? 2 : dayIndex - 1];
+      // Map JS getDay (0=Sun,1=Mon,2=Tue,3=Wed,4=Thu,5=Fri,6=Sat)
+      // to DAY_NAMES index (0=Fri,1=Sat,2=Sun,3=Mon,4=Tue,5=Wed,6=Thu)
+      return DAY_NAMES[(dayIndex + 2) % 7];
     }
 
     function renderCalloutsView() {
