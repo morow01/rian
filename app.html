@@ -4597,7 +4597,7 @@
       border: 1.5px solid var(--border);
       background: var(--bg-card);
       color: var(--text-secondary);
-      transition: all 0.15s;
+      transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
       -webkit-tap-highlight-color: transparent;
     }
 
@@ -4790,19 +4790,27 @@
     }
 
     .notes-chip.high {
+      background: rgba(239,68,68,0.10);
+      border-color: rgba(239,68,68,0.40);
       color: var(--priority-high);
     }
 
     .notes-chip.medium {
+      background: rgba(249,115,22,0.10);
+      border-color: rgba(249,115,22,0.40);
       color: var(--priority-medium);
     }
 
     .notes-chip.low {
+      background: rgba(34,197,94,0.10);
+      border-color: rgba(34,197,94,0.40);
       color: var(--priority-low);
     }
 
     .notes-chip.done {
-      color: var(--text-muted);
+      background: rgba(100,116,139,0.10);
+      border-color: rgba(100,116,139,0.40);
+      color: #64748b;
     }
 
     /* ── Category chip – active state uses the category's colour ── */
@@ -8464,7 +8472,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.25.2';
+    const VERSION = '4.25.3';
 
     // ── Notes categories ──
     const NOTE_CATEGORIES = [
@@ -12926,9 +12934,51 @@
       }).sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
     }
 
+    function hexToRgb(hex) {
+      return `${parseInt(hex.slice(1,3),16)},${parseInt(hex.slice(3,5),16)},${parseInt(hex.slice(5,7),16)}`;
+    }
+
+    // Update chip styles in-place without replacing DOM (enables CSS transitions)
+    function updateNotesChipsInPlace() {
+      const cf = state.notesCategoryFilter || '';
+      const f  = state.notesFilter;
+      // Category chips
+      document.querySelectorAll('[data-cat-key]').forEach(el => {
+        const cat = NOTE_CATEGORIES.find(c => c.key === el.dataset.catKey);
+        if (!cat) return;
+        const isActive = cf === cat.key;
+        const rgb = hexToRgb(cat.color);
+        el.classList.toggle('cat-active', isActive);
+        el.style.cssText = isActive
+          ? `background:${cat.color};border-color:${cat.color};color:#fff;`
+          : `background:rgba(${rgb},0.10);border-color:rgba(${rgb},0.40);color:${cat.color};`;
+      });
+      // Priority chips
+      const priSolid = { high:'#ef4444', medium:'#f97316', low:'#22c55e', done:'#64748b' };
+      const priRgb   = { high:'239,68,68', medium:'249,115,22', low:'34,197,94', done:'100,116,139' };
+      document.querySelectorAll('[data-pri-key]').forEach(el => {
+        const key = el.dataset.priKey;
+        const isActive = key === f;
+        el.classList.remove('active');
+        if (key === 'all') {
+          el.style.cssText = '';
+          if (isActive) el.classList.add('active');
+        } else {
+          const solid = priSolid[key], rgb = priRgb[key];
+          el.style.cssText = isActive
+            ? `background:${solid};border-color:${solid};color:#fff;`
+            : `background:rgba(${rgb},0.10);border-color:rgba(${rgb},0.40);color:${solid};`;
+        }
+      });
+    }
+
+    let _filterRenderTimer = null;
+
     function setNotesCategoryFilter(cat) {
       state.notesCategoryFilter = (state.notesCategoryFilter === cat) ? '' : cat;
-      render();
+      updateNotesChipsInPlace();          // immediate — CSS transition plays
+      clearTimeout(_filterRenderTimer);
+      _filterRenderTimer = setTimeout(() => render(), 200); // re-render notes list after transition
     }
 
     function toggleNotesFilters() {
@@ -12978,24 +13028,31 @@
       NOTE_CATEGORIES.forEach(cat => { catCounts[cat.key] = state.notes.filter(n => n.category === cat.key).length; });
       const catChips = NOTE_CATEGORIES.map(cat => {
         const isActive = cf === cat.key;
+        const rgb = hexToRgb(cat.color);
         const chipStyle = isActive
-          ? `background:${cat.color};border-color:${cat.color};`
-          : `color:${cat.color};`;
-        return `<div class="notes-chip${isActive ? ' cat-active' : ''}" style="${chipStyle}" onclick="setNotesCategoryFilter('${cat.key}')">${cat.icon.replace('width="18" height="18"', 'width="13" height="13"')} ${cat.label} (${catCounts[cat.key]})</div>`;
+          ? `background:${cat.color};border-color:${cat.color};color:#fff;`
+          : `background:rgba(${rgb},0.10);border-color:rgba(${rgb},0.40);color:${cat.color};`;
+        return `<div class="notes-chip${isActive ? ' cat-active' : ''}" data-cat-key="${cat.key}" style="${chipStyle}" onclick="setNotesCategoryFilter('${cat.key}')">${cat.icon.replace('width="18" height="18"', 'width="13" height="13"')} ${cat.label} (${catCounts[cat.key]})</div>`;
       }).join('');
 
       const priChipDefs = [
-        { key: 'all',    label: `All (${openNotes.length})`,   cls: '',     solidColor: null },
-        { key: 'high',   label: `High (${counts.high})`,       cls: 'high',   solidColor: '#ef4444' },
-        { key: 'medium', label: `Med (${counts.medium})`,      cls: 'medium', solidColor: '#f97316' },
-        { key: 'low',    label: `Low (${counts.low})`,         cls: 'low',    solidColor: '#22c55e' },
-        { key: 'done',   label: `Done (${doneNotes.length})`,  cls: 'done',   solidColor: '#64748b' },
+        { key: 'all',    label: `All (${openNotes.length})`,  solidColor: null,      rgb: null },
+        { key: 'high',   label: `High (${counts.high})`,      solidColor: '#ef4444', rgb: '239,68,68' },
+        { key: 'medium', label: `Med (${counts.medium})`,     solidColor: '#f97316', rgb: '249,115,22' },
+        { key: 'low',    label: `Low (${counts.low})`,        solidColor: '#22c55e', rgb: '34,197,94' },
+        { key: 'done',   label: `Done (${doneNotes.length})`, solidColor: '#64748b', rgb: '100,116,139' },
       ];
       const priChips = priChipDefs.map(c => {
         const isActive = c.key === f;
-        const chipStyle = isActive && c.solidColor ? `background:${c.solidColor};border-color:${c.solidColor};color:#fff;` : '';
-        const chipCls = isActive ? (c.solidColor ? '' : 'active') : (c.cls || '');
-        return `<div class="notes-chip ${chipCls}" style="${chipStyle}" onclick="setNotesFilter('${c.key}')">${c.label}</div>`;
+        let chipStyle, chipCls;
+        if (isActive) {
+          chipStyle = c.solidColor ? `background:${c.solidColor};border-color:${c.solidColor};color:#fff;` : '';
+          chipCls = c.solidColor ? '' : 'active';
+        } else {
+          chipStyle = c.rgb ? `background:rgba(${c.rgb},0.10);border-color:rgba(${c.rgb},0.40);color:rgb(${c.rgb});` : '';
+          chipCls = '';
+        }
+        return `<div class="notes-chip ${chipCls}" data-pri-key="${c.key}" style="${chipStyle}" onclick="setNotesFilter('${c.key}')">${c.label}</div>`;
       }).join('');
 
       const filterPanel = state.notesFiltersOpen ? `
@@ -13635,7 +13692,9 @@
 
     function setNotesFilter(f) {
       state.notesFilter = (state.notesFilter === f && f !== 'all') ? 'all' : f;
-      render();
+      updateNotesChipsInPlace();          // immediate — CSS transition plays
+      clearTimeout(_filterRenderTimer);
+      _filterRenderTimer = setTimeout(() => render(), 200); // re-render notes list after transition
     }
 
     // Notes location search — reuses towns list, parallel to townSearch
