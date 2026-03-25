@@ -8513,7 +8513,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.25.26';
+    const VERSION = '4.25.27';
 
     // ── Notes categories ──
     const NOTE_CATEGORIES = [
@@ -13148,8 +13148,8 @@
         if (note.date) {
           metaHtml += `<div class="note-meta-item"><svg class="note-meta-icon" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg><span>${formatDateShort(note.date)}</span></div>`;
         }
-        // dot + bell always pinned to the right of the meta row
-        metaHtml += `<div style="display:flex;align-items:center;gap:5px;margin-left:auto;"><div class="note-dot ${dotCls}"></div>${bellSvg}</div>`;
+        // bell + dot pinned right of meta row, with spacer matching chevron width so they sit under the pill
+        metaHtml += `<div style="display:flex;align-items:center;gap:5px;margin-left:auto;">${bellSvg}<div class="note-dot ${dotCls}" style="margin:0"></div></div><div style="width:26px;flex-shrink:0;"></div>`;
         metaHtml += '</div>';
 
         const priChips = ['high', 'medium', 'low'].map(p =>
