@@ -8488,7 +8488,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.25.7';
+    const VERSION = '4.25.8';
 
     // ── Notes categories ──
     const NOTE_CATEGORIES = [
@@ -13267,9 +13267,9 @@
               style="position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--text-muted);pointer-events:none">
               <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
             </svg>
-            <input id="notes-search-input" type="text" value="${esc(state.notesSearch)}"
+            <input id="notes-search-input" type="search" value="${esc(state.notesSearch)}"
               placeholder="Search notes…"
-              autocomplete="one-time-code" data-lpignore="true" data-form-type="other"
+              autocomplete="off" data-lpignore="true" data-form-type="other"
               oninput="notesSearchInput(this.value)"
               style="width:100%;box-sizing:border-box;padding:9px 34px 9px 34px;border-radius:12px;border:1.5px solid var(--border);
                 background:var(--bg-card);color:var(--text-primary);font-size:14px;font-family:inherit;outline:none;-webkit-appearance:none;">
