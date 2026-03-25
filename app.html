@@ -8513,7 +8513,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.25.32';
+    const VERSION = '4.25.33';
 
     // ── Notes categories ──
     const NOTE_CATEGORIES = [
@@ -13098,12 +13098,11 @@
       }).join('');
 
       const priChipDefs = [
-        { key: 'all',       label: `All (${openNotes.length})`,         solidColor: null,      rgb: null },
-        { key: 'high',      label: `High (${counts.high})`,             solidColor: '#ef4444', rgb: '239,68,68' },
-        { key: 'medium',    label: `Med (${counts.medium})`,            solidColor: '#f97316', rgb: '249,115,22' },
-        { key: 'low',       label: `Low (${counts.low})`,               solidColor: '#22c55e', rgb: '34,197,94' },
-        { key: 'done',      label: `Done (${doneNotes.length})`,        solidColor: '#64748b', rgb: '100,116,139' },
-        { key: 'reminders', label: `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg> Reminders (${counts.reminders})`, solidColor: '#F5A623', rgb: '245,166,35' },
+        { key: 'all',    label: `All (${openNotes.length})`,  solidColor: null,      rgb: null },
+        { key: 'high',   label: `High (${counts.high})`,      solidColor: '#ef4444', rgb: '239,68,68' },
+        { key: 'medium', label: `Med (${counts.medium})`,     solidColor: '#f97316', rgb: '249,115,22' },
+        { key: 'low',    label: `Low (${counts.low})`,        solidColor: '#22c55e', rgb: '34,197,94' },
+        { key: 'done',   label: `Done (${doneNotes.length})`, solidColor: '#64748b', rgb: '100,116,139' },
       ];
       const priChips = priChipDefs.map(c => {
         const isActive = c.key === f;
@@ -13118,6 +13117,9 @@
         return `<div class="notes-chip ${chipCls}" data-pri-key="${c.key}" style="${chipStyle}" onclick="setNotesFilter('${c.key}')">${c.label}</div>`;
       }).join('');
 
+      const remActive = f === 'reminders';
+      const remChip = `<div class="notes-chip" data-pri-key="reminders" style="${remActive ? 'background:#F5A623;border-color:#F5A623;color:#fff;' : 'background:rgba(245,166,35,0.10);border-color:rgba(245,166,35,0.40);color:#F5A623;'}" onclick="setNotesFilter('reminders')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg> Active Reminders (${counts.reminders})</div>`;
+
       const filterPanel = `
         <div class="nf-panel${state.notesFiltersOpen ? ' open' : ''}">
           <div class="nf-group-label">Category</div>
@@ -13125,6 +13127,9 @@
           <div style="border-top:1px solid var(--border);margin:12px 0 10px"></div>
           <div class="nf-group-label">Priority</div>
           <div class="notes-chips">${priChips}</div>
+          <div style="border-top:1px solid var(--border);margin:12px 0 10px"></div>
+          <div class="nf-group-label">Reminders</div>
+          <div class="notes-chips">${remChip}</div>
         </div>`;
 
       const chips = filterHeader + filterPanel;
