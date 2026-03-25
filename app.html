@@ -5042,6 +5042,7 @@
 
     .note-detail textarea,
     .note-detail input[type="text"],
+    .note-detail input[type="search"],
     .note-detail input[type="date"] {
       width: 100%;
       background: #f8fafc;
@@ -5055,10 +5056,13 @@
       box-sizing: border-box;
       outline: none;
       transition: border-color 0.2s;
+      -webkit-appearance: none;
+      appearance: none;
     }
 
     .note-detail textarea:focus,
-    .note-detail input[type="text"]:focus {
+    .note-detail input[type="text"]:focus,
+    .note-detail input[type="search"]:focus {
       border-color: var(--accent);
     }
 
@@ -8505,7 +8509,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.25.21';
+    const VERSION = '4.25.22';
 
     // ── Notes categories ──
     const NOTE_CATEGORIES = [
