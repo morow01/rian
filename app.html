@@ -8488,7 +8488,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.25.9';
+    const VERSION = '4.25.10';
 
     // ── Notes categories ──
     const NOTE_CATEGORIES = [
@@ -13005,8 +13005,8 @@
       const activePriLabel = (f !== 'all') ? (priLabels[f] || '') : '';
       const X = `<svg width="8" height="8" viewBox="0 0 10 10" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"><line x1="2" y1="2" x2="8" y2="8"/><line x1="8" y1="2" x2="2" y2="8"/></svg>`;
       return [
-        activeCat ? `<span class="nf-summary-pill" style="background:${activeCat.color}">${activeCat.icon.replace('width="18" height="18"','width="11" height="11"')} ${activeCat.label}<span class="nf-pill-x" onclick="event.stopPropagation();setNotesCategoryFilter('${activeCat.key}')">${X}</span></span>` : '',
-        activePriLabel ? `<span class="nf-summary-pill nf-pri-${f}">${activePriLabel}<span class="nf-pill-x" onclick="event.stopPropagation();setNotesFilter('all')">${X}</span></span>` : '',
+        activeCat ? `<span class="nf-summary-pill" style="background:${activeCat.color}" onclick="event.stopPropagation();setNotesCategoryFilter('${activeCat.key}')">${activeCat.icon.replace('width="18" height="18"','width="11" height="11"')} ${activeCat.label}<span class="nf-pill-x">${X}</span></span>` : '',
+        activePriLabel ? `<span class="nf-summary-pill nf-pri-${f}" onclick="event.stopPropagation();setNotesFilter('all')">${activePriLabel}<span class="nf-pill-x">${X}</span></span>` : '',
       ].filter(Boolean).join('');
     }
 
@@ -13040,8 +13040,8 @@
       const priLabels = { all: 'All', high: 'High', medium: 'Med', low: 'Low', done: 'Done' };
       const activePriLabel = f !== 'all' ? priLabels[f] : '';
       const summaryPills = [
-        activeCat ? `<span class="nf-summary-pill" style="background:${activeCat.color}">${activeCat.icon.replace('width="18" height="18"', 'width="11" height="11"')} ${activeCat.label}<span class="nf-pill-x" onclick="event.stopPropagation();setNotesCategoryFilter('${activeCat.key}')"><svg width="8" height="8" viewBox="0 0 10 10" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"><line x1="2" y1="2" x2="8" y2="8"/><line x1="8" y1="2" x2="2" y2="8"/></svg></span></span>` : '',
-        activePriLabel ? `<span class="nf-summary-pill nf-pri-${f}">${activePriLabel}<span class="nf-pill-x" onclick="event.stopPropagation();setNotesFilter('all')"><svg width="8" height="8" viewBox="0 0 10 10" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"><line x1="2" y1="2" x2="8" y2="8"/><line x1="8" y1="2" x2="2" y2="8"/></svg></span></span>` : '',
+        activeCat ? `<span class="nf-summary-pill" style="background:${activeCat.color}" onclick="event.stopPropagation();setNotesCategoryFilter('${activeCat.key}')">${activeCat.icon.replace('width="18" height="18"', 'width="11" height="11"')} ${activeCat.label}<span class="nf-pill-x"><svg width="8" height="8" viewBox="0 0 10 10" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"><line x1="2" y1="2" x2="8" y2="8"/><line x1="8" y1="2" x2="2" y2="8"/></svg></span></span>` : '',
+        activePriLabel ? `<span class="nf-summary-pill nf-pri-${f}" onclick="event.stopPropagation();setNotesFilter('all')">${activePriLabel}<span class="nf-pill-x"><svg width="8" height="8" viewBox="0 0 10 10" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"><line x1="2" y1="2" x2="8" y2="8"/><line x1="8" y1="2" x2="2" y2="8"/></svg></span></span>` : '',
       ].filter(Boolean).join('');
 
       // Collapsed header row
