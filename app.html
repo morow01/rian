@@ -8481,7 +8481,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.25.4';
+    const VERSION = '4.25.5';
 
     // ── Notes categories ──
     const NOTE_CATEGORIES = [
@@ -13602,9 +13602,18 @@
       } else {
         state.expandedNotes.add(id);
       }
-      saveUiState(); // persist so refresh remembers which notes are expanded
+      saveUiState();
 
-      render();
+      // Update DOM in-place so .note-detail max-height transition plays
+      const card = document.querySelector(`.note-card[data-note-id="${id}"]`);
+      if (card) {
+        const expanding = !isExpanded;
+        card.classList.toggle('expanded', expanding);
+        const arrow = card.querySelector('.note-expand-arrow');
+        if (arrow) arrow.classList.toggle('open', expanding);
+      } else {
+        render(); // fallback if card not in DOM
+      }
     }
 
     function updateNoteField(input) {
