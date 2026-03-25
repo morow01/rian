@@ -8488,7 +8488,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.25.15';
+    const VERSION = '4.25.16';
 
     // ── Notes categories ──
     const NOTE_CATEGORIES = [
@@ -13594,8 +13594,9 @@
           const existing = note.noteContent || '';
           note.noteContent = existing ? existing + '\n' + transcript : transcript;
           note.updatedAt = Date.now();
-          // Expand the note so the transcribed text is visible
+          // Expand the NOTE card and open the notes panel so the transcribed text is visible
           state.expandedNotes.add(noteId);
+          state.notesOpen.set(noteId, true);
           saveUiState();
           scheduleNotesSave();
           render();
