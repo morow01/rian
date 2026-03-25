@@ -8488,7 +8488,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.25.16';
+    const VERSION = '4.25.17';
 
     // ── Notes categories ──
     const NOTE_CATEGORIES = [
@@ -13594,12 +13594,37 @@
           const existing = note.noteContent || '';
           note.noteContent = existing ? existing + '\n' + transcript : transcript;
           note.updatedAt = Date.now();
-          // Expand the NOTE card and open the notes panel so the transcribed text is visible
-          state.expandedNotes.add(noteId);
+
+          // Update DOM in-place (same pattern as processActFieldText for timesheet)
+          const nc = note.noteContent;
+          const ncHtml = nc.trim().startsWith('<') ? nc : esc(nc).replace(/\n/g, '<br>');
+
+          // Update the rich preview inside the notes panel
+          const preview = document.querySelector(`[data-fn-preview="${noteId}"]`);
+          if (preview) preview.innerHTML = ncHtml;
+
+          // Update the collapsed header preview text
+          const hdr = document.querySelector(`[data-fn-header="${noteId}"]`);
+          if (hdr) { hdr.textContent = nc.replace(/\n/g, ' '); hdr.classList.add('has-note'); }
+
+          // Open the notes panel
+          const wrap = document.querySelector(`[data-fn-wrap="${noteId}"]`);
+          const chevron = document.querySelector(`[data-fn-btn="${noteId}"]`);
+          if (wrap) wrap.classList.add('open');
+          if (chevron) chevron.style.transform = 'rotate(90deg)';
           state.notesOpen.set(noteId, true);
+
+          // Expand the note card
+          const card = document.querySelector(`.note-card[data-note-id="${noteId}"]`);
+          if (card) {
+            card.classList.add('expanded');
+            const arrow = card.querySelector('.note-expand-arrow');
+            if (arrow) arrow.classList.add('open');
+          }
+          state.expandedNotes.add(noteId);
+
           saveUiState();
           scheduleNotesSave();
-          render();
         }
       };
       recognition.onend = () => { if (btn) btn.classList.remove('listening'); };
