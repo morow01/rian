@@ -8120,6 +8120,7 @@
         style="background:var(--bg-modal-search);border-bottom:1px solid var(--border)">
         <div class="finder-search-wrap">
           <input id="location-search" type="text" placeholder="Town name or code…" class="finder-search-input"
+            autocomplete="off" data-lpignore="true" data-form-type="other"
             oninput="filterLocations(this.value)">
           <div class="finder-v-separator"></div>
           <div class="finder-mic-btn-inline" id="location-mic-btn" onclick="startLocationVoice()" title="Voice search">
@@ -8504,7 +8505,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.25.19';
+    const VERSION = '4.25.20';
 
     // ── Notes categories ──
     const NOTE_CATEGORIES = [
@@ -13220,6 +13221,7 @@
                 value="${esc(note.location)}"
                 placeholder="Town name or code…"
                 readonly style="cursor:pointer;width:100%"
+                autocomplete="off" data-lpignore="true" data-form-type="other"
                 onclick="openLocationModal(null, null, '${note.id}')" />
             </div>
             ${renderNoteReminderField(note.id)}
