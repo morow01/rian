@@ -8488,7 +8488,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.25.17';
+    const VERSION = '4.25.18';
 
     // ── Notes categories ──
     const NOTE_CATEGORIES = [
@@ -17965,7 +17965,7 @@ Rules:
       note.description = desc;
       note.location = loc;
       note.priority = nvcPriority;
-      if (transcript) note.notes = '🎙 ' + transcript;
+      if (transcript) note.noteContent = '🎙 ' + transcript;
 
       state.notes.unshift(note);
       state.expandedNotes.add(note.id);
