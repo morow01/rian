@@ -4965,7 +4965,7 @@
       gap: 10px;
       margin-top: 6px;
       font-size: 12px;
-
+      padding-left: 17px;
       color: var(--text-muted);
     }
 
@@ -8513,7 +8513,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.25.27';
+    const VERSION = '4.25.28';
 
     // ── Notes categories ──
     const NOTE_CATEGORIES = [
@@ -13148,8 +13148,8 @@
         if (note.date) {
           metaHtml += `<div class="note-meta-item"><svg class="note-meta-icon" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg><span>${formatDateShort(note.date)}</span></div>`;
         }
-        // bell + dot pinned right of meta row, with spacer matching chevron width so they sit under the pill
-        metaHtml += `<div style="display:flex;align-items:center;gap:5px;margin-left:auto;">${bellSvg}<div class="note-dot ${dotCls}" style="margin:0"></div></div><div style="width:26px;flex-shrink:0;"></div>`;
+        // bell pinned to far right of meta row
+        if (bellSvg) metaHtml += `<div style="margin-left:auto;">${bellSvg}</div>`;
         metaHtml += '</div>';
 
         const priChips = ['high', 'medium', 'low'].map(p =>
@@ -13165,6 +13165,7 @@
             onclick="notePressClick(event,'${note.id}')"
             style="${isExpanded ? 'background:transparent' : ''}">
             <div class="note-row-top">
+              <div class="note-dot ${dotCls}" style="flex-shrink:0;margin:0"></div>
               <div class="note-row-title" style="flex:1;min-width:0;${note.status === 'done' ? 'text-decoration:line-through;color:var(--text-muted)' : ''}">${esc(titleText)}</div>
               ${catBadge}
               <span class="note-expand-arrow ${isExpanded ? 'open' : ''}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
