@@ -8091,12 +8091,6 @@
 </head>
 
 <body class="min-h-screen">
-  <!-- Hidden dummy inputs to absorb Chrome password manager autofill targeting -->
-  <div style="position:absolute;top:-9999px;left:-9999px;opacity:0;pointer-events:none" aria-hidden="true">
-    <input type="text" name="prevent_autofill_user" tabindex="-1">
-    <input type="password" name="prevent_autofill_pass" tabindex="-1">
-  </div>
-
   <div id="app" class="max-w-2xl mx-auto"></div>
 
   <!-- ===== CODE SEARCH MODAL ===== -->
@@ -8519,7 +8513,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.25.51';
+    const VERSION = '4.25.52';
 
     // ── Notes categories ──
     const NOTE_CATEGORIES = [
@@ -11350,6 +11344,7 @@
           <span class="chevron" style="font-size:14px;color:var(--text-muted);transform:${isExpanded ? 'rotate(90deg)' : 'rotate(0deg)'};transition:transform 0.2s;flex-shrink:0;">›</span>
         </div>
         <div class="activity-detail ${isExpanded ? 'open' : ''}" style="${isExpanded ? '' : 'display:none'}">
+          <form autocomplete="off" onsubmit="return false" style="margin:0;padding:0;border:0">
           <div class="act-detail-inner">
             <div class="flex flex-col gap-1.5">
               <span class="act-field-label">Description</span>
@@ -11480,6 +11475,7 @@
               </button>
             </div>
           </div>
+          </form>
         </div>
       </div>`;
     }
@@ -19940,6 +19936,31 @@ QUESTION: ${query}`;
       ${statsHtml}
     </div>`;
     }
+
+    // ── Chrome Password Manager / Autofill suppression ──
+    // Chrome ignores autocomplete="off" and "nofill". The only reliable way
+    // is to make inputs temporarily readonly on focus so Chrome's autofill
+    // never gets a chance to attach, then remove readonly after a tick.
+    (function() {
+      const SUPPRESS_SELECTOR = 'input.val, input.act-input, textarea.act-textarea, input.tbl-num-input, input.finder-search-input, input.tbl-act-input';
+      document.addEventListener('pointerdown', function(e) {
+        const el = e.target.closest?.(SUPPRESS_SELECTOR);
+        if (!el || el.readOnly) return;
+        el.setAttribute('autocomplete', 'off');
+        // Temporarily mark as readonly so Chrome doesn't attach its autofill dropdown
+        el.readOnly = true;
+        requestAnimationFrame(() => {
+          el.readOnly = false;
+          el.focus();
+        });
+      }, true);
+      // Also intercept any Chrome autofill animation (onautocomplete event)
+      document.addEventListener('animationstart', function(e) {
+        if (e.animationName === 'onAutoFillStart' || e.animationName === 'onautofillstart') {
+          e.target.value = '';
+        }
+      }, true);
+    })();
 
   </script>
 
