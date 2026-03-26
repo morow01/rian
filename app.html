@@ -8513,7 +8513,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.25.52';
+    const VERSION = '4.25.53';
 
     // ── Notes categories ──
     const NOTE_CATEGORIES = [
@@ -15587,6 +15587,15 @@
         // Flag so loaders skip stale caches on reload
         sessionStorage.setItem('_rianRestoreActive', '1');
         showToast('✓ Restore complete — reloading…');
+
+        // Nuclear: terminate Firestore and wipe its local persistence cache
+        // so reload pulls ONLY from server — no stale cached docs possible
+        try {
+          await db_fs.terminate();
+          await db_fs.clearPersistence();
+          console.log('[Rian] Firestore persistence cleared after restore');
+        } catch (e) { console.warn('[Rian] clearPersistence:', e); }
+
         setTimeout(() => location.reload(), 1800);
       } catch (e) {
         showToast('Restore failed: ' + (e.message || e));
