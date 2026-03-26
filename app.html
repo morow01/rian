@@ -8519,7 +8519,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.25.46';
+    const VERSION = '4.25.47';
 
     // ── Notes categories ──
     const NOTE_CATEGORIES = [
@@ -15504,22 +15504,41 @@
         if (!backupSnap.exists) { showToast('Backup not found'); return; }
         const b = backupSnap.data();
 
-        // Restore each data type
+        // Restore each data type (Firestore + IndexedDB so reload is instant)
         // Notes
-        if (b.notes) { await userDoc('data/notes')?.set(b.notes); state.notes = b.notes.notes || []; }
-        else { await userDoc('data/notes')?.delete().catch(() => {}); state.notes = []; }
+        if (b.notes) {
+          await userDoc('data/notes')?.set(b.notes);
+          state.notes = b.notes.notes || [];
+          await dbPut('notes', { id: 'notes_all', userId: uid, data: state.notes, updatedAt: Date.now() }).catch(() => {});
+        } else {
+          await userDoc('data/notes')?.delete().catch(() => {});
+          state.notes = [];
+          await dbPut('notes', { id: 'notes_all', userId: uid, data: [], updatedAt: Date.now() }).catch(() => {});
+        }
 
         // Reminders
-        if (b.reminders) { await userDoc('data/reminders')?.set(b.reminders); }
-        else { await userDoc('data/reminders')?.delete().catch(() => {}); }
+        if (b.reminders) {
+          await userDoc('data/reminders')?.set(b.reminders);
+          await dbPut('notes', { id: 'reminders_all', userId: uid, data: b.reminders, updatedAt: Date.now() }).catch(() => {});
+        } else {
+          await userDoc('data/reminders')?.delete().catch(() => {});
+          await dbPut('notes', { id: 'reminders_all', userId: uid, data: { reminders: [] }, updatedAt: Date.now() }).catch(() => {});
+        }
 
         // Callouts — clear if backup has none (e.g. pre-dates callout feature)
-        if (b.callouts) { await userDoc('data/callouts')?.set(b.callouts); state.callouts = b.callouts; }
-        else { await userDoc('data/callouts')?.set({ weeks: {}, onCall: {} }); state.callouts = { weeks: {}, onCall: {} }; }
+        const restoredCallouts = b.callouts || { weeks: {}, onCall: {} };
+        await userDoc('data/callouts')?.set(restoredCallouts);
+        state.callouts = restoredCallouts;
+        await dbPut('notes', { id: 'callouts_all', userId: uid, data: restoredCallouts, updatedAt: Date.now() }).catch(() => {});
 
         // Routines
-        if (b.routines) { await userDoc('data/routines')?.set(b.routines); state.routines = b.routines; }
-        else { await userDoc('data/routines')?.delete().catch(() => {}); state.routines = null; }
+        if (b.routines) {
+          await userDoc('data/routines')?.set(b.routines);
+          state.routines = b.routines;
+        } else {
+          await userDoc('data/routines')?.delete().catch(() => {});
+          state.routines = null;
+        }
 
         // Restore weeks — overwrite backup weeks, delete any extras not in backup
         const backupWeekKeys = new Set(b.weeks ? Object.keys(b.weeks) : []);
