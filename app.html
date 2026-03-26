@@ -8272,7 +8272,7 @@
           Save snapshot now
         </button>
         <div id="snap-day-picker" style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
-          <button onclick="snapDayNav(-1)"
+          <button onclick="snapDayNav(1)"
             style="width:34px;height:34px;border-radius:10px;border:1px solid var(--border);background:var(--bg-card);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-secondary)"
               stroke-width="2.5">
@@ -8281,7 +8281,7 @@
           </button>
           <div id="snap-day-label"
             style="flex:1;text-align:center;font-size:13px;font-weight:700;color:var(--text-primary);"></div>
-          <button onclick="snapDayNav(1)"
+          <button onclick="snapDayNav(-1)"
             style="width:34px;height:34px;border-radius:10px;border:1px solid var(--border);background:var(--bg-card);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-secondary)"
               stroke-width="2.5">
@@ -8519,7 +8519,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.25.47';
+    const VERSION = '4.25.48';
 
     // ── Notes categories ──
     const NOTE_CATEGORIES = [
