@@ -8519,7 +8519,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.25.48';
+    const VERSION = '4.25.49';
 
     // ── Notes categories ──
     const NOTE_CATEGORIES = [
@@ -15503,6 +15503,15 @@
         const backupSnap = await db_fs.doc(`users/${uid}/backups/${dateKey}`).get();
         if (!backupSnap.exists) { showToast('Backup not found'); return; }
         const b = backupSnap.data();
+
+        // Kill ALL real-time listeners and pending saves BEFORE writing
+        // — prevents onSnapshot from re-pushing stale in-memory state
+        if (weekUnsubscribe) { weekUnsubscribe(); weekUnsubscribe = null; }
+        if (notesUnsubscribe) { notesUnsubscribe(); notesUnsubscribe = null; }
+        if (remindersUnsubscribe) { remindersUnsubscribe(); remindersUnsubscribe = null; }
+        if (calloutsUnsubscribe) { calloutsUnsubscribe(); calloutsUnsubscribe = null; }
+        if (_coSaveTimer) { clearTimeout(_coSaveTimer); _coSaveTimer = null; }
+        _coSavePending = false;
 
         // Restore each data type (Firestore + IndexedDB so reload is instant)
         // Notes
