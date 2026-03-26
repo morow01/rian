@@ -8519,7 +8519,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.25.49';
+    const VERSION = '4.25.50';
 
     // ── Notes categories ──
     const NOTE_CATEGORIES = [
@@ -9210,9 +9210,14 @@
       // Unsubscribe from previous listener
       if (calloutsUnsubscribe) { calloutsUnsubscribe(); calloutsUnsubscribe = null; }
 
-      // Try IndexedDB first for instant display
-      const stored = await dbGet('notes', 'callouts_all').catch(() => null);
-      if (stored?.data && !state.callouts) state.callouts = stored.data;
+      // After a restore, skip IndexedDB — it may have stale data
+      const postRestore = sessionStorage.getItem('_rianRestoreActive');
+
+      if (!postRestore) {
+        // Try IndexedDB first for instant display (skipped after restore)
+        const stored = await dbGet('notes', 'callouts_all').catch(() => null);
+        if (stored?.data && !state.callouts) state.callouts = stored.data;
+      }
       if (!state.callouts) state.callouts = { weeks: {}, onCall: {} };
       if (!state.callouts.onCall) state.callouts.onCall = {};
       render();
@@ -9231,7 +9236,8 @@
 
         if (!snap.exists) {
           // No callouts on server yet — push local if we have data
-          if (state.callouts && Object.keys(state.callouts.weeks).length > 0) {
+          // But NEVER after a restore — the empty doc IS the intended state
+          if (!postRestore && state.callouts && Object.keys(state.callouts.weeks).length > 0) {
             fsSetCallouts(state.callouts).catch(e => console.warn('[Rian]', e));
           }
           return;
@@ -12890,9 +12896,13 @@
       // Unsubscribe from previous listener
       if (notesUnsubscribe) { notesUnsubscribe(); notesUnsubscribe = null; }
 
-      const stored = await dbGet('notes', 'notes_all');
-      if (state.notes.length === 0 && stored && stored.data.length > 0) {
-        state.notes = stored.data;
+      const _notesPostRestore = sessionStorage.getItem('_rianRestoreActive');
+
+      if (!_notesPostRestore) {
+        const stored = await dbGet('notes', 'notes_all');
+        if (state.notes.length === 0 && stored && stored.data.length > 0) {
+          state.notes = stored.data;
+        }
       }
       // Migrate notes: strip HTML from descriptions, split long ones into desc + noteContent
       migrateNotesHTML(state.notes);
@@ -12916,7 +12926,8 @@
 
         if (!snap.exists) {
           // No notes on server yet — push local only if we actually have data
-          if (state.notes.length > 0) {
+          // But NEVER after a restore — the empty state IS the intended state
+          if (!_notesPostRestore && state.notes.length > 0) {
             fsSetNotes(state.notes).catch(e => console.warn('[Rian]', e));
           }
           state.notesSyncStatus = 'synced';
@@ -12927,8 +12938,8 @@
         const remote = snap.data();
         if (!Array.isArray(remote.notes)) return;
 
-        // CRITICAL SAFETY: never overwrite local notes with empty remote
-        if (remote.notes.length === 0 && state.notes.length > 0) {
+        // CRITICAL SAFETY: never overwrite local notes with empty remote (except after restore)
+        if (!_notesPostRestore && remote.notes.length === 0 && state.notes.length > 0) {
           console.warn('[Rian] BLOCKED: remote has 0 notes but local has', state.notes.length, '— keeping local and pushing to server');
           fsSetNotes(state.notes).catch(e => console.warn('[Rian]', e));
           return;
@@ -15573,6 +15584,8 @@
         }
 
         document.getElementById('backup-modal').classList.add('hidden');
+        // Flag so loaders skip stale IndexedDB/local caches on reload
+        sessionStorage.setItem('_rianRestoreActive', '1');
         showToast('✓ Restore complete — reloading…');
         setTimeout(() => location.reload(), 1800);
       } catch (e) {
@@ -18636,6 +18649,9 @@ Rules:
 
         // Always pre-load callouts in background so email export works even if user never visits callouts tab
         if (state.view !== 'callouts') loadCallouts();
+
+        // Clear restore flag after all loaders have consumed it
+        sessionStorage.removeItem('_rianRestoreActive');
 
         // Init local reminders
         initReminders();
