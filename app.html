@@ -4884,9 +4884,6 @@
     .ncm-item.ncm-active { background: rgba(59,130,246,0.06); }
     .ncm-item svg, .ncm-item .tag-dot { flex-shrink: 0; }
     .ncm-check { margin-left: auto; opacity: 0; }
-    .ncm-del { margin-left: auto; opacity: 0.4; color: var(--text-muted); line-height: 0; padding: 4px; border-radius: 4px; }
-    .ncm-del:hover, .ncm-del:active { color: #ef4444; background: rgba(239,68,68,0.1); opacity: 1; }
-    .ncm-active .ncm-check { opacity: 1; }
     .ncm-active .ncm-check { opacity: 1; }
     .ncm-divider { height: 1px; background: var(--border); margin: 3px 4px; }
     .ncm-section-label {
@@ -13982,15 +13979,9 @@
         const coloredIcon = iconHtml
           ? iconHtml.replace(/stroke="[^"]*"/g, `stroke="${c.color}"`)
           : `<span class="tag-dot" style="background:${c.color};width:9px;height:9px;border-radius:50%;flex-shrink:0"></span>`;
-        const deleteBtn = c.isDefault === false
-          ? `<span class="ncm-del" title="Delete tag" onclick="event.stopPropagation();deleteCustomCategory('${noteId}','${c.key}')">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-            </span>`
-          : '';
         return `<div class="ncm-item${isActive?' ncm-active':''}" onclick="pickNoteCat('${noteId}','${c.key}')">
           ${coloredIcon}
           <span style="color:${c.color}">${esc(c.label)}</span>
-          ${deleteBtn}
           <svg class="ncm-check" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
         </div>`;
       };
