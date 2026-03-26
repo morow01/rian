@@ -8513,7 +8513,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.25.58';
+    const VERSION = '4.25.59';
 
     // ── Notes categories ──
     const NOTE_CATEGORIES = [
@@ -16676,10 +16676,9 @@
           <div class="flex flex-col gap-1.5">
             <span class="act-field-label">Site</span>
             <div class="location-wrap">
-              <textarea rows="1" id="co-site-display" class="act-input" style="cursor:pointer;resize:none;overflow:hidden" readonly
-                autocomplete="nofill" data-lpignore="true" data-form-type="other" data-1p-ignore="true"
-                placeholder="Tap to select location"
-                onclick="_coSiteCallback = (name) => { document.getElementById('co-site-display').value = name; updateCoField('site', name); }; openLocationModal();">${esc(site)}</textarea>
+              <div id="co-site-display" class="act-input" role="button" tabindex="0"
+                style="cursor:pointer;user-select:none;${site ? '' : 'color:var(--text-muted)'}"
+                onclick="_coSiteCallback = (name) => { document.getElementById('co-site-display').textContent = name; document.getElementById('co-site-display').style.color = ''; updateCoField('site', name); }; openLocationModal();">${site ? esc(site) : 'Tap to select location'}</div>
             </div>
           </div>
           <!-- Fault -->
