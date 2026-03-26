@@ -8639,7 +8639,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.25.63';
+    const VERSION = '4.25.64';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -14156,6 +14156,7 @@
           }
         }
       } catch (e) { console.warn('[Rian] loadCustomCategories:', e); }
+      render();
     }
 
     // ── Tag Editor Modal ──
