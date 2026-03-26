@@ -4875,21 +4875,16 @@
       display: none;
     }
     .note-cat-menu.ncm-open { display: block; }
-    .ncm-item {
-      display: flex; align-items: center; gap: 8px; padding: 8px 10px;
-      border-radius: 8px; font-size: 13px; font-weight: 500; cursor: pointer;
-      transition: background 0.1s; user-select: none;
+    .ncm-pills { display: flex; flex-wrap: wrap; gap: 6px; padding: 6px 4px 2px; }
+    .ncm-pill {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 5px 11px; border-radius: 999px;
+      font-size: 12px; font-weight: 500; white-space: nowrap;
+      cursor: pointer; border: 1.5px solid transparent;
+      transition: all 0.15s; user-select: none; -webkit-tap-highlight-color: transparent;
     }
-    .ncm-item:hover, .ncm-item:active { background: var(--bg); }
-    .ncm-item.ncm-active { background: rgba(59,130,246,0.06); }
-    .ncm-item svg, .ncm-item .tag-dot { flex-shrink: 0; }
-    .ncm-check { margin-left: auto; opacity: 0; }
-    .ncm-active .ncm-check { opacity: 1; }
+    .ncm-pill:active { opacity: 0.8; }
     .ncm-divider { height: 1px; background: var(--border); margin: 3px 4px; }
-    .ncm-section-label {
-      font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.7px;
-      color: var(--text-muted); padding: 6px 10px 3px;
-    }
     .ncm-create {
       display: flex; align-items: center; gap: 8px; padding: 8px 10px;
       border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer;
@@ -13971,26 +13966,22 @@
 
     function buildNoteCatMenuHtml(noteId, currentCatKey) {
       const cats = getCategories();
-      const defaults = cats.filter(c => c.isDefault !== false);
-      const customs = cats.filter(c => c.isDefault === false);
-      const mkItem = c => {
-        const iconHtml = getCatIconHtml(c, 14);
+      const mkPill = c => {
         const isActive = c.key === currentCatKey;
-        const coloredIcon = iconHtml
-          ? iconHtml.replace(/stroke="[^"]*"/g, `stroke="${c.color}"`)
-          : `<span class="tag-dot" style="background:${c.color};width:9px;height:9px;border-radius:50%;flex-shrink:0"></span>`;
-        return `<div class="ncm-item${isActive?' ncm-active':''}" onclick="pickNoteCat('${noteId}','${c.key}')">
-          ${coloredIcon}
-          <span style="color:${c.color}">${esc(c.label)}</span>
-          <svg class="ncm-check" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+        const rgb = hexToRgb(c.color);
+        const pillStyle = isActive
+          ? `background:${c.color};border-color:${c.color};color:#fff;`
+          : `background:rgba(${rgb},0.10);border-color:rgba(${rgb},0.35);color:${c.color};`;
+        const iconHtml = getCatIconHtml(c, 12);
+        const coloredIcon = isActive
+          ? (iconHtml ? iconHtml.replace(/stroke="[^"]*"/g, 'stroke="#fff"') : '')
+          : (iconHtml ? iconHtml.replace(/stroke="[^"]*"/g, `stroke="${c.color}"`) : '');
+        return `<div class="ncm-pill${isActive?' ncm-pill-active':''}" style="${pillStyle}" onclick="pickNoteCat('${noteId}','${c.key}')">
+          ${coloredIcon}${esc(c.label)}
         </div>`;
       };
-      let html = defaults.map(mkItem).join('');
-      if (customs.length) {
-        html += `<div class="ncm-divider"></div><div class="ncm-section-label">Custom</div>`;
-        html += customs.map(mkItem).join('');
-      }
-      html += `<div class="ncm-divider"></div>
+      let html = `<div class="ncm-pills">${cats.map(mkPill).join('')}</div>`;
+      html += `<div class="ncm-divider" style="margin:8px 0 4px"></div>
         <div class="ncm-create" onclick="toggleNoteCatDD('${noteId}');openTagEditor()">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
           Edit Tags
@@ -14182,10 +14173,12 @@
       _teIconKey = '';
       renderTagEditor();
       document.getElementById('tag-editor-modal').classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
     }
 
     function closeTagEditor() {
       document.getElementById('tag-editor-modal').classList.add('hidden');
+      document.body.style.overflow = '';
     }
 
     function _teTagFormHtml(idPrefix, color, iconKey, onSave, onCancel, saveLbl, namePlaceholder) {
