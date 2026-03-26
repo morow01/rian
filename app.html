@@ -8519,7 +8519,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.25.50';
+    const VERSION = '4.25.51';
 
     // ── Notes categories ──
     const NOTE_CATEGORIES = [
@@ -15524,45 +15524,41 @@
         if (_coSaveTimer) { clearTimeout(_coSaveTimer); _coSaveTimer = null; }
         _coSavePending = false;
 
-        // Restore each data type (Firestore + IndexedDB so reload is instant)
+        // ── Restore uses the SAME save pattern as normal edits ──
+        // IndexedDB first → proper Firestore save function (fresh _updatedAt) → set state
+        // This matches how week data is saved, which restores correctly.
+        const now = Date.now();
+
         // Notes
-        if (b.notes) {
-          await userDoc('data/notes')?.set(b.notes);
-          state.notes = b.notes.notes || [];
-          await dbPut('notes', { id: 'notes_all', userId: uid, data: state.notes, updatedAt: Date.now() }).catch(() => {});
-        } else {
-          await userDoc('data/notes')?.delete().catch(() => {});
-          state.notes = [];
-          await dbPut('notes', { id: 'notes_all', userId: uid, data: [], updatedAt: Date.now() }).catch(() => {});
-        }
+        const restoredNotes = b.notes?.notes ? deepCopy(b.notes.notes) : [];
+        state.notes = restoredNotes;
+        await dbPut('notes', { id: 'notes_all', userId: uid, data: restoredNotes, updatedAt: now }).catch(() => {});
+        await userDoc('data/notes')?.set({ notes: restoredNotes, _updatedAt: now });
 
         // Reminders
-        if (b.reminders) {
-          await userDoc('data/reminders')?.set(b.reminders);
-          await dbPut('notes', { id: 'reminders_all', userId: uid, data: b.reminders, updatedAt: Date.now() }).catch(() => {});
-        } else {
-          await userDoc('data/reminders')?.delete().catch(() => {});
-          await dbPut('notes', { id: 'reminders_all', userId: uid, data: { reminders: [] }, updatedAt: Date.now() }).catch(() => {});
-        }
+        const restoredReminders = b.reminders?.reminders ? deepCopy(b.reminders.reminders) : [];
+        await dbPut('notes', { id: 'reminders_all', userId: uid, data: { reminders: restoredReminders, _updatedAt: now }, updatedAt: now }).catch(() => {});
+        await userDoc('data/reminders')?.set({ reminders: restoredReminders, _updatedAt: now });
 
-        // Callouts — clear if backup has none (e.g. pre-dates callout feature)
-        const restoredCallouts = b.callouts || { weeks: {}, onCall: {} };
-        await userDoc('data/callouts')?.set(restoredCallouts);
+        // Callouts — same pattern: IndexedDB first, then fsSetCallouts (adds _updatedAt)
+        const restoredCallouts = b.callouts
+          ? deepCopy({ weeks: b.callouts.weeks || {}, onCall: b.callouts.onCall || {} })
+          : { weeks: {}, onCall: {} };
         state.callouts = restoredCallouts;
-        await dbPut('notes', { id: 'callouts_all', userId: uid, data: restoredCallouts, updatedAt: Date.now() }).catch(() => {});
+        await dbPut('notes', { id: 'callouts_all', userId: uid, data: restoredCallouts, updatedAt: now }).catch(() => {});
+        await fsSetCallouts(restoredCallouts);
 
         // Routines
         if (b.routines) {
-          await userDoc('data/routines')?.set(b.routines);
-          state.routines = b.routines;
+          state.routines = deepCopy(b.routines);
+          await userDoc('data/routines')?.set({ ...state.routines, _updatedAt: now });
         } else {
-          await userDoc('data/routines')?.delete().catch(() => {});
           state.routines = null;
+          await userDoc('data/routines')?.delete().catch(() => {});
         }
 
-        // Restore weeks — overwrite backup weeks, delete any extras not in backup
+        // Weeks — delete extras not in backup, then write backup weeks with fresh _updatedAt
         const backupWeekKeys = new Set(b.weeks ? Object.keys(b.weeks) : []);
-        // First: delete weeks that exist in Firestore but not in the backup
         const currentWeeksSnap = await db_fs.collection(`users/${uid}/weeks`).get().catch(() => null);
         if (currentWeeksSnap) {
           const toDelete = currentWeeksSnap.docs.filter(d => !backupWeekKeys.has(d.id));
@@ -15572,19 +15568,27 @@
             await batch.commit();
           }
         }
-        // Then: write backup weeks
         if (b.weeks && backupWeekKeys.size > 0) {
           const entries = Object.entries(b.weeks);
           for (let i = 0; i < entries.length; i += 400) {
             const chunk = entries.slice(i, i + 400);
             const batch = db_fs.batch();
-            chunk.forEach(([ws, data]) => batch.set(db_fs.doc(`users/${uid}/weeks/${ws}`), data));
+            chunk.forEach(([ws, data]) => {
+              const weekData = { ...data, _updatedAt: now };
+              batch.set(db_fs.doc(`users/${uid}/weeks/${ws}`), weekData);
+            });
             await batch.commit();
+          }
+          // Also update current week in IndexedDB so loadWeek gets it instantly
+          if (state.weekStart && b.weeks[state.weekStart]) {
+            const wd = { ...b.weeks[state.weekStart], _updatedAt: now };
+            await dbPut('weeks', { weekStart: state.weekStart, userId: uid, data: wd, updatedAt: now }).catch(() => {});
+            state.weekData = deepCopy(wd);
           }
         }
 
         document.getElementById('backup-modal').classList.add('hidden');
-        // Flag so loaders skip stale IndexedDB/local caches on reload
+        // Flag so loaders skip stale caches on reload
         sessionStorage.setItem('_rianRestoreActive', '1');
         showToast('✓ Restore complete — reloading…');
         setTimeout(() => location.reload(), 1800);
