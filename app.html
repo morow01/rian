@@ -8513,7 +8513,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.25.60';
+    const VERSION = '4.25.61';
 
     // ── Notes categories ──
     const NOTE_CATEGORIES = [
@@ -14829,10 +14829,12 @@
       return { totalOrd, totalOt, entries, locations: [...locSet] };
     }
 
+    let _forceNextSnapshot = true;  // ensure first save after update creates a snapshot with callouts
     async function maybeTakeAutoSnapshot(weekStart, weekData) {
       if (!state.currentUser || !weekStart || !weekData) return;
       const now = Date.now();
-      if (_lastSnapshotAt[weekStart] && now - _lastSnapshotAt[weekStart] < SNAPSHOT_THROTTLE_MS) return;
+      if (!_forceNextSnapshot && _lastSnapshotAt[weekStart] && now - _lastSnapshotAt[weekStart] < SNAPSHOT_THROTTLE_MS) return;
+      _forceNextSnapshot = false;
       _lastSnapshotAt[weekStart] = now;
       await _writeSnapshot(weekStart, weekData, 'auto');
     }
@@ -15100,7 +15102,7 @@
               loadCallouts();
             }
             render();
-            const _coInfo = snapData._callouts ? ` Callouts restored.` : '';
+            const _coInfo = snapData._callouts ? ' Callouts restored.' : ' (Callouts not in this snapshot — take a new one first)';
             showToast('Week restored.' + (snapData._notes ? ' Notes restored too.' : '') + _coInfo);
           } catch (e) { showToast('Restore failed: ' + (e.message || e)); }
         }
