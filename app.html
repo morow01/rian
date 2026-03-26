@@ -4884,10 +4884,9 @@
     .ncm-item.ncm-active { background: rgba(59,130,246,0.06); }
     .ncm-item svg, .ncm-item .tag-dot { flex-shrink: 0; }
     .ncm-check { margin-left: auto; opacity: 0; }
-    .ncm-del { margin-left: auto; opacity: 0; color: var(--text-muted); line-height: 0; padding: 2px; border-radius: 4px; }
-    .ncm-del:hover { color: #ef4444; background: rgba(239,68,68,0.1); }
-    .ncm-item:hover .ncm-del, .ncm-item:active .ncm-del { opacity: 1; }
-    .ncm-item:hover .ncm-check { display: none; }
+    .ncm-del { margin-left: auto; opacity: 0.4; color: var(--text-muted); line-height: 0; padding: 4px; border-radius: 4px; }
+    .ncm-del:hover, .ncm-del:active { color: #ef4444; background: rgba(239,68,68,0.1); opacity: 1; }
+    .ncm-active .ncm-check { opacity: 1; }
     .ncm-active .ncm-check { opacity: 1; }
     .ncm-divider { height: 1px; background: var(--border); margin: 3px 4px; }
     .ncm-section-label {
