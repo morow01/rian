@@ -8513,7 +8513,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.25.54';
+    const VERSION = '4.25.55';
 
     // ── Notes categories ──
     const NOTE_CATEGORIES = [
@@ -10791,11 +10791,9 @@
         data-field="description" data-act="${act.id}" data-day="${di}" oninput="updateField(this)"></td>
       <td>
         <div class="location-wrap">
-          <input type="text" class="tbl-act-input" placeholder="Location…" value="${esc(act.location)}"
-            autocomplete="nofill" data-lpignore="true" data-form-type="other" data-1p-ignore="true"
-            data-field="location" data-act="${act.id}" data-day="${di}"
-            readonly style="cursor:pointer"
-            onclick="openLocationModal(${di}, '${act.id}')">
+          <div class="tbl-act-input" role="button" tabindex="0"
+            style="cursor:pointer;user-select:none;${act.location ? '' : 'color:var(--text-muted)'}"
+            onclick="openLocationModal(${di}, '${act.id}')">${act.location ? esc(act.location) : 'Location…'}</div>
         </div>
       </td>
       <td class="tbl-codes-cell">${codesHtml}</td>
@@ -11351,12 +11349,10 @@
             <div class="flex flex-col gap-1.5">
               <span class="act-field-label">Location</span>
               <div class="location-wrap">
-                <input type="text" placeholder="Town name or code…" value="${esc(act.location)}"
-                  class="act-input"
-                  autocomplete="nofill" data-lpignore="true" data-form-type="other" data-1p-ignore="true"
+                <div class="act-input" role="button" tabindex="0"
+                  style="cursor:pointer;user-select:none;min-height:1.6em;${act.location ? '' : 'color:var(--text-muted)'}"
                   data-field="location" data-act="${act.id}" data-day="${di}"
-                  readonly style="cursor:pointer"
-                  onclick="openLocationModal(${di}, '${act.id}')">
+                  onclick="openLocationModal(${di}, '${act.id}')">${act.location ? esc(act.location) : 'Town name or code…'}</div>
               </div>
             </div>
 
