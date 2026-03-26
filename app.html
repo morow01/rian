@@ -4855,6 +4855,106 @@
     }
 
     /* ── Category badge (top-right of card header) ── */
+    /* ── Note category dropdown ── */
+    .note-cat-wrap { position: relative; }
+    .note-cat-trigger {
+      display: flex; align-items: center; gap: 7px; padding: 9px 12px;
+      border: 1.5px solid var(--border); border-radius: 10px; cursor: pointer;
+      font-size: 13px; font-weight: 600; background: var(--bg-card);
+      transition: border-color 0.15s; user-select: none; color: var(--text-primary);
+    }
+    .note-cat-trigger:active { background: var(--bg); }
+    .note-cat-trigger.nct-open { border-color: var(--accent); }
+    .note-cat-trigger svg { flex-shrink: 0; }
+    .nct-chevron { margin-left: auto; transition: transform 0.2s; flex-shrink: 0; }
+    .note-cat-trigger.nct-open .nct-chevron { transform: rotate(180deg); }
+    .note-cat-menu {
+      position: absolute; left: 0; right: 0; top: calc(100% + 4px);
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: 10px; padding: 5px; box-shadow: 0 4px 20px rgba(0,0,0,0.13);
+      z-index: 250; display: none;
+    }
+    .note-cat-menu.ncm-open { display: block; }
+    .ncm-item {
+      display: flex; align-items: center; gap: 8px; padding: 8px 10px;
+      border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer;
+      transition: background 0.1s; user-select: none;
+    }
+    .ncm-item:hover, .ncm-item:active { background: var(--bg); }
+    .ncm-item.ncm-active { background: rgba(59,130,246,0.06); }
+    .ncm-item svg, .ncm-item .tag-dot { flex-shrink: 0; }
+    .ncm-check { margin-left: auto; opacity: 0; }
+    .ncm-active .ncm-check { opacity: 1; }
+    .ncm-divider { height: 1px; background: var(--border); margin: 3px 4px; }
+    .ncm-section-label {
+      font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.7px;
+      color: var(--text-muted); padding: 6px 10px 3px;
+    }
+    .ncm-create {
+      display: flex; align-items: center; gap: 8px; padding: 8px 10px;
+      border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer;
+      color: var(--accent); transition: background 0.1s;
+    }
+    .ncm-create:hover, .ncm-create:active { background: rgba(59,130,246,0.06); }
+    /* Category create form */
+    .note-cat-form {
+      background: var(--bg); border: 1px solid var(--border); border-radius: 10px;
+      margin-top: 8px; overflow: hidden;
+      max-height: 0; opacity: 0; padding: 0 12px;
+      transition: max-height 0.3s ease, opacity 0.2s ease, padding 0.3s ease;
+    }
+    .note-cat-form.ncf-open { max-height: 520px; opacity: 1; padding: 12px; }
+    .ncf-label {
+      font-size: 10px; font-weight: 700; text-transform: uppercase;
+      color: var(--text-muted); letter-spacing: 0.5px; display: block; margin-bottom: 5px;
+    }
+    .ncf-label:not(:first-child) { margin-top: 10px; }
+    .ncf-input {
+      width: 100%; padding: 8px 10px; border: 1.5px solid var(--border);
+      border-radius: 8px; font-size: 13px; font-weight: 500; outline: none;
+      background: var(--bg-card); color: var(--text); font-family: inherit;
+    }
+    .ncf-input:focus { border-color: var(--accent); }
+    .ncf-colors { display: flex; flex-wrap: wrap; gap: 6px; }
+    .ncf-swatch {
+      width: 26px; height: 26px; border-radius: 50%; cursor: pointer;
+      border: 2.5px solid transparent; transition: all 0.15s; position: relative;
+      flex-shrink: 0;
+    }
+    .ncf-swatch.ncf-sel {
+      border-color: #1e293b;
+      box-shadow: 0 0 0 2px white, 0 0 0 3.5px rgba(0,0,0,0.25);
+    }
+    .ncf-swatch.ncf-sel::after {
+      content: '';  position: absolute; inset: 0;
+      background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E") center/12px no-repeat;
+    }
+    .ncf-icons { display: flex; flex-wrap: wrap; gap: 5px; }
+    .ncf-icon {
+      width: 32px; height: 32px; border-radius: 8px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      background: var(--bg-card); border: 1.5px solid var(--border);
+      color: var(--text-secondary); transition: all 0.15s;
+    }
+    .ncf-icon.ncf-sel { border-color: var(--accent); background: rgba(59,130,246,0.08); color: var(--accent); }
+    .ncf-icon svg { display: block; }
+    .ncf-preview-row { display: flex; align-items: center; gap: 8px; margin-top: 10px; }
+    .ncf-preview-lbl { font-size: 10px; font-weight: 700; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.5px; }
+    .ncf-preview-chip {
+      display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px;
+      border-radius: 999px; font-size: 11px; font-weight: 600; color: #fff;
+    }
+    .ncf-preview-chip svg { flex-shrink: 0; }
+    .ncf-actions { display: flex; gap: 6px; margin-top: 10px; }
+    .ncf-btn {
+      padding: 8px 14px; border-radius: 8px; font-size: 12px; font-weight: 700;
+      cursor: pointer; border: none; font-family: inherit; transition: all 0.15s;
+    }
+    .ncf-btn:active { transform: scale(0.97); }
+    .ncf-btn-cancel { background: transparent; color: var(--text-muted); border: 1.5px solid var(--border); }
+    .ncf-btn-save { flex: 1; background: var(--accent); color: #fff; }
+    .ncf-btn-save:disabled { opacity: 0.4; cursor: default; }
+
     .note-cat-badge {
       display: inline-flex;
       align-items: center;
@@ -8515,10 +8615,10 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.25.62';
+    const VERSION = '4.25.63';
 
     // ── Notes categories ──
-    const NOTE_CATEGORIES = [
+    const DEFAULT_getCategories() = [
       {
         key: 'job', label: 'Job', color: '#3b82f6',
         icon: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/><line x1="12" y1="12" x2="12" y2="16"/><line x1="10" y1="14" x2="14" y2="14"/></svg>`
@@ -8544,6 +8644,46 @@
         icon: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="9" y1="18" x2="15" y2="18"/><line x1="10" y1="22" x2="14" y2="22"/><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"/></svg>`
       },
     ];
+    // ── Flat SVG icon set for custom categories ──
+    const NOTE_ICON_SVGS = {
+      'briefcase':      `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>`,
+      'alert-triangle': `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>`,
+      'refresh-cw':     `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>`,
+      'users':          `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>`,
+      'user':           `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>`,
+      'lightbulb':      `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="9" y1="18" x2="15" y2="18"/><line x1="10" y1="22" x2="14" y2="22"/><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"/></svg>`,
+      'wrench':         `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>`,
+      'zap':            `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>`,
+      'shield':         `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>`,
+      'clipboard':      `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/></svg>`,
+      'building':       `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="9" y1="22" x2="9" y2="12"/><line x1="15" y1="22" x2="15" y2="12"/><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/></svg>`,
+      'hard-hat':       `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 18a1 1 0 0 0 1 1h18a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1H3a1 1 0 0 0-1 1v2z"/><path d="M10 10V5a2 2 0 0 1 4 0v5"/><path d="M4 15v-3a8 8 0 0 1 16 0v3"/></svg>`,
+      'check-square':   `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>`,
+      'map-pin':        `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>`,
+      'bell':           `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>`,
+      'target':         `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>`,
+      'flame':          `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>`,
+      'message-square': `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>`,
+      'truck':          `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>`,
+      'wifi':           `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg>`,
+    };
+
+    // Returns SVG html for a category at a given size
+    function getCatIconHtml(cat, size) {
+      if (!cat) return '';
+      size = size || 13;
+      if (cat.icon) return cat.icon.replace(/width="18" height="18"/g, `width="${size}" height="${size}"`);
+      if (cat.iconKey && NOTE_ICON_SVGS[cat.iconKey]) {
+        return NOTE_ICON_SVGS[cat.iconKey].replace(/width="18" height="18"/g, `width="${size}" height="${size}"`);
+      }
+      return '';
+    }
+
+    // Combined default + user-defined categories
+    function getCategories() {
+      return [...DEFAULT_getCategories(), ...(state.customCategories || [])];
+    }
+
     const firebaseConfig = {
       apiKey: "AIzaSyBq-AMqqUwGgDZGk6F9TndyZaZZui8gPBY",
       authDomain: "eir-fieldlog.firebaseapp.com",
@@ -9034,8 +9174,9 @@
       weekData: null,       // { weekStart, days: [...] }
       currentUser: null,    // Firebase Auth user
       notes: [],            // all field notes
+      customCategories: [],  // user-defined note categories
       notesFilter: 'all',           // 'all' | 'high' | 'medium' | 'low' | 'done'
-      notesCategoryFilter: '',      // '' = all categories, or one of NOTE_CATEGORIES keys
+      notesCategoryFilter: '',      // '' = all categories, or one of getCategories() keys
       notesRemindersFilter: '',     // '' = off | 'active' | 'passed'
       notesSearch: '',            // live search query
       notesFiltersOpen: localStorage.getItem('rian_notesFiltersOpen') === 'true',    // collapsible filter bar expanded state
@@ -12997,7 +13138,7 @@
       // Category chips (including untagged)
       document.querySelectorAll('[data-cat-key]').forEach(el => {
         const key = el.dataset.catKey;
-        const cat = key === 'untagged' ? { color: '#64748b' } : NOTE_CATEGORIES.find(c => c.key === key);
+        const cat = key === 'untagged' ? { color: '#64748b' } : getCategories().find(c => c.key === key);
         if (!cat) return;
         const isActive = cf === key;
         const rgb = hexToRgb(cat.color);
@@ -13048,7 +13189,7 @@
       const cf = state.notesCategoryFilter || '';
       const f = state.notesFilter;
       const rf = state.notesRemindersFilter || '';
-      const activeCat = cf === 'untagged' ? { color: '#64748b', key: 'untagged', label: 'Untagged', icon: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>' } : NOTE_CATEGORIES.find(c => c.key === cf);
+      const activeCat = cf === 'untagged' ? { color: '#64748b', key: 'untagged', label: 'Untagged', icon: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>' } : getCategories().find(c => c.key === cf);
       const priLabels = { high: 'High', medium: 'Med', low: 'Low', done: 'Done' };
       const activePriLabel = (f !== 'all') ? (priLabels[f] || '') : '';
       const BELL_FLAT = `<svg width="11" height="11" viewBox="0 0 24 24" fill="white" stroke="none"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>`;
@@ -13107,15 +13248,15 @@
 
       // Expanded panel
       const catCounts = {};
-      NOTE_CATEGORIES.forEach(cat => { catCounts[cat.key] = state.notes.filter(n => n.category === cat.key).length; });
+      getCategories().forEach(cat => { catCounts[cat.key] = state.notes.filter(n => n.category === cat.key).length; });
       const untaggedCount = state.notes.filter(n => !n.category).length;
-      const catChips = NOTE_CATEGORIES.map(cat => {
+      const catChips = getCategories().map(cat => {
         const isActive = cf === cat.key;
         const rgb = hexToRgb(cat.color);
         const chipStyle = isActive
           ? `background:${cat.color};border-color:${cat.color};color:#fff;`
           : `background:rgba(${rgb},0.10);border-color:rgba(${rgb},0.40);color:${cat.color};`;
-        return `<div class="notes-chip${isActive ? ' cat-active' : ''}" data-cat-key="${cat.key}" style="${chipStyle}" onclick="setNotesCategoryFilter('${cat.key}')">${cat.icon.replace('width="18" height="18"', 'width="13" height="13"')} ${cat.label} (${catCounts[cat.key]})</div>`;
+        return `<div class="notes-chip${isActive ? ' cat-active' : ''}" data-cat-key="${cat.key}" style="${chipStyle}" onclick="setNotesCategoryFilter('${cat.key}')">${getCatIconHtml(cat, 13)} ${cat.label} (${catCounts[cat.key]})</div>`;
       }).join('');
       const untaggedActive = cf === 'untagged';
       const untaggedChip = `<div class="notes-chip${untaggedActive ? ' cat-active' : ''}" data-cat-key="untagged" style="${untaggedActive ? 'background:#64748b;border-color:#64748b;color:#fff;' : 'background:rgba(100,116,139,0.10);border-color:rgba(100,116,139,0.40);color:#64748b;'}" onclick="setNotesCategoryFilter('untagged')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg> Untagged (${untaggedCount})</div>`;
@@ -13163,9 +13304,9 @@
         const isExpanded = state.expandedNotes.has(note.id);
         const isNew = !note.description && !note.location;
         const dotCls = { high: 'note-dot-high', medium: 'note-dot-medium', low: 'note-dot-low' }[note.priority] || 'note-dot-none';
-        const noteCat = NOTE_CATEGORIES.find(c => c.key === (note.category || ''));
+        const noteCat = getCategories().find(c => c.key === (note.category || ''));
         const accentColor = noteCat ? noteCat.color : '';
-        const catBadge = noteCat ? `<span class="note-cat-badge" style="background:${noteCat.color}">${noteCat.icon.replace('width="18" height="18"', 'width="11" height="11"')} ${noteCat.label}</span>` : '';
+        const catBadge = noteCat ? `<span class="note-cat-badge" style="background:${noteCat.color}">${getCatIconHtml(noteCat, 11)} ${noteCat.label}</span>` : '';
         const rawDesc = note.description || '';
         let cleanDesc = rawDesc.includes('<') ? rawDesc.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim() : rawDesc;
         if (cleanDesc.includes('&')) cleanDesc = decodeEntities(cleanDesc);
@@ -13277,13 +13418,7 @@
             ${renderNoteReminderField(note.id)}
             <div class="note-detail-row">
               <span class="field-label" style="display:block; margin-bottom: 6px; font-size: 11px; font-weight: 800; color: #94a3b8; text-transform: uppercase;">Category</span>
-              <div style="display:flex;flex-wrap:wrap;gap:6px">
-                ${NOTE_CATEGORIES.map(cat => {
-              const isSel = (note.category || '') === cat.key;
-              const activeStyle = isSel ? `background:${cat.color};border-color:${cat.color};` : '';
-              return `<div class="notes-chip${isSel ? ' cat-active' : ''}" style="${activeStyle}" onclick="setNoteCategory('${note.id}','${isSel ? '' : cat.key}')">${cat.icon.replace('width="18" height="18"', 'width="13" height="13"')} ${cat.label}</div>`;
-            }).join('')}
-              </div>
+              ${renderNoteCatDropdown(note.id, note.category || '')}
             </div>
             <div class="note-detail-row">
               <div class="note-toolbar-row">
@@ -13774,8 +13909,211 @@
       note.category = category;
       note.updatedAt = Date.now();
       scheduleNotesSave();
-      // Re-render the card to update accent bar + badge + category grid
       render();
+    }
+
+    // ── Category dropdown ──
+    const CAT_COLORS = ['#ef4444','#f97316','#f59e0b','#22c55e','#10b981','#06b6d4','#3b82f6','#8b5cf6','#ec4899','#64748b'];
+    let _catDropdownOpen = null;  // noteId of open dropdown
+    let _catFormNoteId = null;
+    let _catFormColor = CAT_COLORS[6];
+    let _catFormIconKey = '';
+
+    function renderNoteCatDropdown(noteId, currentCatKey) {
+      const cats = getCategories();
+      const sel = cats.find(c => c.key === currentCatKey);
+      const iconHtml = sel ? getCatIconHtml(sel, 14) : '';
+      const triggerContent = sel
+        ? `${iconHtml}<span style="color:${sel.color}">${sel.label}</span>`
+        : `<span style="color:var(--text-muted)">No category</span>`;
+      return `<div class="note-cat-wrap" id="ncw-${noteId}">
+        <div class="note-cat-trigger${_catDropdownOpen===noteId?' nct-open':''}" onclick="toggleNoteCatDD('${noteId}')">
+          ${triggerContent}
+          <svg class="nct-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="note-cat-menu${_catDropdownOpen===noteId?' ncm-open':''}" id="ncm-${noteId}">
+          ${buildNoteCatMenuHtml(noteId, currentCatKey)}
+        </div>
+        <div class="note-cat-form${_catFormNoteId===noteId?' ncf-open':''}" id="ncf-${noteId}">
+          ${buildNoteCatFormHtml(noteId)}
+        </div>
+      </div>`;
+    }
+
+    function buildNoteCatMenuHtml(noteId, currentCatKey) {
+      const cats = getCategories();
+      const defaults = cats.filter(c => c.isDefault !== false);
+      const customs = cats.filter(c => c.isDefault === false);
+      const mkItem = c => {
+        const iconHtml = getCatIconHtml(c, 14);
+        const isActive = c.key === currentCatKey;
+        return `<div class="ncm-item${isActive?' ncm-active':''}" onclick="pickNoteCat('${noteId}','${c.key}')">
+          ${iconHtml || `<span class="tag-dot" style="background:${c.color};width:9px;height:9px;border-radius:50%;flex-shrink:0"></span>`}
+          <span style="color:${c.color}">${esc(c.label)}</span>
+          <svg class="ncm-check" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>`;
+      };
+      let html = defaults.map(mkItem).join('');
+      if (customs.length) {
+        html += `<div class="ncm-divider"></div><div class="ncm-section-label">Custom</div>`;
+        html += customs.map(mkItem).join('');
+      }
+      html += `<div class="ncm-divider"></div>
+        <div class="ncm-create" onclick="openNoteCatForm('${noteId}')">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Create New Tag
+        </div>`;
+      if (currentCatKey) {
+        html += `<div class="ncm-item" style="color:var(--text-muted);font-weight:500" onclick="pickNoteCat('${noteId}','')">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          Remove Category
+        </div>`;
+      }
+      return html;
+    }
+
+    function buildNoteCatFormHtml(noteId) {
+      if (_catFormNoteId !== noteId) return '';
+      const swatches = CAT_COLORS.map(c =>
+        `<div class="ncf-swatch${_catFormColor===c?' ncf-sel':''}" style="background:${c}" onclick="pickCatFormColor('${noteId}','${c}')"></div>`
+      ).join('');
+      const icons = Object.keys(NOTE_ICON_SVGS).map(k =>
+        `<div class="ncf-icon${_catFormIconKey===k?' ncf-sel':''}" title="${k}" onclick="pickCatFormIcon('${noteId}','${k}')">${NOTE_ICON_SVGS[k].replace(/width="18" height="18"/g,'width="14" height="14"')}</div>`
+      ).join('');
+      const previewIconHtml = _catFormIconKey && NOTE_ICON_SVGS[_catFormIconKey]
+        ? NOTE_ICON_SVGS[_catFormIconKey].replace(/width="18" height="18"/g,'width="11" height="11"')
+        : '';
+      return `
+        <label class="ncf-label">Tag Name</label>
+        <input class="ncf-input" id="ncf-name-${noteId}" type="text" placeholder="e.g. Safety Check"
+          autocomplete="off" oninput="updateCatFormPreview('${noteId}')">
+        <label class="ncf-label">Color</label>
+        <div class="ncf-colors">${swatches}</div>
+        <label class="ncf-label">Icon (optional)</label>
+        <div class="ncf-icons">${icons}</div>
+        <div class="ncf-preview-row">
+          <span class="ncf-preview-lbl">Preview</span>
+          <span class="ncf-preview-chip" id="ncf-prev-${noteId}" style="background:${_catFormColor}">${previewIconHtml} Tag Name</span>
+        </div>
+        <div class="ncf-actions">
+          <button class="ncf-btn ncf-btn-cancel" onclick="closeNoteCatForm('${noteId}')">Cancel</button>
+          <button class="ncf-btn ncf-btn-save" id="ncf-save-${noteId}" onclick="saveNewCategory('${noteId}')" disabled>Create Tag</button>
+        </div>`;
+    }
+
+    function toggleNoteCatDD(noteId) {
+      if (_catDropdownOpen === noteId) {
+        _catDropdownOpen = null;
+      } else {
+        _catDropdownOpen = noteId;
+        _catFormNoteId = null;  // close any open form
+      }
+      render();
+    }
+
+    function pickNoteCat(noteId, catKey) {
+      _catDropdownOpen = null;
+      setNoteCategory(noteId, catKey);  // also calls render()
+    }
+
+    function openNoteCatForm(noteId) {
+      _catDropdownOpen = null;
+      _catFormNoteId = noteId;
+      _catFormColor = CAT_COLORS[6];
+      _catFormIconKey = '';
+      render();
+      setTimeout(() => {
+        const el = document.getElementById('ncf-name-' + noteId);
+        if (el) el.focus();
+      }, 100);
+    }
+
+    function closeNoteCatForm(noteId) {
+      _catFormNoteId = null;
+      render();
+    }
+
+    function pickCatFormColor(noteId, color) {
+      _catFormColor = color;
+      // Re-render just the form contents in place
+      const formEl = document.getElementById('ncf-' + noteId);
+      if (formEl) formEl.innerHTML = buildNoteCatFormHtml(noteId);
+      const nameEl = document.getElementById('ncf-name-' + noteId);
+      if (nameEl) nameEl.focus();
+    }
+
+    function pickCatFormIcon(noteId, iconKey) {
+      _catFormIconKey = _catFormIconKey === iconKey ? '' : iconKey;
+      const formEl = document.getElementById('ncf-' + noteId);
+      if (formEl) {
+        const prevName = document.getElementById('ncf-name-' + noteId)?.value || '';
+        formEl.innerHTML = buildNoteCatFormHtml(noteId);
+        const nameEl = document.getElementById('ncf-name-' + noteId);
+        if (nameEl) { nameEl.value = prevName; nameEl.focus(); }
+        updateCatFormPreview(noteId);
+      }
+    }
+
+    function updateCatFormPreview(noteId) {
+      const nameEl = document.getElementById('ncf-name-' + noteId);
+      const prevEl = document.getElementById('ncf-prev-' + noteId);
+      const saveEl = document.getElementById('ncf-save-' + noteId);
+      if (!nameEl) return;
+      const name = nameEl.value.trim();
+      if (prevEl) {
+        const iconHtml = _catFormIconKey && NOTE_ICON_SVGS[_catFormIconKey]
+          ? NOTE_ICON_SVGS[_catFormIconKey].replace(/width="18" height="18"/g, 'width="11" height="11"')
+          : '';
+        prevEl.innerHTML = iconHtml + ' ' + (name || 'Tag Name');
+        prevEl.style.background = _catFormColor;
+      }
+      if (saveEl) saveEl.disabled = !name;
+    }
+
+    async function saveNewCategory(noteId) {
+      const nameEl = document.getElementById('ncf-name-' + noteId);
+      if (!nameEl) return;
+      const name = nameEl.value.trim();
+      if (!name) return;
+      const key = 'custom_' + Date.now();
+      const newCat = { key, label: name, color: _catFormColor, iconKey: _catFormIconKey, isDefault: false };
+      if (!state.customCategories) state.customCategories = [];
+      state.customCategories.push(newCat);
+      await saveCustomCategories();
+      _catFormNoteId = null;
+      _catDropdownOpen = null;
+      setNoteCategory(noteId, key);  // assign + render
+      showToast('✓ Tag "' + name + '" created');
+    }
+
+    // ── Persist custom categories ──
+    async function saveCustomCategories() {
+      const uid = state.currentUser?.uid;
+      if (!uid) return;
+      const now = Date.now();
+      await dbPut('notes', { id: 'categories_custom', userId: uid, data: state.customCategories, updatedAt: now }).catch(() => {});
+      const ref = userDoc('data/categories');
+      if (ref) await ref.set({ categories: state.customCategories, _updatedAt: now }).catch(e => console.warn('[Rian]', e));
+    }
+
+    async function loadCustomCategories() {
+      const uid = state.currentUser?.uid;
+      if (!uid) return;
+      try {
+        const stored = await dbGet('notes', 'categories_custom').catch(() => null);
+        if (stored?.data) state.customCategories = stored.data;
+        // Also fetch from Firestore
+        const ref = userDoc('data/categories');
+        if (!ref) return;
+        const snap = await ref.get().catch(() => null);
+        if (snap?.exists) {
+          const remote = snap.data();
+          if (Array.isArray(remote.categories)) {
+            state.customCategories = remote.categories;
+            await dbPut('notes', { id: 'categories_custom', userId: uid, data: state.customCategories, updatedAt: remote._updatedAt || Date.now() }).catch(() => {});
+          }
+        }
+      } catch (e) { console.warn('[Rian] loadCustomCategories:', e); }
     }
 
     function setNoteToday(id) {
@@ -18093,11 +18431,11 @@
 
       const locationSample = (TOWNS || []).slice(0, 40).map(t => `${t.name} (${t.code})`).join(', ');
 
-      const catKeys = NOTE_CATEGORIES.map(c => c.key).join('|');
+      const catKeys = getCategories().map(c => c.key).join('|');
       const prompt = `Extract details from this spoken note. Return ONLY valid JSON, no markdown, no extra text.
 Input: "${text.replace(/"/g, "'")}"
 Known locations (name, code): ${locationSample} … (and more)
-Known categories: ${NOTE_CATEGORIES.map(c => c.label + ' (' + c.key + ')').join(', ')}
+Known categories: ${getCategories().map(c => c.label + ' (' + c.key + ')').join(', ')}
 Today's date: ${dateToStr(new Date())}
 Return: { "description": "...", "location": "...", "priority": "high|medium|low", "category": "${catKeys}|", "reminder": { "date": "YYYY-MM-DD", "time": "HH:MM" } | null }
 Rules:
@@ -18143,7 +18481,7 @@ Rules:
         if (['high', 'medium', 'low'].includes(p.priority)) result.priority = p.priority;
 
         // Category
-        const validCats = NOTE_CATEGORIES.map(c => c.key);
+        const validCats = getCategories().map(c => c.key);
         if (p.category && validCats.includes(p.category)) result.category = p.category;
 
         // Reminder — trust Gemini for date parsing, fall back to JS
@@ -18192,7 +18530,7 @@ Rules:
     function renderNvcCategoryChips() {
       const wrap = document.getElementById('nvc-category-chips');
       if (!wrap) return;
-      wrap.innerHTML = NOTE_CATEGORIES.map(c =>
+      wrap.innerHTML = getCategories().map(c =>
         `<button type="button" class="nvc-cat-btn${nvcCategory === c.key ? ' nvc-cat-sel' : ''}"
           data-cat="${c.key}" onclick="setNvcCategory('${c.key}')"
           style="${nvcCategory === c.key ? 'background:' + c.color + ';color:#fff;border-color:' + c.color : ''}">${c.label}</button>`
@@ -18262,7 +18600,7 @@ Rules:
       render();
 
       let toast = 'Note added ✓';
-      if (nvcCategory) toast += ` · ${NOTE_CATEGORIES.find(c => c.key === nvcCategory)?.label || nvcCategory}`;
+      if (nvcCategory) toast += ` · ${getCategories().find(c => c.key === nvcCategory)?.label || nvcCategory}`;
       if (nvcReminder) toast += ' · Reminder set';
       showToast(toast);
     }
@@ -18647,6 +18985,9 @@ Rules:
 
         // Always pre-load callouts in background so email export works even if user never visits callouts tab
         if (state.view !== 'callouts') loadCallouts();
+
+        // Load user-defined note categories
+        loadCustomCategories();
 
         // Init local reminders
         initReminders();
