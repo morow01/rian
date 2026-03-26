@@ -8645,7 +8645,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.25.66';
+    const VERSION = '4.25.67';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -10443,6 +10443,11 @@
                   <button class="menu-row" onclick="showEmailPreview();closeThemeMenu()">
                     <span class="menu-row-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></span>
                     <span class="menu-row-body"><span class="menu-row-label">Email / Export Week</span><span class="menu-row-sub">Preview &amp; copy, or send email</span></span>
+                    ${chev}
+                  </button>
+                  <button class="menu-row" onclick="closeThemeMenu();openTagEditor()">
+                    <span class="menu-row-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg></span>
+                    <span class="menu-row-body"><span class="menu-row-label">Tag Manager</span><span class="menu-row-sub">Create, edit and toggle note tags</span></span>
                     ${chev}
                   </button>
                   ${state.view === 'week' && window.innerWidth >= 768 ? `
