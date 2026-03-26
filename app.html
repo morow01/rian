@@ -4958,6 +4958,23 @@
     .ncf-btn-save { flex: 1; background: var(--accent); color: #fff; }
     .ncf-btn-save:disabled { opacity: 0.4; cursor: default; }
 
+    /* ── Tag Editor Modal ── */
+    .te-section-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px; color: var(--text-muted); margin: 14px 0 6px; }
+    .te-section-label:first-child { margin-top: 4px; }
+    .te-row { display: flex; align-items: center; gap: 10px; padding: 9px 10px; border-radius: 10px; background: var(--bg-card); border: 1px solid var(--border); margin-bottom: 6px; }
+    .te-row-icon { flex-shrink: 0; }
+    .te-row-name { flex: 1; font-size: 13px; font-weight: 600; }
+    .te-row-del { background: none; border: none; cursor: pointer; color: var(--text-muted); padding: 4px; border-radius: 6px; line-height: 0; }
+    .te-row-del:hover, .te-row-del:active { color: #ef4444; background: rgba(239,68,68,0.1); }
+    .te-add-form { background: var(--bg-card); border: 1.5px dashed var(--border); border-radius: 12px; padding: 14px; margin-top: 8px; }
+    .te-add-form.te-open { border-style: solid; border-color: var(--accent); }
+    .te-add-btn { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; color: var(--accent); cursor: pointer; background: none; border: none; font-family: inherit; padding: 0; width: 100%; }
+    .te-input { width: 100%; padding: 9px 12px; border-radius: 8px; border: 1.5px solid var(--border); font-size: 13px; font-family: inherit; background: var(--bg); color: var(--text-primary); box-sizing: border-box; margin: 8px 0 4px; }
+    .te-input:focus { border-color: var(--accent); outline: none; }
+    .te-field-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); margin-top: 10px; display: block; }
+    .te-save-btn { width: 100%; margin-top: 10px; padding: 10px; border-radius: 10px; border: none; background: var(--accent); color: #fff; font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit; }
+    .te-save-btn:disabled { opacity: 0.4; cursor: default; }
+
     .note-cat-badge {
       display: inline-flex;
       align-items: center;
@@ -13937,9 +13954,6 @@
         <div class="note-cat-menu${_catDropdownOpen===noteId?' ncm-open':''}" id="ncm-${noteId}">
           ${buildNoteCatMenuHtml(noteId, currentCatKey)}
         </div>
-        <div class="note-cat-form${_catFormNoteId===noteId?' ncf-open':''}" id="ncf-${noteId}">
-          ${buildNoteCatFormHtml(noteId)}
-        </div>
       </div>`;
     }
 
@@ -13971,9 +13985,9 @@
         html += customs.map(mkItem).join('');
       }
       html += `<div class="ncm-divider"></div>
-        <div class="ncm-create" onclick="openNoteCatForm('${noteId}')">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-          Create New Tag
+        <div class="ncm-create" onclick="toggleNoteCatDD('${noteId}');openTagEditor()">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+          Edit Tags
         </div>`;
       if (currentCatKey) {
         html += `<div class="ncm-item" style="color:var(--text-muted);font-weight:500" onclick="pickNoteCat('${noteId}','')">
@@ -14142,6 +14156,159 @@
           }
         }
       } catch (e) { console.warn('[Rian] loadCustomCategories:', e); }
+    }
+
+    // ── Tag Editor Modal ──
+    let _teColor = CAT_COLORS[0];
+    let _teIconKey = '';
+    let _teFormOpen = false;
+
+    function openTagEditor() {
+      _teFormOpen = false;
+      _teColor = CAT_COLORS[0];
+      _teIconKey = '';
+      renderTagEditor();
+      document.getElementById('tag-editor-modal').classList.remove('hidden');
+    }
+
+    function closeTagEditor() {
+      document.getElementById('tag-editor-modal').classList.add('hidden');
+    }
+
+    function renderTagEditor() {
+      const body = document.getElementById('tag-editor-body');
+      if (!body) return;
+      const customs = (state.customCategories || []);
+      let html = '';
+
+      // Default tags (read-only)
+      html += `<div class="te-section-label">Built-in Tags</div>`;
+      DEFAULT_NOTE_CATEGORIES.forEach(c => {
+        const iconHtml = getCatIconHtml(c, 14);
+        const coloredIcon = iconHtml ? iconHtml.replace(/stroke="[^"]*"/g, `stroke="${c.color}"`) : '';
+        html += `<div class="te-row">
+          <div class="te-row-icon">${coloredIcon}</div>
+          <span class="te-row-name" style="color:${c.color}">${esc(c.label)}</span>
+        </div>`;
+      });
+
+      // Custom tags
+      if (customs.length) {
+        html += `<div class="te-section-label">Custom Tags</div>`;
+        customs.forEach(c => {
+          const iconHtml = getCatIconHtml(c, 14);
+          const coloredIcon = iconHtml ? iconHtml.replace(/stroke="[^"]*"/g, `stroke="${c.color}"`) : `<span style="width:10px;height:10px;border-radius:50%;background:${c.color};display:inline-block"></span>`;
+          html += `<div class="te-row">
+            <div class="te-row-icon">${coloredIcon}</div>
+            <span class="te-row-name" style="color:${c.color}">${esc(c.label)}</span>
+            <button class="te-row-del" onclick="teDeleteTag('${c.key}')" title="Delete">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+          </div>`;
+        });
+      }
+
+      // Add new tag form
+      html += `<div class="te-add-form${_teFormOpen ? ' te-open' : ''}" id="te-add-form">`;
+      if (!_teFormOpen) {
+        html += `<button class="te-add-btn" onclick="teOpenForm()">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Add New Tag
+        </button>`;
+      } else {
+        const previewIconHtml = _teIconKey && NOTE_ICON_SVGS[_teIconKey]
+          ? NOTE_ICON_SVGS[_teIconKey].replace(/width="18" height="18"/g, 'width="11" height="11"')
+          : '';
+        const colorSwatches = CAT_COLORS.map(c =>
+          `<div class="ncf-swatch${_teColor===c?' ncf-sel':''}" style="background:${c}" onclick="tePickColor('${c}')"></div>`
+        ).join('');
+        const iconPicker = Object.keys(NOTE_ICON_SVGS).map(k =>
+          `<div class="ncf-icon${_teIconKey===k?' ncf-sel':''}" title="${k}" onclick="tePickIcon('${k}')">${NOTE_ICON_SVGS[k].replace(/width="18" height="18"/g,'width="14" height="14"')}</div>`
+        ).join('');
+        html += `
+          <span class="te-field-label" style="margin-top:0">Tag Name</span>
+          <input class="te-input" id="te-name-input" type="text" placeholder="e.g. Safety Check"
+            autocomplete="nofill" data-lpignore="true" data-form-type="other" data-1p-ignore="true"
+            oninput="teUpdatePreview()">
+          <span class="te-field-label">Colour</span>
+          <div class="ncf-colors" style="margin-top:6px">${colorSwatches}</div>
+          <span class="te-field-label">Icon</span>
+          <div class="ncf-icons" style="margin-top:6px">${iconPicker}</div>
+          <div class="ncf-preview-row" style="margin-top:10px">
+            <span class="ncf-preview-lbl">Preview</span>
+            <span class="ncf-preview-chip" id="te-preview" style="background:${_teColor}">${previewIconHtml} Tag Name</span>
+          </div>
+          <button class="te-save-btn" id="te-save-btn" onclick="teSaveTag()" disabled>Create Tag</button>
+          <button class="te-add-btn" style="margin-top:8px;color:var(--text-muted);font-weight:500" onclick="teCloseForm()">Cancel</button>`;
+      }
+      html += `</div>`;
+
+      body.innerHTML = html;
+      if (_teFormOpen) {
+        const inp = document.getElementById('te-name-input');
+        if (inp) inp.focus();
+      }
+    }
+
+    function teOpenForm() { _teFormOpen = true; renderTagEditor(); }
+    function teCloseForm() { _teFormOpen = false; renderTagEditor(); }
+
+    function tePickColor(color) {
+      _teColor = color;
+      const prevName = document.getElementById('te-name-input')?.value || '';
+      renderTagEditor();
+      const inp = document.getElementById('te-name-input');
+      if (inp) { inp.value = prevName; inp.focus(); }
+      teUpdatePreview();
+    }
+
+    function tePickIcon(key) {
+      _teIconKey = _teIconKey === key ? '' : key;
+      const prevName = document.getElementById('te-name-input')?.value || '';
+      renderTagEditor();
+      const inp = document.getElementById('te-name-input');
+      if (inp) { inp.value = prevName; inp.focus(); }
+      teUpdatePreview();
+    }
+
+    function teUpdatePreview() {
+      const name = document.getElementById('te-name-input')?.value?.trim() || '';
+      const prev = document.getElementById('te-preview');
+      const saveBtn = document.getElementById('te-save-btn');
+      if (prev) {
+        const iconHtml = _teIconKey && NOTE_ICON_SVGS[_teIconKey]
+          ? NOTE_ICON_SVGS[_teIconKey].replace(/width="18" height="18"/g, 'width="11" height="11"')
+          : '';
+        prev.innerHTML = iconHtml + ' ' + (name || 'Tag Name');
+        prev.style.background = _teColor;
+      }
+      if (saveBtn) saveBtn.disabled = !name;
+    }
+
+    async function teSaveTag() {
+      const name = document.getElementById('te-name-input')?.value?.trim();
+      if (!name) return;
+      const key = 'custom_' + Date.now();
+      const newCat = { key, label: name, color: _teColor, iconKey: _teIconKey, isDefault: false };
+      if (!state.customCategories) state.customCategories = [];
+      state.customCategories.push(newCat);
+      await saveCustomCategories();
+      _teFormOpen = false;
+      _teColor = CAT_COLORS[0];
+      _teIconKey = '';
+      renderTagEditor();
+      showToast('✓ Tag "' + name + '" created');
+    }
+
+    async function teDeleteTag(key) {
+      const cat = (state.customCategories || []).find(c => c.key === key);
+      if (!cat) return;
+      state.customCategories = (state.customCategories || []).filter(c => c.key !== key);
+      await saveCustomCategories();
+      if (state.notes) state.notes.forEach(n => { if (n.category === key) n.category = ''; });
+      renderTagEditor();
+      render();
+      showToast('Tag "' + cat.label + '" deleted');
     }
 
     function setNoteToday(id) {
@@ -20574,6 +20741,19 @@ QUESTION: ${query}`;
         <button class="vc-btn primary" onclick="confirmNoteVoice()">Add Note</button>
         <button class="vc-btn secondary" onclick="cancelVoice()">Cancel</button>
       </div>
+    </div>
+  </div>
+
+  <!-- Tag Editor Modal -->
+  <div id="tag-editor-modal" class="hidden fixed inset-0 flex items-end justify-center" style="background:var(--overlay);z-index:9999">
+    <div id="tag-editor-sheet" style="background:var(--bg-modal);border-radius:20px 20px 0 0;width:100%;max-width:520px;max-height:88vh;display:flex;flex-direction:column;padding-bottom:env(safe-area-inset-bottom)">
+      <div style="display:flex;align-items:center;padding:18px 20px 12px;border-bottom:1px solid var(--border)">
+        <span style="font-size:16px;font-weight:700;color:var(--text-primary)">Manage Tags</span>
+        <button onclick="closeTagEditor()" style="margin-left:auto;background:none;border:none;cursor:pointer;color:var(--text-muted);padding:4px">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div id="tag-editor-body" style="overflow-y:auto;flex:1;padding:12px 16px 16px"></div>
     </div>
   </div>
 
