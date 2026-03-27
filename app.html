@@ -8987,8 +8987,10 @@
       <button class="rtn-picker-done-btn" onclick="saveRoutinesSites()">Save</button>
     </div>
     <div class="rtn-picker-search-wrap">
-      <input id="rtn-picker-search" type="text" placeholder="Search locations…"
-        oninput="filterRoutinesPicker(this.value)">
+      <input id="rtn-picker-search" type="search" placeholder="Search locations…"
+        oninput="filterRoutinesPicker(this.value)"
+        style="-webkit-appearance:none;appearance:none"
+        autocomplete="off" data-lpignore="true" data-form-type="other" data-1p-ignore="true">
     </div>
     <div id="rtn-picker-list" style="flex:1;overflow-y:auto;padding-bottom:40px;"></div>
   </div>
@@ -9204,7 +9206,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.26.57';
+    const VERSION = '4.26.58';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
