@@ -8695,7 +8695,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.25.81';
+    const VERSION = '4.25.82';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -13780,8 +13780,8 @@
         rowEl.style.transform = '';
         const bg = cardEl.querySelector('.note-swipe-bg');
         if (bg) delete bg.dataset.dir;
-        if (dx > 80) setTimeout(() => noteSwipeDone(noteId), 220);
-        else if (dx < -80) setTimeout(() => noteSwipeDelete(noteId), 220);
+        if (dx > 80) setTimeout(() => noteSwipeDone(noteId), 380);
+        else if (dx < -80) setTimeout(() => noteSwipeDelete(noteId), 380);
       }, { passive: true });
     }
 
