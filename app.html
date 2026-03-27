@@ -8738,7 +8738,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.26.38';
+    const VERSION = '4.26.39';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -14820,16 +14820,19 @@
     function deleteNote(id) {
       const note = state.notes.find(n => n.id === id);
       if (!note) return;
-      note.deleted = true;
-      note.deletedAt = Date.now();
-      state.expandedNotes.delete(id);
-      scheduleNotesSave();
-      render();
-      showActionToast('Moved to bin', 'Undo', () => {
-        note.deleted = false;
-        delete note.deletedAt;
+      const desc = (note.description || 'Untitled note').replace(/<[^>]*>/g, '').trim();
+      showConfirm('Move to bin?', desc, () => {
+        note.deleted = true;
+        note.deletedAt = Date.now();
+        state.expandedNotes.delete(id);
         scheduleNotesSave();
         render();
+        showActionToast('Moved to bin', 'Undo', () => {
+          note.deleted = false;
+          delete note.deletedAt;
+          scheduleNotesSave();
+          render();
+        });
       });
     }
 
@@ -14849,7 +14852,9 @@
     }
 
     function permanentDeleteNote(id) {
-      showConfirm('Delete forever?', 'This cannot be undone.', () => {
+      const note = state.notes.find(n => n.id === id);
+      const desc = note ? (note.description || 'Untitled note').replace(/<[^>]*>/g, '').trim() : 'Are you sure?';
+      showConfirm('Delete forever?', desc, () => {
         state.notes = state.notes.filter(n => n.id !== id);
         scheduleNotesSave();
         render();
