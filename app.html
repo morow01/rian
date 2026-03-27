@@ -8697,7 +8697,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.26.2';
+    const VERSION = '4.26.3';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -11055,12 +11055,12 @@
       </td>
       <td class="tbl-codes-cell">${codesHtml}</td>
       <td style="text-align:center">
-        <input type="text" inputmode="decimal" pattern="[0-9]*" class="tbl-num-input" value="${act.ordinary || ''}" placeholder="0"
+        <input type="tel" inputmode="decimal" pattern="[0-9.]*" class="tbl-num-input" value="${act.ordinary || ''}" placeholder="0"
           autocomplete="off" data-lpignore="true" data-form-type="other" data-1p-ignore="true"
           data-field="ordinary" data-act="${act.id}" data-day="${di}" oninput="updateField(this)" onchange="updateField(this)" onblur="updateField(this)">
       </td>
       <td style="text-align:center">
-        <input type="text" inputmode="decimal" pattern="[0-9]*" class="tbl-num-input tbl-ot-input" value="${act.overtime || ''}" placeholder="0"
+        <input type="tel" inputmode="decimal" pattern="[0-9.]*" class="tbl-num-input tbl-ot-input" value="${act.overtime || ''}" placeholder="0"
           autocomplete="off" data-lpignore="true" data-form-type="other" data-1p-ignore="true"
           data-field="overtime" data-act="${act.id}" data-day="${di}" oninput="updateField(this)" onchange="updateField(this)" onblur="updateField(this)">
       </td>
@@ -11646,7 +11646,7 @@
                 <div class="act-field-label" style="margin-bottom: 8px;">Ordinary HRS</div>
                 <div class="hrs-stepper flex items-center justify-between">
                   <button onclick="event.stopPropagation(); stepHrs('${act.id}',${di},'ordinary',-1)">−</button>
-                  <input type="text" class="val" data-step-val="${act.id}-ordinary" value="${act.ordinary || 0}" min="0" step="0.5" inputmode="decimal" pattern="[0-9.]*" autocomplete="off" data-lpignore="true" data-form-type="other" data-1p-ignore="true" onclick="event.stopPropagation()" onchange="event.stopPropagation(); setHrs('${act.id}',${di},'ordinary',this.value)" onkeydown="if(event.key==='Enter'){this.blur()}">
+                  <input type="tel" class="val" data-step-val="${act.id}-ordinary" value="${act.ordinary || 0}" inputmode="decimal" pattern="[0-9.]*" autocomplete="off" data-lpignore="true" data-form-type="other" data-1p-ignore="true" onclick="event.stopPropagation()" onchange="event.stopPropagation(); setHrs('${act.id}',${di},'ordinary',this.value)" onkeydown="if(event.key==='Enter'){this.blur()}">
                   <button onclick="event.stopPropagation(); stepHrs('${act.id}',${di},'ordinary',1)">+</button>
                 </div>
               </div>
@@ -11654,7 +11654,7 @@
                 <div class="act-field-label act-field-label-ot" style="margin-bottom: 8px;">Overtime HRS</div>
                 <div class="hrs-stepper flex items-center justify-between">
                   <button onclick="event.stopPropagation(); stepHrs('${act.id}',${di},'overtime',-1)">−</button>
-                  <input type="text" class="val" data-step-val="${act.id}-overtime" value="${act.overtime || 0}" min="0" step="0.5" inputmode="decimal" pattern="[0-9.]*" autocomplete="off" data-lpignore="true" data-form-type="other" data-1p-ignore="true" onclick="event.stopPropagation()" onchange="event.stopPropagation(); setHrs('${act.id}',${di},'overtime',this.value)" onkeydown="if(event.key==='Enter'){this.blur()}">
+                  <input type="tel" class="val" data-step-val="${act.id}-overtime" value="${act.overtime || 0}" inputmode="decimal" pattern="[0-9.]*" autocomplete="off" data-lpignore="true" data-form-type="other" data-1p-ignore="true" onclick="event.stopPropagation()" onchange="event.stopPropagation(); setHrs('${act.id}',${di},'overtime',this.value)" onkeydown="if(event.key==='Enter'){this.blur()}">
                   <button onclick="event.stopPropagation(); stepHrs('${act.id}',${di},'overtime',1)">+</button>
                 </div>
               </div>
@@ -20992,11 +20992,11 @@ QUESTION: ${query}`;
       </div>
       <div class="vc-field">
         <label class="vc-label">Ordinary Hours</label>
-        <input id="vc-hrs" class="vc-input" type="text" inputmode="decimal" pattern="[0-9.]*" placeholder="e.g. 2" autocomplete="off" data-lpignore="true" data-form-type="other" data-1p-ignore="true">
+        <input id="vc-hrs" class="vc-input" type="tel" inputmode="decimal" pattern="[0-9.]*" placeholder="e.g. 2" autocomplete="off" data-lpignore="true" data-form-type="other" data-1p-ignore="true">
       </div>
       <div class="vc-field">
         <label class="vc-label">Overtime Hours</label>
-        <input id="vc-ot" class="vc-input" type="text" inputmode="decimal" pattern="[0-9.]*" placeholder="e.g. 0" autocomplete="off" data-lpignore="true" data-form-type="other" data-1p-ignore="true">
+        <input id="vc-ot" class="vc-input" type="tel" inputmode="decimal" pattern="[0-9.]*" placeholder="e.g. 0" autocomplete="off" data-lpignore="true" data-form-type="other" data-1p-ignore="true">
       </div>
       <div class="vc-field">
         <label class="vc-label">Work Codes</label>
@@ -21172,9 +21172,3 @@ QUESTION: ${query}`;
         </button>
       </div>
       <div id="tag-editor-body" style="overflow-y:auto;flex:1;padding:12px 16px 16px"></div>
-    </div>
-  </div>
-
-</body>
-
-</html>
