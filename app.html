@@ -8738,7 +8738,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.26.33';
+    const VERSION = '4.26.34';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -13598,13 +13598,6 @@
                 onclick="openLocationModal(null, null, '${note.id}')" />
             </div>
             <div class="note-detail-row">
-              <span class="field-label" style="display:block; margin-bottom: 6px; font-size: 11px; font-weight: 800; color: #94a3b8; text-transform: uppercase;">Due Date</span>
-              <input type="date" data-note-id="${note.id}" data-note-field="dueDate" value="${note.dueDate || ''}"
-                style="width:100%;padding:8px;border:1px solid var(--border);border-radius:6px;font-size:14px;font-family:inherit;background:var(--bg-input)"
-                autocomplete="off" data-lpignore="true"
-                onchange="updateNoteField(this)">
-            </div>
-            <div class="note-detail-row">
               <div class="notes-panel">
                 <div class="notes-panel-header" onclick="event.stopPropagation(); toggleFieldNotePanel('${note.id}')">
                   <svg width="15" height="15" viewBox="0 0 13 13" fill="none">
@@ -13643,6 +13636,13 @@
                   </div>
                 </div>
               </div>
+            </div>
+            <div class="note-detail-row">
+              <span class="field-label" style="display:block; margin-bottom: 6px; font-size: 11px; font-weight: 800; color: #94a3b8; text-transform: uppercase;">Due Date</span>
+              <input type="date" data-note-id="${note.id}" data-note-field="dueDate" value="${note.dueDate || ''}"
+                style="width:100%;padding:8px;border:1px solid var(--border);border-radius:6px;font-size:14px;font-family:inherit;background:var(--bg-input)"
+                autocomplete="off" data-lpignore="true"
+                onchange="updateNoteField(this)">
             </div>
             ${renderNoteReminderField(note.id)}
             <div class="note-detail-row">
