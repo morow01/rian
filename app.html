@@ -8715,7 +8715,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.26.16';
+    const VERSION = '4.26.17';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -9284,6 +9284,7 @@
       notesBinOpen: false,          // true = showing bin (deleted notes)
       notesCategoryFilter: '',      // '' = all categories, or one of getCategories() keys
       notesRemindersFilter: '',     // '' = off | 'active' | 'passed'
+      notesOverdueFilter: false,    // true = show only overdue notes
       notesSearch: '',            // live search query
       notesFiltersOpen: localStorage.getItem('rian_notesFiltersOpen') === 'true',    // collapsible filter bar expanded state
       expandedNotes: new Set(), // note IDs that are expanded
@@ -13249,6 +13250,8 @@
         // Reminders filter (independent, AND'd with priority)
         if (rf === 'active') { if (!hasActiveReminder(n.id)) return false; }
         else if (rf === 'passed') { if (!hasPastReminder(n.id)) return false; }
+        // Overdue filter
+        if (state.notesOverdueFilter) { if (!isNoteOverdue(n)) return false; }
         // Category filter
         if (cf === 'untagged') { if (n.category) return false; }
         else if (cf) { if ((n.category || '') !== cf) return false; }
@@ -13311,6 +13314,12 @@
           ? `background:${c.solid};border-color:${c.solid};color:#fff;`
           : `background:rgba(${c.rgb},0.10);border-color:rgba(${c.rgb},0.40);color:${c.solid};`;
       });
+      // Overdue chip
+      document.querySelectorAll('[data-overdue-key]').forEach(el => {
+        el.style.cssText = state.notesOverdueFilter
+          ? `background:#ef4444;border-color:#ef4444;color:#fff;`
+          : `background:rgba(239,68,68,0.10);border-color:rgba(239,68,68,0.40);color:#ef4444;`;
+      });
     }
 
     let _filterRenderTimer = null;
@@ -13333,10 +13342,12 @@
       const remLabels = { active: `${BELL_FLAT} Active`, passed: `${BELL_FLAT} Passed` };
       const activeRemLabel = rf ? (remLabels[rf] || '') : '';
       const X = `<svg width="8" height="8" viewBox="0 0 10 10" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"><line x1="2" y1="2" x2="8" y2="8"/><line x1="8" y1="2" x2="2" y2="8"/></svg>`;
+      const CLOCK_FLAT = `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`;
       return [
         activeCat ? `<span class="nf-summary-pill" style="background:${activeCat.color}" onclick="event.stopPropagation();setNotesCategoryFilter('${activeCat.key}')">${activeCat.icon.replace('width="18" height="18"', 'width="11" height="11"')} ${activeCat.label}<span class="nf-pill-x">${X}</span></span>` : '',
         activePriLabel ? `<span class="nf-summary-pill nf-pri-${f}" onclick="event.stopPropagation();setNotesFilter('all')">${activePriLabel}<span class="nf-pill-x">${X}</span></span>` : '',
         activeRemLabel ? `<span class="nf-summary-pill" style="background:${rf === 'active' ? '#F5A623' : '#94a3b8'}" onclick="event.stopPropagation();setNotesRemindersFilter('${rf}')">${activeRemLabel}<span class="nf-pill-x">${X}</span></span>` : '',
+        state.notesOverdueFilter ? `<span class="nf-summary-pill" style="background:#ef4444" onclick="event.stopPropagation();setNotesOverdueFilter()">${CLOCK_FLAT} Overdue<span class="nf-pill-x">${X}</span></span>` : '',
       ].filter(Boolean).join('');
     }
 
@@ -13389,7 +13400,7 @@
       const openNotes = state.notes.filter(n => n.status !== 'done' && !n.deleted);
       const doneNotes = state.notes.filter(n => n.status === 'done' && !n.deleted);
       const binNotes = state.notes.filter(n => n.deleted).sort((a, b) => (b.deletedAt || 0) - (a.deletedAt || 0));
-      const counts = { high: openNotes.filter(n => n.priority === 'high').length, medium: openNotes.filter(n => n.priority === 'medium').length, low: openNotes.filter(n => n.priority === 'low').length, reminders: state.notes.filter(n => !n.deleted && hasActiveReminder(n.id)).length, pastReminders: state.notes.filter(n => !n.deleted && hasPastReminder(n.id)).length };
+      const counts = { high: openNotes.filter(n => n.priority === 'high').length, medium: openNotes.filter(n => n.priority === 'medium').length, low: openNotes.filter(n => n.priority === 'low').length, reminders: state.notes.filter(n => !n.deleted && hasActiveReminder(n.id)).length, pastReminders: state.notes.filter(n => !n.deleted && hasPastReminder(n.id)).length, overdue: openNotes.filter(n => isNoteOverdue(n)).length };
 
       const cf = state.notesCategoryFilter || '';
 
@@ -13450,6 +13461,8 @@
       const BELL_CHIP = `<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>`;
       const remChip = `<div class="notes-chip" data-rem-key="active" style="${rf === 'active' ? 'background:#F5A623;border-color:#F5A623;color:#fff;' : 'background:rgba(245,166,35,0.10);border-color:rgba(245,166,35,0.40);color:#F5A623;'}" onclick="setNotesRemindersFilter('active')">${BELL_CHIP} Active (${counts.reminders})</div>`;
       const remPastChip = `<div class="notes-chip" data-rem-key="passed" style="${rf === 'passed' ? 'background:#94a3b8;border-color:#94a3b8;color:#fff;' : 'background:rgba(148,163,184,0.10);border-color:rgba(148,163,184,0.40);color:#94a3b8;'}" onclick="setNotesRemindersFilter('passed')">${BELL_CHIP} Passed (${counts.pastReminders})</div>`;
+      const CLOCK_CHIP = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`;
+      const overdueChip = `<div class="notes-chip" data-overdue-key="overdue" style="${state.notesOverdueFilter ? 'background:#ef4444;border-color:#ef4444;color:#fff;' : 'background:rgba(239,68,68,0.10);border-color:rgba(239,68,68,0.40);color:#ef4444;'}" onclick="setNotesOverdueFilter()">${CLOCK_CHIP} Overdue (${counts.overdue})</div>`;
 
       const filterPanel = `
         <div class="nf-panel${state.notesFiltersOpen ? ' open' : ''}">
@@ -13461,6 +13474,9 @@
           <div style="border-top:1px solid var(--border);margin:12px 0 10px"></div>
           <div class="nf-group-label">Reminders</div>
           <div class="notes-chips">${remChip}${remPastChip}</div>
+          <div style="border-top:1px solid var(--border);margin:12px 0 10px"></div>
+          <div class="nf-group-label">Due Dates</div>
+          <div class="notes-chips">${overdueChip}</div>
         </div>`;
 
       const chips = filterHeader + filterPanel;
@@ -13673,16 +13689,23 @@
         </div>`;
       const headerRow = `<div style="margin-top:4px"></div>`;
 
-      const pinnedOpen = visibleOpen.filter(n => n.pinned);
-      const unpinnedOpen = visibleOpen.filter(n => !n.pinned);
+      const overdueNotes = visibleOpen.filter(n => isNoteOverdue(n));
+      const nonOverdueOpen = visibleOpen.filter(n => !isNoteOverdue(n));
+      const pinnedOpen = nonOverdueOpen.filter(n => n.pinned);
+      const unpinnedOpen = nonOverdueOpen.filter(n => !n.pinned);
       const noteCardHtml = n => `<div class="note-card ${state.expandedNotes.has(n.id) ? 'expanded' : ''} ${state.selectedNotes.has(n.id) ? 'selected' : ''} ${n.pinned ? 'pinned-card' : ''}" data-note-id="${n.id}">${renderNote(n)}</div>`;
+      const overdueCardHtml = n => `<div class="note-card ${state.expandedNotes.has(n.id) ? 'expanded' : ''} ${state.selectedNotes.has(n.id) ? 'selected' : ''}" style="background:#fff5f5;border-color:#fecaca;" data-note-id="${n.id}">${renderNote(n)}</div>`;
+      const CLOCK_SVG = `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`;
+      const overdueSection = overdueNotes.length
+        ? `<div class="notes-section-label" style="color:#ef4444;display:flex;align-items:center;gap:5px;">${CLOCK_SVG} Overdue (${overdueNotes.length})</div>` + overdueNotes.map(overdueCardHtml).join('')
+        : '';
       const pinnedSection = pinnedOpen.length
         ? `<div class="notes-section-label" style="display:flex;align-items:center;gap:5px;"><svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M5 17h14v-1.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V6h1a2 2 0 0 0 0-4H8a2 2 0 0 0 0 4h1v4.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24Z M12 17 L12 22"/></svg> Pinned</div>` +
           pinnedOpen.map(noteCardHtml).join('')
         : '';
       const openSection = visibleOpen.length
-        ? pinnedSection + (unpinnedOpen.length ? `<div class="notes-section-label">Open</div>` + unpinnedOpen.map(noteCardHtml).join('') : '')
-        : (f !== 'done' ? `<div class="notes-empty">No ${f === 'all' ? 'open' : f} notes yet.</div>` : '');
+        ? overdueSection + pinnedSection + (unpinnedOpen.length ? `<div class="notes-section-label">Open</div>` + unpinnedOpen.map(noteCardHtml).join('') : '')
+        : (f !== 'done' ? `<div class="notes-empty">No ${state.notesOverdueFilter ? 'overdue' : (f === 'all' ? 'open' : f)} notes yet.</div>` : '');
 
       const doneSection = visibleDone.length
         ? `<div class="notes-section-label">Done</div>` +
@@ -14831,6 +14854,13 @@
 
     function setNotesRemindersFilter(rf) {
       state.notesRemindersFilter = (state.notesRemindersFilter === rf) ? '' : rf;
+      updateNotesChipsInPlace();
+      clearTimeout(_filterRenderTimer);
+      _filterRenderTimer = setTimeout(() => render(), 200);
+    }
+
+    function setNotesOverdueFilter() {
+      state.notesOverdueFilter = !state.notesOverdueFilter;
       updateNotesChipsInPlace();
       clearTimeout(_filterRenderTimer);
       _filterRenderTimer = setTimeout(() => render(), 200);
