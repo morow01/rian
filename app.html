@@ -4904,7 +4904,7 @@
       max-height: 0; opacity: 0; padding: 0 12px;
       transition: max-height 0.3s ease, opacity 0.2s ease, padding 0.3s ease;
     }
-    .note-cat-form.ncf-open { max-height: 520px; opacity: 1; padding: 12px; overflow: visible; }
+    .note-cat-form.ncf-open { max-height: 520px; opacity: 1; padding: 12px; }
     .ncf-label {
       font-size: 10px; font-weight: 700; text-transform: uppercase;
       color: var(--text-muted); letter-spacing: 0.5px; display: block; margin-bottom: 5px;
@@ -14260,7 +14260,7 @@
       return `
         <form autocomplete="off" onsubmit="return false" style="margin:0;padding:0;border:0">
           <label class="ncf-label">Tag Name</label>
-          <textarea class="ncf-input" id="ncf-name-${noteId}" placeholder="e.g. Safety Check" rows="1" style="resize:none;overflow:hidden"
+          <textarea class="ncf-input" id="ncf-name-${noteId}" placeholder="e.g. Safety Check" rows="1" style="resize:none"
             autocomplete="off" data-lpignore="true" data-form-type="other" data-1p-ignore="true" oninput="updateCatFormPreview('${noteId}');this.style.height='auto';this.style.height=this.scrollHeight+'px'"></textarea>
           <label class="ncf-label">Color</label>
           <div class="ncf-colors">${swatches}</div>
