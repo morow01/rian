@@ -8695,7 +8695,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.25.82';
+    const VERSION = '4.25.83';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -13776,12 +13776,38 @@
         if (!_swipe || !_swipe.tracking) { _swipe = null; return; }
         const { noteId, rowEl, cardEl, dx } = _swipe;
         _swipe = null;
-        rowEl.style.transition = 'transform 0.25s ease';
-        rowEl.style.transform = '';
         const bg = cardEl.querySelector('.note-swipe-bg');
-        if (bg) delete bg.dataset.dir;
-        if (dx > 80) setTimeout(() => noteSwipeDone(noteId), 380);
-        else if (dx < -80) setTimeout(() => noteSwipeDelete(noteId), 380);
+        const shouldAct = dx > 80 ? 'done' : dx < -80 ? 'delete' : null;
+        if (!shouldAct) {
+          rowEl.style.transition = 'transform 0.25s ease';
+          rowEl.style.transform = '';
+          if (bg) delete bg.dataset.dir;
+          return;
+        }
+        // Keep row displaced so swipe-bg stays visible during pulse
+        const iconSel = dx > 0 ? '.note-swipe-icon-done' : '.note-swipe-icon-del';
+        const icon = bg ? bg.querySelector(iconSel) : null;
+        let fired = false;
+        const fireAction = () => {
+          if (fired) return;
+          fired = true;
+          rowEl.style.transition = 'transform 0.2s ease';
+          rowEl.style.transform = '';
+          if (bg) delete bg.dataset.dir;
+          setTimeout(() => {
+            if (shouldAct === 'done') noteSwipeDone(noteId);
+            else noteSwipeDelete(noteId);
+          }, 50);
+        };
+        if (icon) {
+          icon.classList.remove('swipe-icon-pulse');
+          void icon.offsetWidth;
+          icon.classList.add('swipe-icon-pulse');
+          icon.addEventListener('animationend', fireAction, { once: true });
+          setTimeout(fireAction, 420); // fallback
+        } else {
+          setTimeout(fireAction, 50);
+        }
       }, { passive: true });
     }
 
