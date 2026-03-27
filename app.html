@@ -8667,7 +8667,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.25.71';
+    const VERSION = '4.25.72';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -15429,6 +15429,7 @@
               <svg width="18" height="18" viewBox="0 0 48 48" style="flex-shrink:0"><path fill="#fff" d="M44.5 20H24v8.5h11.8C34.7 33.9 30.1 37 24 37c-7.2 0-13-5.8-13-13s5.8-13 13-13c3.1 0 5.9 1.1 8.1 2.9l6.4-6.4C34.6 4.1 29.6 2 24 2 11.8 2 2 11.8 2 24s9.8 22 22 22c11 0 21-8 21-22 0-1.3-.2-2.7-.5-4z"/></svg>
               Sign in with Google
             </button>
+            <div id="login-error-msg" style="display:none;margin-top:14px;padding:10px 12px;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);border-radius:8px;font-size:11px;color:#ef4444;text-align:left;word-break:break-all;"></div>
           </div>
         </div>`;
       // Show Brave-specific warning if running in Brave
@@ -15454,19 +15455,26 @@
         await auth_fb.signInWithPopup(provider);
       } catch (e) {
         console.warn('[Rian] Popup sign-in error:', e.code, e.message);
-        // If popup was blocked (some mobile browsers), fall back to redirect
+        // User closed the popup — not an error, just reset
+        if (e.code === 'auth/popup-closed-by-user') {
+          _signingIn = false;
+          return;
+        }
+        // If popup was blocked, fall back to redirect
         if (e.code === 'auth/popup-blocked') {
           try {
             await auth_fb.signInWithRedirect(provider);
             return;
           } catch (e2) { /* fall through */ }
         }
-        // User closed the popup — not an error, just reset
-        if (e.code === 'auth/popup-closed-by-user') {
-          _signingIn = false;
-          return;
+        // Show the actual error code on screen to help diagnose browser-specific issues
+        const errEl = document.getElementById('login-error-msg');
+        if (errEl) {
+          errEl.textContent = (e.code || 'error') + ': ' + (e.message || 'Unknown error');
+          errEl.style.display = 'block';
+        } else {
+          showToast((e.code || '') + ': ' + (e.message || 'Unknown error'));
         }
-        showToast('Sign-in failed: ' + (e.message || 'Unknown error'));
       } finally {
         _signingIn = false;
       }
