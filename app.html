@@ -5211,7 +5211,7 @@
     .note-detail {
       background: var(--bg-card);
       padding: 0 16px;
-      border-top: 1px solid var(--border);
+      border-top: 0px solid transparent;
       max-height: 0;
       overflow: hidden;
       transition: max-height 0.45s cubic-bezier(0.4, 0, 0.2, 1), padding 0.3s ease;
@@ -5220,6 +5220,7 @@
     .note-card.expanded .note-detail {
       max-height: 1200px;
       padding: 16px 16px 20px;
+      border-top-width: 1px;
     }
 
     .note-detail-row {
@@ -8715,7 +8716,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.26.19';
+    const VERSION = '4.26.20';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
