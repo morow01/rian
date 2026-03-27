@@ -5107,7 +5107,7 @@
     }
     .note-swipe-bg[data-dir="right"] { background: rgba(34,197,94,0.15); }
     .note-swipe-bg[data-dir="left"]  { background: rgba(239,68,68,0.15); }
-    .note-swipe-icon { font-size: 20px; opacity: 0; transition: opacity 0.1s; }
+    .note-swipe-icon { opacity: 0; transition: opacity 0.1s; display:flex; align-items:center; }
     .note-swipe-bg[data-dir="right"] .note-swipe-icon-done { opacity: 1; }
     .note-swipe-bg[data-dir="left"]  .note-swipe-icon-del  { opacity: 1; }
 
@@ -8688,7 +8688,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.25.74';
+    const VERSION = '4.25.75';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -13455,7 +13455,7 @@
               <div class="note-dot ${dotCls}" style="flex-shrink:0;margin:0"></div>
               <div class="note-row-title" style="flex:1;min-width:0;${note.status === 'done' ? 'text-decoration:line-through;color:var(--text-muted)' : ''}">${esc(titleText)}</div>
               ${catBadge}
-              <button class="note-pin-btn ${note.pinned ? 'pinned' : ''}" onclick="event.stopPropagation();toggleNotePin('${note.id}')" title="${note.pinned ? 'Unpin' : 'Pin'}"><svg width="14" height="14" viewBox="0 0 24 24" fill="${note.pinned ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></button>
+              <button class="note-pin-btn ${note.pinned ? 'pinned' : ''}" onclick="event.stopPropagation();toggleNotePin('${note.id}')" title="${note.pinned ? 'Unpin' : 'Pin'}"><svg width="14" height="14" viewBox="0 0 24 24" fill="${note.pinned ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="17" x2="12" y2="22"/><path d="M5 17h14v-1.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V6h1a2 2 0 0 0 0-4H8a2 2 0 0 0 0 4h1v4.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24Z"/></svg></button>
               <span class="note-expand-arrow ${isExpanded ? 'open' : ''}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
             </div>
             ${metaHtml}
@@ -13562,7 +13562,10 @@
             </div>
           </div>`;
 
-        const swipeBg = `<div class="note-swipe-bg"><span class="note-swipe-icon note-swipe-icon-done">✓</span><span class="note-swipe-icon note-swipe-icon-del">🗑</span></div>`;
+        const swipeBg = `<div class="note-swipe-bg">
+          <span class="note-swipe-icon note-swipe-icon-done"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+          <span class="note-swipe-icon note-swipe-icon-del"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></span>
+        </div>`;
         return swipeBg + header + detail;
       };
 
@@ -13596,7 +13599,7 @@
       const unpinnedOpen = visibleOpen.filter(n => !n.pinned);
       const noteCardHtml = n => `<div class="note-card ${state.expandedNotes.has(n.id) ? 'expanded' : ''} ${state.selectedNotes.has(n.id) ? 'selected' : ''} ${n.pinned ? 'pinned-card' : ''}" data-note-id="${n.id}">${renderNote(n)}</div>`;
       const pinnedSection = pinnedOpen.length
-        ? `<div class="notes-section-label" style="display:flex;align-items:center;gap:5px;"><svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg> Pinned</div>` +
+        ? `<div class="notes-section-label" style="display:flex;align-items:center;gap:5px;"><svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M5 17h14v-1.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V6h1a2 2 0 0 0 0-4H8a2 2 0 0 0 0 4h1v4.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24Z M12 17 L12 22"/></svg> Pinned</div>` +
           pinnedOpen.map(noteCardHtml).join('')
         : '';
       const openSection = visibleOpen.length
@@ -13733,9 +13736,10 @@
 
     function noteSwipeDone(id) {
       const note = state.notes.find(n => n.id === id);
-      if (!note || note.status === 'done') return;
+      if (!note) return;
+      const wasDone = note.status === 'done';
       markNoteDone(id);
-      showActionToast('Marked done ✓', 'Undo', () => markNoteDone(id));
+      showActionToast(wasDone ? 'Reopened' : 'Marked done', 'Undo', () => markNoteDone(id));
     }
 
     function noteSwipeDelete(id) {
