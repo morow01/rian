@@ -8692,7 +8692,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.25.89';
+    const VERSION = '4.25.90';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -14255,7 +14255,7 @@
       return `
         <label class="ncf-label">Tag Name</label>
         <input class="ncf-input" id="ncf-name-${noteId}" type="text" placeholder="e.g. Safety Check"
-          autocomplete="off" oninput="updateCatFormPreview('${noteId}')">
+          autocomplete="nofill" data-lpignore="true" data-form-type="other" data-1p-ignore="true" oninput="updateCatFormPreview('${noteId}')">
         <label class="ncf-label">Color</label>
         <div class="ncf-colors">${swatches}</div>
         <label class="ncf-label">Icon (optional)</label>
@@ -17680,7 +17680,7 @@
             ? (notes.trim().startsWith('<') ? notes : esc(notes).replace(/\n/g, '<br>'))
             : '<span class="notes-rich-placeholder">Tap to add a note…</span>'}
                 </div>
-                <textarea class="act-notes-area" id="co-notes-ta"
+                <textarea class="act-notes-area" id="co-notes-ta" autocomplete="nofill" data-lpignore="true" data-form-type="other" data-1p-ignore="true"
                   oninput="coAutoSave()">${esc(notes)}</textarea>
               </div>
               <div class="act-dictate-wrap">
@@ -20894,7 +20894,7 @@ QUESTION: ${query}`;
     // is to make inputs temporarily readonly on focus so Chrome's autofill
     // never gets a chance to attach, then remove readonly after a tick.
     (function () {
-      const SUPPRESS_SELECTOR = 'input.val, input.act-input, input.tbl-num-input, input.finder-search-input, input.tbl-act-input';
+      const SUPPRESS_SELECTOR = 'input.val, input.act-input, input.tbl-num-input, input.finder-search-input, input.tbl-act-input, input.ncf-input, textarea.act-notes-area, textarea.act-textarea';
       document.addEventListener('pointerdown', function (e) {
         const el = e.target.closest?.(SUPPRESS_SELECTOR);
         if (!el || el.readOnly) return;
