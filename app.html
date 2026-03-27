@@ -4904,12 +4904,16 @@
     }
     .ncm-remove:hover, .ncm-remove:active { background: rgba(239,68,68,0.06); }
     .note-ghost-pill {
-      display: inline-flex; align-items: center; gap: 5px;
+      display: none;
+      align-items: center; gap: 5px;
       padding: 4px 12px; border-radius: 999px;
       font-size: 11px; font-weight: 500;
       color: var(--text-muted); border: 1.5px dashed var(--border);
       cursor: pointer; -webkit-tap-highlight-color: transparent;
     }
+    .note-card.expanded .note-ghost-pill { display: inline-flex; }
+    .note-card:not(.expanded) .note-cat-badge { cursor: default; pointer-events: none; }
+    .note-card.expanded .note-cat-badge { cursor: pointer; }
     .note-inline-cat-picker {
       padding: 6px 12px 4px;
       border-bottom: 1px solid var(--border);
@@ -8734,7 +8738,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.26.31';
+    const VERSION = '4.26.32';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -13518,8 +13522,8 @@
         const noteCat = getCategories().find(c => c.key === (note.category || ''));
         const accentColor = noteCat ? noteCat.color : '';
         const catBadge = noteCat
-          ? `<span class="note-cat-badge" style="background:${noteCat.color}${isExpanded ? ';cursor:pointer' : ''}"${isExpanded ? ` onclick="event.stopPropagation();toggleNoteCatDD('${note.id}')"` : ''}>${getCatIconHtml(noteCat, 11)} ${noteCat.label}</span>`
-          : (isExpanded ? `<span class="note-ghost-pill" onclick="event.stopPropagation();toggleNoteCatDD('${note.id}')"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Add tag</span>` : '');
+          ? `<span class="note-cat-badge" style="background:${noteCat.color}" onclick="event.stopPropagation();toggleNoteCatDD('${note.id}')">${getCatIconHtml(noteCat, 11)} ${noteCat.label}</span>`
+          : `<span class="note-ghost-pill" onclick="event.stopPropagation();toggleNoteCatDD('${note.id}')"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Add tag</span>`;
         const rawDesc = note.description || '';
         let cleanDesc = rawDesc.includes('<') ? rawDesc.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim() : rawDesc;
         if (cleanDesc.includes('&')) cleanDesc = decodeEntities(cleanDesc);
