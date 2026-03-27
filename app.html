@@ -5088,7 +5088,28 @@
       cursor: pointer;
       user-select: none;
       position: relative;
+      z-index: 1;
+      background: var(--bg-card);
+      border-radius: 16px 16px 0 0;
+      will-change: transform;
     }
+
+    .note-swipe-bg {
+      position: absolute;
+      inset: 0;
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 22px;
+      pointer-events: none;
+      overflow: hidden;
+    }
+    .note-swipe-bg[data-dir="right"] { background: rgba(34,197,94,0.15); }
+    .note-swipe-bg[data-dir="left"]  { background: rgba(239,68,68,0.15); }
+    .note-swipe-icon { font-size: 20px; opacity: 0; transition: opacity 0.1s; }
+    .note-swipe-bg[data-dir="right"] .note-swipe-icon-done { opacity: 1; }
+    .note-swipe-bg[data-dir="left"]  .note-swipe-icon-del  { opacity: 1; }
 
     .note-row-top {
       display: flex;
@@ -8667,7 +8688,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.25.73';
+    const VERSION = '4.25.74';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -10289,6 +10310,27 @@
       el.style.opacity = '1';
       clearTimeout(el._timer);
       el._timer = setTimeout(() => { el.style.opacity = '0'; }, duration);
+    }
+
+    function showActionToast(msg, actionLabel, onAction, duration = 3500) {
+      let el = document.getElementById('toast-msg');
+      if (!el) {
+        el = document.createElement('div');
+        el.id = 'toast-msg';
+        document.body.appendChild(el);
+      }
+      el.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.85);color:#fff;padding:10px 14px 10px 20px;border-radius:24px;font-size:14px;z-index:9999;transition:opacity 0.3s;display:flex;align-items:center;gap:14px;white-space:nowrap;';
+      el.innerHTML = `<span>${msg}</span><button style="background:none;border:none;color:#60a5fa;font-weight:700;font-size:13px;cursor:pointer;padding:0;font-family:inherit;flex-shrink:0;">${actionLabel}</button>`;
+      el.style.opacity = '1';
+      clearTimeout(el._timer);
+      el._actionFn = onAction;
+      el.querySelector('button').onclick = () => {
+        clearTimeout(el._timer);
+        el.style.opacity = '0';
+        el.style.pointerEvents = 'none';
+        if (el._actionFn) { el._actionFn(); el._actionFn = null; }
+      };
+      el._timer = setTimeout(() => { el.style.opacity = '0'; el.style.pointerEvents = 'none'; el._actionFn = null; }, duration);
     }
 
     // ============================================================
@@ -13520,7 +13562,8 @@
             </div>
           </div>`;
 
-        return header + detail;
+        const swipeBg = `<div class="note-swipe-bg"><span class="note-swipe-icon note-swipe-icon-done">✓</span><span class="note-swipe-icon note-swipe-icon-del">🗑</span></div>`;
+        return swipeBg + header + detail;
       };
 
       const visibleOpen = f === 'done' ? [] : filtered;
@@ -13606,7 +13649,7 @@
       const searchEmpty = state.notesSearch && !visibleOpen.length && !visibleDone.length
         ? `<div class="notes-empty" style="margin-top:32px">No notes match "<strong>${esc(state.notesSearch)}</strong>"</div>` : '';
 
-      const notesHint = !state.selectionMode ? `<div style="margin-top:12px;margin-bottom:4px;font-size:12px;color:var(--text-muted);font-style:italic;text-align:center">Tap = open · Long-press = select</div>` : '';
+      const notesHint = !state.selectionMode ? `<div style="margin-top:12px;margin-bottom:4px;font-size:12px;color:var(--text-muted);font-style:italic;text-align:center">Tap = open · Long-press = select · Swipe ✓/🗑</div>` : '';
 
       return `<div class="notes-view" style="${state.selectionMode ? 'padding-bottom:120px' : ''}">${headerRow}${searchBar}<div class="nf-wrap">${chips}</div>${addCard}${searchEmpty}${openSection}${doneSection}${notesHint}${bulkBar}</div>`;
     }
@@ -13631,6 +13674,85 @@
     // ---- Notes event handlers ----
     let _notePressTimer = null;
     let _notePressLocked = false;
+
+    // ---- Note swipe gestures ----
+    let _swipe = null;
+
+    function initNoteSwipe() {
+      const view = document.querySelector('.notes-view');
+      if (!view || view._swipeInit) return;
+      view._swipeInit = true;
+
+      view.addEventListener('touchstart', e => {
+        if (e.touches.length !== 1) return;
+        const row = e.target.closest('.note-row');
+        if (!row) return;
+        const card = row.closest('.note-card');
+        if (!card || card.classList.contains('expanded')) return;
+        _swipe = {
+          noteId: card.dataset.noteId, cardEl: card, rowEl: row,
+          startX: e.touches[0].clientX, startY: e.touches[0].clientY,
+          dx: 0, tracking: false
+        };
+      }, { passive: true });
+
+      view.addEventListener('touchmove', e => {
+        if (!_swipe) return;
+        const dx = e.touches[0].clientX - _swipe.startX;
+        const dy = e.touches[0].clientY - _swipe.startY;
+        if (!_swipe.tracking) {
+          if (Math.abs(dx) < 6 && Math.abs(dy) < 6) return;
+          if (Math.abs(dy) > Math.abs(dx) * 0.8) { _swipe = null; return; }
+          _swipe.tracking = true;
+          if (_notePressTimer) { clearTimeout(_notePressTimer); _notePressTimer = null; }
+        }
+        e.preventDefault();
+        _swipe.dx = dx;
+        _swipe.rowEl.style.transition = 'none';
+        _swipe.rowEl.style.transform = `translateX(${dx}px)`;
+        const bg = _swipe.cardEl.querySelector('.note-swipe-bg');
+        if (bg) {
+          if (dx > 20) bg.dataset.dir = 'right';
+          else if (dx < -20) bg.dataset.dir = 'left';
+          else delete bg.dataset.dir;
+        }
+      }, { passive: false });
+
+      view.addEventListener('touchend', e => {
+        if (!_swipe || !_swipe.tracking) { _swipe = null; return; }
+        const { noteId, rowEl, cardEl, dx } = _swipe;
+        _swipe = null;
+        rowEl.style.transition = 'transform 0.25s ease';
+        rowEl.style.transform = '';
+        const bg = cardEl.querySelector('.note-swipe-bg');
+        if (bg) delete bg.dataset.dir;
+        if (dx > 80) setTimeout(() => noteSwipeDone(noteId), 220);
+        else if (dx < -80) setTimeout(() => noteSwipeDelete(noteId), 220);
+      }, { passive: true });
+    }
+
+    function noteSwipeDone(id) {
+      const note = state.notes.find(n => n.id === id);
+      if (!note || note.status === 'done') return;
+      markNoteDone(id);
+      showActionToast('Marked done ✓', 'Undo', () => markNoteDone(id));
+    }
+
+    function noteSwipeDelete(id) {
+      const note = state.notes.find(n => n.id === id);
+      if (!note) return;
+      const deleted = deepCopy(note);
+      state.notes = state.notes.filter(n => n.id !== id);
+      state.expandedNotes.delete(id);
+      scheduleNotesSave();
+      render();
+      showActionToast('Note deleted', 'Undo', () => {
+        state.notes.push(deleted);
+        state.notes.sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
+        scheduleNotesSave();
+        render();
+      }, 4000);
+    }
 
     function notePressStart(e, id) {
       if (e.pointerType === 'mouse' && e.button !== 0) return;
@@ -15290,6 +15412,9 @@
     function attachEvents() {
       if (state.view === 'week' && state.layoutMode === 'table') {
         initTableResize();
+      }
+      if (state.view === 'notes') {
+        requestAnimationFrame(initNoteSwipe);
       }
     }
 
