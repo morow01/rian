@@ -8697,7 +8697,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.25.94';
+    const VERSION = '4.25.95';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -11646,7 +11646,7 @@
                 <div class="act-field-label" style="margin-bottom: 8px;">Ordinary HRS</div>
                 <div class="hrs-stepper flex items-center justify-between">
                   <button onclick="event.stopPropagation(); stepHrs('${act.id}',${di},'ordinary',-1)">−</button>
-                  <input type="number" class="val" data-step-val="${act.id}-ordinary" value="${act.ordinary || 0}" min="0" step="1" inputmode="decimal" autocomplete="off" data-lpignore="true" data-form-type="other" data-1p-ignore="true" onclick="event.stopPropagation()" onfocus="this.select()" onchange="event.stopPropagation(); setHrs('${act.id}',${di},'ordinary',this.value)" onkeydown="if(event.key==='Enter'){this.blur()}">
+                  <input type="number" class="val" data-step-val="${act.id}-ordinary" value="${act.ordinary || 0}" min="0" step="1" inputmode="decimal" autocomplete="off" data-lpignore="true" data-form-type="other" data-1p-ignore="true" onclick="event.stopPropagation()" onchange="event.stopPropagation(); setHrs('${act.id}',${di},'ordinary',this.value)" onkeydown="if(event.key==='Enter'){this.blur()}">
                   <button onclick="event.stopPropagation(); stepHrs('${act.id}',${di},'ordinary',1)">+</button>
                 </div>
               </div>
@@ -11654,7 +11654,7 @@
                 <div class="act-field-label act-field-label-ot" style="margin-bottom: 8px;">Overtime HRS</div>
                 <div class="hrs-stepper flex items-center justify-between">
                   <button onclick="event.stopPropagation(); stepHrs('${act.id}',${di},'overtime',-1)">−</button>
-                  <input type="number" class="val" data-step-val="${act.id}-overtime" value="${act.overtime || 0}" min="0" step="1" inputmode="decimal" autocomplete="off" data-lpignore="true" data-form-type="other" data-1p-ignore="true" onclick="event.stopPropagation()" onfocus="this.select()" onchange="event.stopPropagation(); setHrs('${act.id}',${di},'overtime',this.value)" onkeydown="if(event.key==='Enter'){this.blur()}">
+                  <input type="number" class="val" data-step-val="${act.id}-overtime" value="${act.overtime || 0}" min="0" step="1" inputmode="decimal" autocomplete="off" data-lpignore="true" data-form-type="other" data-1p-ignore="true" onclick="event.stopPropagation()" onchange="event.stopPropagation(); setHrs('${act.id}',${di},'overtime',this.value)" onkeydown="if(event.key==='Enter'){this.blur()}">
                   <button onclick="event.stopPropagation(); stepHrs('${act.id}',${di},'overtime',1)">+</button>
                 </div>
               </div>
@@ -20900,13 +20900,16 @@ QUESTION: ${query}`;
     //   readOnly trick      → desktop Chrome ignores "off" but respects readOnly on focus
     (function () {
       const SUPPRESS_SELECTOR = 'input.val, input.act-input, input.tbl-num-input, input.finder-search-input, input.tbl-act-input, input.ncf-input, textarea.act-notes-area, textarea.act-textarea';
-      // readonly trick for desktop Chrome (pointerdown fires before Chrome attaches autofill)
-      document.addEventListener('pointerdown', function (e) {
-        const el = e.target.closest?.(SUPPRESS_SELECTOR);
-        if (!el || el.readOnly) return;
-        el.readOnly = true;
-        requestAnimationFrame(() => { el.readOnly = false; el.focus(); });
-      }, true);
+      // readonly trick for desktop Chrome only (skip on touch devices — causes double-focus)
+      const isTouch = navigator.maxTouchPoints > 0;
+      if (!isTouch) {
+        document.addEventListener('pointerdown', function (e) {
+          const el = e.target.closest?.(SUPPRESS_SELECTOR);
+          if (!el || el.readOnly) return;
+          el.readOnly = true;
+          requestAnimationFrame(() => { el.readOnly = false; el.focus(); });
+        }, true);
+      }
       // Intercept Chrome autofill animation
       document.addEventListener('animationstart', function (e) {
         if (e.animationName === 'onAutoFillStart' || e.animationName === 'onautofillstart') {
