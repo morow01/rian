@@ -8697,7 +8697,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.25.91';
+    const VERSION = '4.25.92';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -17347,7 +17347,7 @@
           const isCur = f === curWeekStart;
           const past = _ocIsPast(f);
           let cls = 'oc-cell';
-          if (past && !type) cls += ' oc-past';
+          if (past) cls += ' oc-past';
           if (type === 'oncall') cls += ' oc-oncall';
           if (type === 'extra') cls += ' oc-extra';
           if (isCur) cls += ' oc-current';
