@@ -9198,7 +9198,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.26.47';
+    const VERSION = '4.26.48';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -11852,7 +11852,7 @@
   </div>
   <div class="day-activities ${isExpanded ? 'active' : 'hidden'}" id="day-${di}-activities" style="${isExpanded ? '' : 'display:none'}">
       ${activitiesHtml}
-      <button onclick="addActivity(${di})" class="add-task-btn" style="margin: 4px 14px 14px; width: calc(100% - 28px); display: flex; align-items: center; justify-content: center; gap: 6px; padding: 12px; border-radius: 10px; border: 1.5px dashed var(--border); background: transparent; font-size: 13px; font-weight: 700; color: var(--accent); cursor: pointer;">
+      <button onclick="addActivity(${di})" class="add-task-btn" style="margin: 4px 14px 14px 0; width: calc(100% - 14px); display: flex; align-items: center; justify-content: center; gap: 6px; padding: 12px; border-radius: 10px; border: 1.5px dashed var(--border); background: var(--bg-card); font-size: 13px; font-weight: 700; color: var(--accent); cursor: pointer;">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
         Add Task
       </button>
