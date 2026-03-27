@@ -4995,7 +4995,7 @@
       display: inline-flex;
       align-items: center;
       gap: 4px;
-      padding: 2px 7px 2px 5px;
+      padding: 3px 8px 3px 7px;
       border-radius: 999px;
       font-size: 10px;
       font-weight: 500;
@@ -5083,7 +5083,7 @@
       transition: opacity 0.15s, color 0.15s;
     }
     .note-pin-btn.pinned {
-      color: #2d6be4;
+      color: #a3b1cd;
       opacity: 1;
     }
 
@@ -8715,7 +8715,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.26.17';
+    const VERSION = '4.26.18';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -9285,6 +9285,7 @@
       notesCategoryFilter: '',      // '' = all categories, or one of getCategories() keys
       notesRemindersFilter: '',     // '' = off | 'active' | 'passed'
       notesOverdueFilter: false,    // true = show only overdue notes
+      notesTodayFilter: false,      // true = show only notes due today
       notesSearch: '',            // live search query
       notesFiltersOpen: localStorage.getItem('rian_notesFiltersOpen') === 'true',    // collapsible filter bar expanded state
       expandedNotes: new Set(), // note IDs that are expanded
@@ -13252,6 +13253,8 @@
         else if (rf === 'passed') { if (!hasPastReminder(n.id)) return false; }
         // Overdue filter
         if (state.notesOverdueFilter) { if (!isNoteOverdue(n)) return false; }
+        // Due today filter
+        if (state.notesTodayFilter) { if (!isNoteDueToday(n)) return false; }
         // Category filter
         if (cf === 'untagged') { if (n.category) return false; }
         else if (cf) { if ((n.category || '') !== cf) return false; }
@@ -13320,6 +13323,12 @@
           ? `background:#ef4444;border-color:#ef4444;color:#fff;`
           : `background:rgba(239,68,68,0.10);border-color:rgba(239,68,68,0.40);color:#ef4444;`;
       });
+      // Due Today chip
+      document.querySelectorAll('[data-today-key]').forEach(el => {
+        el.style.cssText = state.notesTodayFilter
+          ? `background:#f59e0b;border-color:#f59e0b;color:#fff;`
+          : `background:rgba(245,158,11,0.10);border-color:rgba(245,158,11,0.40);color:#f59e0b;`;
+      });
     }
 
     let _filterRenderTimer = null;
@@ -13348,6 +13357,7 @@
         activePriLabel ? `<span class="nf-summary-pill nf-pri-${f}" onclick="event.stopPropagation();setNotesFilter('all')">${activePriLabel}<span class="nf-pill-x">${X}</span></span>` : '',
         activeRemLabel ? `<span class="nf-summary-pill" style="background:${rf === 'active' ? '#F5A623' : '#94a3b8'}" onclick="event.stopPropagation();setNotesRemindersFilter('${rf}')">${activeRemLabel}<span class="nf-pill-x">${X}</span></span>` : '',
         state.notesOverdueFilter ? `<span class="nf-summary-pill" style="background:#ef4444" onclick="event.stopPropagation();setNotesOverdueFilter()">${CLOCK_FLAT} Overdue<span class="nf-pill-x">${X}</span></span>` : '',
+        state.notesTodayFilter ? `<span class="nf-summary-pill" style="background:#f59e0b" onclick="event.stopPropagation();setNotesTodayFilter()">${CLOCK_FLAT} Due Today<span class="nf-pill-x">${X}</span></span>` : '',
       ].filter(Boolean).join('');
     }
 
@@ -13400,7 +13410,7 @@
       const openNotes = state.notes.filter(n => n.status !== 'done' && !n.deleted);
       const doneNotes = state.notes.filter(n => n.status === 'done' && !n.deleted);
       const binNotes = state.notes.filter(n => n.deleted).sort((a, b) => (b.deletedAt || 0) - (a.deletedAt || 0));
-      const counts = { high: openNotes.filter(n => n.priority === 'high').length, medium: openNotes.filter(n => n.priority === 'medium').length, low: openNotes.filter(n => n.priority === 'low').length, reminders: state.notes.filter(n => !n.deleted && hasActiveReminder(n.id)).length, pastReminders: state.notes.filter(n => !n.deleted && hasPastReminder(n.id)).length, overdue: openNotes.filter(n => isNoteOverdue(n)).length };
+      const counts = { high: openNotes.filter(n => n.priority === 'high').length, medium: openNotes.filter(n => n.priority === 'medium').length, low: openNotes.filter(n => n.priority === 'low').length, reminders: state.notes.filter(n => !n.deleted && hasActiveReminder(n.id)).length, pastReminders: state.notes.filter(n => !n.deleted && hasPastReminder(n.id)).length, overdue: openNotes.filter(n => isNoteOverdue(n)).length, today: openNotes.filter(n => isNoteDueToday(n)).length };
 
       const cf = state.notesCategoryFilter || '';
 
@@ -13463,6 +13473,7 @@
       const remPastChip = `<div class="notes-chip" data-rem-key="passed" style="${rf === 'passed' ? 'background:#94a3b8;border-color:#94a3b8;color:#fff;' : 'background:rgba(148,163,184,0.10);border-color:rgba(148,163,184,0.40);color:#94a3b8;'}" onclick="setNotesRemindersFilter('passed')">${BELL_CHIP} Passed (${counts.pastReminders})</div>`;
       const CLOCK_CHIP = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`;
       const overdueChip = `<div class="notes-chip" data-overdue-key="overdue" style="${state.notesOverdueFilter ? 'background:#ef4444;border-color:#ef4444;color:#fff;' : 'background:rgba(239,68,68,0.10);border-color:rgba(239,68,68,0.40);color:#ef4444;'}" onclick="setNotesOverdueFilter()">${CLOCK_CHIP} Overdue (${counts.overdue})</div>`;
+      const dueTodayChip = `<div class="notes-chip" data-today-key="today" style="${state.notesTodayFilter ? 'background:#f59e0b;border-color:#f59e0b;color:#fff;' : 'background:rgba(245,158,11,0.10);border-color:rgba(245,158,11,0.40);color:#f59e0b;'}" onclick="setNotesTodayFilter()">${CLOCK_CHIP} Due Today (${counts.today})</div>`;
 
       const filterPanel = `
         <div class="nf-panel${state.notesFiltersOpen ? ' open' : ''}">
@@ -13476,7 +13487,7 @@
           <div class="notes-chips">${remChip}${remPastChip}</div>
           <div style="border-top:1px solid var(--border);margin:12px 0 10px"></div>
           <div class="nf-group-label">Due Dates</div>
-          <div class="notes-chips">${overdueChip}</div>
+          <div class="notes-chips">${dueTodayChip}${overdueChip}</div>
         </div>`;
 
       const chips = filterHeader + filterPanel;
@@ -13534,7 +13545,7 @@
               ${catBadge}
               <button class="note-pin-btn ${note.pinned ? 'pinned' : ''}" onclick="event.stopPropagation();toggleNotePin('${note.id}')" title="${note.pinned ? 'Unpin' : 'Pin'}" style="margin-left:6px"><svg width="14" height="14" viewBox="0 0 24 24" fill="${note.pinned ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="17" x2="12" y2="22"/><path d="M5 17h14v-1.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V6h1a2 2 0 0 0 0-4H8a2 2 0 0 0 0 4h1v4.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24Z"/></svg></button>
               <span style="flex:1"></span>
-              ${note.dueDate ? `<span style="color:#64748b;font-weight:500;font-size:12px;display:flex;align-items:center;gap:4px"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>${formatDueStatus(note)}</span>` : ''}
+              ${note.dueDate ? `<span style="color:${isNoteOverdue(note) ? '#ef4444' : '#64748b'};font-weight:500;font-size:12px;display:flex;align-items:center;gap:4px"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>${formatDueStatus(note)}</span>` : ''}
             </div>
           </div>`;
 
@@ -14861,6 +14872,13 @@
 
     function setNotesOverdueFilter() {
       state.notesOverdueFilter = !state.notesOverdueFilter;
+      updateNotesChipsInPlace();
+      clearTimeout(_filterRenderTimer);
+      _filterRenderTimer = setTimeout(() => render(), 200);
+    }
+
+    function setNotesTodayFilter() {
+      state.notesTodayFilter = !state.notesTodayFilter;
       updateNotesChipsInPlace();
       clearTimeout(_filterRenderTimer);
       _filterRenderTimer = setTimeout(() => render(), 200);
