@@ -8697,7 +8697,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.26.3';
+    const VERSION = '4.26.4';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -14652,6 +14652,7 @@
     async function teDeleteTag(key) {
       const cat = (state.customCategories || []).find(c => c.key === key);
       if (!cat) return;
+      if (!confirm(`Delete tag "${cat.label}"? This cannot be undone.`)) return;
       state.customCategories = (state.customCategories || []).filter(c => c.key !== key);
       state.disabledCats = (state.disabledCats || []).filter(k => k !== key);
       await saveCustomCategories();
