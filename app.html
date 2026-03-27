@@ -8695,7 +8695,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.25.83';
+    const VERSION = '4.25.84';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -13784,27 +13784,18 @@
           if (bg) delete bg.dataset.dir;
           return;
         }
-        // Keep row displaced so swipe-bg stays visible during pulse
+        // Keep row displaced so swipe-bg + icon stay visible during pulse
         const iconSel = dx > 0 ? '.note-swipe-icon-done' : '.note-swipe-icon-del';
         const icon = bg ? bg.querySelector(iconSel) : null;
-        let fired = false;
         const fireAction = () => {
-          if (fired) return;
-          fired = true;
-          rowEl.style.transition = 'transform 0.2s ease';
-          rowEl.style.transform = '';
-          if (bg) delete bg.dataset.dir;
-          setTimeout(() => {
-            if (shouldAct === 'done') noteSwipeDone(noteId);
-            else noteSwipeDelete(noteId);
-          }, 50);
+          if (shouldAct === 'done') noteSwipeDone(noteId);
+          else noteSwipeDelete(noteId);
         };
         if (icon) {
           icon.classList.remove('swipe-icon-pulse');
           void icon.offsetWidth;
           icon.classList.add('swipe-icon-pulse');
-          icon.addEventListener('animationend', fireAction, { once: true });
-          setTimeout(fireAction, 420); // fallback
+          setTimeout(fireAction, 400); // fire after 350ms pulse + 50ms buffer
         } else {
           setTimeout(fireAction, 50);
         }
