@@ -9203,7 +9203,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.26.52';
+    const VERSION = '4.26.53';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -12169,19 +12169,16 @@
                   Suggest
                 </button>
               </div>
-              <div class="act-codes-wrap" data-act-codes="${act.id}">
-                ${act.codes.map(c => `
-                  <div class="act-code-chip">
+              <div class="act-codes-wrap" data-act-codes="${act.id}" onclick="openCodeModal(${di},'${act.id}')" style="cursor:pointer;min-height:42px">
+                ${act.codes.length === 0
+                  ? `<span style="color:var(--text-muted);font-size:13px;display:flex;align-items:center;gap:6px"><svg width="12" height="12" viewBox="0 0 10 10" fill="none"><path d="M5 1v8M1 5h8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>Add work codes</span>`
+                  : act.codes.map(c => `
+                  <div class="act-code-chip" onclick="event.stopPropagation()">
                     ${c.d}
                     <span class="act-code-mono">${c.c}</span>
-                    <button onclick="removeCode('${act.id}',${di},'${c.c}')"
+                    <button onclick="event.stopPropagation();removeCode('${act.id}',${di},'${c.c}')"
                       class="act-code-del">×</button>
                   </div>`).join('')}
-                <button onclick="openCodeModal(${di},'${act.id}')"
-                  class="act-add-code">
-                  <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M5 1v8M1 5h8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-                  Code
-                </button>
               </div>
               <div id="suggest-wrap-${act.id}"></div>
               ${isMissingCode ? `<div class="act-missing-warn"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> Missing work code</div>` : ''}
@@ -16063,13 +16060,31 @@
         `;
       }
 
+      // Selected codes at top (only when no search)
+      if (!query && selected.size > 0) {
+        const selectedCodes = codeModalCtx.selected;
+        html += `<div class="px-4 py-2 text-xs font-bold uppercase tracking-wide sticky top-0 z-10" style="background:var(--bg-code-group);color:var(--accent)">Selected (${selected.size})</div>`;
+        html += selectedCodes.map(c => `
+          <button onclick="toggleCode('${c.c}','${esc(c.d)}','${esc(c.a)}')"
+            class="w-full flex items-center gap-3 px-4 py-3 border-b text-left" style="background:var(--bg-code-item-sel);border-color:var(--border)">
+            <span class="flex-shrink-0 w-5 h-5 rounded border-2 flex items-center justify-center border-transparent text-white" style="background:var(--accent)">✓</span>
+            <span class="flex-1 min-w-0">
+              <span class="block text-sm" style="color:var(--text-primary)">${c.d}</span>
+              <span class="text-xs font-mono" style="color:var(--text-muted)">${c.c}</span>
+            </span>
+          </button>`).join('');
+      }
+
       // Group by activity for individual codes
       const categories = {};
       filteredCodes.forEach(c => { (categories[c.a] = categories[c.a] || []).push(c); });
 
+      const allLabel = query ? `Results (${filteredCodes.length})` : 'All Codes';
+      html += `<div class="px-4 py-2 text-xs font-bold uppercase tracking-wide sticky top-0 z-10" style="background:var(--bg-code-group);color:var(--text-muted)">${allLabel}</div>`;
+
       html += Object.entries(categories).map(([grp, codes]) => `
     <div>
-      <div class="px-4 py-2 text-xs font-bold uppercase tracking-wide sticky top-0 z-10" style="background:var(--bg-code-group);color:var(--text-muted)">${grp}</div>
+      <div class="px-4 py-1.5 text-xs uppercase tracking-wide" style="background:var(--bg-page);color:var(--text-muted);opacity:0.7">${grp}</div>
       ${codes.map(c => {
         const isSelected = selected.has(c.c);
         return `<button onclick="toggleCode('${c.c}','${esc(c.d)}','${esc(c.a)}')"
