@@ -9203,7 +9203,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.26.54';
+    const VERSION = '4.26.55';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -12053,10 +12053,9 @@
       const chipsHtml = act.codes.length === 0
         ? `<span style="color:var(--text-muted);font-size:13px;display:flex;align-items:center;gap:6px"><svg width="12" height="12" viewBox="0 0 10 10" fill="none"><path d="M5 1v8M1 5h8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>Add work codes</span>`
         : act.codes.map(c => `
-        <div class="act-code-chip" onclick="event.stopPropagation()">
+        <div class="act-code-chip" style="pointer-events:none">
           ${esc(c.d)}
           <span class="act-code-mono">${esc(c.c)}</span>
-          <button onclick="event.stopPropagation();removeCode('${actId}',${di},'${c.c}')" class="act-code-del">×</button>
         </div>`).join('');
       codesWrap.innerHTML = chipsHtml;
       return true;
@@ -12171,11 +12170,9 @@
                 ${act.codes.length === 0
                   ? `<span style="color:var(--text-muted);font-size:13px;display:flex;align-items:center;gap:6px"><svg width="12" height="12" viewBox="0 0 10 10" fill="none"><path d="M5 1v8M1 5h8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>Add work codes</span>`
                   : act.codes.map(c => `
-                  <div class="act-code-chip" onclick="event.stopPropagation()">
+                  <div class="act-code-chip" style="pointer-events:none">
                     ${c.d}
                     <span class="act-code-mono">${c.c}</span>
-                    <button onclick="event.stopPropagation();removeCode('${act.id}',${di},'${c.c}')"
-                      class="act-code-del">×</button>
                   </div>`).join('')}
               </div>
               <div id="suggest-wrap-${act.id}"></div>
