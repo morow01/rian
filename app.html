@@ -8697,7 +8697,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.26.1';
+    const VERSION = '4.26.2';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -11646,7 +11646,7 @@
                 <div class="act-field-label" style="margin-bottom: 8px;">Ordinary HRS</div>
                 <div class="hrs-stepper flex items-center justify-between">
                   <button onclick="event.stopPropagation(); stepHrs('${act.id}',${di},'ordinary',-1)">−</button>
-                  <input type="text" class="val" data-step-val="${act.id}-ordinary" value="${act.ordinary || 0}" inputmode="decimal" pattern="[0-9]*" autocomplete="off" data-lpignore="true" data-form-type="other" data-1p-ignore="true" onclick="event.stopPropagation()" onchange="event.stopPropagation(); setHrs('${act.id}',${di},'ordinary',this.value)" onkeydown="if(event.key==='Enter'){this.blur()}">
+                  <input type="text" class="val" data-step-val="${act.id}-ordinary" value="${act.ordinary || 0}" min="0" step="0.5" inputmode="decimal" pattern="[0-9.]*" autocomplete="off" data-lpignore="true" data-form-type="other" data-1p-ignore="true" onclick="event.stopPropagation()" onchange="event.stopPropagation(); setHrs('${act.id}',${di},'ordinary',this.value)" onkeydown="if(event.key==='Enter'){this.blur()}">
                   <button onclick="event.stopPropagation(); stepHrs('${act.id}',${di},'ordinary',1)">+</button>
                 </div>
               </div>
@@ -11654,7 +11654,7 @@
                 <div class="act-field-label act-field-label-ot" style="margin-bottom: 8px;">Overtime HRS</div>
                 <div class="hrs-stepper flex items-center justify-between">
                   <button onclick="event.stopPropagation(); stepHrs('${act.id}',${di},'overtime',-1)">−</button>
-                  <input type="text" class="val" data-step-val="${act.id}-overtime" value="${act.overtime || 0}" inputmode="decimal" pattern="[0-9]*" autocomplete="off" data-lpignore="true" data-form-type="other" data-1p-ignore="true" onclick="event.stopPropagation()" onchange="event.stopPropagation(); setHrs('${act.id}',${di},'overtime',this.value)" onkeydown="if(event.key==='Enter'){this.blur()}">
+                  <input type="text" class="val" data-step-val="${act.id}-overtime" value="${act.overtime || 0}" min="0" step="0.5" inputmode="decimal" pattern="[0-9.]*" autocomplete="off" data-lpignore="true" data-form-type="other" data-1p-ignore="true" onclick="event.stopPropagation()" onchange="event.stopPropagation(); setHrs('${act.id}',${di},'overtime',this.value)" onkeydown="if(event.key==='Enter'){this.blur()}">
                   <button onclick="event.stopPropagation(); stepHrs('${act.id}',${di},'overtime',1)">+</button>
                 </div>
               </div>
@@ -14452,7 +14452,7 @@
       ).join('');
       return `
         <span class="te-field-label" style="margin-top:0">Tag Name</span>
-        <input class="te-input" id="${idPrefix}NameInput" type="text" placeholder="${namePlaceholder}"
+        <input class="te-input" id="${idPrefix}NameInput" type="search" placeholder="${namePlaceholder}"
           autocomplete="off" data-lpignore="true" data-form-type="other" data-1p-ignore="true"
           oninput="${idPrefix}UpdatePreview()">
         <span class="te-field-label">Colour</span>
