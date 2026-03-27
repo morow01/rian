@@ -5110,18 +5110,6 @@
     .note-swipe-icon { opacity: 0; transition: opacity 0.1s; display:flex; align-items:center; }
     .note-swipe-bg[data-dir="right"] .note-swipe-icon-done { opacity: 1; }
     .note-swipe-bg[data-dir="left"]  .note-swipe-icon-del  { opacity: 1; }
-    @keyframes swipeGlowGreen {
-      0%   { box-shadow: none; border-color: var(--border); }
-      35%  { box-shadow: 0 0 0 2.5px #22c55e; border-color: #22c55e; }
-      100% { box-shadow: none; border-color: var(--border); }
-    }
-    @keyframes swipeGlowRed {
-      0%   { box-shadow: none; border-color: var(--border); }
-      35%  { box-shadow: 0 0 0 2.5px #ef4444; border-color: #ef4444; }
-      100% { box-shadow: none; border-color: var(--border); }
-    }
-    .swipe-glow-green { animation: swipeGlowGreen 0.45s ease forwards; }
-    .swipe-glow-red   { animation: swipeGlowRed   0.45s ease forwards; }
 
     .note-row-top {
       display: flex;
@@ -8700,7 +8688,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.25.80';
+    const VERSION = '4.25.77';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -13769,19 +13757,8 @@
         rowEl.style.transform = '';
         const bg = cardEl.querySelector('.note-swipe-bg');
         if (bg) delete bg.dataset.dir;
-        if (dx > 80) {
-          cardEl.classList.remove('swipe-glow-green', 'swipe-glow-red');
-          void cardEl.offsetWidth;
-          cardEl.classList.add('swipe-glow-green');
-          cardEl.addEventListener('animationend', () => cardEl.classList.remove('swipe-glow-green'), { once: true });
-          setTimeout(() => noteSwipeDone(noteId), 220);
-        } else if (dx < -80) {
-          cardEl.classList.remove('swipe-glow-green', 'swipe-glow-red');
-          void cardEl.offsetWidth;
-          cardEl.classList.add('swipe-glow-red');
-          cardEl.addEventListener('animationend', () => cardEl.classList.remove('swipe-glow-red'), { once: true });
-          setTimeout(() => noteSwipeDelete(noteId), 220);
-        }
+        if (dx > 80) setTimeout(() => noteSwipeDone(noteId), 220);
+        else if (dx < -80) setTimeout(() => noteSwipeDelete(noteId), 220);
       }, { passive: true });
     }
 
