@@ -9211,7 +9211,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.26.66';
+    const VERSION = '4.26.67';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -14288,7 +14288,7 @@
                 </div>`;
           }).join('')
         }
-          ${binNotes.length > 1 ? `<button onclick="emptyBin()" style="width:100%;margin-top:8px;background:none;border:1.5px solid rgba(239,68,68,0.3);border-radius:10px;padding:10px;font-size:13px;font-weight:700;color:#ef4444;cursor:pointer;font-family:inherit;">Empty Bin</button>` : ''}
+          ${binNotes.length > 1 ? `<button onclick="emptyBin()" class="note-btn-delete" style="width:100%;margin-top:8px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg> Empty Bin</button>` : ''}
         </div>` : '';
 
       return `<div class="notes-view" style="${state.selectionMode ? 'padding-bottom:120px' : ''}">${headerRow}${searchBar}${state.notesBinOpen ? binView : `<div class="nf-wrap">${chips}</div>${addCard}${searchEmpty}${openSection}${doneSection}${notesHint}${bulkBar}`}</div>`;
