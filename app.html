@@ -9486,7 +9486,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.26.99';
+    const VERSION = '4.27.1';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -16370,7 +16370,13 @@
     });
 
     function confirmCodeSelection() {
-      const { dayIndex: di, activityId: actId, selected } = codeModalCtx;
+      const { dayIndex: di, activityId: actId, selected, voiceMode } = codeModalCtx;
+      if (voiceMode) {
+        voiceConfirmCodes = [...selected];
+        renderVoiceCodeChips();
+        closeCodeModal();
+        return;
+      }
       const act = state.weekData.days[di].activities.find(a => a.id === actId);
       if (act) {
         act.codes = selected;
@@ -19757,7 +19763,12 @@
         if (titleEl) titleEl.textContent = 'Parsing with AI…';
 
         const geminiResult = await parseWithGemini(text);
-        const parsed = geminiResult || parseVoiceText(text);
+        let parsed = geminiResult || parseVoiceText(text);
+        // If Gemini returned a result but no description, fill from JS parser
+        if (parsed && !parsed.description) {
+          const jsFallback = parseVoiceText(text);
+          if (jsFallback.description) parsed.description = jsFallback.description;
+        }
 
         if (sheet) sheet.style.opacity = '';
         if (titleEl) titleEl.textContent = 'Add Entry';
@@ -19789,6 +19800,8 @@
           new RegExp(`\\bdoing\\s+(?:a\\s+|an\\s+|the\\s+)?([\\w][\\w ]+?)${stop}`, 'i'),
           new RegExp(`\\bon\\s+(?:a\\s+|an\\s+|the\\s+)([\\w][\\w ]+?)${stop}`, 'i'),
           new RegExp(`\\bfor\\s+(?:a\\s+|an\\s+|the\\s+)([\\w][\\w ]+?)${stop}`, 'i'),
+          new RegExp(`\\bthere\\s+was\\s+(?:a\\s+|an\\s+)?([\\w][\\w ]+?)${stop}`, 'i'),
+          new RegExp(`\\bI\\s+was\\s+(?:doing\\s+|fixing\\s+|repairing\\s+|on\\s+(?:a\\s+|an\\s+)?)([\\w][\\w ]+?)${stop}`, 'i'),
         ];
         for (const pat of descPats) {
           const m = text.match(pat);
@@ -19802,13 +19815,15 @@
       // ── Hours: "2 hours", "two hours", "half an hour", etc. ────────
       const wordNums = { one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8, nine: 9, ten: 10, half: 0.5, quarter: 0.25 };
       const normalised = text.replace(/\b(one|two|three|four|five|six|seven|eight|nine|ten)\b/gi, m => wordNums[m.toLowerCase()]);
-      // Overtime: look for "X overtime/OT hours" or "overtime X hours" before ordinary hours
+      // Overtime: "X overtime hours", "overtime X hours", or "X hours over time"
       const otMatch = normalised.match(/(\d+\.?\d*)\s*(?:overtime|over\s*time|ot)\s*hours?/i)
-        || normalised.match(/(?:overtime|over\s*time|ot)\s+(?:of\s+)?(\d+\.?\d*)\s*hours?/i);
+        || normalised.match(/(?:overtime|over\s*time|ot)\s+(?:of\s+)?(\d+\.?\d*)\s*hours?/i)
+        || normalised.match(/(\d+\.?\d*)\s*hours?\s+(?:over\s*time|overtime|ot)\b/i);
       if (otMatch) result.overtime = otMatch[1];
       // Ordinary: first hours mention not preceded by overtime keywords
       const normNoOT = normalised.replace(/(\d+\.?\d*)\s*(?:overtime|over\s*time|ot)\s*hours?/gi, '')
-        .replace(/(?:overtime|over\s*time|ot)\s+(?:of\s+)?(\d+\.?\d*)\s*hours?/gi, '');
+        .replace(/(?:overtime|over\s*time|ot)\s+(?:of\s+)?(\d+\.?\d*)\s*hours?/gi, '')
+        .replace(/(\d+\.?\d*)\s*hours?\s+(?:over\s*time|overtime|ot)\b/gi, '');
       const hoursMatch = normNoOT.match(/(\d+\.?\d*)\s*hours?/i);
       if (hoursMatch) {
         result.ordinary = hoursMatch[1];
@@ -19869,8 +19884,8 @@
       document.getElementById('vc-heard-text').textContent = transcript;
       document.getElementById('vc-desc').value = parsed.description || '';
       document.getElementById('vc-loc').value = parsed.location || '';
-      document.getElementById('vc-hrs').value = parsed.ordinary || '';
-      document.getElementById('vc-ot').value = parsed.overtime || '';
+      document.getElementById('vc-hrs').value = parsed.ordinary || '0';
+      document.getElementById('vc-ot').value = parsed.overtime || '0';
 
       // Day selector
       const sel = document.getElementById('vc-day');
@@ -19907,6 +19922,31 @@
       renderVoiceCodeChips();
     }
 
+    function stepVcHrs(id, delta) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      let val = (parseFloat(el.value) || 0) + delta;
+      if (val < 0) val = 0;
+      el.value = val;
+    }
+
+    function setVcHrs(id, raw) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      let val = parseFloat(raw);
+      if (isNaN(val) || val < 0) val = 0;
+      el.value = val;
+    }
+
+    function openVoiceCodeModal() {
+      filteredCodes = [...WORK_CODES];
+      codeModalCtx = { dayIndex: null, activityId: null, selected: [...voiceConfirmCodes], voiceMode: true };
+      document.getElementById('code-modal').classList.remove('hidden');
+      document.getElementById('code-search').value = '';
+      renderCodeList();
+      setTimeout(() => document.getElementById('code-search').focus(), 100);
+    }
+
     function confirmVoiceEntry() {
       if (!state.weekData) return;
       const di = parseInt(document.getElementById('vc-day').value);
@@ -19915,8 +19955,8 @@
       const act = createActivity();
       act.description = (document.getElementById('vc-desc').value || '').trim();
       act.location = (document.getElementById('vc-loc').value || '').trim();
-      act.ordinary = (document.getElementById('vc-hrs').value || '').trim();
-      act.overtime = (document.getElementById('vc-ot').value || '').trim();
+      act.ordinary = String(parseFloat(document.getElementById('vc-hrs').value) || 0);
+      act.overtime = String(parseFloat(document.getElementById('vc-ot').value) || 0);
       act.codes = [...voiceConfirmCodes];
       // Save transcript as the activity note so it's always visible on the task
       const heardText = (document.getElementById('vc-heard-text').textContent || '').trim();
@@ -20431,7 +20471,7 @@ Rules:
 - description: extract the SPECIFIC task or fault type — NOT generic words like "work" or "working". Examples: "fiber break"→"Fiber Break", "cable fault"→"Cable Fault", "pole replacement"→"Pole Replacement", "site survey"→"Site Survey". If routines/routine/rtn → "Routines" and isRoutines=true.
 - location: match against known locations by name OR code abbreviation (e.g. "SLS"→Sallins, "DUB"→Dublin). Return matched name only, no code, no brackets. If not in list, return what was said. Empty string only if no place mentioned.
 - hours: ordinary/regular hours as a number. Convert words (two=2, three=3, half=0.5). 0 if not mentioned.
-- overtime: overtime hours as a number. Look for words like "overtime", "OT", "over time". Convert words to digits. 0 if not mentioned.
+- overtime: overtime hours as a number. Look for "overtime", "OT", "over time", or "X hours over time" (e.g. "two hours over time" = 2). Convert word numbers to digits. 0 if not mentioned.
 - dayIndex: integer index from week days. Use today (${todayIdx}) if no day mentioned.`;
 
       try {
@@ -22007,11 +22047,12 @@ QUESTION: ${query}`;
       <div class="vc-heard"><strong>Heard:</strong> <span id="vc-heard-text"></span></div>
       <div class="vc-field">
         <label class="vc-label">Day</label>
-        <select id="vc-day" class="vc-input"></select>
+        <select id="vc-day" class="vc-input" autocomplete="off"></select>
       </div>
       <div class="vc-field">
         <label class="vc-label">Description</label>
-        <input id="vc-desc" class="vc-input" type="text" placeholder="e.g. Routines">
+        <input id="vc-desc" class="vc-input" type="text" placeholder="e.g. Routines"
+          autocomplete="off" data-lpignore="true" data-form-type="other" data-1p-ignore="true">
       </div>
       <div class="vc-field">
         <label class="vc-label">Location</label>
@@ -22030,18 +22071,32 @@ QUESTION: ${query}`;
         </div>
       </div>
       <div class="vc-field">
-        <label class="vc-label">Ordinary Hours</label>
-        <input id="vc-hrs" class="vc-input" type="tel" inputmode="decimal" pattern="[0-9.]*" placeholder="e.g. 2"
-          autocomplete="off" data-lpignore="true" data-form-type="other" data-1p-ignore="true">
-      </div>
-      <div class="vc-field">
-        <label class="vc-label">Overtime Hours</label>
-        <input id="vc-ot" class="vc-input" type="tel" inputmode="decimal" pattern="[0-9.]*" placeholder="e.g. 0"
-          autocomplete="off" data-lpignore="true" data-form-type="other" data-1p-ignore="true">
+        <div style="display:flex;gap:12px">
+          <div class="hrs-box" style="flex:1">
+            <label class="vc-label" style="display:block;margin-bottom:8px">Ordinary HRS</label>
+            <div class="hrs-stepper" style="display:flex;align-items:center">
+              <button type="button" onclick="stepVcHrs('vc-hrs',-1)">−</button>
+              <input id="vc-hrs" type="tel" class="val" inputmode="decimal" pattern="[0-9.]*" value="0"
+                autocomplete="off" data-lpignore="true" data-form-type="other" data-1p-ignore="true"
+                onchange="setVcHrs('vc-hrs',this.value)" onkeydown="if(event.key==='Enter'){this.blur()}">
+              <button type="button" onclick="stepVcHrs('vc-hrs',1)">+</button>
+            </div>
+          </div>
+          <div class="hrs-box ot-box" style="flex:1">
+            <label class="vc-label act-field-label-ot" style="display:block;margin-bottom:8px">Overtime HRS</label>
+            <div class="hrs-stepper" style="display:flex;align-items:center">
+              <button type="button" onclick="stepVcHrs('vc-ot',-1)">−</button>
+              <input id="vc-ot" type="tel" class="val" inputmode="decimal" pattern="[0-9.]*" value="0"
+                autocomplete="off" data-lpignore="true" data-form-type="other" data-1p-ignore="true"
+                onchange="setVcHrs('vc-ot',this.value)" onkeydown="if(event.key==='Enter'){this.blur()}">
+              <button type="button" onclick="stepVcHrs('vc-ot',1)">+</button>
+            </div>
+          </div>
+        </div>
       </div>
       <div class="vc-field">
         <label class="vc-label">Work Codes</label>
-        <div class="vc-codes-wrap" id="vc-codes-wrap"></div>
+        <div class="vc-codes-wrap" id="vc-codes-wrap" onclick="openVoiceCodeModal()"></div>
       </div>
       <div class="vc-btns">
         <button class="vc-btn primary" onclick="confirmVoiceEntry()">Add to Timesheet</button>
