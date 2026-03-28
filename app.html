@@ -5141,10 +5141,23 @@
       cursor: pointer;
     }
 
+    @keyframes catPickerIn {
+      from { opacity: 0; transform: translateY(-6px); max-height: 0; }
+      to   { opacity: 1; transform: translateY(0);    max-height: 300px; }
+    }
+    @keyframes catPickerOut {
+      from { opacity: 1; transform: translateY(0);    max-height: 300px; }
+      to   { opacity: 0; transform: translateY(-6px); max-height: 0; }
+    }
     .note-inline-cat-picker {
       padding: 6px 12px 4px;
       border-bottom: 1px solid var(--border);
       background: var(--bg-card);
+      overflow: hidden;
+      animation: catPickerIn 0.2s ease forwards;
+    }
+    .note-inline-cat-picker.closing {
+      animation: catPickerOut 0.18s ease forwards;
     }
 
     .note-inline-cat-picker .ncm-pills {
@@ -9321,7 +9334,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.26.78';
+    const VERSION = '4.26.79';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -12513,7 +12526,10 @@
           !e.target.closest('.note-ghost-pill')) {
         _catDropdownOpen = null;
         const picker = document.querySelector('.note-inline-cat-picker');
-        if (picker) picker.remove();
+        if (picker) {
+          picker.classList.add('closing');
+          picker.addEventListener('animationend', () => picker.remove(), { once: true });
+        }
       }
     });
     // ─────────────────────────────────────────────────────────────
@@ -15079,12 +15095,20 @@
 
     function toggleNoteCatDD(noteId) {
       if (_catDropdownOpen === noteId) {
+        // Animate out then re-render to remove
         _catDropdownOpen = null;
+        const picker = document.querySelector('.note-inline-cat-picker');
+        if (picker) {
+          picker.classList.add('closing');
+          picker.addEventListener('animationend', () => render(), { once: true });
+        } else {
+          render();
+        }
       } else {
         _catDropdownOpen = noteId;
-        _catFormNoteId = null;  // close any open form
+        _catFormNoteId = null;
+        render();
       }
-      render();
     }
 
     function pickNoteCat(noteId, catKey) {
