@@ -9486,7 +9486,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.27.8';
+    const VERSION = '4.27.9';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -19863,6 +19863,10 @@
           const yest = new Date(today); yest.setDate(yest.getDate() - 1);
           const idx = days.findIndex(d => d.date === dateToStr(yest));
           if (idx >= 0) result.dayIndex = idx;
+        } else if (/\btomorrow\b/i.test(text)) {
+          const tom = new Date(today); tom.setDate(tom.getDate() + 1);
+          const idx = days.findIndex(d => d.date === dateToStr(tom));
+          if (idx >= 0) result.dayIndex = idx;
         } else {
           // Use word boundaries so "friday" doesn't accidentally match inside other words
           for (let i = 0; i < DAY_NAMES.length; i++) {
@@ -20541,6 +20545,12 @@ Rules:
         }
         if (!dayMatched && /\btoday\b/i.test(text)) { result.dayIndex = todayIdx; dayMatched = true; }
         if (!dayMatched && /\byesterday\b/i.test(text)) { result.dayIndex = todayIdx > 0 ? todayIdx - 1 : 0; dayMatched = true; }
+        if (!dayMatched && /\btomorrow\b/i.test(text)) {
+          const tom = new Date(); tom.setDate(tom.getDate() + 1);
+          const tomStr = dateToStr(tom);
+          const tomIdx = state.weekData ? state.weekData.days.findIndex(d => d.date === tomStr) : -1;
+          if (tomIdx >= 0) { result.dayIndex = tomIdx; dayMatched = true; }
+        }
         if (!dayMatched) result.dayIndex = todayIdx; // default to today when no day mentioned
 
         // ── Location: scan original transcript first for spoken codes (most reliable),
@@ -22110,7 +22120,7 @@ QUESTION: ${query}`;
             <label class="vc-label" style="display:block;margin-bottom:8px">Ordinary HRS</label>
             <div class="hrs-stepper" style="display:flex;align-items:center">
               <button type="button" onclick="stepVcHrs('vc-hrs',-1)">−</button>
-              <input id="vc-hrs" type="tel" class="val" inputmode="decimal" pattern="[0-9.]*" value="0"
+              <input id="vc-hrs" type="text" class="val" inputmode="decimal" pattern="[0-9.]*" value="0"
                 autocomplete="off" data-lpignore="true" data-form-type="other" data-1p-ignore="true"
                 onchange="setVcHrs('vc-hrs',this.value)" onkeydown="if(event.key==='Enter'){this.blur()}">
               <button type="button" onclick="stepVcHrs('vc-hrs',1)">+</button>
@@ -22120,7 +22130,7 @@ QUESTION: ${query}`;
             <label class="vc-label act-field-label-ot" style="display:block;margin-bottom:8px">Overtime HRS</label>
             <div class="hrs-stepper" style="display:flex;align-items:center">
               <button type="button" onclick="stepVcHrs('vc-ot',-1)">−</button>
-              <input id="vc-ot" type="tel" class="val" inputmode="decimal" pattern="[0-9.]*" value="0"
+              <input id="vc-ot" type="text" class="val" inputmode="decimal" pattern="[0-9.]*" value="0"
                 autocomplete="off" data-lpignore="true" data-form-type="other" data-1p-ignore="true"
                 onchange="setVcHrs('vc-ot',this.value)" onkeydown="if(event.key==='Enter'){this.blur()}">
               <button type="button" onclick="stepVcHrs('vc-ot',1)">+</button>
