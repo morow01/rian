@@ -9312,7 +9312,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.26.71';
+    const VERSION = '4.26.72';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -12597,7 +12597,7 @@
         <div class="copy-note-row" onclick="toggleCopyNote()">
           <div class="copy-note-row-left" style="pointer-events:none;">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-            <span>Move note too</span>
+            <span>Copy note too</span>
           </div>
           <div class="copy-note-toggle ${copyPickerState.copyNote ? 'on' : ''}" id="copy-note-toggle" style="pointer-events:none;">
             <div class="copy-note-knob" id="copy-note-knob" style="transform:${copyPickerState.copyNote ? 'translateX(18px)' : 'translateX(0)'};pointer-events:none;"></div>
@@ -12705,15 +12705,9 @@
         }
       }
 
-      // If "Move note" was on, clear the note from the source task
-      if (copyNote) {
-        sourceAct.notes = '';
-        scheduleAutoSave();
-      }
-
       closeCopyPicker();
       render();
-      showToast(`Task copied to ${selectedDates.size} day${selectedDates.size !== 1 ? 's' : ''}${copyNote ? ' · note moved' : ''}`);
+      showToast(`Task copied to ${selectedDates.size} day${selectedDates.size !== 1 ? 's' : ''}${copyNote ? ' · note included' : ''}`);
     }
 
     // ============================================================
