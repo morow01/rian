@@ -9321,7 +9321,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.26.77';
+    const VERSION = '4.26.78';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -12504,6 +12504,17 @@
     }
     document.addEventListener('click', e => {
       if (!e.target.closest('.btn-more') && !e.target.closest('.ctx-menu')) closeAllCtx();
+    });
+
+    document.addEventListener('click', e => {
+      if (!_catDropdownOpen) return;
+      if (!e.target.closest('.note-inline-cat-picker') &&
+          !e.target.closest('.note-cat-badge') &&
+          !e.target.closest('.note-ghost-pill')) {
+        _catDropdownOpen = null;
+        const picker = document.querySelector('.note-inline-cat-picker');
+        if (picker) picker.remove();
+      }
     });
     // ─────────────────────────────────────────────────────────────
 
