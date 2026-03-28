@@ -9486,7 +9486,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.27.2';
+    const VERSION = '4.27.3';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -19903,6 +19903,7 @@
 
       renderVoiceCodeChips();
       document.getElementById('voice-confirm-modal').classList.add('open');
+      document.body.style.overflow = 'hidden';
     }
 
     function renderVoiceCodeChips() {
@@ -20571,6 +20572,7 @@ Rules:
         const el = document.getElementById(id);
         if (el) { el.classList.remove('open'); el.classList.remove('text-mode'); }
       });
+      document.body.style.overflow = '';
       const submitBtn = document.getElementById('vl-submit-btn');
       if (submitBtn) submitBtn.style.display = 'none';
       voiceMode = 'timesheet';
@@ -22052,13 +22054,15 @@ QUESTION: ${query}`;
       <div class="vc-field">
         <label class="vc-label">Description</label>
         <input id="vc-desc" class="vc-input" type="text" placeholder="e.g. Routines"
-          autocomplete="off" data-lpignore="true" data-form-type="other" data-1p-ignore="true">
+          autocomplete="off" data-lpignore="true" data-form-type="other" data-1p-ignore="true"
+          readonly onfocus="this.removeAttribute('readonly')">
       </div>
       <div class="vc-field">
         <label class="vc-label">Location</label>
         <div style="display:flex;gap:8px;align-items:center">
-          <input id="vc-loc" class="vc-input" type="text" placeholder="Town name or code" style="flex:1;min-width:0"
-            autocomplete="off" data-lpignore="true" data-form-type="other" data-1p-ignore="true">
+          <input id="vc-loc" class="vc-input" type="text" placeholder="Town name or code" style="flex:1;min-width:0;cursor:pointer"
+            autocomplete="off" data-lpignore="true" data-form-type="other" data-1p-ignore="true"
+            readonly onclick="_coSiteCallback=(name)=>{document.getElementById('vc-loc').value=name;}; openLocationModal();">
           <button type="button"
             onclick="_coSiteCallback=(name)=>{document.getElementById('vc-loc').value=name;}; openLocationModal();"
             style="flex-shrink:0;height:38px;padding:0 12px;border-radius:10px;border:1.5px solid var(--border);background:var(--bg-card);color:var(--text-primary);font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap">
