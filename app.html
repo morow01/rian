@@ -9486,7 +9486,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.27.13';
+    const VERSION = '4.27.14';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -20215,35 +20215,37 @@ Rules:
 
         if (['high', 'medium', 'low'].includes(p.priority)) result.priority = p.priority;
 
-        // Category — trust Gemini key if valid, otherwise run JS keyword scan
+        // Category — explicit "category is X" / "tag is X" always wins; then Gemini; then keyword scan
         const validCats = getCategories().map(c => c.key);
-        if (p.category && validCats.includes(p.category)) {
+        const catKeywords = {
+          fault:    /\b(fault|faults)\b/i,
+          job:      /\b(job)\b/i,
+          followup: /\b(follow[\s-]?up)\b/i,
+          meeting:  /\b(meeting)\b/i,
+          personal: /\b(personal)\b/i,
+          idea:     /\b(idea)\b/i,
+        };
+
+        // 1. Explicit spoken "category is X" or "tag is X" — highest priority
+        const catLabelMatch = text.match(/\b(?:category|tag)\s+is\s+([\w\s-]+?)(?:\s+(?:and|but|it'?s|high|low|medium|priority|remind)\b|[,.]|$)/i);
+        if (catLabelMatch) {
+          const spoken = catLabelMatch[1].trim().toLowerCase().replace(/[\s-]+/g, '');
+          const found = getCategories().find(c =>
+            c.key === spoken ||
+            c.label.toLowerCase().replace(/[\s-]+/g, '') === spoken
+          );
+          if (found) result.category = found.key;
+        }
+
+        // 2. Gemini result (skipped if explicit mention already found)
+        if (!result.category && p.category && validCats.includes(p.category)) {
           result.category = p.category;
-        } else {
-          // JS keyword fallback (handles "follow up", "followup", label matches)
-          const catKeywords = {
-            fault:    /\b(fault|faults)\b/i,
-            job:      /\b(job)\b/i,
-            followup: /\b(follow[\s-]?up)\b/i,
-            meeting:  /\b(meeting)\b/i,
-            personal: /\b(personal)\b/i,
-            idea:     /\b(idea)\b/i,
-          };
-          // Also match by category label spoken explicitly: "category is X"
-          const catLabelMatch = text.match(/\bcategory\s+is\s+([\w\s-]+?)(?:\s+and\b|\s+it'?s\b|[,.]|$)/i);
-          if (catLabelMatch) {
-            const spoken = catLabelMatch[1].trim().toLowerCase().replace(/[\s-]+/g, '');
-            const found = getCategories().find(c =>
-              c.key === spoken ||
-              c.label.toLowerCase().replace(/[\s-]+/g, '') === spoken ||
-              c.key === spoken.replace(/up$/, '-up')
-            );
-            if (found) result.category = found.key;
-          }
-          if (!result.category) {
-            for (const [key, re] of Object.entries(catKeywords)) {
-              if (validCats.includes(key) && re.test(text)) { result.category = key; break; }
-            }
+        }
+
+        // 3. Keyword scan fallback
+        if (!result.category) {
+          for (const [key, re] of Object.entries(catKeywords)) {
+            if (validCats.includes(key) && re.test(text)) { result.category = key; break; }
           }
         }
 
@@ -22336,7 +22338,7 @@ QUESTION: ${query}`;
         </div>
       </div>
       <div class="vc-field">
-        <label class="vc-label">Category</label>
+        <label class="vc-label">Tags</label>
         <div id="nvc-category-chips" class="ncm-pills" style="padding:0"></div>
       </div>
       <div class="vc-field">
