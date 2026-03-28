@@ -1119,48 +1119,51 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 11px 16px;
+      padding: 10px 14px;
       margin: 0 0 4px 0;
       background: var(--bg-input);
       border: 1px solid var(--border);
       border-radius: 12px;
-      cursor: pointer;
-      user-select: none;
+      gap: 12px;
     }
     .copy-note-row-left {
       display: flex;
       align-items: center;
-      gap: 9px;
+      gap: 8px;
       font-size: 13px;
       font-weight: 600;
-      color: var(--text-primary);
-    }
-    .copy-note-row-left svg {
       color: var(--text-muted);
       flex-shrink: 0;
     }
-    .copy-note-toggle {
-      width: 38px;
-      height: 22px;
-      background: var(--border);
-      border-radius: 11px;
-      position: relative;
-      transition: background 0.2s;
-      flex-shrink: 0;
+    .copy-note-row-left svg { flex-shrink: 0; }
+    .cna-group {
+      display: flex;
+      gap: 5px;
+      flex: 1;
+      justify-content: flex-end;
     }
-    .copy-note-toggle.on {
+    .cna-btn {
+      padding: 6px 13px;
+      border-radius: 8px;
+      border: 1.5px solid var(--border);
+      background: transparent;
+      color: var(--text-muted);
+      font-size: 12px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all 0.15s;
+      white-space: nowrap;
+    }
+    .cna-btn.active {
       background: #2563eb;
+      border-color: #2563eb;
+      color: #fff;
     }
-    .copy-note-knob {
-      width: 16px;
-      height: 16px;
-      background: #fff;
-      border-radius: 50%;
-      position: absolute;
-      top: 3px;
-      left: 3px;
-      transition: transform 0.2s;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    .cna-btn.cna-move.active {
+      background: #7c3aed;
+      border-color: #7c3aed;
+      color: #fff;
     }
 
     @media (min-width: 640px) {
@@ -9312,7 +9315,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.26.72';
+    const VERSION = '4.26.73';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -12494,7 +12497,7 @@
     });
     // ─────────────────────────────────────────────────────────────
 
-    const copyPickerState = { actId: null, sourceDi: null, viewingWeekStart: null, selectedDates: new Set(), copyNote: true };
+    const copyPickerState = { actId: null, sourceDi: null, viewingWeekStart: null, selectedDates: new Set(), noteAction: 'copy' };
 
     function openCopyPicker(actId, di) {
       const act = state.weekData.days[di]?.activities.find(a => a.id === actId);
@@ -12503,7 +12506,7 @@
       copyPickerState.sourceDi = di;
       copyPickerState.viewingWeekStart = state.weekStart;
       copyPickerState.selectedDates = new Set();
-      copyPickerState.copyNote = !!(act.notes && act.notes.replace(/<[^>]*>/g, '').trim());
+      copyPickerState.noteAction = (act.notes && act.notes.replace(/<[^>]*>/g, '').trim()) ? 'copy' : 'none';
       renderCopyPicker(true);
     }
 
@@ -12528,12 +12531,11 @@
       renderCopyPicker();
     }
 
-    function toggleCopyNote() {
-      copyPickerState.copyNote = !copyPickerState.copyNote;
-      const tog = document.getElementById('copy-note-toggle');
-      if (tog) tog.classList.toggle('on', copyPickerState.copyNote);
-      const knob = document.getElementById('copy-note-knob');
-      if (knob) knob.style.transform = copyPickerState.copyNote ? 'translateX(18px)' : 'translateX(0)';
+    function setCopyNoteAction(action) {
+      copyPickerState.noteAction = action;
+      document.querySelectorAll('.cna-btn').forEach(b => {
+        b.classList.toggle('active', b.dataset.action === action);
+      });
     }
 
     function buildCopyPickerDaysHtml(ws, sourceDate) {
@@ -12593,14 +12595,17 @@
       endD.setDate(endD.getDate() + 6);
       const weekLabel = `${formatDate(ws)} – ${formatDate(dateToStr(endD))}`;
       const hasNote = !!(act && act.notes && act.notes.replace(/<[^>]*>/g, '').trim());
+      const na = copyPickerState.noteAction;
       const noteToggleHtml = hasNote ? `
-        <div class="copy-note-row" onclick="toggleCopyNote()">
-          <div class="copy-note-row-left" style="pointer-events:none;">
+        <div class="copy-note-row">
+          <div class="copy-note-row-left">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-            <span>Copy note too</span>
+            <span>Note</span>
           </div>
-          <div class="copy-note-toggle ${copyPickerState.copyNote ? 'on' : ''}" id="copy-note-toggle" style="pointer-events:none;">
-            <div class="copy-note-knob" id="copy-note-knob" style="transform:${copyPickerState.copyNote ? 'translateX(18px)' : 'translateX(0)'};pointer-events:none;"></div>
+          <div class="cna-group">
+            <button class="cna-btn ${na==='none'?'active':''}" data-action="none" onclick="setCopyNoteAction('none')">No note</button>
+            <button class="cna-btn ${na==='copy'?'active':''}" data-action="copy" onclick="setCopyNoteAction('copy')">Copy</button>
+            <button class="cna-btn cna-move ${na==='move'?'active':''}" data-action="move" onclick="setCopyNoteAction('move')">Move</button>
           </div>
         </div>` : '';
 
@@ -12629,7 +12634,7 @@
     }
 
     async function executeCopyTask() {
-      const { actId, sourceDi, selectedDates, copyNote } = copyPickerState;
+      const { actId, sourceDi, selectedDates, noteAction } = copyPickerState;
       if (!selectedDates.size) return;
       const sourceAct = state.weekData.days[sourceDi]?.activities.find(a => a.id === actId);
       if (!sourceAct) return;
@@ -12661,7 +12666,7 @@
           newAct.tasks = sourceAct.tasks || '';
           newAct.timePerTask = sourceAct.timePerTask || '';
           newAct.otPerTask = sourceAct.otPerTask || '';
-          if (copyNote) newAct.notes = sourceAct.notes || '';
+          if (noteAction !== 'none') newAct.notes = sourceAct.notes || '';
           state.weekData.days[dayIdx].activities.push(newAct);
         });
         delete datesByWeek[state.weekStart];
@@ -12693,7 +12698,7 @@
             newAct.tasks = sourceAct.tasks || '';
             newAct.timePerTask = sourceAct.timePerTask || '';
             newAct.otPerTask = sourceAct.otPerTask || '';
-            if (copyNote) newAct.notes = sourceAct.notes || '';
+            if (noteAction !== 'none') newAct.notes = sourceAct.notes || '';
             weekData.days[dayIdx].activities.push(newAct);
           });
 
@@ -12705,9 +12710,16 @@
         }
       }
 
+      // Move: clear note from source task
+      if (noteAction === 'move') {
+        sourceAct.notes = '';
+        scheduleAutoSave();
+      }
+
       closeCopyPicker();
       render();
-      showToast(`Task copied to ${selectedDates.size} day${selectedDates.size !== 1 ? 's' : ''}${copyNote ? ' · note included' : ''}`);
+      const noteSuffix = noteAction === 'copy' ? ' · note copied' : noteAction === 'move' ? ' · note moved' : '';
+      showToast(`Task copied to ${selectedDates.size} day${selectedDates.size !== 1 ? 's' : ''}${noteSuffix}`);
     }
 
     // ============================================================
