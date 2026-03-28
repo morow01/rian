@@ -9486,7 +9486,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.27.3';
+    const VERSION = '4.27.4';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -22045,6 +22045,7 @@ QUESTION: ${query}`;
   <!-- ===== VOICE CONFIRM SHEET ===== -->
   <div id="voice-confirm-modal">
     <div class="vc-sheet">
+      <form autocomplete="off" onsubmit="return false" style="margin:0;padding:0;border:0">
       <div class="vc-title">Add Entry</div>
       <div class="vc-heard"><strong>Heard:</strong> <span id="vc-heard-text"></span></div>
       <div class="vc-field">
@@ -22054,8 +22055,7 @@ QUESTION: ${query}`;
       <div class="vc-field">
         <label class="vc-label">Description</label>
         <input id="vc-desc" class="vc-input" type="text" placeholder="e.g. Routines"
-          autocomplete="off" data-lpignore="true" data-form-type="other" data-1p-ignore="true"
-          readonly onfocus="this.removeAttribute('readonly')">
+          autocomplete="off" data-lpignore="true" data-form-type="other" data-1p-ignore="true">
       </div>
       <div class="vc-field">
         <label class="vc-label">Location</label>
@@ -22106,6 +22106,7 @@ QUESTION: ${query}`;
         <button class="vc-btn primary" onclick="confirmVoiceEntry()">Add to Timesheet</button>
         <button class="vc-btn secondary" onclick="cancelVoice()">Cancel</button>
       </div>
+      </form>
     </div>
   </div>
 
