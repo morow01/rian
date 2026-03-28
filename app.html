@@ -6066,7 +6066,7 @@
     .note-pri-dots {
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 10px;
       flex: 1;
     }
 
@@ -9486,7 +9486,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.26.98';
+    const VERSION = '4.26.99';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -20095,7 +20095,7 @@ Known categories: ${getCategories().map(c => c.label + ' (' + c.key + ')').join(
 Today's date: ${dateToStr(new Date())}
 Return: { "description": "...", "location": "...", "priority": "high|medium|low", "category": "${catKeys}|", "reminder": { "date": "YYYY-MM-DD", "time": "HH:MM" } | null }
 Rules:
-- description: the main task or subject. Be specific. Title-case it. Do NOT include category/priority/reminder text.
+- description: the main subject or activity. Even if spoken in past tense or as narration, extract what happened or what needs doing. ALWAYS return a non-empty description. Title-case it. Do NOT include category/priority/reminder/location text.
 - location: if a town/exchange is mentioned by name or code, return "Name (CODE)". Otherwise return "".
 - priority: "high" if urgent/critical/important/asap, "low" if minor/low/whenever, else "medium".
 - category: match to one of the known category keys if mentioned or implied. Use "" if unclear.
@@ -20116,7 +20116,13 @@ Rules:
         const jsonStr = raw.replace(/```json\s*/gi, '').replace(/```/g, '').trim();
         const p = JSON.parse(jsonStr);
 
-        const result = { description: p.description || '', location: '', priority: 'medium', category: '', reminder: null };
+        // If Gemini returns no description, fall back to JS parser then raw text
+        let desc = p.description || '';
+        if (!desc) {
+          const jsFallback = parseNoteVoiceText(text);
+          desc = jsFallback.description || text.trim();
+        }
+        const result = { description: desc, location: '', priority: 'medium', category: '', reminder: null };
 
         // Trust JS location scan over Gemini (more reliable with spoken codes)
         const wbRe = n => new RegExp('\\b' + n.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\b', 'i');
@@ -22160,4 +22166,4 @@ QUESTION: ${query}`;
         <label class="vc-label">Location</label>
         <div style="display:flex;gap:8px;align-items:center">
           <input id="nvc-loc" class="vc-input" type="text" placeholder="Town name or code" style="flex:1;min-width:0"
-            autocomplete="off" data-lpignore="true" data-form-type="other" data-1p-ignore=
+            autocomplete="off" data-lpignore="true" data-form-type="other" data-1p-ignore
