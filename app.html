@@ -9265,7 +9265,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.26.68';
+    const VERSION = '4.26.69';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -12717,8 +12717,17 @@
       const priority = noteConfirmPriority || 'medium';
       const dayDate = state.weekData.days[di]?.date || dateToStr(new Date());
 
-      // Ensure notes are loaded
-      if (!state.notes || !state.notes.length) await loadNotes();
+      // Ensure notes are loaded from local cache before saving.
+      // IMPORTANT: do NOT call loadNotes() here — it sets up a new Firestore listener
+      // and the first snapshot can arrive AFTER scheduleNotesSave() is already queued,
+      // causing the save to fire with only the new note and wipe all existing notes.
+      // A direct IndexedDB read is safe and synchronous enough.
+      if (!state.notes || !state.notes.length) {
+        const stored = await dbGet('notes', 'notes_all');
+        if (stored && stored.data && stored.data.length > 0) {
+          state.notes = stored.data;
+        }
+      }
 
       const note = createNote();
       note.description = act.description || '';
