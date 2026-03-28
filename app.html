@@ -9321,7 +9321,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.26.76';
+    const VERSION = '4.26.77';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -13811,7 +13811,11 @@
           migrated = true;
         }
       });
-      if (migrated) scheduleNotesSave();
+      // NOTE: do NOT call scheduleNotesSave() here.
+      // migrateNotesHTML runs on locally-loaded (possibly stale) data before Firestore
+      // has synced. Saving here races with the incoming snapshot and can overwrite
+      // notes created on another device. Callers that have already received the
+      // Firestore snapshot are responsible for saving if migration ran.
       return migrated;
     }
 
@@ -13873,8 +13877,10 @@
         const localEditing = editingNoteId ? deepCopy(state.notes.find(n => n.id === editingNoteId)) : null;
 
         state.notes = deepCopy(remote.notes);
-        // Strip any HTML still in descriptions from remote data
-        migrateNotesHTML(state.notes);
+        // Strip any HTML still in descriptions from remote data.
+        // Safe to save here — we have the canonical Firestore snapshot.
+        const _migrated = migrateNotesHTML(state.notes);
+        if (_migrated) scheduleNotesSave();
 
         // Restore locally-edited note to prevent data loss
         if (localEditing) {
