@@ -4739,13 +4739,15 @@
     .bulk-action-bar {
       position: fixed;
       bottom: 0;
-      left: 0;
-      right: 0;
-      transform: translateY(110%);
+      left: 50%;
+      transform: translateX(-50%) translateY(110%);
+      width: 100%;
+      max-width: 672px;
       background: rgba(255, 255, 255, 0.97);
       backdrop-filter: blur(10px);
       -webkit-backdrop-filter: blur(10px);
       border-top: 1px solid var(--border);
+      border-radius: 16px 16px 0 0;
       padding: 10px 16px calc(10px + env(safe-area-inset-bottom, 0px));
       display: flex;
       flex-direction: column;
@@ -4753,12 +4755,11 @@
       box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.10);
       z-index: 1000;
       transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-      width: 100%;
       box-sizing: border-box;
     }
 
     .bulk-action-bar.show {
-      transform: translateY(0);
+      transform: translateX(-50%) translateY(0);
     }
 
     .bulk-action-btns {
@@ -9206,7 +9207,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.26.58';
+    const VERSION = '4.26.59';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
