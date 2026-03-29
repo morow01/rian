@@ -9600,7 +9600,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '4.27.41';
+    const VERSION = '4.27.42';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -22126,6 +22126,8 @@ QUESTION: ${query}`;
             cellTrigger.style.left = coords.left + 'px';
           }
           cellTrigger.style.display = 'flex';
+          // Save cell position so _ttCellAct can use it even if editor blurs on mobile
+          window._ttSavedCellFrom = editor.view.state.selection.from;
         }
       } else {
         if (tableBar) tableBar.style.display = 'none';
@@ -22162,9 +22164,25 @@ QUESTION: ${query}`;
       document.getElementById('tt-cell-popup').style.display = 'none';
       if (!e) return;
 
-      // Helper: find cell depth from current selection
-      function _cellDepth() {
-        const $h = e.view.state.selection.$head;
+      // Helper: resolve $head from current selection, falling back to saved position
+      // (mobile blurs the editor when tapping popup buttons, losing the selection)
+      function _resolvedHead() {
+        const state = e.view.state;
+        let $h = state.selection.$head;
+        // Check if $h is actually inside a table cell
+        for (let d = $h.depth; d > 0; d--) {
+          const r = $h.node(d).type.spec.tableRole;
+          if (r === 'cell' || r === 'header_cell') return $h;
+        }
+        // Fallback: use saved position from when trigger was last shown
+        if (window._ttSavedCellFrom != null) {
+          try { return state.doc.resolve(window._ttSavedCellFrom); } catch(_) {}
+        }
+        return null;
+      }
+
+      function _cellDepth($h) {
+        if (!$h) return -1;
         for (let d = $h.depth; d > 0; d--) {
           const r = $h.node(d).type.spec.tableRole;
           if (r === 'cell' || r === 'header_cell') return d;
@@ -22184,8 +22202,8 @@ QUESTION: ${query}`;
       }
       else if (action === 'merge-right') {
         const { state } = e.view;
-        const $h = state.selection.$head;
-        const cd = _cellDepth();
+        const $h = _resolvedHead();
+        const cd = _cellDepth($h);
         if (cd === -1) { showToast('Place cursor in a cell first'); return; }
         const anchorCell = $h.before(cd);
         const headCell   = anchorCell + $h.node(cd).nodeSize;
@@ -22198,8 +22216,8 @@ QUESTION: ${query}`;
       }
       else if (action === 'merge-down') {
         const { state } = e.view;
-        const $h = state.selection.$head;
-        const cd = _cellDepth();
+        const $h = _resolvedHead();
+        const cd = _cellDepth($h);
         if (cd === -1) { showToast('Place cursor in a cell first'); return; }
         const rowDepth   = cd - 1;
         const tableDepth = cd - 2;
@@ -22210,8 +22228,7 @@ QUESTION: ${query}`;
         const nextRow    = tableNode.child(rowIndex + 1);
         if (colIndex >= nextRow.childCount) { showToast('No cell below'); return; }
         const anchorCell = $h.before(cd);
-        // Walk to the start of next row, then to the target column
-        let pos = $h.before(rowDepth) + $h.node(rowDepth).nodeSize + 1; // inside next row
+        let pos = $h.before(rowDepth) + $h.node(rowDepth).nodeSize + 1;
         for (let i = 0; i < colIndex; i++) pos += nextRow.child(i).nodeSize;
         const headCell = pos + nextRow.child(colIndex).nodeSize;
         try {
@@ -23059,34 +23076,34 @@ QUESTION: ${query}`;
         </button>
       </div>
       <!-- Floating cell action trigger -->
-      <button id="tt-cell-trigger" title="Cell actions" onclick="_ttToggleCellPopup(event)">
+      <button id="tt-cell-trigger" title="Cell actions" onmousedown="event.preventDefault()" onclick="_ttToggleCellPopup(event)">
         <svg viewBox="0 0 20 20"><circle cx="10" cy="4" r="1.8"/><circle cx="10" cy="10" r="1.8"/><circle cx="10" cy="16" r="1.8"/></svg>
       </button>
       <!-- Cell actions popup -->
       <div id="tt-cell-popup">
         <div class="tcp-section">Row</div>
         <div class="tcp-grid">
-          <button class="tcp-btn" onclick="_ttCellAct('row-before')"><svg viewBox="0 0 20 20"><rect x="2" y="10" width="16" height="8" rx="1.5"/><line x1="10" y1="2" x2="10" y2="7"/><line x1="7" y1="4.5" x2="13" y2="4.5"/></svg>Above</button>
-          <button class="tcp-btn" onclick="_ttCellAct('row-after')"><svg viewBox="0 0 20 20"><rect x="2" y="2" width="16" height="8" rx="1.5"/><line x1="10" y1="13" x2="10" y2="18"/><line x1="7" y1="15.5" x2="13" y2="15.5"/></svg>Below</button>
-          <button class="tcp-btn tcp-del" onclick="_ttCellAct('row-del')"><svg viewBox="0 0 20 20"><rect x="2" y="6" width="16" height="8" rx="1.5"/><line x1="7.5" y1="9.5" x2="12.5" y2="10.5"/><line x1="12.5" y1="9.5" x2="7.5" y2="10.5"/></svg>Delete</button>
+          <button class="tcp-btn" onmousedown="event.preventDefault()" onclick="_ttCellAct('row-before')"><svg viewBox="0 0 20 20"><rect x="2" y="10" width="16" height="8" rx="1.5"/><line x1="10" y1="2" x2="10" y2="7"/><line x1="7" y1="4.5" x2="13" y2="4.5"/></svg>Above</button>
+          <button class="tcp-btn" onmousedown="event.preventDefault()" onclick="_ttCellAct('row-after')"><svg viewBox="0 0 20 20"><rect x="2" y="2" width="16" height="8" rx="1.5"/><line x1="10" y1="13" x2="10" y2="18"/><line x1="7" y1="15.5" x2="13" y2="15.5"/></svg>Below</button>
+          <button class="tcp-btn tcp-del" onmousedown="event.preventDefault()" onclick="_ttCellAct('row-del')"><svg viewBox="0 0 20 20"><rect x="2" y="6" width="16" height="8" rx="1.5"/><line x1="7.5" y1="9.5" x2="12.5" y2="10.5"/><line x1="12.5" y1="9.5" x2="7.5" y2="10.5"/></svg>Delete</button>
         </div>
         <div class="tcp-sep"></div>
         <div class="tcp-section">Column</div>
         <div class="tcp-grid">
-          <button class="tcp-btn" onclick="_ttCellAct('col-before')"><svg viewBox="0 0 20 20"><rect x="10" y="2" width="8" height="16" rx="1.5"/><line x1="2" y1="10" x2="7" y2="10"/><line x1="4.5" y1="7" x2="4.5" y2="13"/></svg>Left</button>
-          <button class="tcp-btn" onclick="_ttCellAct('col-after')"><svg viewBox="0 0 20 20"><rect x="2" y="2" width="8" height="16" rx="1.5"/><line x1="13" y1="10" x2="18" y2="10"/><line x1="15.5" y1="7" x2="15.5" y2="13"/></svg>Right</button>
-          <button class="tcp-btn tcp-del" onclick="_ttCellAct('col-del')"><svg viewBox="0 0 20 20"><rect x="6" y="2" width="8" height="16" rx="1.5"/><line x1="9" y1="8.5" x2="11" y2="11.5"/><line x1="11" y1="8.5" x2="9" y2="11.5"/></svg>Delete</button>
+          <button class="tcp-btn" onmousedown="event.preventDefault()" onclick="_ttCellAct('col-before')"><svg viewBox="0 0 20 20"><rect x="10" y="2" width="8" height="16" rx="1.5"/><line x1="2" y1="10" x2="7" y2="10"/><line x1="4.5" y1="7" x2="4.5" y2="13"/></svg>Left</button>
+          <button class="tcp-btn" onmousedown="event.preventDefault()" onclick="_ttCellAct('col-after')"><svg viewBox="0 0 20 20"><rect x="2" y="2" width="8" height="16" rx="1.5"/><line x1="13" y1="10" x2="18" y2="10"/><line x1="15.5" y1="7" x2="15.5" y2="13"/></svg>Right</button>
+          <button class="tcp-btn tcp-del" onmousedown="event.preventDefault()" onclick="_ttCellAct('col-del')"><svg viewBox="0 0 20 20"><rect x="6" y="2" width="8" height="16" rx="1.5"/><line x1="9" y1="8.5" x2="11" y2="11.5"/><line x1="11" y1="8.5" x2="9" y2="11.5"/></svg>Delete</button>
         </div>
         <div class="tcp-sep"></div>
         <div class="tcp-section">Merge / Split</div>
         <div class="tcp-grid">
-          <button class="tcp-btn" onclick="_ttCellAct('merge-right')"><svg viewBox="0 0 20 20"><rect x="2" y="2" width="16" height="16" rx="1.5"/><line x1="10" y1="2" x2="10" y2="18"/><polyline points="13,7 17,10 13,13"/></svg>→ Right</button>
-          <button class="tcp-btn" onclick="_ttCellAct('merge-down')"><svg viewBox="0 0 20 20"><rect x="2" y="2" width="16" height="16" rx="1.5"/><line x1="2" y1="10" x2="18" y2="10"/><polyline points="7,13 10,17 13,13"/></svg>↓ Down</button>
-          <button class="tcp-btn" onclick="_ttCellAct('split')"><svg viewBox="0 0 20 20"><rect x="2" y="2" width="16" height="16" rx="1.5"/><line x1="10" y1="2" x2="10" y2="18"/><line x1="2" y1="10" x2="18" y2="10"/></svg>Split</button>
+          <button class="tcp-btn" onmousedown="event.preventDefault()" onclick="_ttCellAct('merge-right')"><svg viewBox="0 0 20 20"><rect x="2" y="2" width="16" height="16" rx="1.5"/><line x1="10" y1="2" x2="10" y2="18"/><polyline points="13,7 17,10 13,13"/></svg>→ Right</button>
+          <button class="tcp-btn" onmousedown="event.preventDefault()" onclick="_ttCellAct('merge-down')"><svg viewBox="0 0 20 20"><rect x="2" y="2" width="16" height="16" rx="1.5"/><line x1="2" y1="10" x2="18" y2="10"/><polyline points="7,13 10,17 13,13"/></svg>↓ Down</button>
+          <button class="tcp-btn" onmousedown="event.preventDefault()" onclick="_ttCellAct('split')"><svg viewBox="0 0 20 20"><rect x="2" y="2" width="16" height="16" rx="1.5"/><line x1="10" y1="2" x2="10" y2="18"/><line x1="2" y1="10" x2="18" y2="10"/></svg>Split</button>
         </div>
         <div class="tcp-sep"></div>
         <div class="tcp-grid" style="grid-template-columns:1fr">
-          <button class="tcp-btn tcp-del" onclick="_ttCellAct('table-del')"><svg viewBox="0 0 20 20" style="width:14px;height:14px;display:inline;vertical-align:middle"><rect x="2" y="2" width="16" height="16" rx="1.5"/><line x1="2" y1="7" x2="18" y2="7"/><line x1="2" y1="13" x2="18" y2="13"/><line x1="7" y1="2" x2="7" y2="18"/><line x1="13" y1="2" x2="13" y2="18"/><line x1="5" y1="5" x2="15" y2="15"/><line x1="15" y1="5" x2="5" y2="15"/></svg> Delete table</button>
+          <button class="tcp-btn tcp-del" onmousedown="event.preventDefault()" onclick="_ttCellAct('table-del')"><svg viewBox="0 0 20 20" style="width:14px;height:14px;display:inline;vertical-align:middle"><rect x="2" y="2" width="16" height="16" rx="1.5"/><line x1="2" y1="7" x2="18" y2="7"/><line x1="2" y1="13" x2="18" y2="13"/><line x1="7" y1="2" x2="7" y2="18"/><line x1="13" y1="2" x2="13" y2="18"/><line x1="5" y1="5" x2="15" y2="15"/><line x1="15" y1="5" x2="5" y2="15"/></svg> Delete table</button>
         </div>
       </div>
       <!-- Hidden image file input -->
