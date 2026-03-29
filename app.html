@@ -9512,7 +9512,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '4.27.25';
+    const VERSION = '4.27.26';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -14132,8 +14132,15 @@
         const editingNoteId = active && (active.tagName === 'TEXTAREA' || active.tagName === 'INPUT')
           ? active.dataset.noteId : null;
 
+        // Also protect TipTap editor if it's open for a field note
+        const tiptapEditingId = (_fnFsNoteId && !document.getElementById('note-fs-modal')?.classList.contains('hidden'))
+          ? _fnFsNoteId : null;
+
         // Preserve the note being actively edited (prevent Firestore echo from overwriting mid-typing)
-        const localEditing = editingNoteId ? deepCopy(state.notes.find(n => n.id === editingNoteId)) : null;
+        // For TipTap: protect if a save happened in the last 10 seconds (echo protection window)
+        const tiptapRecentlySaved = tiptapEditingId && (Date.now() - _tiptapLastSaveAt < 10000);
+        const effectiveEditingId = editingNoteId || (tiptapRecentlySaved ? tiptapEditingId : null);
+        const localEditing = effectiveEditingId ? deepCopy(state.notes.find(n => n.id === effectiveEditingId)) : null;
 
         state.notes = deepCopy(remote.notes);
         // Strip any HTML still in descriptions from remote data.
@@ -14147,9 +14154,18 @@
           if (idx >= 0) state.notes[idx] = localEditing;
         }
 
+        // Conflict detection: if TipTap is open and another device saved this note more recently
+        if (tiptapEditingId && !tiptapRecentlySaved) {
+          const remoteNote = remote.notes.find(n => n.id === tiptapEditingId);
+          const localNote = state.notes.find(n => n.id === tiptapEditingId);
+          if (remoteNote && localNote && remoteNote.updatedAt > (_tiptapLastSaveAt || 0)) {
+            showToast('Note updated on another device — close & reopen to reload');
+          }
+        }
+
         dbPut('notes', { id: 'notes_all', userId: state.currentUser?.uid || null, data: state.notes, updatedAt: remote._updatedAt || Date.now() });
 
-        if (state.view === 'notes' && !editingNoteId) render();
+        if (state.view === 'notes' && !editingNoteId && !tiptapEditingId) render();
 
         state.notesSyncStatus = 'synced';
         updateHeaderStatus();
@@ -15027,10 +15043,11 @@
       setTimeout(async () => {
         await _ensureTipTap();
         _ttSetContent(note.noteContent || '');
+        _tiptapLastSaveAt = 0;
         _tiptapOnUpdate = (editor) => {
           const html = _ttGetHTML();
           const n = state.notes.find(x => x.id === noteId);
-          if (n) { n.noteContent = html; n.updatedAt = Date.now(); scheduleNotesSave(); }
+          if (n) { n.noteContent = html; n.updatedAt = Date.now(); _tiptapLastSaveAt = Date.now(); scheduleNotesSave(); }
         };
         _tiptapEditor.commands.focus();
         _ttUpdateToolbar(_tiptapEditor);
@@ -21659,6 +21676,7 @@ QUESTION: ${query}`;
     let _tiptapEditor = null;      // singleton TipTap Editor instance
     let _tiptapOnUpdate = null;    // swappable update callback
     let _tiptapModules = null;     // cached ES module imports
+    let _tiptapLastSaveAt = 0;     // timestamp of last TipTap-triggered save (for conflict detection)
 
     async function _loadTipTapModules() {
       if (_tiptapModules) return _tiptapModules;
