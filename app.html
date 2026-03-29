@@ -3700,17 +3700,23 @@
     }
 
     #note-fs-tt-colors {
-      border-bottom: 1px solid var(--border);
+      display: none; /* hidden by default, toggled by palette button */
+      position: absolute;
+      top: calc(100% + 2px);
+      left: 0; right: 0;
+      z-index: 20;
+      border: 1px solid var(--border);
+      border-radius: 0 0 10px 10px;
       background: var(--bg-card);
-      padding: 6px 8px;
+      padding: 8px 10px;
       flex-shrink: 0;
-      display: flex;
       align-items: center;
       gap: 5px;
-      overflow-x: auto;
-      scrollbar-width: none;
+      flex-wrap: wrap;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.12);
     }
-    #note-fs-tt-colors::-webkit-scrollbar { display: none; }
+    #note-fs-tt-colors.tt-colors-open { display: flex; }
+    .tt-toolbar-wrap { position: relative; }
     .tt-colors-label {
       font-size: 10px; font-weight: 700; color: var(--text-muted);
       flex-shrink: 0;
@@ -3788,6 +3794,11 @@
       color: var(--text-muted);
       margin: 6px 0;
     }
+    #note-fs-editor .ProseMirror a {
+      color: #818cf8;
+      text-decoration: underline;
+      cursor: pointer;
+    }
     #note-fs-editor .ProseMirror code {
       background: var(--bg-page);
       border-radius: 4px;
@@ -3805,8 +3816,9 @@
 
     /* Code block */
     #note-fs-editor .ProseMirror pre {
-      background: #1e293b;
-      color: #e2e8f0;
+      background: #f1f5f9;
+      color: #1e293b;
+      border: 1px solid #e2e8f0;
       border-radius: 8px;
       padding: 12px 14px;
       font-size: 13px;
@@ -3814,7 +3826,7 @@
       overflow-x: auto;
       margin: 8px 0;
     }
-    #note-fs-editor .ProseMirror pre code { background: none; padding: 0; font-size: inherit; }
+    #note-fs-editor .ProseMirror pre code { background: none; padding: 0; font-size: inherit; color: inherit; }
 
     /* Task list */
     #note-fs-editor .ProseMirror ul[data-type="taskList"] {
@@ -9512,7 +9524,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '4.27.26';
+    const VERSION = '4.27.27';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -14139,7 +14151,9 @@
         // Preserve the note being actively edited (prevent Firestore echo from overwriting mid-typing)
         // For TipTap: protect if a save happened in the last 10 seconds (echo protection window)
         const tiptapRecentlySaved = tiptapEditingId && (Date.now() - _tiptapLastSaveAt < 10000);
-        const effectiveEditingId = editingNoteId || (tiptapRecentlySaved ? tiptapEditingId : null);
+        // Also protect for 8s after editor closed (allows debounce timer to fire + Firestore echo to settle)
+        const recentClosedNote = _tiptapLastSavedNoteId && (Date.now() - _tiptapLastSaveAt < 8000) ? _tiptapLastSavedNoteId : null;
+        const effectiveEditingId = editingNoteId || (tiptapRecentlySaved ? tiptapEditingId : null) || recentClosedNote;
         const localEditing = effectiveEditingId ? deepCopy(state.notes.find(n => n.id === effectiveEditingId)) : null;
 
         state.notes = deepCopy(remote.notes);
@@ -14165,7 +14179,7 @@
 
         dbPut('notes', { id: 'notes_all', userId: state.currentUser?.uid || null, data: state.notes, updatedAt: remote._updatedAt || Date.now() });
 
-        if (state.view === 'notes' && !editingNoteId && !tiptapEditingId) render();
+        if (state.view === 'notes' && !editingNoteId && !tiptapEditingId && !recentClosedNote) render();
 
         state.notesSyncStatus = 'synced';
         updateHeaderStatus();
@@ -15044,10 +15058,11 @@
         await _ensureTipTap();
         _ttSetContent(note.noteContent || '');
         _tiptapLastSaveAt = 0;
+        _tiptapLastSavedNoteId = noteId;
         _tiptapOnUpdate = (editor) => {
           const html = _ttGetHTML();
           const n = state.notes.find(x => x.id === noteId);
-          if (n) { n.noteContent = html; n.updatedAt = Date.now(); _tiptapLastSaveAt = Date.now(); scheduleNotesSave(); }
+          if (n) { n.noteContent = html; n.updatedAt = Date.now(); _tiptapLastSaveAt = Date.now(); _tiptapLastSavedNoteId = noteId; scheduleNotesSave(); }
         };
         _tiptapEditor.commands.focus();
         _ttUpdateToolbar(_tiptapEditor);
@@ -21677,6 +21692,7 @@ QUESTION: ${query}`;
     let _tiptapOnUpdate = null;    // swappable update callback
     let _tiptapModules = null;     // cached ES module imports
     let _tiptapLastSaveAt = 0;     // timestamp of last TipTap-triggered save (for conflict detection)
+    let _tiptapLastSavedNoteId = null; // noteId of last TipTap save (protects note post-close)
 
     async function _loadTipTapModules() {
       if (_tiptapModules) return _tiptapModules;
@@ -21761,6 +21777,11 @@ QUESTION: ${query}`;
         },
         onSelectionUpdate({ editor }) { _ttUpdateToolbar(editor); },
       });
+      // Click handler: open links in new tab when clicked
+      document.getElementById('note-fs-editor').addEventListener('click', (e) => {
+        const link = e.target.closest('a[href]');
+        if (link) { e.preventDefault(); window.open(link.href, '_blank', 'noopener'); }
+      });
       _ttBindToolbar();
     }
 
@@ -21810,22 +21831,27 @@ QUESTION: ${query}`;
       on('tt-undo',  () => e.chain().focus().undo().run());
       on('tt-redo',  () => e.chain().focus().redo().run());
       on('tt-clear', () => { e.chain().focus().unsetAllMarks().clearNodes().run(); _ttUpdateToolbar(e); });
+      // Helper: close colour palette after picking
+      const _closePalette = () => {
+        document.getElementById('note-fs-tt-colors')?.classList.remove('tt-colors-open');
+        document.getElementById('tt-palette')?.classList.remove('tt-active');
+      };
       // Text colours
-      on('tt-col-black',  () => e.chain().focus().setColor('#1e293b').run());
-      on('tt-col-red',    () => e.chain().focus().setColor('#e53935').run());
-      on('tt-col-orange', () => e.chain().focus().setColor('#f57c00').run());
-      on('tt-col-green',  () => e.chain().focus().setColor('#2e7d32').run());
-      on('tt-col-blue',   () => e.chain().focus().setColor('#1565c0').run());
-      on('tt-col-purple', () => e.chain().focus().setColor('#6a1b9a').run());
-      on('tt-col-reset',  () => e.chain().focus().unsetColor().run());
+      on('tt-col-black',  () => { e.chain().focus().setColor('#1e293b').run(); _closePalette(); });
+      on('tt-col-red',    () => { e.chain().focus().setColor('#e53935').run(); _closePalette(); });
+      on('tt-col-orange', () => { e.chain().focus().setColor('#f57c00').run(); _closePalette(); });
+      on('tt-col-green',  () => { e.chain().focus().setColor('#2e7d32').run(); _closePalette(); });
+      on('tt-col-blue',   () => { e.chain().focus().setColor('#1565c0').run(); _closePalette(); });
+      on('tt-col-purple', () => { e.chain().focus().setColor('#6a1b9a').run(); _closePalette(); });
+      on('tt-col-reset',  () => { e.chain().focus().unsetColor().run(); _closePalette(); });
       // Highlights
-      on('tt-hl-yellow', () => e.chain().focus().setHighlight({ color: '#fef08a' }).run());
-      on('tt-hl-green',  () => e.chain().focus().setHighlight({ color: '#bbf7d0' }).run());
-      on('tt-hl-red',    () => e.chain().focus().setHighlight({ color: '#fecaca' }).run());
-      on('tt-hl-blue',   () => e.chain().focus().setHighlight({ color: '#bfdbfe' }).run());
-      on('tt-hl-purple', () => e.chain().focus().setHighlight({ color: '#e9d5ff' }).run());
-      on('tt-hl-orange', () => e.chain().focus().setHighlight({ color: '#fed7aa' }).run());
-      on('tt-hl-reset',  () => e.chain().focus().unsetHighlight().run());
+      on('tt-hl-yellow', () => { e.chain().focus().setHighlight({ color: '#fef08a' }).run(); _closePalette(); });
+      on('tt-hl-green',  () => { e.chain().focus().setHighlight({ color: '#bbf7d0' }).run(); _closePalette(); });
+      on('tt-hl-red',    () => { e.chain().focus().setHighlight({ color: '#fecaca' }).run(); _closePalette(); });
+      on('tt-hl-blue',   () => { e.chain().focus().setHighlight({ color: '#bfdbfe' }).run(); _closePalette(); });
+      on('tt-hl-purple', () => { e.chain().focus().setHighlight({ color: '#e9d5ff' }).run(); _closePalette(); });
+      on('tt-hl-orange', () => { e.chain().focus().setHighlight({ color: '#fed7aa' }).run(); _closePalette(); });
+      on('tt-hl-reset',  () => { e.chain().focus().unsetHighlight().run(); _closePalette(); });
     }
 
     function _ttUpdateToolbar(editor) {
@@ -21953,8 +21979,17 @@ QUESTION: ${query}`;
         }
         return;
       }
-      // If we were editing a field note's noteContent, re-render to reflect changes
+      // If we were editing a field note's noteContent, flush final content + re-render
       if (_fnFsNoteId) {
+        // Capture final editor content immediately (before any async onSnapshot can overwrite)
+        if (_tiptapEditor) {
+          const html = _ttGetHTML();
+          const n = state.notes.find(x => x.id === _fnFsNoteId);
+          if (n) { n.noteContent = html; n.updatedAt = Date.now(); }
+        }
+        _tiptapLastSavedNoteId = _fnFsNoteId;
+        _tiptapLastSaveAt = Date.now();
+        scheduleNotesSave();
         _fnFsNoteId = null;
         render();
       }
@@ -22495,7 +22530,8 @@ QUESTION: ${query}`;
         <button onclick="closeNoteFullscreen()"
           style="font-size:13px;color:#fff;padding:5px 14px;border-radius:8px;background:#F5A623;border:none;cursor:pointer;font-weight:700;flex-shrink:0;">Done</button>
       </div>
-      <!-- TipTap toolbar row -->
+      <!-- TipTap toolbar row + colour dropdown wrapper -->
+      <div class="tt-toolbar-wrap">
       <div id="note-fs-tt-toolbar">
         <!-- Text formatting -->
         <button class="tt-btn" id="tt-bold" title="Bold"><b>B</b></button>
@@ -22563,7 +22599,13 @@ QUESTION: ${query}`;
         <button class="tt-btn" id="tt-clear" title="Clear formatting">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/><line x1="2" y1="2" x2="22" y2="22"/></svg>
         </button>
+        <div class="tt-sep"></div>
+        <!-- Colour palette toggle -->
+        <button class="tt-btn" id="tt-palette" title="Text colour / highlight" onclick="document.getElementById('note-fs-tt-colors').classList.toggle('tt-colors-open');this.classList.toggle('tt-active')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10c.83 0 1.5-.67 1.5-1.5 0-.39-.15-.74-.39-1.01-.23-.26-.38-.61-.38-.99 0-.83.67-1.5 1.5-1.5H16c2.76 0 5-2.24 5-5 0-4.42-4.03-8-9-8z"/><circle cx="6.5" cy="11.5" r="1.5" fill="currentColor" stroke="none"/><circle cx="9.5" cy="7.5" r="1.5" fill="#e53935" stroke="none"/><circle cx="14.5" cy="7.5" r="1.5" fill="#1565c0" stroke="none"/><circle cx="17.5" cy="11.5" r="1.5" fill="#2e7d32" stroke="none"/></svg>
+        </button>
       </div>
+      <!-- Colour picker dropdown (hidden by default) -->
       <!-- Table context bar (shown when cursor is inside a table) -->
       <div id="note-fs-tt-table-bar">
         <span class="tt-tbl-label">Table</span>
@@ -22582,7 +22624,7 @@ QUESTION: ${query}`;
       </div>
       <!-- Hidden image file input -->
       <input type="file" id="tt-image-input" accept="image/*" style="display:none">
-      <!-- TipTap colour row -->
+      <!-- TipTap colour picker (inside wrapper for absolute positioning) -->
       <div id="note-fs-tt-colors">
         <span class="tt-colors-label">A</span>
         <button class="tt-swatch" id="tt-col-black"  style="background:#1e293b" title="Black"></button>
@@ -22602,6 +22644,7 @@ QUESTION: ${query}`;
         <button class="tt-swatch" id="tt-hl-orange" style="background:#fed7aa" title="Orange"></button>
         <button class="tt-swatch" id="tt-hl-reset"  style="background:#f1f5f9;border-color:#cbd5e1" title="Remove highlight"></button>
       </div>
+      </div><!-- end tt-toolbar-wrap -->
       <!-- TipTap editor area -->
       <div id="note-fs-editor"></div>
     </div>
