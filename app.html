@@ -9914,7 +9914,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '4.27.52';
+    const VERSION = '4.27.53';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -22635,7 +22635,7 @@ QUESTION: ${query}`;
           const _ctx = _c.getContext('2d');
           _ctx.font = '12px ' + (getComputedStyle(inputEl).fontFamily || 'system-ui,sans-serif');
           const _tw = _ctx.measureText(href || inputEl.placeholder || 'Paste or type URL…').width;
-          inputEl.style.width = Math.ceil(_tw + 20) + 'px';
+          inputEl.style.width = Math.ceil(_tw + 36) + 'px';
         } catch (e2) { inputEl.style.width = ''; }
       }
       // Position below the cursor; left-align to the editor container so full width shows
