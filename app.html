@@ -20,6 +20,7 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-storage-compat.js"></script>
   <!-- Firebase Messaging SDK removed — using raw Web Push API instead -->
   <style>
     /* ===== THEME VARIABLES ===== */
@@ -3789,6 +3790,104 @@
       pointer-events: none;
       float: left;
       height: 0;
+    }
+
+    /* Code block */
+    #note-fs-editor .ProseMirror pre {
+      background: #1e293b;
+      color: #e2e8f0;
+      border-radius: 8px;
+      padding: 12px 14px;
+      font-size: 13px;
+      font-family: 'DM Mono', 'Courier New', monospace;
+      overflow-x: auto;
+      margin: 8px 0;
+    }
+    #note-fs-editor .ProseMirror pre code { background: none; padding: 0; font-size: inherit; }
+
+    /* Task list */
+    #note-fs-editor .ProseMirror ul[data-type="taskList"] {
+      list-style: none;
+      padding-left: 4px;
+    }
+    #note-fs-editor .ProseMirror ul[data-type="taskList"] li {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      margin-bottom: 4px;
+    }
+    #note-fs-editor .ProseMirror ul[data-type="taskList"] li > label {
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    #note-fs-editor .ProseMirror ul[data-type="taskList"] li > label input[type="checkbox"] {
+      width: 16px; height: 16px;
+      accent-color: #818cf8;
+      cursor: pointer;
+    }
+    #note-fs-editor .ProseMirror ul[data-type="taskList"] li > div { flex: 1; }
+    #note-fs-editor .ProseMirror ul[data-type="taskList"] li[data-checked="true"] > div {
+      text-decoration: line-through;
+      color: var(--text-muted);
+    }
+
+    /* Tables */
+    #note-fs-editor .ProseMirror table {
+      border-collapse: collapse;
+      width: 100%;
+      margin: 10px 0;
+      font-size: 13px;
+    }
+    #note-fs-editor .ProseMirror td,
+    #note-fs-editor .ProseMirror th {
+      border: 1px solid var(--border);
+      padding: 6px 10px;
+      min-width: 60px;
+      vertical-align: top;
+    }
+    #note-fs-editor .ProseMirror th {
+      background: var(--bg-page);
+      font-weight: 700;
+      text-align: left;
+    }
+    #note-fs-editor .ProseMirror .selectedCell::after {
+      background: rgba(129,140,248,0.15);
+      content: '';
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+    }
+    #note-fs-editor .ProseMirror .tableWrapper { overflow-x: auto; }
+
+    /* Table context bar */
+    #note-fs-tt-table-bar {
+      border-bottom: 1px solid var(--border);
+      background: #f8f7ff;
+      padding: 4px 8px;
+      flex-shrink: 0;
+      display: none;
+      align-items: center;
+      gap: 2px;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    #note-fs-tt-table-bar::-webkit-scrollbar { display: none; }
+    .tt-tbl-label {
+      font-size: 10px; font-weight: 700;
+      color: #818cf8;
+      padding: 0 4px;
+      flex-shrink: 0;
+    }
+
+    /* Images */
+    #note-fs-editor .ProseMirror img {
+      max-width: 100%;
+      border-radius: 8px;
+      margin: 6px 0;
+      display: block;
+    }
+    #note-fs-editor .ProseMirror img.ProseMirror-selectednode {
+      outline: 2px solid #818cf8;
     }
 
     .ai-ask-btn {
@@ -9402,7 +9501,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '4.27.21';
+    const VERSION = '4.27.22';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -21559,7 +21658,18 @@ QUESTION: ${query}`;
         { TextStyle },
         { Color },
         { default: Highlight },
-        { Placeholder }
+        { Placeholder },
+        { TextAlign },
+        { default: TaskList },
+        { default: TaskItem },
+        { default: Table },
+        { default: TableRow },
+        { default: TableHeader },
+        { default: TableCell },
+        { default: Link },
+        { default: Subscript },
+        { default: Superscript },
+        { default: Image },
       ] = await Promise.all([
         import('https://esm.sh/@tiptap/core@2.4.0'),
         import('https://esm.sh/@tiptap/starter-kit@2.4.0'),
@@ -21568,14 +21678,33 @@ QUESTION: ${query}`;
         import('https://esm.sh/@tiptap/extension-color@2.4.0'),
         import('https://esm.sh/@tiptap/extension-highlight@2.4.0'),
         import('https://esm.sh/@tiptap/extension-placeholder@2.4.0'),
+        import('https://esm.sh/@tiptap/extension-text-align@2.4.0'),
+        import('https://esm.sh/@tiptap/extension-task-list@2.4.0'),
+        import('https://esm.sh/@tiptap/extension-task-item@2.4.0'),
+        import('https://esm.sh/@tiptap/extension-table@2.4.0'),
+        import('https://esm.sh/@tiptap/extension-table-row@2.4.0'),
+        import('https://esm.sh/@tiptap/extension-table-header@2.4.0'),
+        import('https://esm.sh/@tiptap/extension-table-cell@2.4.0'),
+        import('https://esm.sh/@tiptap/extension-link@2.4.0'),
+        import('https://esm.sh/@tiptap/extension-subscript@2.4.0'),
+        import('https://esm.sh/@tiptap/extension-superscript@2.4.0'),
+        import('https://esm.sh/@tiptap/extension-image@2.4.0'),
       ]);
-      _tiptapModules = { Editor, StarterKit, Underline, TextStyle, Color, Highlight, Placeholder };
+      _tiptapModules = {
+        Editor, StarterKit, Underline, TextStyle, Color, Highlight, Placeholder,
+        TextAlign, TaskList, TaskItem, Table, TableRow, TableHeader, TableCell,
+        Link, Subscript, Superscript, Image,
+      };
       return _tiptapModules;
     }
 
     async function _ensureTipTap() {
       if (_tiptapEditor) return;
-      const { Editor, StarterKit, Underline, TextStyle, Color, Highlight, Placeholder } = await _loadTipTapModules();
+      const {
+        Editor, StarterKit, Underline, TextStyle, Color, Highlight, Placeholder,
+        TextAlign, TaskList, TaskItem, Table, TableRow, TableHeader, TableCell,
+        Link, Subscript, Superscript, Image,
+      } = await _loadTipTapModules();
       _tiptapEditor = new Editor({
         element: document.getElementById('note-fs-editor'),
         extensions: [
@@ -21585,6 +21714,17 @@ QUESTION: ${query}`;
           Color,
           Highlight.configure({ multicolor: true }),
           Placeholder.configure({ placeholder: 'Start typing your note…' }),
+          TextAlign.configure({ types: ['heading', 'paragraph'] }),
+          TaskList,
+          TaskItem.configure({ nested: true }),
+          Table.configure({ resizable: false }),
+          TableRow,
+          TableHeader,
+          TableCell,
+          Link.configure({ openOnClick: false }),
+          Subscript,
+          Superscript,
+          Image.configure({ inline: false }),
         ],
         content: '',
         onUpdate({ editor }) {
@@ -21598,15 +21738,53 @@ QUESTION: ${query}`;
     function _ttBindToolbar() {
       const e = _tiptapEditor;
       const on = (id, fn) => { const el = document.getElementById(id); if (el) el.addEventListener('click', fn); };
-      on('tt-bold',      () => { e.chain().focus().toggleBold().run();         _ttUpdateToolbar(e); });
-      on('tt-italic',    () => { e.chain().focus().toggleItalic().run();       _ttUpdateToolbar(e); });
-      on('tt-underline', () => { e.chain().focus().toggleUnderline().run();    _ttUpdateToolbar(e); });
-      on('tt-strike',    () => { e.chain().focus().toggleStrike().run();       _ttUpdateToolbar(e); });
-      on('tt-ul',        () => { e.chain().focus().toggleBulletList().run();   _ttUpdateToolbar(e); });
-      on('tt-ol',        () => { e.chain().focus().toggleOrderedList().run();  _ttUpdateToolbar(e); });
-      on('tt-undo',      () => e.chain().focus().undo().run());
-      on('tt-redo',      () => e.chain().focus().redo().run());
-      on('tt-clear',     () => { e.chain().focus().unsetAllMarks().clearNodes().run(); _ttUpdateToolbar(e); });
+      // Text formatting
+      on('tt-bold',       () => { e.chain().focus().toggleBold().run();        _ttUpdateToolbar(e); });
+      on('tt-italic',     () => { e.chain().focus().toggleItalic().run();      _ttUpdateToolbar(e); });
+      on('tt-underline',  () => { e.chain().focus().toggleUnderline().run();   _ttUpdateToolbar(e); });
+      on('tt-strike',     () => { e.chain().focus().toggleStrike().run();      _ttUpdateToolbar(e); });
+      // Headings
+      on('tt-h1', () => { e.chain().focus().toggleHeading({ level: 1 }).run(); _ttUpdateToolbar(e); });
+      on('tt-h2', () => { e.chain().focus().toggleHeading({ level: 2 }).run(); _ttUpdateToolbar(e); });
+      on('tt-h3', () => { e.chain().focus().toggleHeading({ level: 3 }).run(); _ttUpdateToolbar(e); });
+      // Lists
+      on('tt-ul',       () => { e.chain().focus().toggleBulletList().run();   _ttUpdateToolbar(e); });
+      on('tt-ol',       () => { e.chain().focus().toggleOrderedList().run();  _ttUpdateToolbar(e); });
+      on('tt-tasklist', () => { e.chain().focus().toggleTaskList().run();     _ttUpdateToolbar(e); });
+      // Block elements
+      on('tt-blockquote', () => { e.chain().focus().toggleBlockquote().run(); _ttUpdateToolbar(e); });
+      on('tt-code',       () => { e.chain().focus().toggleCode().run();       _ttUpdateToolbar(e); });
+      on('tt-codeblock',  () => { e.chain().focus().toggleCodeBlock().run();  _ttUpdateToolbar(e); });
+      on('tt-hr',         () => e.chain().focus().setHorizontalRule().run());
+      // Alignment
+      on('tt-align-left',   () => { e.chain().focus().setTextAlignment('left').run();   _ttUpdateToolbar(e); });
+      on('tt-align-center', () => { e.chain().focus().setTextAlignment('center').run(); _ttUpdateToolbar(e); });
+      on('tt-align-right',  () => { e.chain().focus().setTextAlignment('right').run();  _ttUpdateToolbar(e); });
+      // Super / sub
+      on('tt-superscript', () => { e.chain().focus().toggleSuperscript().run(); _ttUpdateToolbar(e); });
+      on('tt-subscript',   () => { e.chain().focus().toggleSubscript().run();   _ttUpdateToolbar(e); });
+      // Link
+      on('tt-link', () => _ttHandleLink());
+      // Table insert
+      on('tt-table', () => e.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run());
+      // Table context buttons
+      on('tt-row-before',  () => e.chain().focus().addRowBefore().run());
+      on('tt-row-after',   () => e.chain().focus().addRowAfter().run());
+      on('tt-row-del',     () => e.chain().focus().deleteRow().run());
+      on('tt-col-before',  () => e.chain().focus().addColumnBefore().run());
+      on('tt-col-after',   () => e.chain().focus().addColumnAfter().run());
+      on('tt-col-del',     () => e.chain().focus().deleteColumn().run());
+      on('tt-merge-cells', () => e.chain().focus().mergeOrSplit().run());
+      on('tt-split-cell',  () => e.chain().focus().splitCell().run());
+      on('tt-table-del',   () => e.chain().focus().deleteTable().run());
+      // Image
+      on('tt-image', () => document.getElementById('tt-image-input').click());
+      const imgInput = document.getElementById('tt-image-input');
+      if (imgInput) imgInput.addEventListener('change', (ev) => _ttHandleImageUpload(ev));
+      // Undo / Redo / Clear
+      on('tt-undo',  () => e.chain().focus().undo().run());
+      on('tt-redo',  () => e.chain().focus().redo().run());
+      on('tt-clear', () => { e.chain().focus().unsetAllMarks().clearNodes().run(); _ttUpdateToolbar(e); });
       // Text colours
       on('tt-col-black',  () => e.chain().focus().setColor('#1e293b').run());
       on('tt-col-red',    () => e.chain().focus().setColor('#e53935').run());
@@ -21627,16 +21805,88 @@ QUESTION: ${query}`;
 
     function _ttUpdateToolbar(editor) {
       const map = {
-        'tt-bold':      () => editor.isActive('bold'),
-        'tt-italic':    () => editor.isActive('italic'),
-        'tt-underline': () => editor.isActive('underline'),
-        'tt-strike':    () => editor.isActive('strike'),
-        'tt-ul':        () => editor.isActive('bulletList'),
-        'tt-ol':        () => editor.isActive('orderedList'),
+        'tt-bold':         () => editor.isActive('bold'),
+        'tt-italic':       () => editor.isActive('italic'),
+        'tt-underline':    () => editor.isActive('underline'),
+        'tt-strike':       () => editor.isActive('strike'),
+        'tt-h1':           () => editor.isActive('heading', { level: 1 }),
+        'tt-h2':           () => editor.isActive('heading', { level: 2 }),
+        'tt-h3':           () => editor.isActive('heading', { level: 3 }),
+        'tt-ul':           () => editor.isActive('bulletList'),
+        'tt-ol':           () => editor.isActive('orderedList'),
+        'tt-tasklist':     () => editor.isActive('taskList'),
+        'tt-blockquote':   () => editor.isActive('blockquote'),
+        'tt-code':         () => editor.isActive('code'),
+        'tt-codeblock':    () => editor.isActive('codeBlock'),
+        'tt-align-left':   () => editor.isActive({ textAlign: 'left' }),
+        'tt-align-center': () => editor.isActive({ textAlign: 'center' }),
+        'tt-align-right':  () => editor.isActive({ textAlign: 'right' }),
+        'tt-superscript':  () => editor.isActive('superscript'),
+        'tt-subscript':    () => editor.isActive('subscript'),
+        'tt-link':         () => editor.isActive('link'),
       };
       for (const [id, check] of Object.entries(map)) {
         const el = document.getElementById(id);
         if (el) el.classList.toggle('tt-active', check());
+      }
+      // Show/hide table context bar
+      const tableBar = document.getElementById('note-fs-tt-table-bar');
+      if (tableBar) tableBar.style.display = editor.isActive('table') ? 'flex' : 'none';
+    }
+
+    function _ttHandleLink() {
+      const e = _tiptapEditor;
+      if (e.isActive('link')) {
+        e.chain().focus().unsetLink().run();
+        _ttUpdateToolbar(e);
+        return;
+      }
+      const prev = e.getAttributes('link').href || '';
+      const url = prompt('Enter URL:', prev);
+      if (url === null) return;
+      if (url.trim() === '') { e.chain().focus().unsetLink().run(); }
+      else { e.chain().focus().setLink({ href: url.trim() }).run(); }
+      _ttUpdateToolbar(e);
+    }
+
+    async function _ttHandleImageUpload(ev) {
+      const file = ev.target.files[0];
+      ev.target.value = '';
+      if (!file) return;
+
+      // Compress: max 1000px, JPEG 0.78
+      const compressed = await new Promise((resolve) => {
+        const img = new window.Image();
+        img.onload = () => {
+          const MAX = 1000;
+          let w = img.width, h = img.height;
+          if (w > MAX || h > MAX) {
+            if (w > h) { h = Math.round(h * MAX / w); w = MAX; }
+            else       { w = Math.round(w * MAX / h); h = MAX; }
+          }
+          const canvas = document.createElement('canvas');
+          canvas.width = w; canvas.height = h;
+          canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+          canvas.toBlob(resolve, 'image/jpeg', 0.78);
+        };
+        img.src = URL.createObjectURL(file);
+      });
+
+      // Upload to Firebase Storage
+      try {
+        if (!firebase.apps.length) throw new Error('Firebase not ready');
+        const storage = firebase.storage();
+        const uid = auth_fb.currentUser?.uid || 'anon';
+        const path = `note-images/${uid}/${Date.now()}.jpg`;
+        const ref = storage.ref(path);
+        showToast('Uploading photo…');
+        await ref.put(compressed, { contentType: 'image/jpeg' });
+        const url = await ref.getDownloadURL();
+        _tiptapEditor.chain().focus().setImage({ src: url }).run();
+        showToast('Photo added ✓');
+      } catch (err) {
+        console.error('Image upload failed:', err);
+        showToast('Upload failed — check connection');
       }
     }
 
@@ -22240,6 +22490,7 @@ QUESTION: ${query}`;
       </div>
       <!-- TipTap toolbar row -->
       <div id="note-fs-tt-toolbar">
+        <!-- Text formatting -->
         <button class="tt-btn" id="tt-bold" title="Bold"><b>B</b></button>
         <button class="tt-btn" id="tt-italic" title="Italic"><i>I</i></button>
         <button class="tt-btn" id="tt-underline" title="Underline"><u>U</u></button>
@@ -22247,13 +22498,59 @@ QUESTION: ${query}`;
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"/><path d="M16 6c0-1.66-1.79-3-4-3s-4 1.34-4 3 1.79 3 4 3"/><path d="M8 18c0 1.66 1.79 3 4 3s4-1.34 4-3-1.79-3-4-3"/></svg>
         </button>
         <div class="tt-sep"></div>
+        <!-- Headings -->
+        <button class="tt-btn" id="tt-h1" title="Heading 1" style="font-size:11px;font-weight:800">H1</button>
+        <button class="tt-btn" id="tt-h2" title="Heading 2" style="font-size:11px;font-weight:800">H2</button>
+        <button class="tt-btn" id="tt-h3" title="Heading 3" style="font-size:11px;font-weight:800">H3</button>
+        <div class="tt-sep"></div>
+        <!-- Lists -->
         <button class="tt-btn" id="tt-ul" title="Bullet list">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="9" y1="6" x2="20" y2="6"/><line x1="9" y1="12" x2="20" y2="12"/><line x1="9" y1="18" x2="20" y2="18"/><circle cx="4" cy="6" r="1.2" fill="currentColor"/><circle cx="4" cy="12" r="1.2" fill="currentColor"/><circle cx="4" cy="18" r="1.2" fill="currentColor"/></svg>
         </button>
         <button class="tt-btn" id="tt-ol" title="Numbered list">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="10" y1="6" x2="21" y2="6"/><line x1="10" y1="12" x2="21" y2="12"/><line x1="10" y1="18" x2="21" y2="18"/><path d="M4 6h1v4"/><path d="M4 10h2"/><path d="M6 18H4c0-1 2-2 2-3s-1-1.5-2-1"/></svg>
         </button>
+        <button class="tt-btn" id="tt-tasklist" title="Task list / checkboxes">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+        </button>
         <div class="tt-sep"></div>
+        <!-- Block elements -->
+        <button class="tt-btn" id="tt-blockquote" title="Blockquote">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1zm12 0c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2h.75c0 2.25.25 4-2.75 4v3c0 1 0 1 1 1z"/></svg>
+        </button>
+        <button class="tt-btn" id="tt-code" title="Inline code" style="font-family:monospace;font-size:12px">&lt;/&gt;</button>
+        <button class="tt-btn" id="tt-codeblock" title="Code block">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+        </button>
+        <button class="tt-btn" id="tt-hr" title="Horizontal divider">—</button>
+        <div class="tt-sep"></div>
+        <!-- Alignment -->
+        <button class="tt-btn" id="tt-align-left" title="Align left">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="15" y2="12"/><line x1="3" y1="18" x2="18" y2="18"/></svg>
+        </button>
+        <button class="tt-btn" id="tt-align-center" title="Align centre">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="6" y1="12" x2="18" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/></svg>
+        </button>
+        <button class="tt-btn" id="tt-align-right" title="Align right">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="9" y1="12" x2="21" y2="12"/><line x1="6" y1="18" x2="21" y2="18"/></svg>
+        </button>
+        <div class="tt-sep"></div>
+        <!-- Super / Subscript -->
+        <button class="tt-btn" id="tt-superscript" title="Superscript" style="font-size:12px">A<sup style="font-size:8px">2</sup></button>
+        <button class="tt-btn" id="tt-subscript" title="Subscript" style="font-size:12px">A<sub style="font-size:8px">2</sub></button>
+        <div class="tt-sep"></div>
+        <!-- Link, Table, Image -->
+        <button class="tt-btn" id="tt-link" title="Insert / edit link">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+        </button>
+        <button class="tt-btn" id="tt-table" title="Insert table">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/></svg>
+        </button>
+        <button class="tt-btn" id="tt-image" title="Insert photo">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+        </button>
+        <div class="tt-sep"></div>
+        <!-- Undo / Redo / Clear -->
         <button class="tt-btn" id="tt-undo" title="Undo">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 14 4 9 9 4"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg>
         </button>
@@ -22265,6 +22562,24 @@ QUESTION: ${query}`;
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/><line x1="2" y1="2" x2="22" y2="22"/></svg>
         </button>
       </div>
+      <!-- Table context bar (shown when cursor is inside a table) -->
+      <div id="note-fs-tt-table-bar">
+        <span class="tt-tbl-label">Table</span>
+        <button class="tt-btn" id="tt-row-before" title="Add row above" style="font-size:10px;font-weight:700">+↑</button>
+        <button class="tt-btn" id="tt-row-after"  title="Add row below" style="font-size:10px;font-weight:700">+↓</button>
+        <button class="tt-btn" id="tt-row-del"    title="Delete row" style="font-size:10px;color:#ef4444;font-weight:700">×row</button>
+        <div class="tt-sep"></div>
+        <button class="tt-btn" id="tt-col-before" title="Add column left"  style="font-size:10px;font-weight:700">+←</button>
+        <button class="tt-btn" id="tt-col-after"  title="Add column right" style="font-size:10px;font-weight:700">+→</button>
+        <button class="tt-btn" id="tt-col-del"    title="Delete column" style="font-size:10px;color:#ef4444;font-weight:700">×col</button>
+        <div class="tt-sep"></div>
+        <button class="tt-btn" id="tt-merge-cells"  title="Merge cells" style="font-size:10px;font-weight:700">merge</button>
+        <button class="tt-btn" id="tt-split-cell"   title="Split cell"  style="font-size:10px;font-weight:700">split</button>
+        <div class="tt-sep"></div>
+        <button class="tt-btn" id="tt-table-del" title="Delete table" style="font-size:10px;color:#ef4444;font-weight:700">×table</button>
+      </div>
+      <!-- Hidden image file input -->
+      <input type="file" id="tt-image-input" accept="image/*" style="display:none">
       <!-- TipTap colour row -->
       <div id="note-fs-tt-colors">
         <span class="tt-colors-label">A</span>
