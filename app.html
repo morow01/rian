@@ -3871,7 +3871,7 @@
     :is(#note-fs-editor .ProseMirror, .tt-prose) ul[data-type="taskList"] li > label input[type="checkbox"] {
       width: 16px; height: 16px;
       cursor: pointer;
-      accent-color: var(--accent);
+      accent-color: #22c55e;
     }
     :is(#note-fs-editor .ProseMirror, .tt-prose) ul[data-type="taskList"] li > div { flex: 1; }
     :is(#note-fs-editor .ProseMirror, .tt-prose) ul[data-type="taskList"] li[data-checked="true"] > div {
@@ -9549,7 +9549,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '4.27.34';
+    const VERSION = '4.27.35';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -21807,7 +21807,13 @@ QUESTION: ${query}`;
           TableRow,
           TableHeader,
           TableCell,
-          Link.configure({ openOnClick: false }),
+          Link.configure({
+            openOnClick: false,
+            HTMLAttributes: {
+              target: null,           // override TipTap default of target="_blank"
+              rel: 'noopener noreferrer nofollow',
+            },
+          }),
           Subscript,
           Superscript,
           Image.configure({ inline: false, allowBase64: true }),
@@ -21886,14 +21892,32 @@ QUESTION: ${query}`;
       on('tt-col-before',  () => e.chain().focus().addColumnBefore().run());
       on('tt-col-after',   () => e.chain().focus().addColumnAfter().run());
       on('tt-col-del',     () => e.chain().focus().deleteColumn().run());
+      // Merge: programmatically select current cell + the one to its right, then merge
+      // No drag-selection required — just place cursor in the LEFT cell and tap merge
       on('tt-merge-cells', () => {
-        // mergeCells() only works when multiple cells are selected (drag to select)
-        const ok = e.chain().focus().mergeCells().run();
-        if (!ok) showToast('Select multiple cells first to merge');
+        const { state, doc } = e.view.state, $head = state.selection.$head;
+        let cellDepth = -1;
+        for (let d = $head.depth; d > 0; d--) {
+          if ($head.node(d).type.spec.tableRole) { cellDepth = d; break; }
+        }
+        if (cellDepth === -1) { showToast('Place cursor in a cell first'); return; }
+        const anchorCell = $head.before(cellDepth);
+        const cellNode   = $head.node(cellDepth);
+        const headCell   = anchorCell + cellNode.nodeSize; // start of next sibling cell
+        const $nextCell  = e.view.state.doc.resolve(headCell);
+        if (!$nextCell.nodeAfter?.type?.spec?.tableRole) {
+          showToast('No cell to the right — place cursor in the left cell');
+          return;
+        }
+        const ok = e.chain().focus()
+          .setCellSelection({ anchorCell, headCell })
+          .mergeCells()
+          .run();
+        if (!ok) showToast('Merge failed');
       });
-      on('tt-split-cell',  () => {
+      on('tt-split-cell', () => {
         const ok = e.chain().focus().splitCell().run();
-        if (!ok) showToast('Cursor must be in a merged cell to split');
+        if (!ok) showToast('Place cursor in a merged cell to split it');
       });
       on('tt-table-del',   () => e.chain().focus().deleteTable().run());
       // Image
