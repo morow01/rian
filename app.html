@@ -3789,10 +3789,9 @@
     #note-fs-editor .ProseMirror ol { list-style-type: decimal; }
     #note-fs-editor .ProseMirror li { margin-bottom: 2px; }
     #note-fs-editor .ProseMirror blockquote {
-      border-left: 3px solid #818cf8;
-      padding-left: 12px;
-      color: var(--text-muted);
-      margin: 6px 0;
+      border-left: 3px solid rgba(13, 13, 13, 0.12);
+      padding-left: 1rem;
+      margin: 1.5rem 0;
     }
     #note-fs-editor .ProseMirror a {
       color: #818cf8;
@@ -3881,7 +3880,6 @@
     }
     #note-fs-editor .ProseMirror ul[data-type="taskList"] li > label input[type="checkbox"] {
       width: 16px; height: 16px;
-      accent-color: #818cf8;
       cursor: pointer;
     }
     #note-fs-editor .ProseMirror ul[data-type="taskList"] li > div { flex: 1; }
@@ -9560,7 +9558,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '4.27.28';
+    const VERSION = '4.27.29';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
