@@ -3869,18 +3869,20 @@
       background: var(--bg-card);
       border: 1px solid var(--border);
       border-radius: 8px;
-      padding: 4px 8px;
+      padding: 6px 12px;
       box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
-      width: calc(100vw - 24px);
-      max-width: 640px;
+      box-sizing: border-box;
+      min-width: 180px;
+      max-width: calc(100vw - 24px);
+    }
+    @media (min-width: 768px) {
+      #tt-link-bubble { max-width: 50vw; }
     }
 
     #tt-link-bubble-input {
       font-size: 12px;
       color: var(--text-primary);
-      flex: 1;
-      min-width: 0;
-      max-width: 200px;
+      min-width: 60px;
       border: none;
       outline: none;
       background: transparent;
@@ -9912,7 +9914,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '4.27.49';
+    const VERSION = '4.27.52';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -22271,8 +22273,16 @@ QUESTION: ${query}`;
       const applyBubbleUrl = () => {
         const input = document.getElementById('tt-link-bubble-input');
         const url = input ? input.value.trim() : '';
-        if (url === '') { e.chain().focus().unsetLink().run(); }
-        else { e.chain().focus().setLink({ href: url }).run(); }
+        const savedPos = window._ttLinkBubblePos;
+        const restoreChain = (chain) => {
+          if (savedPos != null) chain.setTextSelection(savedPos);
+          return chain;
+        };
+        if (url === '') {
+          restoreChain(e.chain().focus()).extendMarkRange('link').unsetLink().run();
+        } else {
+          restoreChain(e.chain().focus()).extendMarkRange('link').setLink({ href: url }).run();
+        }
         _ttUpdateToolbar(e);
       };
       on('tt-link-bbl-confirm', applyBubbleUrl);
@@ -22617,10 +22627,21 @@ QUESTION: ${query}`;
       // Update URL input (don't overwrite while user is typing)
       const href = editor.getAttributes('link').href || '';
       const inputEl = document.getElementById('tt-link-bubble-input');
-      if (inputEl && document.activeElement !== inputEl) inputEl.value = href;
+      if (inputEl && document.activeElement !== inputEl) {
+        inputEl.value = href;
+        // Size input width to the URL text so bubble wraps snugly
+        try {
+          const _c = document.createElement('canvas');
+          const _ctx = _c.getContext('2d');
+          _ctx.font = '12px ' + (getComputedStyle(inputEl).fontFamily || 'system-ui,sans-serif');
+          const _tw = _ctx.measureText(href || inputEl.placeholder || 'Paste or type URL…').width;
+          inputEl.style.width = Math.ceil(_tw + 20) + 'px';
+        } catch (e2) { inputEl.style.width = ''; }
+      }
       // Position below the cursor; left-align to the editor container so full width shows
       const { view } = editor;
       const { from } = view.state.selection;
+      window._ttLinkBubblePos = from;
       const coords = view.coordsAtPos(from);
       const editorRect = view.dom.getBoundingClientRect();
       bubble.style.position = 'fixed';
@@ -23714,13 +23735,13 @@ QUESTION: ${query}`;
   <div id="tt-link-bubble" style="display:none;position:fixed;z-index:10020">
     <input id="tt-link-bubble-input" type="text" placeholder="Paste or type URL…" autocomplete="off" spellcheck="false">
     <div class="tt-sep" style="height:16px;margin:0 4px;"></div>
-    <button class="tt-link-bbl-btn" id="tt-link-bbl-confirm" title="Apply URL (Enter)">
+    <button class="tt-link-bbl-btn" id="tt-link-bbl-confirm" title="Apply URL (Enter)" onmousedown="event.preventDefault()">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
         stroke-linejoin="round">
         <polyline points="20 6 9 17 4 12" />
       </svg>
     </button>
-    <button class="tt-link-bbl-btn" id="tt-link-bbl-open" title="Open link in new tab">
+    <button class="tt-link-bbl-btn" id="tt-link-bbl-open" title="Open link in new tab" onmousedown="event.preventDefault()">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
         stroke-linejoin="round">
         <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
@@ -23728,7 +23749,7 @@ QUESTION: ${query}`;
         <line x1="10" y1="14" x2="21" y2="3" />
       </svg>
     </button>
-    <button class="tt-link-bbl-btn" id="tt-link-bbl-remove" title="Remove link">
+    <button class="tt-link-bbl-btn" id="tt-link-bbl-remove" title="Remove link" onmousedown="event.preventDefault()">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
         stroke-linejoin="round">
         <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
