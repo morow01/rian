@@ -15,8 +15,7 @@
   <link
     href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&family=Share+Tech+Mono&family=Press+Start+2P&family=Silkscreen&family=VT323&family=Pixelify+Sans:wght@400..700&family=Bitcount+Single&family=DM+Sans:wght@400;500;700&family=DM+Mono:wght@400;500&display=swap"
     rel="stylesheet">
-  <link href="https://cdn.jsdelivr.net/npm/quill@1.3.7/dist/quill.snow.css" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/quill@1.3.7/dist/quill.min.js"></script>
+  <!-- TipTap loaded lazily via dynamic import on first editor open -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
@@ -415,7 +414,7 @@
       animation: voiceFabPulse 1s ease-in-out infinite;
     }
 
-    /* Fullscreen Quill mic button listening state */
+    /* Fullscreen editor mic button listening state */
     #fs-mic-btn.fs-mic-listening {
       background: rgba(229, 57, 53, 0.2);
       border-radius: 8px;
@@ -608,7 +607,7 @@
       cursor: pointer;
     }
 
-    /* Quill size classes — apply both inside editor and in the card preview */
+    /* Legacy ql-size classes — kept for backward compat with stored note HTML */
     .ql-size-small {
       font-size: 0.75em !important;
       color: var(--text-muted);
@@ -627,36 +626,13 @@
       line-height: 1.2;
     }
 
-    /* Quill font family classes — editor content + card preview */
+    /* Legacy ql-font classes — kept for backward compat with stored note HTML */
     .ql-font-serif {
       font-family: Georgia, 'Times New Roman', serif !important;
     }
 
     .ql-font-monospace {
       font-family: 'DM Mono', 'Courier New', monospace !important;
-    }
-
-    /* Font picker width */
-    #note-fs-editor .ql-snow .ql-picker.ql-font {
-      width: 88px;
-    }
-
-    /* Font picker dropdown — label each option in its own typeface */
-    #note-fs-editor .ql-snow .ql-picker.ql-font .ql-picker-label::before,
-    #note-fs-editor .ql-snow .ql-picker.ql-font .ql-picker-item::before {
-      content: 'Sans';
-    }
-
-    #note-fs-editor .ql-snow .ql-picker.ql-font .ql-picker-label[data-value="serif"]::before,
-    #note-fs-editor .ql-snow .ql-picker.ql-font .ql-picker-item[data-value="serif"]::before {
-      content: 'Serif';
-      font-family: Georgia, serif !important;
-    }
-
-    #note-fs-editor .ql-snow .ql-picker.ql-font .ql-picker-label[data-value="monospace"]::before,
-    #note-fs-editor .ql-snow .ql-picker.ql-font .ql-picker-item[data-value="monospace"]::before {
-      content: 'Mono';
-      font-family: 'DM Mono', monospace !important;
     }
 
     .act-notes-rich-preview p {
@@ -3698,174 +3674,121 @@
       color: #ef4444;
     }
 
-    /* ── Quill rich text editor (note fullscreen) ── */
-    #note-fs-editor .ql-toolbar {
-      border: none;
+    /* ── TipTap rich text editor (note fullscreen) ── */
+    #note-fs-tt-toolbar {
       border-bottom: 1px solid var(--border);
       background: var(--bg-card);
-      padding: 8px 12px;
+      padding: 4px 8px;
       flex-shrink: 0;
-      display: flex !important;
-      flex-wrap: wrap !important;
+      display: flex;
       align-items: center;
+      gap: 2px;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    #note-fs-tt-toolbar::-webkit-scrollbar { display: none; }
+
+    #note-fs-tt-colors {
+      border-bottom: 1px solid var(--border);
+      background: var(--bg-card);
+      padding: 6px 8px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    #note-fs-tt-colors::-webkit-scrollbar { display: none; }
+    .tt-colors-label {
+      font-size: 10px; font-weight: 700; color: var(--text-muted);
+      flex-shrink: 0;
+    }
+    .tt-sep {
+      width: 1px; height: 20px;
+      background: var(--border);
+      flex-shrink: 0;
+      margin: 0 3px;
     }
 
-    #note-fs-editor .ql-container {
+    .tt-btn {
+      width: 34px; height: 34px;
       border: none;
-      font-size: 14px;
-      font-family: inherit;
+      background: transparent;
+      border-radius: 7px;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--text-secondary);
+      font-size: 13px; font-weight: 700;
+      flex-shrink: 0;
+      -webkit-tap-highlight-color: transparent;
+      transition: background 0.1s, color 0.1s;
+    }
+    .tt-btn:active { background: var(--bg-page); }
+    .tt-btn.tt-active { background: #ede9fe; color: #818cf8; }
+    .tt-btn svg { width: 15px; height: 15px; }
+
+    .tt-swatch {
+      width: 24px; height: 24px;
+      border-radius: 50%;
+      border: 2px solid transparent;
+      cursor: pointer;
+      flex-shrink: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .tt-swatch:active { transform: scale(0.88); }
+
+    #note-fs-editor {
       flex: 1;
       overflow-y: auto;
-      background: var(--bg-page);
+      background: var(--bg-card);
     }
 
-    #note-fs-editor .ql-editor {
+    #note-fs-editor .ProseMirror {
+      outline: none;
       padding: 16px;
-      font-size: 14px !important;
+      font-size: 14px;
       line-height: 1.7;
       color: var(--text-primary);
       min-height: 200px;
-      background-color: var(--bg-card);
     }
-
-    #note-fs-editor .ql-editor.ql-blank::before {
-      color: var(--text-muted);
-      font-style: normal;
-    }
-
-    #note-fs-editor .ql-editor h1,
-    #note-fs-editor .ql-editor h2,
-    #note-fs-editor .ql-editor h3 {
-      padding-top: 12px;
-      color: #d35b5b;
-    }
-
-    #note-fs-editor .ql-editor h1:first-child,
-    #note-fs-editor .ql-editor h2:first-child,
-    #note-fs-editor .ql-editor h3:first-child {
-      padding-top: 0;
-    }
-
-    #note-fs-editor .ql-toolbar button svg .ql-stroke {
-      stroke: var(--text-secondary);
-    }
-
-    #note-fs-editor .ql-toolbar button svg .ql-fill {
-      fill: var(--text-secondary);
-    }
-
-    #note-fs-editor .ql-toolbar button:hover svg .ql-stroke,
-    #note-fs-editor .ql-toolbar button.ql-active svg .ql-stroke {
-      stroke: #818cf8;
-    }
-
-    #note-fs-editor .ql-toolbar button:hover svg .ql-fill,
-    #note-fs-editor .ql-toolbar button.ql-active svg .ql-fill {
-      fill: #818cf8;
-    }
-
-    #note-fs-editor .ql-toolbar .ql-picker-label {
-      color: var(--text-secondary);
-      border-color: var(--border);
-    }
-
-    /* Override Quill's blue active label — element + ::before */
-    #note-fs-editor .ql-toolbar .ql-picker-label.ql-active,
-    #note-fs-editor .ql-toolbar .ql-picker-label.ql-active::before {
-      color: var(--text-secondary) !important;
-    }
-
-    /* Hover only on real pointer devices — prevents colour sticking on mobile after tap */
-    @media (hover: hover) {
-      #note-fs-editor .ql-toolbar .ql-picker-label:hover {
-        color: #818cf8;
-      }
-    }
-
-    #note-fs-editor .ql-toolbar .ql-picker-options {
-      background: var(--bg-card);
-      border-color: var(--border);
-    }
-
-    #note-fs-editor .ql-toolbar .ql-picker-item:hover {
-      color: #818cf8;
-    }
-
-    #note-fs-editor .ql-toolbar .ql-color-picker .ql-picker-label svg,
-    #note-fs-editor .ql-toolbar .ql-background .ql-picker-label svg {
-      width: 18px;
-      height: 18px;
-    }
-
-    #note-fs-editor .ql-snow.ql-toolbar button,
-    #note-fs-editor .ql-snow .ql-toolbar button {
-      width: 30px;
-      height: 30px;
-    }
-
-    #note-fs-editor .ql-toolbar.ql-snow .ql-formats {
-      margin-right: 0 !important;
-    }
-
-    /* Row 1: Font + Size — full width, forces rows 2 & 3 onto next line */
-    #note-fs-editor .ql-toolbar.ql-snow .ql-formats:nth-child(1) {
-      width: 100%;
-    }
-
-    /* Row 2: Bold/Italic/etc — grow to fill space */
-    #note-fs-editor .ql-toolbar.ql-snow .ql-formats:nth-child(2) {
-      flex: 1;
-    }
-
-    /* Row 3: Lists + Colour + Undo/Redo — push to right */
-    #note-fs-editor .ql-toolbar.ql-snow .ql-formats:nth-child(3) {
-      margin-left: auto;
-    }
-
-    /* Undo/redo no longer need their own margin-left trick */
-    #note-fs-editor .ql-toolbar button.ql-undo {
-      margin-left: 0;
-    }
-
-    #note-fs-editor .ql-toolbar button.ql-undo svg,
-    #note-fs-editor .ql-toolbar button.ql-redo svg {
-      width: 18px;
-      height: 18px;
-    }
-
-    #note-fs-editor .ql-toolbar .ql-color-picker.ql-color .ql-picker-label::before {
-      content: 'A';
+    #note-fs-editor .ProseMirror p { margin-bottom: 6px; }
+    #note-fs-editor .ProseMirror p:last-child { margin-bottom: 0; }
+    #note-fs-editor .ProseMirror h1,
+    #note-fs-editor .ProseMirror h2,
+    #note-fs-editor .ProseMirror h3 {
       font-weight: 700;
+      color: #d35b5b;
+      padding-top: 12px;
+    }
+    #note-fs-editor .ProseMirror h1:first-child,
+    #note-fs-editor .ProseMirror h2:first-child,
+    #note-fs-editor .ProseMirror h3:first-child { padding-top: 0; }
+    #note-fs-editor .ProseMirror h1 { font-size: 22px; }
+    #note-fs-editor .ProseMirror h2 { font-size: 18px; }
+    #note-fs-editor .ProseMirror h3 { font-size: 15px; }
+    #note-fs-editor .ProseMirror ul,
+    #note-fs-editor .ProseMirror ol { padding-left: 20px; margin-bottom: 6px; }
+    #note-fs-editor .ProseMirror li { margin-bottom: 2px; }
+    #note-fs-editor .ProseMirror blockquote {
+      border-left: 3px solid #818cf8;
+      padding-left: 12px;
+      color: var(--text-muted);
+      margin: 6px 0;
+    }
+    #note-fs-editor .ProseMirror code {
+      background: var(--bg-page);
+      border-radius: 4px;
+      padding: 1px 5px;
       font-size: 13px;
-      color: var(--text-secondary);
     }
-
-    #note-fs-editor .ql-toolbar .ql-color-picker.ql-background .ql-picker-label::before {
-      content: '▌';
-      font-size: 16px;
-      color: var(--text-secondary);
-    }
-
-    /* Size picker — default Quill named sizes */
-    #note-fs-editor .ql-snow .ql-picker.ql-size {
-      width: 72px;
-    }
-
-    /* Lock toolbar picker labels to plain text colour — prevent size/font colours bleeding in */
-    #note-fs-editor .ql-toolbar .ql-picker-label::before,
-    #note-fs-editor .ql-toolbar .ql-picker-label {
-      color: var(--text-secondary) !important;
-      font-size: 13px !important;
-      font-weight: 500 !important;
-    }
-
-    /* Fix blue up/down arrows on picker dropdowns */
-    #note-fs-editor .ql-toolbar .ql-picker-label svg .ql-stroke {
-      stroke: var(--text-secondary) !important;
-    }
-
-    #note-fs-editor .ql-toolbar .ql-picker-label svg .ql-fill {
-      fill: var(--text-secondary) !important;
+    #note-fs-editor .ProseMirror mark { border-radius: 3px; padding: 0 2px; }
+    #note-fs-editor .ProseMirror p.is-editor-empty:first-child::before {
+      content: attr(data-placeholder);
+      color: var(--text-muted);
+      pointer-events: none;
+      float: left;
+      height: 0;
     }
 
     .ai-ask-btn {
@@ -9477,16 +9400,9 @@
   <div id="toast" class="toast hidden"></div>
 
   <script>
-    // Inject Quill margin override immediately at script start — before Quill loads
-    (function () {
-      const s = document.createElement('style');
-      s.textContent = '.ql-toolbar.ql-snow .ql-formats{margin-right:0!important;margin-left:0!important;}';
-      document.head.appendChild(s);
-    })();
-
     // ============================================================
     // CONFIG
-    const VERSION = '4.27.20';
+    const VERSION = '4.27.21';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -14988,7 +14904,7 @@
       const note = state.notes.find(n => n.id === noteId);
       if (!note) return;
       _fnFsNoteId = noteId;
-      // Reuse the existing fullscreen Quill modal
+      // Reuse the existing fullscreen editor modal
       const titleEl = document.getElementById('note-fs-title');
       const subEl = document.getElementById('note-fs-subtitle');
       if (titleEl) titleEl.textContent = note.description?.slice(0, 50) || 'Edit Note';
@@ -14998,60 +14914,16 @@
         subEl.style.display = loc ? 'block' : 'none';
       }
       document.getElementById('note-fs-modal').classList.remove('hidden');
-      setTimeout(() => {
-        if (!_quillInstance) {
-          const Size = Quill.import('attributors/class/size');
-          Size.whitelist = ['small', 'large', 'huge'];
-          Quill.register(Size, true);
-          const Font = Quill.import('attributors/class/font');
-          Font.whitelist = ['serif', 'monospace'];
-          Quill.register(Font, true);
-          const icons = Quill.import('ui/icons');
-          icons['undo'] = `<svg viewBox="0 0 18 18"><polygon class="ql-fill ql-stroke" points="6 10 4 12 2 10 6 10"/><path class="ql-stroke" d="M8.09,13.91A4.6,4.6,0,0,0,9,14,5,5,0,1,0,4,9"/></svg>`;
-          icons['redo'] = `<svg viewBox="0 0 18 18"><polygon class="ql-fill ql-stroke" points="12 10 14 12 16 10 12 10"/><path class="ql-stroke" d="M9.91,13.91A4.6,4.6,0,0,1,9,14,5,5,0,1,1,14,9"/></svg>`;
-          _quillInstance = new Quill('#note-fs-editor', {
-            theme: 'snow',
-            modules: {
-              history: { delay: 1000, maxStack: 100, userOnly: true },
-              toolbar: {
-                container: [
-                  [{ 'font': ['', 'serif', 'monospace'] }, { 'size': ['small', false, 'large', 'huge'] }],
-                  ['bold', 'italic', 'underline', 'strike', 'clean',
-                    { 'list': 'ordered' }, { 'list': 'bullet' },
-                    { 'color': ['#000000', '#e53935', '#f57c00', '#2e7d32', '#1565c0', '#6a1b9a', '#ffffff'] },
-                    { 'background': ['', '#ffeb3b', '#a5d6a7', '#ef9a9a', '#90caf9', '#ce93d8', '#ffe0b2'] },
-                    'undo', 'redo']
-                ],
-                handlers: {
-                  'undo': function () { this.quill.history.undo(); },
-                  'redo': function () { this.quill.history.redo(); }
-                }
-              }
-            }
-          });
-          document.querySelectorAll('#note-fs-editor .ql-formats').forEach(el => {
-            el.style.setProperty('margin-right', '0', 'important');
-          });
-        }
-        // Load noteContent
-        const val = note.noteContent || '';
-        if (val.trim().startsWith('<')) {
-          _quillInstance.root.innerHTML = val;
-        } else {
-          _quillInstance.setText(val);
-        }
-        // Wire changes back to noteContent (saves HTML)
-        _quillInstance.off('text-change');
-        _quillInstance.on('text-change', () => {
-          const html = _quillInstance.root.innerHTML;
+      setTimeout(async () => {
+        await _ensureTipTap();
+        _ttSetContent(note.noteContent || '');
+        _tiptapOnUpdate = (editor) => {
+          const html = _ttGetHTML();
           const n = state.notes.find(x => x.id === noteId);
-          if (n) {
-            n.noteContent = (html === '<p><br></p>' || html === '') ? '' : html;
-            n.updatedAt = Date.now();
-            scheduleNotesSave();
-          }
-        });
-        _quillInstance.focus();
+          if (n) { n.noteContent = html; n.updatedAt = Date.now(); scheduleNotesSave(); }
+        };
+        _tiptapEditor.commands.focus();
+        _ttUpdateToolbar(_tiptapEditor);
       }, 80);
     }
 
@@ -19009,7 +18881,7 @@
       showToast('Note added ✓');
     }
 
-    // Callout note fullscreen — reuses the existing note-fs-modal with Quill
+    // Callout note fullscreen — reuses the existing note-fs-modal with TipTap
     let _coNoteFsActive = false;
     function openCoNoteFullscreen() {
       _coNoteFsActive = true;
@@ -19021,78 +18893,21 @@
       if (titleEl) titleEl.textContent = 'Callout Note';
       if (subEl) { subEl.textContent = ''; subEl.style.display = 'none'; }
       document.getElementById('note-fs-modal').classList.remove('hidden');
-      setTimeout(() => {
-        // Initialize Quill if not yet created (same init as openNoteFullscreen)
-        if (!_quillInstance) {
-          const Size = Quill.import('attributors/class/size');
-          Size.whitelist = ['small', 'large', 'huge'];
-          Quill.register(Size, true);
-          const Font = Quill.import('attributors/class/font');
-          Font.whitelist = ['serif', 'monospace'];
-          Quill.register(Font, true);
-          const icons = Quill.import('ui/icons');
-          icons['undo'] = `<svg viewBox="0 0 18 18"><polygon class="ql-fill ql-stroke" points="6 10 4 12 2 10 6 10"/><path class="ql-stroke" d="M8.09,13.91A4.6,4.6,0,0,0,9,14,5,5,0,1,0,4,9"/></svg>`;
-          icons['redo'] = `<svg viewBox="0 0 18 18"><polygon class="ql-fill ql-stroke" points="12 10 14 12 16 10 12 10"/><path class="ql-stroke" d="M9.91,13.91A4.6,4.6,0,0,1,9,14,5,5,0,1,1,14,9"/></svg>`;
-          _quillInstance = new Quill('#note-fs-editor', {
-            theme: 'snow',
-            modules: {
-              history: { delay: 1000, maxStack: 100, userOnly: true },
-              toolbar: {
-                container: [
-                  [{ 'font': ['', 'serif', 'monospace'] }, { 'size': ['small', false, 'large', 'huge'] }],
-                  ['bold', 'italic', 'underline', 'strike', 'clean',
-                    { 'list': 'ordered' }, { 'list': 'bullet' },
-                    { 'color': ['#000000', '#e53935', '#f57c00', '#2e7d32', '#1565c0', '#6a1b9a', '#ffffff'] },
-                    { 'background': ['', '#ffeb3b', '#a5d6a7', '#ef9a9a', '#90caf9', '#ce93d8', '#ffe0b2'] },
-                    'undo', 'redo']
-                ],
-                handlers: {
-                  'undo': function () { this.quill.history.undo(); },
-                  'redo': function () { this.quill.history.redo(); }
-                }
-              }
-            }
-          });
-          const _killMargin = () => document.querySelectorAll('#note-fs-editor .ql-formats').forEach(el => {
-            el.style.setProperty('margin-right', '0', 'important');
-          });
-          _killMargin();
-          setTimeout(_killMargin, 200);
-          if (!document.getElementById('_ql-color-fix')) {
-            const _s = document.createElement('style');
-            _s.id = '_ql-color-fix';
-            _s.textContent = `
-              .ql-snow.ql-toolbar .ql-picker-label:hover,
-              .ql-snow .ql-toolbar .ql-picker-label:hover,
-              .ql-snow.ql-toolbar .ql-picker-label.ql-active,
-              .ql-snow .ql-toolbar .ql-picker-label.ql-active { color: #475569 !important; }
-              .ql-snow.ql-toolbar .ql-picker-label:hover .ql-stroke,
-              .ql-snow .ql-toolbar .ql-picker-label:hover .ql-stroke,
-              .ql-snow.ql-toolbar .ql-picker-label.ql-active .ql-stroke,
-              .ql-snow .ql-toolbar .ql-picker-label.ql-active .ql-stroke { stroke: #475569 !important; }
-            `;
-            document.head.appendChild(_s);
-          }
-        }
-        // Load content
-        if (currentValue && currentValue.trim().startsWith('<')) {
-          _quillInstance.root.innerHTML = currentValue;
-        } else {
-          _quillInstance.setText(currentValue || '');
-        }
-        // Set up text-change listener for callout notes
-        _quillInstance.off('text-change');
-        _quillInstance.on('text-change', () => {
-          const html = _quillInstance.root.innerHTML;
+      setTimeout(async () => {
+        await _ensureTipTap();
+        _ttSetContent(currentValue);
+        _tiptapOnUpdate = (editor) => {
+          const html = _ttGetHTML();
           const coTa = document.getElementById('co-notes-ta');
           if (coTa) {
-            coTa.value = (html === '<p><br></p>' || html === '') ? '' : html;
+            coTa.value = html;
             coAutoSave();
             const preview = document.querySelector('[data-co-notes-preview]');
-            if (preview) preview.innerHTML = coTa.value || '<span class="notes-rich-placeholder">Tap to add a note…</span>';
+            if (preview) preview.innerHTML = html || '<span class="notes-rich-placeholder">Tap to add a note…</span>';
           }
-        });
-        _quillInstance.focus();
+        };
+        _tiptapEditor.commands.focus();
+        _ttUpdateToolbar(_tiptapEditor);
       }, 80);
     }
 
@@ -19654,7 +19469,7 @@
       const ta = document.querySelector(`textarea[data-field="${field}"][data-act="${actId}"]`);
       if (ta) {
         if (field === 'notes' && ta.value.trim()) {
-          // If existing note is HTML (from Quill), append as a new paragraph
+          // If existing note is HTML, append as a new paragraph
           if (ta.value.trim().startsWith('<')) {
             ta.value = ta.value.trimEnd() + '<p>' + esc(value) + '</p>';
           } else {
@@ -21729,8 +21544,112 @@ QUESTION: ${query}`;
       rec.start();
     }
 
-    // ── Note fullscreen editor (Quill) ───────────────────────────
-    let _noteFsActId = null, _noteFsDi = null, _quillInstance = null;
+    // ── Note fullscreen editor (TipTap) ──────────────────────────
+    let _noteFsActId = null, _noteFsDi = null;
+    let _tiptapEditor = null;      // singleton TipTap Editor instance
+    let _tiptapOnUpdate = null;    // swappable update callback
+    let _tiptapModules = null;     // cached ES module imports
+
+    async function _loadTipTapModules() {
+      if (_tiptapModules) return _tiptapModules;
+      const [
+        { Editor },
+        { default: StarterKit },
+        { default: Underline },
+        { TextStyle },
+        { Color },
+        { default: Highlight },
+        { Placeholder }
+      ] = await Promise.all([
+        import('https://esm.sh/@tiptap/core@2.4.0'),
+        import('https://esm.sh/@tiptap/starter-kit@2.4.0'),
+        import('https://esm.sh/@tiptap/extension-underline@2.4.0'),
+        import('https://esm.sh/@tiptap/extension-text-style@2.4.0'),
+        import('https://esm.sh/@tiptap/extension-color@2.4.0'),
+        import('https://esm.sh/@tiptap/extension-highlight@2.4.0'),
+        import('https://esm.sh/@tiptap/extension-placeholder@2.4.0'),
+      ]);
+      _tiptapModules = { Editor, StarterKit, Underline, TextStyle, Color, Highlight, Placeholder };
+      return _tiptapModules;
+    }
+
+    async function _ensureTipTap() {
+      if (_tiptapEditor) return;
+      const { Editor, StarterKit, Underline, TextStyle, Color, Highlight, Placeholder } = await _loadTipTapModules();
+      _tiptapEditor = new Editor({
+        element: document.getElementById('note-fs-editor'),
+        extensions: [
+          StarterKit.configure({ history: true }),
+          Underline,
+          TextStyle,
+          Color,
+          Highlight.configure({ multicolor: true }),
+          Placeholder.configure({ placeholder: 'Start typing your note…' }),
+        ],
+        content: '',
+        onUpdate({ editor }) {
+          if (_tiptapOnUpdate) _tiptapOnUpdate(editor);
+        },
+        onSelectionUpdate({ editor }) { _ttUpdateToolbar(editor); },
+      });
+      _ttBindToolbar();
+    }
+
+    function _ttBindToolbar() {
+      const e = _tiptapEditor;
+      const on = (id, fn) => { const el = document.getElementById(id); if (el) el.addEventListener('click', fn); };
+      on('tt-bold',      () => { e.chain().focus().toggleBold().run();         _ttUpdateToolbar(e); });
+      on('tt-italic',    () => { e.chain().focus().toggleItalic().run();       _ttUpdateToolbar(e); });
+      on('tt-underline', () => { e.chain().focus().toggleUnderline().run();    _ttUpdateToolbar(e); });
+      on('tt-strike',    () => { e.chain().focus().toggleStrike().run();       _ttUpdateToolbar(e); });
+      on('tt-ul',        () => { e.chain().focus().toggleBulletList().run();   _ttUpdateToolbar(e); });
+      on('tt-ol',        () => { e.chain().focus().toggleOrderedList().run();  _ttUpdateToolbar(e); });
+      on('tt-undo',      () => e.chain().focus().undo().run());
+      on('tt-redo',      () => e.chain().focus().redo().run());
+      on('tt-clear',     () => { e.chain().focus().unsetAllMarks().clearNodes().run(); _ttUpdateToolbar(e); });
+      // Text colours
+      on('tt-col-black',  () => e.chain().focus().setColor('#1e293b').run());
+      on('tt-col-red',    () => e.chain().focus().setColor('#e53935').run());
+      on('tt-col-orange', () => e.chain().focus().setColor('#f57c00').run());
+      on('tt-col-green',  () => e.chain().focus().setColor('#2e7d32').run());
+      on('tt-col-blue',   () => e.chain().focus().setColor('#1565c0').run());
+      on('tt-col-purple', () => e.chain().focus().setColor('#6a1b9a').run());
+      on('tt-col-reset',  () => e.chain().focus().unsetColor().run());
+      // Highlights
+      on('tt-hl-yellow', () => e.chain().focus().setHighlight({ color: '#fef08a' }).run());
+      on('tt-hl-green',  () => e.chain().focus().setHighlight({ color: '#bbf7d0' }).run());
+      on('tt-hl-red',    () => e.chain().focus().setHighlight({ color: '#fecaca' }).run());
+      on('tt-hl-blue',   () => e.chain().focus().setHighlight({ color: '#bfdbfe' }).run());
+      on('tt-hl-purple', () => e.chain().focus().setHighlight({ color: '#e9d5ff' }).run());
+      on('tt-hl-orange', () => e.chain().focus().setHighlight({ color: '#fed7aa' }).run());
+      on('tt-hl-reset',  () => e.chain().focus().unsetHighlight().run());
+    }
+
+    function _ttUpdateToolbar(editor) {
+      const map = {
+        'tt-bold':      () => editor.isActive('bold'),
+        'tt-italic':    () => editor.isActive('italic'),
+        'tt-underline': () => editor.isActive('underline'),
+        'tt-strike':    () => editor.isActive('strike'),
+        'tt-ul':        () => editor.isActive('bulletList'),
+        'tt-ol':        () => editor.isActive('orderedList'),
+      };
+      for (const [id, check] of Object.entries(map)) {
+        const el = document.getElementById(id);
+        if (el) el.classList.toggle('tt-active', check());
+      }
+    }
+
+    function _ttSetContent(html) {
+      if (!_tiptapEditor) return;
+      _tiptapEditor.commands.setContent(html || '', false);
+    }
+
+    function _ttGetHTML() {
+      if (!_tiptapEditor) return '';
+      const h = _tiptapEditor.getHTML();
+      return (h === '<p></p>' || h === '') ? '' : h;
+    }
     function openNoteFullscreen(actId, di) {
       _noteFsActId = actId; _noteFsDi = di;
       const ta = document.querySelector(`.act-notes-area[data-act="${actId}"]`);
@@ -21746,87 +21665,16 @@ QUESTION: ${query}`;
         subEl.style.display = loc ? 'block' : 'none';
       }
       document.getElementById('note-fs-modal').classList.remove('hidden');
-      setTimeout(() => {
-        if (!_quillInstance) {
-          // Use class-based named sizes
-          const Size = Quill.import('attributors/class/size');
-          Size.whitelist = ['small', 'large', 'huge'];
-          Quill.register(Size, true);
-
-          // Font family attributor
-          const Font = Quill.import('attributors/class/font');
-          Font.whitelist = ['serif', 'monospace'];
-          Quill.register(Font, true);
-
-          // Register SVG icons for undo/redo
-          const icons = Quill.import('ui/icons');
-          icons['undo'] = `<svg viewBox="0 0 18 18"><polygon class="ql-fill ql-stroke" points="6 10 4 12 2 10 6 10"/><path class="ql-stroke" d="M8.09,13.91A4.6,4.6,0,0,0,9,14,5,5,0,1,0,4,9"/></svg>`;
-          icons['redo'] = `<svg viewBox="0 0 18 18"><polygon class="ql-fill ql-stroke" points="12 10 14 12 16 10 12 10"/><path class="ql-stroke" d="M9.91,13.91A4.6,4.6,0,0,1,9,14,5,5,0,1,1,14,9"/></svg>`;
-
-          _quillInstance = new Quill('#note-fs-editor', {
-            theme: 'snow',
-            modules: {
-              history: { delay: 1000, maxStack: 100, userOnly: true },
-              toolbar: {
-                container: [
-                  [{ 'font': ['', 'serif', 'monospace'] }, { 'size': ['small', false, 'large', 'huge'] }],
-                  ['bold', 'italic', 'underline', 'strike', 'clean',
-                    { 'list': 'ordered' }, { 'list': 'bullet' },
-                    { 'color': ['#000000', '#e53935', '#f57c00', '#2e7d32', '#1565c0', '#6a1b9a', '#ffffff'] },
-                    { 'background': ['', '#ffeb3b', '#a5d6a7', '#ef9a9a', '#90caf9', '#ce93d8', '#ffe0b2'] },
-                    'undo', 'redo']
-                ],
-                handlers: {
-                  'undo': function () { this.quill.history.undo(); },
-                  'redo': function () { this.quill.history.redo(); }
-                }
-              }
-            }
-          });
-          // Kill Quill's built-in 15px group margin so toolbar fits on two rows
-          const _killMargin = () => document.querySelectorAll('#note-fs-editor .ql-formats').forEach(el => {
-            el.style.setProperty('margin-right', '0', 'important');
-          });
-          _killMargin();
-          setTimeout(_killMargin, 200);
-
-          // Inject style after Quill's CDN CSS — exact same selectors, last in cascade wins
-          if (!document.getElementById('_ql-color-fix')) {
-            const _s = document.createElement('style');
-            _s.id = '_ql-color-fix';
-            _s.textContent = `
-              .ql-snow.ql-toolbar .ql-picker-label:hover,
-              .ql-snow .ql-toolbar .ql-picker-label:hover,
-              .ql-snow.ql-toolbar .ql-picker-label.ql-active,
-              .ql-snow .ql-toolbar .ql-picker-label.ql-active { color: #475569 !important; }
-
-              .ql-snow.ql-toolbar .ql-picker-label:hover .ql-stroke,
-              .ql-snow .ql-toolbar .ql-picker-label:hover .ql-stroke,
-              .ql-snow.ql-toolbar .ql-picker-label.ql-active .ql-stroke,
-              .ql-snow .ql-toolbar .ql-picker-label.ql-active .ql-stroke { stroke: #475569 !important; }
-            `;
-            document.head.appendChild(_s);
-          }
-
-
-        }
-        // Load current value — detect if it's HTML or plain text
-        if (currentValue && currentValue.trim().startsWith('<')) {
-          _quillInstance.root.innerHTML = currentValue;
-        } else {
-          _quillInstance.setText(currentValue || '');
-        }
-        // Remove previous listener then add a new one
-        _quillInstance.off('text-change');
-        _quillInstance.on('text-change', () => {
-          const html = _quillInstance.root.innerHTML;
+      setTimeout(async () => {
+        await _ensureTipTap();
+        _ttSetContent(currentValue);
+        _tiptapOnUpdate = (editor) => {
+          const html = _ttGetHTML();
           const mainTa = document.querySelector(`.act-notes-area[data-act="${actId}"]`);
-          if (mainTa) {
-            mainTa.value = (html === '<p><br></p>' || html === '') ? '' : html;
-            updateField(mainTa);
-          }
-        });
-        _quillInstance.focus();
+          if (mainTa) { mainTa.value = html; updateField(mainTa); }
+        };
+        _tiptapEditor.commands.focus();
+        _ttUpdateToolbar(_tiptapEditor);
       }, 80);
     }
     function closeNoteFullscreen() {
@@ -21834,7 +21682,7 @@ QUESTION: ${query}`;
       if (_fsDictRecognition) { _fsDictRecognition.stop(); _fsDictRecognition = null; }
       const micBtn = document.getElementById('fs-mic-btn');
       if (micBtn) micBtn.classList.remove('fs-mic-listening');
-      if (_quillInstance) _quillInstance.off('text-change');
+      _tiptapOnUpdate = null;
       document.getElementById('note-fs-modal').classList.add('hidden');
       // If we were editing a callout note, update preview
       if (_coNoteFsActive) {
@@ -21856,11 +21704,11 @@ QUESTION: ${query}`;
       _noteFsActId = null; _noteFsDi = null;
     }
 
-    // Dictate into fullscreen Quill editor
+    // Dictate into fullscreen TipTap editor
     let _fsDictRecognition = null;
 
     function startFsDictation() {
-      if (!_quillInstance) return;
+      if (!_tiptapEditor) return;
 
       // If already listening, stop
       if (_fsDictRecognition) {
@@ -21892,15 +21740,16 @@ QUESTION: ${query}`;
             transcript += e.results[i][0].transcript;
           }
         }
-        if (transcript && _quillInstance) {
-          const len = _quillInstance.getLength();
-          const sel = _quillInstance.getSelection();
-          const insertAt = sel ? sel.index : len - 1;
-          // Add space before if not at start and previous char isn't whitespace
-          const prevText = _quillInstance.getText(Math.max(0, insertAt - 1), 1);
-          const prefix = (insertAt > 0 && prevText && !/\s/.test(prevText)) ? ' ' : '';
-          _quillInstance.insertText(insertAt, prefix + transcript, 'user');
-          _quillInstance.setSelection(insertAt + prefix.length + transcript.length, 0);
+        if (transcript && _tiptapEditor) {
+          const { from } = _tiptapEditor.state.selection;
+          const doc = _tiptapEditor.state.doc;
+          // Check character immediately before cursor
+          let prefix = '';
+          if (from > 1) {
+            const charBefore = doc.textBetween(Math.max(1, from - 1), from, '\n');
+            if (charBefore && !/\s/.test(charBefore)) prefix = ' ';
+          }
+          _tiptapEditor.chain().focus().insertContent(prefix + transcript).run();
         }
       };
 
@@ -22389,7 +22238,55 @@ QUESTION: ${query}`;
         <button onclick="closeNoteFullscreen()"
           style="font-size:13px;color:#fff;padding:5px 14px;border-radius:8px;background:#F5A623;border:none;cursor:pointer;font-weight:700;flex-shrink:0;">Done</button>
       </div>
-      <div id="note-fs-editor" class="flex-1 overflow-hidden" style="display:flex;flex-direction:column;"></div>
+      <!-- TipTap toolbar row -->
+      <div id="note-fs-tt-toolbar">
+        <button class="tt-btn" id="tt-bold" title="Bold"><b>B</b></button>
+        <button class="tt-btn" id="tt-italic" title="Italic"><i>I</i></button>
+        <button class="tt-btn" id="tt-underline" title="Underline"><u>U</u></button>
+        <button class="tt-btn" id="tt-strike" title="Strikethrough">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"/><path d="M16 6c0-1.66-1.79-3-4-3s-4 1.34-4 3 1.79 3 4 3"/><path d="M8 18c0 1.66 1.79 3 4 3s4-1.34 4-3-1.79-3-4-3"/></svg>
+        </button>
+        <div class="tt-sep"></div>
+        <button class="tt-btn" id="tt-ul" title="Bullet list">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="9" y1="6" x2="20" y2="6"/><line x1="9" y1="12" x2="20" y2="12"/><line x1="9" y1="18" x2="20" y2="18"/><circle cx="4" cy="6" r="1.2" fill="currentColor"/><circle cx="4" cy="12" r="1.2" fill="currentColor"/><circle cx="4" cy="18" r="1.2" fill="currentColor"/></svg>
+        </button>
+        <button class="tt-btn" id="tt-ol" title="Numbered list">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="10" y1="6" x2="21" y2="6"/><line x1="10" y1="12" x2="21" y2="12"/><line x1="10" y1="18" x2="21" y2="18"/><path d="M4 6h1v4"/><path d="M4 10h2"/><path d="M6 18H4c0-1 2-2 2-3s-1-1.5-2-1"/></svg>
+        </button>
+        <div class="tt-sep"></div>
+        <button class="tt-btn" id="tt-undo" title="Undo">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 14 4 9 9 4"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg>
+        </button>
+        <button class="tt-btn" id="tt-redo" title="Redo">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 14 20 9 15 4"/><path d="M4 20v-7a4 4 0 0 1 4-4h12"/></svg>
+        </button>
+        <div class="tt-sep"></div>
+        <button class="tt-btn" id="tt-clear" title="Clear formatting">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/><line x1="2" y1="2" x2="22" y2="22"/></svg>
+        </button>
+      </div>
+      <!-- TipTap colour row -->
+      <div id="note-fs-tt-colors">
+        <span class="tt-colors-label">A</span>
+        <button class="tt-swatch" id="tt-col-black"  style="background:#1e293b" title="Black"></button>
+        <button class="tt-swatch" id="tt-col-red"    style="background:#e53935" title="Red"></button>
+        <button class="tt-swatch" id="tt-col-orange" style="background:#f57c00" title="Orange"></button>
+        <button class="tt-swatch" id="tt-col-green"  style="background:#2e7d32" title="Green"></button>
+        <button class="tt-swatch" id="tt-col-blue"   style="background:#1565c0" title="Blue"></button>
+        <button class="tt-swatch" id="tt-col-purple" style="background:#6a1b9a" title="Purple"></button>
+        <button class="tt-swatch" id="tt-col-reset"  style="background:#94a3b8;border-color:#cbd5e1" title="Default colour"></button>
+        <div class="tt-sep"></div>
+        <span class="tt-colors-label">🖊</span>
+        <button class="tt-swatch" id="tt-hl-yellow" style="background:#fef08a" title="Yellow"></button>
+        <button class="tt-swatch" id="tt-hl-green"  style="background:#bbf7d0" title="Green"></button>
+        <button class="tt-swatch" id="tt-hl-red"    style="background:#fecaca" title="Red"></button>
+        <button class="tt-swatch" id="tt-hl-blue"   style="background:#bfdbfe" title="Blue"></button>
+        <button class="tt-swatch" id="tt-hl-purple" style="background:#e9d5ff" title="Purple"></button>
+        <button class="tt-swatch" id="tt-hl-orange" style="background:#fed7aa" title="Orange"></button>
+        <button class="tt-swatch" id="tt-hl-reset"  style="background:#f1f5f9;border-color:#cbd5e1" title="Remove highlight"></button>
+      </div>
+      <!-- TipTap editor area -->
+      <div id="note-fs-editor"></div>
     </div>
   </div>
 
