@@ -9486,7 +9486,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.27.16';
+    const VERSION = '4.27.17';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -19556,6 +19556,7 @@
     let nvcPriority = 'medium'; // selected priority in note voice confirm
     let nvcCategory = '';       // selected category in note voice confirm
     let nvcReminder = null;     // { date, time } parsed from voice
+    let nvcDate = '';           // note date string (dateToStr) parsed from voice
 
     function voiceSupported() {
       return !!(window.SpeechRecognition || window.webkitSpeechRecognition);
@@ -20017,8 +20018,34 @@
       showNoteVoiceConfirm(parsed, text);
     }
 
+    function parseNoteDayFromText(text) {
+      // Returns a dateToStr() date string or '' if no day mentioned
+      const today = new Date();
+      const todayStr = dateToStr(today);
+      if (/\btoday\b/i.test(text)) return todayStr;
+      if (/\byesterday\b/i.test(text)) {
+        const d = new Date(today); d.setDate(d.getDate() - 1); return dateToStr(d);
+      }
+      if (/\btomorrow\b/i.test(text)) {
+        const d = new Date(today); d.setDate(d.getDate() + 1); return dateToStr(d);
+      }
+      // Day names — prefer nearest future occurrence (within 6 days)
+      const dayNames = ['sunday','monday','tuesday','wednesday','thursday','friday','saturday'];
+      for (const name of dayNames) {
+        if (new RegExp('\\b' + name + '\\b', 'i').test(text)) {
+          const target = dayNames.indexOf(name);
+          const cur = today.getDay(); // 0=Sun
+          let diff = target - cur;
+          if (diff <= 0) diff += 7; // always go forward to next occurrence
+          const d = new Date(today); d.setDate(d.getDate() + diff);
+          return dateToStr(d);
+        }
+      }
+      return '';
+    }
+
     function parseNoteVoiceText(text) {
-      const result = { description: '', location: '', priority: 'medium', category: '', reminder: null };
+      const result = { description: '', location: '', priority: 'medium', category: '', reminder: null, date: '' };
 
       // ── Priority ─────────────────────────────────
       if (/\b(urgent|critical|important|high priority|asap)\b/i.test(text)) {
@@ -20108,6 +20135,9 @@
           .replace(/\s+/g, ' ').trim();
       }
       result.description = desc.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+
+      // ── Date ─────────────────────────────────
+      result.date = parseNoteDayFromText(text);
 
       return result;
     }
@@ -20270,6 +20300,9 @@ Rules:
           if (jsParsed) result.reminder = jsParsed;
         }
 
+        // Date — always use JS parser (reliable day-name resolution)
+        result.date = parseNoteDayFromText(text);
+
         return result;
       } catch (e) {
         return null;
@@ -20280,6 +20313,7 @@ Rules:
       nvcPriority = parsed.priority || 'medium';
       nvcCategory = parsed.category || '';
       nvcReminder = parsed.reminder || null;
+      nvcDate = parsed.date || dateToStr(new Date());
       const heardEl = document.getElementById('nvc-heard-text');
       if (heardEl) heardEl.textContent = transcript;
       const descEl = document.getElementById('nvc-desc');
@@ -20290,12 +20324,21 @@ Rules:
       }
       const locEl = document.getElementById('nvc-loc');
       if (locEl) locEl.value = parsed.location || '';
+      renderNvcDateField();
       renderNvcPriorityChips();
       renderNvcCategoryChips();
       renderNvcReminderField();
       const modal = document.getElementById('note-voice-confirm-modal');
       if (modal) modal.classList.add('open');
       document.body.style.overflow = 'hidden';
+    }
+
+    function renderNvcDateField() {
+      const el = document.getElementById('nvc-date-display');
+      if (!el) return;
+      const d = new Date(nvcDate + 'T12:00:00');
+      const label = d.toLocaleDateString('en-IE', { weekday: 'long', day: 'numeric', month: 'short', year: 'numeric' });
+      el.textContent = label;
     }
 
     function renderNvcPriorityChips() {
@@ -20365,6 +20408,7 @@ Rules:
       note.location = loc;
       note.priority = nvcPriority;
       if (nvcCategory) note.category = nvcCategory;
+      if (nvcDate) note.date = nvcDate;
       if (transcript) note.noteContent = '🎙 ' + transcript;
 
       state.notes.unshift(note);
@@ -22325,6 +22369,10 @@ QUESTION: ${query}`;
           autocomplete="off" data-lpignore="true" data-form-type="other" data-1p-ignore="true"
           style="resize:none;overflow:hidden"
           oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'"></textarea>
+      </div>
+      <div class="vc-field">
+        <label class="vc-label">Date</label>
+        <div id="nvc-date-display" class="vc-input" style="background:var(--bg-input);color:var(--text-primary);line-height:38px;padding:0 12px;cursor:default"></div>
       </div>
       <div class="vc-field">
         <label class="vc-label">Location</label>
