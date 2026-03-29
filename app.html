@@ -3941,6 +3941,23 @@
       pointer-events: none;
     }
     :is(#note-fs-editor .ProseMirror, .tt-prose) .tableWrapper { overflow-x: auto; }
+    /* Column resize handle */
+    #note-fs-editor .ProseMirror .column-resize-handle {
+      position: absolute;
+      right: -2px; top: 0; bottom: 0;
+      width: 4px;
+      background: #818cf8;
+      opacity: 0;
+      cursor: col-resize;
+      transition: opacity .15s;
+      pointer-events: auto;
+      z-index: 20;
+    }
+    #note-fs-editor .ProseMirror td:hover .column-resize-handle,
+    #note-fs-editor .ProseMirror th:hover .column-resize-handle {
+      opacity: 0.5;
+    }
+    #note-fs-editor .ProseMirror.resize-cursor { cursor: col-resize; }
 
     /* Table context bar */
     #note-fs-tt-table-bar {
@@ -9636,7 +9653,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '4.27.47';
+    const VERSION = '4.27.48';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -21935,7 +21952,7 @@ QUESTION: ${query}`;
           TextAlign.configure({ types: ['heading', 'paragraph'] }),
           TaskList,
           TaskItem.configure({ nested: true }),
-          Table.configure({ resizable: false }),
+          Table.configure({ resizable: true }),
           TableRow,
           TableHeader,
           TableCell,
