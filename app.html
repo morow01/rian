@@ -9486,7 +9486,7 @@
 
     // ============================================================
     // CONFIG
-    const VERSION = '4.27.15';
+    const VERSION = '4.27.16';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -20030,16 +20030,29 @@
       }
 
       // ── Category ─────────────────────────────────
-      const catKeywords = {
-        fault: /\b(fault|faults)\b/i,
-        job: /\b(job)\b/i,
-        followup: /\b(follow[\s-]?up)\b/i,
-        meeting: /\b(meeting)\b/i,
-        personal: /\b(personal)\b/i,
-        idea: /\b(idea)\b/i,
-      };
-      for (const [key, re] of Object.entries(catKeywords)) {
-        if (re.test(text)) { result.category = key; break; }
+      // 1. Explicit spoken phrase wins (handles "category or tag is follow up" etc.)
+      const catExplicit = text.match(/\b(?:category(?:\s+or\s+tag)?|tag(?:\s+or\s+category)?)\s+is\s+([\w\s-]+?)(?:\s+(?:and|but|it'?s|high|low|medium|priority|remind)\b|[,.]|$)/i);
+      if (catExplicit) {
+        const spoken = catExplicit[1].trim().toLowerCase().replace(/[\s-]+/g, '');
+        const found = getCategories().find(c =>
+          c.key === spoken || c.label.toLowerCase().replace(/[\s-]+/g, '') === spoken
+        );
+        if (found) result.category = found.key;
+      }
+      // 2. Keyword scan fallback — "job" last since it's too generic
+      if (!result.category) {
+        const catKeywords = [
+          ['fault',    /\b(fault|faults)\b/i],
+          ['followup', /\b(follow[\s-]?up)\b/i],
+          ['meeting',  /\b(meeting)\b/i],
+          ['personal', /\b(personal)\b/i],
+          ['idea',     /\b(idea)\b/i],
+          ['job',      /\b(job)\b/i],
+        ];
+        for (const [key, re] of catKeywords) {
+          const cats = getCategories();
+          if (cats.find(c => c.key === key) && re.test(text)) { result.category = key; break; }
+        }
       }
 
       // ── Reminder ─────────────────────────────────
