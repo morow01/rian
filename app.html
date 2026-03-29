@@ -9549,7 +9549,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '4.27.33';
+    const VERSION = '4.27.34';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -21823,11 +21823,6 @@ QUESTION: ${query}`;
         },
         onSelectionUpdate({ editor }) { _ttUpdateToolbar(editor); },
       });
-      // Click handler: open links in new tab when clicked
-      document.getElementById('note-fs-editor').addEventListener('click', (e) => {
-        const link = e.target.closest('a[href]');
-        if (link) { e.preventDefault(); window.open(link.href, '_blank', 'noopener'); }
-      });
       _ttBindToolbar();
     }
 
@@ -21891,8 +21886,15 @@ QUESTION: ${query}`;
       on('tt-col-before',  () => e.chain().focus().addColumnBefore().run());
       on('tt-col-after',   () => e.chain().focus().addColumnAfter().run());
       on('tt-col-del',     () => e.chain().focus().deleteColumn().run());
-      on('tt-merge-cells', () => e.chain().focus().mergeOrSplit().run());
-      on('tt-split-cell',  () => e.chain().focus().splitCell().run());
+      on('tt-merge-cells', () => {
+        // mergeCells() only works when multiple cells are selected (drag to select)
+        const ok = e.chain().focus().mergeCells().run();
+        if (!ok) showToast('Select multiple cells first to merge');
+      });
+      on('tt-split-cell',  () => {
+        const ok = e.chain().focus().splitCell().run();
+        if (!ok) showToast('Cursor must be in a merged cell to split');
+      });
       on('tt-table-del',   () => e.chain().focus().deleteTable().run());
       // Image
       on('tt-image', () => document.getElementById('tt-image-input').click());
@@ -22689,18 +22691,72 @@ QUESTION: ${query}`;
       <!-- Table context bar (shown when cursor is inside a table) -->
       <div id="note-fs-tt-table-bar">
         <span class="tt-tbl-label">Table</span>
-        <button class="tt-btn" id="tt-row-before" title="Add row above" style="font-size:10px;font-weight:700">+↑</button>
-        <button class="tt-btn" id="tt-row-after"  title="Add row below" style="font-size:10px;font-weight:700">+↓</button>
-        <button class="tt-btn" id="tt-row-del"    title="Delete row" style="font-size:10px;color:#ef4444;font-weight:700">×row</button>
+        <!-- Row operations -->
+        <button class="tt-btn" id="tt-row-before" title="Add row above">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="9" width="16" height="9" rx="1.5"/>
+            <line x1="10" y1="2" x2="10" y2="7"/><line x1="7" y1="4.5" x2="13" y2="4.5"/>
+          </svg>
+        </button>
+        <button class="tt-btn" id="tt-row-after" title="Add row below">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="2" width="16" height="9" rx="1.5"/>
+            <line x1="10" y1="13" x2="10" y2="18"/><line x1="7" y1="15.5" x2="13" y2="15.5"/>
+          </svg>
+        </button>
+        <button class="tt-btn" id="tt-row-del" title="Delete row" style="color:#ef4444">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="6" width="16" height="8" rx="1.5"/>
+            <line x1="7.5" y1="9.5" x2="12.5" y2="10.5"/><line x1="12.5" y1="9.5" x2="7.5" y2="10.5"/>
+          </svg>
+        </button>
         <div class="tt-sep"></div>
-        <button class="tt-btn" id="tt-col-before" title="Add column left"  style="font-size:10px;font-weight:700">+←</button>
-        <button class="tt-btn" id="tt-col-after"  title="Add column right" style="font-size:10px;font-weight:700">+→</button>
-        <button class="tt-btn" id="tt-col-del"    title="Delete column" style="font-size:10px;color:#ef4444;font-weight:700">×col</button>
+        <!-- Column operations -->
+        <button class="tt-btn" id="tt-col-before" title="Add column left">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="9" y="2" width="9" height="16" rx="1.5"/>
+            <line x1="2" y1="10" x2="7" y2="10"/><line x1="4.5" y1="7" x2="4.5" y2="13"/>
+          </svg>
+        </button>
+        <button class="tt-btn" id="tt-col-after" title="Add column right">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="2" width="9" height="16" rx="1.5"/>
+            <line x1="13" y1="10" x2="18" y2="10"/><line x1="15.5" y1="7" x2="15.5" y2="13"/>
+          </svg>
+        </button>
+        <button class="tt-btn" id="tt-col-del" title="Delete column" style="color:#ef4444">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="6" y="2" width="8" height="16" rx="1.5"/>
+            <line x1="9" y1="8.5" x2="11" y2="11.5"/><line x1="11" y1="8.5" x2="9" y2="11.5"/>
+          </svg>
+        </button>
         <div class="tt-sep"></div>
-        <button class="tt-btn" id="tt-merge-cells"  title="Merge cells" style="font-size:10px;font-weight:700">merge</button>
-        <button class="tt-btn" id="tt-split-cell"   title="Split cell"  style="font-size:10px;font-weight:700">split</button>
+        <!-- Merge / Split -->
+        <button class="tt-btn" id="tt-merge-cells" title="Merge selected cells (select cells first)">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="2" width="16" height="16" rx="1.5"/>
+            <line x1="10" y1="2" x2="10" y2="18"/>
+            <line x1="2" y1="10" x2="10" y2="10"/>
+            <polyline points="12,7 17,10 12,13"/>
+          </svg>
+        </button>
+        <button class="tt-btn" id="tt-split-cell" title="Split merged cell">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="2" width="16" height="16" rx="1.5"/>
+            <line x1="10" y1="2" x2="10" y2="18"/>
+            <line x1="2" y1="10" x2="10" y2="10"/>
+            <polyline points="15,7 10,10 15,13"/>
+          </svg>
+        </button>
         <div class="tt-sep"></div>
-        <button class="tt-btn" id="tt-table-del" title="Delete table" style="font-size:10px;color:#ef4444;font-weight:700">×table</button>
+        <button class="tt-btn" id="tt-table-del" title="Delete table" style="color:#ef4444">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="2" width="16" height="16" rx="1.5"/>
+            <line x1="2" y1="7" x2="18" y2="7"/><line x1="2" y1="13" x2="18" y2="13"/>
+            <line x1="7" y1="2" x2="7" y2="18"/><line x1="13" y1="2" x2="13" y2="18"/>
+            <line x1="5" y1="5" x2="15" y2="15"/><line x1="15" y1="5" x2="5" y2="15"/>
+          </svg>
+        </button>
       </div>
       <!-- Hidden image file input -->
       <input type="file" id="tt-image-input" accept="image/*" style="display:none">
