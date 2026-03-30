@@ -21,6 +21,7 @@ self.addEventListener('push', (event) => {
   const options = {
     body: data.body || '',
     icon: BASE + 'icon-192.png',
+    badge: BASE + 'badge-bell.png',
     tag: 'rian-remind-' + (data.reminderId || Date.now()),
     vibrate: [200, 100, 200],
     requireInteraction: true,
