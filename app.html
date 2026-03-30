@@ -10088,7 +10088,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '4.28.6';
+    const VERSION = '4.28.7';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -22760,19 +22760,20 @@ QUESTION: ${query}`;
     async function _ttDoAiRephrase() {
       _ttHideAiFab();
       const editor = _tiptapEditor;
-      if (!editor) return;
+      if (!editor) { showToast('Editor not ready — try again'); return; }
       const key = state.geminiKey || localStorage.getItem('geminiKey');
       if (!key) { showToast('No Gemini key — add one in Settings ⚙️'); return; }
       const btn = document.getElementById('tt-ai-rephrase');
       const loadingEl = document.getElementById('tt-ai-loading');
       const panel = document.getElementById('tt-ai-preview');
       if (btn) { btn.style.opacity = '0.5'; btn.disabled = true; }
-      // Show panel + loading dots immediately — instant feedback
       _hideAiPreview();
       if (panel) { panel.style.display = 'block'; panel.style.animation = 'none'; requestAnimationFrame(() => { panel.style.animation = ''; }); }
       if (loadingEl) loadingEl.style.display = 'flex';
       try {
-        const { from, to, empty } = editor.state.selection;
+        // Use saved selection (captured before blur could clear it) or live selection
+        const sel = _ttAiSavedSel || editor.state.selection;
+        const { from, to, empty } = sel;
         const inputText = empty
           ? editor.state.doc.textContent.trim()
           : editor.state.doc.textBetween(from, to, '\n').trim();
@@ -23101,6 +23102,9 @@ QUESTION: ${query}`;
     }
 
     // ── Selection action bar (sticky bottom, shows when text is selected) ──
+    // Save selection here so it's captured BEFORE any blur can wipe it
+    let _ttAiSavedSel = null;
+
     function _ttHideAiFab() {
       const bar = document.getElementById('tt-sel-bar');
       if (bar) bar.style.display = 'none';
@@ -23109,32 +23113,33 @@ QUESTION: ${query}`;
     function _ttUpdateAiFab(editor) {
       const bar = document.getElementById('tt-sel-bar');
       if (!bar) return;
-      const { empty } = editor.state.selection;
-      // Only show when there is a text selection (not an empty cursor)
-      // and AI suggestions panel is not already open
+      const { from, to, empty } = editor.state.selection;
       const aiPanel = document.getElementById('tt-ai-preview');
       const aiOpen = aiPanel && aiPanel.style.display !== 'none';
       const show = !empty && !aiOpen;
-      bar.style.display = show ? 'flex' : 'none';
-      // Hide hint text after first use
       if (show) {
+        // Snapshot selection now — before any blur event can clear it
+        _ttAiSavedSel = { from, to, empty };
+        bar.style.display = 'flex';
         const hint = document.getElementById('tt-sel-bar-hint');
         if (hint) setTimeout(() => { hint.style.display = 'none'; }, 4000);
+      } else {
+        bar.style.display = 'none';
       }
     }
 
-    // Wire selection bar AI button → call rephrase directly (no btn.click indirection)
+    // Wire selection bar — use pointerdown so it fires before browser focus/blur
     const _selBarAi = document.getElementById('tt-sel-bar-ai');
     if (_selBarAi) {
-      // touchstart preventDefault keeps editor focused so selection is preserved on tap
-      _selBarAi.addEventListener('touchstart', (ev) => ev.preventDefault(), { passive: false });
-      const _selBarHandler = (ev) => {
-        ev.preventDefault();
-        ev.stopPropagation();
+      _selBarAi.addEventListener('pointerdown', (ev) => {
+        ev.preventDefault(); // prevents editor blur + focus shift
         _ttDoAiRephrase();
-      };
-      _selBarAi.addEventListener('touchend', _selBarHandler);
-      _selBarAi.addEventListener('click', _selBarHandler);
+      });
+      // click fallback for desktop
+      _selBarAi.addEventListener('click', (ev) => {
+        ev.preventDefault();
+        _ttDoAiRephrase();
+      });
     }
 
     function _ttUpdateLinkBubble(editor) {
