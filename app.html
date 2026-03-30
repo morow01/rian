@@ -9914,7 +9914,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '4.27.53';
+    const VERSION = '4.27.54';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -14531,7 +14531,12 @@
               let _mergeChanged = false;
               const _merged = _timerRemote.notes.map(rn => {
                 const ln = _lmap.get(rn.id);
-                if (ln && ln.id === _protectId) return deepCopy(ln); // always keep editing note
+                if (ln && ln.id === _protectId) {
+                  const _openTs = window._tiptapNoteOpenTs || 0;
+                  const _edited = (ln.updatedAt || 0) > _openTs;
+                  if (!_edited && rn.updatedAt > _openTs) { _mergeChanged = true; return deepCopy(rn); } // stale open, no edits → take remote
+                  return deepCopy(ln); // user edited → keep local
+                }
                 if (ln && (ln.updatedAt || 0) >= (rn.updatedAt || 0)) return deepCopy(ln); // local same-or-newer
                 _mergeChanged = true; return deepCopy(rn); // remote is strictly newer
               });
@@ -14593,8 +14598,21 @@
         let hadNewerLocal = false;
         const merged = remote.notes.map(rn => {
           const ln = localMap.get(rn.id);
-          // Always keep the currently-editing note (overrides timestamp comparison)
-          if (ln && ln.id === effectiveEditingId) { hadNewerLocal = true; return deepCopy(ln); }
+          // Protection for currently-editing note
+          if (ln && ln.id === effectiveEditingId) {
+            const openTs = window._tiptapNoteOpenTs || 0;
+            const userEdited = (ln.updatedAt || 0) > openTs; // user made changes since opening
+            if (!userEdited && rn.updatedAt > openTs) {
+              // Opened with stale content, user hasn't edited yet → take remote silently
+              return deepCopy(rn);
+            }
+            if (userEdited && rn.updatedAt > openTs) {
+              // Conflict: user edited stale content while another device also saved
+              showToast('⚠️ Conflict: this note was saved on another device. Your edits are kept — please verify.');
+            }
+            // Keep local (user's edits are preserved)
+            hadNewerLocal = true; return deepCopy(ln);
+          }
           // Keep local if it's strictly newer
           if (ln && (ln.updatedAt || 0) > (rn.updatedAt || 0)) { hadNewerLocal = true; return deepCopy(ln); }
           return deepCopy(rn);
@@ -15489,6 +15507,9 @@
       const note = state.notes.find(n => n.id === noteId);
       if (!note) return;
       _fnFsNoteId = noteId;
+      // Record the note's updatedAt at open time so the sync merge can tell
+      // whether the user actually edited, vs just opened stale cached content
+      window._tiptapNoteOpenTs = note.updatedAt || 0;
       // Reuse the existing fullscreen editor modal
       const titleEl = document.getElementById('note-fs-title');
       const subEl = document.getElementById('note-fs-subtitle');
@@ -22836,6 +22857,7 @@ QUESTION: ${query}`;
         _tiptapLastSaveAt = Date.now();
         scheduleNotesSave();
         _fnFsNoteId = null;
+        window._tiptapNoteOpenTs = 0;
         render();
       }
       _noteFsActId = null; _noteFsDi = null;
