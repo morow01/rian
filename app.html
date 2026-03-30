@@ -10088,7 +10088,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '4.28.9';
+    const VERSION = '4.29.0';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -22733,6 +22733,24 @@ QUESTION: ${query}`;
       on('tt-ai-rephrase', () => _ttDoAiRephrase());
     }
 
+    // ── Visual Viewport: keep note-fs-modal above the mobile keyboard ──
+    // When the soft keyboard opens, window.visualViewport shrinks. We set an
+    // explicit height (and top offset) on the modal so sticky-bottom elements
+    // (#tt-sel-bar, #tt-ai-preview) stay visible above the keyboard.
+    function _ttAdjustForKeyboard() {
+      const modal = document.getElementById('note-fs-modal');
+      if (!modal || modal.classList.contains('hidden')) return;
+      const vv = window.visualViewport;
+      if (!vv) return;
+      modal.style.height = vv.height + 'px';
+      modal.style.top    = vv.offsetTop + 'px';
+      modal.style.bottom = 'auto';
+    }
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', _ttAdjustForKeyboard);
+      window.visualViewport.addEventListener('scroll', _ttAdjustForKeyboard);
+    }
+
     // ── AI preview state — module-scope so _ttDoAiRephrase and _ttBindToolbar share them ──
     let _aiPending = null;
     function _hideAiPreview() {
@@ -22777,7 +22795,15 @@ QUESTION: ${query}`;
       const panel = document.getElementById('tt-ai-preview');
       if (btn) { btn.style.opacity = '0.5'; btn.disabled = true; }
       _hideAiPreview();
-      if (panel) { panel.style.display = 'block'; panel.style.animation = 'none'; requestAnimationFrame(() => { panel.style.animation = ''; }); }
+      if (panel) {
+        panel.style.display = 'block';
+        panel.style.animation = 'none';
+        requestAnimationFrame(() => {
+          panel.style.animation = '';
+          // Ensure panel is above the keyboard — scroll it into view
+          panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        });
+      }
       if (loadingEl) loadingEl.style.display = 'flex';
       try {
         // Use saved selection (captured before blur could clear it) or live selection
@@ -22824,6 +22850,11 @@ QUESTION: ${query}`;
         versions = versions.filter(v => v && v.trim()).slice(0, 3);
         if (loadingEl) loadingEl.style.display = 'none';
         _showAiVersions(versions, from, to, empty);
+        // Scroll AI panel into view after versions render (catches keyboard-resize timing)
+        requestAnimationFrame(() => {
+          const p = document.getElementById('tt-ai-preview');
+          if (p) p.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        });
       } catch (err) {
         _hideAiPreview();
         showToast('AI error: ' + (err.message || 'Failed'));
@@ -23339,7 +23370,12 @@ QUESTION: ${query}`;
       _ttHideAiFab();
       const _aiP = document.getElementById('tt-ai-preview');
       if (_aiP) _aiP.style.display = 'none';
-      document.getElementById('note-fs-modal').classList.add('hidden');
+      const _fsMod = document.getElementById('note-fs-modal');
+      _fsMod.classList.add('hidden');
+      // Reset any visualViewport-driven sizing so next open starts clean
+      _fsMod.style.height = '';
+      _fsMod.style.top    = '';
+      _fsMod.style.bottom = '';
       // If we were editing a callout note, update preview
       if (_coNoteFsActive) {
         _coNoteFsActive = false;
