@@ -3985,6 +3985,32 @@
     }
     #tt-ai-discard:active { opacity: 0.7; }
 
+    /* Floating AI bubble — appears near text selection on mobile */
+    #tt-ai-fab {
+      display: none;
+      position: fixed;
+      z-index: 10025;
+      align-items: center;
+      gap: 5px;
+      background: #818cf8;
+      color: #fff;
+      border: none;
+      border-radius: 20px;
+      padding: 6px 14px 6px 10px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+      cursor: pointer;
+      box-shadow: 0 2px 12px rgba(129,140,248,0.4);
+      -webkit-tap-highlight-color: transparent;
+      animation: ttAiFabPop 0.15s ease;
+    }
+    #tt-ai-fab svg { width: 16px; height: 16px; flex-shrink: 0; }
+    @keyframes ttAiFabPop {
+      from { transform: scale(0.8); opacity: 0; }
+      to   { transform: scale(1);   opacity: 1; }
+    }
+
     #tt-link-bubble {
       /* position/display/z-index set inline by _ttUpdateLinkBubble */
       align-items: center;
@@ -10053,7 +10079,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '4.27.75';
+    const VERSION = '4.28.1';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -10808,7 +10834,7 @@
 
         // If we have a pending local save (timer or in-flight async), skip — our data is newer
         if (_coSaveTimer || _coSavePending) {
-          console.log('[Rian] callouts onSnapshot: skipping — local save pending');
+          // callouts onSnapshot: skipping — local save pending
           return;
         }
 
@@ -11080,7 +11106,16 @@
     // LOAD / SAVE
     // ============================================================
     function deepCopy(obj) {
-      return JSON.parse(JSON.stringify(obj));
+      return structuredClone(obj);
+    }
+
+    // Strip dangerous HTML (scripts, event handlers) from user-authored rich content
+    function sanitizeHtml(html) {
+      if (!html) return '';
+      return html
+        .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+        .replace(/\bon\w+\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/gi, '')
+        .replace(/javascript\s*:/gi, 'void:');
     }
 
     async function loadWeek(weekStart) {
@@ -11702,9 +11737,14 @@
     }
 
     // ============================================================
-    // RENDER
+    // RENDER (debounced via rAF to coalesce rapid calls)
     // ============================================================
+    let _renderRAF = null;
     function render() {
+      if (_renderRAF) return; // already scheduled
+      _renderRAF = requestAnimationFrame(() => { _renderRAF = null; _renderNow(); });
+    }
+    function _renderNow() {
       const app = document.getElementById('app');
       if (!app) return;
 
@@ -11837,7 +11877,7 @@
           const photoURL = u ? (u.photoURL || '') : '';
           const initial = displayName[0].toUpperCase();
           const avatarHtml = photoURL
-            ? `<img src="${esc(photoURL)}" class="menu-avatar-img" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="menu-avatar-initials" style="display:none">${initial}</div>`
+            ? `<img src="${esc(photoURL)}" class="menu-avatar-img" alt="User avatar" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="menu-avatar-initials" style="display:none">${initial}</div>`
             : `<div class="menu-avatar-initials">${initial}</div>`;
           const chev = `<span class="menu-row-chevron"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>`;
           return `
@@ -12991,7 +13031,7 @@
                 <div class="notes-ta-wrap" onclick="event.stopPropagation();openNoteFullscreen('${act.id}',${di})">
                   <div class="act-notes-rich-preview" data-notes-preview="${act.id}">
                     ${act.notes && act.notes.trim()
-          ? (act.notes.trim().startsWith('<') ? act.notes : esc(act.notes).replace(/\n/g, '<br>'))
+          ? (act.notes.trim().startsWith('<') ? sanitizeHtml(act.notes) : esc(act.notes).replace(/\n/g, '<br>'))
           : '<span class="notes-rich-placeholder">Tap to add a note…</span>'}
                   </div>
                   <textarea class="act-notes-area"
@@ -13157,7 +13197,7 @@
         const richPreview = document.querySelector(`[data-notes-preview="${actId}"]`);
         if (richPreview) {
           richPreview.innerHTML = val && val.trim()
-            ? (val.trim().startsWith('<') ? val : esc(val).replace(/\n/g, '<br>'))
+            ? (val.trim().startsWith('<') ? sanitizeHtml(val) : esc(val).replace(/\n/g, '<br>'))
             : '<span class="notes-rich-placeholder">Tap to add a note…</span>';
         }
         const headerPreview = document.querySelector(`[data-notes-header="${actId}"]`);
@@ -14295,7 +14335,7 @@
             saveReminders(remindersData);
             localStorage.removeItem('rian_reminders');
           }
-        } catch { }
+        } catch (e) { console.warn('[Rian] reminder migration:', e); }
       }
 
       // Clean up old fired reminders (older than 7 days)
@@ -14341,7 +14381,7 @@
                 // and we haven't already notified for this reminder this session.
                 if (r.fired && _initialPendingIds.has(r.id) && !_xdeviceNotifiedIds.has(r.id) && r.firedBy && r.firedBy !== myDevice) {
                   _xdeviceNotifiedIds.add(r.id);
-                  console.log('[Rian] Cross-device reminder fired by', r.firedBy, '— showing local notification');
+                  // Cross-device reminder fired — showing local notification
                   if ('Notification' in window && Notification.permission === 'granted') {
                     try {
                       new Notification('Rian Reminder', {
@@ -14382,7 +14422,7 @@
       // Offline fallback: if Firestore hasn't synced after 30s, allow local firing
       setTimeout(() => {
         if (!remindersFirestoreSynced) {
-          console.log('[Rian] Firestore reminder sync timeout — enabling local fallback');
+          // Firestore reminder sync timeout — enabling local fallback
           remindersFirestoreSynced = true;
           checkMissedReminders();
         }
@@ -14397,8 +14437,9 @@
         }
       });
       // Also poll every 30s as a safety net while the tab is active
-      setInterval(checkMissedReminders, 30000);
+      _reminderPollId = setInterval(checkMissedReminders, 30000);
     }
+    let _reminderPollId = null;
 
     function checkMissedReminders() {
       // Don't fire past-due reminders from stale IDB — wait for Firestore sync
@@ -14724,11 +14765,11 @@
               }
               if (_mergeChanged) {
                 state.notes = _merged;
-                console.log('[Rian] notes onSnapshot: pending-save protective merge — pulled remote-newer notes into state');
+                // notes onSnapshot: protective merge — pulled remote-newer notes into state
               }
             }
           }
-          console.log('[Rian] notes onSnapshot: local save pending — pending save will push reconciled state');
+          // notes onSnapshot: local save pending — pending save will push reconciled state
           state.notesSyncStatus = 'synced';
           updateHeaderStatus();
           return;
@@ -15183,7 +15224,7 @@
                   <div class="notes-ta-wrap" onclick="event.stopPropagation();openFieldNoteFullscreen('${note.id}')">
                     <div class="act-notes-rich-preview tt-prose" data-fn-preview="${note.id}">
                       ${ncHasContent
-            ? (nc.trim().startsWith('<') ? nc : esc(nc).replace(/\n/g, '<br>'))
+            ? (nc.trim().startsWith('<') ? sanitizeHtml(nc) : esc(nc).replace(/\n/g, '<br>'))
             : '<span class="notes-rich-placeholder">Tap to add a note…</span>'}
                     </div>
                     <textarea class="act-notes-area"
@@ -15732,7 +15773,7 @@
 
           // Update DOM in-place (same pattern as processActFieldText for timesheet)
           const nc = note.noteContent;
-          const ncHtml = nc.trim().startsWith('<') ? nc : esc(nc).replace(/\n/g, '<br>');
+          const ncHtml = nc.trim().startsWith('<') ? sanitizeHtml(nc) : esc(nc).replace(/\n/g, '<br>');
 
           // Update the rich preview inside the notes panel
           const preview = document.querySelector(`[data-fn-preview="${noteId}"]`);
@@ -17606,7 +17647,7 @@
             _cachedGpsTown = town && county ? town + ', ' + county : (town || county || null);
             _cachedGpsCoords = { lat, lon };
             _gpsLastFetch = Date.now();
-            console.log('[Rian] GPS town:', _cachedGpsTown);
+            // GPS town resolved
           } catch (e) { console.warn('[Rian] GPS reverse geocode failed', e); }
         },
         err => console.warn('[Rian] Geolocation error:', err.code, err.message),
@@ -18628,6 +18669,8 @@
       if (notesUnsubscribe) { notesUnsubscribe(); notesUnsubscribe = null; }
       if (remindersUnsubscribe) { remindersUnsubscribe(); remindersUnsubscribe = null; }
       if (calloutsUnsubscribe) { calloutsUnsubscribe(); calloutsUnsubscribe = null; }
+      // Clear reminder polling interval
+      if (_reminderPollId) { clearInterval(_reminderPollId); _reminderPollId = null; }
       await auth_fb.signOut();
       window.location.href = './index.html';
     }
@@ -19448,7 +19491,7 @@
               <div class="notes-ta-wrap" onclick="event.stopPropagation(); openCoNoteFullscreen()">
                 <div class="act-notes-rich-preview" data-co-notes-preview>
                   ${notes && notes.trim()
-            ? (notes.trim().startsWith('<') ? notes : esc(notes).replace(/\n/g, '<br>'))
+            ? (notes.trim().startsWith('<') ? sanitizeHtml(notes) : esc(notes).replace(/\n/g, '<br>'))
             : '<span class="notes-rich-placeholder">Tap to add a note…</span>'}
                 </div>
                 <textarea class="act-notes-area" id="co-notes-ta" autocomplete="off" data-lpignore="true" data-form-type="other" data-1p-ignore="true"
@@ -21403,7 +21446,7 @@ Rules:
       try { initTheme(); } catch (e) { console.warn('[Rian] Theme blocked by browser:', e); }
 
       if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('sw.js').catch(e => console.warn('[Rian]', e));
+        navigator.serviceWorker.register(`sw.js?v=${VERSION}`).catch(e => console.warn('[Rian]', e));
         // When a new SW takes over (skipWaiting + clients.claim), reload the page
         // so the running JS is replaced with the new version immediately.
         navigator.serviceWorker.addEventListener('controllerchange', () => {
@@ -22469,12 +22512,18 @@ QUESTION: ${query}`;
         onUpdate({ editor }) {
           if (_tiptapOnUpdate) _tiptapOnUpdate(editor);
         },
-        onSelectionUpdate({ editor }) { _ttUpdateToolbar(editor); },
+        onSelectionUpdate({ editor }) {
+          _ttUpdateToolbar(editor);
+          _ttUpdateAiFab(editor);
+        },
         onBlur({ editor, event }) {
-          // Keep bubble visible if focus moved into the bubble itself
+          // Keep bubble visible if focus moved into the bubble or AI FAB itself
           const bubble = document.getElementById('tt-link-bubble');
-          if (bubble && event?.relatedTarget && bubble.contains(event.relatedTarget)) return;
+          const aiFab = document.getElementById('tt-ai-fab');
+          const rel = event?.relatedTarget;
+          if (rel && ((bubble && bubble.contains(rel)) || rel === aiFab)) return;
           _ttHideLinkBubble();
+          _ttHideAiFab();
         },
       });
       _ttBindToolbar();
@@ -22690,6 +22739,7 @@ QUESTION: ${query}`;
       });
       on('tt-ai-discard', () => _hideAiPreview());
       on('tt-ai-rephrase', async () => {
+        _ttHideAiFab(); // dismiss floating bubble
         const key = state.geminiKey || localStorage.getItem('geminiKey');
         if (!key) { showToast('No Gemini key — add one in Settings ⚙️'); return; }
         const btn = document.getElementById('tt-ai-rephrase');
@@ -23032,6 +23082,39 @@ QUESTION: ${query}`;
       if (bubble) bubble.style.display = 'none';
     }
 
+    // ── Floating AI FAB (shows near selection on mobile) ──
+    function _ttHideAiFab() {
+      const fab = document.getElementById('tt-ai-fab');
+      if (fab) fab.style.display = 'none';
+    }
+
+    function _ttUpdateAiFab(editor) {
+      const fab = document.getElementById('tt-ai-fab');
+      if (!fab) return;
+      const { from, to, empty } = editor.state.selection;
+      // Only show when there is a text selection (not an empty cursor)
+      if (empty || from === to) { fab.style.display = 'none'; return; }
+      // Don't show if AI preview panel is already visible
+      const aiPanel = document.getElementById('tt-ai-preview');
+      if (aiPanel && aiPanel.style.display !== 'none') { fab.style.display = 'none'; return; }
+      // Position above the end of selection
+      const coords = editor.view.coordsAtPos(to);
+      const fabW = 70; // approximate width
+      let left = coords.left - fabW / 2;
+      // Keep within viewport
+      left = Math.max(8, Math.min(left, window.innerWidth - fabW - 8));
+      fab.style.left = left + 'px';
+      fab.style.top = Math.max(4, coords.top - 42) + 'px';
+      fab.style.display = 'flex';
+    }
+
+    // Wire FAB click → trigger the toolbar AI rephrase button
+    document.getElementById('tt-ai-fab').addEventListener('click', () => {
+      _ttHideAiFab();
+      const btn = document.getElementById('tt-ai-rephrase');
+      if (btn) btn.click();
+    });
+
     function _ttUpdateLinkBubble(editor) {
       const bubble = document.getElementById('tt-link-bubble');
       if (!bubble) return;
@@ -23228,6 +23311,8 @@ QUESTION: ${query}`;
       const micBtn = document.getElementById('fs-mic-btn');
       if (micBtn) micBtn.classList.remove('fs-mic-listening');
       _tiptapOnUpdate = null;
+      // Destroy TipTap editor to free memory — _ensureTipTap() recreates it next open
+      if (_tiptapEditor) { _tiptapEditor.destroy(); _tiptapEditor = null; }
       // Dismiss any pending AI preview
       const _aiP = document.getElementById('tt-ai-preview');
       if (_aiP) _aiP.style.display = 'none';
@@ -23239,7 +23324,7 @@ QUESTION: ${query}`;
         const preview = document.querySelector('[data-co-notes-preview]');
         if (coTa && preview) {
           preview.innerHTML = coTa.value && coTa.value.trim()
-            ? (coTa.value.trim().startsWith('<') ? coTa.value : esc(coTa.value).replace(/\n/g, '<br>'))
+            ? (coTa.value.trim().startsWith('<') ? sanitizeHtml(coTa.value) : esc(coTa.value).replace(/\n/g, '<br>'))
             : '<span class="notes-rich-placeholder">Tap to add a note…</span>';
         }
         return;
@@ -24263,6 +24348,11 @@ QUESTION: ${query}`;
       </div>
     </div>
   </div>
+  <!-- Floating AI bubble: appears near text selection -->
+  <button id="tt-ai-fab" onmousedown="event.preventDefault()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.9 5.8L20 10.6l-4.7 3.6 1.8 5.8L12 16.4 6.9 20l1.8-5.8L4 10.6l6.1-1.8z"/></svg>
+    AI
+  </button>
   <!-- Link bubble: manually positioned via _ttUpdateLinkBubble() -->
   <div id="tt-link-bubble" style="display:none;position:fixed;z-index:10020">
     <input id="tt-link-bubble-input" type="text" placeholder="Paste or type URL…" autocomplete="off" spellcheck="false">

@@ -1,4 +1,6 @@
-const CACHE = 'rian-v4.27.75';
+// Version auto-read from ?v= query param set by app.html registration
+const _swVer = new URL(self.location).searchParams.get('v') || '4.28.0';
+const CACHE = 'rian-v' + _swVer;
 const BASE = self.location.pathname.replace(/sw\.js$/, '');
 const ASSETS = [
   BASE,
