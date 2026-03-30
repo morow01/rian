@@ -10088,7 +10088,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '4.28.7';
+    const VERSION = '4.28.8';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -22544,8 +22544,12 @@ QUESTION: ${query}`;
       if (_ttToolbarBound) return; // prevent duplicate bindings on editor recreate
       _ttToolbarBound = true;
       const on = (id, fn) => { const el = document.getElementById(id); if (el) el.addEventListener('click', fn); };
-      // Use getter so all handlers always read the live _tiptapEditor at call time
-      const e = new Proxy({}, { get: (_, k) => _tiptapEditor?.[k] });
+      // Always read live editor at call time via getter
+      const e = { get chain() { return _tiptapEditor?.chain.bind(_tiptapEditor); },
+                  get state() { return _tiptapEditor?.state; },
+                  get view()  { return _tiptapEditor?.view; },
+                  isActive(...a) { return _tiptapEditor?.isActive(...a); },
+                  getAttributes(a) { return _tiptapEditor?.getAttributes(a); } };
       // Text formatting
       on('tt-bold', () => { e.chain().focus().toggleBold().run(); _ttUpdateToolbar(e); });
       on('tt-italic', () => { e.chain().focus().toggleItalic().run(); _ttUpdateToolbar(e); });
@@ -23128,19 +23132,7 @@ QUESTION: ${query}`;
       }
     }
 
-    // Wire selection bar — use pointerdown so it fires before browser focus/blur
-    const _selBarAi = document.getElementById('tt-sel-bar-ai');
-    if (_selBarAi) {
-      _selBarAi.addEventListener('pointerdown', (ev) => {
-        ev.preventDefault(); // prevents editor blur + focus shift
-        _ttDoAiRephrase();
-      });
-      // click fallback for desktop
-      _selBarAi.addEventListener('click', (ev) => {
-        ev.preventDefault();
-        _ttDoAiRephrase();
-      });
-    }
+    // onclick="_ttDoAiRephrase()" on the button handles mobile + desktop directly
 
     function _ttUpdateLinkBubble(editor) {
       const bubble = document.getElementById('tt-link-bubble');
@@ -24368,7 +24360,7 @@ QUESTION: ${query}`;
       <div id="note-fs-editor"></div>
       <!-- Selection action bar: appears when text is selected -->
       <div id="tt-sel-bar">
-        <button id="tt-sel-bar-ai" onmousedown="event.preventDefault()">
+        <button id="tt-sel-bar-ai" onmousedown="event.preventDefault()" onclick="_ttDoAiRephrase()">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.9 5.8L20 10.6l-4.7 3.6 1.8 5.8L12 16.4 6.9 20l1.8-5.8L4 10.6l6.1-1.8z"/></svg>
           Improve with AI
         </button>
