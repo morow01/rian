@@ -10088,7 +10088,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '4.28.5';
+    const VERSION = '4.28.6';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -22539,9 +22539,13 @@ QUESTION: ${query}`;
       _ttBindToolbar();
     }
 
+    let _ttToolbarBound = false;
     function _ttBindToolbar() {
-      const e = _tiptapEditor;
+      if (_ttToolbarBound) return; // prevent duplicate bindings on editor recreate
+      _ttToolbarBound = true;
       const on = (id, fn) => { const el = document.getElementById(id); if (el) el.addEventListener('click', fn); };
+      // Use getter so all handlers always read the live _tiptapEditor at call time
+      const e = new Proxy({}, { get: (_, k) => _tiptapEditor?.[k] });
       // Text formatting
       on('tt-bold', () => { e.chain().focus().toggleBold().run(); _ttUpdateToolbar(e); });
       on('tt-italic', () => { e.chain().focus().toggleItalic().run(); _ttUpdateToolbar(e); });
@@ -22748,72 +22752,76 @@ QUESTION: ${query}`;
         showToast('✨ Applied!');
       });
       on('tt-ai-discard', () => _hideAiPreview());
-      on('tt-ai-rephrase', async () => {
-        _ttHideAiFab(); // dismiss floating bubble
-        const key = state.geminiKey || localStorage.getItem('geminiKey');
-        if (!key) { showToast('No Gemini key — add one in Settings ⚙️'); return; }
-        const btn = document.getElementById('tt-ai-rephrase');
-        const loadingEl = document.getElementById('tt-ai-loading');
-        const panel = document.getElementById('tt-ai-preview');
-        if (btn) { btn.style.opacity = '0.5'; btn.disabled = true; }
-        // Show panel + loading dots immediately — instant feedback
-        _hideAiPreview();
-        if (panel) { panel.style.display = 'block'; panel.style.animation = 'none'; requestAnimationFrame(() => { panel.style.animation = ''; }); }
-        if (loadingEl) loadingEl.style.display = 'flex';
-        try {
-          const { from, to, empty } = e.state.selection;
-          const inputText = empty
-            ? e.state.doc.textContent.trim()
-            : e.state.doc.textBetween(from, to, '\n').trim();
-          if (!inputText) { showToast('Nothing to improve'); _hideAiPreview(); return; }
-          const prompt = `You are a professional writing assistant. Rephrase the following text in 3 different ways — formal, concise, and natural/conversational. Keep the same language and meaning. Return ONLY valid JSON: {"versions":["...","...","..."]} with no extra text.\n\nText:\n${inputText}`;
-          let model = state.geminiModel || localStorage.getItem('geminiModel');
-          if (!model) {
-            model = await discoverGeminiModel(key);
-            if (model) { state.geminiModel = model; localStorage.setItem('geminiModel', model); }
-          }
-          if (!model) throw new Error('No Gemini model available');
-          // Use streaming endpoint so response starts arriving immediately
-          const res = await fetch(
-            `https://generativelanguage.googleapis.com/v1beta/models/${model}:streamGenerateContent?key=${key}&alt=sse`,
-            { method: 'POST', headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }],
-                generationConfig: { temperature: 0.8, response_mime_type: 'application/json' } }) }
-          );
-          if (!res.ok) throw new Error('HTTP ' + res.status);
-          // Accumulate streamed SSE chunks
-          const reader = res.body.getReader();
-          const decoder = new TextDecoder();
-          let accumulated = '';
-          while (true) {
-            const { done, value } = await reader.read();
-            if (done) break;
-            const chunk = decoder.decode(value, { stream: true });
-            for (const line of chunk.split('\n')) {
-              if (!line.startsWith('data: ')) continue;
-              const payload = line.slice(6).trim();
-              if (payload === '[DONE]') break;
-              try {
-                const part = JSON.parse(payload);
-                accumulated += part.candidates?.[0]?.content?.parts?.[0]?.text || '';
-              } catch { /* partial chunk — keep accumulating */ }
-            }
-          }
-          let versions;
-          try { versions = JSON.parse(accumulated).versions; } catch { versions = null; }
-          if (!Array.isArray(versions) || versions.length === 0) throw new Error('Unexpected AI response');
-          versions = versions.filter(v => v && v.trim()).slice(0, 3);
-          if (loadingEl) loadingEl.style.display = 'none';
-          _showAiVersions(versions, from, to, empty);
-        } catch (err) {
-          _hideAiPreview();
-          showToast('AI error: ' + (err.message || 'Failed'));
-          console.warn('[Rian] AI rephrase error:', err);
-        } finally {
-          if (btn) { btn.style.opacity = ''; btn.disabled = false; }
-          if (loadingEl) loadingEl.style.display = 'none';
+      on('tt-ai-rephrase', () => _ttDoAiRephrase());
+    }
+
+    // Standalone rephrase function — always reads live _tiptapEditor so it
+    // works whether called from the toolbar button or the selection bar.
+    async function _ttDoAiRephrase() {
+      _ttHideAiFab();
+      const editor = _tiptapEditor;
+      if (!editor) return;
+      const key = state.geminiKey || localStorage.getItem('geminiKey');
+      if (!key) { showToast('No Gemini key — add one in Settings ⚙️'); return; }
+      const btn = document.getElementById('tt-ai-rephrase');
+      const loadingEl = document.getElementById('tt-ai-loading');
+      const panel = document.getElementById('tt-ai-preview');
+      if (btn) { btn.style.opacity = '0.5'; btn.disabled = true; }
+      // Show panel + loading dots immediately — instant feedback
+      _hideAiPreview();
+      if (panel) { panel.style.display = 'block'; panel.style.animation = 'none'; requestAnimationFrame(() => { panel.style.animation = ''; }); }
+      if (loadingEl) loadingEl.style.display = 'flex';
+      try {
+        const { from, to, empty } = editor.state.selection;
+        const inputText = empty
+          ? editor.state.doc.textContent.trim()
+          : editor.state.doc.textBetween(from, to, '\n').trim();
+        if (!inputText) { showToast('Nothing to improve'); _hideAiPreview(); return; }
+        const prompt = `You are a professional writing assistant. Rephrase the following text in 3 different ways — formal, concise, and natural/conversational. Keep the same language and meaning. Return ONLY valid JSON: {"versions":["...","...","..."]} with no extra text.\n\nText:\n${inputText}`;
+        let model = state.geminiModel || localStorage.getItem('geminiModel');
+        if (!model) {
+          model = await discoverGeminiModel(key);
+          if (model) { state.geminiModel = model; localStorage.setItem('geminiModel', model); }
         }
-      });
+        if (!model) throw new Error('No Gemini model available');
+        const res = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/${model}:streamGenerateContent?key=${key}&alt=sse`,
+          { method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }],
+              generationConfig: { temperature: 0.8, response_mime_type: 'application/json' } }) }
+        );
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const reader = res.body.getReader();
+        const decoder = new TextDecoder();
+        let accumulated = '';
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          const chunk = decoder.decode(value, { stream: true });
+          for (const line of chunk.split('\n')) {
+            if (!line.startsWith('data: ')) continue;
+            const payload = line.slice(6).trim();
+            if (payload === '[DONE]') break;
+            try {
+              const part = JSON.parse(payload);
+              accumulated += part.candidates?.[0]?.content?.parts?.[0]?.text || '';
+            } catch { /* partial chunk — keep accumulating */ }
+          }
+        }
+        let versions;
+        try { versions = JSON.parse(accumulated).versions; } catch { versions = null; }
+        if (!Array.isArray(versions) || versions.length === 0) throw new Error('Unexpected AI response');
+        versions = versions.filter(v => v && v.trim()).slice(0, 3);
+        if (loadingEl) loadingEl.style.display = 'none';
+        _showAiVersions(versions, from, to, empty);
+      } catch (err) {
+        _hideAiPreview();
+        showToast('AI error: ' + (err.message || 'Failed'));
+        console.warn('[Rian] AI rephrase error:', err);
+      } finally {
+        if (btn) { btn.style.opacity = ''; btn.disabled = false; }
+        if (loadingEl) loadingEl.style.display = 'none';
+      }
     }
 
     function _ttUpdateToolbar(editor) {
@@ -23115,17 +23123,15 @@ QUESTION: ${query}`;
       }
     }
 
-    // Wire selection bar AI button → trigger the toolbar AI rephrase button
+    // Wire selection bar AI button → call rephrase directly (no btn.click indirection)
     const _selBarAi = document.getElementById('tt-sel-bar-ai');
     if (_selBarAi) {
-      // touchstart preventDefault stops the editor losing focus before touchend fires
+      // touchstart preventDefault keeps editor focused so selection is preserved on tap
       _selBarAi.addEventListener('touchstart', (ev) => ev.preventDefault(), { passive: false });
       const _selBarHandler = (ev) => {
         ev.preventDefault();
         ev.stopPropagation();
-        _ttHideAiFab();
-        const btn = document.getElementById('tt-ai-rephrase');
-        if (btn) btn.click();
+        _ttDoAiRephrase();
       };
       _selBarAi.addEventListener('touchend', _selBarHandler);
       _selBarAi.addEventListener('click', _selBarHandler);
