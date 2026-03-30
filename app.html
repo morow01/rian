@@ -3903,6 +3903,88 @@
     }
 
     /* Link bubble menu */
+    #tt-ai-preview {
+      position: sticky;
+      bottom: 0;
+      background: var(--bg-card);
+      border-top: 2px solid #818cf8;
+      padding: 12px 14px 16px;
+      z-index: 200;
+      animation: ttAiSlideUp 0.2s ease;
+    }
+    @keyframes ttAiSlideUp {
+      from { transform: translateY(100%); opacity: 0; }
+      to   { transform: translateY(0);    opacity: 1; }
+    }
+    #tt-ai-versions {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin: 8px 0 10px;
+      max-height: 260px;
+      overflow-y: auto;
+    }
+    #tt-ai-loading {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 4px;
+      color: var(--text-muted);
+      font-size: 13px;
+    }
+    .tt-ai-dots span {
+      display: inline-block;
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: #818cf8;
+      animation: ttAiDot 1.2s infinite;
+      margin-right: 3px;
+    }
+    .tt-ai-dots span:nth-child(2) { animation-delay: 0.2s; }
+    .tt-ai-dots span:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes ttAiDot {
+      0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
+      40%           { transform: scale(1);   opacity: 1;   }
+    }
+    .tt-ai-ver {
+      font-size: 13px;
+      line-height: 1.55;
+      color: var(--text-primary);
+      white-space: normal;
+      background: var(--bg-page);
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      padding: 9px 11px;
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .tt-ai-ver:hover { border-color: #a5b4fc; background: rgba(129,140,248,0.05); }
+    .tt-ai-ver.selected {
+      border-color: #818cf8;
+      background: rgba(129,140,248,0.08);
+    }
+    .tt-ai-ver-label {
+      font-size: 10px; font-weight: 700; letter-spacing: 0.5px;
+      color: #818cf8; text-transform: uppercase; margin-bottom: 4px;
+    }
+    #tt-ai-accept {
+      flex: 1; padding: 9px; border: none; border-radius: 10px;
+      background: #818cf8; color: #fff;
+      font-size: 13px; font-weight: 600; cursor: pointer;
+      transition: opacity 0.15s;
+    }
+    #tt-ai-accept:active { opacity: 0.8; }
+    #tt-ai-accept:disabled { opacity: 0.4; cursor: default; }
+    #tt-ai-discard {
+      flex: 1; padding: 9px; border-radius: 10px;
+      background: var(--bg-page); color: var(--text-muted);
+      border: 1px solid var(--border);
+      font-size: 13px; font-weight: 600; cursor: pointer;
+      transition: opacity 0.15s;
+    }
+    #tt-ai-discard:active { opacity: 0.7; }
+
     #tt-link-bubble {
       /* position/display/z-index set inline by _ttUpdateLinkBubble */
       align-items: center;
@@ -4162,7 +4244,7 @@
 
     :is(#note-fs-editor .ProseMirror, .tt-prose) ul[data-type="taskList"] li[data-checked="true"]>div {
       text-decoration: line-through;
-      color: inherit;
+      opacity: 0.35;
     }
 
     /* Tables */
@@ -9971,7 +10053,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '4.27.65';
+    const VERSION = '4.27.75';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -11928,7 +12010,22 @@
 
     function updateHeaderStatus() {
       const el = document.querySelector('header');
-      if (el) el.outerHTML = renderHeader();
+      if (!el) return;
+      // Preserve focus & selection — replacing outerHTML can blur inputs on some platforms
+      const _focused = document.activeElement;
+      const _isInput = _focused && (_focused.tagName === 'TEXTAREA' || _focused.tagName === 'INPUT');
+      const _selStart = _isInput ? _focused.selectionStart : null;
+      const _selEnd   = _isInput ? _focused.selectionEnd   : null;
+      el.outerHTML = renderHeader();
+      // Restore selection if the focused input is still in the DOM and had a non-collapsed selection
+      if (_isInput && _selStart !== null && _selStart !== _selEnd && _focused.isConnected) {
+        requestAnimationFrame(() => {
+          if (_focused.isConnected) {
+            _focused.focus({ preventScroll: true });
+            _focused.setSelectionRange(_selStart, _selEnd);
+          }
+        });
+      }
     }
 
     // ============================================================
@@ -22299,9 +22396,35 @@ QUESTION: ${query}`;
         import('https://esm.sh/@tiptap/extension-superscript@2.4.0'),
         import('https://esm.sh/@tiptap/extension-image@2.4.0'),
       ]);
+      // Extend TableCell to support per-cell background colour
+      const TableCellWithBg = TableCell.extend({
+        addAttributes() {
+          return {
+            ...this.parent?.(),
+            background: {
+              default: null,
+              parseHTML: el => el.style.backgroundColor || null,
+              renderHTML: attrs => attrs.background ? { style: `background-color:${attrs.background}` } : {},
+            },
+          };
+        },
+      });
+      const TableHeaderWithBg = TableHeader.extend({
+        addAttributes() {
+          return {
+            ...this.parent?.(),
+            background: {
+              default: null,
+              parseHTML: el => el.style.backgroundColor || null,
+              renderHTML: attrs => attrs.background ? { style: `background-color:${attrs.background}` } : {},
+            },
+          };
+        },
+      });
       _tiptapModules = {
         Editor, StarterKit, Underline, TextStyle, Color, Highlight, Placeholder,
         TextAlign, TaskList, TaskItem, Table, TableRow, TableHeader, TableCell,
+        TableCellWithBg, TableHeaderWithBg,
         Link, Subscript, Superscript, Image,
       };
       return _tiptapModules;
@@ -22311,7 +22434,8 @@ QUESTION: ${query}`;
       if (_tiptapEditor) return;
       const {
         Editor, StarterKit, Underline, TextStyle, Color, Highlight, Placeholder,
-        TextAlign, TaskList, TaskItem, Table, TableRow, TableHeader, TableCell,
+        TextAlign, TaskList, TaskItem, Table, TableRow,
+        TableCellWithBg, TableHeaderWithBg,
         Link, Subscript, Superscript, Image,
       } = await _loadTipTapModules();
       _tiptapEditor = new Editor({
@@ -22328,8 +22452,8 @@ QUESTION: ${query}`;
           TaskItem.configure({ nested: true }),
           Table.configure({ resizable: true }),
           TableRow,
-          TableHeader,
-          TableCell,
+          TableHeaderWithBg,
+          TableCellWithBg,
           Link.configure({
             openOnClick: false,
             HTMLAttributes: {
@@ -22486,6 +22610,15 @@ QUESTION: ${query}`;
         if (!ok) showToast('Place cursor in a merged cell to split it');
       });
       on('tt-table-del', () => e.chain().focus().deleteTable().run());
+      // Cell background colours
+      const _setCellBg = color => e.chain().focus().setCellAttribute('background', color).run();
+      on('tt-cell-bg-none',   () => _setCellBg(null));
+      on('tt-cell-bg-blue',   () => _setCellBg('#dbeafe'));
+      on('tt-cell-bg-green',  () => _setCellBg('#dcfce7'));
+      on('tt-cell-bg-yellow', () => _setCellBg('#fef9c3'));
+      on('tt-cell-bg-red',    () => _setCellBg('#fee2e2'));
+      on('tt-cell-bg-purple', () => _setCellBg('#ede9fe'));
+      on('tt-cell-bg-gray',   () => _setCellBg('#f1f5f9'));
       // Image
       on('tt-image', () => document.getElementById('tt-image-input').click());
       const imgInput = document.getElementById('tt-image-input');
@@ -22515,6 +22648,112 @@ QUESTION: ${query}`;
       on('tt-hl-purple', () => { e.chain().focus().setHighlight({ color: '#e9d5ff' }).run(); _closePalette(); });
       on('tt-hl-orange', () => { e.chain().focus().setHighlight({ color: '#fed7aa' }).run(); _closePalette(); });
       on('tt-hl-reset', () => { e.chain().focus().unsetHighlight().run(); _closePalette(); });
+      // AI rephrase — shows 3 version cards, user picks one then confirms
+      let _aiPending = null; // { from, to, empty, selectedText }
+      const _hideAiPreview = () => {
+        const panel = document.getElementById('tt-ai-preview');
+        if (panel) panel.style.display = 'none';
+        const loadingEl = document.getElementById('tt-ai-loading');
+        if (loadingEl) loadingEl.style.display = 'none';
+        const container = document.getElementById('tt-ai-versions');
+        if (container) container.innerHTML = '';
+        _aiPending = null;
+        const acceptBtn = document.getElementById('tt-ai-accept');
+        if (acceptBtn) acceptBtn.disabled = true;
+      };
+      const _showAiVersions = (versions, from, to, empty) => {
+        _aiPending = { from, to, empty, selectedText: null };
+        const container = document.getElementById('tt-ai-versions');
+        const acceptBtn = document.getElementById('tt-ai-accept');
+        if (!container) return;
+        container.innerHTML = versions.map((v, i) => `<div class="tt-ai-ver" data-ver-idx="${i}"><div class="tt-ai-ver-label">Option ${i + 1}</div>${esc(v)}</div>`).join('');
+        container.querySelectorAll('.tt-ai-ver').forEach((card, i) => {
+          card.addEventListener('click', () => {
+            container.querySelectorAll('.tt-ai-ver').forEach(c => c.classList.remove('selected'));
+            card.classList.add('selected');
+            _aiPending.selectedText = versions[i];
+            if (acceptBtn) acceptBtn.disabled = false;
+          });
+        });
+        if (acceptBtn) acceptBtn.disabled = true;
+      };
+      on('tt-ai-accept', () => {
+        if (!_aiPending || !_aiPending.selectedText) return;
+        const { from, to, empty, selectedText } = _aiPending;
+        if (empty) {
+          e.commands.setContent(selectedText);
+        } else {
+          e.chain().focus().deleteRange({ from, to }).insertContentAt(from, selectedText).run();
+        }
+        _hideAiPreview();
+        showToast('✨ Applied!');
+      });
+      on('tt-ai-discard', () => _hideAiPreview());
+      on('tt-ai-rephrase', async () => {
+        const key = state.geminiKey || localStorage.getItem('geminiKey');
+        if (!key) { showToast('No Gemini key — add one in Settings ⚙️'); return; }
+        const btn = document.getElementById('tt-ai-rephrase');
+        const loadingEl = document.getElementById('tt-ai-loading');
+        const panel = document.getElementById('tt-ai-preview');
+        if (btn) { btn.style.opacity = '0.5'; btn.disabled = true; }
+        // Show panel + loading dots immediately — instant feedback
+        _hideAiPreview();
+        if (panel) { panel.style.display = 'block'; panel.style.animation = 'none'; requestAnimationFrame(() => { panel.style.animation = ''; }); }
+        if (loadingEl) loadingEl.style.display = 'flex';
+        try {
+          const { from, to, empty } = e.state.selection;
+          const inputText = empty
+            ? e.state.doc.textContent.trim()
+            : e.state.doc.textBetween(from, to, '\n').trim();
+          if (!inputText) { showToast('Nothing to improve'); _hideAiPreview(); return; }
+          const prompt = `You are a professional writing assistant. Rephrase the following text in 3 different ways — formal, concise, and natural/conversational. Keep the same language and meaning. Return ONLY valid JSON: {"versions":["...","...","..."]} with no extra text.\n\nText:\n${inputText}`;
+          let model = state.geminiModel || localStorage.getItem('geminiModel');
+          if (!model) {
+            model = await discoverGeminiModel(key);
+            if (model) { state.geminiModel = model; localStorage.setItem('geminiModel', model); }
+          }
+          if (!model) throw new Error('No Gemini model available');
+          // Use streaming endpoint so response starts arriving immediately
+          const res = await fetch(
+            `https://generativelanguage.googleapis.com/v1beta/models/${model}:streamGenerateContent?key=${key}&alt=sse`,
+            { method: 'POST', headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }],
+                generationConfig: { temperature: 0.8, response_mime_type: 'application/json' } }) }
+          );
+          if (!res.ok) throw new Error('HTTP ' + res.status);
+          // Accumulate streamed SSE chunks
+          const reader = res.body.getReader();
+          const decoder = new TextDecoder();
+          let accumulated = '';
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            const chunk = decoder.decode(value, { stream: true });
+            for (const line of chunk.split('\n')) {
+              if (!line.startsWith('data: ')) continue;
+              const payload = line.slice(6).trim();
+              if (payload === '[DONE]') break;
+              try {
+                const part = JSON.parse(payload);
+                accumulated += part.candidates?.[0]?.content?.parts?.[0]?.text || '';
+              } catch { /* partial chunk — keep accumulating */ }
+            }
+          }
+          let versions;
+          try { versions = JSON.parse(accumulated).versions; } catch { versions = null; }
+          if (!Array.isArray(versions) || versions.length === 0) throw new Error('Unexpected AI response');
+          versions = versions.filter(v => v && v.trim()).slice(0, 3);
+          if (loadingEl) loadingEl.style.display = 'none';
+          _showAiVersions(versions, from, to, empty);
+        } catch (err) {
+          _hideAiPreview();
+          showToast('AI error: ' + (err.message || 'Failed'));
+          console.warn('[Rian] AI rephrase error:', err);
+        } finally {
+          if (btn) { btn.style.opacity = ''; btn.disabled = false; }
+          if (loadingEl) loadingEl.style.display = 'none';
+        }
+      });
     }
 
     function _ttUpdateToolbar(editor) {
@@ -22989,6 +23228,9 @@ QUESTION: ${query}`;
       const micBtn = document.getElementById('fs-mic-btn');
       if (micBtn) micBtn.classList.remove('fs-mic-listening');
       _tiptapOnUpdate = null;
+      // Dismiss any pending AI preview
+      const _aiP = document.getElementById('tt-ai-preview');
+      if (_aiP) _aiP.style.display = 'none';
       document.getElementById('note-fs-modal').classList.add('hidden');
       // If we were editing a callout note, update preview
       if (_coNoteFsActive) {
@@ -23637,6 +23879,14 @@ QUESTION: ${query}`;
             </svg>
           </button>
           <div class="tt-sep"></div>
+          <!-- AI rephrase -->
+          <button class="tt-btn" id="tt-ai-rephrase" title="Improve with AI" style="padding:0 8px;gap:4px;font-size:11px;font-weight:700;letter-spacing:0.2px;color:#818cf8;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 3l1.9 5.8L20 10.6l-5.3 3.8 1.6 6.2L12 17.3l-4.3 3.3 1.6-6.2L4 10.6l6.1-1.8z"/>
+            </svg>
+            AI
+          </button>
+          <div class="tt-sep"></div>
           <!-- Text formatting -->
           <button class="tt-btn" id="tt-bold" title="Bold"><b>B</b></button>
           <button class="tt-btn" id="tt-italic" title="Italic"><i>I</i></button>
@@ -23856,6 +24106,16 @@ QUESTION: ${query}`;
             </svg>
           </button>
           <div class="tt-sep"></div>
+          <!-- Cell background colour -->
+          <span class="tt-tbl-label" style="font-size:10px;opacity:0.7;">Cell</span>
+          <button class="tt-swatch" id="tt-cell-bg-none"  style="background:var(--bg-page);border-color:var(--border)" title="No fill"></button>
+          <button class="tt-swatch" id="tt-cell-bg-blue"  style="background:#dbeafe" title="Blue"></button>
+          <button class="tt-swatch" id="tt-cell-bg-green" style="background:#dcfce7" title="Green"></button>
+          <button class="tt-swatch" id="tt-cell-bg-yellow"style="background:#fef9c3" title="Yellow"></button>
+          <button class="tt-swatch" id="tt-cell-bg-red"   style="background:#fee2e2" title="Red"></button>
+          <button class="tt-swatch" id="tt-cell-bg-purple"style="background:#ede9fe" title="Purple"></button>
+          <button class="tt-swatch" id="tt-cell-bg-gray"  style="background:#f1f5f9" title="Gray"></button>
+          <div class="tt-sep"></div>
           <button class="tt-btn" id="tt-table-del" title="Delete table" style="color:#ef4444">
             <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
               stroke-linejoin="round">
@@ -23988,6 +24248,19 @@ QUESTION: ${query}`;
       </div><!-- end tt-toolbar-wrap -->
       <!-- TipTap editor area -->
       <div id="note-fs-editor"></div>
+      <!-- AI rephrase preview panel (hidden until AI returns a suggestion) -->
+      <div id="tt-ai-preview" style="display:none;">
+        <div style="font-size:11px;font-weight:700;color:#818cf8;text-transform:uppercase;letter-spacing:0.5px;">✦ AI Suggestions — tap one to select</div>
+        <div id="tt-ai-loading" style="display:none;">
+          <div class="tt-ai-dots"><span></span><span></span><span></span></div>
+          Generating suggestions…
+        </div>
+        <div id="tt-ai-versions"></div>
+        <div style="display:flex;gap:8px;">
+          <button id="tt-ai-accept" disabled>Replace</button>
+          <button id="tt-ai-discard">Discard</button>
+        </div>
+      </div>
     </div>
   </div>
   <!-- Link bubble: manually positioned via _ttUpdateLinkBubble() -->
