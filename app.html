@@ -3769,9 +3769,23 @@
     }
 
     /* ── List-type dropdown ───────────────────────────── */
-    .tt-list-drop { position: relative; }
-    .tt-list-btn  { width: auto !important; padding: 0 5px 0 6px; gap: 2px; }
-    .tt-list-chevron { width: 10px !important; height: 10px !important; opacity: 0.55; flex-shrink: 0; }
+    .tt-list-drop {
+      position: relative;
+    }
+
+    .tt-list-btn {
+      width: auto !important;
+      padding: 0 5px 0 6px;
+      gap: 2px;
+    }
+
+    .tt-list-chevron {
+      width: 10px !important;
+      height: 10px !important;
+      opacity: 0.55;
+      flex-shrink: 0;
+    }
+
     .tt-list-menu {
       position: absolute;
       top: calc(100% + 4px);
@@ -3785,9 +3799,13 @@
       gap: 1px;
       z-index: 300;
       min-width: 148px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.14);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.14);
     }
-    .tt-list-menu.tt-open { display: flex; }
+
+    .tt-list-menu.tt-open {
+      display: flex;
+    }
+
     .tt-list-item {
       display: flex;
       align-items: center;
@@ -3805,9 +3823,21 @@
       white-space: nowrap;
       -webkit-tap-highlight-color: transparent;
     }
-    .tt-list-item:hover { background: var(--bg-page); }
-    .tt-list-item.tt-active { background: #ede9fe; color: #818cf8; }
-    .tt-list-item svg { width: 15px; height: 15px; flex-shrink: 0; }
+
+    .tt-list-item:hover {
+      background: var(--bg-page);
+    }
+
+    .tt-list-item.tt-active {
+      background: #ede9fe;
+      color: #818cf8;
+    }
+
+    .tt-list-item svg {
+      width: 15px;
+      height: 15px;
+      flex-shrink: 0;
+    }
 
     .tt-swatch {
       width: 24px;
@@ -3861,20 +3891,28 @@
     }
 
     :is(#note-fs-editor .ProseMirror, .tt-prose) h1 {
-      font-size: 26px;
+      font-size: 28px;
       letter-spacing: -0.03em;
+      color: #0D1F3C;
     }
 
     :is(#note-fs-editor .ProseMirror, .tt-prose) h2 {
       font-size: 19px;
       letter-spacing: -0.02em;
+      color: #1F3D1A;
+      border-left: 3px solid #3B6D11;
+      padding-left: 10px;
     }
 
     :is(#note-fs-editor .ProseMirror, .tt-prose) h3 {
       font-size: 15px;
       font-weight: 500;
       letter-spacing: -0.01em;
-      color: #3A3836;
+      color: #6B4A0F;
+      background: #FEF3CC;
+      display: inline-block;
+      padding: 2px 10px;
+      border-radius: 5px;
     }
 
     :is(#note-fs-editor .ProseMirror, .tt-prose) ul,
@@ -3898,11 +3936,11 @@
     }
 
     :is(#note-fs-editor .ProseMirror, .tt-prose) li::marker {
-      color: #C8C6C0;
+      color: #64748b;
     }
 
     :is(#note-fs-editor .ProseMirror, .tt-prose) blockquote {
-      border-left: 2.5px solid rgba(0,0,0,0.15);
+      border-left: 2.5px solid rgba(0, 0, 0, 0.15);
       padding: 10px 16px;
       background: #F5F4F0;
       border-radius: 0 8px 8px 0;
@@ -3928,10 +3966,19 @@
       z-index: 200;
       animation: ttAiSlideUp 0.2s ease;
     }
+
     @keyframes ttAiSlideUp {
-      from { transform: translateY(100%); opacity: 0; }
-      to   { transform: translateY(0);    opacity: 1; }
+      from {
+        transform: translateY(100%);
+        opacity: 0;
+      }
+
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
     }
+
     #tt-ai-versions {
       display: flex;
       flex-direction: column;
@@ -3940,6 +3987,7 @@
       max-height: 260px;
       overflow-y: auto;
     }
+
     #tt-ai-loading {
       display: flex;
       align-items: center;
@@ -3948,20 +3996,40 @@
       color: var(--text-muted);
       font-size: 13px;
     }
+
     .tt-ai-dots span {
       display: inline-block;
-      width: 6px; height: 6px;
+      width: 6px;
+      height: 6px;
       border-radius: 50%;
       background: #818cf8;
       animation: ttAiDot 1.2s infinite;
       margin-right: 3px;
     }
-    .tt-ai-dots span:nth-child(2) { animation-delay: 0.2s; }
-    .tt-ai-dots span:nth-child(3) { animation-delay: 0.4s; }
-    @keyframes ttAiDot {
-      0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
-      40%           { transform: scale(1);   opacity: 1;   }
+
+    .tt-ai-dots span:nth-child(2) {
+      animation-delay: 0.2s;
     }
+
+    .tt-ai-dots span:nth-child(3) {
+      animation-delay: 0.4s;
+    }
+
+    @keyframes ttAiDot {
+
+      0%,
+      80%,
+      100% {
+        transform: scale(0.6);
+        opacity: 0.4;
+      }
+
+      40% {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+
     .tt-ai-ver {
       font-size: 13px;
       line-height: 1.55;
@@ -3975,31 +4043,64 @@
       transition: border-color 0.15s, background 0.15s;
       -webkit-tap-highlight-color: transparent;
     }
-    .tt-ai-ver:hover { border-color: #a5b4fc; background: rgba(129,140,248,0.05); }
+
+    .tt-ai-ver:hover {
+      border-color: #a5b4fc;
+      background: rgba(129, 140, 248, 0.05);
+    }
+
     .tt-ai-ver.selected {
       border-color: #818cf8;
-      background: rgba(129,140,248,0.08);
+      background: rgba(129, 140, 248, 0.08);
     }
+
     .tt-ai-ver-label {
-      font-size: 10px; font-weight: 700; letter-spacing: 0.5px;
-      color: #818cf8; text-transform: uppercase; margin-bottom: 4px;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      color: #818cf8;
+      text-transform: uppercase;
+      margin-bottom: 4px;
     }
+
     #tt-ai-accept {
-      flex: 1; padding: 9px; border: none; border-radius: 10px;
-      background: #818cf8; color: #fff;
-      font-size: 13px; font-weight: 600; cursor: pointer;
+      flex: 1;
+      padding: 9px;
+      border: none;
+      border-radius: 10px;
+      background: #818cf8;
+      color: #fff;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
       transition: opacity 0.15s;
     }
-    #tt-ai-accept:active { opacity: 0.8; }
-    #tt-ai-accept:disabled { opacity: 0.4; cursor: default; }
+
+    #tt-ai-accept:active {
+      opacity: 0.8;
+    }
+
+    #tt-ai-accept:disabled {
+      opacity: 0.4;
+      cursor: default;
+    }
+
     #tt-ai-discard {
-      flex: 1; padding: 9px; border-radius: 10px;
-      background: var(--bg-page); color: var(--text-muted);
+      flex: 1;
+      padding: 9px;
+      border-radius: 10px;
+      background: var(--bg-page);
+      color: var(--text-muted);
       border: 1px solid var(--border);
-      font-size: 13px; font-weight: 600; cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
       transition: opacity 0.15s;
     }
-    #tt-ai-discard:active { opacity: 0.7; }
+
+    #tt-ai-discard:active {
+      opacity: 0.7;
+    }
 
     /* Selection action bar — sticky at bottom of editor, appears when text is selected */
     #tt-sel-bar {
@@ -4015,6 +4116,7 @@
       border-top: 1.5px solid #c7d2fe;
       animation: ttAiSlideUp 0.18s ease;
     }
+
     #tt-sel-bar-ai {
       display: flex;
       align-items: center;
@@ -4030,7 +4132,13 @@
       cursor: pointer;
       -webkit-tap-highlight-color: transparent;
     }
-    #tt-sel-bar-ai svg { width: 15px; height: 15px; flex-shrink: 0; }
+
+    #tt-sel-bar-ai svg {
+      width: 15px;
+      height: 15px;
+      flex-shrink: 0;
+    }
+
     #tt-sel-bar-hint {
       font-size: 12px;
       color: var(--text-muted);
@@ -4049,8 +4157,11 @@
       min-width: 180px;
       max-width: calc(100vw - 24px);
     }
+
     @media (min-width: 768px) {
-      #tt-link-bubble { max-width: 50vw; }
+      #tt-link-bubble {
+        max-width: 50vw;
+      }
     }
 
     #tt-link-bubble-input {
@@ -4212,7 +4323,7 @@
       font-family: 'DM Mono', monospace;
       font-size: 12px;
       background: #F5F4F0;
-      border: 1px solid rgba(0,0,0,0.08);
+      border: 1px solid rgba(0, 0, 0, 0.08);
       border-radius: 5px;
       padding: 2px 7px;
       color: #1A1917;
@@ -4224,12 +4335,35 @@
     }
 
     /* Muted tinted highlights */
-    :is(#note-fs-editor .ProseMirror, .tt-prose) mark[data-color="#fef08a"] { background-color: #FDF3C0 !important; color: #7A5E00; }
-    :is(#note-fs-editor .ProseMirror, .tt-prose) mark[data-color="#bbf7d0"] { background-color: #D6F0C2 !important; color: #2B5A09; }
-    :is(#note-fs-editor .ProseMirror, .tt-prose) mark[data-color="#fecaca"] { background-color: #FDDDD8 !important; color: #8F2610; }
-    :is(#note-fs-editor .ProseMirror, .tt-prose) mark[data-color="#bfdbfe"] { background-color: #D0E8FA !important; color: #0B3C72; }
-    :is(#note-fs-editor .ProseMirror, .tt-prose) mark[data-color="#e9d5ff"] { background-color: #EDE4FF !important; color: #3D2A8A; }
-    :is(#note-fs-editor .ProseMirror, .tt-prose) mark[data-color="#fed7aa"] { background-color: #FDEBD0 !important; color: #7A3D00; }
+    :is(#note-fs-editor .ProseMirror, .tt-prose) mark[data-color="#fef08a"] {
+      background-color: #FDF3C0 !important;
+      color: #7A5E00;
+    }
+
+    :is(#note-fs-editor .ProseMirror, .tt-prose) mark[data-color="#bbf7d0"] {
+      background-color: #D6F0C2 !important;
+      color: #2B5A09;
+    }
+
+    :is(#note-fs-editor .ProseMirror, .tt-prose) mark[data-color="#fecaca"] {
+      background-color: #FDDDD8 !important;
+      color: #8F2610;
+    }
+
+    :is(#note-fs-editor .ProseMirror, .tt-prose) mark[data-color="#bfdbfe"] {
+      background-color: #D0E8FA !important;
+      color: #0B3C72;
+    }
+
+    :is(#note-fs-editor .ProseMirror, .tt-prose) mark[data-color="#e9d5ff"] {
+      background-color: #EDE4FF !important;
+      color: #3D2A8A;
+    }
+
+    :is(#note-fs-editor .ProseMirror, .tt-prose) mark[data-color="#fed7aa"] {
+      background-color: #FDEBD0 !important;
+      color: #7A3D00;
+    }
 
     #note-fs-editor .ProseMirror p.is-editor-empty:first-child::before {
       content: attr(data-placeholder);
@@ -4292,6 +4426,7 @@
       position: relative;
       transition: background 0.15s, border-color 0.15s;
     }
+
     :is(#note-fs-editor .ProseMirror, .tt-prose) ul[data-type="taskList"] li>label input[type="checkbox"]:checked {
       background: #0f172a;
       border-color: #0f172a;
@@ -10117,7 +10252,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '4.30.0';
+    const VERSION = '4.30.1';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -12093,7 +12228,7 @@
       const _focused = document.activeElement;
       const _isInput = _focused && (_focused.tagName === 'TEXTAREA' || _focused.tagName === 'INPUT');
       const _selStart = _isInput ? _focused.selectionStart : null;
-      const _selEnd   = _isInput ? _focused.selectionEnd   : null;
+      const _selEnd = _isInput ? _focused.selectionEnd : null;
       el.outerHTML = renderHeader();
       // Restore selection if the focused input is still in the DOM and had a non-collapsed selection
       if (_isInput && _selStart !== null && _selStart !== _selEnd && _focused.isConnected) {
@@ -22574,11 +22709,13 @@ QUESTION: ${query}`;
       _ttToolbarBound = true;
       const on = (id, fn) => { const el = document.getElementById(id); if (el) el.addEventListener('click', fn); };
       // Always read live editor at call time via getter
-      const e = { get chain() { return _tiptapEditor?.chain.bind(_tiptapEditor); },
-                  get state() { return _tiptapEditor?.state; },
-                  get view()  { return _tiptapEditor?.view; },
-                  isActive(...a) { return _tiptapEditor?.isActive(...a); },
-                  getAttributes(a) { return _tiptapEditor?.getAttributes(a); } };
+      const e = {
+        get chain() { return _tiptapEditor?.chain.bind(_tiptapEditor); },
+        get state() { return _tiptapEditor?.state; },
+        get view() { return _tiptapEditor?.view; },
+        isActive(...a) { return _tiptapEditor?.isActive(...a); },
+        getAttributes(a) { return _tiptapEditor?.getAttributes(a); }
+      };
       // Text formatting
       on('tt-bold', () => { e.chain().focus().toggleBold().run(); _ttUpdateToolbar(e); });
       on('tt-italic', () => { e.chain().focus().toggleItalic().run(); _ttUpdateToolbar(e); });
@@ -22708,13 +22845,13 @@ QUESTION: ${query}`;
       on('tt-table-del', () => e.chain().focus().deleteTable().run());
       // Cell background colours
       const _setCellBg = color => e.chain().focus().setCellAttribute('background', color).run();
-      on('tt-cell-bg-none',   () => _setCellBg(null));
-      on('tt-cell-bg-blue',   () => _setCellBg('#dbeafe'));
-      on('tt-cell-bg-green',  () => _setCellBg('#dcfce7'));
+      on('tt-cell-bg-none', () => _setCellBg(null));
+      on('tt-cell-bg-blue', () => _setCellBg('#dbeafe'));
+      on('tt-cell-bg-green', () => _setCellBg('#dcfce7'));
       on('tt-cell-bg-yellow', () => _setCellBg('#fef9c3'));
-      on('tt-cell-bg-red',    () => _setCellBg('#fee2e2'));
+      on('tt-cell-bg-red', () => _setCellBg('#fee2e2'));
       on('tt-cell-bg-purple', () => _setCellBg('#ede9fe'));
-      on('tt-cell-bg-gray',   () => _setCellBg('#f1f5f9'));
+      on('tt-cell-bg-gray', () => _setCellBg('#f1f5f9'));
       // Image
       on('tt-image', () => document.getElementById('tt-image-input').click());
       const imgInput = document.getElementById('tt-image-input');
@@ -22772,7 +22909,7 @@ QUESTION: ${query}`;
       const vv = window.visualViewport;
       if (!vv) return;
       modal.style.height = vv.height + 'px';
-      modal.style.top    = vv.offsetTop + 'px';
+      modal.style.top = vv.offsetTop + 'px';
       modal.style.bottom = 'auto';
     }
     if (window.visualViewport) {
@@ -22851,9 +22988,13 @@ QUESTION: ${query}`;
         if (!model) throw new Error('No Gemini model available');
         const res = await fetch(
           `https://generativelanguage.googleapis.com/v1beta/models/${model}:streamGenerateContent?key=${key}&alt=sse`,
-          { method: 'POST', headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }],
-              generationConfig: { temperature: 0.8, response_mime_type: 'application/json' } }) }
+          {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              contents: [{ parts: [{ text: prompt }] }],
+              generationConfig: { temperature: 0.8, response_mime_type: 'application/json' }
+            })
+          }
         );
         if (!res.ok) throw new Error('HTTP ' + res.status);
         const reader = res.body.getReader();
@@ -23087,11 +23228,11 @@ QUESTION: ${query}`;
         try {
           const { state, dispatch } = e.view;
           const $anchor = state.doc.resolve(anchorPos);
-          const $head   = state.doc.resolve(headPos);
+          const $head = state.doc.resolve(headPos);
           // Get cell start positions (before the cell node at cell depth)
           const getCell = ($p) => { for (let d = $p.depth; d > 0; d--) { if ($p.node(d).type.spec.tableRole === 'cell' || $p.node(d).type.spec.tableRole === 'header_cell') return $p.before(d); } return $p.pos; };
           const anchorCell = getCell($anchor);
-          const headCell   = getCell($head);
+          const headCell = getCell($head);
           const ok = e.chain().focus().setCellSelection({ anchorCell, headCell }).run();
           if (!ok) showToast('Could not create selection — make sure both cells are in the same table');
           else {
@@ -23229,7 +23370,7 @@ QUESTION: ${query}`;
       const coords = view.coordsAtPos(from);
       const editorRect = view.dom.getBoundingClientRect();
       bubble.style.position = 'fixed';
-      bubble.style.top  = (coords.bottom + 6) + 'px';
+      bubble.style.top = (coords.bottom + 6) + 'px';
       bubble.style.left = Math.max(8, editorRect.left) + 'px';
       bubble.style.display = 'flex';
     }
@@ -23403,7 +23544,7 @@ QUESTION: ${query}`;
       _fsMod.classList.add('hidden');
       // Reset any visualViewport-driven sizing so next open starts clean
       _fsMod.style.height = '';
-      _fsMod.style.top    = '';
+      _fsMod.style.top = '';
       _fsMod.style.bottom = '';
       // If we were editing a callout note, update preview
       if (_coNoteFsActive) {
@@ -23858,8 +23999,8 @@ QUESTION: ${query}`;
           <label class="vc-label">Location</label>
           <div style="display:flex;gap:8px;align-items:center">
             <input id="vc-loc" class="vc-input" type="text" placeholder="Town name or code"
-              style="flex:1;min-width:0;cursor:pointer" autocomplete="new-password" data-lpignore="true" data-form-type="other"
-              data-1p-ignore="true" readonly
+              style="flex:1;min-width:0;cursor:pointer" autocomplete="new-password" data-lpignore="true"
+              data-form-type="other" data-1p-ignore="true" readonly
               onclick="_coSiteCallback=(name)=>{document.getElementById('vc-loc').value=name;}; openLocationModal();">
             <button type="button"
               onclick="_coSiteCallback=(name)=>{document.getElementById('vc-loc').value=name;}; openLocationModal();"
@@ -23917,8 +24058,7 @@ QUESTION: ${query}`;
         <div class="vc-field">
           <label class="vc-label">Description</label>
           <textarea id="nvc-desc" class="vc-input" rows="2" placeholder="Note title" autocomplete="off"
-            data-lpignore="true" data-form-type="other" data-1p-ignore="true"
-            style="resize:none;overflow:hidden"
+            data-lpignore="true" data-form-type="other" data-1p-ignore="true" style="resize:none;overflow:hidden"
             oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'"></textarea>
         </div>
         <div class="vc-field">
@@ -23933,7 +24073,8 @@ QUESTION: ${query}`;
               style="flex-shrink:0;height:38px;padding:0 12px;border-radius:10px;border:1.5px solid var(--border);background:var(--bg-card);color:var(--text-primary);font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"
                 style="display:inline-block;vertical-align:-2px;margin-right:4px;color:#e8453c">
-                <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 010-5 2.5 2.5 0 010 5z"/>
+                <path
+                  d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 010-5 2.5 2.5 0 010 5z" />
               </svg>Site
             </button>
           </div>
@@ -23942,7 +24083,8 @@ QUESTION: ${query}`;
           <label class="vc-label">Date</label>
           <div style="position:relative">
             <div id="nvc-date-display" class="vc-input" style="cursor:pointer;line-height:38px;padding:0 12px"
-              onclick="this.nextElementSibling.showPicker?this.nextElementSibling.showPicker():this.nextElementSibling.click()"></div>
+              onclick="this.nextElementSibling.showPicker?this.nextElementSibling.showPicker():this.nextElementSibling.click()">
+            </div>
             <input type="date" id="nvc-date-input"
               style="opacity:0;position:absolute;inset:0;width:100%;height:100%;cursor:pointer;border:none;padding:0"
               onchange="nvcDate=this.value;renderNvcDateField()">
@@ -23951,11 +24093,14 @@ QUESTION: ${query}`;
         <div class="vc-field">
           <label class="vc-label">Priority</label>
           <div id="nvc-priority-dots" style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
-            <button type="button" class="note-pri-dot pd-high" data-pri="high" onclick="setNvcPriority('high')" title="High"></button>
+            <button type="button" class="note-pri-dot pd-high" data-pri="high" onclick="setNvcPriority('high')"
+              title="High"></button>
             <span style="font-size:12px;color:var(--text-secondary);margin-right:10px">High</span>
-            <button type="button" class="note-pri-dot pd-medium" data-pri="medium" onclick="setNvcPriority('medium')" title="Medium"></button>
+            <button type="button" class="note-pri-dot pd-medium" data-pri="medium" onclick="setNvcPriority('medium')"
+              title="Medium"></button>
             <span style="font-size:12px;color:var(--text-secondary);margin-right:10px">Medium</span>
-            <button type="button" class="note-pri-dot pd-low" data-pri="low" onclick="setNvcPriority('low')" title="Low"></button>
+            <button type="button" class="note-pri-dot pd-low" data-pri="low" onclick="setNvcPriority('low')"
+              title="Low"></button>
             <span style="font-size:12px;color:var(--text-secondary)">Low</span>
           </div>
         </div>
@@ -24049,20 +24194,26 @@ QUESTION: ${query}`;
         <div id="note-fs-tt-toolbar">
           <!-- Undo / Redo -->
           <button class="tt-btn" id="tt-undo" title="Undo">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-              <polyline points="9 14 4 9 9 4" /><path d="M20 20v-7a4 4 0 0 0-4-4H4" />
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+              stroke-linejoin="round">
+              <polyline points="9 14 4 9 9 4" />
+              <path d="M20 20v-7a4 4 0 0 0-4-4H4" />
             </svg>
           </button>
           <button class="tt-btn" id="tt-redo" title="Redo">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-              <polyline points="15 14 20 9 15 4" /><path d="M4 20v-7a4 4 0 0 1 4-4h12" />
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+              stroke-linejoin="round">
+              <polyline points="15 14 20 9 15 4" />
+              <path d="M4 20v-7a4 4 0 0 1 4-4h12" />
             </svg>
           </button>
           <div class="tt-sep"></div>
           <!-- AI rephrase -->
-          <button class="tt-btn" id="tt-ai-rephrase" title="Improve with AI" style="padding:0 8px;gap:4px;font-size:11px;font-weight:700;letter-spacing:0.2px;color:#818cf8;">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M12 3l1.9 5.8L20 10.6l-5.3 3.8 1.6 6.2L12 17.3l-4.3 3.3 1.6-6.2L4 10.6l6.1-1.8z"/>
+          <button class="tt-btn" id="tt-ai-rephrase" title="Improve with AI"
+            style="padding:0 8px;gap:4px;font-size:11px;font-weight:700;letter-spacing:0.2px;color:#818cf8;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+              stroke-linejoin="round">
+              <path d="M12 3l1.9 5.8L20 10.6l-5.3 3.8 1.6 6.2L12 17.3l-4.3 3.3 1.6-6.2L4 10.6l6.1-1.8z" />
             </svg>
             AI
           </button>
@@ -24087,31 +24238,48 @@ QUESTION: ${query}`;
           <div class="tt-list-drop" id="tt-list-drop">
             <button class="tt-btn tt-list-btn" id="tt-list-btn" title="List type"
               onclick="event.stopPropagation();document.getElementById('tt-list-menu').classList.toggle('tt-open');">
-              <svg id="tt-list-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
-                <line x1="9" y1="6" x2="20" y2="6"/><line x1="9" y1="12" x2="20" y2="12"/><line x1="9" y1="18" x2="20" y2="18"/>
-                <circle cx="4" cy="6" r="1.2" fill="currentColor"/><circle cx="4" cy="12" r="1.2" fill="currentColor"/><circle cx="4" cy="18" r="1.2" fill="currentColor"/>
+              <svg id="tt-list-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                stroke-linecap="round">
+                <line x1="9" y1="6" x2="20" y2="6" />
+                <line x1="9" y1="12" x2="20" y2="12" />
+                <line x1="9" y1="18" x2="20" y2="18" />
+                <circle cx="4" cy="6" r="1.2" fill="currentColor" />
+                <circle cx="4" cy="12" r="1.2" fill="currentColor" />
+                <circle cx="4" cy="18" r="1.2" fill="currentColor" />
               </svg>
-              <svg class="tt-list-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>
+              <svg class="tt-list-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                stroke-linecap="round">
+                <polyline points="6 9 12 15 18 9" />
+              </svg>
             </button>
             <div class="tt-list-menu" id="tt-list-menu">
               <button class="tt-list-item" id="tt-ul">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
-                  <line x1="9" y1="6" x2="20" y2="6"/><line x1="9" y1="12" x2="20" y2="12"/><line x1="9" y1="18" x2="20" y2="18"/>
-                  <circle cx="4" cy="6" r="1.2" fill="currentColor"/><circle cx="4" cy="12" r="1.2" fill="currentColor"/><circle cx="4" cy="18" r="1.2" fill="currentColor"/>
+                  <line x1="9" y1="6" x2="20" y2="6" />
+                  <line x1="9" y1="12" x2="20" y2="12" />
+                  <line x1="9" y1="18" x2="20" y2="18" />
+                  <circle cx="4" cy="6" r="1.2" fill="currentColor" />
+                  <circle cx="4" cy="12" r="1.2" fill="currentColor" />
+                  <circle cx="4" cy="18" r="1.2" fill="currentColor" />
                 </svg>
                 Bullet List
               </button>
               <button class="tt-list-item" id="tt-ol">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
-                  <line x1="10" y1="6" x2="21" y2="6"/><line x1="10" y1="12" x2="21" y2="12"/><line x1="10" y1="18" x2="21" y2="18"/>
-                  <path d="M4 6h1v4"/><path d="M4 10h2"/><path d="M6 18H4c0-1 2-2 2-3s-1-1.5-2-1"/>
+                  <line x1="10" y1="6" x2="21" y2="6" />
+                  <line x1="10" y1="12" x2="21" y2="12" />
+                  <line x1="10" y1="18" x2="21" y2="18" />
+                  <path d="M4 6h1v4" />
+                  <path d="M4 10h2" />
+                  <path d="M6 18H4c0-1 2-2 2-3s-1-1.5-2-1" />
                 </svg>
                 Ordered List
               </button>
               <button class="tt-list-item" id="tt-tasklist">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                  <polyline points="9 11 12 14 22 4"/>
-                  <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+                  stroke-linejoin="round">
+                  <polyline points="9 11 12 14 22 4" />
+                  <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
                 </svg>
                 Task List
               </button>
@@ -24288,13 +24456,14 @@ QUESTION: ${query}`;
           <div class="tt-sep"></div>
           <!-- Cell background colour -->
           <span class="tt-tbl-label" style="font-size:10px;opacity:0.7;">Cell</span>
-          <button class="tt-swatch" id="tt-cell-bg-none"  style="background:var(--bg-page);border-color:var(--border)" title="No fill"></button>
-          <button class="tt-swatch" id="tt-cell-bg-blue"  style="background:#dbeafe" title="Blue"></button>
+          <button class="tt-swatch" id="tt-cell-bg-none" style="background:var(--bg-page);border-color:var(--border)"
+            title="No fill"></button>
+          <button class="tt-swatch" id="tt-cell-bg-blue" style="background:#dbeafe" title="Blue"></button>
           <button class="tt-swatch" id="tt-cell-bg-green" style="background:#dcfce7" title="Green"></button>
-          <button class="tt-swatch" id="tt-cell-bg-yellow"style="background:#fef9c3" title="Yellow"></button>
-          <button class="tt-swatch" id="tt-cell-bg-red"   style="background:#fee2e2" title="Red"></button>
-          <button class="tt-swatch" id="tt-cell-bg-purple"style="background:#ede9fe" title="Purple"></button>
-          <button class="tt-swatch" id="tt-cell-bg-gray"  style="background:#f1f5f9" title="Gray"></button>
+          <button class="tt-swatch" id="tt-cell-bg-yellow" style="background:#fef9c3" title="Yellow"></button>
+          <button class="tt-swatch" id="tt-cell-bg-red" style="background:#fee2e2" title="Red"></button>
+          <button class="tt-swatch" id="tt-cell-bg-purple" style="background:#ede9fe" title="Purple"></button>
+          <button class="tt-swatch" id="tt-cell-bg-gray" style="background:#f1f5f9" title="Gray"></button>
           <div class="tt-sep"></div>
           <button class="tt-btn" id="tt-table-del" title="Delete table" style="color:#ef4444">
             <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
@@ -24431,14 +24600,18 @@ QUESTION: ${query}`;
       <!-- Selection action bar: appears when text is selected -->
       <div id="tt-sel-bar">
         <button id="tt-sel-bar-ai" onmousedown="event.preventDefault()" onclick="_ttDoAiRephrase()">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.9 5.8L20 10.6l-4.7 3.6 1.8 5.8L12 16.4 6.9 20l1.8-5.8L4 10.6l6.1-1.8z"/></svg>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+            stroke-linejoin="round">
+            <path d="M12 3l1.9 5.8L20 10.6l-4.7 3.6 1.8 5.8L12 16.4 6.9 20l1.8-5.8L4 10.6l6.1-1.8z" />
+          </svg>
           Improve with AI
         </button>
         <span id="tt-sel-bar-hint">tap to rephrase selection</span>
       </div>
       <!-- AI rephrase preview panel (hidden until AI returns a suggestion) -->
       <div id="tt-ai-preview" style="display:none;">
-        <div style="font-size:11px;font-weight:700;color:#818cf8;text-transform:uppercase;letter-spacing:0.5px;">✦ AI Suggestions — tap one to select</div>
+        <div style="font-size:11px;font-weight:700;color:#818cf8;text-transform:uppercase;letter-spacing:0.5px;">✦ AI
+          Suggestions — tap one to select</div>
         <div id="tt-ai-loading" style="display:none;">
           <div class="tt-ai-dots"><span></span><span></span><span></span></div>
           Generating suggestions…
@@ -24455,13 +24628,15 @@ QUESTION: ${query}`;
   <div id="tt-link-bubble" style="display:none;position:fixed;z-index:10020">
     <input id="tt-link-bubble-input" type="text" placeholder="Paste or type URL…" autocomplete="off" spellcheck="false">
     <div class="tt-sep" style="height:16px;margin:0 4px;"></div>
-    <button class="tt-link-bbl-btn" id="tt-link-bbl-confirm" title="Apply URL (Enter)" onmousedown="event.preventDefault()">
+    <button class="tt-link-bbl-btn" id="tt-link-bbl-confirm" title="Apply URL (Enter)"
+      onmousedown="event.preventDefault()">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
         stroke-linejoin="round">
         <polyline points="20 6 9 17 4 12" />
       </svg>
     </button>
-    <button class="tt-link-bbl-btn" id="tt-link-bbl-open" title="Open link in new tab" onmousedown="event.preventDefault()">
+    <button class="tt-link-bbl-btn" id="tt-link-bbl-open" title="Open link in new tab"
+      onmousedown="event.preventDefault()">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
         stroke-linejoin="round">
         <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
@@ -24483,24 +24658,4 @@ QUESTION: ${query}`;
   <div id="rian-dialog-overlay" role="dialog" aria-modal="true" onclick="_rdnOverlayClick(event)">
     <div id="rian-dialog">
       <div class="rdn-title" id="rdn-title"></div>
-      <div class="rdn-msg" id="rdn-msg"></div>
-      <input class="rdn-input" id="rdn-input" autocomplete="off" spellcheck="false" style="display:none">
-      <div class="rdn-actions" id="rdn-actions"></div>
-    </div>
-  </div>
-
-  <!-- ===== EMAIL PREVIEW MODAL ===== -->
-  <div id="email-preview-modal" class="hidden fixed inset-0 z-50 flex flex-col" style="background:#f1f5f9;">
-    <div class="flex flex-col flex-1 overflow-hidden max-w-2xl mx-auto w-full">
-      <div style="background:var(--bg-header)" class="text-white px-4 py-3 flex items-center gap-3 safe-top">
-        <button onclick="closeEmailPreview()" class="text-white p-1 flex items-center justify-center"><svg width="20"
-            height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
-            stroke-linejoin="round">
-            <line x1="18" y1="6" x2="6" y2="18" />
-            <line x1="6" y1="6" x2="18" y2="18" />
-          </svg></button>
-        <h2 class="text-base font-semibold flex-1">Weekly Summary</h2>
-        <button onclick="sendWeeklyEmailFromPreview()" class="bg-amber-500 text-white px-4 py-1.5 text-sm font-bold"
-          style="border-radius:12px;">Send Email</button>
-      </div>
-    
+      
