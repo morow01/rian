@@ -10255,7 +10255,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '4.30.6';
+    const VERSION = '4.30.7';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -15514,7 +15514,7 @@
               style="position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--text-muted);pointer-events:none">
               <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
             </svg>
-            <input id="notes-search-input" type="search" value="${esc(state.notesSearch)}"
+            <input id="notes-search-input" type="text" value="${esc(state.notesSearch)}"
               placeholder="Search notes…"
               autocomplete="off" data-lpignore="true" data-form-type="other" data-1p-ignore="true"
               oninput="notesSearchInput(this.value)"
@@ -15632,12 +15632,16 @@
       if (_notesSearchTimer) clearTimeout(_notesSearchTimer);
       _notesSearchTimer = setTimeout(() => {
         _notesSearchTimer = null;
-        const el = document.getElementById('notes-search-input');
-        const pos = el ? el.selectionStart : null;
+        const wasFocused = document.activeElement?.id === 'notes-search-input';
+        const pos = wasFocused ? document.activeElement.selectionStart : null;
         render();
         // Restore focus and cursor after re-render
-        const el2 = document.getElementById('notes-search-input');
-        if (el2) { el2.focus(); if (pos !== null) { try { el2.setSelectionRange(pos, pos); } catch (e) { } } }
+        if (wasFocused) {
+          requestAnimationFrame(() => {
+            const el2 = document.getElementById('notes-search-input');
+            if (el2) { el2.focus(); if (pos !== null) { try { el2.setSelectionRange(pos, pos); } catch (e) { } } }
+          });
+        }
       }, 120);
     }
 
