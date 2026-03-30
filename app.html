@@ -10079,7 +10079,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '4.28.1';
+    const VERSION = '4.28.2';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -23097,14 +23097,13 @@ QUESTION: ${query}`;
       // Don't show if AI preview panel is already visible
       const aiPanel = document.getElementById('tt-ai-preview');
       if (aiPanel && aiPanel.style.display !== 'none') { fab.style.display = 'none'; return; }
-      // Position above the end of selection
+      // Position BELOW the selection so it doesn't clash with native Cut/Copy/Paste menu
       const coords = editor.view.coordsAtPos(to);
       const fabW = 70; // approximate width
       let left = coords.left - fabW / 2;
-      // Keep within viewport
       left = Math.max(8, Math.min(left, window.innerWidth - fabW - 8));
       fab.style.left = left + 'px';
-      fab.style.top = Math.max(4, coords.top - 42) + 'px';
+      fab.style.top = (coords.bottom + 6) + 'px';
       fab.style.display = 'flex';
     }
 
