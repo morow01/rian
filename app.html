@@ -10255,7 +10255,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '4.30.7';
+    const VERSION = '4.30.8';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -21627,12 +21627,8 @@ Rules:
 
       if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register(`sw.js?v=${VERSION}`).catch(e => console.warn('[Rian]', e));
-        // When a new SW takes over (skipWaiting + clients.claim), reload the page
-        // so the running JS is replaced with the new version immediately.
-        navigator.serviceWorker.addEventListener('controllerchange', () => {
-          console.log('[Rian] New service worker activated — reloading for latest version');
-          window.location.reload();
-        });
+        // Note: no controllerchange reload needed — fetch strategy is network-first,
+        // so app.html is always served fresh from the network on page load.
       }
 
       try {
