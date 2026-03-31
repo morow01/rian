@@ -10286,7 +10286,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '4.33.28';
+    const VERSION = '4.33.29';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -23692,12 +23692,24 @@ QUESTION: ${query}`;
     }
 
     // ── External URL opener ─────────────────────────────────────────────────
-    // Must be called directly inside a user-gesture handler (click/tap) so the
-    // browser allows window.open without popup-blocking. A programmatic <a>.click()
-    // does not count as a user gesture on mobile and gets blocked / falls back to
-    // same-tab navigation, which is why it appeared to "open in Rian".
+    // On Android, window.open() from inside a Chrome PWA opens a Chrome Custom
+    // Tab — always Chrome, never the user's default browser (e.g. Firefox).
+    // The only escape is an Android Intent URL: Chrome intercepts the navigation,
+    // fires an android.intent.action.VIEW Intent, and Android routes it to
+    // whichever app the user has set as default for http/https — without
+    // navigating Rian itself.
     function _openUrl(url) {
       if (!url) return;
+      if (/android/i.test(navigator.userAgent)) {
+        try {
+          const u = new URL(url.startsWith('http') ? url : 'https://' + url);
+          const scheme = u.protocol.replace(':', '');
+          const intentUrl = `intent://${u.host}${u.pathname}${u.search}${u.hash}`
+            + `#Intent;scheme=${scheme};action=android.intent.action.VIEW;end`;
+          window.location.href = intentUrl;
+          return;
+        } catch (_) { /* malformed URL — fall through */ }
+      }
       window.open(url, '_blank', 'noopener,noreferrer');
     }
 
