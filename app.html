@@ -10256,7 +10256,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '4.31.0';
+    const VERSION = '4.31.1';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -22675,9 +22675,9 @@ QUESTION: ${query}`;
           TableHeaderWithBg,
           TableCellWithBg,
           Link.configure({
-            openOnClick: false,
+            openOnClick: true,        // tap/click opens URL in external browser
             HTMLAttributes: {
-              target: null,           // override TipTap default of target="_blank"
+              target: null,           // TipTap handles opening via window.open, not via <a target>
               rel: 'noopener noreferrer nofollow',
             },
           }),
@@ -23496,8 +23496,8 @@ QUESTION: ${query}`;
 
     function _ttSetContent(html) {
       if (!_tiptapEditor) return;
-      // Strip target="_blank" from stored links so clicks show bubble instead of opening new tab
-      // (browser opens <a target="_blank"> even inside contenteditable, bypassing openOnClick:false)
+      // Strip target="_blank" from stored links — TipTap's openOnClick:true uses window.open
+      // instead, so the anchor target attribute is unused and kept clean in storage.
       const cleaned = (html || '').replace(/\s+target="_blank"/g, '');
       _tiptapEditor.commands.setContent(cleaned || '', false);
     }
