@@ -799,6 +799,10 @@
       color: #7c3aed;
     }
 
+    .ctx-item.ctx-orange svg {
+      color: #ea580c;
+    }
+
     /* Add-to-notes confirmation modal */
     .note-confirm-overlay {
       position: fixed;
@@ -10326,7 +10330,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '4.33.42';
+    const VERSION = '4.33.43';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -10893,6 +10897,7 @@
       disabledCats: [],      // keys of tags hidden from dropdown (default or custom)
       notesFilter: 'all',           // 'all' | 'high' | 'medium' | 'low' | 'done'
       notesBinOpen: false,          // true = showing bin (deleted notes)
+      notesArchiveOpen: false,      // true = showing archive section
       notesCategoryFilter: '',      // '' = all categories, or one of getCategories() keys
       notesRemindersFilter: '',     // '' = off | 'active' | 'passed'
       notesOverdueFilter: false,    // true = show only overdue notes
@@ -14970,6 +14975,7 @@
       }
       // Migrate notes: strip HTML from descriptions, split long ones into desc + noteContent
       migrateNotesHTML(state.notes);
+      _autoArchiveDoneNotes();
       render();
 
       if (!state.currentUser) return;
@@ -15287,8 +15293,9 @@
       const filtered = getFilteredNotes();
       const f = state.notesFilter;
 
-      const openNotes = state.notes.filter(n => n.status !== 'done' && !n.deleted);
-      const doneNotes = state.notes.filter(n => n.status === 'done' && !n.deleted);
+      const openNotes = state.notes.filter(n => n.status !== 'done' && !n.deleted && !n.archived);
+      const doneNotes = state.notes.filter(n => n.status === 'done' && !n.deleted && !n.archived);
+      const archiveNotes = state.notes.filter(n => n.archived && !n.deleted).sort((a, b) => (b.archivedAt || 0) - (a.archivedAt || 0));
       const _binQ = (state.notesSearch || '').trim().toLowerCase();
       const binNotes = state.notes.filter(n => {
         if (!n.deleted) return false;
@@ -15539,6 +15546,10 @@
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01"/></svg>
                     Add to Calendar
                   </button>
+                  <button class="ctx-item ctx-orange" onclick="closeAllCtx();archiveNote('${note.id}')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg>
+                    Archive
+                  </button>
                 </div>
               </div>
             </div>
@@ -15551,7 +15562,7 @@
           : `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`;
         const swipeBg = `<div class="note-swipe-bg">
           <span class="note-swipe-icon note-swipe-icon-done">${swipeRightIcon}<span style="font-size:12px;font-weight:700;margin-left:6px;">${swipeRightLabel}</span></span>
-          <span class="note-swipe-icon note-swipe-icon-del"><span style="font-size:12px;font-weight:700;margin-right:6px;">Delete</span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></span>
+          <span class="note-swipe-icon note-swipe-icon-del"><span style="font-size:12px;font-weight:700;margin-right:6px;">Archive</span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg></span>
         </div>`;
         const catPicker = _catDropdownOpen === note.id
           ? `<div class="note-inline-cat-picker">${buildNoteCatMenuHtml(note.id, note.category || '')}</div>`
@@ -15593,6 +15604,10 @@
                 background:var(--bg-card);color:var(--text-primary);font-size:14px;font-family:inherit;outline:none;-webkit-appearance:none;">
             ${state.notesSearch ? `<button onclick="notesSearchInput('');document.getElementById('notes-search-input').value=''" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text-muted);font-size:16px;cursor:pointer;padding:2px;line-height:1">×</button>` : ''}
           </div>
+          <button onclick="toggleNotesArchive()" title="Archive" style="position:relative;flex-shrink:0;background:${state.notesArchiveOpen ? 'rgba(234,88,12,0.12)' : 'var(--bg-card)'};border:1.5px solid ${state.notesArchiveOpen ? 'rgba(234,88,12,0.4)' : 'var(--border)'};border-radius:12px;padding:8px 10px;cursor:pointer;color:${state.notesArchiveOpen ? '#ea580c' : 'var(--text-muted)'};display:flex;align-items:center;">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg>
+            ${archiveNotes.length > 0 ? `<span style="position:absolute;top:-5px;right:-5px;background:#ea580c;color:#fff;font-size:10px;font-weight:700;border-radius:99px;min-width:16px;height:16px;display:flex;align-items:center;justify-content:center;padding:0 3px;">${archiveNotes.length}</span>` : ''}
+          </button>
           <button onclick="toggleNotesBin()" title="Bin" style="position:relative;flex-shrink:0;background:${state.notesBinOpen ? 'rgba(239,68,68,0.12)' : 'var(--bg-card)'};border:1.5px solid ${state.notesBinOpen ? 'rgba(239,68,68,0.4)' : 'var(--border)'};border-radius:12px;padding:8px 10px;cursor:pointer;color:${state.notesBinOpen ? '#ef4444' : 'var(--text-muted)'};display:flex;align-items:center;">
             <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
             ${binCount > 0 ? `<span style="position:absolute;top:-5px;right:-5px;background:#ef4444;color:#fff;font-size:10px;font-weight:700;border-radius:99px;min-width:16px;height:16px;display:flex;align-items:center;justify-content:center;padding:0 3px;">${binCount}</span>` : ''}
@@ -15666,6 +15681,35 @@
 
       const notesHint = !state.selectionMode ? `<div style="margin-top:12px;margin-bottom:4px;font-size:12px;color:var(--text-muted);font-style:italic;text-align:center">Tap = open · Long-press = select · Swipe ✓/🗑</div>` : '';
 
+      const archiveView = state.notesArchiveOpen ? `
+        <div style="padding:0 16px 24px;">
+          <div style="font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:#ea580c;margin:12px 0 10px;display:flex;align-items:center;gap:6px;">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg>
+            Archive (${archiveNotes.length})
+          </div>
+          ${archiveNotes.length === 0
+            ? `<div class="notes-empty" style="margin-top:32px;">Archive is empty</div>`
+            : archiveNotes.map(n => {
+                const title = (n.description || 'Untitled note').replace(/<[^>]*>/g, '').trim();
+                const ago = n.archivedAt ? formatTimeAgo(n.archivedAt) : '';
+                const loc = n.location ? n.location.replace(/\s*\([^)]+\)\s*$/, '').trim() : '';
+                const dt = n.date ? formatDateShort(n.date) : '';
+                const metaBits = [];
+                if (loc) metaBits.push(`<span style="display:inline-flex;align-items:center;gap:3px;"><svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 010-5 2.5 2.5 0 010 5z"/></svg>${esc(loc)}</span>`);
+                if (dt) metaBits.push(`<span style="display:inline-flex;align-items:center;gap:3px;"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>${dt}</span>`);
+                return `<div style="background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:14px 16px;margin-bottom:10px;display:flex;align-items:center;gap:12px;">
+                  <div style="flex:1;min-width:0;">
+                    <div style="font-size:14px;font-weight:600;color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${esc(title)}</div>
+                    ${metaBits.length ? `<div style="display:flex;align-items:center;gap:8px;margin-top:4px;font-size:12px;color:var(--text-muted);">${metaBits.join('')}</div>` : ''}
+                    ${ago ? `<div style="font-size:11px;color:var(--text-muted);margin-top:3px;">Archived ${ago}</div>` : ''}
+                  </div>
+                  <button onclick="unarchiveNote('${n.id}')" title="Restore" style="flex-shrink:0;background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.3);border-radius:8px;padding:7px;cursor:pointer;color:#22c55e;display:flex;align-items:center;justify-content:center;" title="Restore to notes"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg></button>
+                  <button onclick="deleteNote('${n.id}')" title="Delete" style="flex-shrink:0;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.25);border-radius:8px;padding:7px;cursor:pointer;color:#ef4444;display:flex;align-items:center;justify-content:center;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button>
+                </div>`;
+              }).join('')
+          }
+        </div>` : '';
+
       const binView = state.notesBinOpen ? `
         <div style="padding:0 16px 24px;">
           ${binNotes.length === 0
@@ -15692,7 +15736,7 @@
           ${binNotes.length > 1 ? `<button onclick="emptyBin()" class="note-btn-delete" style="width:100%;margin-top:8px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg> Empty Bin</button>` : ''}
         </div>` : '';
 
-      return `<div class="notes-view" style="${state.selectionMode ? 'padding-bottom:120px' : ''}">${headerRow}${searchBar}${state.notesBinOpen ? binView : `<div class="nf-wrap">${chips}</div>${addCard}${searchEmpty}${openSection}${doneSection}${notesHint}${bulkBar}`}</div>`;
+      return `<div class="notes-view" style="${state.selectionMode ? 'padding-bottom:120px' : ''}">${headerRow}${searchBar}${state.notesBinOpen ? binView : state.notesArchiveOpen ? archiveView : `<div class="nf-wrap">${chips}</div>${addCard}${searchEmpty}${openSection}${doneSection}${notesHint}${bulkBar}`}</div>`;
     }
 
     // ---- Notes search ----
@@ -15791,7 +15835,7 @@
         rowEl.style.transform = `translateX(${slideDir})`;
         const fireAction = () => {
           if (shouldAct === 'done') noteSwipeDone(noteId);
-          else noteSwipeDelete(noteId);
+          else archiveNote(noteId);
         };
         setTimeout(fireAction, 420);
       }, { passive: true });
@@ -16867,10 +16911,61 @@
       const note = state.notes.find(n => n.id === id);
       if (!note) return;
       note.status = note.status === 'done' ? 'open' : 'done';
+      if (note.status === 'done') note.doneAt = Date.now();
+      else delete note.doneAt;
       note.updatedAt = Date.now();
       state.expandedNotes.delete(id);
       scheduleNotesSave();
       render();
+    }
+
+    function archiveNote(id) {
+      const note = state.notes.find(n => n.id === id);
+      if (!note) return;
+      note.archived = true;
+      note.archivedAt = Date.now();
+      note.status = 'done';
+      note.updatedAt = Date.now();
+      state.expandedNotes.delete(id);
+      scheduleNotesSave();
+      render();
+      showActionToast('Archived', 'Undo', () => { note.archived = false; delete note.archivedAt; scheduleNotesSave(); render(); });
+    }
+
+    function unarchiveNote(id) {
+      const note = state.notes.find(n => n.id === id);
+      if (!note) return;
+      note.archived = false;
+      delete note.archivedAt;
+      note.status = 'open';
+      note.updatedAt = Date.now();
+      scheduleNotesSave();
+      render();
+      showActionToast('Restored to notes', 'Undo', () => { note.archived = true; note.archivedAt = Date.now(); note.status = 'done'; scheduleNotesSave(); render(); });
+    }
+
+    function toggleNotesArchive() {
+      state.notesArchiveOpen = !state.notesArchiveOpen;
+      state.notesBinOpen = false;
+      render();
+    }
+
+    // Auto-archive done notes older than 14 days
+    function _autoArchiveDoneNotes() {
+      const threshold = 14 * 24 * 60 * 60 * 1000; // 14 days
+      const now = Date.now();
+      let changed = false;
+      (state.notes || []).forEach(n => {
+        if (n.deleted || n.archived) return;
+        if (n.status !== 'done') return;
+        const doneTs = n.doneAt || n.updatedAt || 0;
+        if (doneTs && (now - doneTs) > threshold) {
+          n.archived = true;
+          n.archivedAt = now;
+          changed = true;
+        }
+      });
+      if (changed) scheduleNotesSave();
     }
 
     // Cancel and remove all reminders associated with a note
@@ -16906,6 +17001,7 @@
 
     function toggleNotesBin() {
       state.notesBinOpen = !state.notesBinOpen;
+      state.notesArchiveOpen = false;
       render();
     }
 
@@ -22331,6 +22427,7 @@ Rules:
       const keywords = parseSearchKeywords(query);
       if (!keywords.length || !state.notes?.length) return [];
       return state.notes
+        .filter(n => !n.deleted && !n.archived)
         .map(n => {
           const desc = n.description || '';
           const nc = n.noteContent ? n.noteContent.replace(/<[^>]*>/g, ' ') : '';
@@ -22507,8 +22604,8 @@ Work week = Friday to Thursday.
         } catch (e) { /* ignore */ }
       }
       if (state.aiScope.savedNotes && notesForAI.length) {
-        const open = notesForAI.filter(n => n.status !== 'done').sort((a, b) => (b.date || '').localeCompare(a.date || ''));
-        const done = notesForAI.filter(n => n.status === 'done').sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+        const open = notesForAI.filter(n => n.status !== 'done' && !n.archived && !n.deleted).sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+        const done = notesForAI.filter(n => n.status === 'done' && !n.archived && !n.deleted).sort((a, b) => (b.date || '').localeCompare(a.date || ''));
         const noteLine = n => {
           const parts = [n.description || '(no description)'];
           if (n.location) parts.push('@ ' + n.location);
