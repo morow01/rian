@@ -10276,7 +10276,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '4.33.4';
+    const VERSION = '4.33.5';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -15806,16 +15806,22 @@
         }
 
         const snapshot = JSON.stringify(_tiptapEditor.getJSON());
-        const liveItems = () => Array.from(listEl.querySelectorAll(':scope > li[data-type="taskItem"]'));
-        const startIndex = liveItems().indexOf(li);
+        const allItems = Array.from(listEl.querySelectorAll(':scope > li[data-type="taskItem"]'));
+        const startIndex = allItems.indexOf(li);
         if (startIndex === -1) return;
 
-        let dropIndex = startIndex;
-        li.style.opacity = '0.2';
-        li.style.transition = 'opacity 0.15s';
+        // Cache rects now (before any transforms) so calcDrop isn't affected by live shifts
+        const cachedRects = allItems.map(item => item.getBoundingClientRect());
+        const liRect = cachedRects[startIndex];
+        const itemH = liRect.height;
 
-        // Ghost: clean hand-built card — avoids CSS bleed from cloning editor internals
-        const liRect = li.getBoundingClientRect();
+        let dropIndex = startIndex;
+
+        // Hide dragged item in-place (keeps its height as a gap placeholder)
+        li.style.opacity = '0';
+        li.style.transition = 'opacity 0.1s';
+
+        // Ghost card following the cursor
         const offsetX = e.clientX - liRect.left;
         const offsetY = e.clientY - liRect.top;
         const isChecked = li.dataset.checked === 'true';
@@ -15832,69 +15838,57 @@
           transform:scale(1.02);
           font-size:14px;color:${isChecked ? '#B0AEA8' : '#1A1917'};
           ${isChecked ? 'text-decoration:line-through;' : ''}`;
-
-        // Checkbox circle
         const cb = document.createElement('span');
         cb.style.cssText = `flex-shrink:0;width:16px;height:16px;border-radius:4px;
           border:1.5px solid ${isChecked ? '#3b82f6' : '#C8C6C0'};
           background:${isChecked ? '#3b82f6' : 'transparent'};
           display:flex;align-items:center;justify-content:center;`;
-        if (isChecked) {
-          cb.innerHTML = `<svg width="10" height="8" viewBox="0 0 10 8" fill="none">
-            <path d="M1 4l3 3 5-6" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>`;
-        }
-
+        if (isChecked) cb.innerHTML = `<svg width="10" height="8" viewBox="0 0 10 8" fill="none">
+          <path d="M1 4l3 3 5-6" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
         const txt = document.createElement('span');
         txt.style.cssText = 'flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;';
         txt.textContent = itemText;
-
-        ghost.appendChild(cb);
-        ghost.appendChild(txt);
+        ghost.appendChild(cb); ghost.appendChild(txt);
         document.body.appendChild(ghost);
 
-        // Drop-line: fixed overlay on body (ProseMirror would remove it from the ul immediately)
-        const indicator = document.createElement('div');
-        indicator.style.cssText = 'position:fixed;height:2px;background:#3b82f6;border-radius:2px;pointer-events:none;z-index:9999;display:none;';
-        // Small circle at the left end of the line
-        const indicatorDot = document.createElement('div');
-        indicatorDot.style.cssText = 'position:absolute;left:-3px;top:-3px;width:8px;height:8px;border-radius:50%;background:#3b82f6;';
-        indicator.appendChild(indicatorDot);
-        document.body.appendChild(indicator);
-
-        function otherItems() { return liveItems().filter(i => i !== li); }
-
+        // calcDrop uses cached rects (original positions) to avoid feedback with live transforms
+        const filteredRects = cachedRects.filter((_, i) => i !== startIndex);
         function calcDrop(y) {
-          const items = otherItems();
-          for (let i = 0; i < items.length; i++) {
-            const r = items[i].getBoundingClientRect();
-            if (y < r.top + r.height / 2) return i;
+          for (let i = 0; i < filteredRects.length; i++) {
+            if (y < filteredRects[i].top + filteredRects[i].height / 2) return i;
           }
-          return items.length;
+          return filteredRects.length;
         }
 
-        function showIndicator(idx) {
-          const items = otherItems();
-          const ref = idx < items.length ? items[idx] : (items[items.length - 1] || li);
-          const r = ref.getBoundingClientRect();
-          const lineY = idx < items.length ? r.top : r.bottom;
-          indicator.style.top  = (lineY - 1) + 'px';
-          indicator.style.left = r.left + 'px';
-          indicator.style.width = r.width + 'px';
-          indicator.style.display = 'block';
+        // Shift other items with CSS transforms — no DOM moves, ProseMirror stays unaware
+        function applyShifts(targetIdx) {
+          allItems.forEach((item, origIdx) => {
+            if (item === li) return;
+            let shift = 0;
+            if (targetIdx > startIndex) {
+              // dragging down: items between startIndex+1 and targetIdx (inclusive, orig space) shift up
+              if (origIdx > startIndex && origIdx <= targetIdx) shift = -itemH;
+            } else if (targetIdx < startIndex) {
+              // dragging up: items between targetIdx and startIndex-1 (inclusive, orig space) shift down
+              if (origIdx >= targetIdx && origIdx < startIndex) shift = itemH;
+            }
+            item.style.transition = 'transform 0.15s ease';
+            item.style.transform = shift ? `translateY(${shift}px)` : '';
+          });
         }
 
         function onMove(e) {
           dropIndex = calcDrop(e.clientY);
-          showIndicator(dropIndex);
+          applyShifts(dropIndex);
           ghost.style.left = (e.clientX - offsetX) + 'px';
           ghost.style.top  = (e.clientY - offsetY) + 'px';
         }
 
         function onUp() {
+          // Reset all visual state
           li.style.opacity = '';
           li.style.transition = '';
-          indicator.remove();
+          allItems.forEach(item => { item.style.transform = ''; item.style.transition = ''; });
           ghost.remove();
           document.removeEventListener('pointermove', onMove);
           document.removeEventListener('pointerup', onUp);
