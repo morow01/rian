@@ -10276,7 +10276,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '4.32.9';
+    const VERSION = '4.33.0';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -15807,16 +15807,21 @@
         let dropIndex = startIndex;
         li.style.opacity = '0.25';
 
-        // Ghost: floating clone of the item text that follows the cursor
+        // Ghost: full clone of the li, floats under the cursor at exact item width
         const liRect = li.getBoundingClientRect();
-        const ghost = document.createElement('div');
-        const contentEl = li.querySelector('div'); // contentDOM div inside the NodeView
-        ghost.textContent = contentEl ? contentEl.textContent : '';
+        const offsetX = e.clientX - liRect.left;  // keep grab point relative to item
+        const offsetY = e.clientY - liRect.top;
+        const ghost = li.cloneNode(true);
         ghost.style.cssText = `position:fixed;pointer-events:none;z-index:10000;
-          background:#fff;border:1px solid rgba(0,0,0,0.12);border-radius:8px;
-          padding:5px 10px;font-size:14px;color:#1A1917;box-shadow:0 4px 12px rgba(0,0,0,0.12);
-          white-space:nowrap;max-width:320px;overflow:hidden;text-overflow:ellipsis;
-          left:${liRect.left + 24}px;top:${liRect.top}px;`;
+          width:${liRect.width}px;box-sizing:border-box;
+          background:#fff;border-radius:8px;
+          box-shadow:0 6px 20px rgba(0,0,0,0.15);
+          opacity:0.95;list-style:none;
+          left:${liRect.left}px;top:${liRect.top}px;
+          transform:scale(1.02);`;
+        // Remove handle from clone so it doesn't appear to have a double handle
+        const cloneHandle = ghost.querySelector('.tt-drag-handle');
+        if (cloneHandle) cloneHandle.style.visibility = 'hidden';
         document.body.appendChild(ghost);
 
         // Drop-line: fixed overlay on body — inserting into the ProseMirror ul would
@@ -15850,8 +15855,8 @@
         function onMove(e) {
           dropIndex = calcDrop(e.clientY);
           showIndicator(dropIndex);
-          ghost.style.left = (e.clientX + 16) + 'px';
-          ghost.style.top  = (e.clientY - 12) + 'px';
+          ghost.style.left = (e.clientX - offsetX) + 'px';
+          ghost.style.top  = (e.clientY - offsetY) + 'px';
         }
 
         function onUp() {
