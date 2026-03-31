@@ -4479,23 +4479,43 @@
       border-collapse: collapse;
       width: 100%;
       margin: 10px 0;
-      font-size: 13px;
+      font-size: 14px;
+      font-family: 'DM Sans', sans-serif;
     }
 
     :is(#note-fs-editor .ProseMirror, .tt-prose) td,
     :is(#note-fs-editor .ProseMirror, .tt-prose) th {
-      border: 1px solid var(--border);
-      padding: 6px 10px;
       min-width: 60px;
-      vertical-align: top;
+      vertical-align: middle;
       position: relative;
       /* required for selectedCell::after overlay */
     }
 
     :is(#note-fs-editor .ProseMirror, .tt-prose) th {
-      background: var(--bg-page);
-      font-weight: 700;
+      background: #F5F4F0;
       text-align: left;
+      font-weight: 600;
+      font-size: 11px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #6B6860;
+      padding: 10px 16px;
+      border-bottom: 2px solid #E2E0DA;
+    }
+
+    :is(#note-fs-editor .ProseMirror, .tt-prose) td {
+      padding: 12px 16px;
+      color: #3A3836;
+      border-bottom: 1px solid #F0EFEB;
+    }
+
+    :is(#note-fs-editor .ProseMirror, .tt-prose) td:first-child {
+      font-weight: 500;
+      color: #1A1917;
+    }
+
+    :is(#note-fs-editor .ProseMirror, .tt-prose) tbody tr:hover td {
+      background: #FAFAF8;
     }
 
     #note-fs-editor .ProseMirror .selectedCell::after {
@@ -10296,7 +10316,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '4.33.36';
+    const VERSION = '4.33.37';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
