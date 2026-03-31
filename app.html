@@ -10276,7 +10276,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '4.33.7';
+    const VERSION = '4.33.8';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -15817,22 +15817,6 @@
 
         let dropIndex = startIndex;
 
-        // Hide dragged item in-place (keeps its height as a gap placeholder)
-        li.style.opacity = '0';
-        li.style.transition = 'opacity 0.1s';
-
-        // Allow shifted items to overflow the list bounds during drag
-        const savedOverflows = [];
-        let el = listEl;
-        while (el && el !== document.body) {
-          const ov = getComputedStyle(el).overflow;
-          if (ov === 'hidden' || ov === 'clip') {
-            savedOverflows.push({ el, overflow: el.style.overflow });
-            el.style.overflow = 'visible';
-          }
-          el = el.parentElement;
-        }
-
         // Ghost card following the cursor
         const offsetX = e.clientX - liRect.left;
         const offsetY = e.clientY - liRect.top;
@@ -15863,38 +15847,47 @@
         ghost.appendChild(cb); ghost.appendChild(txt);
         document.body.appendChild(ghost);
 
-        // calcDrop uses cached rects (original positions) to avoid feedback with live transforms
+        // Inject a <style> element — inline style mutations on ProseMirror-managed li elements
+        // are reverted immediately by its MutationObserver; a <head> stylesheet is invisible to it.
+        const dragStyle = document.createElement('style');
+        document.head.appendChild(dragStyle);
+        const nthSel = (n) => `#note-fs-editor .ProseMirror ul[data-type="taskList"] li:nth-child(${n})`;
+        const draggedN = startIndex + 1;
+
+        // Gap model: collapse the dragged item so there's no hole, then shift other items
+        // DOWN by itemH to open a gap at the drop position.
+        // After collapse, items originally below startIndex move up by itemH in DOM flow.
+        // calcDrop adjusts midpoints for that shift so hit-testing stays accurate.
         const filteredRects = cachedRects.filter((_, i) => i !== startIndex);
         function calcDrop(y) {
           for (let i = 0; i < filteredRects.length; i++) {
-            if (y < filteredRects[i].top + filteredRects[i].height / 2) return i;
+            const origIdx = i < startIndex ? i : i + 1;
+            const rect = filteredRects[i];
+            const adjustedMid = (origIdx > startIndex ? rect.top - itemH : rect.top) + rect.height / 2;
+            if (y < adjustedMid) return i;
           }
           return filteredRects.length;
         }
 
-        // Inject a <style> element to apply transforms — inline style changes on ProseMirror-managed
-        // li elements get reverted by its MutationObserver immediately; stylesheet rules are invisible to it.
-        // Use nth-child (1-based) to target items by position within the list.
-        const dragStyle = document.createElement('style');
-        document.head.appendChild(dragStyle);
-        // Base selector — scoped to the editor so it doesn't affect other lists on the page
-        const nthSel = (n) => `#note-fs-editor .ProseMirror ul[data-type="taskList"] li:nth-child(${n})`;
-
-        function applyShifts(targetIdx) {
+        function applyShifts(targetDropIdx) {
           const rules = [];
+          // Collapse dragged item completely — no hole, no opacity flash
+          rules.push(`${nthSel(draggedN)} { height:0 !important; overflow:hidden !important; ` +
+            `padding-top:0 !important; padding-bottom:0 !important; ` +
+            `margin-top:0 !important; margin-bottom:0 !important; opacity:0 !important; }`);
           allItems.forEach((item, origIdx) => {
-            if (item === li) return;
-            let shift = 0;
-            if (targetIdx > startIndex) {
-              if (origIdx > startIndex && origIdx <= targetIdx) shift = -itemH;
-            } else if (targetIdx < startIndex) {
-              if (origIdx >= targetIdx && origIdx < startIndex) shift = itemH;
-            }
-            const n = origIdx + 1;
-            rules.push(`${nthSel(n)} { transform: translateY(${shift}px); transition: transform 0.15s ease; }`);
+            if (origIdx === startIndex) return;
+            // filteredIdx: position in the list after removing the dragged item
+            const filtIdx = origIdx < startIndex ? origIdx : origIdx - 1;
+            // Items at filtIdx >= targetDropIdx shift DOWN to open the gap
+            const shift = filtIdx >= targetDropIdx ? itemH : 0;
+            rules.push(`${nthSel(origIdx + 1)} { transform:translateY(${shift}px); transition:transform 0.15s ease; }`);
           });
           dragStyle.textContent = rules.join('\n');
         }
+
+        // Apply initial collapse immediately
+        applyShifts(startIndex);
 
         function onMove(e) {
           dropIndex = calcDrop(e.clientY);
@@ -15904,11 +15897,7 @@
         }
 
         function onUp() {
-          // Reset all visual state
-          li.style.opacity = '';
-          li.style.transition = '';
           dragStyle.remove();
-          savedOverflows.forEach(({ el, overflow }) => { el.style.overflow = overflow; });
           ghost.remove();
           document.removeEventListener('pointermove', onMove);
           document.removeEventListener('pointerup', onUp);
