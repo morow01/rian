@@ -10276,7 +10276,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '4.32.6';
+    const VERSION = '4.32.7';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -15772,85 +15772,86 @@
     }
 
     // ---- Task list drag-to-reorder (pointer-event based, no external library) ----
-    // SortableJS was dropped: it modifies the DOM directly, ProseMirror's MutationObserver
-    // fights it mid-drag, and stopPropagation/preventDefault on handles blocked one or the other.
-    // This implementation never moves DOM nodes — it just shows a drop-line indicator and
-    // commits the reorder as a ProseMirror transaction on pointerup.
-    let _taskSortables = [];  // cleanup functions
+    // Single delegated listener on the stable editor DOM — never needs re-attachment
+    // when ProseMirror re-renders and replaces ul/li elements (per-list listeners went stale).
+    let _taskSortables = [];  // cleanup functions (just the one editor-level listener)
     let _sortableTimer = null;
 
     function initTaskSortable() {
       if (!_tiptapEditor) return;
+      // Remove previous listener if any
       _taskSortables.forEach(fn => { try { fn(); } catch(e){} });
       _taskSortables = [];
 
-      const allLists = Array.from(_tiptapEditor.view.dom.querySelectorAll('ul[data-type="taskList"]'));
-      allLists.forEach((listEl, listIdx) => {
-        function onPointerDown(e) {
-          if (!e.target.closest('.tt-drag-handle')) return;
-          const li = e.target.closest('li[data-type="taskItem"]');
-          if (!li || li.parentElement !== listEl) return;
-          e.preventDefault();
-          e.stopPropagation(); // prevent ProseMirror on .ProseMirror from calling setPointerCapture,
-                               // which would redirect all subsequent pointermove/pointerup away from document
+      const editorDom = _tiptapEditor.view.dom; // .ProseMirror — stable for the lifetime of the editor
 
-          const snapshot = JSON.stringify(_tiptapEditor.getJSON());
-          const allItems = () => Array.from(listEl.querySelectorAll(':scope > li[data-type="taskItem"]'));
-          const startItems = allItems();
-          const startIndex = startItems.indexOf(li);
-          if (startIndex === -1) return;
+      function onPointerDown(e) {
+        if (!e.target.closest('.tt-drag-handle')) return;
+        const li = e.target.closest('li[data-type="taskItem"]');
+        if (!li) return;
+        // Find the parent task list and its index in the current (live) DOM
+        const listEl = li.closest('ul[data-type="taskList"]');
+        if (!listEl) return;
+        const allLists = Array.from(editorDom.querySelectorAll('ul[data-type="taskList"]'));
+        const listIdx = allLists.indexOf(listEl);
+        if (listIdx === -1) return;
 
-          let dropIndex = startIndex;
-          li.style.opacity = '0.35';
+        e.preventDefault();
+        e.stopPropagation();
 
-          // Blue drop-line indicator (never inserted into ProseMirror content)
-          const indicator = document.createElement('div');
-          indicator.style.cssText = 'height:2px;background:#3b82f6;border-radius:2px;margin:1px 6px;pointer-events:none;';
+        const snapshot = JSON.stringify(_tiptapEditor.getJSON());
+        const liveItems = () => Array.from(listEl.querySelectorAll(':scope > li[data-type="taskItem"]'));
+        const startIndex = liveItems().indexOf(li);
+        if (startIndex === -1) return;
 
-          function filteredItems() {
-            return allItems().filter(i => i !== li);
+        let dropIndex = startIndex;
+        li.style.opacity = '0.35';
+
+        // Blue drop-line — never part of ProseMirror content, removed on pointerup
+        const indicator = document.createElement('div');
+        indicator.style.cssText = 'height:2px;background:#3b82f6;border-radius:2px;margin:1px 6px;pointer-events:none;';
+
+        function otherItems() { return liveItems().filter(i => i !== li); }
+
+        function calcDrop(y) {
+          const items = otherItems();
+          for (let i = 0; i < items.length; i++) {
+            const r = items[i].getBoundingClientRect();
+            if (y < r.top + r.height / 2) return i;
           }
-
-          function calcDrop(y) {
-            const items = filteredItems();
-            for (let i = 0; i < items.length; i++) {
-              const r = items[i].getBoundingClientRect();
-              if (y < r.top + r.height / 2) return i;
-            }
-            return items.length;
-          }
-
-          function showIndicator(idx) {
-            const items = filteredItems();
-            if (indicator.parentElement) indicator.remove();
-            if (idx >= items.length) listEl.appendChild(indicator);
-            else listEl.insertBefore(indicator, items[idx]);
-          }
-
-          function onMove(e) {
-            dropIndex = calcDrop(e.clientY);
-            showIndicator(dropIndex);
-          }
-
-          function onUp() {
-            li.style.opacity = '';
-            if (indicator.parentElement) indicator.remove();
-            document.removeEventListener('pointermove', onMove);
-            document.removeEventListener('pointerup', onUp);
-            document.removeEventListener('pointercancel', onUp);
-            if (dropIndex !== startIndex) {
-              _ttReorderTaskItem(listIdx, startIndex, dropIndex, snapshot);
-            }
-          }
-
-          document.addEventListener('pointermove', onMove);
-          document.addEventListener('pointerup', onUp);
-          document.addEventListener('pointercancel', onUp);
+          return items.length;
         }
 
-        listEl.addEventListener('pointerdown', onPointerDown);
-        _taskSortables.push(() => listEl.removeEventListener('pointerdown', onPointerDown));
-      });
+        function showIndicator(idx) {
+          const items = otherItems();
+          if (indicator.parentElement) indicator.remove();
+          if (idx >= items.length) listEl.appendChild(indicator);
+          else listEl.insertBefore(indicator, items[idx]);
+        }
+
+        function onMove(e) {
+          dropIndex = calcDrop(e.clientY);
+          showIndicator(dropIndex);
+        }
+
+        function onUp() {
+          li.style.opacity = '';
+          if (indicator.parentElement) indicator.remove();
+          document.removeEventListener('pointermove', onMove);
+          document.removeEventListener('pointerup', onUp);
+          document.removeEventListener('pointercancel', onUp);
+          if (dropIndex !== startIndex) {
+            _ttReorderTaskItem(listIdx, startIndex, dropIndex, snapshot);
+          }
+        }
+
+        document.addEventListener('pointermove', onMove);
+        document.addEventListener('pointerup', onUp);
+        document.addEventListener('pointercancel', onUp);
+      }
+
+      editorDom.addEventListener('pointerdown', onPointerDown);
+      _taskSortables.push(() => editorDom.removeEventListener('pointerdown', onPointerDown));
     }
 
     function _ttReorderTaskItem(listIndex, oldIndex, newIndex, snapshotStr) {
