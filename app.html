@@ -10326,7 +10326,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '4.33.38';
+    const VERSION = '4.33.39';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -13081,7 +13081,7 @@
       wrap.innerHTML = `
         <div class="act-suggest-panel" id="suggest-panel-${actId}">
           <div class="suggest-panel-head">
-            <span class="suggest-panel-head-title">✨ Suggested codes</span>
+            <span class="suggest-panel-head-title"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-2px;margin-right:4px"><path d="M12 8V4H8"/><rect x="4" y="8" width="16" height="12" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></svg>Suggested codes</span>
             <button class="suggest-panel-dismiss" id="suggest-dismiss-${actId}" aria-label="Dismiss">✕</button>
           </div>
           ${inner}
@@ -13314,7 +13314,7 @@
                 <span class="act-field-label">Work Codes</span>
                 <button id="suggest-btn-${act.id}" class="act-suggest-btn"
                   onclick="suggestCodes('${act.id}',${di})">
-                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg>
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8V4H8"/><rect x="4" y="8" width="16" height="12" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></svg>
                   Suggest
                 </button>
               </div>
@@ -24630,9 +24630,8 @@ QUESTION: ${query}`;
           <!-- AI rephrase -->
           <button class="tt-btn" id="tt-ai-rephrase" title="Improve with AI"
             style="padding:0 8px;gap:4px;font-size:11px;font-weight:700;letter-spacing:0.2px;color:#818cf8;">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-              stroke-linejoin="round">
-              <path d="M12 3l1.9 5.8L20 10.6l-5.3 3.8 1.6 6.2L12 17.3l-4.3 3.3 1.6-6.2L4 10.6l6.1-1.8z" />
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 8V4H8"/><rect x="4" y="8" width="16" height="12" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/>
             </svg>
             AI
           </button>
