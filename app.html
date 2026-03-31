@@ -10326,7 +10326,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '4.33.40';
+    const VERSION = '4.33.41';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -22663,7 +22663,7 @@ QUESTION: ${query}`;
         }
         // If keyword search found few entries, extract task descriptions from Gemini's "Task:" lines
         // and find matching timesheet entries for cards — only from query-relevant sections
-        if (timesheetEntries.length < 3) {
+        if (scope.timesheet && timesheetEntries.length < 3) {
           try {
             // Extract descriptions ONLY from "Task:" lines (query-relevant).
             // Gemini uses "Other:" for general timesheet issues — we skip those.
