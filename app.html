@@ -10276,7 +10276,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '4.32.7';
+    const VERSION = '4.32.8';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -15807,9 +15807,11 @@
         let dropIndex = startIndex;
         li.style.opacity = '0.35';
 
-        // Blue drop-line — never part of ProseMirror content, removed on pointerup
+        // Drop-line: fixed overlay on body — inserting into the ProseMirror ul would
+        // be immediately removed by ProseMirror's MutationObserver reconciliation.
         const indicator = document.createElement('div');
-        indicator.style.cssText = 'height:2px;background:#3b82f6;border-radius:2px;margin:1px 6px;pointer-events:none;';
+        indicator.style.cssText = 'position:fixed;height:2px;background:#3b82f6;border-radius:2px;pointer-events:none;z-index:9999;display:none;';
+        document.body.appendChild(indicator);
 
         function otherItems() { return liveItems().filter(i => i !== li); }
 
@@ -15824,9 +15826,13 @@
 
         function showIndicator(idx) {
           const items = otherItems();
-          if (indicator.parentElement) indicator.remove();
-          if (idx >= items.length) listEl.appendChild(indicator);
-          else listEl.insertBefore(indicator, items[idx]);
+          const ref = idx < items.length ? items[idx] : (items[items.length - 1] || li);
+          const r = ref.getBoundingClientRect();
+          const lineY = idx < items.length ? r.top : r.bottom;
+          indicator.style.top  = (lineY - 1) + 'px';
+          indicator.style.left = r.left + 'px';
+          indicator.style.width = r.width + 'px';
+          indicator.style.display = 'block';
         }
 
         function onMove(e) {
@@ -15836,7 +15842,7 @@
 
         function onUp() {
           li.style.opacity = '';
-          if (indicator.parentElement) indicator.remove();
+          indicator.remove();
           document.removeEventListener('pointermove', onMove);
           document.removeEventListener('pointerup', onUp);
           document.removeEventListener('pointercancel', onUp);
