@@ -10276,7 +10276,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '4.33.17';
+    const VERSION = '4.33.18';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -15843,7 +15843,7 @@
           return filteredRects.length;
         }
 
-        function applyShifts(targetDropIdx) {
+        function applyShifts(targetDropIdx, instant = false) {
           const rules = [];
           // Lift the dragged li out of flow with position:fixed — it becomes the ghost.
           // Fixed positioning removes it from flow (other items close the gap), and the
@@ -15862,12 +15862,15 @@
             if (origIdx === startIndex) return;
             const filtIdx = origIdx < startIndex ? origIdx : origIdx - 1;
             const shift = filtIdx >= targetDropIdx ? itemH : 0;
-            rules.push(`${nthSel(origIdx + 1)} { transform:translateY(${shift}px); transition:transform 0.15s ease; }`);
+            const trans = instant ? 'none' : 'transform 0.15s ease';
+            rules.push(`${nthSel(origIdx + 1)} { transform:translateY(${shift}px); transition:${trans}; }`);
           });
           dragStyle.textContent = rules.join('\n');
         }
 
-        applyShifts(startIndex);
+        // instant=true: no transition on first apply so items don't animate back to
+        // their original positions after jumping up when the li goes position:fixed.
+        applyShifts(startIndex, true);
 
         function onMove(e) {
           ghostLeft = e.clientX - offsetX;
