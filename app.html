@@ -4176,7 +4176,7 @@
       border: none;
       background: none;
       cursor: pointer;
-      padding: 3px 5px;
+      padding: 5px 7px;
       border-radius: 4px;
       color: var(--text-secondary);
       display: flex;
@@ -4190,8 +4190,8 @@
     }
 
     .tt-link-bbl-btn svg {
-      width: 14px;
-      height: 14px;
+      width: 18px;
+      height: 18px;
     }
 
     /* ── Rian custom dialog ── */
@@ -10276,7 +10276,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '4.33.26';
+    const VERSION = '4.33.27';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -23080,7 +23080,11 @@ QUESTION: ${query}`;
         });
       }
       on('tt-link-bbl-open', () => {
-        const href = e.getAttributes('link').href;
+        // Read from the bubble input, not from getAttributes(): on mobile the editor
+        // blurs before the click fires, clearing the selection so getAttributes()
+        // returns undefined. The input value is set when the bubble opens and persists.
+        const input = document.getElementById('tt-link-bubble-input');
+        const href = (input?.value.trim()) || e.getAttributes('link').href;
         if (href) _openUrl(href);
       });
       on('tt-link-bbl-remove', () => {
