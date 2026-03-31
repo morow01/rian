@@ -10276,7 +10276,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '4.33.3';
+    const VERSION = '4.33.4';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -15798,6 +15798,12 @@
 
         e.preventDefault();
         e.stopPropagation();
+
+        // Blur the editor so the mobile keyboard doesn't pop up (and cause pointercancel)
+        // when the handle is touched inside a contenteditable element
+        if (document.activeElement && typeof document.activeElement.blur === 'function') {
+          document.activeElement.blur();
+        }
 
         const snapshot = JSON.stringify(_tiptapEditor.getJSON());
         const liveItems = () => Array.from(listEl.querySelectorAll(':scope > li[data-type="taskItem"]'));
