@@ -10276,7 +10276,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '4.33.22';
+    const VERSION = '4.33.23';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -15809,12 +15809,12 @@
 
         // Blur the editor so the mobile keyboard doesn't pop up (and cause pointercancel)
         // when the handle is touched inside a contenteditable element.
-        // Preserve scroll position: blur() on mobile can trigger the browser to scroll
-        // to a default focus target (e.g. first focusable element / top of page).
+        // Restore scroll in rAF: blur() on mobile is async-scroll — a synchronous
+        // scrollTo loses the race, so we re-apply it on the next animation frame.
         if (document.activeElement && typeof document.activeElement.blur === 'function') {
           const _sx = window.scrollX, _sy = window.scrollY;
           document.activeElement.blur();
-          window.scrollTo(_sx, _sy);
+          requestAnimationFrame(() => window.scrollTo(_sx, _sy));
         }
 
         const snapshot = JSON.stringify(_tiptapEditor.getJSON());
@@ -15928,8 +15928,19 @@
         document.addEventListener('pointercancel', onUp);
       }
 
+      // touchstart prevention on the drag handle: on mobile, touchstart fires before
+      // pointerdown and is what causes the browser to place a text cursor inside the
+      // contenteditable (at position 0 / first note). Preventing it here stops cursor
+      // placement and the resulting page-scroll to the first note.
+      function onTouchStart(e) {
+        if (e.target.closest('.tt-drag-handle')) e.preventDefault();
+      }
       editorDom.addEventListener('pointerdown', onPointerDown);
-      _taskSortables.push(() => editorDom.removeEventListener('pointerdown', onPointerDown));
+      editorDom.addEventListener('touchstart', onTouchStart, { passive: false });
+      _taskSortables.push(() => {
+        editorDom.removeEventListener('pointerdown', onPointerDown);
+        editorDom.removeEventListener('touchstart', onTouchStart);
+      });
     }
 
     function _ttReorderTaskItem(listIndex, oldIndex, newIndex, snapshotStr) {
