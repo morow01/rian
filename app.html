@@ -6537,6 +6537,7 @@
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
       transition: box-shadow 0.3s ease;
       position: relative;
+      transform: translateZ(0); /* Force GPU layer so overflow:hidden clips swipe row on tablet */
     }
 
     .note-card.expanded {
@@ -10255,7 +10256,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '4.30.8';
+    const VERSION = '4.30.9';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -16358,8 +16359,8 @@
       ).join('');
       return `
         <span class="te-field-label" style="margin-top:0">Tag Name</span>
-        <input class="te-input" id="${idPrefix}NameInput" type="search" placeholder="${namePlaceholder}"
-          autocomplete="off" data-lpignore="true" data-form-type="other" data-1p-ignore="true"
+        <input class="te-input" id="${idPrefix}NameInput" type="text" placeholder="${namePlaceholder}"
+          autocomplete="new-password" data-lpignore="true" data-form-type="other" data-1p-ignore="true"
           oninput="${idPrefix}UpdatePreview()">
         <span class="te-field-label">Colour</span>
         <div class="ncf-colors" style="margin-top:6px">${swatches}</div>
