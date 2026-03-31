@@ -10276,7 +10276,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '4.33.12';
+    const VERSION = '4.33.13';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -15824,19 +15824,21 @@
 
         // Clone the real li so the ghost inherits all formatting (bold, italic, etc.)
         const ghost = li.cloneNode(true);
-        // Remove the drag handle — not needed on the ghost
+        // Hide the drag handle but keep it in the DOM so it occupies the same space —
+        // removing it would change the flex layout and cause text to wrap differently
         const _gh = ghost.querySelector('.tt-drag-handle');
-        if (_gh) _gh.remove();
+        if (_gh) _gh.style.visibility = 'hidden';
         // Card + positioning (replaces ProseMirror ancestor selectors that no longer apply)
         // padding:7px 12px is cosmetic — expand outer width by 2×12px and shift left by 12px
-        // so the inner content area stays exactly liRect.width (same wrapping as original)
+        // so the inner content area stays exactly liRect.width (same wrapping as original).
+        // No scale() — keep 1:1 size so text matches the original item exactly.
         const _gPad = 12;
         ghost.style.cssText = `position:fixed;pointer-events:none;z-index:10000;list-style:none;
           display:flex;align-items:flex-start;gap:8px;margin:0;
           width:${liRect.width + _gPad * 2}px;box-sizing:border-box;
           background:#fff;border-radius:10px;padding:7px ${_gPad}px;
           box-shadow:0 8px 24px rgba(0,0,0,0.13),0 2px 6px rgba(0,0,0,0.08);
-          left:${liRect.left - _gPad}px;top:${liRect.top}px;transform:scale(1.02);`;
+          left:${liRect.left - _gPad}px;top:${liRect.top}px;`;
         // Re-apply label/checkbox styles (lost outside .ProseMirror context)
         const _gl = ghost.querySelector('label');
         if (_gl) {
