@@ -10286,7 +10286,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '4.33.29';
+    const VERSION = '4.33.30';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -23032,9 +23032,10 @@ QUESTION: ${query}`;
       on('tt-italic', () => { e.chain().focus().toggleItalic().run(); _ttUpdateToolbar(e); });
       on('tt-strike', () => { e.chain().focus().toggleStrike().run(); _ttUpdateToolbar(e); });
       // Headings
-      on('tt-h1', () => { e.chain().focus().toggleHeading({ level: 1 }).run(); _ttUpdateToolbar(e); });
-      on('tt-h2', () => { e.chain().focus().toggleHeading({ level: 2 }).run(); _ttUpdateToolbar(e); });
-      on('tt-h3', () => { e.chain().focus().toggleHeading({ level: 3 }).run(); _ttUpdateToolbar(e); });
+      const _closeHdgMenu = () => document.getElementById('tt-hdg-menu')?.classList.remove('tt-open');
+      on('tt-h1', () => { e.chain().focus().toggleHeading({ level: 1 }).run(); _closeHdgMenu(); _ttUpdateToolbar(e); });
+      on('tt-h2', () => { e.chain().focus().toggleHeading({ level: 2 }).run(); _closeHdgMenu(); _ttUpdateToolbar(e); });
+      on('tt-h3', () => { e.chain().focus().toggleHeading({ level: 3 }).run(); _closeHdgMenu(); _ttUpdateToolbar(e); });
       // Lists
       const _closeListMenu = () => document.getElementById('tt-list-menu')?.classList.remove('tt-open');
       on('tt-ul', () => { e.chain().focus().toggleBulletList().run(); _closeListMenu(); _ttUpdateToolbar(e); });
@@ -23356,9 +23357,6 @@ QUESTION: ${query}`;
         'tt-bold': () => editor.isActive('bold'),
         'tt-italic': () => editor.isActive('italic'),
         'tt-strike': () => editor.isActive('strike'),
-        'tt-h1': () => editor.isActive('heading', { level: 1 }),
-        'tt-h2': () => editor.isActive('heading', { level: 2 }),
-        'tt-h3': () => editor.isActive('heading', { level: 3 }),
         'tt-ul': () => editor.isActive('bulletList'),
         'tt-ol': () => editor.isActive('orderedList'),
         'tt-tasklist': () => editor.isActive('taskList'),
@@ -23373,6 +23371,16 @@ QUESTION: ${query}`;
       for (const [id, check] of Object.entries(map)) {
         const el = document.getElementById(id);
         if (el) el.classList.toggle('tt-active', check());
+      }
+      // Update heading dropdown button label and active state
+      const _hdgBtn = document.getElementById('tt-hdg-btn');
+      const _hdgLabel = document.getElementById('tt-hdg-label');
+      if (_hdgBtn) _hdgBtn.classList.toggle('tt-active', editor.isActive('heading'));
+      if (_hdgLabel) {
+        if (editor.isActive('heading', { level: 1 })) _hdgLabel.textContent = 'H1';
+        else if (editor.isActive('heading', { level: 2 })) _hdgLabel.textContent = 'H2';
+        else if (editor.isActive('heading', { level: 3 })) _hdgLabel.textContent = 'H3';
+        else _hdgLabel.textContent = 'H';
       }
       // Update list dropdown button active state + icon
       const _listIsActive = editor.isActive('bulletList') || editor.isActive('orderedList') || editor.isActive('taskList');
@@ -23620,6 +23628,12 @@ QUESTION: ${query}`;
       const drop = document.getElementById('tt-list-drop');
       const menu = document.getElementById('tt-list-menu');
       if (menu && drop && !drop.contains(ev.target)) menu.classList.remove('tt-open');
+    });
+    // Close heading dropdown when clicking outside it
+    document.addEventListener('click', (ev) => {
+      const hdgDrop = document.getElementById('tt-hdg-drop');
+      const hdgMenu = document.getElementById('tt-hdg-menu');
+      if (hdgMenu && hdgDrop && !hdgDrop.contains(ev.target)) hdgMenu.classList.remove('tt-open');
     });
 
     function _ttHideLinkBubble() {
@@ -24568,10 +24582,31 @@ QUESTION: ${query}`;
             </svg>
           </button>
           <div class="tt-sep"></div>
-          <!-- Headings -->
-          <button class="tt-btn" id="tt-h1" title="Heading 1" style="font-size:11px;font-weight:800">H1</button>
-          <button class="tt-btn" id="tt-h2" title="Heading 2" style="font-size:11px;font-weight:800">H2</button>
-          <button class="tt-btn" id="tt-h3" title="Heading 3" style="font-size:11px;font-weight:800">H3</button>
+          <!-- Headings dropdown -->
+          <div class="tt-list-drop" id="tt-hdg-drop">
+            <button class="tt-btn tt-list-btn" id="tt-hdg-btn" title="Heading style"
+              onclick="event.stopPropagation();document.getElementById('tt-hdg-menu').classList.toggle('tt-open');">
+              <span id="tt-hdg-label" style="font-size:11px;font-weight:800;letter-spacing:-0.5px">H</span>
+              <svg class="tt-list-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                stroke-linecap="round">
+                <polyline points="6 9 12 15 18 9" />
+              </svg>
+            </button>
+            <div class="tt-list-menu" id="tt-hdg-menu">
+              <button class="tt-list-item" id="tt-h1">
+                <span style="font-size:15px;font-weight:800;width:15px;text-align:center">H1</span>
+                Heading 1
+              </button>
+              <button class="tt-list-item" id="tt-h2">
+                <span style="font-size:13px;font-weight:800;width:15px;text-align:center">H2</span>
+                Heading 2
+              </button>
+              <button class="tt-list-item" id="tt-h3">
+                <span style="font-size:11px;font-weight:800;width:15px;text-align:center">H3</span>
+                Heading 3
+              </button>
+            </div>
+          </div>
           <div class="tt-sep"></div>
           <!-- Lists dropdown -->
           <div class="tt-list-drop" id="tt-list-drop">
