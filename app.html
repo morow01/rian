@@ -10276,7 +10276,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '4.33.18';
+    const VERSION = '4.33.19';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -15843,6 +15843,13 @@
           return filteredRects.length;
         }
 
+        // Compute the ul's nth-child position among its parent's children so we can
+        // add an ::after spacer to keep the ul at its original height while the
+        // dragged li is position:fixed (and therefore removed from flow).
+        const _ulSiblings = Array.from(listEl.parentElement.children);
+        const _ulN = _ulSiblings.indexOf(listEl) + 1;
+        const _ulSel = `#note-fs-editor .ProseMirror > :nth-child(${_ulN})`;
+
         function applyShifts(targetDropIdx, instant = false) {
           const rules = [];
           // Lift the dragged li out of flow with position:fixed — it becomes the ghost.
@@ -15857,6 +15864,9 @@
             box-shadow:0 8px 24px rgba(0,0,0,0.15),0 2px 8px rgba(0,0,0,0.10) !important;
             margin:0 !important; transform:none !important;
           }`);
+          // ::after spacer on the ul keeps it at its original height so content
+          // below (e.g. a table) doesn't jump up when the li leaves the flow.
+          rules.push(`${_ulSel}::after { content:''; display:block; height:${itemH}px; }`);
           // Other items shift DOWN to open a gap at the drop position.
           allItems.forEach((item, origIdx) => {
             if (origIdx === startIndex) return;
