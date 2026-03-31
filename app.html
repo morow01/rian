@@ -10276,7 +10276,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '4.33.8';
+    const VERSION = '4.33.9';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -16114,6 +16114,7 @@
       document.getElementById('note-fs-modal').classList.remove('hidden');
       setTimeout(async () => {
         await _ensureTipTap();
+        _tiptapOnUpdate = null; // prevent stale handler firing during setContent below
         _ttSetContent(note.noteContent || '');
         _tiptapLastSaveAt = Date.now(); // keep echo protection active from moment of open
         _tiptapLastSavedNoteId = noteId;
@@ -20113,6 +20114,7 @@
       document.getElementById('note-fs-modal').classList.remove('hidden');
       setTimeout(async () => {
         await _ensureTipTap();
+        _tiptapOnUpdate = null; // prevent stale handler firing during setContent below
         _ttSetContent(currentValue);
         _tiptapOnUpdate = (editor) => {
           const html = _ttGetHTML();
@@ -23788,6 +23790,7 @@ QUESTION: ${query}`;
       document.getElementById('note-fs-modal').classList.remove('hidden');
       setTimeout(async () => {
         await _ensureTipTap();
+        _tiptapOnUpdate = null; // prevent stale handler firing during setContent below
         _ttSetContent(currentValue);
         _tiptapOnUpdate = (editor) => {
           const html = _ttGetHTML();
