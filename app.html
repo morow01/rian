@@ -10276,7 +10276,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '4.32.2';
+    const VERSION = '4.32.3';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -15775,7 +15775,8 @@
     let _Sortable = null;
     let _taskSortables = [];
     let _sortableTimer = null;
-    let _sortableSnapshot = null; // JSON captured before drag starts (pre-DOM-mutation)
+    let _sortableSnapshot = null;   // JSON captured before drag starts (pre-DOM-mutation)
+    let _sortableListIndex = -1;    // list index captured before drag starts (DOM goes stale mid-drag)
 
     async function _ensureSortable() {
       if (_Sortable) return _Sortable;
@@ -15800,25 +15801,26 @@
           animation: 150,
           ghostClass: 'tt-task-drag-ghost',
           onStart() {
-            // Snapshot JSON before SortableJS touches the DOM — ProseMirror's
-            // MutationObserver will update internal state during the drag, so
-            // getJSON() in onEnd would already reflect the moved item, causing duplication.
+            // Capture both JSON and list index NOW — ProseMirror's MutationObserver
+            // re-renders the DOM mid-drag, so by onEnd the listEl reference is stale
+            // and indexOf() returns -1, and getJSON() reflects the already-moved state.
             _sortableSnapshot = _tiptapEditor ? JSON.stringify(_tiptapEditor.getJSON()) : null;
+            _sortableListIndex = _tiptapEditor
+              ? Array.from(_tiptapEditor.view.dom.querySelectorAll('ul[data-type="taskList"]')).indexOf(listEl)
+              : -1;
           },
           onEnd(evt) {
-            _ttReorderTaskItem(evt.from, evt.oldIndex, evt.newIndex, _sortableSnapshot);
+            _ttReorderTaskItem(_sortableListIndex, evt.oldIndex, evt.newIndex, _sortableSnapshot);
             _sortableSnapshot = null;
+            _sortableListIndex = -1;
           }
         }));
       });
     }
 
-    function _ttReorderTaskItem(listEl, oldIndex, newIndex, snapshotStr) {
-      if (!_tiptapEditor || oldIndex === newIndex) return;
-      const allLists = Array.from(_tiptapEditor.view.dom.querySelectorAll('ul[data-type="taskList"]'));
-      const listIndex = allLists.indexOf(listEl);
-      if (listIndex === -1) return;
-      // Use pre-drag snapshot so we reorder the original state, not the already-mutated DOM state
+    function _ttReorderTaskItem(listIndex, oldIndex, newIndex, snapshotStr) {
+      if (!_tiptapEditor || oldIndex === newIndex || listIndex === -1) return;
+      // Use pre-drag snapshot — DOM and internal state are already mutated by the time onEnd fires
       const json = snapshotStr ? JSON.parse(snapshotStr) : _tiptapEditor.getJSON();
       let count = 0, reordered = false;
       function traverse(nodes) {
