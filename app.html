@@ -10276,7 +10276,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '4.33.24';
+    const VERSION = '4.33.25';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -22998,14 +22998,10 @@ QUESTION: ${query}`;
       });
       _ttBindToolbar();
       initTaskSortable();
-      // Manual link-click handler (openOnClick:false above): routes through _openUrl
-      // so Android opens links in the system default browser, not the PWA host.
-      _tiptapEditor.view.dom.addEventListener('click', (ev) => {
-        const a = ev.target.closest('a[href]');
-        if (!a) return;
-        ev.preventDefault();
-        _openUrl(a.href);
-      });
+      // openOnClick:false means clicking a link places the cursor and the link
+      // bubble appears (via onSelectionUpdate → _ttUpdateLinkBubble). The user
+      // then taps ↗ Open in the bubble to navigate — routed via _openUrl() for
+      // default-browser support on Android. No auto-navigate on click.
     }
 
     let _ttToolbarBound = false;
