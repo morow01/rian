@@ -10276,7 +10276,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '4.33.23';
+    const VERSION = '4.33.24';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -16584,8 +16584,8 @@
       ).join('');
       return `
         <span class="te-field-label" style="margin-top:0">Tag Name</span>
-        <input class="te-input" id="${idPrefix}NameInput" type="text" placeholder="${namePlaceholder}"
-          autocomplete="new-password" data-lpignore="true" data-form-type="other" data-1p-ignore="true"
+        <input class="te-input" id="${idPrefix}NameInput" type="text" name="tag-label" placeholder="${namePlaceholder}"
+          autocomplete="off" data-lpignore="true" data-form-type="other" data-1p-ignore="true"
           oninput="${idPrefix}UpdatePreview()">
         <span class="te-field-label">Colour</span>
         <div class="ncf-colors" style="margin-top:6px">${swatches}</div>
@@ -22966,9 +22966,9 @@ QUESTION: ${query}`;
           TableHeaderWithBg,
           TableCellWithBg,
           Link.configure({
-            openOnClick: true,        // tap/click opens URL in external browser
+            openOnClick: false,       // we handle clicks manually so Android routes to default browser
             HTMLAttributes: {
-              target: null,           // TipTap handles opening via window.open, not via <a target>
+              target: '_blank',
               rel: 'noopener noreferrer nofollow',
             },
           }),
@@ -22998,6 +22998,14 @@ QUESTION: ${query}`;
       });
       _ttBindToolbar();
       initTaskSortable();
+      // Manual link-click handler (openOnClick:false above): routes through _openUrl
+      // so Android opens links in the system default browser, not the PWA host.
+      _tiptapEditor.view.dom.addEventListener('click', (ev) => {
+        const a = ev.target.closest('a[href]');
+        if (!a) return;
+        ev.preventDefault();
+        _openUrl(a.href);
+      });
     }
 
     let _ttToolbarBound = false;
@@ -23077,7 +23085,7 @@ QUESTION: ${query}`;
       }
       on('tt-link-bbl-open', () => {
         const href = e.getAttributes('link').href;
-        if (href) window.open(href, '_blank', 'noopener');
+        if (href) _openUrl(href);
       });
       on('tt-link-bbl-remove', () => {
         e.chain().focus().unsetLink().run();
@@ -23143,6 +23151,7 @@ QUESTION: ${query}`;
       // Cell background colours
       const _setCellBg = color => e.chain().focus().setCellAttribute('background', color).run();
       on('tt-cell-bg-none', () => _setCellBg(null));
+      on('tt-cell-bg-white', () => _setCellBg('#ffffff'));
       on('tt-cell-bg-blue', () => _setCellBg('#dbeafe'));
       on('tt-cell-bg-green', () => _setCellBg('#dcfce7'));
       on('tt-cell-bg-yellow', () => _setCellBg('#fef9c3'));
@@ -23672,6 +23681,21 @@ QUESTION: ${query}`;
       bubble.style.display = 'flex';
     }
 
+    // ── External URL opener ─────────────────────────────────────────────────
+    // Use a temporary <a> click rather than window.open() so Android routes the
+    // URL through the OS intent system and opens it in the default browser
+    // (e.g. Firefox) instead of always using the PWA host (Chrome).
+    function _openUrl(url) {
+      if (!url) return;
+      const a = document.createElement('a');
+      a.href = url;
+      a.target = '_blank';
+      a.rel = 'noopener noreferrer';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    }
+
     // ── Rian custom dialog ──────────────────────────────────────────────────
     let _rdnResolve = null;
 
@@ -23744,7 +23768,7 @@ QUESTION: ${query}`;
       const prev = e.getAttributes('link').href || '';
       const extraBtns = [];
       if (isActive) extraBtns.push({ label: 'Remove link', danger: true, action: () => { e.chain().focus().unsetLink().run(); _ttUpdateToolbar(e); } });
-      if (prev) extraBtns.push({ label: '↗ Open', action: () => window.open(prev, '_blank', 'noopener') });
+      if (prev) extraBtns.push({ label: '↗ Open', action: () => _openUrl(prev) });
       const url = await showRianDialog({
         title: isActive ? 'Edit Link' : 'Add Link',
         message: isActive ? 'Update the URL below, or remove the link.' : 'Select text first, then paste or type a URL.',
@@ -24756,6 +24780,7 @@ QUESTION: ${query}`;
           <span class="tt-tbl-label" style="font-size:10px;opacity:0.7;">Cell</span>
           <button class="tt-swatch" id="tt-cell-bg-none" style="background:var(--bg-page);border-color:var(--border)"
             title="No fill"></button>
+          <button class="tt-swatch" id="tt-cell-bg-white" style="background:#ffffff;border-color:#e2e8f0" title="White"></button>
           <button class="tt-swatch" id="tt-cell-bg-blue" style="background:#dbeafe" title="Blue"></button>
           <button class="tt-swatch" id="tt-cell-bg-green" style="background:#dcfce7" title="Green"></button>
           <button class="tt-swatch" id="tt-cell-bg-yellow" style="background:#fef9c3" title="Yellow"></button>
@@ -24967,4 +24992,17 @@ QUESTION: ${query}`;
   <!-- ===== RIAN CUSTOM DIALOG ===== -->
   <div id="rian-dialog-overlay" role="dialog" aria-modal="true" onclick="_rdnOverlayClick(event)">
     <div id="rian-dialog">
-      <div class="rdn-title" id="rdn-title"></div>        
+      <div class="rdn-title" id="rdn-title"></div>
+      <div class="rdn-msg" id="rdn-msg"></div>
+      <input class="rdn-input" id="rdn-input" type="text" autocomplete="off"
+        data-lpignore="true" data-1p-ignore="true" data-form-type="other"
+        spellcheck="false" style="display:none">
+      <div class="rdn-actions" id="rdn-actions"></div>
+    </div>
+  </div>
+
+  <!-- ===== BOTTOM SPACER ===== -->
+  <div style="height:env(safe-area-inset-bottom,0)"></div>
+
+</body>
+</html>
