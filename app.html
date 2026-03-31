@@ -10286,7 +10286,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '4.33.30';
+    const VERSION = '4.33.31';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -23019,6 +23019,28 @@ QUESTION: ${query}`;
       if (_ttToolbarBound) return; // prevent duplicate bindings on editor recreate
       _ttToolbarBound = true;
       const on = (id, fn) => { const el = document.getElementById(id); if (el) el.addEventListener('click', fn); };
+      // Dropdown toggle — positions menu as position:fixed so it escapes overflow-x:auto toolbar clipping on mobile
+      const _openToolbarDrop = (btnId, menuId) => {
+        const btn = document.getElementById(btnId);
+        const menu = document.getElementById(menuId);
+        if (!btn || !menu) return;
+        btn.addEventListener('click', (ev) => {
+          ev.stopPropagation();
+          const wasOpen = menu.classList.contains('tt-open');
+          // Close all toolbar dropdowns first
+          document.getElementById('tt-hdg-menu')?.classList.remove('tt-open');
+          document.getElementById('tt-list-menu')?.classList.remove('tt-open');
+          if (!wasOpen) {
+            const r = btn.getBoundingClientRect();
+            menu.style.position = 'fixed';
+            menu.style.top = (r.bottom + 4) + 'px';
+            menu.style.left = r.left + 'px';
+            menu.classList.add('tt-open');
+          }
+        });
+      };
+      _openToolbarDrop('tt-hdg-btn', 'tt-hdg-menu');
+      _openToolbarDrop('tt-list-btn', 'tt-list-menu');
       // Always read live editor at call time via getter
       const e = {
         get chain() { return _tiptapEditor?.chain.bind(_tiptapEditor); },
@@ -24584,8 +24606,7 @@ QUESTION: ${query}`;
           <div class="tt-sep"></div>
           <!-- Headings dropdown -->
           <div class="tt-list-drop" id="tt-hdg-drop">
-            <button class="tt-btn tt-list-btn" id="tt-hdg-btn" title="Heading style"
-              onclick="event.stopPropagation();document.getElementById('tt-hdg-menu').classList.toggle('tt-open');">
+            <button class="tt-btn tt-list-btn" id="tt-hdg-btn" title="Heading style">
               <span id="tt-hdg-label" style="font-size:11px;font-weight:800;letter-spacing:-0.5px">H</span>
               <svg class="tt-list-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
                 stroke-linecap="round">
@@ -24610,8 +24631,7 @@ QUESTION: ${query}`;
           <div class="tt-sep"></div>
           <!-- Lists dropdown -->
           <div class="tt-list-drop" id="tt-list-drop">
-            <button class="tt-btn tt-list-btn" id="tt-list-btn" title="List type"
-              onclick="event.stopPropagation();document.getElementById('tt-list-menu').classList.toggle('tt-open');">
+            <button class="tt-btn tt-list-btn" id="tt-list-btn" title="List type">
               <svg id="tt-list-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
                 stroke-linecap="round">
                 <line x1="9" y1="6" x2="20" y2="6" />
