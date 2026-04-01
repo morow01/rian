@@ -4704,8 +4704,83 @@
       display: block;
     }
 
-    #note-fs-editor .ProseMirror img.ProseMirror-selectednode {
+    /* ── Image resize ── */
+    .img-resize-wrap {
+      position: relative;
+      display: inline-block;
+      max-width: 100%;
+      margin: 6px 0;
+      line-height: 0;
+    }
+    .img-resize-wrap .tt-resizable-img {
+      max-width: 100%;
+      border-radius: 8px;
+      display: block;
+      cursor: default;
+    }
+    .img-resize-wrap.selected {
       outline: 2px solid #818cf8;
+      border-radius: 8px;
+    }
+    .img-resize-handle {
+      position: absolute;
+      right: -4px;
+      bottom: -4px;
+      width: 14px;
+      height: 14px;
+      background: #818cf8;
+      border: 2px solid #fff;
+      border-radius: 3px;
+      cursor: nwse-resize;
+      opacity: 0;
+      transition: opacity 0.15s;
+      touch-action: none;
+      z-index: 2;
+    }
+    .img-resize-wrap.selected .img-resize-handle,
+    .img-resize-wrap:hover .img-resize-handle {
+      opacity: 1;
+    }
+    .img-resize-wrap.resizing .img-resize-handle {
+      opacity: 1;
+      background: #6366f1;
+    }
+    .img-resize-presets {
+      position: absolute;
+      bottom: 8px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 4px;
+      background: rgba(0,0,0,0.7);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border-radius: 8px;
+      padding: 4px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.15s;
+      z-index: 3;
+    }
+    .img-resize-wrap.selected .img-resize-presets {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .img-resize-presets button {
+      background: rgba(255,255,255,0.15);
+      border: none;
+      border-radius: 5px;
+      color: #fff;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 4px 10px;
+      cursor: pointer;
+      font-family: inherit;
+      transition: background 0.12s;
+    }
+    .img-resize-presets button:hover,
+    .img-resize-presets button:active {
+      background: rgba(255,255,255,0.35);
     }
 
     .ai-ask-btn {
@@ -5497,6 +5572,51 @@
     .notes-view {
       padding-bottom: 24px;
     }
+
+    .notes-tab-bar {
+      display: flex;
+      border-bottom: 1.5px solid var(--border);
+      margin: 0 16px;
+      gap: 0;
+    }
+    .notes-tab {
+      flex: 1;
+      padding: 10px 0 8px;
+      text-align: center;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-muted);
+      cursor: pointer;
+      border-bottom: 2.5px solid transparent;
+      transition: color 0.15s, border-color 0.15s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .notes-tab.active {
+      color: var(--text-primary);
+      border-bottom-color: var(--accent);
+    }
+    .notes-tab .tab-count {
+      font-size: 11px;
+      font-weight: 700;
+      border-radius: 99px;
+      padding: 0 5px;
+      min-width: 16px;
+      height: 16px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
+    }
+    .notes-tab.active .tab-count { background: var(--accent); color: #fff; }
+    .notes-tab:not(.active) .tab-count { background: rgba(0,0,0,0.06); color: var(--text-muted); }
+    .notes-tab .tab-count.archive-count { background: rgba(234,88,12,0.12); color: #ea580c; }
+    .notes-tab.active .tab-count.archive-count { background: #ea580c; color: #fff; }
+    .notes-tab .tab-count.bin-count { background: rgba(239,68,68,0.08); color: #ef4444; }
+    .notes-tab.active .tab-count.bin-count { background: #ef4444; color: #fff; }
 
     /* ── Collapsible filter bar ── */
     .nf-wrap {
@@ -10330,7 +10450,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '4.33.45';
+    const VERSION = '4.34.0';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -10898,6 +11018,7 @@
       notesFilter: 'all',           // 'all' | 'high' | 'medium' | 'low' | 'done'
       notesBinOpen: false,          // true = showing bin (deleted notes)
       notesArchiveOpen: false,      // true = showing archive section
+      notesTab: 'notes',            // 'notes' | 'archive' | 'bin'
       notesCategoryFilter: '',      // '' = all categories, or one of getCategories() keys
       notesRemindersFilter: '',     // '' = off | 'active' | 'passed'
       notesOverdueFilter: false,    // true = show only overdue notes
@@ -15595,30 +15716,40 @@
 
 
       const binCount = binNotes.length;
+      const notesTab = state.notesTab || 'notes';
+      const tabBar = `
+  <div class="notes-tab-bar">
+    <div class="notes-tab ${notesTab === 'notes' ? 'active' : ''}" onclick="switchNotesTab('notes')">
+      <span>Notes</span>
+    </div>
+    <div class="notes-tab ${notesTab === 'archive' ? 'active' : ''}" onclick="switchNotesTab('archive')">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg>
+      <span>Archive</span>
+      ${archiveNotes.length > 0 ? `<span class="tab-count archive-count">${archiveNotes.length}</span>` : ''}
+    </div>
+    <div class="notes-tab ${notesTab === 'bin' ? 'active' : ''}" onclick="switchNotesTab('bin')">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+      <span>Bin</span>
+      ${binCount > 0 ? `<span class="tab-count bin-count">${binCount}</span>` : ''}
+    </div>
+  </div>`;
       const searchBar = `
-        <div style="padding:10px 16px 10px;position:relative;display:flex;align-items:center;gap:8px;">
-          <div style="flex:1;position:relative;">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
-              style="position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--text-muted);pointer-events:none">
-              <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-            </svg>
-            <input id="notes-search-input" type="text" value="${esc(state.notesSearch)}"
-              placeholder="Search notes…"
-              autocomplete="off" data-lpignore="true" data-form-type="other" data-1p-ignore="true"
-              oninput="notesSearchInput(this.value)"
-              style="width:100%;box-sizing:border-box;padding:9px 34px 9px 34px;border-radius:12px;border:1.5px solid var(--border);
-                background:var(--bg-card);color:var(--text-primary);font-size:14px;font-family:inherit;outline:none;-webkit-appearance:none;">
-            ${state.notesSearch ? `<button onclick="notesSearchInput('');document.getElementById('notes-search-input').value=''" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text-muted);font-size:16px;cursor:pointer;padding:2px;line-height:1">×</button>` : ''}
-          </div>
-          <button onclick="toggleNotesArchive()" title="Archive" style="position:relative;flex-shrink:0;background:${state.notesArchiveOpen ? 'rgba(234,88,12,0.12)' : 'var(--bg-card)'};border:1.5px solid ${state.notesArchiveOpen ? 'rgba(234,88,12,0.4)' : 'var(--border)'};border-radius:12px;padding:8px 10px;cursor:pointer;color:${state.notesArchiveOpen ? '#ea580c' : 'var(--text-muted)'};display:flex;align-items:center;">
-            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg>
-            ${archiveNotes.length > 0 ? `<span style="position:absolute;top:-5px;right:-5px;background:#ea580c;color:#fff;font-size:10px;font-weight:700;border-radius:99px;min-width:16px;height:16px;display:flex;align-items:center;justify-content:center;padding:0 3px;">${archiveNotes.length}</span>` : ''}
-          </button>
-          <button onclick="toggleNotesBin()" title="Bin" style="position:relative;flex-shrink:0;background:${state.notesBinOpen ? 'rgba(239,68,68,0.12)' : 'var(--bg-card)'};border:1.5px solid ${state.notesBinOpen ? 'rgba(239,68,68,0.4)' : 'var(--border)'};border-radius:12px;padding:8px 10px;cursor:pointer;color:${state.notesBinOpen ? '#ef4444' : 'var(--text-muted)'};display:flex;align-items:center;">
-            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
-            ${binCount > 0 ? `<span style="position:absolute;top:-5px;right:-5px;background:#ef4444;color:#fff;font-size:10px;font-weight:700;border-radius:99px;min-width:16px;height:16px;display:flex;align-items:center;justify-content:center;padding:0 3px;">${binCount}</span>` : ''}
-          </button>
-        </div>`;
+  ${tabBar}
+  <div style="padding:10px 16px 10px;position:relative;display:flex;align-items:center;gap:8px;">
+    <div style="flex:1;position:relative;">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
+        style="position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--text-muted);pointer-events:none">
+        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+      </svg>
+      <input id="notes-search-input" type="text" value="${esc(state.notesSearch)}"
+        placeholder="Search ${notesTab === 'archive' ? 'archive' : notesTab === 'bin' ? 'bin' : 'notes'}…"
+        autocomplete="off" data-lpignore="true" data-form-type="other" data-1p-ignore="true"
+        oninput="notesSearchInput(this.value)"
+        style="width:100%;box-sizing:border-box;padding:9px 34px 9px 34px;border-radius:12px;border:1.5px solid var(--border);
+          background:var(--bg-card);color:var(--text-primary);font-size:14px;font-family:inherit;outline:none;-webkit-appearance:none;">
+      ${state.notesSearch ? `<button onclick="notesSearchInput('');document.getElementById('notes-search-input').value=''" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text-muted);font-size:16px;cursor:pointer;padding:2px;line-height:1">×</button>` : ''}
+    </div>
+  </div>`;
       const headerRow = `<div style="margin-top:4px"></div>`;
 
       const overdueNotes = visibleOpen.filter(n => isNoteOverdue(n));
@@ -15687,12 +15818,8 @@
 
       const notesHint = !state.selectionMode ? `<div style="margin-top:12px;margin-bottom:4px;font-size:12px;color:var(--text-muted);font-style:italic;text-align:center">Tap = open · Long-press = select · Swipe ✓/🗑</div>` : '';
 
-      const archiveView = state.notesArchiveOpen ? `
+      const archiveView = (notesTab === 'archive') ? `
         <div style="padding:0 16px 24px;">
-          <div style="font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:#ea580c;margin:12px 0 10px;display:flex;align-items:center;gap:6px;">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg>
-            Archive (${archiveNotes.length})
-          </div>
           ${archiveNotes.length === 0
             ? `<div class="notes-empty" style="margin-top:32px;">${_archiveQ ? `No archived notes match "<strong>${esc(_archiveQ)}</strong>"` : 'Archive is empty'}</div>`
             : archiveNotes.map(n => {
@@ -15716,7 +15843,7 @@
           }
         </div>` : '';
 
-      const binView = state.notesBinOpen ? `
+      const binView = (notesTab === 'bin') ? `
         <div style="padding:0 16px 24px;">
           ${binNotes.length === 0
           ? `<div class="notes-empty" style="margin-top:32px;">${_binQ ? `No deleted notes match "<strong>${esc(_binQ)}</strong>"` : 'Bin is empty'}</div>`
@@ -15742,7 +15869,7 @@
           ${binNotes.length > 1 ? `<button onclick="emptyBin()" class="note-btn-delete" style="width:100%;margin-top:8px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg> Empty Bin</button>` : ''}
         </div>` : '';
 
-      return `<div class="notes-view" style="${state.selectionMode ? 'padding-bottom:120px' : ''}">${headerRow}${searchBar}${state.notesBinOpen ? binView : state.notesArchiveOpen ? archiveView : `<div class="nf-wrap">${chips}</div>${addCard}${searchEmpty}${openSection}${doneSection}${notesHint}${bulkBar}`}</div>`;
+      return `<div class="notes-view" style="${state.selectionMode ? 'padding-bottom:120px' : ''}">${headerRow}${searchBar}${notesTab === 'bin' ? binView : notesTab === 'archive' ? archiveView : `<div class="nf-wrap">${chips}</div>${addCard}${searchEmpty}${openSection}${doneSection}${notesHint}${bulkBar}`}</div>`;
     }
 
     // ---- Notes search ----
@@ -16950,10 +17077,16 @@
       showActionToast('Restored to notes', 'Undo', () => { note.archived = true; note.archivedAt = Date.now(); note.status = 'done'; scheduleNotesSave(); render(); });
     }
 
-    function toggleNotesArchive() {
-      state.notesArchiveOpen = !state.notesArchiveOpen;
-      state.notesBinOpen = false;
+    function switchNotesTab(tab) {
+      state.notesTab = tab;
+      // Keep legacy state in sync
+      state.notesArchiveOpen = (tab === 'archive');
+      state.notesBinOpen = (tab === 'bin');
       render();
+    }
+
+    function toggleNotesArchive() {
+      switchNotesTab(state.notesTab === 'archive' ? 'notes' : 'archive');
     }
 
     // Auto-archive done notes older than 14 days
@@ -17006,9 +17139,7 @@
     }
 
     function toggleNotesBin() {
-      state.notesBinOpen = !state.notesBinOpen;
-      state.notesArchiveOpen = false;
-      render();
+      switchNotesTab(state.notesTab === 'bin' ? 'notes' : 'bin');
     }
 
     function restoreNote(id) {
@@ -23113,6 +23244,121 @@ QUESTION: ${query}`;
         TableCellWithBg, TableHeaderWithBg,
         Link, Subscript, Superscript, Image,
       } = await _loadTipTapModules();
+
+      // Custom resizable image extension
+      const ResizableImage = Image.extend({
+        addAttributes() {
+          return {
+            ...this.parent?.(),
+            width: {
+              default: null,
+              parseHTML: el => el.getAttribute('width') || el.style.width || null,
+              renderHTML: attrs => {
+                if (!attrs.width) return {};
+                return { width: attrs.width, style: `width: ${attrs.width}` };
+              },
+            },
+          };
+        },
+        addNodeView() {
+          return ({ node, editor, getPos }) => {
+            const container = document.createElement('div');
+            container.classList.add('img-resize-wrap');
+            container.contentEditable = 'false';
+
+            const img = document.createElement('img');
+            img.src = node.attrs.src;
+            if (node.attrs.alt) img.alt = node.attrs.alt;
+            if (node.attrs.title) img.title = node.attrs.title;
+            if (node.attrs.width) img.style.width = node.attrs.width;
+            img.classList.add('tt-resizable-img');
+
+            // Preset buttons bar
+            const presets = document.createElement('div');
+            presets.classList.add('img-resize-presets');
+            presets.innerHTML = `
+              <button data-size="25%">S</button>
+              <button data-size="50%">M</button>
+              <button data-size="75%">L</button>
+              <button data-size="100%">Full</button>
+            `;
+            presets.addEventListener('click', (e) => {
+              const btn = e.target.closest('button[data-size]');
+              if (!btn) return;
+              const w = btn.dataset.size;
+              const pos = getPos();
+              editor.chain().focus().command(({ tr }) => {
+                tr.setNodeMarkup(pos, undefined, { ...node.attrs, width: w });
+                return true;
+              }).run();
+            });
+
+            // Resize handle (bottom-right corner)
+            const handle = document.createElement('div');
+            handle.classList.add('img-resize-handle');
+
+            let startX, startW;
+            const onPointerDown = (e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              startX = e.clientX;
+              startW = img.offsetWidth;
+              container.classList.add('resizing');
+              document.addEventListener('pointermove', onPointerMove);
+              document.addEventListener('pointerup', onPointerUp);
+            };
+            const onPointerMove = (e) => {
+              const newW = Math.max(60, startW + (e.clientX - startX));
+              const parentW = container.parentElement?.offsetWidth || 600;
+              const pct = Math.min(100, Math.round((newW / parentW) * 100));
+              img.style.width = pct + '%';
+            };
+            const onPointerUp = (e) => {
+              document.removeEventListener('pointermove', onPointerMove);
+              document.removeEventListener('pointerup', onPointerUp);
+              container.classList.remove('resizing');
+              const parentW = container.parentElement?.offsetWidth || 600;
+              const pct = Math.min(100, Math.round((img.offsetWidth / parentW) * 100));
+              const w = pct + '%';
+              const pos = getPos();
+              editor.chain().focus().command(({ tr }) => {
+                tr.setNodeMarkup(pos, undefined, { ...node.attrs, width: w });
+                return true;
+              }).run();
+            };
+            handle.addEventListener('pointerdown', onPointerDown);
+
+            // Select on click
+            container.addEventListener('click', () => {
+              const pos = getPos();
+              editor.commands.setNodeSelection(pos);
+            });
+
+            container.append(img, handle, presets);
+
+            return {
+              dom: container,
+              update(updatedNode) {
+                if (updatedNode.type.name !== 'image') return false;
+                img.src = updatedNode.attrs.src;
+                if (updatedNode.attrs.width) img.style.width = updatedNode.attrs.width;
+                else img.style.width = '';
+                return true;
+              },
+              selectNode() {
+                container.classList.add('selected');
+              },
+              deselectNode() {
+                container.classList.remove('selected');
+              },
+              destroy() {
+                handle.removeEventListener('pointerdown', onPointerDown);
+              },
+            };
+          };
+        },
+      });
+
       _tiptapEditor = new Editor({
         element: document.getElementById('note-fs-editor'),
         extensions: [
@@ -23138,7 +23384,7 @@ QUESTION: ${query}`;
           }),
           Subscript,
           Superscript,
-          Image.configure({ inline: false, allowBase64: true }),
+          ResizableImage.configure({ inline: false, allowBase64: true }),
         ],
         content: '',
         onUpdate({ editor }) {
