@@ -4710,7 +4710,9 @@
       display: inline-block;
       max-width: 100%;
       margin: 6px 0;
+      margin-top: 44px; /* space for toolbar above */
       line-height: 0;
+      overflow: visible;
     }
     .img-resize-wrap .tt-resizable-img {
       max-width: 100%;
@@ -4747,40 +4749,45 @@
     }
     .img-resize-presets {
       position: absolute;
-      bottom: 8px;
+      top: -44px;
       left: 50%;
       transform: translateX(-50%);
       display: flex;
-      gap: 4px;
-      background: rgba(0,0,0,0.7);
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
-      border-radius: 8px;
-      padding: 4px;
+      gap: 3px;
+      background: rgba(20,20,30,0.88);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border-radius: 10px;
+      padding: 5px 6px;
       opacity: 0;
       pointer-events: none;
       transition: opacity 0.15s;
       z-index: 3;
+      white-space: nowrap;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.25);
     }
     .img-resize-wrap.selected .img-resize-presets {
       opacity: 1;
       pointer-events: auto;
     }
     .img-resize-presets button {
-      background: rgba(255,255,255,0.15);
+      background: rgba(255,255,255,0.12);
       border: none;
-      border-radius: 5px;
+      border-radius: 7px;
       color: #fff;
-      font-size: 11px;
+      font-size: 13px;
       font-weight: 700;
-      padding: 4px 10px;
+      padding: 6px 14px;
+      min-height: 34px;
+      min-width: 36px;
       cursor: pointer;
       font-family: inherit;
       transition: background 0.12s;
+      -webkit-tap-highlight-color: transparent;
     }
     .img-resize-presets button:hover,
     .img-resize-presets button:active {
-      background: rgba(255,255,255,0.35);
+      background: rgba(255,255,255,0.3);
     }
 
     .ai-ask-btn {
@@ -10580,7 +10587,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '4.34.2';
+    const VERSION = '4.34.3';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -23490,7 +23497,8 @@ QUESTION: ${query}`;
             img.src = node.attrs.src;
             if (node.attrs.alt) img.alt = node.attrs.alt;
             if (node.attrs.title) img.title = node.attrs.title;
-            if (node.attrs.width) img.style.width = node.attrs.width;
+            // Default to 50% if no explicit width set — avoids full-screen-wide images
+            img.style.width = node.attrs.width || '50%';
             img.classList.add('tt-resizable-img');
 
             // Preset buttons bar
@@ -23561,8 +23569,7 @@ QUESTION: ${query}`;
               update(updatedNode) {
                 if (updatedNode.type.name !== 'image') return false;
                 img.src = updatedNode.attrs.src;
-                if (updatedNode.attrs.width) img.style.width = updatedNode.attrs.width;
-                else img.style.width = '';
+                img.style.width = updatedNode.attrs.width || '50%';
                 return true;
               },
               selectNode() {
