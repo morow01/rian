@@ -4724,28 +4724,24 @@
       outline: 2px solid #818cf8;
       border-radius: 8px;
     }
-    .img-resize-handle {
-      position: absolute;
-      right: -4px;
-      bottom: -4px;
-      width: 14px;
-      height: 14px;
-      background: #818cf8;
-      border: 2px solid #fff;
-      border-radius: 3px;
-      cursor: nwse-resize;
-      opacity: 0;
-      transition: opacity 0.15s;
-      touch-action: none;
-      z-index: 2;
+    .img-resize-presets .preset-divider {
+      width: 1px;
+      background: rgba(255,255,255,0.2);
+      margin: 4px 2px;
+      align-self: stretch;
     }
-    .img-resize-wrap.selected .img-resize-handle,
-    .img-resize-wrap:hover .img-resize-handle {
-      opacity: 1;
+    .img-resize-presets button.active-align {
+      background: rgba(129,140,248,0.5);
     }
-    .img-resize-wrap.resizing .img-resize-handle {
-      opacity: 1;
-      background: #6366f1;
+    .img-drag-grip {
+      display: flex;
+      align-items: center;
+      padding: 0 6px;
+      color: rgba(255,255,255,0.5);
+      cursor: grab;
+      font-size: 16px;
+      letter-spacing: -1px;
+      user-select: none;
     }
     .img-resize-presets {
       position: absolute;
@@ -10587,7 +10583,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '4.34.3';
+    const VERSION = '4.34.4';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -23474,6 +23470,7 @@ QUESTION: ${query}`;
 
       // Custom resizable image extension
       const ResizableImage = Image.extend({
+        draggable: true,
         addAttributes() {
           return {
             ...this.parent?.(),
@@ -23484,6 +23481,13 @@ QUESTION: ${query}`;
                 if (!attrs.width) return {};
                 return { width: attrs.width, style: `width: ${attrs.width}` };
               },
+            },
+            align: {
+              default: 'none',
+              parseHTML: el => el.getAttribute('data-align') || 'none',
+              renderHTML: attrs => attrs.align && attrs.align !== 'none'
+                ? { 'data-align': attrs.align }
+                : {},
             },
           };
         },
@@ -23497,90 +23501,87 @@ QUESTION: ${query}`;
             img.src = node.attrs.src;
             if (node.attrs.alt) img.alt = node.attrs.alt;
             if (node.attrs.title) img.title = node.attrs.title;
-            // Default to 50% if no explicit width set — avoids full-screen-wide images
-            img.style.width = node.attrs.width || '50%';
             img.classList.add('tt-resizable-img');
 
-            // Preset buttons bar
+            // Apply width + float alignment
+            const applyAttrs = (attrs) => {
+              img.style.width = attrs.width || '50%';
+              const align = attrs.align || 'none';
+              if (align === 'left') {
+                container.style.cssText = 'float:left;margin:0 14px 8px 0;clear:left;';
+              } else if (align === 'right') {
+                container.style.cssText = 'float:right;margin:0 0 8px 14px;clear:right;';
+              } else {
+                container.style.cssText = 'float:none;display:block;margin:6px 0;clear:both;';
+              }
+            };
+            applyAttrs(node.attrs);
+
+            // Toolbar: drag grip | align buttons | size presets
             const presets = document.createElement('div');
             presets.classList.add('img-resize-presets');
             presets.innerHTML = `
+              <span class="img-drag-grip" title="Drag to move">⠿</span>
+              <button data-align="left"  title="Float left">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="4" width="8" height="8" rx="1"/><rect x="3" y="14" width="18" height="2" rx="1"/><rect x="3" y="18" width="14" height="2" rx="1"/></svg>
+              </button>
+              <button data-align="none"  title="No wrap">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="12" x2="21" y2="12"/></svg>
+              </button>
+              <button data-align="right" title="Float right">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><rect x="13" y="4" width="8" height="8" rx="1"/><rect x="3" y="14" width="18" height="2" rx="1"/><rect x="7" y="18" width="14" height="2" rx="1"/></svg>
+              </button>
+              <span class="preset-divider"></span>
               <button data-size="25%">S</button>
               <button data-size="50%">M</button>
               <button data-size="75%">L</button>
               <button data-size="100%">Full</button>
             `;
+
+            // Highlight active align button
+            const refreshAlignBtns = (align) => {
+              presets.querySelectorAll('button[data-align]').forEach(b => {
+                b.classList.toggle('active-align', b.dataset.align === (align || 'none'));
+              });
+            };
+            refreshAlignBtns(node.attrs.align);
+
             presets.addEventListener('click', (e) => {
-              const btn = e.target.closest('button[data-size]');
+              const btn = e.target.closest('button[data-size], button[data-align]');
               if (!btn) return;
-              const w = btn.dataset.size;
               const pos = getPos();
-              editor.chain().focus().command(({ tr }) => {
-                tr.setNodeMarkup(pos, undefined, { ...node.attrs, width: w });
-                return true;
-              }).run();
+              if (btn.dataset.size) {
+                editor.chain().focus().command(({ tr }) => {
+                  tr.setNodeMarkup(pos, undefined, { ...node.attrs, width: btn.dataset.size });
+                  return true;
+                }).run();
+              } else if ('align' in btn.dataset) {
+                editor.chain().focus().command(({ tr }) => {
+                  tr.setNodeMarkup(pos, undefined, { ...node.attrs, align: btn.dataset.align });
+                  return true;
+                }).run();
+              }
             });
-
-            // Resize handle (bottom-right corner)
-            const handle = document.createElement('div');
-            handle.classList.add('img-resize-handle');
-
-            let startX, startW;
-            const onPointerDown = (e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              startX = e.clientX;
-              startW = img.offsetWidth;
-              container.classList.add('resizing');
-              document.addEventListener('pointermove', onPointerMove);
-              document.addEventListener('pointerup', onPointerUp);
-            };
-            const onPointerMove = (e) => {
-              const newW = Math.max(60, startW + (e.clientX - startX));
-              const parentW = container.parentElement?.offsetWidth || 600;
-              const pct = Math.min(100, Math.round((newW / parentW) * 100));
-              img.style.width = pct + '%';
-            };
-            const onPointerUp = (e) => {
-              document.removeEventListener('pointermove', onPointerMove);
-              document.removeEventListener('pointerup', onPointerUp);
-              container.classList.remove('resizing');
-              const parentW = container.parentElement?.offsetWidth || 600;
-              const pct = Math.min(100, Math.round((img.offsetWidth / parentW) * 100));
-              const w = pct + '%';
-              const pos = getPos();
-              editor.chain().focus().command(({ tr }) => {
-                tr.setNodeMarkup(pos, undefined, { ...node.attrs, width: w });
-                return true;
-              }).run();
-            };
-            handle.addEventListener('pointerdown', onPointerDown);
 
             // Select on click
             container.addEventListener('click', () => {
-              const pos = getPos();
-              editor.commands.setNodeSelection(pos);
+              editor.commands.setNodeSelection(getPos());
             });
 
-            container.append(img, handle, presets);
+            container.append(img, presets);
 
             return {
               dom: container,
               update(updatedNode) {
                 if (updatedNode.type.name !== 'image') return false;
                 img.src = updatedNode.attrs.src;
-                img.style.width = updatedNode.attrs.width || '50%';
+                applyAttrs(updatedNode.attrs);
+                refreshAlignBtns(updatedNode.attrs.align);
                 return true;
               },
-              selectNode() {
-                container.classList.add('selected');
-              },
-              deselectNode() {
-                container.classList.remove('selected');
-              },
-              destroy() {
-                handle.removeEventListener('pointerdown', onPointerDown);
-              },
+              selectNode() { container.classList.add('selected'); },
+              deselectNode() { container.classList.remove('selected'); },
+              destroy() {},
             };
           };
         },
