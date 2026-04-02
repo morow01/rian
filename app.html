@@ -10601,7 +10601,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '4.35.3';
+    const VERSION = '4.35.4';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -23464,7 +23464,7 @@ QUESTION: ${query}`;
     async function _loadTipTapModules() {
       if (_tiptapModules) return _tiptapModules;
       const [
-        { Editor },
+        { Editor, NodeSelection },
         { default: StarterKit },
         { default: Underline },
         { TextStyle },
@@ -23747,6 +23747,8 @@ QUESTION: ${query}`;
               <button data-size="50%">M</button>
               <button data-size="75%">L</button>
               <button data-size="100%">Full</button>
+              <span class="preset-divider"></span>
+              <button class="img-drag-handle" title="Drag to move">⠿</button>
             `;
 
             // Highlight active layout button
@@ -23760,25 +23762,45 @@ QUESTION: ${query}`;
             refreshAlignBtns(node.attrs.align);
 
             presets.addEventListener('mousedown', e => e.preventDefault()); // prevent editor blur
+            // Prevent toolbar touches from triggering keyboard on Android
+            presets.addEventListener('touchstart', e => {
+              if (!e.target.closest('.img-drag-handle')) e.preventDefault();
+            }, { passive: false });
             presets.addEventListener('click', (e) => {
               const btn = e.target.closest('button[data-size], button[data-align]');
               if (!btn) return;
               e.stopPropagation();
               const pos = getPos();
               if (btn.dataset.size) {
-                editor.chain().focus().command(({ tr }) => {
+                editor.chain().command(({ tr }) => {
                   tr.setNodeMarkup(pos, undefined, { ...currentAttrs, width: btn.dataset.size });
                   return true;
                 }).run();
               } else if ('align' in btn.dataset) {
-                editor.chain().focus().command(({ tr }) => {
+                editor.chain().command(({ tr }) => {
                   tr.setNodeMarkup(pos, undefined, { ...currentAttrs, align: btn.dataset.align });
                   return true;
                 }).run();
               }
             });
 
-            // Select on click
+            // Tap image: select without focusing editor (no keyboard on Android)
+            container.addEventListener('touchstart', (e) => {
+              if (e.target.closest('.img-drag-handle')) return; // let drag handle through
+              e.preventDefault();
+            }, { passive: false });
+            container.addEventListener('touchend', (e) => {
+              if (e.target.closest('.img-drag-handle')) return;
+              e.preventDefault();
+              const pos = getPos();
+              if (typeof pos === 'number') {
+                editor.view.dispatch(
+                  editor.view.state.tr.setSelection(NodeSelection.create(editor.view.state.doc, pos))
+                );
+              }
+            }, { passive: false });
+
+            // Select on click (desktop)
             container.addEventListener('click', () => {
               editor.commands.setNodeSelection(getPos());
             });
