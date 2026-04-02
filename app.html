@@ -10601,7 +10601,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '4.35.10';
+    const VERSION = '4.35.11';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -20076,12 +20076,12 @@
         btnsEl.innerHTML = `
           <div style="display:flex;flex-direction:column;gap:8px;width:100%">
             <div style="display:flex;gap:8px">
-              <button class="rtn-log-btn primary" onclick="saveRoutinesVisit()">Update date</button>
-              <button class="rtn-log-btn cancel" onclick="openRoutinesDayInWeek()">📅 Open day</button>
+              <button class="rtn-log-btn primary" onclick="saveRoutinesVisit()" title="Update date"><svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3,11 9,17 19,5"/></svg></button>
+              <button class="rtn-log-btn cancel" onclick="openRoutinesDayInWeek()" title="Open day"><svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="16" height="15" rx="2"/><line x1="3" y1="9" x2="19" y2="9"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="14" y1="2" x2="14" y2="6"/></svg></button>
             </div>
             <div style="display:flex;gap:8px">
-              <button class="rtn-log-btn danger" onclick="removeRoutinesVisit()">Remove</button>
-              <button class="rtn-log-btn cancel" onclick="closeRoutinesLogModal()">Cancel</button>
+              <button class="rtn-log-btn danger" onclick="removeRoutinesVisit()" title="Remove"><svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4,7 18,7"/><path d="M8,7V5a1,1,0,0,1,1-1h4a1,1,0,0,1,1,1v2"/><path d="M7,7l1,11h6l1-11"/></svg></button>
+              <button class="rtn-log-btn cancel" onclick="closeRoutinesLogModal()" title="Cancel"><svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="6" y1="6" x2="16" y2="16"/><line x1="16" y1="6" x2="6" y2="16"/></svg></button>
             </div>
           </div>`;
       } else if (manual) {
@@ -20091,12 +20091,12 @@
         btnsEl.innerHTML = `
           <div style="display:flex;flex-direction:column;gap:8px;width:100%">
             <div style="display:flex;gap:8px">
-              <button class="rtn-log-btn primary" onclick="saveRoutinesVisit()">Update</button>
-              <button class="rtn-log-btn cancel" onclick="openRoutinesDayInWeek()">📅 Open day</button>
+              <button class="rtn-log-btn primary" onclick="saveRoutinesVisit()" title="Update"><svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3,11 9,17 19,5"/></svg></button>
+              <button class="rtn-log-btn cancel" onclick="openRoutinesDayInWeek()" title="Open day"><svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="16" height="15" rx="2"/><line x1="3" y1="9" x2="19" y2="9"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="14" y1="2" x2="14" y2="6"/></svg></button>
             </div>
             <div style="display:flex;gap:8px">
-              <button class="rtn-log-btn danger" onclick="removeRoutinesVisit()">Remove</button>
-              <button class="rtn-log-btn cancel" onclick="closeRoutinesLogModal()">Cancel</button>
+              <button class="rtn-log-btn danger" onclick="removeRoutinesVisit()" title="Remove"><svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4,7 18,7"/><path d="M8,7V5a1,1,0,0,1,1-1h4a1,1,0,0,1,1,1v2"/><path d="M7,7l1,11h6l1-11"/></svg></button>
+              <button class="rtn-log-btn cancel" onclick="closeRoutinesLogModal()" title="Cancel"><svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="6" y1="6" x2="16" y2="16"/><line x1="16" y1="6" x2="6" y2="16"/></svg></button>
             </div>
           </div>`;
       } else {
@@ -20107,8 +20107,8 @@
         const defaultDay = (today.getFullYear() === year && today.getMonth() + 1 === month) ? today.getDate() : 1;
         dateEl.value = year + '-' + String(month).padStart(2, '0') + '-' + String(defaultDay).padStart(2, '0');
         btnsEl.innerHTML = `
-          <button class="rtn-log-btn primary" onclick="saveRoutinesVisit()">Log visit</button>
-          <button class="rtn-log-btn cancel" onclick="closeRoutinesLogModal()">Cancel</button>`;
+          <button class="rtn-log-btn primary" onclick="saveRoutinesVisit()" title="Log visit"><svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3,11 9,17 19,5"/></svg></button>
+          <button class="rtn-log-btn cancel" onclick="closeRoutinesLogModal()" title="Cancel"><svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="6" y1="6" x2="16" y2="16"/><line x1="16" y1="6" x2="6" y2="16"/></svg></button>`;
       }
 
       document.getElementById('rtn-log-modal').classList.add('open');
@@ -20123,12 +20123,9 @@
     function openRoutinesDayInWeek() {
       const dateEl = document.getElementById('rtn-log-date');
       if (!dateEl || !dateEl.value) return;
-      const fridayStr = getNearestFriday(dateEl.value);
+      const dateStr = dateEl.value;
       closeRoutinesLogModal();
-      state.view = 'week';
-      localStorage.setItem('lastView', 'week');
-      window.scrollTo(0, 0);
-      loadWeek(fridayStr);
+      goToFaultDay(dateStr, null);
     }
 
     async function saveRoutinesVisit() {
