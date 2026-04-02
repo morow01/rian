@@ -10605,7 +10605,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '4.35.13';
+    const VERSION = '4.35.14';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -10876,21 +10876,37 @@
         scheduleNotesSave();
         render();
       } else {
-        // Activity location
+        // Activity location — surgical DOM update, no render() to avoid triggering password manager
         if (di === null || !actId) return;
         const act = state.weekData.days[di].activities.find(a => a.id === actId);
         if (!act) return;
         act.location = val;
         scheduleAutoSave();
-        const locEl = document.querySelector(`[data-row-loc="${actId}"]`);
-        if (locEl) locEl.innerHTML = val
-          ? `<svg width="13" height="13" viewBox="0 0 24 24" fill="#e8453c" style="display:inline-block;vertical-align:-2px;margin-right:2px;"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 010-5 2.5 2.5 0 010 5z"/></svg>${esc(val)}`
-          : '<span style="opacity:0.4">No location</span>';
-        render();
+        const pinSvg = `<svg width="13" height="13" viewBox="0 0 24 24" fill="#e8453c" style="display:inline-block;vertical-align:-2px;margin-right:2px;"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 010-5 2.5 2.5 0 010 5z"/></svg>`;
+        const locHtml = val ? `${pinSvg}${esc(val)}` : '<span style="opacity:0.4">No location</span>';
+        // Collapsed card row
+        const rowLocEl = document.querySelector(`[data-row-loc="${actId}"]`);
+        if (rowLocEl) rowLocEl.innerHTML = locHtml;
+        // Expanded card location button
+        const cardLocEl = document.querySelector(`[data-field="location"][data-act="${actId}"]`);
+        if (cardLocEl) {
+          cardLocEl.textContent = val || 'Town name or code…';
+          cardLocEl.style.color = val ? '' : 'var(--text-muted)';
+        }
+        // Table view location button
+        const tblLocEl = document.querySelector(`[data-loc-btn="${actId}"]`);
+        if (tblLocEl) {
+          tblLocEl.textContent = val || 'Location…';
+          tblLocEl.style.color = val ? '' : 'var(--text-muted)';
+        }
       }
     }
 
     function closeLocationModal() {
+      // Clear input before hiding — prevents password managers from treating
+      // the filled field disappearing as a form submission and offering to save
+      const searchEl = document.getElementById('location-search');
+      if (searchEl) searchEl.value = '';
       document.getElementById('location-modal').classList.add('hidden');
       locationModalCtx = { actId: null, dayIndex: null, noteId: null, _results: [] };
     }
@@ -12992,6 +13008,7 @@
         <div class="location-wrap">
           <div class="tbl-act-input" role="button" tabindex="0"
             style="cursor:pointer;user-select:none;${act.location ? '' : 'color:var(--text-muted)'}"
+            data-loc-btn="${act.id}"
             onclick="openLocationModal(${di}, '${act.id}')">${act.location ? esc(act.location) : 'Location…'}</div>
         </div>
       </td>
