@@ -10601,7 +10601,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '4.35.6';
+    const VERSION = '4.35.7';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -16423,16 +16423,15 @@
         document.body.appendChild(ghost);
         wrap.style.opacity = '0.35';
 
-        // Drop line shown between blocks
+        // Drop line — position:fixed so overflow:hidden on the editor doesn't clip it
         const dropLine = document.createElement('div');
-        dropLine.style.cssText = `position:absolute;left:8px;right:8px;height:3px;
+        dropLine.style.cssText = `position:fixed;height:3px;
           background:#818cf8;border-radius:2px;pointer-events:none;z-index:9999;display:none;`;
-        editorDom.style.position = 'relative';
-        editorDom.appendChild(dropLine);
+        document.body.appendChild(dropLine);
 
         // Snapshot block positions from live document
         const blockInfos = [];
-        const domKids = Array.from(editorDom.children).filter(el => el !== dropLine);
+        const domKids = Array.from(editorDom.children);
         let ki = 0;
         _tiptapEditor.state.doc.forEach((node, offset) => {
           if (domKids[ki]) blockInfos.push({ dom: domKids[ki], offset, size: node.nodeSize });
@@ -16445,21 +16444,27 @@
           ghost.style.left = (ev.clientX - offsetX) + 'px';
           ghost.style.top  = (ev.clientY - offsetY) + 'px';
           const y = ev.clientY;
-          let lineY = null;
+          let lineViewportY = null;
           targetInsertPos = _tiptapEditor.state.doc.content.size; // default: end
           for (const info of blockInfos) {
             if (info.dom === wrap) continue;
             const r = info.dom.getBoundingClientRect();
             if (y < r.top + r.height / 2) {
               targetInsertPos = info.offset;
-              lineY = r.top - editorRect.top - 2;
+              lineViewportY = r.top - 2;
               break;
             }
             targetInsertPos = info.offset + info.size;
-            lineY = r.bottom - editorRect.top + 2;
+            lineViewportY = r.bottom + 2;
           }
-          dropLine.style.display = lineY !== null ? 'block' : 'none';
-          if (lineY !== null) dropLine.style.top = lineY + 'px';
+          if (lineViewportY !== null) {
+            dropLine.style.display = 'block';
+            dropLine.style.top   = lineViewportY + 'px';
+            dropLine.style.left  = editorRect.left + 'px';
+            dropLine.style.right = (window.innerWidth - editorRect.right) + 'px';
+          } else {
+            dropLine.style.display = 'none';
+          }
         }
 
         function onUp() {
@@ -16481,12 +16486,12 @@
             // Skip if target is inside the image node itself
             if (targetInsertPos >= imgPos && targetInsertPos <= imgPos + imgNode.nodeSize) return;
             const tr = state.tr;
-            // Positions shift after delete — adjust if moving forward
-            const adjTarget = targetInsertPos > imgPos
-              ? targetInsertPos - imgNode.nodeSize
-              : targetInsertPos;
+            // Delete first, then map targetInsertPos through the deletion.
+            // This is safer than manual arithmetic — ProseMirror's mapping
+            // correctly handles landing on block boundaries.
             tr.delete(imgPos, imgPos + imgNode.nodeSize);
-            tr.insert(Math.max(0, Math.min(adjTarget, tr.doc.content.size)), imgNode);
+            const mappedTarget = tr.mapping.map(targetInsertPos);
+            tr.insert(Math.max(0, Math.min(mappedTarget, tr.doc.content.size)), imgNode);
             _tiptapEditor.view.dispatch(tr);
           } catch(err) { console.warn('img drag:', err); }
         }
