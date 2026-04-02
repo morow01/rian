@@ -10584,7 +10584,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '4.34.8';
+    const VERSION = '4.34.9';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -23631,24 +23631,25 @@ QUESTION: ${query}`;
             if (node.attrs.title) img.title = node.attrs.title;
             img.classList.add('tt-resizable-img');
 
-            // Apply width + alignment (margin-based, not float — float doesn't work
-            // reliably inside ProseMirror's block model / contenteditable on mobile)
+            // Apply width + alignment. Margins go on the IMAGE (which has a specific
+            // width e.g. 50%), NOT the container (which is always 100% wide —
+            // margins on a full-width block do nothing visible).
             const applyAttrs = (attrs) => {
               img.style.width = attrs.width || '50%';
-              const align = attrs.align || 'none';
+              img.style.display = 'block'; // block so auto-margins work
               container.style.display = 'block';
               container.style.float = '';
-              container.style.clear = '';
+              const align = attrs.align || 'none';
               if (align === 'left') {
-                container.style.marginLeft = '0';
-                container.style.marginRight = 'auto';
+                img.style.marginLeft = '0';
+                img.style.marginRight = 'auto';
               } else if (align === 'right') {
-                container.style.marginLeft = 'auto';
-                container.style.marginRight = '0';
+                img.style.marginLeft = 'auto';
+                img.style.marginRight = '0';
               } else {
-                // Default: centered
-                container.style.marginLeft = 'auto';
-                container.style.marginRight = 'auto';
+                // Center (default)
+                img.style.marginLeft = 'auto';
+                img.style.marginRight = 'auto';
               }
             };
             applyAttrs(node.attrs);
