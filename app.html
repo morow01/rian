@@ -10601,7 +10601,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '4.35.4';
+    const VERSION = '4.35.5';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -23761,11 +23761,7 @@ QUESTION: ${query}`;
             };
             refreshAlignBtns(node.attrs.align);
 
-            presets.addEventListener('mousedown', e => e.preventDefault()); // prevent editor blur
-            // Prevent toolbar touches from triggering keyboard on Android
-            presets.addEventListener('touchstart', e => {
-              if (!e.target.closest('.img-drag-handle')) e.preventDefault();
-            }, { passive: false });
+            presets.addEventListener('mousedown', e => e.preventDefault()); // prevent editor blur on desktop
             presets.addEventListener('click', (e) => {
               const btn = e.target.closest('button[data-size], button[data-align]');
               if (!btn) return;
@@ -23784,23 +23780,24 @@ QUESTION: ${query}`;
               }
             });
 
-            // Tap image: select without focusing editor (no keyboard on Android)
+            // Android: prevent keyboard when tapping the image itself.
+            // IMPORTANT: skip presets targets so toolbar button clicks still fire,
+            // and skip the drag handle so initImageDrag's pointerdown still fires.
             container.addEventListener('touchstart', (e) => {
-              if (e.target.closest('.img-drag-handle')) return; // let drag handle through
-              e.preventDefault();
+              if (e.target.closest('.img-drag-handle')) return;    // drag: allow through
+              if (e.target.closest('.img-resize-presets')) return; // toolbar: allow click
+              e.preventDefault(); // stops contenteditable focus → no keyboard
             }, { passive: false });
             container.addEventListener('touchend', (e) => {
               if (e.target.closest('.img-drag-handle')) return;
-              e.preventDefault();
+              if (e.target.closest('.img-resize-presets')) return;
               const pos = getPos();
               if (typeof pos === 'number') {
-                editor.view.dispatch(
-                  editor.view.state.tr.setSelection(NodeSelection.create(editor.view.state.doc, pos))
-                );
+                editor.commands.setNodeSelection(pos); // select without editor.focus()
               }
             }, { passive: false });
 
-            // Select on click (desktop)
+            // Select on click (desktop / synthetic click from touch)
             container.addEventListener('click', () => {
               editor.commands.setNodeSelection(getPos());
             });
