@@ -4725,6 +4725,9 @@
       outline: 2px solid #818cf8;
       border-radius: 8px;
     }
+    /* Suppress Chrome's native embedded-object resize handle */
+    .img-resize-wrap::after { display: none !important; }
+    .img-resize-wrap img { -webkit-user-drag: none; }
     .img-resize-presets .preset-divider {
       width: 1px;
       background: rgba(255,255,255,0.2);
@@ -4743,12 +4746,11 @@
     .img-resize-presets {
       position: absolute;
       top: -48px;
-      z-index: 10;
       left: 50%;
       transform: translateX(-50%);
       display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
+      flex-wrap: nowrap;         /* always single row */
+      align-items: center;
       gap: 3px;
       background: rgba(20,20,30,0.88);
       backdrop-filter: blur(10px);
@@ -4758,8 +4760,8 @@
       opacity: 0;
       pointer-events: none;
       transition: opacity 0.15s;
-      z-index: 3;
-      max-width: min(320px, 92vw);
+      z-index: 10;
+      white-space: nowrap;
       box-shadow: 0 2px 12px rgba(0,0,0,0.25);
     }
     .img-resize-wrap.selected .img-resize-presets {
@@ -10586,7 +10588,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '4.35.0';
+    const VERSION = '4.35.1';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
