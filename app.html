@@ -10601,7 +10601,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '4.35.8';
+    const VERSION = '4.35.9';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -23704,8 +23704,6 @@ QUESTION: ${query}`;
             const presets = document.createElement('div');
             presets.classList.add('img-resize-presets');
             presets.innerHTML = `
-              <button class="img-drag-handle" title="Drag to move">⠿</button>
-              <span class="preset-divider"></span>
               <button data-align="left" title="Left (no wrap)">
                 <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-linecap="round">
                   <rect x="1" y="1" width="6" height="5" rx="1" fill="currentColor" stroke="none" opacity="0.85"/>
@@ -23785,24 +23783,141 @@ QUESTION: ${query}`;
               }
             });
 
-            // Android: prevent keyboard when tapping the image itself.
-            // IMPORTANT: skip presets targets so toolbar button clicks still fire,
-            // and skip the drag handle so initImageDrag's pointerdown still fires.
+            // ── Long-press-to-drag (Android) ──────────────────────────────
+            // Tap  → select image (no keyboard)
+            // Hold → 500 ms → enter drag mode (ghost + blue drop line)
+            let _lpTimer = null, _lpActive = false;
+            let _lpX0 = 0, _lpY0 = 0;
+            let _lpGhost = null, _lpDropLine = null;
+            let _lpDragState = null, _lpTargetPos = null, _lpBlocks = [];
+
+            function _lpStart(cx, cy) {
+              navigator.vibrate?.(30);
+              document.body.style.userSelect = 'none';
+              document.body.style.webkitUserSelect = 'none';
+              const wr = container.getBoundingClientRect();
+              _lpGhost = document.createElement('div');
+              _lpGhost.style.cssText = `position:fixed;left:${wr.left}px;top:${wr.top}px;
+                width:${wr.width}px;height:${wr.height}px;
+                border:2.5px dashed #818cf8;border-radius:10px;
+                background:rgba(129,140,248,0.09);pointer-events:none;z-index:10000;`;
+              document.body.appendChild(_lpGhost);
+              container.style.opacity = '0.35';
+              _lpDropLine = document.createElement('div');
+              _lpDropLine.style.cssText = `position:fixed;height:3px;background:#818cf8;
+                border-radius:2px;pointer-events:none;z-index:9999;display:none;`;
+              document.body.appendChild(_lpDropLine);
+              const ed = editor.view.dom;
+              const er = ed.getBoundingClientRect();
+              _lpBlocks = [];
+              let ki = 0;
+              const kids = Array.from(ed.children);
+              editor.state.doc.forEach((nd, off) => {
+                if (kids[ki]) _lpBlocks.push({ dom: kids[ki], offset: off, size: nd.nodeSize });
+                ki++;
+              });
+              _lpTargetPos = null;
+              _lpDragState = { ox: cx - wr.left, oy: cy - wr.top, er };
+            }
+
+            function _lpMove(cx, cy) {
+              if (!_lpGhost || !_lpDragState) return;
+              const { ox, oy, er } = _lpDragState;
+              _lpGhost.style.left = (cx - ox) + 'px';
+              _lpGhost.style.top  = (cy - oy) + 'px';
+              _lpTargetPos = editor.state.doc.content.size;
+              let lineY = null;
+              for (const b of _lpBlocks) {
+                if (b.dom === container) continue;
+                const r = b.dom.getBoundingClientRect();
+                if (cy < r.top + r.height / 2) {
+                  _lpTargetPos = b.offset; lineY = r.top - 2; break;
+                }
+                _lpTargetPos = b.offset + b.size; lineY = r.bottom + 2;
+              }
+              if (lineY !== null) {
+                _lpDropLine.style.display = 'block';
+                _lpDropLine.style.top   = lineY + 'px';
+                _lpDropLine.style.left  = er.left + 'px';
+                _lpDropLine.style.right = (window.innerWidth - er.right) + 'px';
+              } else {
+                _lpDropLine.style.display = 'none';
+              }
+            }
+
+            function _lpEnd() {
+              if (_lpGhost)    { _lpGhost.remove();    _lpGhost = null; }
+              if (_lpDropLine) { _lpDropLine.remove(); _lpDropLine = null; }
+              container.style.opacity = '';
+              document.body.style.userSelect = '';
+              document.body.style.webkitUserSelect = '';
+              const tgt = _lpTargetPos;
+              _lpTargetPos = null; _lpBlocks = []; _lpDragState = null;
+              if (tgt === null) return;
+              try {
+                const imgPos = getPos();
+                if (imgPos == null) return;
+                const state = editor.state;
+                const imgNode = state.doc.nodeAt(imgPos);
+                if (!imgNode) return;
+                if (tgt >= imgPos && tgt <= imgPos + imgNode.nodeSize) return;
+                const tr = state.tr;
+                tr.delete(imgPos, imgPos + imgNode.nodeSize);
+                const mapped = tr.mapping.map(tgt);
+                tr.insert(Math.max(0, Math.min(mapped, tr.doc.content.size)), imgNode);
+                editor.view.dispatch(tr);
+              } catch(err) { console.warn('img drag:', err); }
+            }
+
+            function _lpCancel() {
+              if (_lpTimer) { clearTimeout(_lpTimer); _lpTimer = null; }
+              if (_lpActive) {
+                _lpActive = false;
+                if (_lpGhost) { _lpGhost.remove(); _lpGhost = null; }
+                if (_lpDropLine) { _lpDropLine.remove(); _lpDropLine = null; }
+                container.style.opacity = '';
+                document.body.style.userSelect = '';
+                document.body.style.webkitUserSelect = '';
+                _lpTargetPos = null; _lpBlocks = []; _lpDragState = null;
+              }
+            }
+
             container.addEventListener('touchstart', (e) => {
-              if (e.target.closest('.img-drag-handle')) return;    // drag: allow through
-              if (e.target.closest('.img-resize-presets')) return; // toolbar: allow click
-              e.preventDefault(); // stops contenteditable focus → no keyboard
+              if (e.target.closest('.img-resize-presets')) return; // toolbar handles itself
+              e.preventDefault(); // prevent keyboard + synthetic mouse events
+              const t = e.touches[0];
+              _lpX0 = t.clientX; _lpY0 = t.clientY; _lpActive = false;
+              _lpTimer = setTimeout(() => {
+                _lpTimer = null; _lpActive = true;
+                _lpStart(_lpX0, _lpY0);
+              }, 500);
             }, { passive: false });
+
+            container.addEventListener('touchmove', (e) => {
+              const t = e.touches[0];
+              if (_lpTimer) {
+                if (Math.abs(t.clientX - _lpX0) > 8 || Math.abs(t.clientY - _lpY0) > 8) {
+                  clearTimeout(_lpTimer); _lpTimer = null; // moved — cancel long-press
+                }
+                return;
+              }
+              if (_lpActive) { e.preventDefault(); _lpMove(t.clientX, t.clientY); }
+            }, { passive: false });
+
             container.addEventListener('touchend', (e) => {
-              if (e.target.closest('.img-drag-handle')) return;
-              if (e.target.closest('.img-resize-presets')) return;
-              const pos = getPos();
-              if (typeof pos === 'number') {
-                editor.commands.setNodeSelection(pos); // select without editor.focus()
+              if (_lpTimer) {
+                clearTimeout(_lpTimer); _lpTimer = null;
+                // Short tap: select image without opening keyboard
+                const pos = getPos();
+                if (typeof pos === 'number') editor.commands.setNodeSelection(pos);
+              } else if (_lpActive) {
+                _lpActive = false; _lpEnd();
               }
             }, { passive: false });
 
-            // Select on click (desktop / synthetic click from touch)
+            container.addEventListener('touchcancel', _lpCancel);
+
+            // Desktop: click to select
             container.addEventListener('click', () => {
               editor.commands.setNodeSelection(getPos());
             });
