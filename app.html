@@ -959,10 +959,12 @@
       align-items: center;
       justify-content: center;
     }
+
     .act-remedy-flag-btn:hover {
       opacity: 0.7;
-      background: rgba(124,58,237,0.08);
+      background: rgba(124, 58, 237, 0.08);
     }
+
     .act-remedy-flag-btn.active {
       opacity: 1;
     }
@@ -984,15 +986,18 @@
       cursor: pointer;
       transition: background 0.15s, color 0.15s, border-color 0.15s;
     }
+
     .act-remedy-btn.active {
       background: #7c3aed;
       color: #fff;
       border-color: #7c3aed;
     }
+
     .activity-card.remedy-flagged {
       border-color: #7c3aed !important;
-      box-shadow: 0 0 0 3px rgba(124,58,237,0.13);
+      box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.13);
     }
+
     .pill-remedy {
       display: inline-flex;
       align-items: center;
@@ -1004,6 +1009,7 @@
       font-size: 11px;
       font-weight: 700;
     }
+
     .remedy-banner {
       background: #7c3aed;
       color: #fff;
@@ -1016,15 +1022,17 @@
       font-size: 13px;
       font-weight: 700;
     }
+
     .remedy-banner-due {
       margin-left: auto;
       font-size: 11px;
       font-weight: 600;
       opacity: 0.85;
     }
+
     .remedy-banner-due.urgent {
       opacity: 1;
-      background: rgba(255,255,255,0.2);
+      background: rgba(255, 255, 255, 0.2);
       border-radius: 8px;
       padding: 2px 8px;
     }
@@ -3953,7 +3961,8 @@
       padding: 16px;
       font-size: 14px;
       line-height: 1.7;
-      overflow: hidden; /* clearfix: contains floated images */
+      overflow: hidden;
+      /* clearfix: contains floated images */
       color: #3A3836;
       min-height: 200px;
     }
@@ -4288,6 +4297,7 @@
       .tt-link-bbl-btn {
         padding: 3px 5px;
       }
+
       .tt-link-bbl-btn svg {
         width: 14px;
         height: 14px;
@@ -4560,9 +4570,21 @@
       -webkit-user-select: none;
       -webkit-tap-highlight-color: transparent;
     }
-    .tt-drag-handle:active { cursor: grabbing; color: #9C9A96; }
-    .tt-task-drag-ghost { opacity: 0.3; }
-    .tt-prose .tt-drag-handle { display: none; } /* hide in read-only previews */
+
+    .tt-drag-handle:active {
+      cursor: grabbing;
+      color: #9C9A96;
+    }
+
+    .tt-task-drag-ghost {
+      opacity: 0.3;
+    }
+
+    .tt-prose .tt-drag-handle {
+      display: none;
+    }
+
+    /* hide in read-only previews */
 
     /* Tables */
     :is(#note-fs-editor .ProseMirror, .tt-prose) table {
@@ -4779,7 +4801,7 @@
 
     .tcp-btn.tcp-merge {
       font-weight: 600;
-      border-color: rgba(0,0,0,0.18);
+      border-color: rgba(0, 0, 0, 0.18);
     }
 
     /* Images */
@@ -4789,6 +4811,7 @@
       margin: 6px 0;
       display: block;
     }
+
     /* NodeView images sit inside img-resize-wrap — the 6px margin creates a gap
        between the outline and the image. Zero it out; spacing is handled by the container. */
     #note-fs-editor .ProseMirror .img-resize-wrap img {
@@ -4801,41 +4824,66 @@
       display: inline-block;
       max-width: 100%;
       margin: 6px 0;
-      margin-top: 44px; /* space for toolbar above */
+      margin-top: 44px;
+      /* space for toolbar above */
       line-height: 0;
       overflow: visible;
     }
+
     .img-resize-wrap .tt-resizable-img {
       max-width: 100%;
       border-radius: 8px;
       display: block;
       cursor: default;
     }
+
     .img-resize-wrap.selected {
       outline: 2px solid #818cf8;
       border-radius: 8px;
     }
+
     /* Suppress Chrome's native embedded-object resize handle */
-    .img-resize-wrap::after { display: none !important; }
-    .img-resize-wrap img { -webkit-user-drag: none; }
+    .img-resize-wrap::after {
+      display: none !important;
+    }
+
+    .img-resize-wrap img {
+      -webkit-user-drag: none;
+    }
+
     /* Anchor toolbar to the near edge when image is floated, so it never clips off-screen */
-    .img-resize-wrap[data-float="left"]  .img-resize-presets { left: 0; transform: none; }
-    .img-resize-wrap[data-float="right"] .img-resize-presets { left: auto; right: 0; transform: none; }
+    .img-resize-wrap[data-float="left"] .img-resize-presets {
+      left: 0;
+      transform: none;
+    }
+
+    .img-resize-wrap[data-float="right"] .img-resize-presets {
+      left: auto;
+      right: 0;
+      transform: none;
+    }
+
     .img-resize-presets .preset-divider {
       width: 1px;
-      background: rgba(255,255,255,0.2);
+      background: rgba(255, 255, 255, 0.2);
       margin: 4px 2px;
       align-self: stretch;
     }
+
     .img-resize-presets button.active-align {
-      background: rgba(129,140,248,0.5);
+      background: rgba(129, 140, 248, 0.5);
     }
+
     .img-drag-handle {
       cursor: grab !important;
       letter-spacing: -1px;
       touch-action: none;
     }
-    .img-drag-handle:active { cursor: grabbing !important; }
+
+    .img-drag-handle:active {
+      cursor: grabbing !important;
+    }
+
     .img-resize-presets {
       position: absolute;
       top: -48px;
@@ -4845,7 +4893,7 @@
       flex-wrap: nowrap;
       align-items: center;
       gap: 3px;
-      background: rgba(20,20,30,0.88);
+      background: rgba(20, 20, 30, 0.88);
       backdrop-filter: blur(10px);
       -webkit-backdrop-filter: blur(10px);
       border-radius: 10px;
@@ -4855,19 +4903,24 @@
       transition: opacity 0.15s;
       z-index: 10;
       white-space: nowrap;
-      box-shadow: 0 2px 12px rgba(0,0,0,0.25);
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.25);
       /* Prevent clipping on narrow screens */
       max-width: calc(100vw - 16px);
       overflow-x: auto;
       scrollbar-width: none;
     }
-    .img-resize-presets::-webkit-scrollbar { display: none; }
+
+    .img-resize-presets::-webkit-scrollbar {
+      display: none;
+    }
+
     .img-resize-wrap.selected .img-resize-presets {
       opacity: 1;
       pointer-events: auto;
     }
+
     .img-resize-presets button {
-      background: rgba(255,255,255,0.12);
+      background: rgba(255, 255, 255, 0.12);
       border: none;
       border-radius: 7px;
       color: #fff;
@@ -4884,9 +4937,10 @@
       align-items: center;
       justify-content: center;
     }
+
     .img-resize-presets button:hover,
     .img-resize-presets button:active {
-      background: rgba(255,255,255,0.3);
+      background: rgba(255, 255, 255, 0.3);
     }
 
     .ai-ask-btn {
@@ -5684,12 +5738,14 @@
       color: var(--text-muted);
       pointer-events: none;
     }
+
     .notes-tab-bar {
       display: flex;
       border-bottom: 1.5px solid var(--border);
       margin: 0 16px;
       gap: 0;
     }
+
     .notes-tab {
       flex: 1;
       padding: 10px 0 8px;
@@ -5706,10 +5762,12 @@
       gap: 5px;
       -webkit-tap-highlight-color: transparent;
     }
+
     .notes-tab.active {
       color: var(--text-primary);
       border-bottom-color: var(--accent);
     }
+
     .notes-tab .tab-count {
       font-size: 11px;
       font-weight: 700;
@@ -5722,48 +5780,90 @@
       justify-content: center;
       line-height: 1;
     }
-    .notes-tab.active .tab-count { background: var(--accent); color: #fff; }
-    .notes-tab:not(.active) .tab-count { background: rgba(0,0,0,0.06); color: var(--text-muted); }
-    .notes-tab .tab-count.archive-count { background: rgba(234,88,12,0.12); color: #ea580c; }
-    .notes-tab.active .tab-count.archive-count { background: #ea580c; color: #fff; }
-    .notes-tab .tab-count.bin-count { background: rgba(239,68,68,0.08); color: #ef4444; }
-    .notes-tab.active .tab-count.bin-count { background: #ef4444; color: #fff; }
+
+    .notes-tab.active .tab-count {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .notes-tab:not(.active) .tab-count {
+      background: rgba(0, 0, 0, 0.06);
+      color: var(--text-muted);
+    }
+
+    .notes-tab .tab-count.archive-count {
+      background: rgba(234, 88, 12, 0.12);
+      color: #ea580c;
+    }
+
+    .notes-tab.active .tab-count.archive-count {
+      background: #ea580c;
+      color: #fff;
+    }
+
+    .notes-tab .tab-count.bin-count {
+      background: rgba(239, 68, 68, 0.08);
+      color: #ef4444;
+    }
+
+    .notes-tab.active .tab-count.bin-count {
+      background: #ef4444;
+      color: #fff;
+    }
 
     /* ── Note preview bottom sheet ── */
     .note-preview-overlay {
       position: fixed;
       inset: 0;
-      background: rgba(0,0,0,0.35);
+      background: rgba(0, 0, 0, 0.35);
       z-index: 200;
       animation: overlayIn 0.2s ease;
     }
+
     @keyframes overlayIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
+      from {
+        opacity: 0;
+      }
+
+      to {
+        opacity: 1;
+      }
     }
+
     .note-preview-sheet {
       position: fixed;
-      left: 0; right: 0; bottom: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
       background: var(--bg-card);
       border-radius: 20px 20px 0 0;
       z-index: 201;
       max-height: 80vh;
       display: flex;
       flex-direction: column;
-      animation: sheetUp 0.25s cubic-bezier(0.32,0.72,0,1);
-      box-shadow: 0 -4px 32px rgba(0,0,0,0.18);
+      animation: sheetUp 0.25s cubic-bezier(0.32, 0.72, 0, 1);
+      box-shadow: 0 -4px 32px rgba(0, 0, 0, 0.18);
     }
+
     @keyframes sheetUp {
-      from { transform: translateY(100%); }
-      to { transform: translateY(0); }
+      from {
+        transform: translateY(100%);
+      }
+
+      to {
+        transform: translateY(0);
+      }
     }
+
     .note-preview-handle {
-      width: 36px; height: 4px;
+      width: 36px;
+      height: 4px;
       background: var(--border);
       border-radius: 99px;
       margin: 12px auto 0;
       flex-shrink: 0;
     }
+
     .note-preview-header {
       display: flex;
       align-items: flex-start;
@@ -5771,6 +5871,7 @@
       padding: 14px 18px 10px;
       flex-shrink: 0;
     }
+
     .note-preview-title {
       flex: 1;
       font-size: 16px;
@@ -5778,18 +5879,23 @@
       color: var(--text-primary);
       line-height: 1.3;
     }
+
     .note-preview-close {
-      width: 28px; height: 28px;
+      width: 28px;
+      height: 28px;
       border-radius: 99px;
       background: var(--bg-secondary, #F0EFEB);
       border: none;
       font-size: 18px;
       cursor: pointer;
       color: var(--text-muted);
-      display: flex; align-items: center; justify-content: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       flex-shrink: 0;
       line-height: 1;
     }
+
     .note-preview-meta {
       padding: 0 18px 10px;
       font-size: 12px;
@@ -5800,6 +5906,7 @@
       flex-shrink: 0;
       border-bottom: 1px solid var(--border);
     }
+
     .note-preview-body {
       flex: 1;
       overflow-y: auto;
@@ -5809,21 +5916,70 @@
       line-height: 1.65;
       -webkit-overflow-scrolling: touch;
     }
-    .note-preview-body img { max-width: 100%; border-radius: 8px; margin: 6px 0; }
-    .note-preview-body table { width: 100%; border-collapse: collapse; font-size: 13px; }
-    .note-preview-body th { background: #F5F4F0; font-weight: 600; font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: #6B6860; padding: 8px 12px; border-bottom: 2px solid #E2E0DA; }
-    .note-preview-body td { padding: 8px 12px; border-bottom: 1px solid #F0EFEB; }
-    .note-preview-body ul, .note-preview-body ol { padding-left: 20px; margin: 6px 0; }
-    .note-preview-body li { margin-bottom: 4px; }
-    .note-preview-body h1 { font-size: 20px; font-weight: 700; margin: 12px 0 6px; }
-    .note-preview-body h2 { font-size: 17px; font-weight: 700; margin: 10px 0 5px; }
-    .note-preview-body h3 { font-size: 15px; font-weight: 600; margin: 8px 0 4px; }
+
+    .note-preview-body img {
+      max-width: 100%;
+      border-radius: 8px;
+      margin: 6px 0;
+    }
+
+    .note-preview-body table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    .note-preview-body th {
+      background: #F5F4F0;
+      font-weight: 600;
+      font-size: 11px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #6B6860;
+      padding: 8px 12px;
+      border-bottom: 2px solid #E2E0DA;
+    }
+
+    .note-preview-body td {
+      padding: 8px 12px;
+      border-bottom: 1px solid #F0EFEB;
+    }
+
+    .note-preview-body ul,
+    .note-preview-body ol {
+      padding-left: 20px;
+      margin: 6px 0;
+    }
+
+    .note-preview-body li {
+      margin-bottom: 4px;
+    }
+
+    .note-preview-body h1 {
+      font-size: 20px;
+      font-weight: 700;
+      margin: 12px 0 6px;
+    }
+
+    .note-preview-body h2 {
+      font-size: 17px;
+      font-weight: 700;
+      margin: 10px 0 5px;
+    }
+
+    .note-preview-body h3 {
+      font-size: 15px;
+      font-weight: 600;
+      margin: 8px 0 4px;
+    }
+
     .note-preview-empty {
       color: var(--text-muted);
       font-style: italic;
       text-align: center;
       padding: 24px 0;
     }
+
     .note-preview-footer {
       padding: 12px 18px 20px;
       display: flex;
@@ -5831,6 +5987,7 @@
       flex-shrink: 0;
       border-top: 1px solid var(--border);
     }
+
     .note-preview-btn {
       flex: 1;
       padding: 12px 0;
@@ -5845,12 +6002,14 @@
       justify-content: center;
       gap: 6px;
     }
+
     .note-preview-btn.restore {
-      background: rgba(34,197,94,0.12);
+      background: rgba(34, 197, 94, 0.12);
       color: #22c55e;
     }
+
     .note-preview-btn.delete {
-      background: rgba(239,68,68,0.08);
+      background: rgba(239, 68, 68, 0.08);
       color: #ef4444;
     }
 
@@ -6967,7 +7126,8 @@
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
       transition: box-shadow 0.3s ease;
       position: relative;
-      transform: translateZ(0); /* Force GPU layer so overflow:hidden clips swipe row on tablet */
+      transform: translateZ(0);
+      /* Force GPU layer so overflow:hidden clips swipe row on tablet */
     }
 
     .note-card.expanded {
@@ -10691,7 +10851,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '4.35.23';
+    const VERSION = '4.35.24';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -12830,18 +12990,11 @@
       }, 60);
     }
 
-    function gotoRemedyTask(di, actId) {
-      // Expand the day and the specific activity card, then scroll to it
-      state.expandedDays.add(di);
-      if (actId) state.activitiesExpanded.add(actId);
-      render();
-      setTimeout(() => {
-        const card = document.querySelector(`.activity-card[data-act-id="${actId}"]`);
-        if (card) {
-          const y = card.getBoundingClientRect().top + window.scrollY - 72;
-          window.scrollTo({ top: Math.max(0, y), behavior: 'smooth' });
-        }
-      }, 80);
+    async function gotoRemedyTask(di, actId) {
+      // Delegate to the canonical async navigator so the task card fully expands
+      const day = state.weekData?.days[di];
+      if (!day) return;
+      await goToFaultDay(day.date, actId);
     }
 
     function renderRemedyBanner(weekData) {
@@ -16154,16 +16307,16 @@
       const archiveView = (notesTab === 'archive') ? `
         <div style="padding:0 16px 24px;">
           ${archiveNotes.length === 0
-            ? `<div class="notes-empty" style="margin-top:32px;">${_archiveQ ? `No archived notes match "<strong>${esc(_archiveQ)}</strong>"` : 'Archive is empty'}</div>`
-            : archiveNotes.map(n => {
-                const title = (n.description || 'Untitled note').replace(/<[^>]*>/g, '').trim();
-                const ago = n.archivedAt ? formatTimeAgo(n.archivedAt) : '';
-                const loc = n.location ? n.location.replace(/\s*\([^)]+\)\s*$/, '').trim() : '';
-                const dt = n.date ? formatDateShort(n.date) : '';
-                const metaBits = [];
-                if (loc) metaBits.push(`<span style="display:inline-flex;align-items:center;gap:3px;"><svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 010-5 2.5 2.5 0 010 5z"/></svg>${esc(loc)}</span>`);
-                if (dt) metaBits.push(`<span style="display:inline-flex;align-items:center;gap:3px;"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>${dt}</span>`);
-                return `<div style="background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:14px 16px;margin-bottom:10px;display:flex;align-items:center;gap:12px;">
+          ? `<div class="notes-empty" style="margin-top:32px;">${_archiveQ ? `No archived notes match "<strong>${esc(_archiveQ)}</strong>"` : 'Archive is empty'}</div>`
+          : archiveNotes.map(n => {
+            const title = (n.description || 'Untitled note').replace(/<[^>]*>/g, '').trim();
+            const ago = n.archivedAt ? formatTimeAgo(n.archivedAt) : '';
+            const loc = n.location ? n.location.replace(/\s*\([^)]+\)\s*$/, '').trim() : '';
+            const dt = n.date ? formatDateShort(n.date) : '';
+            const metaBits = [];
+            if (loc) metaBits.push(`<span style="display:inline-flex;align-items:center;gap:3px;"><svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 010-5 2.5 2.5 0 010 5z"/></svg>${esc(loc)}</span>`);
+            if (dt) metaBits.push(`<span style="display:inline-flex;align-items:center;gap:3px;"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>${dt}</span>`);
+            return `<div style="background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:14px 16px;margin-bottom:10px;display:flex;align-items:center;gap:12px;">
                   <div style="flex:1;min-width:0;cursor:pointer;" onclick="openNotePreview('${n.id}')">
                     <div style="font-size:14px;font-weight:600;color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${esc(title)}</div>
                     ${metaBits.length ? `<div style="display:flex;align-items:center;gap:8px;margin-top:4px;font-size:12px;color:var(--text-muted);">${metaBits.join('')}</div>` : ''}
@@ -16172,8 +16325,8 @@
                   <button onclick="unarchiveNote('${n.id}')" title="Restore" style="flex-shrink:0;background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.3);border-radius:8px;padding:7px;cursor:pointer;color:#22c55e;display:flex;align-items:center;justify-content:center;" title="Restore to notes"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg></button>
                   <button onclick="deleteNote('${n.id}')" title="Delete" style="flex-shrink:0;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.25);border-radius:8px;padding:7px;cursor:pointer;color:#ef4444;display:flex;align-items:center;justify-content:center;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button>
                 </div>`;
-              }).join('')
-          }
+          }).join('')
+        }
         </div>` : '';
 
       const binView = (notesTab === 'bin') ? `
@@ -16371,7 +16524,7 @@
     function initTaskSortable() {
       if (!_tiptapEditor) return;
       // Remove previous listener if any
-      _taskSortables.forEach(fn => { try { fn(); } catch(e){} });
+      _taskSortables.forEach(fn => { try { fn(); } catch (e) { } });
       _taskSortables = [];
 
       const editorDom = _tiptapEditor.view.dom; // .ProseMirror — stable for the lifetime of the editor
@@ -16495,7 +16648,7 @@
 
         function onMove(e) {
           ghostLeft = e.clientX - offsetX;
-          ghostTop  = e.clientY - offsetY;
+          ghostTop = e.clientY - offsetY;
           dropIndex = calcDrop(e.clientY);
           applyShifts(dropIndex);
         }
@@ -16568,7 +16721,7 @@
 
     function initImageDrag() {
       if (!_tiptapEditor) return;
-      _imageDragCleanups.forEach(fn => { try { fn(); } catch(e){} });
+      _imageDragCleanups.forEach(fn => { try { fn(); } catch (e) { } });
       _imageDragCleanups = [];
       const editorDom = _tiptapEditor.view.dom;
 
@@ -16623,7 +16776,7 @@
 
         function onMove(ev) {
           ghost.style.left = (ev.clientX - offsetX) + 'px';
-          ghost.style.top  = (ev.clientY - offsetY) + 'px';
+          ghost.style.top = (ev.clientY - offsetY) + 'px';
           const y = ev.clientY;
           let lineViewportY = null;
           targetInsertPos = _tiptapEditor.state.doc.content.size; // default: end
@@ -16640,8 +16793,8 @@
           }
           if (lineViewportY !== null) {
             dropLine.style.display = 'block';
-            dropLine.style.top   = lineViewportY + 'px';
-            dropLine.style.left  = editorRect.left + 'px';
+            dropLine.style.top = lineViewportY + 'px';
+            dropLine.style.left = editorRect.left + 'px';
             dropLine.style.right = (window.innerWidth - editorRect.right) + 'px';
           } else {
             dropLine.style.display = 'none';
@@ -16674,7 +16827,7 @@
             const mappedTarget = tr.mapping.map(targetInsertPos);
             tr.insert(Math.max(0, Math.min(mappedTarget, tr.doc.content.size)), imgNode);
             _tiptapEditor.view.dispatch(tr);
-          } catch(err) { console.warn('img drag:', err); }
+          } catch (err) { console.warn('img drag:', err); }
         }
 
         document.addEventListener('pointermove', onMove);
@@ -24029,7 +24182,7 @@ QUESTION: ${query}`;
               if (!_lpGhost || !_lpDragState) return;
               const { ox, oy, er } = _lpDragState;
               _lpGhost.style.left = (cx - ox) + 'px';
-              _lpGhost.style.top  = (cy - oy) + 'px';
+              _lpGhost.style.top = (cy - oy) + 'px';
               _lpTargetPos = editor.state.doc.content.size;
               let lineY = null;
               for (const b of _lpBlocks) {
@@ -24042,8 +24195,8 @@ QUESTION: ${query}`;
               }
               if (lineY !== null) {
                 _lpDropLine.style.display = 'block';
-                _lpDropLine.style.top   = lineY + 'px';
-                _lpDropLine.style.left  = er.left + 'px';
+                _lpDropLine.style.top = lineY + 'px';
+                _lpDropLine.style.left = er.left + 'px';
                 _lpDropLine.style.right = (window.innerWidth - er.right) + 'px';
               } else {
                 _lpDropLine.style.display = 'none';
@@ -24051,7 +24204,7 @@ QUESTION: ${query}`;
             }
 
             function _lpEnd() {
-              if (_lpGhost)    { _lpGhost.remove();    _lpGhost = null; }
+              if (_lpGhost) { _lpGhost.remove(); _lpGhost = null; }
               if (_lpDropLine) { _lpDropLine.remove(); _lpDropLine = null; }
               container.style.opacity = '';
               document.body.style.userSelect = '';
@@ -24071,7 +24224,7 @@ QUESTION: ${query}`;
                 const mapped = tr.mapping.map(tgt);
                 tr.insert(Math.max(0, Math.min(mapped, tr.doc.content.size)), imgNode);
                 editor.view.dispatch(tr);
-              } catch(err) { console.warn('img drag:', err); }
+              } catch (err) { console.warn('img drag:', err); }
             }
 
             function _lpCancel() {
@@ -25781,8 +25934,14 @@ QUESTION: ${query}`;
           <div class="tt-sep"></div>
           <!-- AI rephrase -->
           <button class="tt-btn" id="tt-ai-rephrase" title="Improve with AI" style="color:#818cf8;">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M12 8V4H8"/><rect x="4" y="8" width="16" height="12" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 8V4H8" />
+              <rect x="4" y="8" width="16" height="12" rx="2" />
+              <path d="M2 14h2" />
+              <path d="M20 14h2" />
+              <path d="M15 13v2" />
+              <path d="M9 13v2" />
             </svg>
           </button>
           <div class="tt-sep"></div>
@@ -26045,7 +26204,8 @@ QUESTION: ${query}`;
           <span class="tt-tbl-label" style="font-size:10px;opacity:0.7;">Cell</span>
           <button class="tt-swatch" id="tt-cell-bg-none" style="background:var(--bg-page);border-color:var(--border)"
             title="No fill"></button>
-          <button class="tt-swatch" id="tt-cell-bg-white" style="background:#ffffff;border-color:#e2e8f0" title="White"></button>
+          <button class="tt-swatch" id="tt-cell-bg-white" style="background:#ffffff;border-color:#e2e8f0"
+            title="White"></button>
           <button class="tt-swatch" id="tt-cell-bg-blue" style="background:#dbeafe" title="Blue"></button>
           <button class="tt-swatch" id="tt-cell-bg-green" style="background:#dcfce7" title="Green"></button>
           <button class="tt-swatch" id="tt-cell-bg-yellow" style="background:#fef9c3" title="Yellow"></button>
@@ -26236,27 +26396,4 @@ QUESTION: ${query}`;
     <button class="tt-link-bbl-btn" id="tt-link-bbl-remove" title="Remove link" onmousedown="event.preventDefault()">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
         stroke-linejoin="round">
-        <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
-        <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
-        <line x1="2" y1="2" x2="22" y2="22" />
-      </svg>
-    </button>
-  </div>
-
-  <!-- ===== RIAN CUSTOM DIALOG ===== -->
-  <div id="rian-dialog-overlay" role="dialog" aria-modal="true" onclick="_rdnOverlayClick(event)">
-    <div id="rian-dialog">
-      <div class="rdn-title" id="rdn-title"></div>
-      <div class="rdn-msg" id="rdn-msg"></div>
-      <input class="rdn-input" id="rdn-input" type="text" autocomplete="off"
-        data-lpignore="true" data-1p-ignore="true" data-form-type="other"
-        spellcheck="false" style="display:none">
-      <div class="rdn-actions" id="rdn-actions"></div>
-    </div>
-  </div>
-
-  <!-- ===== BOTTOM SPACER ===== -->
-  <div style="height:env(safe-area-inset-bottom,0)"></div>
-
-</body>
-</html>
+        <path d="M10 13a5 5
