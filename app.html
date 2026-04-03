@@ -10851,7 +10851,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '4.35.31';
+    const VERSION = '4.35.32';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -13160,46 +13160,44 @@
       </div>
     </div>
   </div>
-  ${(() => {
-    const _coEntries = state.callouts?.weeks?.[state.weekData.weekStart]?.callouts || [];
+  ${(function() {
+    var _coEntries = state.callouts && state.callouts.weeks && state.weekData ? (state.callouts.weeks[state.weekData.weekStart] && state.callouts.weeks[state.weekData.weekStart].callouts || []) : [];
     if (!_coEntries.length) return '';
-    const _MN = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-    const _coRows = _coEntries.map(co => {
-      const _dl = co.date ? (() => { const p = co.date.split('-'); return p[2].replace(/^0/,'') + '. ' + _MN[parseInt(p[1],10)-1]; })() : '—';
-      return \`<div class="sum-new-row" style="grid-template-columns:1fr auto auto;gap:8px;">
-        <div>
-          <div class="sum-row-code">\${_dl}</div>
-          <div class="sum-row-desc">\${esc(co.ticket || '—')}</div>
-          <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">\${esc((co.site||'').replace(/\s*\([^)]+\)$/,'') || '—')}</div>
-        </div>
-        <div></div>
-        <div></div>
-      </div>\`;
+    var _MN = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    var _coRows = _coEntries.map(function(co) {
+      var _dl = co.date ? (function() { var p = co.date.split('-'); return p[2].replace(/^0/,'') + '. ' + _MN[parseInt(p[1],10)-1]; })() : '\u2014';
+      var _site = co.site ? co.site.replace(/\s*\([^)]+\)$/, '') : '\u2014';
+      return '<div class="sum-new-row" style="grid-template-columns:1fr auto auto;gap:8px;">' +
+        '<div>' +
+          '<div class="sum-row-code">' + esc(_dl) + '</div>' +
+          '<div class="sum-row-desc">' + esc(co.ticket || '\u2014') + '</div>' +
+          '<div style="font-size:11px;color:var(--text-muted);margin-top:2px;">' + esc(_site) + '</div>' +
+        '</div><div></div><div></div></div>';
     }).join('');
-    return \`<div class="sum-section-hdr" style="margin-top:8px;">
-      <div class="sum-section-line"></div>
-      <div class="sum-section-label">Callouts</div>
-      <div class="sum-section-line"></div>
-    </div>
-    <div class="sum-section">
-      <div class="sum-table-wrap open">
-        <div class="sum-new-col-head">
-          <div class="sum-new-col-th">Date &amp; Ticket</div>
-          <div class="sum-new-col-th r"></div>
-          <div class="sum-new-col-th r"></div>
-        </div>
-        \${_coRows}
-        <div class="sum-new-footer">
-          <div class="sum-footer-label">Total</div>
-          <div class="sum-footer-totals">
-            <div class="sum-footer-item">
-              <div class="sum-footer-lbl">Callouts</div>
-              <div class="sum-footer-val">\${_coEntries.length}</div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>\`;
+    return '<div class="sum-section-hdr" style="margin-top:8px;">' +
+        '<div class="sum-section-line"></div>' +
+        '<div class="sum-section-label">Callouts</div>' +
+        '<div class="sum-section-line"></div>' +
+      '</div>' +
+      '<div class="sum-section">' +
+        '<div class="sum-table-wrap open">' +
+          '<div class="sum-new-col-head">' +
+            '<div class="sum-new-col-th">Date &amp; Ticket</div>' +
+            '<div class="sum-new-col-th r"></div>' +
+            '<div class="sum-new-col-th r"></div>' +
+          '</div>' +
+          _coRows +
+          '<div class="sum-new-footer">' +
+            '<div class="sum-footer-label">Total</div>' +
+            '<div class="sum-footer-totals">' +
+              '<div class="sum-footer-item">' +
+                '<div class="sum-footer-lbl">Callouts</div>' +
+                '<div class="sum-footer-val">' + _coEntries.length + '</div>' +
+              '</div>' +
+            '</div>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
   })()}`;
 
       const anomalyHtml = renderAnomalyBanner(state.weekData);
