@@ -944,6 +944,29 @@
       cursor: pointer;
     }
 
+    /* Remedy flag icon button in card header */
+    .act-remedy-flag-btn {
+      background: none;
+      border: none;
+      padding: 4px;
+      margin-right: 2px;
+      cursor: pointer;
+      border-radius: 6px;
+      flex-shrink: 0;
+      opacity: 0.35;
+      transition: opacity 0.15s, background 0.15s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .act-remedy-flag-btn:hover {
+      opacity: 0.7;
+      background: rgba(124,58,237,0.08);
+    }
+    .act-remedy-flag-btn.active {
+      opacity: 1;
+    }
+
     /* Remedy flag */
     .act-remedy-btn {
       flex: 1;
@@ -9724,7 +9747,8 @@
     }
 
     .anomaly-banner-body.open {
-      max-height: 400px;
+      max-height: 260px;
+      overflow-y: auto;
       border-top-width: 1px;
     }
 
@@ -10667,7 +10691,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '4.35.19';
+    const VERSION = '4.35.20';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -12844,10 +12868,8 @@
           day.activities.forEach(act => {
             if (act.remedyPending) {
               const today = new Date(); const dow = today.getDay();
-              const isUrgent = dow === 3 || dow === 4;
               const tagSvg = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7" stroke-width="3"/></svg>';
-              const label = isUrgent ? '— due today!' : '— due by Thursday';
-              remedyItems.push({ icon: tagSvg, msg: `<strong style="color:#7c3aed">${esc(day.dayName)}</strong>: <span style="color:#7c3aed">"${esc(act.description || 'Unnamed')}"</span> needs a Remedy ticket <span style="color:#7c3aed;font-weight:600">${label}</span>`, dayIdx: di, actId: act.id, isRemedy: true });
+              remedyItems.push({ icon: tagSvg, msg: `<strong style="color:#7c3aed">${esc(day.dayName)}</strong>: <span style="color:#7c3aed">"${esc(act.description || 'Unnamed')}"</span> needs a Remedy ticket`, dayIdx: di, actId: act.id, isRemedy: true });
             }
           });
         });
@@ -13679,6 +13701,7 @@
               </div>
             </div>
           </div>
+          <button class="act-remedy-flag-btn ${act.remedyPending ? 'active' : ''}" onclick="event.stopPropagation(); toggleRemedyFlag(${di}, '${act.id}')" title="Flag Remedy ticket needed"><svg width="14" height="14" viewBox="0 0 24 24" fill="${act.remedyPending ? '#7c3aed' : 'none'}" stroke="${act.remedyPending ? '#7c3aed' : 'var(--text-muted)'}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7" stroke-width="3"/></svg></button>
           <span class="chevron" style="font-size:14px;color:var(--text-muted);transform:${isExpanded ? 'rotate(90deg)' : 'rotate(0deg)'};transition:transform 0.2s;flex-shrink:0;">›</span>
         </div>
         <div class="activity-detail ${isExpanded ? 'open' : ''}" style="${isExpanded ? '' : 'display:none'}">
@@ -13784,7 +13807,6 @@
             </div>
 
             <div class="act-actions-row" style="gap:8px;border-top:1px solid var(--border);padding-top:14px;margin-top:8px;margin-left:-16px;margin-right:-16px;padding-left:16px;padding-right:16px;">
-              <button class="act-remedy-btn ${act.remedyPending ? 'active' : ''}" onclick="toggleRemedyFlag(${di}, '${act.id}')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7" stroke-width="3"/></svg> Remedy</button>
               <button onclick="showConfirm('Delete task?','${escAttr(act.description || 'Unnamed')}',()=>removeActivity('${act.id}',${di}))" class="act-action-btn act-action-delete">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
                 Delete
