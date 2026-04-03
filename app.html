@@ -10930,7 +10930,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '4.35.39';
+    const VERSION = '4.35.40';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -11585,6 +11585,7 @@
 
     let codeModalCtx = { dayIndex: null, activityId: null, selected: [] };
     let saveTimer = null;
+    let _loadWeekInProgress = false;
     let db = null;
     let weekUnsubscribe = null;
 
@@ -11611,6 +11612,29 @@
     }
     function _raiseHWM(weekStart, hours) {
       if (hours > _getHWM(weekStart)) _setHWM(weekStart, hours);
+    }
+    // ── Callouts high-water-mark (HWM) guard ──────────────────────
+    // Tracks the maximum total callout entries ever seen on THIS browser.
+    // Used to reject stale Firestore data from another device that would cause
+    // a silent callouts loss (e.g. 20 entries → 5 entries overwrite).
+    function _totalCalloutEntries(calloutsData) {
+      if (!calloutsData || !calloutsData.weeks) return 0;
+      let count = 0;
+      for (const wk of Object.values(calloutsData.weeks)) {
+        count += (wk.callouts || []).length;
+      }
+      return count;
+    }
+    function _getCoHWM() {
+      try { return parseInt(localStorage.getItem('rian_co_hwm') || '0'); }
+      catch(e) { return 0; }
+    }
+    function _setCoHWM(count) {
+      try { localStorage.setItem('rian_co_hwm', String(count)); }
+      catch(e) {}
+    }
+    function _raiseCoHWM(count) {
+      if (count > _getCoHWM()) _setCoHWM(count);
     }
     // ───────────────────────────────────────────────────────────────
     let notesUnsubscribe = null;
@@ -11741,6 +11765,21 @@
           return;
         }
 
+        // Callout HWM guard: reject remote data with too few entries compared to high-water-mark
+        if (snap.exists) {
+          const remote = snap.data();
+          const remoteCount = _totalCalloutEntries(remote);
+          const hwm = _getCoHWM();
+          const CO_HWM_THRESHOLD = 2;
+          if (hwm > 0 && remoteCount < hwm - CO_HWM_THRESHOLD) {
+            console.warn('[Rian] Rejecting remote callouts — entry count regression:', remoteCount, '< HWM', hwm);
+            fsSetCallouts(state.callouts).catch(e => console.warn('[Rian]', e));
+            return;
+          }
+          // Raise the HWM as we accept this remote data
+          _raiseCoHWM(remoteCount);
+        }
+
         if (!snap.exists) {
           // No callouts on server yet — push local if we have data
           if (state.callouts && Object.keys(state.callouts.weeks).length > 0) {
@@ -11777,6 +11816,8 @@
     async function saveCallouts() {
       const uid = state.currentUser?.uid;
       if (!uid || !state.callouts) return;
+      // Update HWM before saving
+      _raiseCoHWM(_totalCalloutEntries(state.callouts));
       await dbPut('notes', { id: 'callouts_all', userId: uid, data: state.callouts, updatedAt: Date.now() });
       await fsSetCallouts(state.callouts);
     }
@@ -12032,122 +12073,130 @@
     }
 
     async function loadWeek(weekStart) {
-      // Flush any pending save for the current week before switching
-      if (saveTimer && state.weekStart && state.weekData) {
-        clearTimeout(saveTimer);
-        saveTimer = null;
-        const flushTs = state.weekData._updatedAt || Date.now();
-        await dbPut('weeks', { weekStart: state.weekStart, userId: state.currentUser?.uid || null, data: state.weekData, updatedAt: flushTs });
-        if (state.currentUser) await fsSetWeek(state.weekStart, state.weekData).catch(e => console.warn('[Rian]', e));
-      }
+      // Race condition guard: prevent overlapping async operations from corrupting state
+      if (_loadWeekInProgress) return;
+      _loadWeekInProgress = true;
 
-      // Unsubscribe from previous week listener
-      if (weekUnsubscribe) { weekUnsubscribe(); weekUnsubscribe = null; }
+      try {
+        // Flush any pending save for the current week before switching
+        if (saveTimer && state.weekStart && state.weekData) {
+          clearTimeout(saveTimer);
+          saveTimer = null;
+          const flushTs = state.weekData._updatedAt || Date.now();
+          await dbPut('weeks', { weekStart: state.weekStart, userId: state.currentUser?.uid || null, data: state.weekData, updatedAt: flushTs });
+          if (state.currentUser) await fsSetWeek(state.weekStart, state.weekData).catch(e => console.warn('[Rian]', e));
+        }
 
-      state.weekStart = weekStart;
-      state.syncStatus = 'idle';
+        // Unsubscribe from previous week listener
+        if (weekUnsubscribe) { weekUnsubscribe(); weekUnsubscribe = null; }
 
-      // Load from local DB first (for instant display)
-      // Only use cached data if it belongs to the current user — prevents
-      // another account's cached data from overwriting this user's Firestore data
-      const local = await dbGet('weeks', weekStart);
-      const uid = state.currentUser?.uid || null;
-      const localIsOwn = local && local.userId === uid;
-      state.weekData = localIsOwn ? deepCopy(local.data) : createEmptyWeek(weekStart);
-      enforceCorrectDates(weekStart, state.weekData);
-      // Seed the HWM from local cache so we have a reference before Firestore arrives
-      if (localIsOwn) _raiseHWM(weekStart, _weekTotalHours(state.weekData));
-      autoExpandToday();
-      render();
+        state.weekStart = weekStart;
+        state.syncStatus = 'idle';
 
-      if (!state.currentUser) return;
+        // Load from local DB first (for instant display)
+        // Only use cached data if it belongs to the current user — prevents
+        // another account's cached data from overwriting this user's Firestore data
+        const local = await dbGet('weeks', weekStart);
+        const uid = state.currentUser?.uid || null;
+        const localIsOwn = local && local.userId === uid;
+        state.weekData = localIsOwn ? deepCopy(local.data) : createEmptyWeek(weekStart);
+        enforceCorrectDates(weekStart, state.weekData);
+        // Seed the HWM from local cache so we have a reference before Firestore arrives
+        if (localIsOwn) _raiseHWM(weekStart, _weekTotalHours(state.weekData));
+        autoExpandToday();
+        render();
 
-      // Subscribe to Firestore real-time updates for this week
-      const ref = userDoc(`weeks/${weekStart}`);
-      weekUnsubscribe = ref.onSnapshot({ includeMetadataChanges: true }, snap => {
-        // Ignore snapshots that are just echoing our own pending writes
-        if (snap.metadata.hasPendingWrites) return;
+        if (!state.currentUser) return;
 
-        if (!snap.exists) {
-          // No data on server yet. We DO NOT push local data here anymore.
-          // This prevents a "push-back" bug where an empty local cache overwrites
-          // fresh data from another device during initial load/offline-sync.
-          // Data will be pushed naturally during the first edit or scheduleAutoSave.
+        // Subscribe to Firestore real-time updates for this week
+        const ref = userDoc(`weeks/${weekStart}`);
+        weekUnsubscribe = ref.onSnapshot({ includeMetadataChanges: true }, snap => {
+          // Ignore snapshots that are just echoing our own pending writes
+          if (snap.metadata.hasPendingWrites) return;
+
+          if (!snap.exists) {
+            // No data on server yet. We DO NOT push local data here anymore.
+            // This prevents a "push-back" bug where an empty local cache overwrites
+            // fresh data from another device during initial load/offline-sync.
+            // Data will be pushed naturally during the first edit or scheduleAutoSave.
+            state.syncStatus = 'synced';
+            updateHeaderStatus();
+            return;
+          }
+
+          const remote = snap.data();
+          if (!remote.days) return;
+
+          // Convert Firestore Timestamp to JS number for comparison if needed
+          const remoteTs = (remote._updatedAt && remote._updatedAt.toMillis)
+            ? remote._updatedAt.toMillis()
+            : (remote._updatedAt || 0);
+
+          const localTs = state.weekData._updatedAt || 0;
+
+          // Skip stale snapshots — if the remote data is older than our local
+          // state, ignore it AND push our newer data back to Firestore to
+          // restore the correct version (otherwise Firestore stays poisoned
+          // with the stale data and other devices will receive it).
+          if (remoteTs > 0 && localTs > 0 && remoteTs < localTs) {
+            fsSetWeek(weekStart, state.weekData).catch(e => console.warn('[Rian]', e));
+            return;
+          }
+
+          // Hours regression guard — catches the case where another device had
+          // a partial/old version and wrote it to Firestore with a fresh timestamp,
+          // making the stale data look newer than local (or local has no cache).
+          // If remote hours are >HWM_THRESHOLD below the best we've ever seen on
+          // this browser, reject and push local data back to restore Firestore.
+          const _remoteHrs = _weekTotalHours(remote);
+          const _hwm = _getHWM(weekStart);
+          if (_hwm > HWM_THRESHOLD && _remoteHrs < _hwm - HWM_THRESHOLD) {
+            console.warn('[Rian] Rejecting remote data — hours regression:', _remoteHrs.toFixed(1), '< HWM', _hwm.toFixed(1));
+            fsSetWeek(weekStart, state.weekData).catch(e => console.warn('[Rian]', e));
+            return;
+          }
+          // Raise the HWM as we accept this remote data
+          _raiseHWM(weekStart, _remoteHrs);
+
+          enforceCorrectDates(weekStart, remote);
+
+          // Preserve the field being actively edited to prevent echo overwrite
+          const active = document.activeElement;
+          const userEditing = active && (active.tagName === 'TEXTAREA' || active.tagName === 'INPUT');
+          const editingField = userEditing ? active.dataset.field : null;
+          const editingActId = userEditing ? active.dataset.act : null;
+          const editingDayIdx = userEditing ? parseInt(active.dataset.day) : null;
+          const editingValue = userEditing ? active.value : null;
+
+          state.weekData = deepCopy(remote);
+          // Ensure the local updatedAt reflects the server time (as a number)
+          state.weekData._updatedAt = remoteTs;
+
+          // Restore the value the user is currently typing (prevent echo truncation)
+          if (editingField && editingActId != null && editingDayIdx != null && !isNaN(editingDayIdx)) {
+            const day = state.weekData.days[editingDayIdx];
+            if (day) {
+              const act = day.activities.find(a => a.id === editingActId);
+              if (act) act[editingField] = editingValue;
+            }
+          }
+
+          dbPut('weeks', { weekStart, userId: state.currentUser?.uid || null, data: state.weekData, updatedAt: remoteTs || Date.now() });
+
+          if (!userEditing) render();
+
           state.syncStatus = 'synced';
           updateHeaderStatus();
-          return;
-        }
-
-        const remote = snap.data();
-        if (!remote.days) return;
-
-        // Convert Firestore Timestamp to JS number for comparison if needed
-        const remoteTs = (remote._updatedAt && remote._updatedAt.toMillis)
-          ? remote._updatedAt.toMillis()
-          : (remote._updatedAt || 0);
-
-        const localTs = state.weekData._updatedAt || 0;
-
-        // Skip stale snapshots — if the remote data is older than our local
-        // state, ignore it AND push our newer data back to Firestore to
-        // restore the correct version (otherwise Firestore stays poisoned
-        // with the stale data and other devices will receive it).
-        if (remoteTs > 0 && localTs > 0 && remoteTs < localTs) {
-          fsSetWeek(weekStart, state.weekData).catch(e => console.warn('[Rian]', e));
-          return;
-        }
-
-        // Hours regression guard — catches the case where another device had
-        // a partial/old version and wrote it to Firestore with a fresh timestamp,
-        // making the stale data look newer than local (or local has no cache).
-        // If remote hours are >HWM_THRESHOLD below the best we've ever seen on
-        // this browser, reject and push local data back to restore Firestore.
-        const _remoteHrs = _weekTotalHours(remote);
-        const _hwm = _getHWM(weekStart);
-        if (_hwm > HWM_THRESHOLD && _remoteHrs < _hwm - HWM_THRESHOLD) {
-          console.warn('[Rian] Rejecting remote data — hours regression:', _remoteHrs.toFixed(1), '< HWM', _hwm.toFixed(1));
-          fsSetWeek(weekStart, state.weekData).catch(e => console.warn('[Rian]', e));
-          return;
-        }
-        // Raise the HWM as we accept this remote data
-        _raiseHWM(weekStart, _remoteHrs);
-
-        enforceCorrectDates(weekStart, remote);
-
-        // Preserve the field being actively edited to prevent echo overwrite
-        const active = document.activeElement;
-        const userEditing = active && (active.tagName === 'TEXTAREA' || active.tagName === 'INPUT');
-        const editingField = userEditing ? active.dataset.field : null;
-        const editingActId = userEditing ? active.dataset.act : null;
-        const editingDayIdx = userEditing ? parseInt(active.dataset.day) : null;
-        const editingValue = userEditing ? active.value : null;
-
-        state.weekData = deepCopy(remote);
-        // Ensure the local updatedAt reflects the server time (as a number)
-        state.weekData._updatedAt = remoteTs;
-
-        // Restore the value the user is currently typing (prevent echo truncation)
-        if (editingField && editingActId != null && editingDayIdx != null && !isNaN(editingDayIdx)) {
-          const day = state.weekData.days[editingDayIdx];
-          if (day) {
-            const act = day.activities.find(a => a.id === editingActId);
-            if (act) act[editingField] = editingValue;
-          }
-        }
-
-        dbPut('weeks', { weekStart, userId: state.currentUser?.uid || null, data: state.weekData, updatedAt: remoteTs || Date.now() });
-
-        if (!userEditing) render();
+        }, () => {
+          state.syncStatus = 'error';
+          updateHeaderStatus();
+        });
 
         state.syncStatus = 'synced';
         updateHeaderStatus();
-      }, () => {
-        state.syncStatus = 'error';
-        updateHeaderStatus();
-      });
-
-      state.syncStatus = 'synced';
-      updateHeaderStatus();
+      } finally {
+        _loadWeekInProgress = false;
+      }
     }
 
     function scheduleAutoSave() {
@@ -15452,7 +15501,21 @@
               });
             }
 
-            remindersData = remote.reminders;
+            // Per-reminder merge: keep local if newer, take remote if newer
+            const localRMap = new Map(remindersData.map(r => [r.id, r]));
+            const merged = remote.reminders.map(rr => {
+              const lr = localRMap.get(rr.id);
+              // Keep local if it was updated more recently
+              if (lr && (lr.updatedAt || 0) > (rr.updatedAt || 0)) return lr;
+              return rr;
+            });
+            // Keep any local-only reminders not in remote (recently created)
+            for (const lr of remindersData) {
+              if (!remote.reminders.find(rr => rr.id === lr.id)) {
+                merged.push(lr);
+              }
+            }
+            remindersData = merged;
             dbPut('notes', { id: 'reminders_all', userId: state.currentUser?.uid || null, data: remindersData, updatedAt: remote._updatedAt || Date.now() }).catch(() => { });
 
             // Only schedule/fire reminders once we have confirmed server data
@@ -15815,7 +15878,7 @@
                 _mergeChanged = true; return deepCopy(rn); // remote is strictly newer
               });
               for (const ln of (state.notes || [])) {
-                if (!_timerRemote.notes.find(rn => rn.id === ln.id) && (ln.updatedAt || 0) > Date.now() - 30000) {
+                if (!_timerRemote.notes.find(rn => rn.id === ln.id) && (ln.updatedAt || 0) > Date.now() - 120000) {
                   _merged.push(deepCopy(ln)); // keep local-only recent notes
                 }
               }
@@ -15889,7 +15952,7 @@
         });
         // Keep local-only notes that were created very recently (haven't synced yet)
         for (const ln of (state.notes || [])) {
-          if (!remote.notes.find(rn => rn.id === ln.id) && (ln.updatedAt || 0) > Date.now() - 30000) {
+          if (!remote.notes.find(rn => rn.id === ln.id) && (ln.updatedAt || 0) > Date.now() - 120000) {
             merged.push(deepCopy(ln)); hadNewerLocal = true;
           }
         }
