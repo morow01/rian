@@ -10851,7 +10851,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '4.35.28';
+    const VERSION = '4.35.29';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -11455,7 +11455,8 @@
       syncStatus: 'idle',   // 'idle' | 'pending' | 'syncing' | 'synced' | 'error'
       showSummary: false,
       headerExpanded: localStorage.getItem('rian_headerExpanded') === 'true',
-      expandedDays: new Set(),  // track which day indices are expanded
+      expandedDays: new Set(),
+  micFabHidden: localStorage.getItem('micFabHidden') === '1',  // track which day indices are expanded
       notesOpen: new Map(), // explicit open/closed per actId; default = open if note has content
       selectionMode: false,
       selectedNotes: new Set(),
@@ -12595,11 +12596,8 @@
       requestAnimationFrame(fixTimelineLines);
       // Sync sticky header width/scroll for Routines view
       if (state.view === 'routines') requestAnimationFrame(initRtnStickyHeader);
-      // Show voice FAB on the week view, note voice FAB on the notes view
-      const fab = document.getElementById('voice-fab');
-      if (fab) fab.classList.toggle('vf-hidden', state.view !== 'week');
-      const noteFab = document.getElementById('note-voice-fab');
-      if (noteFab) noteFab.classList.toggle('vf-hidden', state.view !== 'notes');
+      // Show voice FAB on the week view, note voice FAB on the notes view (respects micFabHidden setting)
+      _applyMicFabVisibility();
       // Populate AI view content after render
       if (state.view === 'ai') {
         (async () => {
@@ -12782,6 +12780,19 @@
                     </div>
                     <div class="menu-ai-key-status" id="menu-gemini-status">${state.geminiKey ? '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:text-bottom;margin-right:4px;"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3m-3-3l-4-4"/></svg>Key saved' : ''}</div>
                   </div>
+                </div>
+              </div>
+
+              <div class="menu-section-wrap">
+                <div class="menu-section-label">Display</div>
+                <div class="menu-card">
+                  <button class="menu-row" onclick="toggleMicFab()">
+                    <span class="menu-row-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="8" y1="22" x2="16" y2="22"/></svg></span>
+                    <span class="menu-row-body"><span class="menu-row-label">Voice button</span><span class="menu-row-sub">${state.micFabHidden ? 'Hidden — tap to show' : 'Visible — tap to hide'}</span></span>
+                    <span style="width:36px;height:20px;border-radius:10px;background:${state.micFabHidden ? '#e2e8f0' : 'var(--accent)'};position:relative;transition:background 0.2s;flex-shrink:0;display:inline-block;">
+                      <span style="position:absolute;top:2px;left:${state.micFabHidden ? '2px' : '18px'};width:16px;height:16px;border-radius:50%;background:#fff;transition:left 0.2s;box-shadow:0 1px 4px rgba(0,0,0,0.18);display:block;"></span>
+                    </span>
+                  </button>
                 </div>
               </div>
 
@@ -14131,6 +14142,18 @@
     // COPY TASK TO ANOTHER DAY
     // ============================================================
     // ── Context menu helpers ──────────────────────────────────────
+    function toggleMicFab() {
+      state.micFabHidden = !state.micFabHidden;
+      localStorage.setItem('micFabHidden', state.micFabHidden ? '1' : '0');
+      _applyMicFabVisibility();
+      render(); // refresh menu toggle state
+    }
+    function _applyMicFabVisibility() {
+      const fab = document.getElementById('voice-fab');
+      const noteFab = document.getElementById('note-voice-fab');
+      if (fab) fab.classList.toggle('vf-hidden', state.micFabHidden || state.view !== 'week');
+      if (noteFab) noteFab.classList.toggle('vf-hidden', state.micFabHidden || state.view !== 'notes');
+    }
     function closeAllCtx() {
       document.querySelectorAll('.ctx-menu').forEach(m => m.classList.remove('show'));
       document.querySelectorAll('.btn-more').forEach(b => b.classList.remove('open'));
