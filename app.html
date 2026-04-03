@@ -10667,7 +10667,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '4.35.18';
+    const VERSION = '4.35.19';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -12806,6 +12806,16 @@
       }, 60);
     }
 
+    function gotoRemedyTask(di, actId) {
+      // Expand the day, scroll to the specific activity card
+      state.expandedDays.add(di);
+      render();
+      setTimeout(() => {
+        const card = document.querySelector(`.activity-card[data-act-id="${actId}"]`);
+        if (card) card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 80);
+    }
+
     function renderRemedyBanner(weekData) {
       if (!weekData) return '';
       const pendingTasks = [];
@@ -12826,18 +12836,44 @@
     function renderAnomalyBanner(weekData) {
       if (isAnomalyDismissed()) return '';
       const issues = detectAnomalies(weekData);
-      if (issues.length === 0) return '';
+
+      // Add Remedy pending tasks as items
+      const remedyItems = [];
+      if (weekData) {
+        weekData.days.forEach((day, di) => {
+          day.activities.forEach(act => {
+            if (act.remedyPending) {
+              const today = new Date(); const dow = today.getDay();
+              const isUrgent = dow === 3 || dow === 4;
+              const tagSvg = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7" stroke-width="3"/></svg>';
+              const label = isUrgent ? '— due today!' : '— due by Thursday';
+              remedyItems.push({ icon: tagSvg, msg: `<strong style="color:#7c3aed">${esc(day.dayName)}</strong>: <span style="color:#7c3aed">"${esc(act.description || 'Unnamed')}"</span> needs a Remedy ticket <span style="color:#7c3aed;font-weight:600">${label}</span>`, dayIdx: di, actId: act.id, isRemedy: true });
+            }
+          });
+        });
+      }
+
+      const allItems = [...issues, ...remedyItems];
+      if (allItems.length === 0) return '';
 
       const errorCount = issues.filter(i => i.severity === 'error').length;
-      const titleText = errorCount > 0
-        ? `${issues.length} issue${issues.length > 1 ? 's' : ''} found — ${errorCount} error${errorCount > 1 ? 's' : ''}`
-        : `${issues.length} warning${issues.length > 1 ? 's' : ''} — review before submitting`;
+      const remedyCount = remedyItems.length;
+      let titleText;
+      if (issues.length > 0 && remedyCount > 0) {
+        titleText = `${issues.length} issue${issues.length > 1 ? 's' : ''} found · ${remedyCount} Remedy pending`;
+      } else if (issues.length > 0) {
+        titleText = errorCount > 0
+          ? `${issues.length} issue${issues.length > 1 ? 's' : ''} found — ${errorCount} error${errorCount > 1 ? 's' : ''}`
+          : `${issues.length} warning${issues.length > 1 ? 's' : ''} — review before submitting`;
+      } else {
+        titleText = `${remedyCount} Remedy ticket${remedyCount > 1 ? 's' : ''} to create`;
+      }
 
-      const itemsHtml = issues.map(issue => `
-        <div class="anomaly-item">
-          <span class="anomaly-item-icon">${issue.icon}</span>
-          <span class="anomaly-item-msg">${issue.msg}</span>
-          ${issue.dayIdx != null ? `<button class="anomaly-item-goto" onclick="gotoAnomalyDay(${issue.dayIdx})">Go →</button>` : ''}
+      const itemsHtml = allItems.map(item => `
+        <div class="anomaly-item${item.isRemedy ? ' anomaly-item-remedy' : ''}">
+          <span class="anomaly-item-icon">${item.icon}</span>
+          <span class="anomaly-item-msg">${item.msg}</span>
+          ${item.isRemedy ? `<button class="anomaly-item-goto" style="border-color:#7c3aed;color:#7c3aed" onclick="gotoRemedyTask(${item.dayIdx},'${item.actId}')">Go →</button>` : (item.dayIdx != null ? `<button class="anomaly-item-goto" onclick="gotoAnomalyDay(${item.dayIdx})">Go →</button>` : '')}
         </div>`).join('');
 
       return `
@@ -12845,7 +12881,7 @@
         <div class="anomaly-banner-head" onclick="toggleAnomalyBanner()">
           <span class="anomaly-banner-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></span>
           <span class="anomaly-banner-title">${titleText}</span>
-          <span class="anomaly-banner-count">${issues.length}</span>
+          <span class="anomaly-banner-count">${allItems.length}</span>
           <svg id="anomaly-banner-chev" class="anomaly-banner-chevron" width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 4l4 4-4 4" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </div>
         <div class="anomaly-banner-body" id="anomaly-banner-body">
@@ -12929,8 +12965,7 @@
   </div>`;
 
       const anomalyHtml = renderAnomalyBanner(state.weekData);
-      const remedyHtml = renderRemedyBanner(state.weekData);
-      return `<main class="pb-6">${remedyHtml ? `<div style="padding:10px 12px 0">${remedyHtml}</div>` : ''}${anomalyHtml ? `<div style="padding:${remedyHtml ? '0' : '10px'} 12px 0">${anomalyHtml}</div>` : ''}<div class="week-list">${daysHtml}</div>${summaryHtml}</main>`;
+      return `<main class="pb-6">${anomalyHtml ? `<div style="padding:10px 12px 0">${anomalyHtml}</div>` : ''}<div class="week-list">${daysHtml}</div>${summaryHtml}</main>`;
     }
 
     // ============================================================
@@ -16142,25 +16177,7 @@
         </div>` : '';
 
       const previewSheet = renderNotePreviewSheet();
-      // Remedy banner — show tasks flagged in current week
-      let remedyNotifHtml = '';
-      if (state.weekData && notesTab !== 'bin' && notesTab !== 'archive') {
-        const remedyTasks = [];
-        state.weekData.days.forEach(day => {
-          day.activities.forEach(act => {
-            if (act.remedyPending) remedyTasks.push({ desc: act.description || 'Unnamed', dayName: day.dayName, date: day.date });
-          });
-        });
-        if (remedyTasks.length) {
-          const today = new Date(); const dow = today.getDay();
-          const isUrgent = dow === 3 || dow === 4;
-          const tagSvg = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7" stroke-width="3"/></svg>';
-          const taskList = remedyTasks.map(t => `<span style="opacity:0.85;font-weight:400">${esc(t.dayName)}: </span>${esc(t.desc)}`).join('  ·  ');
-          const dueLabel = isUrgent ? '⚠ Due today!' : 'Due by Thursday';
-          remedyNotifHtml = `<div class="remedy-banner" style="margin:10px 12px 0;cursor:pointer" onclick="setView('week')" title="Go to week view">${tagSvg} ${remedyTasks.length} Remedy ticket${remedyTasks.length > 1 ? 's' : ''} to create<span class="remedy-banner-due${isUrgent ? ' urgent' : ''}">${dueLabel}</span></div><div style="padding:4px 14px 0;font-size:11px;color:#a78bfa;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${taskList}</div>`;
-        }
-      }
-      return `<div class="notes-view" style="${state.selectionMode ? 'padding-bottom:120px' : ''}">${remedyNotifHtml}${headerRow}${searchBar}${notesTab === 'bin' ? binView : notesTab === 'archive' ? archiveView : `<div class="nf-wrap">${chips}</div>${addCard}${searchEmpty}${openSection}${doneSection}${notesHint}${bulkBar}`}${previewSheet}</div>`;
+      return `<div class="notes-view" style="${state.selectionMode ? 'padding-bottom:120px' : ''}">${headerRow}${searchBar}${notesTab === 'bin' ? binView : notesTab === 'archive' ? archiveView : `<div class="nf-wrap">${chips}</div>${addCard}${searchEmpty}${openSection}${doneSection}${notesHint}${bulkBar}`}${previewSheet}</div>`;
     }
 
     // ---- Notes search ----
