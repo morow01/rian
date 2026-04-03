@@ -2969,30 +2969,30 @@
 
     /* ── In-app callouts summary table (3-col, Option A style) ── */
     /* ── Callouts divider inside summary card ── */
+    /* Callouts divider — matches sum-section-hdr spacing */
     .co-sum-divider {
       display: flex;
       align-items: center;
       gap: 8px;
-      padding: 0 16px;
+      padding: 14px 16px 10px;
       border-top: 1px solid var(--border);
-      margin-top: 0;
     }
     .co-sum-divider .sum-section-line {
       margin: 0;
     }
-    .co-sum-table {
-      background: var(--bg-card);
-      border-radius: 14px;
-      border: 1px solid var(--border);
-      overflow: hidden;
+    .co-sum-divider .sum-section-label {
+      font-size: 9px;
+      white-space: nowrap;
     }
+    /* Callouts column headers — same style as .sum-new-col-head */
     .co-sum-head {
       display: grid;
       grid-template-columns: 76px 1fr 1fr;
+      padding: 10px 16px 8px;
       background: var(--bg-card-alt);
-      border-top: 1px solid var(--border);
       border-bottom: 1px solid var(--border);
     }
+    /* Callouts data rows — same padding as .sum-new-row */
     .co-sum-row {
       display: grid;
       grid-template-columns: 76px 1fr 1fr;
@@ -3002,34 +3002,43 @@
     .co-sum-row:last-of-type {
       border-bottom: none;
     }
+    /* Base cell — same font size as sum-row-desc */
     .co-sum-cell {
-      padding: 10px 12px;
-      font-size: 13px;
+      padding: 12px 16px;
+      font-size: 12px;
+      font-weight: 500;
       color: var(--text-primary);
     }
-    .co-sum-cell + .co-sum-cell {
-      border-left: 1px solid var(--border);
-    }
+    /* Column header cell — matches .sum-new-col-th exactly */
     .co-sum-th {
       font-size: 9px;
       font-weight: 700;
+      letter-spacing: 0.1em;
       text-transform: uppercase;
-      letter-spacing: 0.08em;
       color: var(--text-muted);
-      padding: 7px 12px;
+      padding: 0;
     }
+    /* Date — matches sum-row-code style */
     .co-sum-date {
       font-family: var(--font-mono);
-      font-size: 12px;
+      font-size: 10px;
       font-weight: 600;
       color: var(--accent);
+      letter-spacing: 0.03em;
     }
+    /* Ticket — matches sum-row-desc mono style */
     .co-sum-ticket {
       font-family: var(--font-mono);
+      font-size: 12px;
       font-weight: 500;
+      color: var(--text-primary);
+      border-left: 1px solid var(--border);
     }
+    /* Location — matches sum-row-desc muted style */
     .co-sum-loc {
+      font-size: 12px;
       color: var(--text-secondary);
+      border-left: 1px solid var(--border);
     }
 
     input[type=number]::-webkit-inner-spin-button {
@@ -10916,7 +10925,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '4.35.34';
+    const VERSION = '4.35.35';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
