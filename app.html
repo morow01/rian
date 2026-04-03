@@ -10930,7 +10930,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '4.35.37';
+    const VERSION = '4.35.38';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -11740,7 +11740,9 @@
         dbPut('notes', { id: 'callouts_all', userId: uid, data: state.callouts, updatedAt: remote._updatedAt || Date.now() });
 
         // Don't re-render while user is actively editing a callout — would kill focus
+        // Also re-render timesheet/week view so Weekly Summary callouts section updates
         if (state.view === 'callouts' && !state.calloutsExpandedId) render();
+        else if (state.view === 'week') render();
       }, () => {
         console.warn('[Rian] callouts onSnapshot error');
       });
