@@ -10930,7 +10930,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '4.35.38';
+    const VERSION = '4.35.39';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -11587,6 +11587,32 @@
     let saveTimer = null;
     let db = null;
     let weekUnsubscribe = null;
+
+    // ── Hours high-water-mark (HWM) guard ──────────────────────────
+    // Tracks the maximum total hours ever seen for each week on THIS browser.
+    // Used to reject stale Firestore data from another device that would cause
+    // a silent hours regression (e.g. 39h → 18h overwrite).
+    const HWM_THRESHOLD = 4; // reject remote if >4h below high-water-mark
+    function _weekTotalHours(weekData) {
+      if (!weekData || !weekData.days) return 0;
+      let t = 0;
+      weekData.days.forEach(d => (d.activities || []).forEach(a => {
+        t += (parseFloat(a.ordinary) || 0) + (parseFloat(a.overtime) || 0);
+      }));
+      return t;
+    }
+    function _getHWM(weekStart) {
+      try { return parseFloat(localStorage.getItem('rian_hwm_' + weekStart) || '0'); }
+      catch(e) { return 0; }
+    }
+    function _setHWM(weekStart, hours) {
+      try { localStorage.setItem('rian_hwm_' + weekStart, String(Math.round(hours * 10) / 10)); }
+      catch(e) {}
+    }
+    function _raiseHWM(weekStart, hours) {
+      if (hours > _getHWM(weekStart)) _setHWM(weekStart, hours);
+    }
+    // ───────────────────────────────────────────────────────────────
     let notesUnsubscribe = null;
     let calloutsUnsubscribe = null;
 
@@ -12029,6 +12055,8 @@
       const localIsOwn = local && local.userId === uid;
       state.weekData = localIsOwn ? deepCopy(local.data) : createEmptyWeek(weekStart);
       enforceCorrectDates(weekStart, state.weekData);
+      // Seed the HWM from local cache so we have a reference before Firestore arrives
+      if (localIsOwn) _raiseHWM(weekStart, _weekTotalHours(state.weekData));
       autoExpandToday();
       render();
 
@@ -12068,6 +12096,21 @@
           fsSetWeek(weekStart, state.weekData).catch(e => console.warn('[Rian]', e));
           return;
         }
+
+        // Hours regression guard — catches the case where another device had
+        // a partial/old version and wrote it to Firestore with a fresh timestamp,
+        // making the stale data look newer than local (or local has no cache).
+        // If remote hours are >HWM_THRESHOLD below the best we've ever seen on
+        // this browser, reject and push local data back to restore Firestore.
+        const _remoteHrs = _weekTotalHours(remote);
+        const _hwm = _getHWM(weekStart);
+        if (_hwm > HWM_THRESHOLD && _remoteHrs < _hwm - HWM_THRESHOLD) {
+          console.warn('[Rian] Rejecting remote data — hours regression:', _remoteHrs.toFixed(1), '< HWM', _hwm.toFixed(1));
+          fsSetWeek(weekStart, state.weekData).catch(e => console.warn('[Rian]', e));
+          return;
+        }
+        // Raise the HWM as we accept this remote data
+        _raiseHWM(weekStart, _remoteHrs);
 
         enforceCorrectDates(weekStart, remote);
 
@@ -12126,6 +12169,9 @@
         if (state.currentUser) {
           try {
             await fsSetWeek(capturedWeekStart, dataToSave);
+            // User explicitly saved — allow HWM to move in either direction
+            // so legitimate deletions are not blocked by the regression guard.
+            _setHWM(capturedWeekStart, _weekTotalHours(dataToSave));
             if (state.weekStart === capturedWeekStart) { state.syncStatus = 'synced'; updateHeaderStatus(); }
           } catch (e) {
             if (state.weekStart === capturedWeekStart) { state.syncStatus = 'error'; updateHeaderStatus(); }
