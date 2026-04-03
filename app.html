@@ -7196,6 +7196,171 @@
       letter-spacing: 0.05em;
     }
 
+    /* ── Section headers (v5.0.0) ───────────────────────────────── */
+    .sec-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 16px 10px;
+      cursor: pointer;
+      user-select: none;
+      border-radius: 12px;
+      margin: 4px 12px 2px;
+      transition: background 0.15s;
+    }
+    .sec-header:active { background: var(--bg-card-alt); }
+    .sec-header-site {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      margin: 4px 12px 2px;
+    }
+    .sec-chevron {
+      color: var(--text-muted);
+      flex-shrink: 0;
+      transition: transform 0.2s ease;
+      display: flex;
+      align-items: center;
+    }
+    .sec-chevron.open { transform: rotate(90deg); }
+    .sec-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-primary);
+      flex: 1;
+      min-width: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .sec-title-year {
+      font-size: 13px;
+      font-weight: 800;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+    .sec-count {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-muted);
+      background: var(--bg-card-alt);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 1px 8px;
+      flex-shrink: 0;
+    }
+    .sec-add-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--accent);
+      padding: 4px 6px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 11px;
+      font-weight: 700;
+      flex-shrink: 0;
+      transition: background 0.15s;
+    }
+    .sec-add-btn:active { background: rgba(45,107,228,0.12); }
+    .sec-children {
+      /* wrapper for children of a section — collapsed via JS height:0 */
+    }
+    .sec-children.collapsed { display: none; }
+    .sec-indent {
+      border-left: 2px solid var(--border);
+      margin-left: 28px;
+      padding-left: 4px;
+    }
+    .sec-site-meta {
+      font-size: 11px;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .sec-manage-btn {
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      border-radius: 8px;
+      padding: 5px 10px;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-family: inherit;
+    }
+    .sec-manage-btn:active { background: var(--bg-card-alt); }
+    /* Sections modal */
+    .sec-modal-overlay {
+      position: fixed; inset: 0; z-index: 700;
+      background: rgba(0,0,0,0.4);
+      display: flex; align-items: flex-end; justify-content: center;
+    }
+    .sec-modal {
+      background: var(--bg-card);
+      border-radius: 20px 20px 0 0;
+      width: 100%; max-width: 600px;
+      max-height: 90vh;
+      overflow: hidden;
+      display: flex; flex-direction: column;
+    }
+    .sec-modal-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 18px 20px 14px;
+      border-bottom: 1px solid var(--border);
+    }
+    .sec-modal-title { font-size: 17px; font-weight: 800; color: var(--text-primary); }
+    .sec-modal-body { overflow-y: auto; flex: 1; padding: 0 16px 24px; }
+    .sec-modal-row {
+      display: flex; align-items: center; gap: 10px;
+      padding: 12px 8px;
+      border-bottom: 1px solid var(--border);
+    }
+    .sec-modal-row-title { flex: 1; font-size: 14px; font-weight: 600; color: var(--text-primary); }
+    .sec-modal-row-sub { font-size: 11px; color: var(--text-muted); }
+    .sec-modal-actions { display: flex; gap: 6px; }
+    .sec-modal-btn {
+      background: none; border: 1px solid var(--border);
+      border-radius: 7px; padding: 5px 9px; cursor: pointer;
+      font-size: 11px; font-weight: 700; color: var(--text-muted);
+      font-family: inherit; display: flex; align-items: center; gap: 4px;
+    }
+    .sec-modal-btn.danger { color: #ef4444; border-color: rgba(239,68,68,0.3); }
+    .sec-modal-btn:active { background: var(--bg-card-alt); }
+    .sec-form {
+      background: var(--bg-card-alt);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 16px;
+      margin: 12px 0;
+      display: flex; flex-direction: column; gap: 10px;
+    }
+    .sec-form label { font-size: 11px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; display: block; margin-bottom: 4px; }
+    .sec-form input, .sec-form select {
+      width: 100%; box-sizing: border-box;
+      padding: 8px 10px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--bg-card);
+      color: var(--text-primary);
+      font-size: 14px;
+      font-family: inherit;
+    }
+    .sec-form-btns { display: flex; gap: 8px; margin-top: 4px; }
+    .sec-form-btn {
+      flex: 1; padding: 10px; border-radius: 10px; border: none;
+      font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit;
+    }
+    .sec-form-btn.primary { background: var(--accent); color: #fff; }
+    .sec-form-btn.cancel  { background: var(--bg-card); border: 1px solid var(--border); color: var(--text-muted); }
+
     .note-card {
       background: var(--bg-card);
       border-radius: 16px;
@@ -10930,7 +11095,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '4.35.41';
+    const VERSION = '5.0.1';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -11581,6 +11746,15 @@
       calloutsNotesOpen: false,  // whether notes panel is open in expanded callout
       coSelectionMode: false,
       selectedCallouts: new Set(),
+      // ── Journal (v5.0.0) ──
+      journal: [],               // array of journal sections + entries
+      journalSyncStatus: 'idle', // 'idle' | 'pending' | 'syncing' | 'synced' | 'error'
+      journalCollapsed: {},      // { [sectionId]: true|false }
+      journalSectionsModalOpen: false,
+      journalSectionsEditId: null,
+      journalSectionsForm: null, // { title, type, parentId, date, location }
+      journalSearch: '',
+      journalExpandedId: null,   // id of entry open in fullscreen
     };
 
     let codeModalCtx = { dayIndex: null, activityId: null, selected: [] };
@@ -11737,6 +11911,12 @@
       const ref = userDoc('data/callouts');
       if (!ref) return;
       await ref.set({ ...data, _updatedAt: Date.now() });
+    }
+
+    async function fsSetJournal(entries) {
+      const ref = userDoc('data/journal');
+      if (!ref) return;
+      await ref.set({ entries, _updatedAt: Date.now() });
     }
 
     async function loadCallouts() {
@@ -11978,7 +12158,396 @@
 
     function createNote() {
       const now = Date.now();
-      return { id: uid(), description: '', noteContent: '', location: '', date: dateToStr(new Date()), priority: 'medium', status: 'open', category: '', createdAt: now, updatedAt: now };
+      return { id: uid(), description: '', noteContent: '', location: '', date: dateToStr(new Date()), priority: 'medium', status: 'open', category: '', sectionId: null, displayOrder: 0, createdAt: now, updatedAt: now };
+    }
+
+    // ── Sections (v5.0.0) ────────────────────────────────────────────
+    function createSection(title, type, parentId, visitDate, location, entries) {
+      entries = entries || state.notes;
+      const now = Date.now();
+      const siblings = entries.filter(n => n.isSection && (n.parentId || null) === (parentId || null) && !n.deleted);
+      const maxOrder = siblings.reduce((m, s) => Math.max(m, s.displayOrder || 0), -1);
+      return {
+        id: uid(),
+        isSection: true,
+        sectionTitle: title || 'New Section',
+        sectionType: type || 'folder',   // 'folder' | 'site'
+        parentId: parentId || null,
+        displayOrder: maxOrder + 1,
+        location: location || '',
+        date: visitDate || '',
+        createdAt: now,
+        updatedAt: now,
+      };
+    }
+
+    function buildNoteTree(entries) {
+      entries = entries || state.notes;
+      const allSections = entries.filter(n => n.isSection && !n.deleted);
+      const allNotes    = entries.filter(n => !n.isSection && !n.deleted && !n.archived);
+      const sMap = new Map(allSections.map(s => [s.id, Object.assign({}, s, { children: [], notes: [] })]));
+      const roots = [];
+      for (const s of allSections) {
+        const node = sMap.get(s.id);
+        if (s.parentId && sMap.has(s.parentId)) {
+          sMap.get(s.parentId).children.push(node);
+        } else {
+          roots.push(node);
+        }
+      }
+      roots.sort(function(a, b) { return (a.displayOrder || 0) - (b.displayOrder || 0); });
+      for (const entry of sMap) {
+        const node = entry[1];
+        node.children.sort(function(a, b) { return (a.displayOrder || 0) - (b.displayOrder || 0); });
+      }
+      const unsectioned = [];
+      for (const n of allNotes) {
+        if (n.sectionId && sMap.has(n.sectionId)) {
+          sMap.get(n.sectionId).notes.push(n);
+        } else {
+          unsectioned.push(n);
+        }
+      }
+      return { roots: roots, sMap: sMap, unsectioned: unsectioned };
+    }
+
+    // Count total notes (recursively) in a section tree node
+    function _sectionNoteCount(node, sMap) {
+      let count = node.notes.length;
+      for (const child of node.children) {
+        count += _sectionNoteCount(child, sMap);
+      }
+      return count;
+    }
+
+    function toggleSectionCollapsed(id) {
+      state.sectionCollapsed[id] = !state.sectionCollapsed[id];
+      render();
+    }
+
+    function addNoteToSection(sectionId) {
+      const note = createNote();
+      note.sectionId = sectionId;
+      // Make sure the section is expanded
+      state.sectionCollapsed[sectionId] = false;
+      state.notes.unshift(note);
+      state.expandedNotes.add(note.id);
+      state.notesTab = 'notes';
+      state.notesFilter = 'all';
+      scheduleNotesSave();
+      render();
+      setTimeout(function() {
+        const ta = document.querySelector('textarea[data-note-id="' + note.id + '"]');
+        if (ta) ta.focus();
+      }, 80);
+    }
+
+    function deleteSectionById(sectionId) {
+      // Move child notes to unsectioned
+      state.notes.forEach(function(n) {
+        if (!n.isSection && n.sectionId === sectionId) n.sectionId = null;
+      });
+      // Recursively delete child sections
+      const children = state.notes.filter(n => n.isSection && n.parentId === sectionId);
+      children.forEach(function(c) { deleteSectionById(c.id); });
+      // Mark as deleted
+      const sec = state.notes.find(n => n.id === sectionId);
+      if (sec) {
+        sec.deleted = true;
+        sec.updatedAt = Date.now();
+      }
+      scheduleNotesSave();
+    }
+
+    function renameSectionById(sectionId, newTitle) {
+      const sec = state.notes.find(n => n.id === sectionId && n.isSection);
+      if (!sec) return;
+      sec.sectionTitle = newTitle;
+      sec.updatedAt = Date.now();
+      scheduleNotesSave();
+    }
+
+    // ── Section rendering (v5.0.0) ──────────────────────────────────
+    function renderSectionNode(node, noteCardHtml, depth) {
+      depth = depth || 0;
+      const isCollapsed = !!state.sectionCollapsed[node.id];
+      const noteCount = _sectionNoteCount(node, null);
+      const isSite = node.sectionType === 'site';
+      const isYear = node.sectionType === 'year';
+
+      // Icon
+      const iconSvg = isSite
+        ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 010-5 2.5 2.5 0 010 5z"/></svg>'
+        : isYear
+          ? '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>'
+          : '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>';
+
+      const chevronSvg = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>';
+
+      // Meta line for site sections (date + location)
+      let siteMeta = '';
+      if (isSite) {
+        const parts = [];
+        if (node.date) parts.push(formatDateShort(node.date));
+        if (node.location) parts.push(node.location.replace(/\s*\([^)]+\)\s*$/, '').trim());
+        if (parts.length) siteMeta = '<div class="sec-site-meta">' + parts.join(' · ') + '</div>';
+      }
+
+      const headerCls = 'sec-header' + (isSite ? ' sec-header-site' : '') + (depth > 0 ? '' : '');
+      const titleCls = 'sec-title' + (isYear ? ' sec-title-year' : '');
+      const countBadge = noteCount > 0 ? '<span class="sec-count">' + noteCount + '</span>' : '';
+
+      const header = '<div class="' + headerCls + '" onclick="toggleSectionCollapsed(\'' + node.id + '\')">'
+        + '<span class="sec-chevron' + (isCollapsed ? '' : ' open') + '">' + chevronSvg + '</span>'
+        + '<span style="display:flex;align-items:center;gap:6px;flex:1;min-width:0;">'
+          + '<span style="color:var(--text-muted);flex-shrink:0;">' + iconSvg + '</span>'
+          + '<span class="' + titleCls + '">' + esc(node.sectionTitle) + '</span>'
+        + '</span>'
+        + siteMeta
+        + countBadge
+        + '<button class="sec-add-btn" onclick="event.stopPropagation();addNoteToSection(\'' + node.id + '\')" title="Add note to this section">'
+            + '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>'
+          + '</button>'
+        + '</div>';
+
+      // Children content (sub-sections + direct notes)
+      let childHtml = '';
+      for (const child of node.children) {
+        childHtml += renderSectionNode(child, noteCardHtml, depth + 1);
+      }
+      // Notes directly in this section
+      // For site visit sections: group by category (Phase 1.4)
+      if (isSite && node.notes.length > 0) {
+        const catOrder = ['callout', 'routine', 'fault', 'provide', 'cease', ''];
+        const catGroups = {};
+        for (const n of node.notes) {
+          const ck = n.category || '';
+          if (!catGroups[ck]) catGroups[ck] = [];
+          catGroups[ck].push(n);
+        }
+        const usedKeys = Object.keys(catGroups).sort(function(a, b) {
+          const ai = catOrder.indexOf(a) >= 0 ? catOrder.indexOf(a) : 99;
+          const bi = catOrder.indexOf(b) >= 0 ? catOrder.indexOf(b) : 99;
+          return ai - bi;
+        });
+        for (const ck of usedKeys) {
+          const catObj = getCategories().find(function(c) { return c.key === ck; });
+          if (catObj) {
+            childHtml += '<div class="notes-section-label" style="font-size:10px;padding:10px 16px 4px;color:' + catObj.color + ';">'
+              + getCatIconHtml(catObj, 10) + ' ' + catObj.label
+              + '</div>';
+          } else if (ck === '') {
+            childHtml += '<div class="notes-section-label" style="font-size:10px;padding:10px 16px 4px;">General</div>';
+          }
+          for (const n of catGroups[ck]) {
+            childHtml += noteCardHtml(n);
+          }
+        }
+      } else {
+        for (const n of node.notes) {
+          childHtml += noteCardHtml(n);
+        }
+      }
+
+      const indentStyle = depth > 0 ? ' class="sec-indent"' : '';
+      const childrenHtml = isCollapsed
+        ? ''
+        : '<div' + indentStyle + '>' + childHtml + '</div>';
+
+      return header + childrenHtml;
+    }
+
+    function renderSectionsTree(noteCardHtml, entries) {
+      const tree = buildNoteTree(entries);
+      if (tree.roots.length === 0 && tree.unsectioned.length === 0) return null; // no sections yet
+      let html = '';
+      for (const root of tree.roots) {
+        html += renderSectionNode(root, noteCardHtml, 0);
+      }
+      // Unsectioned entries
+      if (tree.unsectioned.length > 0) {
+        if (tree.roots.length > 0) {
+          html += '<div class="notes-section-label" style="margin-top:8px;">Unsorted</div>';
+        }
+        for (const n of tree.unsectioned) {
+          html += noteCardHtml(n);
+        }
+      }
+      return html;
+    }
+
+    // ── Sections modal ──────────────────────────────────────────────
+    function openSectionsModal() {
+      state.sectionsModalOpen = true;
+      state.sectionsModalEditId = null;
+      state.sectionsModalForm = null;
+      render();
+    }
+
+    function closeSectionsModal() {
+      state.sectionsModalOpen = false;
+      state.sectionsModalEditId = null;
+      state.sectionsModalForm = null;
+      render();
+    }
+
+    function openNewSectionForm(parentId) {
+      state.sectionsModalForm = { title: '', type: 'folder', parentId: parentId || null, date: '', location: '' };
+      state.sectionsModalEditId = null;
+      render();
+    }
+
+    function openRenameSectionForm(sectionId) {
+      const sec = state.notes.find(n => n.id === sectionId && n.isSection);
+      if (!sec) return;
+      state.sectionsModalEditId = sectionId;
+      state.sectionsModalForm = { title: sec.sectionTitle, type: sec.sectionType, parentId: sec.parentId, date: sec.date || '', location: sec.location || '' };
+      render();
+    }
+
+    function cancelSectionForm() {
+      state.sectionsModalForm = null;
+      state.sectionsModalEditId = null;
+      render();
+    }
+
+    function commitSectionForm() {
+      const f = state.sectionsModalForm;
+      if (!f || !f.title.trim()) return;
+      if (state.sectionsModalEditId) {
+        // Rename + update type/meta
+        const sec = state.notes.find(n => n.id === state.sectionsModalEditId && n.isSection);
+        if (sec) {
+          sec.sectionTitle = f.title.trim();
+          sec.sectionType = f.type;
+          sec.date = f.date || '';
+          sec.location = f.location || '';
+          sec.updatedAt = Date.now();
+        }
+      } else {
+        const sec = createSection(f.title.trim(), f.type, f.parentId, f.date, f.location);
+        state.notes.unshift(sec);
+      }
+      scheduleNotesSave();
+      state.sectionsModalForm = null;
+      state.sectionsModalEditId = null;
+      render();
+    }
+
+    function confirmDeleteSection(sectionId) {
+      const sec = state.notes.find(n => n.id === sectionId && n.isSection);
+      if (!sec) return;
+      const noteCount = state.notes.filter(n => !n.isSection && n.sectionId === sectionId && !n.deleted).length;
+      const msg = noteCount > 0
+        ? 'Delete "' + sec.sectionTitle + '"? Its ' + noteCount + ' note(s) will become unsorted.'
+        : 'Delete "' + sec.sectionTitle + '"?';
+      if (!confirm(msg)) return;
+      deleteSectionById(sectionId);
+      render();
+    }
+
+    function renderSectionModalRow(sec, depth) {
+      const pad = depth * 20;
+      const subCount = state.notes.filter(n => !n.isSection && n.sectionId === sec.id && !n.deleted).length;
+      const childSecs = state.notes.filter(n => n.isSection && n.parentId === sec.id && !n.deleted);
+      const typeLabel = sec.sectionType === 'site' ? 'Site Visit' : sec.sectionType === 'year' ? 'Year' : 'Folder';
+      let row = '<div class="sec-modal-row" style="padding-left:' + (8 + pad) + 'px">'
+        + '<div style="flex:1;min-width:0;">'
+          + '<div class="sec-modal-row-title">' + esc(sec.sectionTitle) + '</div>'
+          + '<div class="sec-modal-row-sub">' + typeLabel + (subCount > 0 ? ' · ' + subCount + ' note(s)' : '') + '</div>'
+        + '</div>'
+        + '<div class="sec-modal-actions">'
+          + '<button class="sec-modal-btn" onclick="openRenameSectionForm(\'' + sec.id + '\')" title="Edit">'
+              + '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>'
+              + 'Edit'
+            + '</button>'
+          + '<button class="sec-modal-btn" onclick="openNewSectionForm(\'' + sec.id + '\')" title="Add sub-section">'
+              + '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>'
+              + 'Sub'
+            + '</button>'
+          + '<button class="sec-modal-btn danger" onclick="confirmDeleteSection(\'' + sec.id + '\')" title="Delete">'
+              + '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>'
+            + '</button>'
+        + '</div>'
+        + '</div>';
+      // Render children
+      for (const child of childSecs.sort(function(a,b){return (a.displayOrder||0)-(b.displayOrder||0);})) {
+        row += renderSectionModalRow(child, depth + 1);
+      }
+      return row;
+    }
+
+    function renderSectionsModal() {
+      if (!state.sectionsModalOpen) return '';
+      const rootSections = state.notes.filter(n => n.isSection && !n.parentId && !n.deleted)
+        .sort(function(a,b){return (a.displayOrder||0)-(b.displayOrder||0);});
+
+      let listHtml = '';
+      if (rootSections.length === 0) {
+        listHtml = '<div style="padding:24px 8px;text-align:center;color:var(--text-muted);font-size:14px;">No sections yet.<br><span style="font-size:12px;">Create your first section below.</span></div>';
+      } else {
+        for (const sec of rootSections) {
+          listHtml += renderSectionModalRow(sec, 0);
+        }
+      }
+
+      const formHtml = state.sectionsModalForm ? (function() {
+        const f = state.sectionsModalForm;
+        const isEdit = !!state.sectionsModalEditId;
+        const parentOptions = state.notes.filter(n => n.isSection && !n.deleted && n.id !== state.sectionsModalEditId)
+          .map(function(s) { return '<option value="' + s.id + '"' + (f.parentId === s.id ? ' selected' : '') + '>' + esc(s.sectionTitle) + '</option>'; }).join('');
+        return '<div class="sec-form">'
+          + '<div>'
+              + '<label>Section Name</label>'
+              + '<input id="sec-form-title" type="text" value="' + esc(f.title) + '" placeholder="e.g. 2026, March, Ballinagar…" oninput="state.sectionsModalForm.title=this.value">'
+            + '</div>'
+          + '<div>'
+              + '<label>Type</label>'
+              + '<select id="sec-form-type" onchange="state.sectionsModalForm.type=this.value;render()">'
+                + '<option value="year"' + (f.type==='year'?' selected':'') + '>Year</option>'
+                + '<option value="folder"' + (f.type==='folder'?' selected':'') + '>Folder / Month</option>'
+                + '<option value="site"' + (f.type==='site'?' selected':'') + '>Site Visit</option>'
+              + '</select>'
+            + '</div>'
+          + (f.type === 'site' ? (
+              '<div><label>Visit Date</label><input id="sec-form-date" type="date" value="' + esc(f.date) + '" oninput="state.sectionsModalForm.date=this.value"></div>'
+            + '<div><label>Location</label><input id="sec-form-loc" type="text" value="' + esc(f.location) + '" placeholder="Town or site code…" oninput="state.sectionsModalForm.location=this.value"></div>'
+            ) : '')
+          + (rootSections.length > 0 && !isEdit ? (
+              '<div><label>Parent Section (optional)</label>'
+                + '<select id="sec-form-parent" onchange="state.sectionsModalForm.parentId=this.value||null">'
+                  + '<option value="">— None (top level) —</option>'
+                  + parentOptions
+                + '</select>'
+              + '</div>'
+            ) : '')
+          + '<div class="sec-form-btns">'
+              + '<button class="sec-form-btn cancel" onclick="cancelSectionForm()">Cancel</button>'
+              + '<button class="sec-form-btn primary" onclick="commitSectionForm()">' + (isEdit ? 'Save' : 'Create') + '</button>'
+            + '</div>'
+          + '</div>';
+      })() : '';
+
+      const addBtnHtml = !state.sectionsModalForm
+        ? '<button class="sec-manage-btn" onclick="openNewSectionForm(null)" style="width:100%;margin-top:12px;justify-content:center;">'
+            + '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>'
+            + 'New Section'
+          + '</button>'
+        : '';
+
+      return '<div class="sec-modal-overlay" onclick="if(event.target===this)closeSectionsModal()">'
+        + '<div class="sec-modal">'
+          + '<div class="sec-modal-header">'
+              + '<span class="sec-modal-title">Manage Sections</span>'
+              + '<button onclick="closeSectionsModal()" style="background:none;border:none;font-size:22px;color:var(--text-muted);cursor:pointer;line-height:1;padding:0">×</button>'
+            + '</div>'
+          + '<div class="sec-modal-body">'
+              + listHtml
+              + formHtml
+              + addBtnHtml
+            + '</div>'
+          + '</div>'
+        + '</div>';
     }
 
     function calcSummary(weekData) {
@@ -12743,6 +13312,8 @@
         viewBody = renderExchangesView();
       } else if (state.view === 'notes') {
         viewBody = renderNotesView();
+      } else if (state.view === 'journal') {
+        viewBody = renderJournalView();
       } else if (state.view === 'routines') {
         viewBody = renderRoutinesView();
       } else if (state.view === 'callouts') {
@@ -13036,6 +13607,10 @@
       <button onclick="setView('notes')" class="flex-1 py-2.5 text-[11px] font-bold tracking-widest uppercase relative" style="color:${state.view === 'notes' ? '#F5A623' : 'var(--text-header-sub)'};${state.view === 'notes' ? 'border-bottom:2.5px solid #F5A623' : ''}">
         <span style="display:inline-flex;align-items:center;gap:4px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>Notes</span>
         ${{ pending: 'var(--priority-medium)', syncing: '#3b82f6', error: 'var(--priority-high)' }[state.notesSyncStatus] ? `<span class="notes-sync-dot" style="background:${{ pending: 'var(--priority-medium)', syncing: '#3b82f6', error: 'var(--priority-high)' }[state.notesSyncStatus]}"></span>` : ''}
+      </button>
+      <button onclick="setView('journal')" class="flex-1 py-2.5 text-[11px] font-bold tracking-widest uppercase relative" style="color:${state.view === 'journal' ? '#F5A623' : 'var(--text-header-sub)'};${state.view === 'journal' ? 'border-bottom:2.5px solid #F5A623' : ''}">
+        <span style="display:inline-flex;align-items:center;gap:4px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>Journal</span>
+        ${{ pending: 'var(--priority-medium)', syncing: '#3b82f6', error: 'var(--priority-high)' }[state.journalSyncStatus] ? `<span class="notes-sync-dot" style="background:${{ pending: 'var(--priority-medium)', syncing: '#3b82f6', error: 'var(--priority-high)' }[state.journalSyncStatus]}"></span>` : ''}
       </button>
       <button onclick="setView('exchanges')" class="flex-1 py-2.5 text-[11px] font-bold tracking-widest uppercase" style="color:${state.view === 'exchanges' ? '#F5A623' : 'var(--text-header-sub)'};${state.view === 'exchanges' ? 'border-bottom:2.5px solid #F5A623' : ''}">
         <span style="display:inline-flex;align-items:center;gap:4px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>Finder</span>
@@ -15730,6 +16305,7 @@
       window.scrollTo(0, 0);
 
       if (v === 'notes') await loadNotes();
+      else if (v === 'journal') await loadJournal();
       else if (v === 'ai') {
         if (!state.aiStats) await loadAIStats();
         if (!state.notes || state.notes.length === 0) {
@@ -15801,6 +16377,7 @@
     function migrateNotesHTML(notes) {
       let migrated = false;
       notes.forEach(n => {
+        if (n.isSection) return; // skip section objects — they have no noteContent
         const desc = n.description || '';
         let plain = desc.includes('<') ? desc.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim() : desc;
         if (plain.includes('&')) plain = decodeEntities(plain);
@@ -15987,6 +16564,243 @@
       updateHeaderStatus();
     }
 
+    // ============================================================
+    // JOURNAL — sync, render, event handlers (v5.0.0)
+    // ============================================================
+    let journalSaveTimer = null;
+    let journalUnsubscribe = null;
+
+    function scheduleJournalSave() {
+      state.journalSyncStatus = 'pending';
+      if (journalSaveTimer) clearTimeout(journalSaveTimer);
+      journalSaveTimer = setTimeout(async () => {
+        journalSaveTimer = null;
+        const ts = Date.now();
+        await dbPut('notes', { id: 'journal_all', userId: state.currentUser?.uid || null, data: state.journal, updatedAt: ts });
+        if (state.currentUser) {
+          try {
+            await fsSetJournal(state.journal);
+            state.journalSyncStatus = 'synced';
+          } catch(e) {
+            state.journalSyncStatus = 'error';
+            console.warn('[Rian] journal save error:', e);
+          }
+        } else {
+          state.journalSyncStatus = 'synced';
+        }
+        updateHeaderStatus();
+      }, 1000);
+    }
+
+    async function loadJournal() {
+      state.journalSyncStatus = 'idle';
+      if (journalUnsubscribe) { journalUnsubscribe(); journalUnsubscribe = null; }
+
+      const uid = state.currentUser?.uid;
+      if (!uid) { render(); return; }
+
+      // Load from IDB first (instant display)
+      const stored = await dbGet('notes', 'journal_all').catch(() => null);
+      if (stored?.data && state.journal.length === 0) {
+        state.journal = stored.data;
+        render();
+      }
+
+      // Subscribe to Firestore
+      const ref = userDoc('data/journal');
+      if (!ref) { render(); return; }
+
+      journalUnsubscribe = ref.onSnapshot(snap => {
+        if (!snap.exists) {
+          // No remote data yet — push local if we have it
+          if (state.journal.length > 0) {
+            fsSetJournal(state.journal).catch(e => console.warn('[Rian]', e));
+          }
+          state.journalSyncStatus = 'synced';
+          updateHeaderStatus();
+          if (state.view === 'journal') render();
+          return;
+        }
+        const remote = snap.data();
+        if (!remote.entries || remote.entries.length === 0) {
+          if (state.journal.length > 0) {
+            fsSetJournal(state.journal).catch(e => console.warn('[Rian]', e));
+          }
+          state.journalSyncStatus = 'synced';
+          updateHeaderStatus();
+          if (state.view === 'journal') render();
+          return;
+        }
+        // Per-entry merge (keep newer version)
+        const localMap = new Map(state.journal.map(e => [e.id, e]));
+        const merged = remote.entries.map(re => {
+          const le = localMap.get(re.id);
+          if (le && (le.updatedAt || 0) > (re.updatedAt || 0)) return le;
+          return re;
+        });
+        for (const le of state.journal) {
+          if (!remote.entries.find(re => re.id === le.id) && (le.updatedAt || 0) > Date.now() - 120000) {
+            merged.push(le);
+          }
+        }
+        state.journal = merged;
+        dbPut('notes', { id: 'journal_all', userId: uid, data: state.journal, updatedAt: remote._updatedAt || Date.now() });
+        state.journalSyncStatus = 'synced';
+        updateHeaderStatus();
+        if (state.view === 'journal') render();
+      }, () => {
+        state.journalSyncStatus = 'error';
+        updateHeaderStatus();
+      });
+
+      state.journalSyncStatus = 'synced';
+      updateHeaderStatus();
+    }
+
+    function createJournalEntry(sectionId) {
+      const now = Date.now();
+      return {
+        id: uid(),
+        isSection: false,
+        sectionId: sectionId || null,
+        description: '',
+        noteContent: '',
+        location: '',
+        date: dateToStr(new Date()),
+        displayOrder: 0,
+        createdAt: now,
+        updatedAt: now,
+      };
+    }
+
+    function addJournalEntry(sectionId) {
+      const entry = createJournalEntry(sectionId);
+      if (sectionId) state.journalCollapsed[sectionId] = false;
+      state.journal.unshift(entry);
+      scheduleJournalSave();
+      render();
+      // Open fullscreen editor right away
+      setTimeout(function() { openJournalEntryEditor(entry.id); }, 80);
+    }
+
+    function addJournalSection(title, type, parentId, visitDate, location) {
+      const sec = createSection(title, type, parentId, visitDate, location, state.journal);
+      state.journal.unshift(sec);
+      scheduleJournalSave();
+      render();
+    }
+
+    function deleteJournalSectionById(sectionId) {
+      state.journal.forEach(function(e) {
+        if (!e.isSection && e.sectionId === sectionId) e.sectionId = null;
+      });
+      const children = state.journal.filter(e => e.isSection && e.parentId === sectionId);
+      children.forEach(function(c) { deleteJournalSectionById(c.id); });
+      const sec = state.journal.find(e => e.id === sectionId);
+      if (sec) { sec.deleted = true; sec.updatedAt = Date.now(); }
+      scheduleJournalSave();
+    }
+
+    function toggleJournalSectionCollapsed(id) {
+      state.journalCollapsed[id] = !state.journalCollapsed[id];
+      render();
+    }
+
+    function openJournalSectionsModal() {
+      state.journalSectionsModalOpen = true;
+      state.journalSectionsEditId = null;
+      state.journalSectionsForm = null;
+      render();
+    }
+
+    function closeJournalSectionsModal() {
+      state.journalSectionsModalOpen = false;
+      state.journalSectionsEditId = null;
+      state.journalSectionsForm = null;
+      render();
+    }
+
+    function openNewJournalSectionForm(parentId) {
+      state.journalSectionsForm = { title: '', type: 'folder', parentId: parentId || null, date: '', location: '' };
+      state.journalSectionsEditId = null;
+      render();
+    }
+
+    function openEditJournalSectionForm(sectionId) {
+      const sec = state.journal.find(e => e.id === sectionId && e.isSection);
+      if (!sec) return;
+      state.journalSectionsEditId = sectionId;
+      state.journalSectionsForm = { title: sec.sectionTitle, type: sec.sectionType, parentId: sec.parentId, date: sec.date || '', location: sec.location || '' };
+      render();
+    }
+
+    function cancelJournalSectionForm() {
+      state.journalSectionsForm = null;
+      state.journalSectionsEditId = null;
+      render();
+    }
+
+    function commitJournalSectionForm() {
+      const f = state.journalSectionsForm;
+      if (!f || !f.title.trim()) return;
+      if (state.journalSectionsEditId) {
+        const sec = state.journal.find(e => e.id === state.journalSectionsEditId && e.isSection);
+        if (sec) {
+          sec.sectionTitle = f.title.trim();
+          sec.sectionType = f.type;
+          sec.date = f.date || '';
+          sec.location = f.location || '';
+          sec.updatedAt = Date.now();
+        }
+      } else {
+        addJournalSection(f.title.trim(), f.type, f.parentId, f.date, f.location);
+        state.journalSectionsForm = null;
+        state.journalSectionsEditId = null;
+        render();
+        return;
+      }
+      scheduleJournalSave();
+      state.journalSectionsForm = null;
+      state.journalSectionsEditId = null;
+      render();
+    }
+
+    function confirmDeleteJournalSection(sectionId) {
+      const sec = state.journal.find(e => e.id === sectionId && e.isSection);
+      if (!sec) return;
+      const count = state.journal.filter(e => !e.isSection && e.sectionId === sectionId && !e.deleted).length;
+      const msg = count > 0
+        ? 'Delete "' + sec.sectionTitle + '"? Its ' + count + ' entr' + (count===1?'y':'ies') + ' will become unsorted.'
+        : 'Delete "' + sec.sectionTitle + '"?';
+      if (!confirm(msg)) return;
+      deleteJournalSectionById(sectionId);
+      render();
+    }
+
+    // Open a journal entry in the TipTap fullscreen editor
+    function openJournalEntryEditor(entryId) {
+      const entry = state.journal.find(e => e.id === entryId);
+      if (!entry) return;
+      openFieldNoteFullscreen(entryId, 'journal');
+    }
+
+    function updateJournalEntryField(entryId, field, value) {
+      const entry = state.journal.find(e => e.id === entryId);
+      if (!entry) return;
+      entry[field] = value;
+      entry.updatedAt = Date.now();
+      scheduleJournalSave();
+    }
+
+    function deleteJournalEntry(entryId) {
+      const entry = state.journal.find(e => e.id === entryId);
+      if (!entry) return;
+      entry.deleted = true;
+      entry.updatedAt = Date.now();
+      scheduleJournalSave();
+      render();
+    }
+
     // ---- Notes render ----
     // ---- Notes filter helper ----
     function getFilteredNotes() {
@@ -15995,6 +16809,7 @@
       const rf = state.notesRemindersFilter || '';
       const q = (state.notesSearch || '').trim().toLowerCase();
       return state.notes.filter(n => {
+        if (n.isSection) return false; // sections handled separately
         if (n.deleted) return false; // never show bin notes in main view
         // Priority / status filter
         if (f === 'done') { if (n.status !== 'done') return false; }
@@ -16159,10 +16974,11 @@
       const filtered = getFilteredNotes();
       const f = state.notesFilter;
 
-      const openNotes = state.notes.filter(n => n.status !== 'done' && !n.deleted && !n.archived);
-      const doneNotes = state.notes.filter(n => n.status === 'done' && !n.deleted && !n.archived);
+      const openNotes = state.notes.filter(n => !n.isSection && n.status !== 'done' && !n.deleted && !n.archived);
+      const doneNotes = state.notes.filter(n => !n.isSection && n.status === 'done' && !n.deleted && !n.archived);
       const _archiveQ = (state.notesSearch || '').trim().toLowerCase();
       const archiveNotes = state.notes.filter(n => {
+        if (n.isSection) return false;
         if (!n.archived || n.deleted) return false;
         if (!_archiveQ) return true;
         const hay = [n.description || '', n.location || '', n.noteContent || '', n.category || ''].join(' ').toLowerCase();
@@ -16170,12 +16986,13 @@
       }).sort((a, b) => (b.archivedAt || 0) - (a.archivedAt || 0));
       const _binQ = (state.notesSearch || '').trim().toLowerCase();
       const binNotes = state.notes.filter(n => {
+        if (n.isSection) return false;
         if (!n.deleted) return false;
         if (!_binQ) return true;
         const hay = [n.description || '', n.location || '', n.noteContent || '', n.category || ''].join(' ').toLowerCase();
         return hay.includes(_binQ);
       }).sort((a, b) => (b.deletedAt || 0) - (a.deletedAt || 0));
-      const counts = { high: openNotes.filter(n => n.priority === 'high').length, medium: openNotes.filter(n => n.priority === 'medium').length, low: openNotes.filter(n => n.priority === 'low').length, reminders: state.notes.filter(n => !n.deleted && hasActiveReminder(n.id)).length, pastReminders: state.notes.filter(n => !n.deleted && hasPastReminder(n.id)).length, overdue: openNotes.filter(n => isNoteOverdue(n)).length, hasDueDate: openNotes.filter(n => !!n.dueDate).length };
+      const counts = { high: openNotes.filter(n => n.priority === 'high').length, medium: openNotes.filter(n => n.priority === 'medium').length, low: openNotes.filter(n => n.priority === 'low').length, reminders: state.notes.filter(n => !n.isSection && !n.deleted && hasActiveReminder(n.id)).length, pastReminders: state.notes.filter(n => !n.isSection && !n.deleted && hasPastReminder(n.id)).length, overdue: openNotes.filter(n => isNoteOverdue(n)).length, hasDueDate: openNotes.filter(n => !!n.dueDate).length };
 
       const cf = state.notesCategoryFilter || '';
 
@@ -16199,8 +17016,8 @@
 
       // Expanded panel
       const catCounts = {};
-      getCategories().forEach(cat => { catCounts[cat.key] = state.notes.filter(n => n.category === cat.key).length; });
-      const untaggedCount = state.notes.filter(n => !n.category).length;
+      getCategories().forEach(cat => { catCounts[cat.key] = state.notes.filter(n => !n.isSection && n.category === cat.key && !n.deleted).length; });
+      const untaggedCount = state.notes.filter(n => !n.isSection && !n.category && !n.deleted && !n.archived).length;
       const catChips = getCategories().map(cat => {
         const isActive = cf === cat.key;
         const rgb = hexToRgb(cat.color);
@@ -16616,6 +17433,246 @@
 
       const previewSheet = renderNotePreviewSheet();
       return `<div class="notes-view" style="${state.selectionMode ? 'padding-bottom:120px' : ''}">${headerRow}${searchBar}${notesTab === 'bin' ? binView : notesTab === 'archive' ? archiveView : `<div class="nf-wrap">${chips}</div>${addCard}${searchEmpty}${openSection}${doneSection}${notesHint}${bulkBar}`}${previewSheet}</div>`;
+    }
+
+    // ============================================================
+    // JOURNAL RENDER (v5.0.0)
+    // ============================================================
+    function renderJournalEntryCard(entry) {
+      const title = entry.description || '';
+      const dateStr = entry.date ? formatDateShort(entry.date) : '';
+      const loc = entry.location ? entry.location.replace(/\s*\([^)]+\)\s*$/, '').trim() : '';
+      const ncText = entry.noteContent ? stripHtml(entry.noteContent).slice(0, 120).trim() : '';
+      // Auto-derive display title: explicit description > first line of content > placeholder
+      const firstLine = ncText ? ncText.split(/[\n\r]/)[0].slice(0, 80).trim() : '';
+      const displayTitle = title || firstLine || '';
+      return '<div class="note-card" data-journal-id="' + entry.id + '" onclick="openJournalEntryEditor(\'' + entry.id + '\')" '
+        + 'style="cursor:pointer;margin:0 16px 10px;border-radius:14px;background:var(--bg-card);border:1px solid var(--border);padding:14px 16px;">'
+        + '<div style="display:flex;align-items:center;gap:8px;min-width:0;">'
+          + '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>'
+          + '<div style="font-size:14px;font-weight:600;color:var(--text-primary);flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'
+              + (displayTitle ? esc(displayTitle) : '<span style="color:var(--text-muted);font-style:italic">New entry…</span>')
+            + '</div>'
+          + '<button onclick="event.stopPropagation();deleteJournalEntry(\'' + entry.id + '\')" '
+              + 'style="background:none;border:none;color:var(--text-muted);cursor:pointer;padding:3px;flex-shrink:0;opacity:0.5;line-height:0">'
+              + '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>'
+            + '</button>'
+        + '</div>'
+        + ((dateStr || loc) ? '<div style="display:flex;align-items:center;gap:10px;margin-top:6px;font-size:12px;color:var(--text-muted);">'
+            + (dateStr ? '<span style="display:inline-flex;align-items:center;gap:3px;"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>' + dateStr + '</span>' : '')
+            + (loc ? '<span style="display:inline-flex;align-items:center;gap:3px;"><svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 010-5 2.5 2.5 0 010 5z"/></svg>' + esc(loc) + '</span>' : '')
+          + '</div>' : '')
+        + (ncText ? '<div style="margin-top:6px;font-size:12.5px;color:var(--text-secondary);line-height:1.4;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;">' + esc(ncText) + '</div>' : '')
+        + '</div>';
+    }
+
+    function renderJournalSectionsModal() {
+      if (!state.journalSectionsModalOpen) return '';
+      const rootSections = state.journal.filter(e => e.isSection && !e.parentId && !e.deleted)
+        .sort(function(a,b){return (a.displayOrder||0)-(b.displayOrder||0);});
+
+      const renderModalRow = function(sec, depth) {
+        const pad = depth * 20;
+        const subCount = state.journal.filter(e => !e.isSection && e.sectionId === sec.id && !e.deleted).length;
+        const childSecs = state.journal.filter(e => e.isSection && e.parentId === sec.id && !e.deleted)
+          .sort(function(a,b){return (a.displayOrder||0)-(b.displayOrder||0);});
+        const typeLabel = sec.sectionType === 'site' ? 'Site Visit' : sec.sectionType === 'year' ? 'Year' : 'Folder';
+        let row = '<div class="sec-modal-row" style="padding-left:' + (8 + pad) + 'px">'
+          + '<div style="flex:1;min-width:0;">'
+            + '<div class="sec-modal-row-title">' + esc(sec.sectionTitle) + '</div>'
+            + '<div class="sec-modal-row-sub">' + typeLabel + (subCount > 0 ? ' · ' + subCount + ' entr' + (subCount===1?'y':'ies') : '') + '</div>'
+          + '</div>'
+          + '<div class="sec-modal-actions">'
+            + '<button class="sec-modal-btn" onclick="openEditJournalSectionForm(\'' + sec.id + '\')" title="Edit">'
+                + '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Edit'
+              + '</button>'
+            + '<button class="sec-modal-btn" onclick="openNewJournalSectionForm(\'' + sec.id + '\')" title="Add sub">'
+                + '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Sub'
+              + '</button>'
+            + '<button class="sec-modal-btn danger" onclick="confirmDeleteJournalSection(\'' + sec.id + '\')">'
+                + '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>'
+              + '</button>'
+          + '</div>'
+          + '</div>';
+        for (const child of childSecs) row += renderModalRow(child, depth + 1);
+        return row;
+      };
+
+      let listHtml = rootSections.length === 0
+        ? '<div style="padding:24px 8px;text-align:center;color:var(--text-muted);font-size:14px;">No sections yet.<br><span style="font-size:12px;">Create your first section below.</span></div>'
+        : rootSections.map(function(s) { return renderModalRow(s, 0); }).join('');
+
+      const f = state.journalSectionsForm;
+      const isEdit = !!state.journalSectionsEditId;
+      const parentOptions = state.journal.filter(e => e.isSection && !e.deleted && e.id !== state.journalSectionsEditId)
+        .map(function(s) { return '<option value="' + s.id + '"' + (f && f.parentId === s.id ? ' selected' : '') + '>' + esc(s.sectionTitle) + '</option>'; }).join('');
+
+      const formHtml = f ? (
+        '<div class="sec-form">'
+        + '<div><label>Section Name</label><input id="jsf-title" type="text" value="' + esc(f.title) + '" placeholder="e.g. 2026, March, Ballinagar…" oninput="state.journalSectionsForm.title=this.value"></div>'
+        + '<div><label>Type</label><select id="jsf-type" onchange="state.journalSectionsForm.type=this.value;render()">'
+            + '<option value="year"' + (f.type==='year'?' selected':'') + '>Year</option>'
+            + '<option value="folder"' + (f.type==='folder'?' selected':'') + '>Folder / Month</option>'
+            + '<option value="site"' + (f.type==='site'?' selected':'') + '>Site Visit</option>'
+          + '</select></div>'
+        + (f.type === 'site'
+            ? '<div><label>Visit Date</label><input id="jsf-date" type="date" value="' + esc(f.date) + '" oninput="state.journalSectionsForm.date=this.value"></div>'
+              + '<div><label>Location</label><input id="jsf-loc" type="text" value="' + esc(f.location) + '" placeholder="Town or site code…" oninput="state.journalSectionsForm.location=this.value"></div>'
+            : '')
+        + (rootSections.length > 0 && !isEdit
+            ? '<div><label>Parent Section (optional)</label><select id="jsf-parent" onchange="state.journalSectionsForm.parentId=this.value||null"><option value="">— None (top level) —</option>' + parentOptions + '</select></div>'
+            : '')
+        + '<div class="sec-form-btns">'
+            + '<button class="sec-form-btn cancel" onclick="cancelJournalSectionForm()">Cancel</button>'
+            + '<button class="sec-form-btn primary" onclick="commitJournalSectionForm()">' + (isEdit ? 'Save' : 'Create') + '</button>'
+          + '</div>'
+        + '</div>'
+      ) : '';
+
+      const addBtnHtml = !f
+        ? '<button class="sec-manage-btn" onclick="openNewJournalSectionForm(null)" style="width:100%;margin-top:12px;justify-content:center;">'
+            + '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>New Section'
+          + '</button>'
+        : '';
+
+      return '<div class="sec-modal-overlay" onclick="if(event.target===this)closeJournalSectionsModal()">'
+        + '<div class="sec-modal">'
+          + '<div class="sec-modal-header"><span class="sec-modal-title">Journal Sections</span>'
+              + '<button onclick="closeJournalSectionsModal()" style="background:none;border:none;font-size:22px;color:var(--text-muted);cursor:pointer;line-height:1;padding:8px;margin:-8px">×</button></div>'
+          + '<div class="sec-modal-body">' + listHtml + formHtml + addBtnHtml + '</div>'
+        + '</div>'
+      + '</div>';
+    }
+
+    function renderJournalSectionNode(node, depth) {
+      depth = depth || 0;
+      const isCollapsed = !!state.journalCollapsed[node.id];
+      const noteCount = _sectionNoteCount(node, null);
+      const isSite = node.sectionType === 'site';
+      const isYear = node.sectionType === 'year';
+
+      const chevronSvg = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>';
+      const iconSvg = isSite
+        ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 010-5 2.5 2.5 0 010 5z"/></svg>'
+        : isYear
+          ? '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>'
+          : '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>';
+
+      let siteMeta = '';
+      if (isSite) {
+        const parts = [];
+        if (node.date) parts.push(formatDateShort(node.date));
+        if (node.location) parts.push(node.location.replace(/\s*\([^)]+\)\s*$/, '').trim());
+        if (parts.length) siteMeta = '<div class="sec-site-meta">' + parts.join(' · ') + '</div>';
+      }
+
+      const countBadge = noteCount > 0 ? '<span class="sec-count">' + noteCount + '</span>' : '';
+      const titleCls = 'sec-title' + (isYear ? ' sec-title-year' : '');
+
+      const header = '<div class="sec-header' + (isSite ? ' sec-header-site' : '') + '" onclick="toggleJournalSectionCollapsed(\'' + node.id + '\')">'
+        + '<span class="sec-chevron' + (isCollapsed ? '' : ' open') + '">' + chevronSvg + '</span>'
+        + '<span style="display:flex;align-items:center;gap:6px;flex:1;min-width:0;">'
+            + '<span style="color:var(--text-muted);flex-shrink:0;">' + iconSvg + '</span>'
+            + '<span class="' + titleCls + '">' + esc(node.sectionTitle) + '</span>'
+          + '</span>'
+        + siteMeta
+        + countBadge
+        + '<button class="sec-add-btn" onclick="event.stopPropagation();addJournalEntry(\'' + node.id + '\')" title="Add entry">'
+            + '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>'
+          + '</button>'
+        + '</div>';
+
+      let childHtml = '';
+      for (const child of node.children) childHtml += renderJournalSectionNode(child, depth + 1);
+      for (const e of node.notes) childHtml += renderJournalEntryCard(e);
+
+      const indentStyle = depth > 0 ? ' class="sec-indent"' : '';
+      const childrenHtml = isCollapsed ? '' : '<div' + indentStyle + '>' + childHtml + '</div>';
+      return header + childrenHtml;
+    }
+
+    function renderJournalView() {
+      const q = (state.journalSearch || '').trim().toLowerCase();
+      const allEntries = state.journal.filter(e => !e.isSection && !e.deleted);
+      const hasSections = state.journal.some(e => e.isSection && !e.deleted);
+
+      // Build tree
+      const tree = buildNoteTree(state.journal);
+
+      // Search mode: flat filtered list
+      const searchResults = q
+        ? allEntries.filter(function(e) {
+            const hay = [e.description||'', e.noteContent ? stripHtml(e.noteContent) : '', e.location||''].join(' ').toLowerCase();
+            return hay.includes(q);
+          })
+        : null;
+
+      // Section header render for tree mode
+      const syncDot = state.journalSyncStatus === 'pending'
+        ? '<span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--priority-medium);margin-left:4px;vertical-align:middle"></span>'
+        : state.journalSyncStatus === 'error'
+          ? '<span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--priority-high);margin-left:4px;vertical-align:middle"></span>'
+          : '';
+
+      const searchBar = '<div style="padding:10px 16px 4px;position:relative;">'
+        + '<div style="position:relative;">'
+          + '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--text-muted);pointer-events:none"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>'
+          + '<input id="journal-search" type="search" value="' + esc(q) + '" placeholder="Search journal…" oninput="state.journalSearch=this.value;render()" '
+              + 'style="width:100%;box-sizing:border-box;padding:9px 34px 9px 34px;border-radius:12px;border:1.5px solid var(--border);background:var(--bg-card);color:var(--text-primary);font-size:14px;font-family:inherit;outline:none;">'
+          + (q ? '<button onclick="state.journalSearch=\'\';render()" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text-muted);font-size:16px;cursor:pointer;padding:2px;line-height:1">×</button>' : '')
+        + '</div>'
+        + '</div>';
+
+      const topBar = '<div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px 4px;">'
+        + '<div style="font-size:17px;font-weight:800;color:var(--text-primary);">Field Journal' + syncDot + '</div>'
+        + '<button class="sec-manage-btn" onclick="openJournalSectionsModal()">'
+            + '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>Sections'
+          + '</button>'
+        + '</div>';
+
+      // Add entry card (to unsorted)
+      const addCard = '<div class="add-note-dashed" onclick="addJournalEntry(null)" style="margin:8px 16px 4px;">'
+        + '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>'
+        + 'New Entry'
+        + '</div>';
+
+      let mainHtml = '';
+
+      if (searchResults) {
+        // Search mode: flat
+        if (searchResults.length === 0) {
+          mainHtml = '<div class="notes-empty" style="margin-top:32px">No entries match "<strong>' + esc(q) + '</strong>"</div>';
+        } else {
+          mainHtml = searchResults.map(function(e) { return renderJournalEntryCard(e); }).join('');
+        }
+      } else if (hasSections) {
+        // Tree mode
+        let treeHtml = '';
+        for (const root of tree.roots) treeHtml += renderJournalSectionNode(root, 0);
+        if (tree.unsectioned.length > 0) {
+          if (tree.roots.length > 0) treeHtml += '<div class="notes-section-label" style="margin-top:8px;">Unsorted</div>';
+          treeHtml += tree.unsectioned.map(function(e) { return renderJournalEntryCard(e); }).join('');
+        }
+        mainHtml = treeHtml || '<div class="notes-empty" style="margin-top:32px">No entries yet. Create sections above or tap "New Entry".</div>';
+      } else {
+        // No sections: flat list of all entries
+        if (allEntries.length === 0) {
+          mainHtml = '<div class="notes-empty" style="margin-top:24px;padding:0 16px">No journal entries yet.<br><span style="font-size:12px;color:var(--text-muted)">Tap "New Entry" or use Sections to organise by site visit.</span></div>';
+        } else {
+          mainHtml = allEntries.map(function(e) { return renderJournalEntryCard(e); }).join('');
+        }
+      }
+
+      const hint = '<div style="margin-top:12px;margin-bottom:20px;font-size:12px;color:var(--text-muted);font-style:italic;text-align:center">Tap an entry to open the editor · Use Sections to organise by site</div>';
+
+      return '<div style="min-height:100vh;padding-bottom:80px">'
+        + topBar
+        + searchBar
+        + addCard
+        + mainHtml
+        + hint
+        + renderJournalSectionsModal()
+        + '</div>';
     }
 
     // ---- Notes search ----
@@ -17253,8 +18310,11 @@
       saveUiState(); // persist so refresh remembers the panel state
     }
 
-    function openFieldNoteFullscreen(noteId) {
-      const note = state.notes.find(n => n.id === noteId);
+    let _fnFsSource = 'notes'; // 'notes' | 'journal'
+    function openFieldNoteFullscreen(noteId, source) {
+      _fnFsSource = source || 'notes';
+      const arr = _fnFsSource === 'journal' ? state.journal : state.notes;
+      const note = arr.find(n => n.id === noteId);
       if (!note) return;
       _fnFsNoteId = noteId;
       // Record the note's updatedAt at open time so the sync merge can tell
@@ -17279,8 +18339,13 @@
         window._tiptapNoteEdited = false; // track whether user actually changed anything
         _tiptapOnUpdate = (editor) => {
           const html = _ttGetHTML();
-          const n = state.notes.find(x => x.id === noteId);
-          if (n) { n.noteContent = html; n.updatedAt = Date.now(); _tiptapLastSaveAt = Date.now(); _tiptapLastSavedNoteId = noteId; window._tiptapNoteEdited = true; scheduleNotesSave(); }
+          const _fsArr = _fnFsSource === 'journal' ? state.journal : state.notes;
+          const n = _fsArr.find(x => x.id === noteId);
+          if (n) {
+            n.noteContent = html; n.updatedAt = Date.now();
+            _tiptapLastSaveAt = Date.now(); _tiptapLastSavedNoteId = noteId; window._tiptapNoteEdited = true;
+            if (_fnFsSource === 'journal') scheduleJournalSave(); else scheduleNotesSave();
+          }
         };
         _tiptapEditor.commands.focus();
         _ttUpdateToolbar(_tiptapEditor);
