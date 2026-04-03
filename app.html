@@ -2967,6 +2967,58 @@
       background: var(--border);
     }
 
+    /* ── In-app callouts summary table (3-col, Option A style) ── */
+    .co-sum-table {
+      background: var(--bg-card);
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      overflow: hidden;
+    }
+    .co-sum-head {
+      display: grid;
+      grid-template-columns: 76px 1fr 1fr;
+      background: var(--bg-card-alt);
+      border-bottom: 1px solid var(--border);
+    }
+    .co-sum-row {
+      display: grid;
+      grid-template-columns: 76px 1fr 1fr;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg-card);
+    }
+    .co-sum-row:last-of-type {
+      border-bottom: none;
+    }
+    .co-sum-cell {
+      padding: 10px 12px;
+      font-size: 13px;
+      color: var(--text-primary);
+    }
+    .co-sum-cell + .co-sum-cell {
+      border-left: 1px solid var(--border);
+    }
+    .co-sum-th {
+      font-size: 9px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      padding: 7px 12px;
+    }
+    .co-sum-date {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--accent);
+    }
+    .co-sum-ticket {
+      font-family: var(--font-mono);
+      font-weight: 500;
+    }
+    .co-sum-loc {
+      color: var(--text-secondary);
+    }
+
     input[type=number]::-webkit-inner-spin-button {
       opacity: 1;
     }
@@ -10851,7 +10903,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '4.35.32';
+    const VERSION = '4.35.33';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -13167,12 +13219,11 @@
     var _coRows = _coEntries.map(function(co) {
       var _dl = co.date ? (function() { var p = co.date.split('-'); return p[2].replace(/^0/,'') + '. ' + _MN[parseInt(p[1],10)-1]; })() : '\u2014';
       var _site = co.site ? co.site.replace(/\s*\([^)]+\)$/, '') : '\u2014';
-      return '<div class="sum-new-row" style="grid-template-columns:1fr auto auto;gap:8px;">' +
-        '<div>' +
-          '<div class="sum-row-code">' + esc(_dl) + '</div>' +
-          '<div class="sum-row-desc">' + esc(co.ticket || '\u2014') + '</div>' +
-          '<div style="font-size:11px;color:var(--text-muted);margin-top:2px;">' + esc(_site) + '</div>' +
-        '</div><div></div><div></div></div>';
+      return '<div class="co-sum-row">' +
+        '<div class="co-sum-cell co-sum-date">' + esc(_dl) + '</div>' +
+        '<div class="co-sum-cell co-sum-ticket">' + esc(co.ticket || '\u2014') + '</div>' +
+        '<div class="co-sum-cell co-sum-loc">' + esc(_site) + '</div>' +
+      '</div>';
     }).join('');
     return '<div class="sum-section-hdr" style="margin-top:8px;">' +
         '<div class="sum-section-line"></div>' +
@@ -13180,11 +13231,11 @@
         '<div class="sum-section-line"></div>' +
       '</div>' +
       '<div class="sum-section">' +
-        '<div class="sum-table-wrap open">' +
-          '<div class="sum-new-col-head">' +
-            '<div class="sum-new-col-th">Date &amp; Ticket</div>' +
-            '<div class="sum-new-col-th r"></div>' +
-            '<div class="sum-new-col-th r"></div>' +
+        '<div class="co-sum-table">' +
+          '<div class="co-sum-head">' +
+            '<div class="co-sum-cell co-sum-date co-sum-th">Date</div>' +
+            '<div class="co-sum-cell co-sum-ticket co-sum-th">Ticket Number</div>' +
+            '<div class="co-sum-cell co-sum-loc co-sum-th">Location</div>' +
           '</div>' +
           _coRows +
           '<div class="sum-new-footer">' +
