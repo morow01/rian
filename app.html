@@ -10851,7 +10851,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '4.35.26';
+    const VERSION = '4.35.27';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -12580,6 +12580,13 @@
 
       app.innerHTML = renderHeader() + viewBody;
       attachEvents();
+      // Re-apply any open ctx menu that was open during a render (e.g. after toggleRemedyFlag)
+      if (state._openCtxActId) {
+        const _m = document.getElementById('act-ctx-' + state._openCtxActId);
+        const _b = document.getElementById('act-more-' + state._openCtxActId);
+        if (_m) _m.classList.add('show');
+        if (_b) _b.classList.add('open');
+      }
       // Auto-grow textareas that have existing content
       app.querySelectorAll('textarea[data-field="notes"], textarea[data-field="description"], textarea[data-note-field="description"]').forEach(autoGrow);
       // Restore scroll position after DOM is painted
@@ -14127,6 +14134,7 @@
     function closeAllCtx() {
       document.querySelectorAll('.ctx-menu').forEach(m => m.classList.remove('show'));
       document.querySelectorAll('.btn-more').forEach(b => b.classList.remove('open'));
+      state._openCtxActId = null;
     }
     function toggleActMenu(actId) {
       const menu = document.getElementById('act-ctx-' + actId);
@@ -14134,7 +14142,7 @@
       if (!menu || !btn) return;
       const open = menu.classList.contains('show');
       closeAllCtx();
-      if (!open) { menu.classList.add('show'); btn.classList.add('open'); }
+      if (!open) { menu.classList.add('show'); btn.classList.add('open'); state._openCtxActId = actId; }
     }
     function toggleNoteMenu(noteId) {
       const menu = document.getElementById('note-ctx-' + noteId);
