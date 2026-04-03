@@ -2685,7 +2685,7 @@
     .sum-td-num {
       font-family: var(--font-mono);
       font-size: 13px;
-      font-weight: 600;
+      font-weight: 500;
       color: var(--text-primary);
       text-align: right;
       white-space: nowrap;
@@ -2794,7 +2794,7 @@
       background: var(--accent-chip-bg);
       color: var(--accent-chip-text);
       font-size: 12px;
-      font-weight: 700;
+      font-weight: 500;
       font-family: var(--font-mono);
       padding: 4px 10px;
       border-radius: 8px;
@@ -2805,7 +2805,7 @@
       background: rgba(245, 158, 11, 0.12);
       color: #b45309;
       font-size: 12px;
-      font-weight: 700;
+      font-weight: 500;
       font-family: var(--font-mono);
       padding: 4px 10px;
       border-radius: 8px;
@@ -2870,7 +2870,7 @@
 
     .sum-row-code {
       font-size: 10px;
-      font-weight: 600;
+      font-weight: 500;
       font-family: var(--font-mono);
       color: var(--accent);
       margin-bottom: 2px;
@@ -10851,7 +10851,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '4.35.29';
+    const VERSION = '4.35.30';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -11456,7 +11456,7 @@
       showSummary: false,
       headerExpanded: localStorage.getItem('rian_headerExpanded') === 'true',
       expandedDays: new Set(),
-  micFabHidden: localStorage.getItem('micFabHidden') === '1',  // track which day indices are expanded
+      micFabHidden: localStorage.getItem('micFabHidden') === '1',  // track which day indices are expanded
       notesOpen: new Map(), // explicit open/closed per actId; default = open if note has content
       selectionMode: false,
       selectedNotes: new Set(),
@@ -25690,6 +25690,21 @@ QUESTION: ${query}`;
 
   </script>
 
+  <!-- ===== EMAIL PREVIEW MODAL ===== -->
+  <div id="email-preview-modal" class="hidden fixed inset-0 z-50 flex flex-col" style="background:var(--bg-modal)">
+    <div class="flex flex-col flex-1 overflow-hidden">
+      <div style="background:var(--bg-header)" class="text-white px-4 py-3 flex items-center gap-3 safe-top">
+        <button onclick="closeEmailPreview()" class="text-white p-1 text-xl leading-none">✕</button>
+        <h2 class="text-base font-semibold flex-1">Weekly Summary</h2>
+        <button onclick="sendWeeklyEmailFromPreview()" style="background:#f59e0b;color:#fff;padding:6px 16px;border-radius:999px;font-size:13px;font-weight:700;border:none;cursor:pointer;">Send Email</button>
+      </div>
+      <div style="background:#eff6ff;border-bottom:1px solid #bfdbfe;padding:8px 16px;font-size:12px;color:#2563eb;text-align:center;">
+        💡 Tap any <span style="text-decoration:underline;text-decoration-style:dotted;">underlined value</span> to copy it to clipboard
+      </div>
+      <div id="email-preview-body" class="flex-1 overflow-y-auto" style="background:#f1f5f9;padding:16px 12px;"></div>
+    </div>
+  </div>
+
   <!-- ===== VOICE FAB ===== -->
   <button class="note-voice-fab vf-hidden" id="note-voice-fab" onclick="startNoteVoice()" title="Voice note"
     aria-label="Voice note">
@@ -26433,5 +26448,4 @@ QUESTION: ${query}`;
     </button>
     <button class="tt-link-bbl-btn" id="tt-link-bbl-remove" title="Remove link" onmousedown="event.preventDefault()">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
-        stroke-linejoin="round">
-        <path d="M10 13a5 5
+        stroke-linejoin="round
