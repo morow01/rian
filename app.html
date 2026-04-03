@@ -10851,7 +10851,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '4.35.25';
+    const VERSION = '4.35.26';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -13985,7 +13985,7 @@
                   </button>
                   <button class="ctx-item ctx-purple" onclick="closeAllCtx();toggleRemedyFlag(${di},'${act.id}')">
                     <svg viewBox="0 0 24 24" fill="${act.remedyPending ? '#7c3aed' : 'none'}" stroke="${act.remedyPending ? '#7c3aed' : 'currentColor'}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7" stroke-width="3"/></svg>
-                    ${act.remedyPending ? 'Remove Remedy flag' : 'Flag Remedy ticket'}
+                    ${act.remedyPending ? 'Remedy logged ✓' : 'Log Remedy ticket'}
                   </button>
                 </div>
               </div>
