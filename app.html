@@ -11239,7 +11239,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.1.28';
+    const VERSION = '5.1.29';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -16818,7 +16818,7 @@
           dbPut('notes', { id:'j_notebooks', userId, data:state.jNotebooks, updatedAt:r._updatedAt||Date.now() });
         }
         state.jSyncStatus = 'synced'; updateHeaderStatus();
-        if (state.view === 'journal' && !_jMouseDrag && !_jTouchDrag) render();
+        if (state.view === 'journal' && !_jDragBusy()) render();
       }, () => { state.jSyncStatus = 'error'; updateHeaderStatus(); });
 
       _jUnsubSec = secRef.onSnapshot(snap => {
@@ -16828,7 +16828,7 @@
           state.jSections = _mergeArr(r.sections, state.jSections);
           dbPut('notes', { id:'j_sections', userId, data:state.jSections, updatedAt:r._updatedAt||Date.now() });
         }
-        if (state.view === 'journal' && !_jMouseDrag && !_jTouchDrag) render();
+        if (state.view === 'journal' && !_jDragBusy()) render();
       }, () => {});
 
       _jUnsubPg = pgRef.onSnapshot(snap => {
@@ -16838,7 +16838,7 @@
           state.jPages = _mergeArr(r.pages, state.jPages);
           dbPut('notes', { id:'j_pages', userId, data:state.jPages, updatedAt:r._updatedAt||Date.now() });
         }
-        if (state.view === 'journal' && !_jMouseDrag && !_jTouchDrag) render();
+        if (state.view === 'journal' && !_jDragBusy()) render();
       }, () => {});
 
       state.jSyncStatus = 'synced';
@@ -17059,8 +17059,17 @@
       if (_jTouchDrag) { document.removeEventListener('touchmove',_jTouchMove); _jTouchDrag=null; }
     }
 
+    // ── Drag cooldown: block Firestore re-renders for 2s after drag ends ──
+    var _jDragCooldown = false;
+    var _jDragCooldownTimer = null;
+    function _jDragBusy() { return !!(_jMouseDrag || _jTouchDrag || _jDragCooldown); }
+    function _jStartCooldown() {
+      _jDragCooldown = true;
+      clearTimeout(_jDragCooldownTimer);
+      _jDragCooldownTimer = setTimeout(function() { _jDragCooldown = false; }, 2000);
+    }
+
     // ── Mouse drag (desktop) ──
-    // Lazy-commit: DOM not modified until cursor moves ≥5px. Simple clicks are ignored.
     let _jMouseDrag = null;
     function jMouseDragStart(e, type, id) {
       if (e.button!==0) return;
@@ -17069,12 +17078,6 @@
       _jDragCleanup();
       var rowEl=document.querySelector('[data-jid="'+id+'"]');
       if (!rowEl) return;
-      _jMouseDrag={type:type,id:id,rowEl:rowEl,startX:e.clientX,startY:e.clientY,started:false};
-      document.addEventListener('mousemove',_jMouseMove);
-      document.addEventListener('mouseup',_jMouseUp,{once:true});
-    }
-    function _jMouseCommit(d, clientX, clientY) {
-      var rowEl=d.rowEl;
       var rect=rowEl.getBoundingClientRect();
       var rowW=rowEl.offsetWidth;
       var container=rowEl.parentNode;
@@ -17087,16 +17090,12 @@
       ghost.classList.add('j-drag-ghost');
       ghost.style.cssText='position:fixed;top:'+rect.top+'px;left:'+rect.left+'px;width:'+rowW+'px;z-index:9999;box-shadow:0 12px 40px rgba(0,0,0,0.22);border-radius:10px;pointer-events:none;background:var(--bg-card,#fff);opacity:1;transform:scale(1.03);transition:none;cursor:grabbing;';
       document.body.appendChild(ghost);
-      d.ghost=ghost; d.ph=ph; d.container=container; d.origRects=origRects; d.rectTop=rect.top;
-      d.started=true;
+      _jMouseDrag={type:type,id:id,rowEl:rowEl,ghost:ghost,ph:ph,container:container,origRects:origRects,startY:e.clientY,rectTop:rect.top};
+      document.addEventListener('mousemove',_jMouseMove);
+      document.addEventListener('mouseup',_jMouseUp,{once:true});
     }
     function _jMouseMove(e) {
       if (!_jMouseDrag) return;
-      if (!_jMouseDrag.started) {
-        var dx=e.clientX-_jMouseDrag.startX, dy=e.clientY-_jMouseDrag.startY;
-        if (dx*dx+dy*dy < 25) return; // wait for ≥5px
-        _jMouseCommit(_jMouseDrag, e.clientX, e.clientY);
-      }
       var dy=e.clientY-_jMouseDrag.startY;
       _jMouseDrag.ghost.style.top=(_jMouseDrag.rectTop+dy)+'px';
       _jMovePlaceholder(_jMouseDrag.ph, _jMouseDrag.container, e.clientY, _jMouseDrag.origRects);
@@ -17105,14 +17104,13 @@
       if (!_jMouseDrag) return;
       document.removeEventListener('mousemove',_jMouseMove);
       var d=_jMouseDrag; _jMouseDrag=null;
-      if (!d.started) return; // tap with no movement — do nothing
+      _jStartCooldown();
       var beforeId=_jBeforeId(d.ph);
       d.ghost.remove(); d.ph.remove();
       _jReorderInsertBefore(d.type, d.id, beforeId);
     }
 
     // ── Touch drag (mobile) ──
-    // Lazy-commit: DOM not modified until finger moves ≥5px. Simple taps are ignored.
     function jTouchDragStart(e, type, id) {
       if (e.target.closest('button')) return;
       e.preventDefault(); e.stopPropagation();
@@ -17120,13 +17118,6 @@
       var touch=e.touches[0];
       var rowEl=document.querySelector('[data-jid="'+id+'"]');
       if (!rowEl) return;
-      _jTouchDrag={type:type,id:id,rowEl:rowEl,startX:touch.clientX,startY:touch.clientY,started:false};
-      document.addEventListener('touchmove',_jTouchMove,{passive:false});
-      document.addEventListener('touchend',_jTouchEnd,{once:true});
-      document.addEventListener('touchcancel',_jTouchEnd,{once:true});
-    }
-    function _jTouchCommit(d, touch) {
-      var rowEl=d.rowEl;
       var rect=rowEl.getBoundingClientRect();
       var rowW=rowEl.offsetWidth;
       var container=rowEl.parentNode;
@@ -17139,18 +17130,15 @@
       ghost.classList.add('j-drag-ghost');
       ghost.style.cssText='position:fixed;top:'+rect.top+'px;left:'+rect.left+'px;width:'+rowW+'px;z-index:9999;box-shadow:0 12px 40px rgba(0,0,0,0.22);border-radius:10px;pointer-events:none;background:var(--bg-card,#fff);opacity:1;transform:scale(1.03);transition:none;';
       document.body.appendChild(ghost);
-      d.ghost=ghost; d.ph=ph; d.container=container; d.origRects=origRects; d.rectTop=rect.top;
-      d.started=true;
+      _jTouchDrag={type:type,id:id,rowEl:rowEl,ghost:ghost,ph:ph,container:container,origRects:origRects,startY:touch.clientY,rectTop:rect.top};
+      document.addEventListener('touchmove',_jTouchMove,{passive:false});
+      document.addEventListener('touchend',_jTouchEnd,{once:true});
+      document.addEventListener('touchcancel',_jTouchEnd,{once:true});
     }
     function _jTouchMove(e) {
       if (!_jTouchDrag) return;
       e.preventDefault();
       var touch=e.touches[0];
-      if (!_jTouchDrag.started) {
-        var dx=touch.clientX-_jTouchDrag.startX, dy=touch.clientY-_jTouchDrag.startY;
-        if (dx*dx+dy*dy < 25) return; // wait for ≥5px
-        _jTouchCommit(_jTouchDrag, touch);
-      }
       var dy=touch.clientY-_jTouchDrag.startY;
       _jTouchDrag.ghost.style.top=(_jTouchDrag.rectTop+dy)+'px';
       _jMovePlaceholder(_jTouchDrag.ph, _jTouchDrag.container, touch.clientY, _jTouchDrag.origRects);
@@ -17159,7 +17147,7 @@
       if (!_jTouchDrag) return;
       document.removeEventListener('touchmove',_jTouchMove);
       var d=_jTouchDrag; _jTouchDrag=null;
-      if (!d.started) return; // tap with no movement — do nothing
+      _jStartCooldown();
       var beforeId=_jBeforeId(d.ph);
       d.ghost.remove(); d.ph.remove();
       _jReorderInsertBefore(d.type, d.id, beforeId);
