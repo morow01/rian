@@ -11239,7 +11239,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.1.31';
+    const VERSION = '5.1.32';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -13459,7 +13459,12 @@
     let _renderRAF = null;
     function render() {
       if (_renderRAF) return; // already scheduled
-      _renderRAF = requestAnimationFrame(() => { _renderRAF = null; _renderNow(); });
+      _renderRAF = requestAnimationFrame(() => {
+        _renderRAF = null;
+        // A RAF scheduled before a drag started must not fire mid-drag
+        if (state.view === 'journal' && _jDragBusy()) return;
+        _renderNow();
+      });
     }
     function _renderNow() {
       const app = document.getElementById('app');
@@ -16964,43 +16969,14 @@
       if (state.jEditMode) return;
       if (e.target.closest('button,.j-nb-icon,.j-sec-icon')) return;
       clearTimeout(_jLpTimer);
-      var isTouch = !!e.touches;
-      _jLpStartXY = isTouch ? [e.touches[0].clientX, e.touches[0].clientY] : [0,0];
+      _jLpStartXY = e.touches ? [e.touches[0].clientX, e.touches[0].clientY] : [0,0];
       _jLpTimer = setTimeout(function() {
         _jLpTimer = null;
         state.jEditMode = true;
         var _app = document.getElementById('app');
         if (_app) _app.style.touchAction = 'none';
         if (navigator.vibrate) navigator.vibrate(40);
-        render();
-        // Auto-start drag on the held item — finger is still down
-        if (itemId) {
-          var rowEl = document.querySelector('[data-jid="' + itemId + '"]');
-          if (rowEl) {
-            var rect = rowEl.getBoundingClientRect();
-            var rowW = rowEl.offsetWidth;
-            var container = rowEl.parentNode;
-            var ph = _jMakePlaceholder(rowEl);
-            container.insertBefore(ph, rowEl);
-            container.removeChild(rowEl);
-            var origRects = _jSnapshotRects(container);
-            var ghost = rowEl.cloneNode(true);
-            ghost.removeAttribute('data-jid');
-            ghost.classList.add('j-drag-ghost');
-            ghost.style.cssText = 'position:fixed;top:' + rect.top + 'px;left:' + rect.left + 'px;width:' + rowW + 'px;z-index:9999;box-shadow:0 12px 40px rgba(0,0,0,0.22);border-radius:10px;pointer-events:none;background:var(--bg-card,#fff);opacity:1;transform:scale(1.03);transition:none;';
-            document.body.appendChild(ghost);
-            if (isTouch) {
-              _jTouchDrag = {type:type,id:itemId,rowEl:rowEl,ghost:ghost,ph:ph,container:container,origRects:origRects,startY:_jLpStartXY[1],rectTop:rect.top};
-              document.addEventListener('touchmove', _jTouchMove, {passive:false});
-              document.addEventListener('touchend', _jTouchEnd, {once:true});
-              document.addEventListener('touchcancel', _jTouchEnd, {once:true});
-            } else {
-              _jMouseDrag = {type:type,id:itemId,rowEl:rowEl,ghost:ghost,ph:ph,container:container,origRects:origRects,startY:_jLpStartXY[1],rectTop:rect.top};
-              document.addEventListener('mousemove', _jMouseMove);
-              document.addEventListener('mouseup', _jMouseUp, {once:true});
-            }
-          }
-        }
+        _renderNow(); // sync render — no RAF delay
       }, 500);
     }
     // Only cancel long-press if finger moved more than 8px (normal small tremor = OK)
@@ -18006,6 +17982,9 @@
       const nb = state.jNotebooks.find(function(n){ return n.id === state.jNotebookId; });
       const nbTitle = nb ? nb.title : 'Notebook';
       const secs = _jSortedItems('section');
+      if (secs.length !== state.jSections.filter(function(s){ return s.notebookId===state.jNotebookId; }).length)
+        console.warn('[Rian] Section count mismatch! sorted:', secs.length, 'raw:', state.jSections.filter(function(s){ return s.notebookId===state.jNotebookId; }).length);
+      console.log('[Rian] renderJSections: ' + secs.length + ' sections, nbId=' + state.jNotebookId + ', total jSections=' + state.jSections.length + ', dragBusy=' + _jDragBusy());
 
       const rows = secs.map(function(sec) {
         const pgCount = state.jPages.filter(function(p){ return p.sectionId === sec.id && !p.deleted; }).length;
