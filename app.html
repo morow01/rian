@@ -11239,7 +11239,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.1.32';
+    const VERSION = '5.1.33';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -16832,7 +16832,15 @@
         if (!snap.exists) { if (state.jSections.length) fsSetJSections(state.jSections).catch(()=>{}); return; }
         const r = snap.data();
         if (r.sections?.length) {
-          state.jSections = _mergeArr(r.sections, state.jSections);
+          var prevCount = state.jSections.length;
+          var merged = _mergeArr(r.sections, state.jSections);
+          // Safety: never let merge reduce total section count (prevents data loss)
+          if (merged.length < prevCount) {
+            console.warn('[Rian] Section merge would drop items! prev:', prevCount, 'merged:', merged.length, '— keeping local, pushing back');
+            fsSetJSections(state.jSections).catch(function(){});
+            return;
+          }
+          state.jSections = merged;
           dbPut('notes', { id:'j_sections', userId, data:state.jSections, updatedAt:r._updatedAt||Date.now() });
         }
         if (state.view === 'journal') render();
@@ -17071,7 +17079,14 @@
       document.querySelectorAll('.j-placeholder').forEach(function(el){ el.remove(); });
       document.querySelectorAll('.j-drag-ghost').forEach(function(el){ el.remove(); });
       if (_jMouseDrag) { document.removeEventListener('mousemove',_jMouseMove); _jMouseDrag=null; }
-      if (_jTouchDrag) { document.removeEventListener('touchmove',_jTouchMove); _jTouchDrag=null; }
+      if (_jTouchDrag) {
+        document.removeEventListener('touchmove',_jTouchMove);
+        document.removeEventListener('touchend',_jTouchEnd);
+        document.removeEventListener('touchcancel',_jTouchEnd);
+        // Remove hidden row left over from touch drag
+        if (_jTouchDrag.rowEl) _jTouchDrag.rowEl.remove();
+        _jTouchDrag=null;
+      }
     }
 
     // ── Drag cooldown: block Firestore re-renders for 2s after drag ends ──
@@ -17089,6 +17104,7 @@
     function jMouseDragStart(e, type, id) {
       if (e.button!==0) return;
       if (e.target.closest('button')) return;
+      if (_jDragBusy()) return;
       e.preventDefault(); e.stopPropagation();
       _jDragCleanup();
       var rowEl=document.querySelector('[data-jid="'+id+'"]');
@@ -17128,6 +17144,7 @@
     // ── Touch drag (mobile) ──
     function jTouchDragStart(e, type, id) {
       if (e.target.closest('button')) return;
+      if (_jDragBusy()) return; // don't start drag during cooldown or existing drag
       e.preventDefault(); e.stopPropagation();
       _jDragCleanup();
       var touch=e.touches[0];
@@ -17138,14 +17155,15 @@
       var container=rowEl.parentNode;
       var ph=_jMakePlaceholder(rowEl);
       container.insertBefore(ph, rowEl);
-      container.removeChild(rowEl);
+      // Hide row instead of removing — keeps touch target in DOM, prevents touchcancel
+      rowEl.style.display='none';
       var origRects=_jSnapshotRects(container);
       var ghost=rowEl.cloneNode(true);
       ghost.removeAttribute('data-jid');
       ghost.classList.add('j-drag-ghost');
       ghost.style.cssText='position:fixed;top:'+rect.top+'px;left:'+rect.left+'px;width:'+rowW+'px;z-index:9999;box-shadow:0 12px 40px rgba(0,0,0,0.22);border-radius:10px;pointer-events:none;background:var(--bg-card,#fff);opacity:1;transform:scale(1.03);transition:none;';
       document.body.appendChild(ghost);
-      _jTouchDrag={type:type,id:id,rowEl:rowEl,ghost:ghost,ph:ph,container:container,origRects:origRects,startY:touch.clientY,rectTop:rect.top};
+      _jTouchDrag={type:type,id:id,rowEl:rowEl,ghost:ghost,ph:ph,container:container,origRects:origRects,startY:touch.clientY,rectTop:rect.top,hasMoved:false};
       document.addEventListener('touchmove',_jTouchMove,{passive:false});
       document.addEventListener('touchend',_jTouchEnd,{once:true});
       document.addEventListener('touchcancel',_jTouchEnd,{once:true});
@@ -17153,6 +17171,7 @@
     function _jTouchMove(e) {
       if (!_jTouchDrag) return;
       e.preventDefault();
+      _jTouchDrag.hasMoved=true;
       var touch=e.touches[0];
       var dy=touch.clientY-_jTouchDrag.startY;
       _jTouchDrag.ghost.style.top=(_jTouchDrag.rectTop+dy)+'px';
@@ -17161,11 +17180,21 @@
     function _jTouchEnd() {
       if (!_jTouchDrag) return;
       document.removeEventListener('touchmove',_jTouchMove);
+      document.removeEventListener('touchend',_jTouchEnd);
+      document.removeEventListener('touchcancel',_jTouchEnd);
       var d=_jTouchDrag; _jTouchDrag=null;
-      _jStartCooldown();
-      var beforeId=_jBeforeId(d.ph);
+      // Read placeholder position BEFORE removing it
+      var beforeId=d.hasMoved ? _jBeforeId(d.ph) : null;
       d.ghost.remove(); d.ph.remove();
-      _jReorderInsertBefore(d.type, d.id, beforeId);
+      // Remove hidden row (DOM gets rebuilt by _renderNow anyway)
+      if (d.rowEl) d.rowEl.remove();
+      if (d.hasMoved) {
+        _jStartCooldown();
+        _jReorderInsertBefore(d.type, d.id, beforeId);
+      } else {
+        // No movement (e.g. touchcancel) — just re-render, skip reorder/save
+        _renderNow();
+      }
     }
 
     // ── Delete ──
@@ -17982,9 +18011,7 @@
       const nb = state.jNotebooks.find(function(n){ return n.id === state.jNotebookId; });
       const nbTitle = nb ? nb.title : 'Notebook';
       const secs = _jSortedItems('section');
-      if (secs.length !== state.jSections.filter(function(s){ return s.notebookId===state.jNotebookId; }).length)
-        console.warn('[Rian] Section count mismatch! sorted:', secs.length, 'raw:', state.jSections.filter(function(s){ return s.notebookId===state.jNotebookId; }).length);
-      console.log('[Rian] renderJSections: ' + secs.length + ' sections, nbId=' + state.jNotebookId + ', total jSections=' + state.jSections.length + ', dragBusy=' + _jDragBusy());
+      // debug removed in v5.1.33
 
       const rows = secs.map(function(sec) {
         const pgCount = state.jPages.filter(function(p){ return p.sectionId === sec.id && !p.deleted; }).length;
