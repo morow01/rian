@@ -11237,7 +11237,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.1.23';
+    const VERSION = '5.1.24';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -17007,10 +17007,10 @@
     }
 
     // ── Shared: create placeholder sized to match rowEl ──
-    function _jMakePlaceholder(rect) {
+    function _jMakePlaceholder(el) {
       var ph=document.createElement('div');
       ph.className='j-placeholder';
-      ph.style.height=rect.height+'px';
+      ph.style.height=el.offsetHeight+'px';
       return ph;
     }
 
@@ -17068,14 +17068,14 @@
       if (!rowEl) return;
       var rect=rowEl.getBoundingClientRect();
       var container=rowEl.parentNode;
-      var ph=_jMakePlaceholder(rect);
+      var ph=_jMakePlaceholder(rowEl);
       container.insertBefore(ph, rowEl);
       container.removeChild(rowEl);
       var origRects=_jSnapshotRects(container); // snapshot AFTER removal, BEFORE any moves
       var ghost=rowEl.cloneNode(true);
       ghost.removeAttribute('data-jid');
       ghost.classList.add('j-drag-ghost');
-      ghost.style.cssText='position:fixed;top:'+rect.top+'px;left:'+rect.left+'px;width:'+rect.width+'px;z-index:9999;box-shadow:0 12px 40px rgba(0,0,0,0.22);border-radius:10px;pointer-events:none;background:var(--bg-card,#fff);opacity:1;transform:scale(1.03);transition:none;cursor:grabbing;';
+      ghost.style.cssText='position:fixed;top:'+rect.top+'px;left:'+rect.left+'px;width:'+rowEl.offsetWidth+'px;z-index:9999;box-shadow:0 12px 40px rgba(0,0,0,0.22);border-radius:10px;pointer-events:none;background:var(--bg-card,#fff);opacity:1;transform:scale(1.03);transition:none;cursor:grabbing;';
       document.body.appendChild(ghost);
       _jMouseDrag={type:type,id:id,rowEl:rowEl,ghost:ghost,ph:ph,container:container,origRects:origRects,startY:e.clientY,rectTop:rect.top};
       document.addEventListener('mousemove',_jMouseMove);
@@ -17106,14 +17106,14 @@
       if (!rowEl) return;
       var rect=rowEl.getBoundingClientRect();
       var container=rowEl.parentNode;
-      var ph=_jMakePlaceholder(rect);
+      var ph=_jMakePlaceholder(rowEl);
       container.insertBefore(ph, rowEl);
       container.removeChild(rowEl);
       var origRects=_jSnapshotRects(container);
       var ghost=rowEl.cloneNode(true);
       ghost.removeAttribute('data-jid');
       ghost.classList.add('j-drag-ghost');
-      ghost.style.cssText='position:fixed;top:'+rect.top+'px;left:'+rect.left+'px;width:'+rect.width+'px;z-index:9999;box-shadow:0 12px 40px rgba(0,0,0,0.22);border-radius:10px;pointer-events:none;background:var(--bg-card,#fff);opacity:1;transform:scale(1.03);transition:none;';
+      ghost.style.cssText='position:fixed;top:'+rect.top+'px;left:'+rect.left+'px;width:'+rowEl.offsetWidth+'px;z-index:9999;box-shadow:0 12px 40px rgba(0,0,0,0.22);border-radius:10px;pointer-events:none;background:var(--bg-card,#fff);opacity:1;transform:scale(1.03);transition:none;';
       document.body.appendChild(ghost);
       _jTouchDrag={type:type,id:id,rowEl:rowEl,ghost:ghost,ph:ph,container:container,origRects:origRects,startY:touch.clientY,rectTop:rect.top};
       document.addEventListener('touchmove',_jTouchMove,{passive:false});
