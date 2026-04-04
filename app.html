@@ -11239,7 +11239,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.1.38';
+    const VERSION = '5.1.39';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -17049,22 +17049,52 @@
       return rects;
     }
 
-    // ── Shared: move placeholder using ORIGINAL rects (immune to reflow) ──
+    // ── Shared: move placeholder + FLIP-animate displaced rows ──
     function _jMovePlaceholder(ph, container, cursorY, origRects) {
-      var insertBeforeId=null;
-      for (var i=0;i<origRects.length;i++){
-        if (cursorY < origRects[i].mid){ insertBeforeId=origRects[i].id; break; }
+      var insertBeforeId = null;
+      for (var i = 0; i < origRects.length; i++) {
+        if (cursorY < origRects[i].mid) { insertBeforeId = origRects[i].id; break; }
       }
-      if (insertBeforeId) {
-        var target=container.querySelector('[data-jid="'+insertBeforeId+'"]');
-        if (target) container.insertBefore(ph, target);
+
+      // Resolve target sibling element
+      var newSibling = insertBeforeId
+        ? container.querySelector('[data-jid="'+insertBeforeId+'"]')
+        : null;
+
+      // Skip DOM mutation + FLIP if placeholder is already in the right spot
+      var curSibling = ph.nextElementSibling;
+      var isSameSpot = newSibling ? curSibling === newSibling
+                                  : (!curSibling || !curSibling.getAttribute('data-jid'));
+      if (isSameSpot) return;
+
+      // FLIP — step 1: snapshot tops of all visible rows BEFORE DOM move
+      var rows = Array.from(container.querySelectorAll('[data-jid]'));
+      var before = {};
+      rows.forEach(function(r) {
+        if (r.style.display !== 'none') before[r.getAttribute('data-jid')] = r.getBoundingClientRect().top;
+      });
+
+      // FLIP — step 2: move placeholder in DOM
+      if (newSibling) {
+        container.insertBefore(ph, newSibling);
       } else {
-        // Place after the last row, not at very end of container
-        var last=container.querySelectorAll('[data-jid]');
-        var lastRow=last.length?last[last.length-1]:null;
-        if (lastRow&&lastRow.nextSibling) container.insertBefore(ph, lastRow.nextSibling);
+        var last = rows[rows.length - 1];
+        if (last && last.nextSibling) container.insertBefore(ph, last.nextSibling);
         else container.appendChild(ph);
       }
+
+      // FLIP — step 3: invert + play for any row that moved
+      rows.forEach(function(r) {
+        if (r.style.display === 'none') return;
+        var id = r.getAttribute('data-jid');
+        var delta = before[id] - r.getBoundingClientRect().top;
+        if (Math.abs(delta) < 1) return;
+        r.style.transition = 'none';
+        r.style.transform = 'translateY('+delta+'px)';
+        r.getBoundingClientRect(); // force reflow so browser sees the "before" state
+        r.style.transition = 'transform 180ms cubic-bezier(0.2,0,0,1)';
+        r.style.transform = '';
+      });
     }
 
     // ── Shared: resolve beforeId from placeholder position ──
@@ -17145,6 +17175,10 @@
       document.removeEventListener('pointerup',    _jOnPointerUp);
       document.removeEventListener('pointercancel',_jOnPointerUp);
       var beforeId = d.hasMoved ? _jBeforeId(d.ph) : null;
+      // Clear any FLIP transforms so _renderNow() starts from clean state
+      d.container.querySelectorAll('[data-jid]').forEach(function(r){
+        r.style.transition = ''; r.style.transform = '';
+      });
       d.ghost.remove(); d.ph.remove();
       if (d.rowEl) d.rowEl.remove();
       if (d.hasMoved) {
