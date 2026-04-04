@@ -11237,7 +11237,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.1.18';
+    const VERSION = '5.1.19';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -17011,20 +17011,35 @@
       var ph=document.createElement('div');
       ph.className='j-placeholder';
       ph.style.height=rect.height+'px';
-      ph.style.margin='0 0 8px 0';
       return ph;
     }
 
-    // ── Shared: find insertion point and move placeholder ──
-    function _jMovePlaceholder(ph, container, midY) {
-      var rows=Array.from(container.querySelectorAll('[data-jid]'));
-      var insertBefore=null;
-      for (var i=0;i<rows.length;i++){
-        var r=rows[i].getBoundingClientRect();
-        if (midY < r.top+r.height/2){ insertBefore=rows[i]; break; }
+    // ── Shared: snapshot original row midpoints right after drag starts ──
+    function _jSnapshotRects(container) {
+      var rects=[];
+      container.querySelectorAll('[data-jid]').forEach(function(el){
+        var r=el.getBoundingClientRect();
+        rects.push({id:el.getAttribute('data-jid'), mid:r.top+r.height/2});
+      });
+      return rects;
+    }
+
+    // ── Shared: move placeholder using ORIGINAL rects (immune to reflow) ──
+    function _jMovePlaceholder(ph, container, cursorY, origRects) {
+      var insertBeforeId=null;
+      for (var i=0;i<origRects.length;i++){
+        if (cursorY < origRects[i].mid){ insertBeforeId=origRects[i].id; break; }
       }
-      if (insertBefore) container.insertBefore(ph, insertBefore);
-      else container.appendChild(ph);
+      if (insertBeforeId) {
+        var target=container.querySelector('[data-jid="'+insertBeforeId+'"]');
+        if (target) container.insertBefore(ph, target);
+      } else {
+        // Place after the last row, not at very end of container
+        var last=container.querySelectorAll('[data-jid]');
+        var lastRow=last.length?last[last.length-1]:null;
+        if (lastRow&&lastRow.nextSibling) container.insertBefore(ph, lastRow.nextSibling);
+        else container.appendChild(ph);
+      }
     }
 
     // ── Shared: resolve beforeId from placeholder position ──
@@ -17046,11 +17061,12 @@
       var ph=_jMakePlaceholder(rect);
       container.insertBefore(ph, rowEl);
       container.removeChild(rowEl);
+      var origRects=_jSnapshotRects(container); // snapshot AFTER removal, BEFORE any moves
       var ghost=rowEl.cloneNode(true);
       ghost.removeAttribute('data-jid');
       ghost.style.cssText='position:fixed;top:'+rect.top+'px;left:'+rect.left+'px;width:'+rect.width+'px;z-index:9999;box-shadow:0 12px 40px rgba(0,0,0,0.22);border-radius:10px;pointer-events:none;background:var(--bg-card,#fff);opacity:1;transform:scale(1.03);transition:none;cursor:grabbing;';
       document.body.appendChild(ghost);
-      _jMouseDrag={type:type,id:id,rowEl:rowEl,ghost:ghost,ph:ph,container:container,startY:e.clientY,rectTop:rect.top};
+      _jMouseDrag={type:type,id:id,rowEl:rowEl,ghost:ghost,ph:ph,container:container,origRects:origRects,startY:e.clientY,rectTop:rect.top};
       document.addEventListener('mousemove',_jMouseMove);
       document.addEventListener('mouseup',_jMouseUp,{once:true});
     }
@@ -17058,7 +17074,7 @@
       if (!_jMouseDrag) return;
       var dy=e.clientY-_jMouseDrag.startY;
       _jMouseDrag.ghost.style.top=(_jMouseDrag.rectTop+dy)+'px';
-      _jMovePlaceholder(_jMouseDrag.ph, _jMouseDrag.container, e.clientY);
+      _jMovePlaceholder(_jMouseDrag.ph, _jMouseDrag.container, e.clientY, _jMouseDrag.origRects);
     }
     function _jMouseUp() {
       if (!_jMouseDrag) return;
@@ -17080,11 +17096,12 @@
       var ph=_jMakePlaceholder(rect);
       container.insertBefore(ph, rowEl);
       container.removeChild(rowEl);
+      var origRects=_jSnapshotRects(container);
       var ghost=rowEl.cloneNode(true);
       ghost.removeAttribute('data-jid');
       ghost.style.cssText='position:fixed;top:'+rect.top+'px;left:'+rect.left+'px;width:'+rect.width+'px;z-index:9999;box-shadow:0 12px 40px rgba(0,0,0,0.22);border-radius:10px;pointer-events:none;background:var(--bg-card,#fff);opacity:1;transform:scale(1.03);transition:none;';
       document.body.appendChild(ghost);
-      _jTouchDrag={type:type,id:id,rowEl:rowEl,ghost:ghost,ph:ph,container:container,startY:touch.clientY,rectTop:rect.top};
+      _jTouchDrag={type:type,id:id,rowEl:rowEl,ghost:ghost,ph:ph,container:container,origRects:origRects,startY:touch.clientY,rectTop:rect.top};
       document.addEventListener('touchmove',_jTouchMove,{passive:false});
       document.addEventListener('touchend',_jTouchEnd,{once:true});
       document.addEventListener('touchcancel',_jTouchEnd,{once:true});
@@ -17095,7 +17112,7 @@
       var touch=e.touches[0];
       var dy=touch.clientY-_jTouchDrag.startY;
       _jTouchDrag.ghost.style.top=(_jTouchDrag.rectTop+dy)+'px';
-      _jMovePlaceholder(_jTouchDrag.ph, _jTouchDrag.container, touch.clientY);
+      _jMovePlaceholder(_jTouchDrag.ph, _jTouchDrag.container, touch.clientY, _jTouchDrag.origRects);
     }
     function _jTouchEnd() {
       if (!_jTouchDrag) return;
