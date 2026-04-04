@@ -11239,7 +11239,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.1.37';
+    const VERSION = '5.1.38';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -16828,7 +16828,7 @@
       }, () => { state.jSyncStatus = 'error'; updateHeaderStatus(); });
 
       _jUnsubSec = secRef.onSnapshot(snap => {
-        if (_jDragBusy()) return; // skip merge + render while dragging
+        if (_jPointerDrag || _jDragCooldown) return; // skip merge + render while dragging or cooling down
         if (!snap.exists) { if (state.jSections.length) fsSetJSections(state.jSections).catch(()=>{}); return; }
         const r = snap.data();
         if (r.sections?.length) {
@@ -17091,7 +17091,9 @@
     var _jDragCooldown = false;
     var _jDragCooldownTimer = null;
     var _jPointerDrag = null;
-    function _jDragBusy() { return !!(_jPointerDrag || _jDragCooldown); }
+    // _jDragBusy: only true during an active pointer drag (blocks drag start + snapshots)
+    // _jDragCooldown blocks snapshots only — not drag start, so back-to-back drags work
+    function _jDragBusy() { return !!_jPointerDrag; }
     function _jStartCooldown() {
       _jDragCooldown = true;
       clearTimeout(_jDragCooldownTimer);
