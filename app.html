@@ -7368,6 +7368,22 @@
     .j-placeholder { border-radius:10px; background:rgba(45,107,228,0.07); border:2px dashed rgba(45,107,228,0.35); box-sizing:border-box; flex-shrink:0; }
     .j-search-btn { background:none;border:none;cursor:pointer;color:var(--text-muted);padding:6px 14px 6px 8px;display:flex;align-items:center;flex-shrink:0; }
     .j-search-btn:active { color:var(--accent); }
+    /* Page action sheet */
+    .j-action-list { display:flex;flex-direction:column;margin:8px -16px 0;border-top:1px solid var(--border); }
+    .j-action-btn { display:flex;align-items:center;gap:12px;padding:14px 20px;background:none;border:none;border-bottom:1px solid var(--border);cursor:pointer;font-size:15px;font-family:inherit;color:var(--text-primary);width:100%;text-align:left; }
+    .j-action-btn:active { background:var(--bg-card-alt); }
+    .j-action-btn svg { flex-shrink:0;opacity:0.6; }
+    /* ⋯ button on page rows */
+    .j-pg-more { background:none;border:none;cursor:pointer;color:var(--text-muted);padding:10px 14px;flex-shrink:0;display:flex;align-items:center; }
+    .j-pg-more:active { color:var(--accent); }
+    /* Copy/move picker */
+    .j-cmpick-nb { padding:12px 16px 4px;font-size:11px;font-weight:800;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.07em; }
+    .j-cmpick-sec { display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--border);background:#fff;cursor:pointer;transition:background 0.1s; }
+    .j-cmpick-sec:active, .j-cmpick-sec.selected { background:rgba(45,107,228,0.06); }
+    .j-cmpick-radio { width:20px;height:20px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-left:auto; }
+    .j-cmpick-sec.selected .j-cmpick-radio { border-color:var(--accent);background:var(--accent); }
+    .j-cmpick-check { display:none; }
+    .j-cmpick-sec.selected .j-cmpick-check { display:block; }
     .j-search-bar { display:flex;align-items:center;gap:8px;padding:10px 16px;background:#fff;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:11; }
     .j-search-input { flex:1;padding:9px 12px;border:1.5px solid var(--border);border-radius:10px;font-size:15px;font-family:inherit;background:var(--bg-card-alt,#f5f7fa);color:var(--text-primary);outline:none;min-width:0; }
     .j-search-input:focus { border-color:var(--accent);background:#fff; }
@@ -11254,7 +11270,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.1.40';
+    const VERSION = '5.1.41';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -11919,9 +11935,15 @@
       jEditId: null,       // id of item being renamed
       jRenameTitle: '',    // input text for rename
       jColorPickId: null,  // section id whose color is being changed
-      jEditMode: false,    // long-press edit/reorder mode
-      jSearchMode: false,  // journal search overlay active
-      jSearchQuery: '',    // current search query
+      jEditMode: false,         // long-press edit/reorder mode
+      jSearchMode: false,       // journal search overlay active
+      jSearchQuery: '',         // current search query
+      jPageActionId: null,      // page id whose action sheet is open
+      jDatePickId: null,        // page id being date-changed
+      jDatePickVal: '',         // value in date picker input
+      jCopyMovePgId: null,      // page id for copy/move
+      jCopyMoveMode: 'copy',    // 'copy' | 'move'
+      jCopyMoveTargetSecId: null,// selected target section
     };
 
     let codeModalCtx = { dayIndex: null, activityId: null, selected: [] };
@@ -18090,15 +18112,18 @@
               + ' ontouchstart="jRowPressStart(event,\'page\',\'' + pg.id + '\')" ontouchend="jRowPressEnd()" ontouchmove="jRowPressMove(event)"'
               + ' oncontextmenu="event.preventDefault()"'
               + ' onmousedown="jRowPressStart(event,\'page\',\'' + pg.id + '\')" onmouseup="jRowPressEnd()" onmouseleave="jRowPressEnd()"';
+        const pgDate = pg.date ? formatDate(pg.date) : '';
+        const moreIcon = '<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="19" cy="12" r="1.8"/></svg>';
         return '<div class="j-pg-row' + (edit ? ' j-edit-row' : '') + '"' + dragAttrs + '>'
           + (edit ? '<div class="j-drag-handle" onpointerdown="jPointerDragStart(event,\'page\',\'' + pg.id + '\')">' + grip + '</div>' : '')
           + '<div class="j-pg-icon">' + _jPageIconSvg() + '</div>'
           + '<div class="j-pg-info">'
             + '<div class="j-pg-title">' + esc(pg.title || 'Untitled') + '</div>'
+            + (pgDate && !edit ? '<div class="j-pg-meta" style="font-size:12px;color:var(--text-muted);margin-top:2px;">' + pgDate + '</div>' : '')
           + '</div>'
           + (edit
             ? '<button class="j-del-btn" onclick="event.stopPropagation();jDeletePage(\'' + pg.id + '\')">' + _jTrashSvg() + '</button>'
-            : '')
+            : '<button class="j-pg-more" onclick="event.stopPropagation();jOpenPageAction(\'' + pg.id + '\')" title="Page options">' + moreIcon + '</button>')
         + '</div>';
       }).join('');
 
@@ -18125,6 +18150,152 @@
           + '</button>')
         + _jAddSheet()
         + _jRenameSheet()
+        + _jPageActionSheet()
+        + _jDatePickSheet()
+        + _jCopyMoveSheet()
+      + '</div>';
+    }
+
+    // ── Page actions: rename, date, copy, move ───────────────────────
+    function jOpenPageAction(pgId) {
+      state.jPageActionId = pgId;
+      _renderNow();
+    }
+    function jClosePageAction() {
+      state.jPageActionId = null;
+      _renderNow();
+    }
+    // Single-render transition from action sheet to a sub-action
+    function jPgAction(act, pgId) {
+      state.jPageActionId = null;
+      const pg = state.jPages.find(function(p){ return p.id === pgId; });
+      if (!pg) return;
+      if (act === 'rename') {
+        state.jEditId = pgId; state.jRenameTitle = pg.title || '';
+        _renderNow();
+        setTimeout(function(){ var el = document.getElementById('j-rename-input'); if(el) el.focus(); }, 80);
+      } else if (act === 'date') {
+        state.jDatePickId = pgId; state.jDatePickVal = pg.date || dateToStr(new Date());
+        _renderNow();
+        setTimeout(function(){ var el = document.getElementById('j-date-pick-input'); if(el) el.focus(); }, 80);
+      } else if (act === 'copy' || act === 'move') {
+        state.jCopyMovePgId = pgId; state.jCopyMoveMode = act; state.jCopyMoveTargetSecId = null;
+        _renderNow();
+      }
+    }
+    function _jPageActionSheet() {
+      if (!state.jPageActionId) return '';
+      const pg = state.jPages.find(function(p){ return p.id === state.jPageActionId; });
+      if (!pg) return '';
+      const id = pg.id;
+      const icons = {
+        rename: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>',
+        date:   '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>',
+        copy:   '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>',
+        move:   '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="5 9 2 12 5 15"/><polyline points="9 5 12 2 15 5"/><line x1="2" y1="12" x2="22" y2="12"/><line x1="12" y1="2" x2="12" y2="22"/></svg>'
+      };
+      return '<div class="j-sheet-overlay" onclick="if(event.target===this)jClosePageAction()">'
+        + '<div class="j-sheet">'
+          + '<div class="j-sheet-title" style="font-size:15px;padding-bottom:0;">' + esc(pg.title || 'Untitled') + '</div>'
+          + (pg.date ? '<div style="font-size:12px;color:var(--text-muted);margin-top:2px;">' + esc(formatDate(pg.date)) + '</div>' : '')
+          + '<div class="j-action-list">'
+            + '<button class="j-action-btn" onclick="jPgAction(\'rename\',\'' + id + '\')">' + icons.rename + 'Rename</button>'
+            + '<button class="j-action-btn" onclick="jPgAction(\'date\',\'' + id + '\')">' + icons.date + 'Change Date</button>'
+            + '<button class="j-action-btn" onclick="jPgAction(\'copy\',\'' + id + '\')">' + icons.copy + 'Copy To\u2026</button>'
+            + '<button class="j-action-btn" onclick="jPgAction(\'move\',\'' + id + '\')">' + icons.move + 'Move To\u2026</button>'
+          + '</div>'
+          + '<div class="j-sheet-btns" style="margin-top:12px;">'
+            + '<button class="j-sheet-btn cancel" style="flex:none;width:100%;" onclick="jClosePageAction()">Cancel</button>'
+          + '</div>'
+        + '</div>'
+      + '</div>';
+    }
+
+    // Date picker sheet
+    function jCloseDatePick() {
+      state.jDatePickId = null; state.jDatePickVal = '';
+      _renderNow();
+    }
+    function jCommitDatePick() {
+      const pg = state.jPages.find(function(p){ return p.id === state.jDatePickId; });
+      if (pg && state.jDatePickVal) { pg.date = state.jDatePickVal; pg.updatedAt = Date.now(); scheduleJSave(); }
+      jCloseDatePick();
+    }
+    function _jDatePickSheet() {
+      if (!state.jDatePickId) return '';
+      return '<div class="j-sheet-overlay" onclick="if(event.target===this)jCloseDatePick()">'
+        + '<div class="j-sheet">'
+          + '<div class="j-sheet-title">Change Date</div>'
+          + '<input id="j-date-pick-input" type="date" class="j-sheet-input" value="' + esc(state.jDatePickVal) + '" oninput="state.jDatePickVal=this.value" style="font-family:inherit;">'
+          + '<div class="j-sheet-btns">'
+            + '<button class="j-sheet-btn cancel" onclick="jCloseDatePick()">Cancel</button>'
+            + '<button class="j-sheet-btn primary" onclick="jCommitDatePick()">Save</button>'
+          + '</div>'
+        + '</div>'
+      + '</div>';
+    }
+
+    // Copy / Move page to section picker
+    function jSelectCopyMoveTarget(secId) {
+      state.jCopyMoveTargetSecId = secId; _renderNow();
+    }
+    function jCloseCopyMove() {
+      state.jCopyMovePgId = null; state.jCopyMoveMode = 'copy'; state.jCopyMoveTargetSecId = null;
+      _renderNow();
+    }
+    function jExecuteCopyMove() {
+      const pg = state.jPages.find(function(p){ return p.id === state.jCopyMovePgId; });
+      const targetSecId = state.jCopyMoveTargetSecId;
+      if (!pg || !targetSecId) return;
+      const now = Date.now();
+      if (state.jCopyMoveMode === 'copy') {
+        state.jPages.push({ id: uid(), sectionId: targetSecId, title: pg.title, noteContent: pg.noteContent || '',
+          date: pg.date || dateToStr(new Date()), displayOrder: now, createdAt: now, updatedAt: now });
+        showToast('Page copied');
+      } else {
+        pg.sectionId = targetSecId; pg.updatedAt = now;
+        if (state.jSectionId !== targetSecId) state.jSectionId = targetSecId;
+        showToast('Page moved');
+      }
+      scheduleJSave(); jCloseCopyMove();
+    }
+    function _jCopyMoveSheet() {
+      if (!state.jCopyMovePgId) return '';
+      const pg = state.jPages.find(function(p){ return p.id === state.jCopyMovePgId; });
+      if (!pg) return '';
+      const mode = state.jCopyMoveMode;
+      const checkSvg = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+      var sectionRows = '';
+      _jSortedItems('notebook').forEach(function(nb) {
+        const secs = state.jSections.filter(function(s){ return s.notebookId === nb.id; })
+          .sort(function(a,b){ return (a.displayOrder||0)-(b.displayOrder||0); });
+        if (!secs.length) return;
+        sectionRows += '<div class="j-cmpick-nb">' + esc(nb.title) + '</div>';
+        secs.forEach(function(sec) {
+          if (mode === 'move' && sec.id === pg.sectionId) return; // skip current section for move
+          const sel = state.jCopyMoveTargetSecId === sec.id;
+          const folderSvg = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="' + sec.color + '" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>';
+          sectionRows += '<div class="j-cmpick-sec' + (sel ? ' selected' : '') + '" onclick="jSelectCopyMoveTarget(\'' + sec.id + '\')">'
+            + folderSvg
+            + '<div style="flex:1;font-size:14px;font-weight:500;color:var(--text-primary);">' + esc(sec.title) + '</div>'
+            + '<div class="j-cmpick-radio"><span class="j-cmpick-check">' + checkSvg + '</span></div>'
+          + '</div>';
+        });
+      });
+      const canExec = !!state.jCopyMoveTargetSecId;
+      const btnLabel = mode === 'copy' ? 'Copy Here' : 'Move Here';
+      return '<div class="j-sheet-overlay" onclick="if(event.target===this)jCloseCopyMove()">'
+        + '<div class="j-sheet" style="padding-bottom:0;max-height:78vh;display:flex;flex-direction:column;">'
+          + '<div style="padding:0 0 8px;">'
+            + '<div class="j-sheet-title">' + (mode === 'copy' ? 'Copy To\u2026' : 'Move To\u2026') + '</div>'
+            + '<div style="font-size:13px;color:var(--text-muted);margin-top:-4px;">' + esc(pg.title || 'Untitled') + '</div>'
+          + '</div>'
+          + '<div style="flex:1;overflow-y:auto;margin:0 -16px;border-top:1px solid var(--border);">' + (sectionRows || '<div style="padding:16px;color:var(--text-muted);font-size:14px;">No other sections available.</div>') + '</div>'
+          + '<div class="j-sheet-btns" style="border-top:1px solid var(--border);padding-top:12px;margin:0;padding-bottom:4px;">'
+            + '<button class="j-sheet-btn cancel" onclick="jCloseCopyMove()">Cancel</button>'
+            + '<button class="j-sheet-btn primary" onclick="jExecuteCopyMove()"' + (canExec ? '' : ' disabled style="opacity:0.4;cursor:not-allowed;"') + '>' + btnLabel + '</button>'
+          + '</div>'
+        + '</div>'
       + '</div>';
     }
 
