@@ -11237,7 +11237,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.1.20';
+    const VERSION = '5.1.21';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -17074,7 +17074,7 @@
       var origRects=_jSnapshotRects(container); // snapshot AFTER removal, BEFORE any moves
       var ghost=rowEl.cloneNode(true);
       ghost.removeAttribute('data-jid');
-      ghost.className='j-drag-ghost';
+      ghost.classList.add('j-drag-ghost');
       ghost.style.cssText='position:fixed;top:'+rect.top+'px;left:'+rect.left+'px;width:'+rect.width+'px;z-index:9999;box-shadow:0 12px 40px rgba(0,0,0,0.22);border-radius:10px;pointer-events:none;background:var(--bg-card,#fff);opacity:1;transform:scale(1.03);transition:none;cursor:grabbing;';
       document.body.appendChild(ghost);
       _jMouseDrag={type:type,id:id,rowEl:rowEl,ghost:ghost,ph:ph,container:container,origRects:origRects,startY:e.clientY,rectTop:rect.top};
@@ -17112,7 +17112,7 @@
       var origRects=_jSnapshotRects(container);
       var ghost=rowEl.cloneNode(true);
       ghost.removeAttribute('data-jid');
-      ghost.className='j-drag-ghost';
+      ghost.classList.add('j-drag-ghost');
       ghost.style.cssText='position:fixed;top:'+rect.top+'px;left:'+rect.left+'px;width:'+rect.width+'px;z-index:9999;box-shadow:0 12px 40px rgba(0,0,0,0.22);border-radius:10px;pointer-events:none;background:var(--bg-card,#fff);opacity:1;transform:scale(1.03);transition:none;';
       document.body.appendChild(ghost);
       _jTouchDrag={type:type,id:id,rowEl:rowEl,ghost:ghost,ph:ph,container:container,origRects:origRects,startY:touch.clientY,rectTop:rect.top};
