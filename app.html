@@ -11239,7 +11239,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.1.34';
+    const VERSION = '5.1.35';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -17079,121 +17079,83 @@
     function _jDragCleanup() {
       document.querySelectorAll('.j-placeholder').forEach(function(el){ el.remove(); });
       document.querySelectorAll('.j-drag-ghost').forEach(function(el){ el.remove(); });
-      if (_jMouseDrag) { document.removeEventListener('mousemove',_jMouseMove); _jMouseDrag=null; }
-      if (_jTouchDrag) {
-        document.removeEventListener('touchmove',_jTouchMove);
-        document.removeEventListener('touchend',_jTouchEnd);
-        document.removeEventListener('touchcancel',_jTouchEnd);
-        // Remove hidden row left over from touch drag
-        if (_jTouchDrag.rowEl) _jTouchDrag.rowEl.remove();
-        _jTouchDrag=null;
+      if (_jPointerDrag) {
+        _jPointerDrag.container.removeEventListener('pointermove',  _jOnPointerMove);
+        _jPointerDrag.container.removeEventListener('pointerup',    _jOnPointerUp);
+        _jPointerDrag.container.removeEventListener('pointercancel',_jOnPointerUp);
+        if (_jPointerDrag.rowEl) _jPointerDrag.rowEl.remove();
+        _jPointerDrag = null;
       }
+      _jMouseDrag = null;
+      _jTouchDrag = null;
     }
 
     // ── Drag cooldown: block Firestore re-renders for 2s after drag ends ──
     var _jDragCooldown = false;
     var _jDragCooldownTimer = null;
-    function _jDragBusy() { return !!(_jMouseDrag || _jTouchDrag || _jDragCooldown); }
+    var _jPointerDrag = null;
+    // _jMouseDrag/_jTouchDrag kept as null stubs so any stale references don't crash
+    var _jMouseDrag = null;
+    var _jTouchDrag = null;
+    function _jDragBusy() { return !!(_jPointerDrag || _jDragCooldown); }
     function _jStartCooldown() {
       _jDragCooldown = true;
       clearTimeout(_jDragCooldownTimer);
       _jDragCooldownTimer = setTimeout(function() { _jDragCooldown = false; }, 2000);
     }
 
-    // ── Mouse drag (desktop) ──
-    let _jMouseDrag = null;
-    function jMouseDragStart(e, type, id) {
-      if (e.button!==0) return;
+    // ── Unified Pointer Events drag (mouse + touch + pen) ──
+    // setPointerCapture guarantees pointermove/pointerup go to the container
+    // even if the row element is hidden — no touchcancel risk, no scroll interference.
+    function jPointerDragStart(e, type, id) {
       if (e.target.closest('button')) return;
       if (_jDragBusy()) return;
-      e.preventDefault(); e.stopPropagation();
-      _jDragCleanup();
-      var rowEl=document.querySelector('[data-jid="'+id+'"]');
-      if (!rowEl) return;
-      var rect=rowEl.getBoundingClientRect();
-      var rowW=rowEl.offsetWidth;
-      var container=rowEl.parentNode;
-      var ph=_jMakePlaceholder(rowEl);
-      container.insertBefore(ph, rowEl);
-      container.removeChild(rowEl);
-      var origRects=_jSnapshotRects(container);
-      var ghost=rowEl.cloneNode(true);
-      ghost.removeAttribute('data-jid');
-      ghost.classList.add('j-drag-ghost');
-      ghost.style.cssText='position:fixed;top:'+rect.top+'px;left:'+rect.left+'px;width:'+rowW+'px;z-index:9999;box-shadow:0 12px 40px rgba(0,0,0,0.22);border-radius:10px;pointer-events:none;background:var(--bg-card,#fff);opacity:1;transform:scale(1.03);transition:none;cursor:grabbing;';
-      document.body.appendChild(ghost);
-      _jMouseDrag={type:type,id:id,rowEl:rowEl,ghost:ghost,ph:ph,container:container,origRects:origRects,startY:e.clientY,rectTop:rect.top};
-      document.addEventListener('mousemove',_jMouseMove);
-      document.addEventListener('mouseup',_jMouseUp,{once:true});
-    }
-    function _jMouseMove(e) {
-      if (!_jMouseDrag) return;
-      var dy=e.clientY-_jMouseDrag.startY;
-      _jMouseDrag.ghost.style.top=(_jMouseDrag.rectTop+dy)+'px';
-      _jMovePlaceholder(_jMouseDrag.ph, _jMouseDrag.container, e.clientY, _jMouseDrag.origRects);
-    }
-    function _jMouseUp() {
-      if (!_jMouseDrag) return;
-      document.removeEventListener('mousemove',_jMouseMove);
-      var d=_jMouseDrag; _jMouseDrag=null;
-      _jStartCooldown();
-      var beforeId=_jBeforeId(d.ph);
-      d.ghost.remove(); d.ph.remove();
-      _jReorderInsertBefore(d.type, d.id, beforeId);
-    }
-
-    // ── Touch drag (mobile) ──
-    function jTouchDragStart(e, type, id) {
-      if (e.target.closest('button')) return;
-      if (_jDragBusy()) return; // don't start drag during cooldown or existing drag
-      e.preventDefault(); e.stopPropagation();
-      _jDragCleanup();
-      var touch=e.touches[0];
-      var rowEl=document.querySelector('[data-jid="'+id+'"]');
-      if (!rowEl) return;
-      var rect=rowEl.getBoundingClientRect();
-      var rowW=rowEl.offsetWidth;
-      var container=rowEl.parentNode;
-      var ph=_jMakePlaceholder(rowEl);
-      container.insertBefore(ph, rowEl);
-      // Hide row instead of removing — keeps touch target in DOM, prevents touchcancel
-      rowEl.style.display='none';
-      var origRects=_jSnapshotRects(container);
-      var ghost=rowEl.cloneNode(true);
-      ghost.removeAttribute('data-jid');
-      ghost.classList.add('j-drag-ghost');
-      ghost.style.cssText='position:fixed;top:'+rect.top+'px;left:'+rect.left+'px;width:'+rowW+'px;z-index:9999;box-shadow:0 12px 40px rgba(0,0,0,0.22);border-radius:10px;pointer-events:none;background:var(--bg-card,#fff);opacity:1;transform:scale(1.03);transition:none;';
-      document.body.appendChild(ghost);
-      _jTouchDrag={type:type,id:id,rowEl:rowEl,ghost:ghost,ph:ph,container:container,origRects:origRects,startY:touch.clientY,rectTop:rect.top,hasMoved:false};
-      document.addEventListener('touchmove',_jTouchMove,{passive:false});
-      document.addEventListener('touchend',_jTouchEnd,{once:true});
-      document.addEventListener('touchcancel',_jTouchEnd,{once:true});
-    }
-    function _jTouchMove(e) {
-      if (!_jTouchDrag) return;
+      // Only primary pointer (left mouse button or first touch)
+      if (e.pointerType === 'mouse' && e.button !== 0) return;
       e.preventDefault();
-      _jTouchDrag.hasMoved=true;
-      var touch=e.touches[0];
-      var dy=touch.clientY-_jTouchDrag.startY;
-      _jTouchDrag.ghost.style.top=(_jTouchDrag.rectTop+dy)+'px';
-      _jMovePlaceholder(_jTouchDrag.ph, _jTouchDrag.container, touch.clientY, _jTouchDrag.origRects);
+      _jDragCleanup();
+      var rowEl = document.querySelector('[data-jid="'+id+'"]');
+      if (!rowEl) return;
+      var rect = rowEl.getBoundingClientRect();
+      var rowW = rowEl.offsetWidth;
+      var container = rowEl.parentNode;
+      var ph = _jMakePlaceholder(rowEl);
+      container.insertBefore(ph, rowEl);
+      rowEl.style.display = 'none';
+      var origRects = _jSnapshotRects(container);
+      var ghost = rowEl.cloneNode(true);
+      ghost.removeAttribute('data-jid');
+      ghost.classList.add('j-drag-ghost');
+      ghost.style.cssText = 'position:fixed;top:'+rect.top+'px;left:'+rect.left+'px;width:'+rowW+'px;z-index:9999;box-shadow:0 12px 40px rgba(0,0,0,0.22);border-radius:10px;pointer-events:none;background:var(--bg-card,#fff);opacity:1;transform:scale(1.03);transition:none;'+(e.pointerType==='mouse'?'cursor:grabbing;':'');
+      document.body.appendChild(ghost);
+      // Capture: all subsequent pointer events for this pointer go to container
+      try { container.setPointerCapture(e.pointerId); } catch(ex) {}
+      _jPointerDrag = {type:type, id:id, rowEl:rowEl, ghost:ghost, ph:ph, container:container, origRects:origRects, startY:e.clientY, rectTop:rect.top, hasMoved:false};
+      container.addEventListener('pointermove', _jOnPointerMove);
+      container.addEventListener('pointerup',   _jOnPointerUp, {once:true});
+      container.addEventListener('pointercancel',_jOnPointerUp, {once:true});
     }
-    function _jTouchEnd() {
-      if (!_jTouchDrag) return;
-      document.removeEventListener('touchmove',_jTouchMove);
-      document.removeEventListener('touchend',_jTouchEnd);
-      document.removeEventListener('touchcancel',_jTouchEnd);
-      var d=_jTouchDrag; _jTouchDrag=null;
-      // Read placeholder position BEFORE removing it
-      var beforeId=d.hasMoved ? _jBeforeId(d.ph) : null;
+    function _jOnPointerMove(e) {
+      if (!_jPointerDrag) return;
+      e.preventDefault();
+      _jPointerDrag.hasMoved = true;
+      var dy = e.clientY - _jPointerDrag.startY;
+      _jPointerDrag.ghost.style.top = (_jPointerDrag.rectTop + dy) + 'px';
+      _jMovePlaceholder(_jPointerDrag.ph, _jPointerDrag.container, e.clientY, _jPointerDrag.origRects);
+    }
+    function _jOnPointerUp() {
+      if (!_jPointerDrag) return;
+      var d = _jPointerDrag; _jPointerDrag = null;
+      d.container.removeEventListener('pointermove',  _jOnPointerMove);
+      d.container.removeEventListener('pointerup',    _jOnPointerUp);
+      d.container.removeEventListener('pointercancel',_jOnPointerUp);
+      var beforeId = d.hasMoved ? _jBeforeId(d.ph) : null;
       d.ghost.remove(); d.ph.remove();
-      // Remove hidden row (DOM gets rebuilt by _renderNow anyway)
       if (d.rowEl) d.rowEl.remove();
       if (d.hasMoved) {
         _jStartCooldown();
         _jReorderInsertBefore(d.type, d.id, beforeId);
       } else {
-        // No movement (e.g. touchcancel) — just re-render, skip reorder/save
         _renderNow();
       }
     }
@@ -17968,13 +17930,13 @@
         const pgs  = state.jPages.filter(function(p){ return secs.some(function(s){ return s.id === p.sectionId; }) && !p.deleted; });
         const meta = secs.length + ' section' + (secs.length===1?'':'s') + ' \xb7 ' + pgs.length + ' page' + (pgs.length===1?'':'s');
         const dragAttrs = edit
-          ? ' data-jid="' + nb.id + '" onmousedown="jMouseDragStart(event,\'notebook\',\'' + nb.id + '\')" ontouchstart="jTouchDragStart(event,\'notebook\',\'' + nb.id + '\')"'
+          ? ' data-jid="' + nb.id + '" onpointerdown="jPointerDragStart(event,\'notebook\',\'' + nb.id + '\')"'
           : ' onclick="navJournal(\'sections\',{notebookId:\'' + nb.id + '\'})"'
               + ' ontouchstart="jRowPressStart(event,\'notebook\',\'' + nb.id + '\')" ontouchend="jRowPressEnd()" ontouchmove="jRowPressMove(event)"'
               + ' oncontextmenu="event.preventDefault()"'
               + ' onmousedown="jRowPressStart(event,\'notebook\',\'' + nb.id + '\')" onmouseup="jRowPressEnd()" onmouseleave="jRowPressEnd()"';
         return '<div class="j-nb-row' + (edit ? ' j-edit-row' : '') + '"' + dragAttrs + '>'
-          + (edit ? '<div class="j-drag-handle" onmousedown="jMouseDragStart(event,\'notebook\',\'' + nb.id + '\')" ontouchstart="jTouchDragStart(event,\'notebook\',\'' + nb.id + '\')">' + grip + '</div>' : '')
+          + (edit ? '<div class="j-drag-handle" onpointerdown="jPointerDragStart(event,\'notebook\',\'' + nb.id + '\')">' + grip + '</div>' : '')
           + '<div class="j-nb-icon" style="cursor:pointer" title="Tap to rename" onclick="event.stopPropagation();jOpenRename(\'' + nb.id + '\',\'' + esc(nb.title).replace(/'/g,'\\\'') + '\')">' + _nbRowIcon + '</div>'
           + '<div class="j-nb-info">'
             + '<div class="j-nb-name">' + esc(nb.title) + '</div>'
@@ -18018,13 +17980,13 @@
         const pgCount = state.jPages.filter(function(p){ return p.sectionId === sec.id && !p.deleted; }).length;
         const folderSvg = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="' + sec.color + '" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>';
         const dragAttrs = edit
-          ? ' data-jid="' + sec.id + '" onmousedown="jMouseDragStart(event,\'section\',\'' + sec.id + '\')" ontouchstart="jTouchDragStart(event,\'section\',\'' + sec.id + '\')"'
+          ? ' data-jid="' + sec.id + '" onpointerdown="jPointerDragStart(event,\'section\',\'' + sec.id + '\')"'
           : ' onclick="navJournal(\'pages\',{sectionId:\'' + sec.id + '\'})"'
               + ' ontouchstart="jRowPressStart(event,\'section\',\'' + sec.id + '\')" ontouchend="jRowPressEnd()" ontouchmove="jRowPressMove(event)"'
               + ' oncontextmenu="event.preventDefault()"'
               + ' onmousedown="jRowPressStart(event,\'section\',\'' + sec.id + '\')" onmouseup="jRowPressEnd()" onmouseleave="jRowPressEnd()"';
         return '<div class="j-sec-row' + (edit ? ' j-edit-row' : '') + '"' + dragAttrs + '>'
-          + (edit ? '<div class="j-drag-handle" onmousedown="jMouseDragStart(event,\'section\',\'' + sec.id + '\')" ontouchstart="jTouchDragStart(event,\'section\',\'' + sec.id + '\')">' + grip + '</div>' : '')
+          + (edit ? '<div class="j-drag-handle" onpointerdown="jPointerDragStart(event,\'section\',\'' + sec.id + '\')">' + grip + '</div>' : '')
           + '<div class="j-sec-icon" style="background:' + sec.color + '22;cursor:pointer" title="Tap to change colour" onclick="event.stopPropagation();jOpenColorPick(\'' + sec.id + '\')">' + folderSvg + '</div>'
           + '<div class="j-sec-info">'
             + '<div class="j-sec-name">' + esc(sec.title) + '</div>'
@@ -18071,13 +18033,13 @@
 
       const rows = pages.map(function(pg) {
         const dragAttrs = edit
-          ? ' data-jid="' + pg.id + '" onmousedown="jMouseDragStart(event,\'page\',\'' + pg.id + '\')" ontouchstart="jTouchDragStart(event,\'page\',\'' + pg.id + '\')"'
+          ? ' data-jid="' + pg.id + '" onpointerdown="jPointerDragStart(event,\'page\',\'' + pg.id + '\')"'
           : ' onclick="jOpenPage(\'' + pg.id + '\')"'
               + ' ontouchstart="jRowPressStart(event,\'page\',\'' + pg.id + '\')" ontouchend="jRowPressEnd()" ontouchmove="jRowPressMove(event)"'
               + ' oncontextmenu="event.preventDefault()"'
               + ' onmousedown="jRowPressStart(event,\'page\',\'' + pg.id + '\')" onmouseup="jRowPressEnd()" onmouseleave="jRowPressEnd()"';
         return '<div class="j-pg-row' + (edit ? ' j-edit-row' : '') + '"' + dragAttrs + '>'
-          + (edit ? '<div class="j-drag-handle" onmousedown="jMouseDragStart(event,\'page\',\'' + pg.id + '\')" ontouchstart="jTouchDragStart(event,\'page\',\'' + pg.id + '\')">' + grip + '</div>' : '')
+          + (edit ? '<div class="j-drag-handle" onpointerdown="jPointerDragStart(event,\'page\',\'' + pg.id + '\')">' + grip + '</div>' : '')
           + '<div class="j-pg-icon">' + _jPageIconSvg() + '</div>'
           + '<div class="j-pg-info">'
             + '<div class="j-pg-title">' + esc(pg.title || 'Untitled') + '</div>'
