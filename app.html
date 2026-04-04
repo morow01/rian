@@ -7396,7 +7396,7 @@
     .j-nb-row:active { background: var(--bg-card-alt); }
     .j-nb-row.j-edit-row,
     .j-sec-row.j-edit-row,
-    .j-pg-row.j-edit-row  { padding-left: 0; }
+    .j-pg-row.j-edit-row  { padding-left: 0; touch-action: none; cursor: grab; }
     .j-nb-icon {
       width: 40px; height: 40px; border-radius: 10px;
       display: flex; align-items: center; justify-content: center;
@@ -11237,7 +11237,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.1.21';
+    const VERSION = '5.1.22';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -17907,13 +17907,13 @@
         const pgs  = state.jPages.filter(function(p){ return secs.some(function(s){ return s.id === p.sectionId; }) && !p.deleted; });
         const meta = secs.length + ' section' + (secs.length===1?'':'s') + ' \xb7 ' + pgs.length + ' page' + (pgs.length===1?'':'s');
         const dragAttrs = edit
-          ? ' data-jid="' + nb.id + '" style="cursor:grab;touch-action:none" onmousedown="jMouseDragStart(event,\'notebook\',\'' + nb.id + '\')" ontouchstart="jTouchDragStart(event,\'notebook\',\'' + nb.id + '\')"'
+          ? ' data-jid="' + nb.id + '" onmousedown="jMouseDragStart(event,\'notebook\',\'' + nb.id + '\')" ontouchstart="jTouchDragStart(event,\'notebook\',\'' + nb.id + '\')"'
           : ' onclick="navJournal(\'sections\',{notebookId:\'' + nb.id + '\'})"'
               + ' ontouchstart="jRowPressStart(event,\'notebook\')" ontouchend="jRowPressEnd()" ontouchmove="jRowPressMove(event)"'
               + ' oncontextmenu="event.preventDefault()"'
               + ' onmousedown="jRowPressStart(event,\'notebook\')" onmouseup="jRowPressEnd()" onmouseleave="jRowPressEnd()"';
         return '<div class="j-nb-row' + (edit ? ' j-edit-row' : '') + '"' + dragAttrs + '>'
-          + (edit ? '<div class="j-drag-handle">' + grip + '</div>' : '')
+          + (edit ? '<div class="j-drag-handle" onmousedown="jMouseDragStart(event,\'notebook\',\'' + nb.id + '\')" ontouchstart="jTouchDragStart(event,\'notebook\',\'' + nb.id + '\')">' + grip + '</div>' : '')
           + '<div class="j-nb-icon" style="cursor:pointer" title="Tap to rename" onclick="event.stopPropagation();jOpenRename(\'' + nb.id + '\',\'' + esc(nb.title).replace(/'/g,'\\\'') + '\')">' + _nbRowIcon + '</div>'
           + '<div class="j-nb-info">'
             + '<div class="j-nb-name">' + esc(nb.title) + '</div>'
@@ -17956,13 +17956,13 @@
         const pgCount = state.jPages.filter(function(p){ return p.sectionId === sec.id && !p.deleted; }).length;
         const folderSvg = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="' + sec.color + '" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>';
         const dragAttrs = edit
-          ? ' data-jid="' + sec.id + '" style="cursor:grab;touch-action:none" onmousedown="jMouseDragStart(event,\'section\',\'' + sec.id + '\')" ontouchstart="jTouchDragStart(event,\'section\',\'' + sec.id + '\')"'
+          ? ' data-jid="' + sec.id + '" onmousedown="jMouseDragStart(event,\'section\',\'' + sec.id + '\')" ontouchstart="jTouchDragStart(event,\'section\',\'' + sec.id + '\')"'
           : ' onclick="navJournal(\'pages\',{sectionId:\'' + sec.id + '\'})"'
               + ' ontouchstart="jRowPressStart(event,\'section\')" ontouchend="jRowPressEnd()" ontouchmove="jRowPressMove(event)"'
               + ' oncontextmenu="event.preventDefault()"'
               + ' onmousedown="jRowPressStart(event,\'section\')" onmouseup="jRowPressEnd()" onmouseleave="jRowPressEnd()"';
         return '<div class="j-sec-row' + (edit ? ' j-edit-row' : '') + '"' + dragAttrs + '>'
-          + (edit ? '<div class="j-drag-handle">' + grip + '</div>' : '')
+          + (edit ? '<div class="j-drag-handle" onmousedown="jMouseDragStart(event,\'section\',\'' + sec.id + '\')" ontouchstart="jTouchDragStart(event,\'section\',\'' + sec.id + '\')">' + grip + '</div>' : '')
           + '<div class="j-sec-icon" style="background:' + sec.color + '22;cursor:pointer" title="Tap to change colour" onclick="event.stopPropagation();jOpenColorPick(\'' + sec.id + '\')">' + folderSvg + '</div>'
           + '<div class="j-sec-info">'
             + '<div class="j-sec-name">' + esc(sec.title) + '</div>'
@@ -18009,13 +18009,13 @@
 
       const rows = pages.map(function(pg) {
         const dragAttrs = edit
-          ? ' data-jid="' + pg.id + '" style="cursor:grab;touch-action:none" onmousedown="jMouseDragStart(event,\'page\',\'' + pg.id + '\')" ontouchstart="jTouchDragStart(event,\'page\',\'' + pg.id + '\')"'
+          ? ' data-jid="' + pg.id + '" onmousedown="jMouseDragStart(event,\'page\',\'' + pg.id + '\')" ontouchstart="jTouchDragStart(event,\'page\',\'' + pg.id + '\')"'
           : ' onclick="jOpenPage(\'' + pg.id + '\')"'
               + ' ontouchstart="jRowPressStart(event,\'page\')" ontouchend="jRowPressEnd()" ontouchmove="jRowPressMove(event)"'
               + ' oncontextmenu="event.preventDefault()"'
               + ' onmousedown="jRowPressStart(event,\'page\')" onmouseup="jRowPressEnd()" onmouseleave="jRowPressEnd()"';
         return '<div class="j-pg-row' + (edit ? ' j-edit-row' : '') + '"' + dragAttrs + '>'
-          + (edit ? '<div class="j-drag-handle">' + grip + '</div>' : '')
+          + (edit ? '<div class="j-drag-handle" onmousedown="jMouseDragStart(event,\'page\',\'' + pg.id + '\')" ontouchstart="jTouchDragStart(event,\'page\',\'' + pg.id + '\')">' + grip + '</div>' : '')
           + '<div class="j-pg-icon">' + _jPageIconSvg() + '</div>'
           + '<div class="j-pg-info">'
             + '<div class="j-pg-title">' + esc(pg.title || 'Untitled') + '</div>'
