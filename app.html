@@ -11499,7 +11499,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.1.65';
+    const VERSION = '5.1.66';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -21686,6 +21686,50 @@
       if (body) body.innerHTML = side === 'local' ? el._localHtml : el._remoteHtml;
     }
 
+    // Open fullscreen note detail overlay for Notes/Notebooks conflict (Your version vs Cloud version tabs)
+    function _openConflictNoteDetail(conflictId) {
+      const c = (state.conflicts || []).find(x => x.id === conflictId);
+      if (!c) return;
+      const existing = document.getElementById('conflict-fullview');
+      if (existing) existing.remove();
+      const ckLocal  = 'fv_' + c.id + '_local';
+      const ckRemote = 'fv_' + c.id + '_remote';
+      const localCached  = _cFullViewCache[ckLocal]  || {};
+      const remoteCached = _cFullViewCache[ckRemote] || {};
+      const lHtml = _renderNoteReadOnly(localCached.noteData);
+      const rHtml = _renderNoteReadOnly(remoteCached.noteData);
+      const xIcon = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`;
+      const el = document.createElement('div');
+      el.id = 'conflict-fullview';
+      el.className = 'conflict-fullview-overlay';
+      el.innerHTML = `
+        <div class="conflict-fullview-sheet">
+          <div class="conflict-fullview-header">
+            <span class="conflict-fullview-title">${esc(c.localMeta?.noteTitle || c.description || 'Note')}</span>
+            <button class="conflict-fullview-close" onclick="document.getElementById('conflict-fullview')?.remove()">${xIcon}</button>
+          </div>
+          <div class="conflict-tab-bar" id="cdd_bar" style="margin:0 0 0">
+            <button class="conflict-tab active" id="cdd_btn_local"  onclick="_switchNoteDetailTab('local')">${_cIcons.device} Your version</button>
+            <button class="conflict-tab"        id="cdd_btn_remote" onclick="_switchNoteDetailTab('remote')">${_cIcons.cloud} Cloud version</button>
+          </div>
+          <div class="conflict-fullview-body" id="cdd_body" style="padding:0"></div>
+        </div>`;
+      el._localHtml  = lHtml;
+      el._remoteHtml = rHtml;
+      el.addEventListener('click', e => { if (e.target === el) el.remove(); });
+      document.body.appendChild(el);
+      document.getElementById('cdd_body').innerHTML = lHtml;
+    }
+
+    function _switchNoteDetailTab(side) {
+      const el = document.getElementById('conflict-fullview');
+      if (!el) return;
+      document.getElementById('cdd_btn_local') ?.classList.toggle('active', side === 'local');
+      document.getElementById('cdd_btn_remote')?.classList.toggle('active', side === 'remote');
+      const body = document.getElementById('cdd_body');
+      if (body) body.innerHTML = side === 'local' ? el._localHtml : el._remoteHtml;
+    }
+
     // Open resolution modal for a specific conflict
     function _openConflictModal(id) {
       const c = state.conflicts.find(x => x.id === id);
@@ -21730,36 +21774,23 @@
             <span style="color:#DC2626;font-weight:700">Cloud total: ${totalRemote.toFixed(1)}h</span>
           </div>`;
 
-      // ── Notes / Notebooks: tabbed full-width content viewer ──
+      // ── Notes / Notebooks: single tappable row → fullscreen note detail ──
       } else if (c.displayType === 'split') {
+        // Cache both versions for the detail overlay
         const rawLocal  = c.localMeta?.content  || '';
         const rawRemote = c.remoteMeta?.content || '';
-        // Detect if content is HTML (TipTap produces HTML)
         const isHtml = /<[a-z][\s\S]*>/i.test(rawLocal + rawRemote);
-        // Store content in cache keyed by conflict id — avoids embedding raw HTML in attributes
-        const ckLocal  = 'fv_' + c.id + '_local';
-        const ckRemote = 'fv_' + c.id + '_remote';
-        _cFullViewCache[ckLocal]  = { title: 'Your version — ' + (c.localMeta?.time  || 'This device'), content: rawLocal,  isHtml, noteTitle: c.localMeta?.noteTitle  || null, noteLocation: c.localMeta?.noteLocation  || null, noteData: c.localMeta?.noteData  || null };
-        _cFullViewCache[ckRemote] = { title: 'Cloud version — ' + (c.remoteMeta?.time || 'Cloud'),       content: rawRemote, isHtml, noteTitle: c.remoteMeta?.noteTitle || null, noteLocation: c.remoteMeta?.noteLocation || null, noteData: c.remoteMeta?.noteData || null };
-        const expandIcon = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>`;
-        // Build tab content safely — will be injected via JS after render
-        const tabId = 'ctab_' + c.id;
+        _cFullViewCache['fv_' + c.id + '_local']  = { title: 'Your version — ' + (c.localMeta?.time  || 'This device'), content: rawLocal,  isHtml, noteData: c.localMeta?.noteData  || null };
+        _cFullViewCache['fv_' + c.id + '_remote'] = { title: 'Cloud version — ' + (c.remoteMeta?.time || 'Cloud'),       content: rawRemote, isHtml, noteData: c.remoteMeta?.noteData || null };
+        const noteLabel = c.localMeta?.noteTitle || c.description || 'Note';
+        const arrowSvg = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>`;
         versionsHtml = `
-          <div class="conflict-tab-bar" id="${tabId}_bar">
-            <button class="conflict-tab active" id="${tabId}_btn_local"
-              onclick="_switchConflictTab('${tabId}','local')">
-              ${_cIcons.device} Your version
-            </button>
-            <button class="conflict-tab" id="${tabId}_btn_remote"
-              onclick="_switchConflictTab('${tabId}','remote')">
-              ${_cIcons.cloud} Cloud version
-            </button>
-          </div>
-          <div class="conflict-tab-meta" id="${tabId}_meta">${esc(c.localMeta?.time || 'This device')}</div>
-          <div class="conflict-tab-body" id="${tabId}_body"></div>
-          <div class="conflict-tab-expand-row">
-            <button class="conflict-split-expand-btn" id="${tabId}_expand_btn"
-              onclick="_openConflictFullView('${ckLocal}')">${expandIcon} Open full content</button>
+          <div style="padding:8px 12px 4px;font-size:11px;color:var(--text-muted)">Tap to compare your version vs cloud</div>
+          <div class="c-day-block">
+            <div class="c-day-head" onclick="_openConflictNoteDetail('${esc(c.id)}')" style="cursor:pointer">
+              <span class="c-day-label" style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(noteLabel)}</span>
+              <span class="c-day-chevron" style="color:var(--text-muted)">${arrowSvg}</span>
+            </div>
           </div>`;
 
       // ── Callouts / Routines / Tags: simple rows ──
@@ -21804,12 +21835,6 @@
         </div>`;
       modal.addEventListener('click', e => { if (e.target === modal) modal.remove(); });
       document.body.appendChild(modal);
-      // For split (Notes/Notebooks): inject initial tab content now that DOM is live
-      if (c.displayType === 'split') {
-        const tabId = 'ctab_' + c.id;
-        const ckLocal = 'fv_' + c.id + '_local';
-        _injectConflictTabContent(tabId, ckLocal);
-      }
     }
 
     // Inject content into the active conflict tab body (safe — uses textContent or direct innerHTML from our own cache)
