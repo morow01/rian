@@ -11528,7 +11528,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.1.71';
+    const VERSION = '5.1.72';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -21760,12 +21760,12 @@
             ${fldRow('noteContent', 'Note', `<div class="c-note-ro-note-body tt-prose">${ncHtml || '<span style="color:var(--text-muted);font-style:italic">No note content</span>'}</div>`)}
             ${loc  ? fldRow('location', 'Location', `<div class="c-note-ro-field">${esc(loc)}</div>`) : ''}
             ${due  ? fldRow('dueDate',  'Due Date',  `<div class="c-note-ro-field">${esc(due)}</div>`) : ''}
-            <div class="note-detail-row${diffFields.has('priority') ? ' c-note-ro-diff' : ''}">
+            ${diffFields.has('priority') ? `<div class="note-detail-row c-note-ro-diff">
               <div class="note-pri-dots" style="pointer-events:none">
                 <span class="note-pri-dots-label">Priority</span>${priDots}
-                ${diffFields.has('priority') ? `<span class="c-note-ro-diff-badge" style="margin-left:6px">Changed</span>` : ''}
+                <span class="c-note-ro-diff-badge" style="margin-left:6px">Changed</span>
               </div>
-            </div>
+            </div>` : ''}
           </div>
         </div>`;
     }
