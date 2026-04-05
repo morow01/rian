@@ -11540,7 +11540,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.1.76';
+    const VERSION = '5.1.77';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -23145,20 +23145,28 @@
       if (!uid) { showToast('Sign in first'); return; }
       const origText = btn ? btn.textContent : '';
       if (btn) { btn.textContent = 'Backing up…'; btn.disabled = true; }
-      try {
-        const today = dateToStr(new Date());
-        // Timeout after 30s to prevent infinite "Backing up…" state
-        const backupPromise = _runBackupWrite(uid, today, true);
-        const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Backup timed out after 30s')), 30000));
-        await Promise.race([backupPromise, timeoutPromise]);
-        localStorage.setItem(_backupThrottleKey(uid), today);
-        showToast('✓ Backup saved');
-        await refreshBackupList();
-      } catch (e) {
-        showToast('Backup failed: ' + (e.message || e));
-      } finally {
-        if (btn) { btn.textContent = origText; btn.disabled = false; }
+      const today = dateToStr(new Date());
+      // Try up to 2 attempts with 60s timeout each
+      for (let attempt = 1; attempt <= 2; attempt++) {
+        try {
+          const backupPromise = _runBackupWrite(uid, today, true);
+          const timeoutPromise = new Promise((_, reject) =>
+            setTimeout(() => reject(new Error('timed out')), 60000));
+          await Promise.race([backupPromise, timeoutPromise]);
+          localStorage.setItem(_backupThrottleKey(uid), today);
+          showToast('✓ Backup saved');
+          await refreshBackupList();
+          if (btn) { btn.textContent = origText; btn.disabled = false; }
+          return; // success
+        } catch (e) {
+          if (attempt < 2) {
+            if (btn) btn.textContent = 'Retrying…';
+            continue; // retry once
+          }
+          showToast('Backup failed: ' + (e.message || e));
+        }
       }
+      if (btn) { btn.textContent = origText; btn.disabled = false; }
     }
 
     // Shows confirmation dialog before restoring
