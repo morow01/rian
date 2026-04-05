@@ -11287,7 +11287,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.1.50';
+    const VERSION = '5.1.51';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -21249,6 +21249,16 @@
         if (state.callouts && Object.keys(state.callouts.weeks || {}).length > 0) {
           snapData._callouts = state.callouts;
         }
+        // Include journal (notebooks/sections/pages) backup
+        if (state.jNotebooks && state.jNotebooks.length > 0) {
+          snapData._jNotebooks = state.jNotebooks;
+        }
+        if (state.jSections && state.jSections.length > 0) {
+          snapData._jSections = state.jSections;
+        }
+        if (state.jPages && state.jPages.length > 0) {
+          snapData._jPages = state.jPages;
+        }
         await colRef.doc(String(ts)).set(snapData);
         // Prune oldest if over limit
         const all = await colRef.orderBy('_savedAt', 'asc').get();
@@ -21427,9 +21437,28 @@
               await fsSetCallouts(restoredCo);
               loadCallouts();
             }
+            // Also restore journal (notebooks/sections/pages) if included
+            let _journalRestored = false;
+            if (snapData._jNotebooks && snapData._jNotebooks.length > 0) {
+              state.jNotebooks = deepCopy(snapData._jNotebooks);
+              await dbPut('notes', { id: 'j_notebooks', userId: uid, data: state.jNotebooks, updatedAt: Date.now() });
+              await fsSetJNotebooks(state.jNotebooks).catch(e => console.warn('[Rian]', e));
+              _journalRestored = true;
+            }
+            if (snapData._jSections && snapData._jSections.length > 0) {
+              state.jSections = deepCopy(snapData._jSections);
+              await dbPut('notes', { id: 'j_sections', userId: uid, data: state.jSections, updatedAt: Date.now() });
+              await fsSetJSections(state.jSections).catch(e => console.warn('[Rian]', e));
+            }
+            if (snapData._jPages && snapData._jPages.length > 0) {
+              state.jPages = deepCopy(snapData._jPages);
+              await dbPut('notes', { id: 'j_pages', userId: uid, data: state.jPages, updatedAt: Date.now() });
+              await fsSetJPages(state.jPages).catch(e => console.warn('[Rian]', e));
+            }
             render();
             const _coInfo = snapData._callouts ? ' Callouts restored.' : ' (Callouts not in this snapshot — take a new one first)';
-            showToast('Week restored.' + (snapData._notes ? ' Notes restored too.' : '') + _coInfo);
+            const _jInfo = _journalRestored ? ' Journal restored.' : '';
+            showToast('Week restored.' + (snapData._notes ? ' Notes restored too.' : '') + _coInfo + _jInfo);
           } catch (e) { showToast('Restore failed: ' + (e.message || e)); }
         }
       );
