@@ -2229,12 +2229,9 @@
       cursor: pointer; width: 100%; justify-content: center;
     }
     .conflict-split-expand-btn:active { opacity: 0.7; }
-    /* Note-like view inside conflict tab */
-    .c-note-view-title { font-size: 15px; font-weight: 800; color: var(--text-primary); padding: 12px 14px 4px; line-height: 1.3; }
-    .c-note-view-loc { display: flex; align-items: center; gap: 5px; font-size: 12px; color: var(--text-muted); padding: 2px 14px 8px; }
-    .c-note-view-body { padding: 8px 14px 14px; font-size: 13px; line-height: 1.65; color: var(--text-primary); }
-    .c-note-view-body p { margin: 0 0 6px; }
-    .c-note-view-body p:last-child { margin-bottom: 0; }
+    /* Read-only note card inside conflict tab */
+    .c-note-ro-field { font-size: 14px; color: var(--text-primary); background: var(--bg-input,#f8fafc); border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; line-height: 1.5; word-break: break-word; }
+    .c-note-ro-note-body { background: var(--bg-input,#f8fafc); border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; min-height: 40px; font-size: 13px; line-height: 1.65; }
     /* Full-content overlay */
     .conflict-fullview-overlay {
       position: fixed; inset: 0; background: rgba(15,28,46,0.6);
@@ -11502,7 +11499,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.1.63';
+    const VERSION = '5.1.64';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -21469,7 +21466,7 @@
     function _openConflictFullView(cacheKey) {
       const cached = _cFullViewCache[cacheKey];
       if (!cached) return;
-      const { title, content, isHtml, noteTitle, noteLocation } = cached;
+      const { title, content, isHtml, noteTitle, noteLocation, noteData } = cached;
       const existing = document.getElementById('conflict-fullview');
       if (existing) existing.remove();
       const xIcon = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`;
@@ -21484,23 +21481,23 @@
           </div>
           <div class="conflict-fullview-body"></div>
         </div>`;
-      // Set body content — note-like view (title + location + tt-prose body)
+      // Set body content — full read-only note card when noteData available
       const body = el.querySelector('.conflict-fullview-body');
-      body.style.padding = '0';
-      const titleHtml = noteTitle ? `<div class="c-note-view-title" style="font-size:17px;padding-top:8px">${esc(noteTitle)}</div>` : '';
-      const locSvg = `<svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 010-5 2.5 2.5 0 010 5z"/></svg>`;
-      const locHtml = noteLocation ? `<div class="c-note-view-loc">${locSvg} ${esc(noteLocation)}</div>` : '';
-      const nc = content || '';
-      if (isHtml || nc.trim().startsWith('<')) {
-        const contentHtml = sanitizeHtml(nc) || '<em style="color:var(--text-muted)">(empty)</em>';
-        body.innerHTML = titleHtml + locHtml + `<div class="c-note-view-body tt-prose" style="font-size:14px">${contentHtml}</div>`;
+      const { noteData } = cached;
+      if (noteData) {
+        body.style.padding = '0';
+        body.innerHTML = _renderNoteReadOnly(noteData);
       } else {
-        const d = document.createElement('div');
-        d.className = 'c-note-view-body conflict-fullview-plain';
-        d.style.fontSize = '14px';
-        d.textContent = nc || '(empty)';
-        body.innerHTML = titleHtml + locHtml;
-        body.appendChild(d);
+        // Fallback: plain/HTML content
+        const nc = content || '';
+        if (isHtml || nc.trim().startsWith('<')) {
+          body.innerHTML = sanitizeHtml(nc) || '<em>(empty)</em>';
+        } else {
+          const pre = document.createElement('div');
+          pre.className = 'conflict-fullview-plain';
+          pre.textContent = nc || '(empty)';
+          body.appendChild(pre);
+        }
       }
       el.addEventListener('click', function(e) { if (e.target === el) el.remove(); });
       document.body.appendChild(el);
@@ -21583,6 +21580,59 @@
           </div>
         </div>
       </div>`;
+    }
+
+    // Render a read-only note card (Notes/Notebooks) using the real note card CSS classes
+    function _renderNoteReadOnly(note) {
+      if (!note) return '<div style="padding:16px;color:var(--text-muted);font-style:italic;font-size:13px">(no data)</div>';
+      const dotCls = { high: 'note-dot-high', medium: 'note-dot-medium', low: 'note-dot-low' }[note.priority] || 'note-dot-none';
+      // Notebooks use .title, Notes use .description
+      const descRaw = ((note.description || note.title) || '').replace(/<[^>]*>/g, '').trim();
+      const nc = note.noteContent || '';
+      const ncHtml = nc.trim().startsWith('<')
+        ? sanitizeHtml(nc)
+        : (nc ? esc(nc).replace(/\n/g, '<br>') : '');
+      const loc = (note.location || '').replace(/\s*\([^)]+\)\s*$/, '').trim();
+      const noteDate = note.date ? formatDateShort(note.date) : '';
+      const due = note.dueDate || '';
+      const priority = note.priority || 'medium';
+
+      const metaItems = [];
+      if (loc) metaItems.push(`<div class="note-meta-item"><svg class="note-meta-icon" width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 010-5 2.5 2.5 0 010 5z"/></svg><span>${esc(loc)}</span></div>`);
+      if (noteDate) metaItems.push(`<div class="note-meta-item"><svg class="note-meta-icon" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg><span>${esc(noteDate)}</span></div>`);
+
+      const priDots = ['low', 'medium', 'high'].map(p =>
+        `<div class="note-pri-dot pd-${p}${priority === p ? ' pd-active' : ''}"></div>`
+      ).join('');
+
+      const fldLabel = t => `<span style="display:block;margin-bottom:6px;font-size:11px;font-weight:800;color:#94a3b8;text-transform:uppercase">${t}</span>`;
+
+      return `
+        <div class="note-card expanded" style="pointer-events:none;margin:0;border-radius:0;border-left:none;border-right:none;border-top:none;box-shadow:none">
+          <div class="note-row">
+            <div class="note-row-top">
+              <div class="note-dot ${dotCls}" style="flex-shrink:0;margin:0"></div>
+              <div class="note-row-title" style="flex:1;min-width:0">${esc(descRaw || 'Untitled')}</div>
+            </div>
+            ${metaItems.length ? `<div class="note-row-meta">${metaItems.join('')}</div>` : ''}
+          </div>
+          <div class="note-detail" style="max-height:none;overflow:visible;border-top-width:1px;padding:16px 16px 20px">
+            ${descRaw ? `<div class="note-detail-row">${fldLabel('Description')}<div class="c-note-ro-field">${esc(descRaw)}</div></div>` : ''}
+            <div class="note-detail-row">
+              ${fldLabel('Note')}
+              <div class="c-note-ro-note-body tt-prose">
+                ${ncHtml || '<span style="color:var(--text-muted);font-style:italic">No note content</span>'}
+              </div>
+            </div>
+            ${loc ? `<div class="note-detail-row">${fldLabel('Location')}<div class="c-note-ro-field">${esc(loc)}</div></div>` : ''}
+            ${due ? `<div class="note-detail-row">${fldLabel('Due Date')}<div class="c-note-ro-field">${esc(due)}</div></div>` : ''}
+            <div class="note-detail-row">
+              <div class="note-pri-dots" style="pointer-events:none">
+                <span class="note-pri-dots-label">Priority</span>${priDots}
+              </div>
+            </div>
+          </div>
+        </div>`;
     }
 
     // Open a fullscreen day-detail overlay showing both versions of a specific day
@@ -21690,8 +21740,8 @@
         // Store content in cache keyed by conflict id — avoids embedding raw HTML in attributes
         const ckLocal  = 'fv_' + c.id + '_local';
         const ckRemote = 'fv_' + c.id + '_remote';
-        _cFullViewCache[ckLocal]  = { title: 'Your version — ' + (c.localMeta?.time  || 'This device'), content: rawLocal,  isHtml, noteTitle: c.localMeta?.noteTitle  || null, noteLocation: c.localMeta?.noteLocation  || null };
-        _cFullViewCache[ckRemote] = { title: 'Cloud version — ' + (c.remoteMeta?.time || 'Cloud'),       content: rawRemote, isHtml, noteTitle: c.remoteMeta?.noteTitle || null, noteLocation: c.remoteMeta?.noteLocation || null };
+        _cFullViewCache[ckLocal]  = { title: 'Your version — ' + (c.localMeta?.time  || 'This device'), content: rawLocal,  isHtml, noteTitle: c.localMeta?.noteTitle  || null, noteLocation: c.localMeta?.noteLocation  || null, noteData: c.localMeta?.noteData  || null };
+        _cFullViewCache[ckRemote] = { title: 'Cloud version — ' + (c.remoteMeta?.time || 'Cloud'),       content: rawRemote, isHtml, noteTitle: c.remoteMeta?.noteTitle || null, noteLocation: c.remoteMeta?.noteLocation || null, noteData: c.remoteMeta?.noteData || null };
         const expandIcon = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>`;
         // Build tab content safely — will be injected via JS after render
         const tabId = 'ctab_' + c.id;
@@ -21768,26 +21818,24 @@
       const cached = _cFullViewCache[cacheKey];
       const body = document.getElementById(tabId + '_body');
       if (!body || !cached) return;
-      // Clear padding — our inner divs control all spacing
-      body.style.padding = '0';
       body.innerHTML = '';
-      // Title block (always shown for Notes/Notebooks when noteTitle is set)
-      const titleHtml = cached.noteTitle
-        ? `<div class="c-note-view-title">${esc(cached.noteTitle)}</div>` : '';
-      const locSvg = `<svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 010-5 2.5 2.5 0 010 5z"/></svg>`;
-      const locHtml = cached.noteLocation
-        ? `<div class="c-note-view-loc">${locSvg} ${esc(cached.noteLocation)}</div>` : '';
+      // If we have a full note object, render the full read-only card
+      if (cached.noteData) {
+        body.style.padding = '0';
+        body.style.maxHeight = 'none';
+        body.style.overflow = 'visible';
+        body.innerHTML = _renderNoteReadOnly(cached.noteData);
+        return;
+      }
+      // Fallback: plain/HTML content view
+      body.style.padding = '10px 14px';
       const nc = cached.content || '';
       if (cached.isHtml || nc.trim().startsWith('<')) {
-        const contentHtml = sanitizeHtml(nc) || '<em style="color:var(--text-muted);font-style:italic">(empty)</em>';
-        body.innerHTML = titleHtml + locHtml + `<div class="c-note-view-body tt-prose">${contentHtml}</div>`;
+        body.innerHTML = sanitizeHtml(nc) || '<em style="color:var(--text-muted);font-style:italic">(empty)</em>';
       } else {
-        // Plain text note — still show title/loc, then pre-wrap body
         const d = document.createElement('div');
-        d.className = 'c-note-view-body';
-        d.style.whiteSpace = 'pre-wrap';
+        d.className = 'conflict-tab-body-plain';
         d.textContent = nc || '(empty)';
-        body.innerHTML = titleHtml + locHtml;
         body.appendChild(d);
       }
     }
@@ -21868,14 +21916,16 @@
         const lines = noteBodyRaw.split('\n');
         return lines.slice(0, Math.max(1, lines.length - 1)).join('\n') + '\n[cloud — older version]';
       })();
+      const localNoteObj  = sampleNote ? deepCopy(sampleNote) : { id: 'test_note', description: noteTitle, noteContent: noteBodyRaw, location: '', date: '', dueDate: '', priority: 'medium', status: 'open' };
+      const remoteNoteObj = Object.assign(deepCopy(localNoteObj), { noteContent: noteBodyRemote });
       _registerConflict({
         id: 'test_notes',
         section: 'Notes', icon: '📝',
         description: `"${noteTitle}" has two versions.`,
         displayType: 'split',
-        localData: null, remoteData: null,
-        localMeta: { time: 'Saved today (this device)', content: noteBodyRaw, noteTitle: noteTitle, noteLocation: sampleNote?.location || '' },
-        remoteMeta: { time: 'Cloud version (older)', content: noteBodyRemote, noteTitle: noteTitle, noteLocation: sampleNote?.location || '' },
+        localData: localNoteObj, remoteData: remoteNoteObj,
+        localMeta:  { time: 'Saved today (this device)', content: noteBodyRaw,    noteTitle, noteLocation: sampleNote?.location || '', noteData: localNoteObj  },
+        remoteMeta: { time: 'Cloud version (older)',     content: noteBodyRemote, noteTitle, noteLocation: sampleNote?.location || '', noteData: remoteNoteObj },
       });
 
       // 3. Notebooks — use actual noteContent from a real page
@@ -21897,9 +21947,10 @@
         section: 'Notebooks', icon: '📓',
         description: `"${pageTitle}" has two versions.`,
         displayType: 'split',
-        localData: null, remoteData: null,
-        localMeta: { time: 'This device', content: pageBodyRaw, noteTitle: pageTitle },
-        remoteMeta: { time: 'Cloud (older)', content: pageBodyRemote, noteTitle: pageTitle },
+        localData: samplePage ? deepCopy(samplePage) : { id: 'test_page', title: pageTitle, noteContent: pageBodyRaw },
+        remoteData: Object.assign(samplePage ? deepCopy(samplePage) : { id: 'test_page', title: pageTitle }, { noteContent: pageBodyRemote }),
+        localMeta:  { time: 'This device',   content: pageBodyRaw,    noteTitle: pageTitle, noteData: samplePage ? deepCopy(samplePage) : { id: 'test_page', title: pageTitle, noteContent: pageBodyRaw } },
+        remoteMeta: { time: 'Cloud (older)', content: pageBodyRemote, noteTitle: pageTitle, noteData: Object.assign(samplePage ? deepCopy(samplePage) : { id: 'test_page', title: pageTitle }, { noteContent: pageBodyRemote }) },
       });
 
       // 4. Callouts
