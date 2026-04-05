@@ -2229,6 +2229,12 @@
       cursor: pointer; width: 100%; justify-content: center;
     }
     .conflict-split-expand-btn:active { opacity: 0.7; }
+    /* Note-like view inside conflict tab */
+    .c-note-view-title { font-size: 15px; font-weight: 800; color: var(--text-primary); padding: 12px 14px 4px; line-height: 1.3; }
+    .c-note-view-loc { display: flex; align-items: center; gap: 5px; font-size: 12px; color: var(--text-muted); padding: 2px 14px 8px; }
+    .c-note-view-body { padding: 8px 14px 14px; font-size: 13px; line-height: 1.65; color: var(--text-primary); }
+    .c-note-view-body p { margin: 0 0 6px; }
+    .c-note-view-body p:last-child { margin-bottom: 0; }
     /* Full-content overlay */
     .conflict-fullview-overlay {
       position: fixed; inset: 0; background: rgba(15,28,46,0.6);
@@ -11496,7 +11502,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.1.61';
+    const VERSION = '5.1.62';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -21463,7 +21469,7 @@
     function _openConflictFullView(cacheKey) {
       const cached = _cFullViewCache[cacheKey];
       if (!cached) return;
-      const { title, content, isHtml } = cached;
+      const { title, content, isHtml, noteTitle, noteLocation } = cached;
       const existing = document.getElementById('conflict-fullview');
       if (existing) existing.remove();
       const xIcon = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`;
@@ -21478,10 +21484,15 @@
           </div>
           <div class="conflict-fullview-body"></div>
         </div>`;
-      // Set body content safely — innerHTML for HTML, textContent for plain
+      // Set body content — note-like view for HTML, plain pre-wrap for text
       const body = el.querySelector('.conflict-fullview-body');
       if (isHtml) {
-        body.innerHTML = content || '<em>(empty)</em>';
+        const titleHtml = noteTitle ? `<div class="c-note-view-title" style="font-size:17px;padding-top:8px">${esc(noteTitle)}</div>` : '';
+        const locSvg = `<svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 010-5 2.5 2.5 0 010 5z"/></svg>`;
+        const locHtml = noteLocation ? `<div class="c-note-view-loc">${locSvg} ${esc(noteLocation)}</div>` : '';
+        const nc = content || '';
+        const contentHtml = nc.trim().startsWith('<') ? sanitizeHtml(nc) : esc(nc).replace(/\n/g, '<br>');
+        body.innerHTML = titleHtml + locHtml + `<div class="c-note-view-body tt-prose" style="font-size:14px;padding:10px 0 0">${contentHtml || '<em style="color:var(--text-muted)">(empty)</em>'}</div>`;
       } else {
         const pre = document.createElement('div');
         pre.className = 'conflict-fullview-plain';
@@ -21676,8 +21687,8 @@
         // Store content in cache keyed by conflict id — avoids embedding raw HTML in attributes
         const ckLocal  = 'fv_' + c.id + '_local';
         const ckRemote = 'fv_' + c.id + '_remote';
-        _cFullViewCache[ckLocal]  = { title: 'Your version — ' + (c.localMeta?.time  || 'This device'), content: rawLocal,  isHtml };
-        _cFullViewCache[ckRemote] = { title: 'Cloud version — ' + (c.remoteMeta?.time || 'Cloud'),       content: rawRemote, isHtml };
+        _cFullViewCache[ckLocal]  = { title: 'Your version — ' + (c.localMeta?.time  || 'This device'), content: rawLocal,  isHtml, noteTitle: c.localMeta?.noteTitle  || null, noteLocation: c.localMeta?.noteLocation  || null };
+        _cFullViewCache[ckRemote] = { title: 'Cloud version — ' + (c.remoteMeta?.time || 'Cloud'),       content: rawRemote, isHtml, noteTitle: c.remoteMeta?.noteTitle || null, noteLocation: c.remoteMeta?.noteLocation || null };
         const expandIcon = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>`;
         // Build tab content safely — will be injected via JS after render
         const tabId = 'ctab_' + c.id;
@@ -21756,7 +21767,18 @@
       if (!body || !cached) return;
       body.innerHTML = '';
       if (cached.isHtml) {
-        body.innerHTML = cached.content || '<em style="color:var(--text-muted)">(empty)</em>';
+        // Note-like view: title → location → tt-prose body
+        const titleHtml = cached.noteTitle
+          ? `<div class="c-note-view-title">${esc(cached.noteTitle)}</div>` : '';
+        const locSvg = `<svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 010-5 2.5 2.5 0 010 5z"/></svg>`;
+        const locHtml = cached.noteLocation
+          ? `<div class="c-note-view-loc">${locSvg} ${esc(cached.noteLocation)}</div>` : '';
+        const nc = cached.content || '';
+        const contentHtml = nc.trim().startsWith('<')
+          ? sanitizeHtml(nc)
+          : esc(nc).replace(/\n/g, '<br>');
+        const innerHtml = contentHtml || '<em style="color:var(--text-muted);font-style:italic">(empty)</em>';
+        body.innerHTML = titleHtml + locHtml + `<div class="c-note-view-body tt-prose">${innerHtml}</div>`;
       } else {
         const d = document.createElement('div');
         d.className = 'conflict-tab-body-plain';
@@ -21847,8 +21869,8 @@
         description: `"${noteTitle}" has two versions.`,
         displayType: 'split',
         localData: null, remoteData: null,
-        localMeta: { time: 'Saved today (this device)', content: noteBodyRaw },
-        remoteMeta: { time: 'Cloud version (older)', content: noteBodyRemote },
+        localMeta: { time: 'Saved today (this device)', content: noteBodyRaw, noteTitle: noteTitle, noteLocation: sampleNote?.location || '' },
+        remoteMeta: { time: 'Cloud version (older)', content: noteBodyRemote, noteTitle: noteTitle, noteLocation: sampleNote?.location || '' },
       });
 
       // 3. Notebooks — use actual noteContent from a real page
@@ -21871,8 +21893,8 @@
         description: `"${pageTitle}" has two versions.`,
         displayType: 'split',
         localData: null, remoteData: null,
-        localMeta: { time: 'This device', content: pageBodyRaw },
-        remoteMeta: { time: 'Cloud (older)', content: pageBodyRemote },
+        localMeta: { time: 'This device', content: pageBodyRaw, noteTitle: pageTitle },
+        remoteMeta: { time: 'Cloud (older)', content: pageBodyRemote, noteTitle: pageTitle },
       });
 
       // 4. Callouts
