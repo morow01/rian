@@ -2186,22 +2186,14 @@
     .c-act-hrs  { color: var(--text-secondary); }
     .c-act-desc { color: var(--text-muted); margin-top: 2px; font-size: 10px; word-break: break-word; }
     .c-empty-day { font-size: 11px; color: var(--text-muted); font-style: italic; padding: 4px 0; }
-    /* Day detail full-view cards */
-    .c-ddf-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; margin-bottom: 14px; overflow: hidden; }
-    .c-ddf-header { display: flex; align-items: center; gap: 12px; padding: 12px 14px; background: var(--bg-card-alt); border-bottom: 1px solid var(--border); }
-    .c-ddf-badge { width: 28px; height: 28px; border-radius: 8px; background: var(--accent); color: #fff; font-size: 13px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-    .c-ddf-head-mid { flex: 1; min-width: 0; }
-    .c-ddf-head-title { font-size: 14px; font-weight: 700; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .c-ddf-head-loc { font-size: 12px; color: var(--accent); margin-top: 2px; }
-    .c-ddf-head-hrs { font-size: 13px; font-weight: 700; color: var(--text-primary); flex-shrink: 0; text-align: right; }
-    .c-ddf-head-ot  { font-size: 11px; color: #D97706; font-weight: 700; }
-    .c-ddf-fields { padding: 0 14px 8px; }
-    .c-ddf-row  { display: grid; grid-template-columns: 100px 1fr; gap: 4px; padding: 9px 0; border-bottom: 1px solid var(--border); align-items: start; }
-    .c-ddf-row:last-child { border-bottom: none; }
-    .c-ddf-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); padding-top: 1px; }
-    .c-ddf-val   { font-size: 13px; color: var(--text-primary); word-break: break-word; line-height: 1.5; }
-    .c-ddf-code-chip { display: inline-block; background: rgba(45,107,228,0.1); color: var(--accent); border: 1px solid rgba(45,107,228,0.2); border-radius: 5px; padding: 2px 7px; font-size: 12px; font-weight: 600; margin: 1px 3px 1px 0; }
+    /* Day detail full-view — read-only task card */
     .c-ddf-empty { font-size: 13px; color: var(--text-muted); font-style: italic; padding: 16px 14px; text-align: center; }
+    /* Disable all interactions in read-only card */
+    .c-ddf-readonly { pointer-events: none; margin-bottom: 14px; }
+    .c-ddf-readonly .hrs-stepper button { opacity: 0.35; }
+    .c-ddf-readonly .act-dictate-wrap,
+    .c-ddf-readonly .act-suggest-btn,
+    .c-ddf-readonly .act-expand-note-btn { display: none !important; }
     /* Tabbed content viewer for Notes/Notebooks conflicts */
     .conflict-tab-bar { display: flex; border-bottom: 2px solid var(--border); margin: 0 12px; }
     .conflict-tab {
@@ -11504,7 +11496,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.1.59';
+    const VERSION = '5.1.60';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -21493,43 +21485,81 @@
       document.body.appendChild(el);
     }
 
-    // Render one activity as a full task card — matches the visual style of the timesheet
+    // Render one activity as a read-only card using the exact same CSS as the real timesheet card
     function _renderDayActFull(a, idx) {
-      const codesArr = Array.isArray(a.codes) ? a.codes.filter(Boolean) : (a.code ? [a.code] : []);
+      // Normalise codes — stored as [{d,c}] objects in the real app, or strings in older data
+      const codesArr = Array.isArray(a.codes)
+        ? a.codes.filter(Boolean).map(c => typeof c === 'object' ? c : { d: String(c), c: '' })
+        : [];
       const ord   = parseFloat(a.ordinary) || 0;
       const ot    = parseFloat(a.overtime)  || 0;
       const desc  = (a.description || '').trim();
       const notes = (a.notes || '').trim();
       const loc   = (a.location || '').trim();
       if (!codesArr.length && !ord && !ot && !desc && !loc && !notes) return '';
-      const row = (label, valHtml, show) => !show ? '' :
-        `<div class="c-ddf-row"><span class="c-ddf-label">${label}</span><div class="c-ddf-val">${valHtml}</div></div>`;
-      const chipsHtml = codesArr.length
-        ? codesArr.map(c => `<span class="c-ddf-code-chip">${esc(typeof c === 'object' ? (c.label||c.code||JSON.stringify(c)) : c)}</span>`).join('')
-        : '<span style="color:var(--text-muted);font-style:italic;font-size:12px">None</span>';
-      const notesHtml = notes
-        ? (notes.trim().startsWith('<') ? notes : `<span style="white-space:pre-wrap">${esc(notes)}</span>`)
+      const locSvg = `<svg width="13" height="13" viewBox="0 0 24 24" fill="#e8453c" style="display:inline-block;vertical-align:-2px;margin-right:2px;"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 010-5 2.5 2.5 0 010 5z"/></svg>`;
+      const noteSvg = `<svg width="15" height="15" viewBox="0 0 13 13" fill="none"><path d="M2 10.5L3.5 9H11V1H2v9.5z" stroke="#BBBBB8" stroke-width="1.4" stroke-linejoin="round"/><path d="M4 4.5h5M4 6.5h3" stroke="#BBBBB8" stroke-width="1.3" stroke-linecap="round"/></svg>`;
+      const notesBody = notes
+        ? (notes.trim().startsWith('<') ? sanitizeHtml(notes) : esc(notes).replace(/\n/g, '<br>'))
         : '';
-      return `<div class="c-ddf-card">
-        <div class="c-ddf-header">
-          <div class="c-ddf-badge">${idx + 1}</div>
-          <div class="c-ddf-head-mid">
-            <div class="c-ddf-head-title">${esc(desc || '(no description)')}</div>
-            ${loc ? `<div class="c-ddf-head-loc">📍 ${esc(loc)}</div>` : ''}
-          </div>
-          <div class="c-ddf-head-hrs">
-            ${ord ? `<div>${ord}h ord</div>` : ''}
-            ${ot  ? `<div class="c-ddf-head-ot">+${ot}h OT</div>` : ''}
-            ${!ord && !ot ? '<div style="color:var(--text-muted)">—</div>' : ''}
+      const codesHtml = codesArr.length
+        ? codesArr.map(c => `<div class="act-code-chip" style="pointer-events:none">${esc(c.d)}<span class="act-code-mono">${esc(c.c)}</span></div>`).join('')
+        : `<span style="color:var(--text-muted);font-size:13px">None</span>`;
+      return `<div class="activity-card expanded c-ddf-readonly">
+        <div class="flex items-center gap-3 px-3.5 py-3">
+          <div class="task-num">${idx + 1}</div>
+          <div class="flex-1 min-w-0 act-meta">
+            <div class="act-desc-txt">${esc(desc) || '<span style="opacity:0.4;font-style:italic">No description</span>'}</div>
+            <div class="act-row2">
+              <div class="act-loc-txt">${loc ? locSvg + esc(loc) : '<span style="opacity:0.4">No location</span>'}</div>
+              <div class="act-pill-row">
+                ${ord > 0 ? `<span class="pill-hrs">${ord}h</span>` : ''}
+                ${ot  > 0 ? `<span class="pill-ot">+${ot} OT</span>` : ''}
+              </div>
+            </div>
           </div>
         </div>
-        <div class="c-ddf-fields">
-          ${row('Description', esc(desc), !!desc)}
-          ${row('Location',    esc(loc),  !!loc)}
-          ${row('Work codes',  chipsHtml, true)}
-          ${row('Ordinary hrs', `<strong>${ord}h</strong>`, !!ord)}
-          ${row('Overtime hrs', `<strong style="color:#D97706">${ot}h</strong>`, !!ot)}
-          ${row('Notes', notesHtml, !!notes)}
+        <div class="activity-detail open">
+          <div class="act-detail-inner">
+            <div class="flex flex-col gap-1.5">
+              <span class="act-field-label">Description</span>
+              <div class="act-input" style="min-height:1.6em">${esc(desc) || '<span style="color:var(--text-muted)">—</span>'}</div>
+            </div>
+            ${notes ? `
+            <div class="notes-panel">
+              <div class="notes-panel-header" style="pointer-events:none">
+                ${noteSvg}
+                <div class="notes-panel-preview has-note">${esc((notes.replace(/<[^>]+>/g,' ')).trim().slice(0,80))}${notes.length>80?'…':''}</div>
+              </div>
+              <div class="notes-panel-body open">
+                <div class="notes-ta-wrap">
+                  <div class="act-notes-rich-preview">${notesBody}</div>
+                </div>
+              </div>
+            </div>` : ''}
+            <div class="flex flex-col gap-1.5">
+              <span class="act-field-label">Location</span>
+              <div class="act-input" style="min-height:1.6em">${esc(loc) || '<span style="color:var(--text-muted)">—</span>'}</div>
+            </div>
+            <div class="flex flex-col gap-1.5">
+              <span class="act-field-label">Work Codes</span>
+              <div class="act-codes-wrap" style="pointer-events:none;min-height:42px">${codesHtml}</div>
+            </div>
+            <div class="flex gap-3">
+              <div class="hrs-box flex-1">
+                <div class="act-field-label" style="margin-bottom:8px">Ordinary HRS</div>
+                <div class="hrs-stepper flex items-center justify-between">
+                  <button>−</button><span class="val">${ord}</span><button>+</button>
+                </div>
+              </div>
+              <div class="hrs-box ot-box flex-1">
+                <div class="act-field-label act-field-label-ot" style="margin-bottom:8px">Overtime HRS</div>
+                <div class="hrs-stepper flex items-center justify-between">
+                  <button>−</button><span class="val">${ot}</span><button>+</button>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>`;
     }
