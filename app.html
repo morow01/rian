@@ -11287,7 +11287,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.1.47';
+    const VERSION = '5.1.50';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -11994,6 +11994,19 @@
     }
     function _raiseHWM(weekStart, hours) {
       if (hours > _getHWM(weekStart)) _setHWM(weekStart, hours);
+    }
+    // Count activities with any real data (hours, code, or notes) — used to
+    // detect entry-level regressions in Firestore snapshots independent of hours.
+    function _weekNonEmptyActCount(weekData) {
+      if (!weekData || !weekData.days) return 0;
+      let count = 0;
+      weekData.days.forEach(d => (d.activities || []).forEach(a => {
+        if ((parseFloat(a.ordinary) || 0) > 0 ||
+            (parseFloat(a.overtime) || 0) > 0 ||
+            (a.code || '').trim() ||
+            (a.notes || '').trim()) count++;
+      }));
+      return count;
     }
     // ── Callouts high-water-mark (HWM) guard ──────────────────────
     // Tracks the maximum total callout entries ever seen on THIS browser.
@@ -12948,6 +12961,18 @@
             fsSetWeek(weekStart, state.weekData).catch(e => console.warn('[Rian]', e));
             return;
           }
+          // Activity-count regression guard — catches the case where remote was
+          // written with empty/partial data and HWM_THRESHOLD didn't fire (e.g.
+          // week has <4h total). If local has more filled activities than remote,
+          // reject remote and push local data back to restore Firestore.
+          const _localActCount = _weekNonEmptyActCount(state.weekData);
+          const _remoteActCount = _weekNonEmptyActCount(remote);
+          if (_localActCount > 0 && _remoteActCount < _localActCount) {
+            console.warn('[Rian] Rejecting remote data — entry regression (local:', _localActCount, 'acts, remote:', _remoteActCount, 'acts)');
+            fsSetWeek(weekStart, state.weekData).catch(e => console.warn('[Rian]', e));
+            return;
+          }
+
           // Raise the HWM as we accept this remote data
           _raiseHWM(weekStart, _remoteHrs);
 
