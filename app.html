@@ -11502,7 +11502,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.1.62';
+    const VERSION = '5.1.63';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -21484,20 +21484,23 @@
           </div>
           <div class="conflict-fullview-body"></div>
         </div>`;
-      // Set body content — note-like view for HTML, plain pre-wrap for text
+      // Set body content — note-like view (title + location + tt-prose body)
       const body = el.querySelector('.conflict-fullview-body');
-      if (isHtml) {
-        const titleHtml = noteTitle ? `<div class="c-note-view-title" style="font-size:17px;padding-top:8px">${esc(noteTitle)}</div>` : '';
-        const locSvg = `<svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 010-5 2.5 2.5 0 010 5z"/></svg>`;
-        const locHtml = noteLocation ? `<div class="c-note-view-loc">${locSvg} ${esc(noteLocation)}</div>` : '';
-        const nc = content || '';
-        const contentHtml = nc.trim().startsWith('<') ? sanitizeHtml(nc) : esc(nc).replace(/\n/g, '<br>');
-        body.innerHTML = titleHtml + locHtml + `<div class="c-note-view-body tt-prose" style="font-size:14px;padding:10px 0 0">${contentHtml || '<em style="color:var(--text-muted)">(empty)</em>'}</div>`;
+      body.style.padding = '0';
+      const titleHtml = noteTitle ? `<div class="c-note-view-title" style="font-size:17px;padding-top:8px">${esc(noteTitle)}</div>` : '';
+      const locSvg = `<svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 010-5 2.5 2.5 0 010 5z"/></svg>`;
+      const locHtml = noteLocation ? `<div class="c-note-view-loc">${locSvg} ${esc(noteLocation)}</div>` : '';
+      const nc = content || '';
+      if (isHtml || nc.trim().startsWith('<')) {
+        const contentHtml = sanitizeHtml(nc) || '<em style="color:var(--text-muted)">(empty)</em>';
+        body.innerHTML = titleHtml + locHtml + `<div class="c-note-view-body tt-prose" style="font-size:14px">${contentHtml}</div>`;
       } else {
-        const pre = document.createElement('div');
-        pre.className = 'conflict-fullview-plain';
-        pre.textContent = content || '(empty)';
-        body.appendChild(pre);
+        const d = document.createElement('div');
+        d.className = 'c-note-view-body conflict-fullview-plain';
+        d.style.fontSize = '14px';
+        d.textContent = nc || '(empty)';
+        body.innerHTML = titleHtml + locHtml;
+        body.appendChild(d);
       }
       el.addEventListener('click', function(e) { if (e.target === el) el.remove(); });
       document.body.appendChild(el);
@@ -21765,24 +21768,26 @@
       const cached = _cFullViewCache[cacheKey];
       const body = document.getElementById(tabId + '_body');
       if (!body || !cached) return;
+      // Clear padding — our inner divs control all spacing
+      body.style.padding = '0';
       body.innerHTML = '';
-      if (cached.isHtml) {
-        // Note-like view: title → location → tt-prose body
-        const titleHtml = cached.noteTitle
-          ? `<div class="c-note-view-title">${esc(cached.noteTitle)}</div>` : '';
-        const locSvg = `<svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 010-5 2.5 2.5 0 010 5z"/></svg>`;
-        const locHtml = cached.noteLocation
-          ? `<div class="c-note-view-loc">${locSvg} ${esc(cached.noteLocation)}</div>` : '';
-        const nc = cached.content || '';
-        const contentHtml = nc.trim().startsWith('<')
-          ? sanitizeHtml(nc)
-          : esc(nc).replace(/\n/g, '<br>');
-        const innerHtml = contentHtml || '<em style="color:var(--text-muted);font-style:italic">(empty)</em>';
-        body.innerHTML = titleHtml + locHtml + `<div class="c-note-view-body tt-prose">${innerHtml}</div>`;
+      // Title block (always shown for Notes/Notebooks when noteTitle is set)
+      const titleHtml = cached.noteTitle
+        ? `<div class="c-note-view-title">${esc(cached.noteTitle)}</div>` : '';
+      const locSvg = `<svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 010-5 2.5 2.5 0 010 5z"/></svg>`;
+      const locHtml = cached.noteLocation
+        ? `<div class="c-note-view-loc">${locSvg} ${esc(cached.noteLocation)}</div>` : '';
+      const nc = cached.content || '';
+      if (cached.isHtml || nc.trim().startsWith('<')) {
+        const contentHtml = sanitizeHtml(nc) || '<em style="color:var(--text-muted);font-style:italic">(empty)</em>';
+        body.innerHTML = titleHtml + locHtml + `<div class="c-note-view-body tt-prose">${contentHtml}</div>`;
       } else {
+        // Plain text note — still show title/loc, then pre-wrap body
         const d = document.createElement('div');
-        d.className = 'conflict-tab-body-plain';
-        d.textContent = cached.content || '(empty)';
+        d.className = 'c-note-view-body';
+        d.style.whiteSpace = 'pre-wrap';
+        d.textContent = nc || '(empty)';
+        body.innerHTML = titleHtml + locHtml;
         body.appendChild(d);
       }
     }
