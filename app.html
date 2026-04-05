@@ -11287,7 +11287,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.1.47';
+    const VERSION = '5.1.48';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -25984,6 +25984,7 @@ QUESTION: ${query}`;
         { default: Subscript },
         { default: Superscript },
         { default: Image },
+        { default: FontSize },
       ] = await Promise.all([
         import('https://esm.sh/@tiptap/core@2.4.0'),
         import('https://esm.sh/@tiptap/starter-kit@2.4.0'),
@@ -26003,6 +26004,7 @@ QUESTION: ${query}`;
         import('https://esm.sh/@tiptap/extension-subscript@2.4.0'),
         import('https://esm.sh/@tiptap/extension-superscript@2.4.0'),
         import('https://esm.sh/@tiptap/extension-image@2.4.0'),
+        import('https://esm.sh/@tiptap/extension-font-size@2.4.0'),
       ]);
       // Extend TableCell to support per-cell background colour
       const TableCellWithBg = TableCell.extend({
@@ -26098,7 +26100,7 @@ QUESTION: ${query}`;
         Editor, StarterKit, Underline, TextStyle, Color, Highlight, Placeholder,
         TextAlign, TaskList, TaskItem, TaskItemWithHandle, Table, TableRow, TableHeader, TableCell,
         TableCellWithBg, TableHeaderWithBg,
-        Link, Subscript, Superscript, Image,
+        Link, Subscript, Superscript, Image, FontSize,
       };
       return _tiptapModules;
     }
@@ -26109,7 +26111,7 @@ QUESTION: ${query}`;
         Editor, StarterKit, Underline, TextStyle, Color, Highlight, Placeholder,
         TextAlign, TaskList, TaskItemWithHandle, Table, TableRow,
         TableCellWithBg, TableHeaderWithBg,
-        Link, Subscript, Superscript, Image,
+        Link, Subscript, Superscript, Image, FontSize,
       } = await _loadTipTapModules();
 
       // Custom resizable image extension
@@ -26453,6 +26455,7 @@ QUESTION: ${query}`;
           StarterKit.configure({ history: true }),
           Underline,
           TextStyle,
+          FontSize,
           Color,
           Highlight.configure({ multicolor: true }),
           Placeholder.configure({ placeholder: 'Start typing your note…' }),
@@ -26544,6 +26547,7 @@ QUESTION: ${query}`;
       on('tt-strike', () => { e.chain().focus().toggleStrike().run(); _ttUpdateToolbar(e); });
       // Headings
       const _closeHdgMenu = () => document.getElementById('tt-hdg-menu')?.classList.remove('tt-open');
+      on('tt-para', () => { e.chain().focus().setParagraph().run(); _closeHdgMenu(); _ttUpdateToolbar(e); });
       on('tt-h1', () => { e.chain().focus().toggleHeading({ level: 1 }).run(); _closeHdgMenu(); _ttUpdateToolbar(e); });
       on('tt-h2', () => { e.chain().focus().toggleHeading({ level: 2 }).run(); _closeHdgMenu(); _ttUpdateToolbar(e); });
       on('tt-h3', () => { e.chain().focus().toggleHeading({ level: 3 }).run(); _closeHdgMenu(); _ttUpdateToolbar(e); });
@@ -26891,7 +26895,14 @@ QUESTION: ${query}`;
         if (editor.isActive('heading', { level: 1 })) _hdgLabel.textContent = 'H1';
         else if (editor.isActive('heading', { level: 2 })) _hdgLabel.textContent = 'H2';
         else if (editor.isActive('heading', { level: 3 })) _hdgLabel.textContent = 'H3';
-        else _hdgLabel.textContent = 'H';
+        else _hdgLabel.textContent = 'P';
+      }
+      // Sync font size selector
+      const _fsSel = document.getElementById('tt-font-size');
+      if (_fsSel) {
+        const attrs = editor.getAttributes('textStyle');
+        const cur = attrs && attrs.fontSize ? attrs.fontSize : '';
+        _fsSel.value = cur || '';
       }
       // Update list dropdown button active state + icon
       const _listIsActive = editor.isActive('bulletList') || editor.isActive('orderedList') || editor.isActive('taskList');
@@ -28128,6 +28139,10 @@ QUESTION: ${query}`;
               </svg>
             </button>
             <div class="tt-list-menu" id="tt-hdg-menu">
+              <button class="tt-list-item" id="tt-para">
+                <span style="font-size:13px;font-weight:500;width:15px;text-align:center">P</span>
+                Paragraph
+              </button>
               <button class="tt-list-item" id="tt-h1">
                 <span style="font-size:15px;font-weight:800;width:15px;text-align:center">H1</span>
                 Heading 1
@@ -28142,6 +28157,23 @@ QUESTION: ${query}`;
               </button>
             </div>
           </div>
+          <div class="tt-sep"></div>
+          <!-- Font size -->
+          <select id="tt-font-size" title="Font size"
+            style="height:30px;border:1px solid var(--border);border-radius:6px;background:var(--bg-card);color:var(--text-primary);font-size:12px;font-family:inherit;padding:0 4px;cursor:pointer;outline:none;"
+            onchange="(function(sel){const e=window._tiptapEditor;if(!e)return;const v=sel.value;if(v)e.chain().focus().setFontSize(v).run();else e.chain().focus().unsetFontSize().run();})(this)">
+            <option value="">—</option>
+            <option value="11px">11</option>
+            <option value="12px">12</option>
+            <option value="13px">13</option>
+            <option value="14px">14</option>
+            <option value="16px">16</option>
+            <option value="18px">18</option>
+            <option value="20px">20</option>
+            <option value="24px">24</option>
+            <option value="28px">28</option>
+            <option value="32px">32</option>
+          </select>
           <div class="tt-sep"></div>
           <!-- Lists dropdown -->
           <div class="tt-list-drop" id="tt-list-drop">
