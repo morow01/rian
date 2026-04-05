@@ -2187,13 +2187,21 @@
     .c-act-desc { color: var(--text-muted); margin-top: 2px; font-size: 10px; word-break: break-word; }
     .c-empty-day { font-size: 11px; color: var(--text-muted); font-style: italic; padding: 4px 0; }
     /* Day detail full-view cards */
-    .c-ddf-card { background: var(--bg-card-alt); border: 1px solid var(--border); border-radius: 10px; padding: 14px; margin-bottom: 12px; }
-    .c-ddf-num  { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); margin-bottom: 10px; }
-    .c-ddf-row  { display: grid; grid-template-columns: 88px 1fr; gap: 4px; padding: 5px 0; border-top: 1px solid var(--border); align-items: start; }
-    .c-ddf-row:first-of-type { border-top: none; }
-    .c-ddf-label { font-size: 12px; color: var(--text-muted); }
-    .c-ddf-val   { font-size: 13px; color: var(--text-primary); word-break: break-word; }
-    .c-ddf-empty { font-size: 13px; color: var(--text-muted); font-style: italic; padding: 8px 0; }
+    .c-ddf-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; margin-bottom: 14px; overflow: hidden; }
+    .c-ddf-header { display: flex; align-items: center; gap: 12px; padding: 12px 14px; background: var(--bg-card-alt); border-bottom: 1px solid var(--border); }
+    .c-ddf-badge { width: 28px; height: 28px; border-radius: 8px; background: var(--accent); color: #fff; font-size: 13px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .c-ddf-head-mid { flex: 1; min-width: 0; }
+    .c-ddf-head-title { font-size: 14px; font-weight: 700; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .c-ddf-head-loc { font-size: 12px; color: var(--accent); margin-top: 2px; }
+    .c-ddf-head-hrs { font-size: 13px; font-weight: 700; color: var(--text-primary); flex-shrink: 0; text-align: right; }
+    .c-ddf-head-ot  { font-size: 11px; color: #D97706; font-weight: 700; }
+    .c-ddf-fields { padding: 0 14px 8px; }
+    .c-ddf-row  { display: grid; grid-template-columns: 100px 1fr; gap: 4px; padding: 9px 0; border-bottom: 1px solid var(--border); align-items: start; }
+    .c-ddf-row:last-child { border-bottom: none; }
+    .c-ddf-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); padding-top: 1px; }
+    .c-ddf-val   { font-size: 13px; color: var(--text-primary); word-break: break-word; line-height: 1.5; }
+    .c-ddf-code-chip { display: inline-block; background: rgba(45,107,228,0.1); color: var(--accent); border: 1px solid rgba(45,107,228,0.2); border-radius: 5px; padding: 2px 7px; font-size: 12px; font-weight: 600; margin: 1px 3px 1px 0; }
+    .c-ddf-empty { font-size: 13px; color: var(--text-muted); font-style: italic; padding: 16px 14px; text-align: center; }
     /* Tabbed content viewer for Notes/Notebooks conflicts */
     .conflict-tab-bar { display: flex; border-bottom: 2px solid var(--border); margin: 0 12px; }
     .conflict-tab {
@@ -11496,7 +11504,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.1.58';
+    const VERSION = '5.1.59';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -21485,24 +21493,44 @@
       document.body.appendChild(el);
     }
 
-    // Render one activity as a full detail block with labelled fields
+    // Render one activity as a full task card — matches the visual style of the timesheet
     function _renderDayActFull(a, idx) {
-      const codes = Array.isArray(a.codes) ? a.codes.filter(Boolean).join(', ') : (a.code || '');
-      const ord  = parseFloat(a.ordinary) || 0;
-      const ot   = parseFloat(a.overtime)  || 0;
-      const desc = (a.description || a.notes || '').trim();
-      const loc  = (a.location || '').trim();
-      if (!codes && !ord && !ot && !desc && !loc) return '';
-      const row = (label, val) => val
-        ? `<div class="c-ddf-row"><span class="c-ddf-label">${label}</span><span class="c-ddf-val">${val}</span></div>`
+      const codesArr = Array.isArray(a.codes) ? a.codes.filter(Boolean) : (a.code ? [a.code] : []);
+      const ord   = parseFloat(a.ordinary) || 0;
+      const ot    = parseFloat(a.overtime)  || 0;
+      const desc  = (a.description || '').trim();
+      const notes = (a.notes || '').trim();
+      const loc   = (a.location || '').trim();
+      if (!codesArr.length && !ord && !ot && !desc && !loc && !notes) return '';
+      const row = (label, valHtml, show) => !show ? '' :
+        `<div class="c-ddf-row"><span class="c-ddf-label">${label}</span><div class="c-ddf-val">${valHtml}</div></div>`;
+      const chipsHtml = codesArr.length
+        ? codesArr.map(c => `<span class="c-ddf-code-chip">${esc(typeof c === 'object' ? (c.label||c.code||JSON.stringify(c)) : c)}</span>`).join('')
+        : '<span style="color:var(--text-muted);font-style:italic;font-size:12px">None</span>';
+      const notesHtml = notes
+        ? (notes.trim().startsWith('<') ? notes : `<span style="white-space:pre-wrap">${esc(notes)}</span>`)
         : '';
       return `<div class="c-ddf-card">
-        <div class="c-ddf-num">Activity ${idx + 1}</div>
-        ${row('Work code', codes ? `<strong style="color:var(--accent)">${esc(codes)}</strong>` : '')}
-        ${row('Ordinary',  ord  ? ord  + ' h' : '')}
-        ${row('Overtime',  ot   ? ot   + ' h' : '')}
-        ${row('Notes',     desc ? esc(desc)    : '')}
-        ${row('Location',  loc  ? esc(loc)     : '')}
+        <div class="c-ddf-header">
+          <div class="c-ddf-badge">${idx + 1}</div>
+          <div class="c-ddf-head-mid">
+            <div class="c-ddf-head-title">${esc(desc || '(no description)')}</div>
+            ${loc ? `<div class="c-ddf-head-loc">📍 ${esc(loc)}</div>` : ''}
+          </div>
+          <div class="c-ddf-head-hrs">
+            ${ord ? `<div>${ord}h ord</div>` : ''}
+            ${ot  ? `<div class="c-ddf-head-ot">+${ot}h OT</div>` : ''}
+            ${!ord && !ot ? '<div style="color:var(--text-muted)">—</div>' : ''}
+          </div>
+        </div>
+        <div class="c-ddf-fields">
+          ${row('Description', esc(desc), !!desc)}
+          ${row('Location',    esc(loc),  !!loc)}
+          ${row('Work codes',  chipsHtml, true)}
+          ${row('Ordinary hrs', `<strong>${ord}h</strong>`, !!ord)}
+          ${row('Overtime hrs', `<strong style="color:#D97706">${ot}h</strong>`, !!ot)}
+          ${row('Notes', notesHtml, !!notes)}
+        </div>
       </div>`;
     }
 
