@@ -11540,7 +11540,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.1.75';
+    const VERSION = '5.1.76';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -23147,7 +23147,10 @@
       if (btn) { btn.textContent = 'Backing up…'; btn.disabled = true; }
       try {
         const today = dateToStr(new Date());
-        await _runBackupWrite(uid, today, true);
+        // Timeout after 30s to prevent infinite "Backing up…" state
+        const backupPromise = _runBackupWrite(uid, today, true);
+        const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Backup timed out after 30s')), 30000));
+        await Promise.race([backupPromise, timeoutPromise]);
         localStorage.setItem(_backupThrottleKey(uid), today);
         showToast('✓ Backup saved');
         await refreshBackupList();
@@ -23178,6 +23181,12 @@
       if (!uid) { showToast('Not signed in'); return; }
       showToast('Restoring…');
       try {
+        // ── KILL all onSnapshot listeners so they can't overwrite restored data ──
+        if (weekUnsubscribe) { weekUnsubscribe(); weekUnsubscribe = null; }
+        if (notesUnsubscribe) { notesUnsubscribe(); notesUnsubscribe = null; }
+        if (remindersUnsubscribe) { remindersUnsubscribe(); remindersUnsubscribe = null; }
+        if (calloutsUnsubscribe) { calloutsUnsubscribe(); calloutsUnsubscribe = null; }
+
         // Safety: save current state as a pre-restore backup
         const safetyKey = dateToStr(new Date()) + '-pre-restore';
         await _runBackupWrite(uid, safetyKey, true).catch(() => { });
@@ -23230,9 +23239,7 @@
         const restoredReminders = b.reminders?.reminders ? deepCopy(b.reminders.reminders) : [];
         saveReminders(restoredReminders);
 
-        // 5. Callouts — KILL the onSnapshot listener first so it can't
-        //    re-apply stale data while we write the restored callouts
-        if (calloutsUnsubscribe) { calloutsUnsubscribe(); calloutsUnsubscribe = null; }
+        // 5. Callouts (listeners already killed at top of function)
         const restoredCallouts = b.callouts
           ? deepCopy({ weeks: b.callouts.weeks || {}, onCall: b.callouts.onCall || {} })
           : { weeks: {}, onCall: {} };
@@ -23258,18 +23265,23 @@
 
         document.getElementById('backup-modal').classList.add('hidden');
         render();
-        // Re-subscribe to callouts onSnapshot now that restore is done
-        loadCallouts();
-        // Debug: show what the backup actually contained — with callout dates
+        // Re-subscribe all onSnapshot listeners now that restore is done
+        loadWeek(state.weekStart);   // re-subscribes weekUnsubscribe
+        loadNotes();                 // re-subscribes notesUnsubscribe
+        loadCallouts();              // re-subscribes calloutsUnsubscribe
+        initReminders();             // re-subscribes remindersUnsubscribe
+        // Summary toast
         const _dbgCoCount = Object.values(restoredCallouts.weeks || {}).reduce((s, w) => s + (w.callouts?.length || 0), 0);
         const _dbgNoteCount = restoredNotes.length;
-        const _dbgCoDates = Object.entries(restoredCallouts.weeks || {}).flatMap(([wk, w]) =>
-          (w.callouts || []).map(c => c.date || wk)
-        ).join(', ');
-        showToast(`✓ Restored: ${_dbgNoteCount} notes, ${_dbgCoCount} callouts${_dbgCoDates ? ' (' + _dbgCoDates + ')' : ''}`);
+        showToast('✓ Restored: ' + _dbgNoteCount + ' notes, ' + _dbgCoCount + ' callouts');
       } catch (e) {
         showToast('Restore failed: ' + (e.message || e));
         console.error('[Rian Backup] Restore error:', e);
+        // Re-subscribe listeners even on failure so app keeps working
+        try { loadWeek(state.weekStart); } catch(_) {}
+        try { loadNotes(); } catch(_) {}
+        try { loadCallouts(); } catch(_) {}
+        try { initReminders(); } catch(_) {}
       }
     }
 
