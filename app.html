@@ -11528,7 +11528,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.1.70';
+    const VERSION = '5.1.71';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -22121,17 +22121,29 @@
     function _injectTestConflicts() {
       state.conflicts = []; // clear any previous test conflicts
 
-      // 1. Timesheet — take current week, simulate last 2 days wiped in remote
+      // 1. Timesheet — take current week, simulate:
+      //    - first day with data: remote has same activities but with altered hours/location (tests diff highlights)
+      //    - next 1 day with data: remote has entries wiped (tests "Your version only" case)
       const localWeek = deepCopy(state.weekData);
       const remoteWeek = deepCopy(state.weekData);
       const nDays = (remoteWeek.days || []).length;
-      let wiped = 0;
-      for (let i = nDays - 1; i >= 0 && wiped < 2; i--) {
+      let modified = 0, wiped = 0;
+      for (let i = 0; i < nDays && (modified < 1 || wiped < 1); i++) {
         const day = remoteWeek.days[i];
         const hasData = (day.activities || []).some(a =>
           (parseFloat(a.ordinary)||0) > 0 || (parseFloat(a.codes?.join(''))||0) || (a.description||'').trim()
         );
-        if (hasData) {
+        if (!hasData) continue;
+        if (modified < 1) {
+          // Alter hours and location to test diff highlighting
+          day.activities = day.activities.map(a => ({
+            ...a,
+            ordinary: String(Math.max(0, (parseFloat(a.ordinary)||0) - 1)) || '7',
+            overtime: String((parseFloat(a.overtime)||0) + 1),
+            location: (a.location || '') ? (a.location + ' (cloud)') : 'Cloud location',
+          }));
+          modified++;
+        } else if (wiped < 1) {
           day.activities = day.activities.map(a => ({ ...a, ordinary:'', overtime:'', codes:[], description:'' }));
           wiped++;
         }
