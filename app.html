@@ -2187,7 +2187,58 @@
     .c-act-desc { color: var(--text-muted); margin-top: 2px; font-size: 10px; word-break: break-word; }
     .c-empty-day { font-size: 11px; color: var(--text-muted); font-style: italic; padding: 4px 0; }
     /* Richer split panes for Notes/Notebooks */
-    .conflict-split-pane { max-height: 220px; overflow-y: auto; }
+    .conflict-split-pane { max-height: 260px; overflow-y: auto; }
+    .conflict-split-pane-hdr { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
+    .conflict-split-expand-btn {
+      display: flex; align-items: center; gap: 3px;
+      font-size: 10px; font-weight: 700; color: var(--accent);
+      background: none; border: none; padding: 2px 4px; border-radius: 4px;
+      cursor: pointer; letter-spacing: 0.02em; text-transform: uppercase;
+    }
+    .conflict-split-expand-btn:hover { background: rgba(45,107,228,0.08); }
+    .conflict-split-content { font-size: 11px; color: var(--text-secondary); line-height: 1.6; }
+    /* Rendered rich-text content inside split pane */
+    .conflict-split-content p { margin: 0 0 4px; }
+    .conflict-split-content h1, .conflict-split-content h2, .conflict-split-content h3 { font-size: 12px; font-weight: 700; margin: 4px 0 2px; }
+    .conflict-split-content ul, .conflict-split-content ol { padding-left: 14px; margin: 0 0 4px; }
+    .conflict-split-content li { margin-bottom: 2px; }
+    .conflict-split-content table { border-collapse: collapse; font-size: 10px; width: 100%; margin-bottom: 4px; }
+    .conflict-split-content td, .conflict-split-content th { border: 1px solid var(--border); padding: 2px 4px; }
+    /* Full-content overlay */
+    .conflict-fullview-overlay {
+      position: fixed; inset: 0; background: rgba(15,28,46,0.6);
+      z-index: 300; display: flex; align-items: flex-end; justify-content: center;
+    }
+    .conflict-fullview-sheet {
+      background: var(--bg-card); border-radius: 18px 18px 0 0;
+      width: 100%; max-width: 672px; max-height: 92vh;
+      display: flex; flex-direction: column;
+    }
+    .conflict-fullview-header {
+      display: flex; align-items: center; gap: 10px;
+      padding: 16px 16px 12px; border-bottom: 1px solid var(--border); flex-shrink: 0;
+    }
+    .conflict-fullview-title { font-size: 15px; font-weight: 700; color: var(--text-primary); flex: 1; }
+    .conflict-fullview-close {
+      background: none; border: none; cursor: pointer;
+      color: var(--text-muted); display: flex; align-items: center; padding: 4px;
+    }
+    .conflict-fullview-body {
+      flex: 1; overflow-y: auto; padding: 16px;
+      font-size: 13px; color: var(--text-secondary); line-height: 1.7;
+    }
+    .conflict-fullview-body p  { margin: 0 0 8px; }
+    .conflict-fullview-body h1 { font-size: 18px; font-weight: 700; margin: 0 0 8px; color: var(--text-primary); }
+    .conflict-fullview-body h2 { font-size: 15px; font-weight: 700; margin: 8px 0 6px; color: var(--text-primary); }
+    .conflict-fullview-body h3 { font-size: 13px; font-weight: 700; margin: 8px 0 4px; color: var(--text-primary); }
+    .conflict-fullview-body ul, .conflict-fullview-body ol { padding-left: 20px; margin: 0 0 8px; }
+    .conflict-fullview-body li { margin-bottom: 3px; }
+    .conflict-fullview-body table { border-collapse: collapse; width: 100%; margin-bottom: 8px; font-size: 12px; }
+    .conflict-fullview-body td, .conflict-fullview-body th { border: 1px solid var(--border); padding: 5px 8px; }
+    .conflict-fullview-body th { background: var(--bg-card-alt); font-weight: 700; }
+    .conflict-fullview-body strong, .conflict-fullview-body b { font-weight: 700; color: var(--text-primary); }
+    .conflict-fullview-body code { font-family: var(--font-mono); font-size: 11px; background: var(--bg-card-alt); padding: 1px 4px; border-radius: 3px; }
+    .conflict-fullview-plain { white-space: pre-wrap; font-size: 13px; color: var(--text-secondary); line-height: 1.7; }
 
     .menu-spacer {
       flex: 1;
@@ -11420,7 +11471,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.1.54';
+    const VERSION = '5.1.55';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -21363,13 +21414,36 @@
       return `<div class="c-act">
         ${codes ? `<div class="c-act-code">${esc(codes)}</div>` : ''}
         <div class="c-act-hrs">${ord ? ord + 'h ord' : ''}${ord && ot ? ' · ' : ''}${ot ? ot + 'h OT' : ''}</div>
-        ${desc ? `<div class="c-act-desc">${esc(desc.slice(0, 120))}${desc.length > 120 ? '…' : ''}</div>` : ''}
+        ${desc ? `<div class="c-act-desc">${esc(desc)}</div>` : ''}
       </div>`;
     }
 
     // Strip HTML tags for plain-text display of TipTap content
     function _stripHtml(html) {
       return (html || '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+    }
+
+    // Open a full-screen overlay to read the complete content of one side
+    function _openConflictFullView(title, content, isHtml) {
+      const existing = document.getElementById('conflict-fullview');
+      if (existing) existing.remove();
+      const xIcon = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`;
+      const bodyContent = isHtml
+        ? `<div>${content || '<em>(empty)</em>'}</div>`
+        : `<div class="conflict-fullview-plain">${esc(content || '(empty)')}</div>`;
+      const el = document.createElement('div');
+      el.id = 'conflict-fullview';
+      el.className = 'conflict-fullview-overlay';
+      el.innerHTML = `
+        <div class="conflict-fullview-sheet">
+          <div class="conflict-fullview-header">
+            <span class="conflict-fullview-title">${esc(title)}</span>
+            <button class="conflict-fullview-close" onclick="document.getElementById('conflict-fullview')?.remove()">${xIcon}</button>
+          </div>
+          <div class="conflict-fullview-body">${bodyContent}</div>
+        </div>`;
+      el.addEventListener('click', function(e) { if (e.target === el) el.remove(); });
+      document.body.appendChild(el);
     }
 
     // Open resolution modal for a specific conflict
@@ -21432,18 +21506,31 @@
 
       // ── Notes / Notebooks: split pane with actual content ──
       } else if (c.displayType === 'split') {
-        const localContent  = _stripHtml(c.localMeta?.content  || '');
-        const remoteContent = _stripHtml(c.remoteMeta?.content || '');
+        const rawLocal  = c.localMeta?.content  || '';
+        const rawRemote = c.remoteMeta?.content || '';
+        // Detect if content is HTML (TipTap produces HTML)
+        const isHtml = /<[a-z][\s\S]*>/i.test(rawLocal + rawRemote);
+        const localDisplay  = isHtml ? rawLocal  : esc(rawLocal  || '(empty)');
+        const remoteDisplay = isHtml ? rawRemote : esc(rawRemote || '(empty)');
+        const localTitle  = `Your version — ${esc(c.localMeta?.time  || 'This device')}`;
+        const remoteTitle = `Cloud version — ${esc(c.remoteMeta?.time || 'Cloud')}`;
+        const expandIcon = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>`;
         versionsHtml = `<div class="conflict-split-grid">
           <div class="conflict-split-pane local">
-            <div class="conflict-split-label" style="display:flex;align-items:center;gap:5px">${_cIcons.device} Your version</div>
+            <div class="conflict-split-pane-hdr">
+              <div class="conflict-split-label" style="display:flex;align-items:center;gap:5px">${_cIcons.device} Your version</div>
+              <button class="conflict-split-expand-btn" onclick="_openConflictFullView(${JSON.stringify(localTitle)}, ${JSON.stringify(rawLocal)}, ${isHtml})">${expandIcon} View full</button>
+            </div>
             <div class="conflict-split-time">${esc(c.localMeta?.time || 'This device')}</div>
-            <div class="conflict-split-content">${esc(localContent || '(empty)')}</div>
+            <div class="conflict-split-content">${localDisplay || '<em style="color:var(--text-muted)">(empty)</em>'}</div>
           </div>
           <div class="conflict-split-pane remote">
-            <div class="conflict-split-label" style="display:flex;align-items:center;gap:5px">${_cIcons.cloud} Cloud version</div>
+            <div class="conflict-split-pane-hdr">
+              <div class="conflict-split-label" style="display:flex;align-items:center;gap:5px">${_cIcons.cloud} Cloud version</div>
+              <button class="conflict-split-expand-btn" onclick="_openConflictFullView(${JSON.stringify(remoteTitle)}, ${JSON.stringify(rawRemote)}, ${isHtml})">${expandIcon} View full</button>
+            </div>
             <div class="conflict-split-time">${esc(c.remoteMeta?.time || 'Cloud')}</div>
-            <div class="conflict-split-content">${esc(remoteContent || '(empty)')}</div>
+            <div class="conflict-split-content">${remoteDisplay || '<em style="color:var(--text-muted)">(empty)</em>'}</div>
           </div>
         </div>`;
 
