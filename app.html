@@ -11471,7 +11471,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.1.55';
+    const VERSION = '5.1.56';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -21423,14 +21423,18 @@
       return (html || '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
     }
 
+    // Cache for full-view content — avoids unsafe inline HTML in onclick attributes
+    const _cFullViewCache = {};
+
     // Open a full-screen overlay to read the complete content of one side
-    function _openConflictFullView(title, content, isHtml) {
+    // Call with a cache key: _openConflictFullView('key') — content stored in _cFullViewCache
+    function _openConflictFullView(cacheKey) {
+      const cached = _cFullViewCache[cacheKey];
+      if (!cached) return;
+      const { title, content, isHtml } = cached;
       const existing = document.getElementById('conflict-fullview');
       if (existing) existing.remove();
       const xIcon = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`;
-      const bodyContent = isHtml
-        ? `<div>${content || '<em>(empty)</em>'}</div>`
-        : `<div class="conflict-fullview-plain">${esc(content || '(empty)')}</div>`;
       const el = document.createElement('div');
       el.id = 'conflict-fullview';
       el.className = 'conflict-fullview-overlay';
@@ -21440,8 +21444,18 @@
             <span class="conflict-fullview-title">${esc(title)}</span>
             <button class="conflict-fullview-close" onclick="document.getElementById('conflict-fullview')?.remove()">${xIcon}</button>
           </div>
-          <div class="conflict-fullview-body">${bodyContent}</div>
+          <div class="conflict-fullview-body"></div>
         </div>`;
+      // Set body content safely — innerHTML for HTML, textContent for plain
+      const body = el.querySelector('.conflict-fullview-body');
+      if (isHtml) {
+        body.innerHTML = content || '<em>(empty)</em>';
+      } else {
+        const pre = document.createElement('div');
+        pre.className = 'conflict-fullview-plain';
+        pre.textContent = content || '(empty)';
+        body.appendChild(pre);
+      }
       el.addEventListener('click', function(e) { if (e.target === el) el.remove(); });
       document.body.appendChild(el);
     }
@@ -21512,14 +21526,17 @@
         const isHtml = /<[a-z][\s\S]*>/i.test(rawLocal + rawRemote);
         const localDisplay  = isHtml ? rawLocal  : esc(rawLocal  || '(empty)');
         const remoteDisplay = isHtml ? rawRemote : esc(rawRemote || '(empty)');
-        const localTitle  = `Your version — ${esc(c.localMeta?.time  || 'This device')}`;
-        const remoteTitle = `Cloud version — ${esc(c.remoteMeta?.time || 'Cloud')}`;
+        // Store content in cache so onclick doesn't need to embed raw HTML
+        const ckLocal  = 'fv_' + c.id + '_local';
+        const ckRemote = 'fv_' + c.id + '_remote';
+        _cFullViewCache[ckLocal]  = { title: 'Your version — ' + (c.localMeta?.time  || 'This device'), content: rawLocal,  isHtml };
+        _cFullViewCache[ckRemote] = { title: 'Cloud version — ' + (c.remoteMeta?.time || 'Cloud'),       content: rawRemote, isHtml };
         const expandIcon = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>`;
         versionsHtml = `<div class="conflict-split-grid">
           <div class="conflict-split-pane local">
             <div class="conflict-split-pane-hdr">
               <div class="conflict-split-label" style="display:flex;align-items:center;gap:5px">${_cIcons.device} Your version</div>
-              <button class="conflict-split-expand-btn" onclick="_openConflictFullView(${JSON.stringify(localTitle)}, ${JSON.stringify(rawLocal)}, ${isHtml})">${expandIcon} View full</button>
+              <button class="conflict-split-expand-btn" onclick="_openConflictFullView('${ckLocal}')">${expandIcon} View full</button>
             </div>
             <div class="conflict-split-time">${esc(c.localMeta?.time || 'This device')}</div>
             <div class="conflict-split-content">${localDisplay || '<em style="color:var(--text-muted)">(empty)</em>'}</div>
@@ -21527,7 +21544,7 @@
           <div class="conflict-split-pane remote">
             <div class="conflict-split-pane-hdr">
               <div class="conflict-split-label" style="display:flex;align-items:center;gap:5px">${_cIcons.cloud} Cloud version</div>
-              <button class="conflict-split-expand-btn" onclick="_openConflictFullView(${JSON.stringify(remoteTitle)}, ${JSON.stringify(rawRemote)}, ${isHtml})">${expandIcon} View full</button>
+              <button class="conflict-split-expand-btn" onclick="_openConflictFullView('${ckRemote}')">${expandIcon} View full</button>
             </div>
             <div class="conflict-split-time">${esc(c.remoteMeta?.time || 'Cloud')}</div>
             <div class="conflict-split-content">${remoteDisplay || '<em style="color:var(--text-muted)">(empty)</em>'}</div>
