@@ -2158,6 +2158,36 @@
     .conflicts-empty-icon { font-size: 44px; margin-bottom: 12px; }
     .conflicts-empty-title { font-size: 16px; font-weight: 700; color: var(--text-primary); margin-bottom: 6px; }
     .conflicts-empty-sub { font-size: 13px; }
+    /* Expandable day rows in Timesheet conflict modal */
+    .c-day-block { border: 1px solid var(--border); border-radius: 8px; margin: 0 12px 8px; overflow: hidden; }
+    .c-day-head {
+      display: flex; align-items: center; gap: 10px; padding: 10px 12px;
+      cursor: pointer; background: var(--bg-card-alt); user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .c-day-head:active { opacity: 0.8; }
+    .c-day-label { font-size: 13px; font-weight: 700; flex: 1; color: var(--text-primary); }
+    .c-day-meta { font-size: 11px; color: var(--text-muted); text-align: right; }
+    .c-day-meta.has-data { color: #16A34A; font-weight: 600; }
+    .c-day-meta.no-data  { color: #DC2626; font-weight: 600; }
+    .c-day-chevron { transition: transform 0.2s; color: var(--text-muted); display: flex; }
+    .c-day-chevron.open { transform: rotate(90deg); }
+    .c-day-body { display: none; border-top: 1px solid var(--border); }
+    .c-day-body.open { display: block; }
+    .c-day-cols { display: grid; grid-template-columns: 1fr 1fr; }
+    .c-day-col { padding: 8px 10px; }
+    .c-day-col.local  { border-right: 1px solid var(--border); background: #F0F5FF; }
+    .c-day-col.remote { background: var(--bg-card-alt); }
+    .c-day-col-hdr { font-size: 9px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 6px; display: flex; align-items: center; gap: 4px; }
+    .c-day-col.local  .c-day-col-hdr { color: var(--accent); }
+    .c-day-col.remote .c-day-col-hdr { color: var(--text-muted); }
+    .c-act { background: var(--bg-card); border: 1px solid var(--border); border-radius: 5px; padding: 6px 8px; margin-bottom: 5px; font-size: 11px; }
+    .c-act-code { font-weight: 700; color: var(--accent); margin-bottom: 2px; }
+    .c-act-hrs  { color: var(--text-secondary); }
+    .c-act-desc { color: var(--text-muted); margin-top: 2px; font-size: 10px; word-break: break-word; }
+    .c-empty-day { font-size: 11px; color: var(--text-muted); font-style: italic; padding: 4px 0; }
+    /* Richer split panes for Notes/Notebooks */
+    .conflict-split-pane { max-height: 220px; overflow-y: auto; }
 
     .menu-spacer {
       flex: 1;
@@ -11390,7 +11420,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.1.53';
+    const VERSION = '5.1.54';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -21313,25 +21343,111 @@
         ${n > 0 ? rowsHtml : emptyHtml}`;
     }
 
+    // Toggle expand/collapse for a day block in the conflict modal
+    function _toggleConflictDayRow(el) {
+      const block = el.closest('.c-day-block');
+      if (!block) return;
+      const body = block.querySelector('.c-day-body');
+      const chev = block.querySelector('.c-day-chevron');
+      if (body) body.classList.toggle('open');
+      if (chev) chev.classList.toggle('open');
+    }
+
+    // Render one activity entry for the day detail view
+    function _renderCActEntry(a) {
+      const codes = Array.isArray(a.codes) ? a.codes.filter(Boolean).join(', ') : (a.code||'');
+      const ord   = parseFloat(a.ordinary) || 0;
+      const ot    = parseFloat(a.overtime)  || 0;
+      const desc  = (a.description || a.notes || '').trim();
+      if (!ord && !ot && !codes && !desc) return '';
+      return `<div class="c-act">
+        ${codes ? `<div class="c-act-code">${esc(codes)}</div>` : ''}
+        <div class="c-act-hrs">${ord ? ord + 'h ord' : ''}${ord && ot ? ' · ' : ''}${ot ? ot + 'h OT' : ''}</div>
+        ${desc ? `<div class="c-act-desc">${esc(desc.slice(0, 120))}${desc.length > 120 ? '…' : ''}</div>` : ''}
+      </div>`;
+    }
+
+    // Strip HTML tags for plain-text display of TipTap content
+    function _stripHtml(html) {
+      return (html || '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+    }
+
     // Open resolution modal for a specific conflict
     function _openConflictModal(id) {
       const c = state.conflicts.find(x => x.id === id);
       if (!c) return;
 
       let versionsHtml = '';
-      if (c.displayType === 'split') {
+
+      // ── Timesheet: expandable day rows using actual localData/remoteData ──
+      if (c.section === 'Timesheet' && c.localData?.days && c.remoteData?.days) {
+        const lDays = c.localData.days;
+        const rDays = c.remoteData.days;
+        const dayBlocks = lDays.map((lDay, i) => {
+          const rDay = rDays[i] || { activities: [] };
+          const lActs = (lDay.activities || []).filter(a => (parseFloat(a.ordinary)||0)>0||(parseFloat(a.overtime)||0)>0||(a.codes||[]).some(Boolean)||(a.description||'').trim());
+          const rActs = (rDay.activities || []).filter(a => (parseFloat(a.ordinary)||0)>0||(parseFloat(a.overtime)||0)>0||(a.codes||[]).some(Boolean)||(a.description||'').trim());
+          if (!lActs.length && !rActs.length) return '';
+          const differs = lActs.length !== rActs.length ||
+            lActs.some((a,j) => (parseFloat(a.ordinary)||0) !== (parseFloat((rActs[j]||{}).ordinary)||0));
+          if (!differs) return ''; // only show days that differ
+          const lHrs = lActs.reduce((s,a)=>s+(parseFloat(a.ordinary)||0)+(parseFloat(a.overtime)||0),0);
+          const rHrs = rActs.reduce((s,a)=>s+(parseFloat(a.ordinary)||0)+(parseFloat(a.overtime)||0),0);
+          const dayLabel = lDay.date ? new Date(lDay.date).toLocaleDateString('en-IE',{weekday:'short',day:'numeric',month:'short'}) : (lDay.dayLabel || `Day ${i+1}`);
+          const lActsHtml = lActs.length ? lActs.map(_renderCActEntry).join('') : `<div class="c-empty-day">No entries</div>`;
+          const rActsHtml = rActs.length ? rActs.map(_renderCActEntry).join('') : `<div class="c-empty-day">No entries</div>`;
+          const chevSvg = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>`;
+          return `<div class="c-day-block">
+            <div class="c-day-head" onclick="_toggleConflictDayRow(this)">
+              <span class="c-day-label">${esc(dayLabel)}</span>
+              <span class="c-day-meta ${lHrs>0?'has-data':'no-data'}">You: ${lHrs.toFixed(1)}h</span>
+              <span class="c-day-meta" style="margin-left:6px;color:var(--text-muted)">|</span>
+              <span class="c-day-meta ${rHrs>0?'has-data':'no-data'}" style="margin-left:6px">Cloud: ${rHrs.toFixed(1)}h</span>
+              <span class="c-day-chevron">${chevSvg}</span>
+            </div>
+            <div class="c-day-body">
+              <div class="c-day-cols">
+                <div class="c-day-col local">
+                  <div class="c-day-col-hdr">${_cIcons.device} Your version</div>
+                  ${lActsHtml}
+                </div>
+                <div class="c-day-col remote">
+                  <div class="c-day-col-hdr">${_cIcons.cloud} Cloud</div>
+                  ${rActsHtml}
+                </div>
+              </div>
+            </div>
+          </div>`;
+        }).join('');
+        const totalLocal  = lDays.reduce((s,d)=>(d.activities||[]).reduce((ss,a)=>ss+(parseFloat(a.ordinary)||0)+(parseFloat(a.overtime)||0),s),0);
+        const totalRemote = rDays.reduce((s,d)=>(d.activities||[]).reduce((ss,a)=>ss+(parseFloat(a.ordinary)||0)+(parseFloat(a.overtime)||0),s),0);
+        versionsHtml = `
+          <div style="padding:8px 12px 4px;font-size:11px;color:var(--text-muted)">Tap a day to see full activity breakdown</div>
+          ${dayBlocks || '<div style="padding:12px 16px;font-size:12px;color:var(--text-muted)">No differing days found.</div>'}
+          <div style="display:flex;gap:12px;padding:6px 12px 10px;font-size:12px;border-top:1px solid var(--border);margin-top:4px">
+            <span style="color:#16A34A;font-weight:700">Your total: ${totalLocal.toFixed(1)}h</span>
+            <span style="color:var(--text-muted)">·</span>
+            <span style="color:#DC2626;font-weight:700">Cloud total: ${totalRemote.toFixed(1)}h</span>
+          </div>`;
+
+      // ── Notes / Notebooks: split pane with actual content ──
+      } else if (c.displayType === 'split') {
+        const localContent  = _stripHtml(c.localMeta?.content  || '');
+        const remoteContent = _stripHtml(c.remoteMeta?.content || '');
         versionsHtml = `<div class="conflict-split-grid">
           <div class="conflict-split-pane local">
             <div class="conflict-split-label" style="display:flex;align-items:center;gap:5px">${_cIcons.device} Your version</div>
             <div class="conflict-split-time">${esc(c.localMeta?.time || 'This device')}</div>
-            <div class="conflict-split-content">${esc(c.localMeta?.content || '')}</div>
+            <div class="conflict-split-content">${esc(localContent || '(empty)')}</div>
           </div>
           <div class="conflict-split-pane remote">
             <div class="conflict-split-label" style="display:flex;align-items:center;gap:5px">${_cIcons.cloud} Cloud version</div>
             <div class="conflict-split-time">${esc(c.remoteMeta?.time || 'Cloud')}</div>
-            <div class="conflict-split-content">${esc(c.remoteMeta?.content || '')}</div>
+            <div class="conflict-split-content">${esc(remoteContent || '(empty)')}</div>
           </div>
         </div>`;
+
+      // ── Callouts / Routines / Tags: simple rows ──
       } else {
         const makeCard = (iconHtml, label, cls, meta) => {
           const rows = (meta.rows || []).map(r => `
