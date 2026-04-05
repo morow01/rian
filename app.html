@@ -2190,6 +2190,18 @@
     .c-ddf-empty { font-size: 13px; color: var(--text-muted); font-style: italic; padding: 16px 14px; text-align: center; }
     /* Disable all interactions in read-only card */
     .c-ddf-readonly { pointer-events: none; margin-bottom: 14px; }
+    /* Tappable activity rows inside the day detail overlay */
+    .c-act-row { display: flex; align-items: center; gap: 10px; padding: 12px 14px; border-bottom: 1px solid var(--border); cursor: pointer; background: var(--bg-card); -webkit-tap-highlight-color: transparent; user-select: none; }
+    .c-act-row:active { opacity: 0.8; }
+    .c-act-row-body { flex: 1; min-width: 0; }
+    .c-act-row-desc { font-size: 14px; font-weight: 600; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .c-act-row-meta { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+    .c-act-row-badge { font-size: 10px; font-weight: 700; border-radius: 4px; padding: 1px 6px; white-space: nowrap; flex-shrink: 0; }
+    .c-act-row-badge.yours-only { color: #15803d; background: rgba(22,163,74,0.1); }
+    .c-act-row-badge.cloud-only { color: #b91c1c; background: rgba(220,38,38,0.08); }
+    .c-act-row-badge.changed    { color: #ef4444; background: rgba(239,68,68,0.1); }
+    /* Stacked activity-level detail overlay (sits on top of day overlay) */
+    .conflict-actview-overlay { position: fixed; inset: 0; background: transparent; z-index: 310; display: flex; align-items: flex-end; justify-content: center; }
     .c-ddf-readonly .hrs-stepper button { opacity: 0.35; }
     .c-ddf-readonly .act-dictate-wrap,
     .c-ddf-readonly .act-suggest-btn,
@@ -11528,7 +11540,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.1.73';
+    const VERSION = '5.1.74';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -21774,26 +21786,50 @@
     function _openConflictDayDetail(conflictId, dayIdx) {
       const c = (state.conflicts || []).find(x => x.id === conflictId);
       if (!c) return;
-      const lDay = (c.localData?.days  || [])[dayIdx] || { activities: [] };
-      const rDay = (c.remoteData?.days || [])[dayIdx] || { activities: [] };
-      const lActs = (lDay.activities || []).filter(a =>
+      const filterActs = arr => (arr || []).filter(a =>
         (parseFloat(a.ordinary)||0) > 0 || (parseFloat(a.overtime)||0) > 0 ||
         (a.codes||[]).some(Boolean) || (a.code||'').trim() || (a.description||'').trim());
-      const rActs = (rDay.activities || []).filter(a =>
-        (parseFloat(a.ordinary)||0) > 0 || (parseFloat(a.overtime)||0) > 0 ||
-        (a.codes||[]).some(Boolean) || (a.code||'').trim() || (a.description||'').trim());
+      const lDay  = (c.localData?.days  || [])[dayIdx] || {};
+      const rDay  = (c.remoteData?.days || [])[dayIdx] || {};
+      const lActs = filterActs(lDay.activities);
+      const rActs = filterActs(rDay.activities);
       const dayLabel = lDay.date
         ? new Date(lDay.date).toLocaleDateString('en-IE', { weekday:'long', day:'numeric', month:'long' })
         : (lDay.dayLabel || `Day ${dayIdx + 1}`);
-      // Compute per-activity diff fields and render with highlights
-      const maxActs = Math.max(lActs.length, rActs.length);
-      const lHtml = lActs.length ? lActs.map((a,i) => _renderDayActFull(a, i, rActs[i] ? _actDiffFields(a, rActs[i]) : new Set())).join('') : '<p class="c-ddf-empty">No entries</p>';
-      const rHtml = rActs.length ? rActs.map((a,i) => _renderDayActFull(a, i, lActs[i] ? _actDiffFields(lActs[i], a) : new Set())).join('') : '<p class="c-ddf-empty">No entries for this day in the cloud version.</p>';
-      const diffHtml = _buildDayDiffHtml(lActs, rActs);
+      const maxLen = Math.max(lActs.length, rActs.length);
+      const chevron = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>`;
+      let rowsHtml = '';
+      if (maxLen === 0) {
+        rowsHtml = '<p class="c-ddf-empty">No entries for this day.</p>';
+      } else {
+        for (let i = 0; i < maxLen; i++) {
+          const l = lActs[i], r = rActs[i];
+          let badge = '', meta = '';
+          if (l && !r) {
+            badge = '<span class="c-act-row-badge yours-only">Yours only</span>';
+            const h = parseFloat(l.ordinary)||0; meta = h ? h + 'h ordinary' : '';
+          } else if (!l && r) {
+            badge = '<span class="c-act-row-badge cloud-only">Cloud only</span>';
+            const h = parseFloat(r.ordinary)||0; meta = h ? h + 'h ordinary' : '';
+          } else {
+            const df = _actDiffFields(l, r);
+            const lOrd = parseFloat(l.ordinary)||0, rOrd = parseFloat(r.ordinary)||0;
+            meta = lOrd === rOrd ? (lOrd ? lOrd + 'h' : '') : lOrd + 'h yours \u00b7 ' + rOrd + 'h cloud';
+            badge = df.size > 0 ? '<span class="c-act-row-badge changed">' + df.size + ' field' + (df.size > 1 ? 's' : '') + ' changed</span>' : '';
+          }
+          const desc = esc((l || r).description || ('Activity ' + (i + 1)));
+          rowsHtml += '<div class="c-act-row" onclick="_openConflictActDetail(\'' + esc(conflictId) + '\',' + dayIdx + ',' + i + ')">' +
+            '<div class="task-num">' + (i + 1) + '</div>' +
+            '<div class="c-act-row-body">' +
+            '<div class="c-act-row-desc">' + desc + '</div>' +
+            (meta ? '<div class="c-act-row-meta">' + esc(meta) + '</div>' : '') +
+            '</div>' + badge +
+            '<div class="c-day-chevron">' + chevron + '</div></div>';
+        }
+      }
       const existing = document.getElementById('conflict-fullview');
       if (existing) existing.remove();
       const xIcon = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`;
-      const diffTabIcon = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>`;
       const el = document.createElement('div');
       el.id = 'conflict-fullview';
       el.className = 'conflict-fullview-overlay';
@@ -21803,29 +21839,68 @@
             <span class="conflict-fullview-title">${esc(dayLabel)}</span>
             <button class="conflict-fullview-close" onclick="document.getElementById('conflict-fullview')?.remove()">${xIcon}</button>
           </div>
-          <div class="conflict-tab-bar" id="cdd_bar">
-            <button class="conflict-tab active" id="cdd_btn_local"  onclick="_switchDayDetailTab('local')">${_cIcons.device} Yours</button>
-            <button class="conflict-tab"        id="cdd_btn_remote" onclick="_switchDayDetailTab('remote')">${_cIcons.cloud} Cloud</button>
-            <button class="conflict-tab"        id="cdd_btn_diff"   onclick="_switchDayDetailTab('diff')">${diffTabIcon} Changes</button>
-          </div>
-          <div class="conflict-fullview-body" id="cdd_body"></div>
+          <div class="conflict-fullview-body" style="padding:0">${rowsHtml}</div>
         </div>`;
+      el._lActs = lActs;
+      el._rActs = rActs;
       el.addEventListener('click', function(e) { if (e.target === el) el.remove(); });
       document.body.appendChild(el);
-      // Store all three renders on the element for tab switching
+    }
+
+    // Open a stacked activity-level detail overlay (Yours / Cloud / Changes tabs for one activity)
+    function _openConflictActDetail(conflictId, dayIdx, actIdx) {
+      const dayEl = document.getElementById('conflict-fullview');
+      const c = (state.conflicts || []).find(x => x.id === conflictId);
+      if (!c) return;
+      const filterActs = arr => (arr || []).filter(a =>
+        (parseFloat(a.ordinary)||0) > 0 || (parseFloat(a.overtime)||0) > 0 ||
+        (a.codes||[]).some(Boolean) || (a.code||'').trim() || (a.description||'').trim());
+      const lActs = dayEl?._lActs || filterActs((c.localData?.days  || [])[dayIdx]?.activities);
+      const rActs = dayEl?._rActs || filterActs((c.remoteData?.days || [])[dayIdx]?.activities);
+      const l = lActs[actIdx], r = rActs[actIdx];
+      const df = _actDiffFields(l, r);
+      const lHtml = l ? _renderDayActFull(l, actIdx, r ? df : new Set())
+        : '<p class="c-ddf-empty">This activity only exists in the cloud version.</p>';
+      const rHtml = r ? _renderDayActFull(r, actIdx, l ? df : new Set())
+        : '<p class="c-ddf-empty">This activity only exists in your local version.</p>';
+      const diffHtml = _buildDayDiffHtml(l ? [l] : [], r ? [r] : []);
+      const actTitle = esc((l || r)?.description || ('Activity ' + (actIdx + 1)));
+      const existing = document.getElementById('conflict-actview');
+      if (existing) existing.remove();
+      const xIcon    = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`;
+      const backIcon  = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>`;
+      const diffIcon  = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>`;
+      const el = document.createElement('div');
+      el.id = 'conflict-actview';
+      el.className = 'conflict-actview-overlay';
+      el.innerHTML = `
+        <div class="conflict-fullview-sheet">
+          <div class="conflict-fullview-header">
+            <button class="conflict-fullview-close" onclick="document.getElementById('conflict-actview')?.remove()" style="margin-right:2px">${backIcon}</button>
+            <span class="conflict-fullview-title">Activity ${actIdx + 1} — ${actTitle}</span>
+            <button class="conflict-fullview-close" onclick="document.getElementById('conflict-actview')?.remove();document.getElementById('conflict-fullview')?.remove()">${xIcon}</button>
+          </div>
+          <div class="conflict-tab-bar">
+            <button class="conflict-tab active" id="cav_btn_local"  onclick="_switchActDetailTab('local')">${_cIcons.device} Yours</button>
+            <button class="conflict-tab"        id="cav_btn_remote" onclick="_switchActDetailTab('remote')">${_cIcons.cloud} Cloud</button>
+            <button class="conflict-tab"        id="cav_btn_diff"   onclick="_switchActDetailTab('diff')">${diffIcon} Changes</button>
+          </div>
+          <div class="conflict-fullview-body" id="cav_body" style="padding:0"></div>
+        </div>`;
       el._localHtml  = lHtml;
       el._remoteHtml = rHtml;
       el._diffHtml   = diffHtml;
-      document.getElementById('cdd_body').innerHTML = lHtml;
+      document.body.appendChild(el);
+      document.getElementById('cav_body').innerHTML = lHtml;
     }
 
-    function _switchDayDetailTab(side) {
-      const el = document.getElementById('conflict-fullview');
+    function _switchActDetailTab(side) {
+      const el = document.getElementById('conflict-actview');
       if (!el) return;
-      document.getElementById('cdd_btn_local') ?.classList.toggle('active', side === 'local');
-      document.getElementById('cdd_btn_remote')?.classList.toggle('active', side === 'remote');
-      document.getElementById('cdd_btn_diff')  ?.classList.toggle('active', side === 'diff');
-      const body = document.getElementById('cdd_body');
+      document.getElementById('cav_btn_local') ?.classList.toggle('active', side === 'local');
+      document.getElementById('cav_btn_remote')?.classList.toggle('active', side === 'remote');
+      document.getElementById('cav_btn_diff')  ?.classList.toggle('active', side === 'diff');
+      const body = document.getElementById('cav_body');
       if (!body) return;
       if (side === 'local')  body.innerHTML = el._localHtml;
       else if (side === 'remote') body.innerHTML = el._remoteHtml;
