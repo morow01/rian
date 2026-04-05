@@ -2186,6 +2186,14 @@
     .c-act-hrs  { color: var(--text-secondary); }
     .c-act-desc { color: var(--text-muted); margin-top: 2px; font-size: 10px; word-break: break-word; }
     .c-empty-day { font-size: 11px; color: var(--text-muted); font-style: italic; padding: 4px 0; }
+    /* Day detail full-view cards */
+    .c-ddf-card { background: var(--bg-card-alt); border: 1px solid var(--border); border-radius: 10px; padding: 14px; margin-bottom: 12px; }
+    .c-ddf-num  { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); margin-bottom: 10px; }
+    .c-ddf-row  { display: grid; grid-template-columns: 88px 1fr; gap: 4px; padding: 5px 0; border-top: 1px solid var(--border); align-items: start; }
+    .c-ddf-row:first-of-type { border-top: none; }
+    .c-ddf-label { font-size: 12px; color: var(--text-muted); }
+    .c-ddf-val   { font-size: 13px; color: var(--text-primary); word-break: break-word; }
+    .c-ddf-empty { font-size: 13px; color: var(--text-muted); font-style: italic; padding: 8px 0; }
     /* Tabbed content viewer for Notes/Notebooks conflicts */
     .conflict-tab-bar { display: flex; border-bottom: 2px solid var(--border); margin: 0 12px; }
     .conflict-tab {
@@ -11488,7 +11496,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.1.57';
+    const VERSION = '5.1.58';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -21477,6 +21485,79 @@
       document.body.appendChild(el);
     }
 
+    // Render one activity as a full detail block with labelled fields
+    function _renderDayActFull(a, idx) {
+      const codes = Array.isArray(a.codes) ? a.codes.filter(Boolean).join(', ') : (a.code || '');
+      const ord  = parseFloat(a.ordinary) || 0;
+      const ot   = parseFloat(a.overtime)  || 0;
+      const desc = (a.description || a.notes || '').trim();
+      const loc  = (a.location || '').trim();
+      if (!codes && !ord && !ot && !desc && !loc) return '';
+      const row = (label, val) => val
+        ? `<div class="c-ddf-row"><span class="c-ddf-label">${label}</span><span class="c-ddf-val">${val}</span></div>`
+        : '';
+      return `<div class="c-ddf-card">
+        <div class="c-ddf-num">Activity ${idx + 1}</div>
+        ${row('Work code', codes ? `<strong style="color:var(--accent)">${esc(codes)}</strong>` : '')}
+        ${row('Ordinary',  ord  ? ord  + ' h' : '')}
+        ${row('Overtime',  ot   ? ot   + ' h' : '')}
+        ${row('Notes',     desc ? esc(desc)    : '')}
+        ${row('Location',  loc  ? esc(loc)     : '')}
+      </div>`;
+    }
+
+    // Open a fullscreen day-detail overlay showing both versions of a specific day
+    function _openConflictDayDetail(conflictId, dayIdx) {
+      const c = (state.conflicts || []).find(x => x.id === conflictId);
+      if (!c) return;
+      const lDay = (c.localData?.days  || [])[dayIdx] || { activities: [] };
+      const rDay = (c.remoteData?.days || [])[dayIdx] || { activities: [] };
+      const lActs = (lDay.activities || []).filter(a =>
+        (parseFloat(a.ordinary)||0) > 0 || (parseFloat(a.overtime)||0) > 0 ||
+        (a.codes||[]).some(Boolean) || (a.code||'').trim() || (a.description||'').trim());
+      const rActs = (rDay.activities || []).filter(a =>
+        (parseFloat(a.ordinary)||0) > 0 || (parseFloat(a.overtime)||0) > 0 ||
+        (a.codes||[]).some(Boolean) || (a.code||'').trim() || (a.description||'').trim());
+      const dayLabel = lDay.date
+        ? new Date(lDay.date).toLocaleDateString('en-IE', { weekday:'long', day:'numeric', month:'long' })
+        : (lDay.dayLabel || `Day ${dayIdx + 1}`);
+      const lHtml = lActs.length ? lActs.map((a,i) => _renderDayActFull(a, i)).join('') : '<p class="c-ddf-empty">No entries</p>';
+      const rHtml = rActs.length ? rActs.map((a,i) => _renderDayActFull(a, i)).join('') : '<p class="c-ddf-empty">No entries for this day in the cloud version.</p>';
+      const existing = document.getElementById('conflict-fullview');
+      if (existing) existing.remove();
+      const xIcon = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`;
+      const el = document.createElement('div');
+      el.id = 'conflict-fullview';
+      el.className = 'conflict-fullview-overlay';
+      el.innerHTML = `
+        <div class="conflict-fullview-sheet">
+          <div class="conflict-fullview-header">
+            <span class="conflict-fullview-title">${esc(dayLabel)}</span>
+            <button class="conflict-fullview-close" onclick="document.getElementById('conflict-fullview')?.remove()">${xIcon}</button>
+          </div>
+          <div class="conflict-tab-bar" id="cdd_bar">
+            <button class="conflict-tab active" id="cdd_btn_local"  onclick="_switchDayDetailTab('local')">${_cIcons.device} Your version</button>
+            <button class="conflict-tab"        id="cdd_btn_remote" onclick="_switchDayDetailTab('remote')">${_cIcons.cloud} Cloud version</button>
+          </div>
+          <div class="conflict-fullview-body" id="cdd_body"></div>
+        </div>`;
+      el.addEventListener('click', function(e) { if (e.target === el) el.remove(); });
+      document.body.appendChild(el);
+      // Store both renders on the element for tab switching
+      el._localHtml  = lHtml;
+      el._remoteHtml = rHtml;
+      document.getElementById('cdd_body').innerHTML = lHtml;
+    }
+
+    function _switchDayDetailTab(side) {
+      const el = document.getElementById('conflict-fullview');
+      if (!el) return;
+      document.getElementById('cdd_btn_local') ?.classList.toggle('active', side === 'local');
+      document.getElementById('cdd_btn_remote')?.classList.toggle('active', side === 'remote');
+      const body = document.getElementById('cdd_body');
+      if (body) body.innerHTML = side === 'local' ? el._localHtml : el._remoteHtml;
+    }
+
     // Open resolution modal for a specific conflict
     function _openConflictModal(id) {
       const c = state.conflicts.find(x => x.id === id);
@@ -21499,35 +21580,21 @@
           const lHrs = lActs.reduce((s,a)=>s+(parseFloat(a.ordinary)||0)+(parseFloat(a.overtime)||0),0);
           const rHrs = rActs.reduce((s,a)=>s+(parseFloat(a.ordinary)||0)+(parseFloat(a.overtime)||0),0);
           const dayLabel = lDay.date ? new Date(lDay.date).toLocaleDateString('en-IE',{weekday:'short',day:'numeric',month:'short'}) : (lDay.dayLabel || `Day ${i+1}`);
-          const lActsHtml = lActs.length ? lActs.map(_renderCActEntry).join('') : `<div class="c-empty-day">No entries</div>`;
-          const rActsHtml = rActs.length ? rActs.map(_renderCActEntry).join('') : `<div class="c-empty-day">No entries</div>`;
-          const chevSvg = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>`;
+          const arrowSvg = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>`;
           return `<div class="c-day-block">
-            <div class="c-day-head" onclick="_toggleConflictDayRow(this)">
+            <div class="c-day-head" onclick="_openConflictDayDetail('${esc(c.id)}', ${i})" style="cursor:pointer">
               <span class="c-day-label">${esc(dayLabel)}</span>
               <span class="c-day-meta ${lHrs>0?'has-data':'no-data'}">You: ${lHrs.toFixed(1)}h</span>
               <span class="c-day-meta" style="margin-left:6px;color:var(--text-muted)">|</span>
               <span class="c-day-meta ${rHrs>0?'has-data':'no-data'}" style="margin-left:6px">Cloud: ${rHrs.toFixed(1)}h</span>
-              <span class="c-day-chevron">${chevSvg}</span>
-            </div>
-            <div class="c-day-body">
-              <div class="c-day-cols">
-                <div class="c-day-col local">
-                  <div class="c-day-col-hdr">${_cIcons.device} Your version</div>
-                  ${lActsHtml}
-                </div>
-                <div class="c-day-col remote">
-                  <div class="c-day-col-hdr">${_cIcons.cloud} Cloud</div>
-                  ${rActsHtml}
-                </div>
-              </div>
+              <span class="c-day-chevron" style="color:var(--text-muted)">${arrowSvg}</span>
             </div>
           </div>`;
         }).join('');
         const totalLocal  = lDays.reduce((s,d)=>(d.activities||[]).reduce((ss,a)=>ss+(parseFloat(a.ordinary)||0)+(parseFloat(a.overtime)||0),s),0);
         const totalRemote = rDays.reduce((s,d)=>(d.activities||[]).reduce((ss,a)=>ss+(parseFloat(a.ordinary)||0)+(parseFloat(a.overtime)||0),s),0);
         versionsHtml = `
-          <div style="padding:8px 12px 4px;font-size:11px;color:var(--text-muted)">Tap a day to see full activity breakdown</div>
+          <div style="padding:8px 12px 4px;font-size:11px;color:var(--text-muted)">Tap a day to compare your version vs cloud in detail</div>
           ${dayBlocks || '<div style="padding:12px 16px;font-size:12px;color:var(--text-muted)">No differing days found.</div>'}
           <div style="display:flex;gap:12px;padding:6px 12px 10px;font-size:12px;border-top:1px solid var(--border);margin-top:4px">
             <span style="color:#16A34A;font-weight:700">Your total: ${totalLocal.toFixed(1)}h</span>
