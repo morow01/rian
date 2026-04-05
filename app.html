@@ -2232,6 +2232,12 @@
     /* Read-only note card inside conflict tab */
     .c-note-ro-field { font-size: 14px; color: var(--text-primary); background: var(--bg-input,#f8fafc); border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; line-height: 1.5; word-break: break-word; }
     .c-note-ro-note-body { background: var(--bg-input,#f8fafc); border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; min-height: 40px; font-size: 13px; line-height: 1.65; }
+    /* Conflict field highlight */
+    .c-note-ro-diff .c-note-ro-field,
+    .c-note-ro-diff .c-note-ro-note-body { border-color: #ef4444; background: rgba(239,68,68,0.05); }
+    .c-note-ro-diff-label { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
+    .c-note-ro-diff-label span { font-size: 11px; font-weight: 800; color: #94a3b8; text-transform: uppercase; }
+    .c-note-ro-diff-badge { font-size: 10px; font-weight: 700; color: #ef4444; background: rgba(239,68,68,0.1); border-radius: 4px; padding: 1px 5px; text-transform: uppercase; letter-spacing: 0.02em; }
     /* Diff view */
     .c-diff-wrap { padding: 10px 0; font-size: 13px; line-height: 1.7; }
     .c-diff-legend { display: flex; gap: 12px; padding: 8px 14px 10px; font-size: 11px; border-bottom: 1px solid var(--border); margin-bottom: 4px; }
@@ -11507,7 +11513,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.1.67';
+    const VERSION = '5.1.69';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -21590,10 +21596,11 @@
     }
 
     // Render a read-only note card (Notes/Notebooks) using the real note card CSS classes
-    function _renderNoteReadOnly(note) {
+    // diffFields: Set of field names ('description','noteContent','location','dueDate','priority') that differ from the other version
+    function _renderNoteReadOnly(note, diffFields) {
       if (!note) return '<div style="padding:16px;color:var(--text-muted);font-style:italic;font-size:13px">(no data)</div>';
+      diffFields = diffFields || new Set();
       const dotCls = { high: 'note-dot-high', medium: 'note-dot-medium', low: 'note-dot-low' }[note.priority] || 'note-dot-none';
-      // Notebooks use .title, Notes use .description
       const descRaw = ((note.description || note.title) || '').replace(/<[^>]*>/g, '').trim();
       const nc = note.noteContent || '';
       const ncHtml = nc.trim().startsWith('<')
@@ -21612,7 +21619,13 @@
         `<div class="note-pri-dot pd-${p}${priority === p ? ' pd-active' : ''}"></div>`
       ).join('');
 
-      const fldLabel = t => `<span style="display:block;margin-bottom:6px;font-size:11px;font-weight:800;color:#94a3b8;text-transform:uppercase">${t}</span>`;
+      // Helper: wrap a field row, highlighting it if it's in diffFields
+      const fldRow = (key, labelText, valueHtml) => {
+        const diff = diffFields.has(key);
+        const badge = diff ? `<span class="c-note-ro-diff-badge">Changed</span>` : '';
+        const label = `<div class="c-note-ro-diff-label"><span>${labelText}</span>${badge}</div>`;
+        return `<div class="note-detail-row${diff ? ' c-note-ro-diff' : ''}">${label}${valueHtml}</div>`;
+      };
 
       return `
         <div class="note-card expanded" style="pointer-events:none;margin:0;border-radius:0;border-left:none;border-right:none;border-top:none;box-shadow:none">
@@ -21624,18 +21637,14 @@
             ${metaItems.length ? `<div class="note-row-meta">${metaItems.join('')}</div>` : ''}
           </div>
           <div class="note-detail" style="max-height:none;overflow:visible;border-top-width:1px;padding:16px 16px 20px">
-            ${descRaw ? `<div class="note-detail-row">${fldLabel('Description')}<div class="c-note-ro-field">${esc(descRaw)}</div></div>` : ''}
-            <div class="note-detail-row">
-              ${fldLabel('Note')}
-              <div class="c-note-ro-note-body tt-prose">
-                ${ncHtml || '<span style="color:var(--text-muted);font-style:italic">No note content</span>'}
-              </div>
-            </div>
-            ${loc ? `<div class="note-detail-row">${fldLabel('Location')}<div class="c-note-ro-field">${esc(loc)}</div></div>` : ''}
-            ${due ? `<div class="note-detail-row">${fldLabel('Due Date')}<div class="c-note-ro-field">${esc(due)}</div></div>` : ''}
-            <div class="note-detail-row">
+            ${descRaw ? fldRow('description', 'Description', `<div class="c-note-ro-field">${esc(descRaw)}</div>`) : ''}
+            ${fldRow('noteContent', 'Note', `<div class="c-note-ro-note-body tt-prose">${ncHtml || '<span style="color:var(--text-muted);font-style:italic">No note content</span>'}</div>`)}
+            ${loc  ? fldRow('location', 'Location', `<div class="c-note-ro-field">${esc(loc)}</div>`) : ''}
+            ${due  ? fldRow('dueDate',  'Due Date',  `<div class="c-note-ro-field">${esc(due)}</div>`) : ''}
+            <div class="note-detail-row${diffFields.has('priority') ? ' c-note-ro-diff' : ''}">
               <div class="note-pri-dots" style="pointer-events:none">
                 <span class="note-pri-dots-label">Priority</span>${priDots}
+                ${diffFields.has('priority') ? `<span class="c-note-ro-diff-badge" style="margin-left:6px">Changed</span>` : ''}
               </div>
             </div>
           </div>
@@ -21756,11 +21765,30 @@
       if (!c) return;
       const existing = document.getElementById('conflict-fullview');
       if (existing) existing.remove();
-      const localCached  = _cFullViewCache['fv_' + c.id + '_local']  || {};
-      const remoteCached = _cFullViewCache['fv_' + c.id + '_remote'] || {};
-      const lHtml   = _renderNoteReadOnly(localCached.noteData);
-      const rHtml   = _renderNoteReadOnly(remoteCached.noteData);
-      const diffHtml = _buildNoteDiffHtml(localCached.noteData, remoteCached.noteData);
+      // Populate cache from conflict meta if _openConflictModal hasn't run yet
+      const ckLocal = 'fv_' + c.id + '_local', ckRemote = 'fv_' + c.id + '_remote';
+      if (!_cFullViewCache[ckLocal]) {
+        const rawLocal  = c.localMeta?.content  || '';
+        const rawRemote = c.remoteMeta?.content || '';
+        const isHtml = /<[a-z][\s\S]*>/i.test(rawLocal + rawRemote);
+        _cFullViewCache[ckLocal]  = { title: 'Your version — '  + (c.localMeta?.time  || 'This device'), content: rawLocal,  isHtml, noteData: c.localMeta?.noteData  || null };
+        _cFullViewCache[ckRemote] = { title: 'Cloud version — ' + (c.remoteMeta?.time || 'Cloud'),       content: rawRemote, isHtml, noteData: c.remoteMeta?.noteData || null };
+      }
+      const localCached  = _cFullViewCache[ckLocal]  || {};
+      const remoteCached = _cFullViewCache[ckRemote] || {};
+      const lNote = localCached.noteData, rNote = remoteCached.noteData;
+      // Compute which fields differ between the two versions
+      const diffFields = new Set();
+      if (lNote && rNote) {
+        if ((lNote.noteContent  || '') !== (rNote.noteContent  || '')) diffFields.add('noteContent');
+        if (((lNote.description || lNote.title) || '') !== ((rNote.description || rNote.title) || '')) diffFields.add('description');
+        if ((lNote.location  || '') !== (rNote.location  || '')) diffFields.add('location');
+        if ((lNote.dueDate   || '') !== (rNote.dueDate   || '')) diffFields.add('dueDate');
+        if ((lNote.priority  || '') !== (rNote.priority  || '')) diffFields.add('priority');
+      }
+      const lHtml    = _renderNoteReadOnly(lNote, diffFields);
+      const rHtml    = _renderNoteReadOnly(rNote, diffFields);
+      const diffHtml = _buildNoteDiffHtml(lNote, rNote);
       const diffIcon = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>`;
       const xIcon = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`;
       const el = document.createElement('div');
