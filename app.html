@@ -7410,6 +7410,14 @@
       flex-shrink: 0;
     }
     .j-sub-sub { font-size: 12px; color: var(--text-muted); margin-top: 1px; }
+    .j-list-label {
+      padding: 14px 16px 6px;
+      font-size: 10px; font-weight: 800;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--text-muted);
+      background: var(--bg-card-alt);
+      border-bottom: 1px solid var(--border);
+    }
     .j-back-btn {
       background: none; border: none; cursor: pointer;
       color: var(--accent); padding: 4px 0;
@@ -11279,7 +11287,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.1.44';
+    const VERSION = '5.1.45';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -18040,6 +18048,7 @@
                     + '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>'
                   + '</button>')
           + '</div>'
+        + '<div class="j-list-label">Notebooks</div>'
         + (rows || empty)
         + (edit ? '' : '<button class="j-fab" onclick="jOpenAdd(\'notebook\')">'
             + '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>'
@@ -18092,6 +18101,7 @@
             + '<div style="flex:1;min-width:0;"><div class="j-sub-title">' + esc(nbTitle) + '</div></div>'
             + (edit ? '<button class="j-edit-done" onclick="jExitEditMode()">Done</button>' : '<button class="j-search-btn" onclick="jToggleSearch()" title="Search"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></button>')
           + '</div>'
+        + '<div class="j-list-label">Sections</div>'
         + (rows || empty)
         + (edit ? '' : '<button class="j-fab" onclick="jOpenAdd(\'section\')">'
             + '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>'
@@ -18150,6 +18160,7 @@
               + '</div>'
             + (edit ? '<button class="j-edit-done" onclick="jExitEditMode()">Done</button>' : '<button class="j-search-btn" onclick="jToggleSearch()" title="Search"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></button>')
           + '</div>'
+        + '<div class="j-list-label">Pages</div>'
         + (rows || empty)
         + (edit ? '' : '<button class="j-fab" onclick="jOpenAdd(\'page\')">'
             + '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>'
