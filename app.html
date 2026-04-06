@@ -2072,7 +2072,9 @@
       border-bottom: 2px solid #F59E0B;
       padding: 9px 16px;
       display: flex; align-items: center; gap: 10px;
+      cursor: pointer;
     }
+    .conflict-global-banner:active { opacity: 0.85; }
     .conflict-global-banner-text {
       flex: 1; font-size: 13px; font-weight: 700; color: #D97706;
     }
@@ -2174,6 +2176,22 @@
     .c-day-chevron.open { transform: rotate(90deg); }
     .c-day-body { display: none; border-top: 1px solid var(--border); }
     .c-day-body.open { display: block; }
+    /* Conflict list section-group expand animation (matches .sum-table-wrap) */
+    .conflict-group-children {
+      overflow: hidden;
+      max-height: 0;
+      opacity: 0;
+      transition: max-height 0.35s ease, opacity 0.25s ease;
+    }
+    .conflict-group-children.open {
+      max-height: 1400px;
+      opacity: 1;
+    }
+    .conflict-group-chev {
+      display: inline-flex;
+      transition: transform 0.25s ease;
+    }
+    .conflict-group-chev.open { transform: rotate(180deg); }
     .c-day-cols { display: grid; grid-template-columns: 1fr 1fr; }
     .c-day-col { padding: 8px 10px; }
     .c-day-col.local  { border-right: 1px solid var(--border); background: #F0F5FF; }
@@ -11540,7 +11558,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.1.79';
+    const VERSION = '5.1.85';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -21454,10 +21472,10 @@
     function _renderConflictBanner() {
       const n = state.conflicts.length;
       if (n === 0) return '';
-      return `<div class="conflict-global-banner">
+      return `<div class="conflict-global-banner" onclick="setView('conflicts')">
         <span style="color:#D97706;display:flex;align-items:center">${_cIcons.warning}</span>
         <span class="conflict-global-banner-text">${n} sync conflict${n > 1 ? 's' : ''} need attention</span>
-        <button class="conflict-global-banner-btn" onclick="setView('conflicts')">View all</button>
+        <button class="conflict-global-banner-btn" onclick="event.stopPropagation();setView('conflicts')">View all</button>
       </div>`;
     }
 
@@ -21470,19 +21488,61 @@
         <div class="conflicts-empty-sub">No conflicts across any section.</div>
       </div>`;
 
-      const rowsHtml = state.conflicts.map(c => `
-        <div class="conflict-list-row" onclick="_openConflictModal('${esc(c.id)}')">
-          <span class="conflict-list-icon" style="color:#D97706">${_cIcon(c.section)}</span>
-          <div class="conflict-list-meta">
-            <div class="conflict-list-section">${esc(c.section)}</div>
-            <div class="conflict-list-desc">${esc(c.description)}</div>
-            <div class="conflict-list-time">${_formatSnapTime(c.detectedAt).relative}</div>
-          </div>
-          <span class="conflict-list-badge">CONFLICT</span>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
-        </div>`).join('');
+      // Group conflicts by section so each section appears only once.
+      // Single-conflict sections render as a normal row that opens the modal.
+      // Multi-conflict sections render as an expandable group with sub-rows.
+      const _groups = {};
+      const _groupOrder = [];
+      state.conflicts.forEach(c => {
+        if (!_groups[c.section]) { _groups[c.section] = []; _groupOrder.push(c.section); }
+        _groups[c.section].push(c);
+      });
+      const _arrowSvg = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>`;
+      const _chevDownSvg = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>`;
 
-      const sectionLabelHtml = n > 0 ? `<div style="font-size:10px;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-muted);padding:14px 16px 6px;background:var(--bg-card-alt);border-bottom:1px solid var(--border)">Unresolved — ${n} item${n > 1 ? 's' : ''}</div>` : '';
+      const rowsHtml = _groupOrder.map(section => {
+        const items = _groups[section];
+        // Single conflict — direct row that opens the modal
+        if (items.length === 1) {
+          const c = items[0];
+          return `<div class="conflict-list-row" onclick="_openConflictModal('${esc(c.id)}')">
+            <span class="conflict-list-icon" style="color:#D97706">${_cIcon(section)}</span>
+            <div class="conflict-list-meta">
+              <div class="conflict-list-section">${esc(section)}</div>
+              <div class="conflict-list-desc">${esc(c.description)}</div>
+              <div class="conflict-list-time">${_formatSnapTime(c.detectedAt).relative}</div>
+            </div>
+            <span class="conflict-list-badge">CONFLICT</span>
+            ${_arrowSvg}
+          </div>`;
+        }
+        // Multiple conflicts in this section — expandable group
+        const groupId = 'cg_' + section.replace(/\s+/g, '_');
+        const subRows = items.map(c => `
+          <div class="conflict-list-row conflict-list-subrow" onclick="event.stopPropagation();_openConflictModal('${esc(c.id)}')" style="padding-left:54px;background:var(--bg-card-alt);border-top:1px solid var(--border)">
+            <div class="conflict-list-meta" style="flex:1">
+              <div class="conflict-list-desc" style="font-weight:600;color:var(--text-primary)">${esc(c.description)}</div>
+              <div class="conflict-list-time">${_formatSnapTime(c.detectedAt).relative}</div>
+            </div>
+            <span class="conflict-list-badge">CONFLICT</span>
+            ${_arrowSvg}
+          </div>`).join('');
+        return `<div class="conflict-group" id="${groupId}">
+          <div class="conflict-list-row" onclick="_toggleConflictGroup('${groupId}')">
+            <span class="conflict-list-icon" style="color:#D97706">${_cIcon(section)}</span>
+            <div class="conflict-list-meta">
+              <div class="conflict-list-section">${esc(section)}</div>
+              <div class="conflict-list-desc">${items.length} conflicts in this section — tap to expand</div>
+            </div>
+            <span class="conflict-list-badge">${items.length}</span>
+            <span class="conflict-group-chev">${_chevDownSvg}</span>
+          </div>
+          <div class="conflict-group-children">${subRows}</div>
+        </div>`;
+      }).join('');
+
+      const _sectionCount = _groupOrder.length;
+      const sectionLabelHtml = n > 0 ? `<div style="font-size:10px;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-muted);padding:14px 16px 6px;background:var(--bg-card-alt);border-bottom:1px solid var(--border)">Unresolved — ${_sectionCount} section${_sectionCount > 1 ? 's' : ''} · ${n} conflict${n > 1 ? 's' : ''}</div>` : '';
 
       return `
         <div style="background:var(--bg-card);border-bottom:1px solid var(--border);padding:14px 16px 12px;display:flex;align-items:center;gap:10px">
@@ -21493,6 +21553,16 @@
         ${n > 0 ? `<div style="padding:10px 16px 6px;font-size:12px;color:var(--text-secondary)">These items differ between this device and the cloud. Tap each to review and choose which version to keep.</div>` : ''}
         ${sectionLabelHtml}
         ${n > 0 ? rowsHtml : emptyHtml}`;
+    }
+
+    // Toggle expand/collapse for a section group in the conflict list
+    function _toggleConflictGroup(groupId) {
+      const el = document.getElementById(groupId);
+      if (!el) return;
+      const children = el.querySelector('.conflict-group-children');
+      const chev     = el.querySelector('.conflict-group-chev');
+      if (children) children.classList.toggle('open');
+      if (chev)     chev.classList.toggle('open');
     }
 
     // Toggle expand/collapse for a day block in the conflict modal
@@ -22114,7 +22184,14 @@
           const rActs = (rDay.activities || []).filter(a => (parseFloat(a.ordinary)||0)>0||(parseFloat(a.overtime)||0)>0||(a.codes||[]).some(Boolean)||(a.description||'').trim());
           if (!lActs.length && !rActs.length) return '';
           const differs = lActs.length !== rActs.length ||
-            lActs.some((a,j) => (parseFloat(a.ordinary)||0) !== (parseFloat((rActs[j]||{}).ordinary)||0));
+            lActs.some((a,j) => {
+              const b = rActs[j] || {};
+              return (parseFloat(a.ordinary)||0) !== (parseFloat(b.ordinary)||0)
+                  || (parseFloat(a.overtime)||0) !== (parseFloat(b.overtime)||0)
+                  || JSON.stringify(a.codes||[]) !== JSON.stringify(b.codes||[])
+                  || (a.location||'') !== (b.location||'')
+                  || (a.description||'') !== (b.description||'');
+            });
           if (!differs) return ''; // only show days that differ
           const lHrs = lActs.reduce((s,a)=>s+(parseFloat(a.ordinary)||0)+(parseFloat(a.overtime)||0),0);
           const rHrs = rActs.reduce((s,a)=>s+(parseFloat(a.ordinary)||0)+(parseFloat(a.overtime)||0),0);
@@ -22261,45 +22338,126 @@
     function _injectTestConflicts() {
       state.conflicts = []; // clear any previous test conflicts
 
-      // 1. Timesheet — take current week, simulate:
-      //    - first day with data: remote has same activities but with altered hours/location (tests diff highlights)
-      //    - next 1 day with data: remote has entries wiped (tests "Your version only" case)
+      // 1. Timesheet — inject a rich variety of day-level conflicts so the
+      //    drill-down UI (day list → task list → task card) has plenty to test.
+      //    Each day demonstrates a different conflict scenario. Both sides
+      //    are seeded explicitly so the test is independent of the real
+      //    week data.
       const localWeek = deepCopy(state.weekData);
       const remoteWeek = deepCopy(state.weekData);
-      const nDays = (remoteWeek.days || []).length;
-      let modified = 0, wiped = 0;
-      for (let i = 0; i < nDays && (modified < 1 || wiped < 1); i++) {
-        const day = remoteWeek.days[i];
-        const hasData = (day.activities || []).some(a =>
-          (parseFloat(a.ordinary)||0) > 0 || (parseFloat(a.codes?.join(''))||0) || (a.description||'').trim()
-        );
-        if (!hasData) continue;
-        if (modified < 1) {
-          // Alter hours and location to test diff highlighting
-          day.activities = day.activities.map(a => ({
-            ...a,
-            ordinary: String(Math.max(0, (parseFloat(a.ordinary)||0) - 1)) || '7',
-            overtime: String((parseFloat(a.overtime)||0) + 1),
-            location: (a.location || '') ? (a.location + ' (cloud)') : 'Cloud location',
-          }));
-          modified++;
-        } else if (wiped < 1) {
-          day.activities = day.activities.map(a => ({ ...a, ordinary:'', overtime:'', codes:[], description:'' }));
-          wiped++;
-        }
+
+      const _seedDay = (d, ordinary, overtime, code, location, description) => {
+        d.activities = [{
+          ordinary: String(ordinary),
+          overtime: String(overtime),
+          codes: [code],
+          location, description,
+        }];
+      };
+
+      // Day 0 — Cloud has MORE hours than local
+      if (localWeek.days[0]) {
+        _seedDay(localWeek.days[0],  8, 0, 'NT', 'Workshop', 'Routine maintenance');
+        _seedDay(remoteWeek.days[0], 10, 0, 'NT', 'Workshop (cloud edited)', 'Routine maintenance');
       }
-      const wipedDayNames = (localWeek.days || []).filter((d,i) =>
-        (remoteWeek.days[i]?.activities||[]).every(a => !(parseFloat(a.ordinary)||0))
-        && (d.activities||[]).some(a => parseFloat(a.ordinary)||0)
-      ).map(d => d.date ? new Date(d.date).toLocaleDateString('en-IE',{weekday:'short',day:'numeric',month:'short'}) : d.dayLabel || 'day').join(', ');
+      // Day 1 — Local has MORE hours than cloud (cloud lost overtime)
+      if (localWeek.days[1]) {
+        _seedDay(localWeek.days[1],  8, 2, 'NT', 'Customer site A', 'Panel install + commissioning');
+        _seedDay(remoteWeek.days[1], 6, 0, 'NT', 'Customer site A', 'Panel install + commissioning');
+      }
+      // Day 2 — Local has entries, cloud is COMPLETELY EMPTY (Yours-only case)
+      if (localWeek.days[2]) {
+        _seedDay(localWeek.days[2], 8, 0, 'NT', 'Substation B', 'Maintenance + tests');
+        remoteWeek.days[2].activities = [];
+      }
+      // Day 3 — Cloud has an EXTRA activity that local doesn't have
+      if (localWeek.days[3]) {
+        _seedDay(localWeek.days[3], 8, 0, 'NT', 'Workshop', 'Bench work');
+        remoteWeek.days[3].activities = [
+          { ordinary:'8', overtime:'0', codes:['NT'], location:'Workshop', description:'Bench work' },
+          { ordinary:'4', overtime:'1', codes:['CO'], location:'Customer site B', description:'Emergency callout — added in cloud only' },
+        ];
+      }
+      // Day 4 — Work CODES differ, hours unchanged
+      if (localWeek.days[4]) {
+        _seedDay(localWeek.days[4],  8, 0, 'NT', 'Site C', 'Routine work');
+        _seedDay(remoteWeek.days[4], 8, 0, 'DT', 'Site C', 'Routine work [code changed in cloud]');
+      }
+      // Day 5 — LOCATION and DESCRIPTION differ, hours unchanged
+      if (localWeek.days[5]) {
+        _seedDay(localWeek.days[5],  8, 0, 'NT', 'Local site name',     'Local description of what was done today');
+        _seedDay(remoteWeek.days[5], 8, 0, 'NT', 'Different cloud site', 'Cloud version of description — totally different text');
+      }
+      // Day 6 — IDENTICAL (no diff — should NOT show in drill-down)
+      if (localWeek.days[6]) {
+        _seedDay(localWeek.days[6],  7, 0, 'NT', 'Workshop', 'Identical entry');
+        _seedDay(remoteWeek.days[6], 7, 0, 'NT', 'Workshop', 'Identical entry');
+      }
+
+      const _tLocal  = _weekTotalHours(localWeek).toFixed(1);
+      const _tRemote = _weekTotalHours(remoteWeek).toFixed(1);
       _registerConflict({
         id: 'test_ts_' + state.weekStart,
         section: 'Timesheet', icon: '📅',
-        description: wipedDayNames ? `${wipedDayNames} — entries present locally but missing in cloud.` : 'Current week entries differ between device and cloud.',
+        description: `Current week — ${_tLocal}h locally vs ${_tRemote}h in cloud, multiple days affected.`,
         displayType: 'rows',
         localData: localWeek, remoteData: remoteWeek,
-        localMeta: { time: 'Saved today (this device)', rows: [{code:'DT',val:'8h',note:'Thu — your entries',hi:true},{code:'DT',val:'8h',note:'Fri — your entries',hi:true}], summary: `Total local: ${_weekTotalHours(localWeek).toFixed(1)}h` },
-        remoteMeta: { time: 'Cloud version (stale)', rows: [{code:'—',val:'0h',note:'Thu — empty in cloud',hi:false},{code:'—',val:'0h',note:'Fri — empty in cloud',hi:false}], summary: `Total cloud: ${_weekTotalHours(remoteWeek).toFixed(1)}h` },
+        localMeta:  { time: 'Saved today (this device)', rows: [{code:'Total',val:_tLocal+'h',note:'Your entries',hi:true}], summary: `Total local: ${_tLocal}h` },
+        remoteMeta: { time: 'Cloud version',             rows: [{code:'Total',val:_tRemote+'h',note:'Cloud entries',hi:false}], summary: `Total cloud: ${_tRemote}h` },
+      });
+
+      // 1b. Timesheet — second variant: last week has one day with hours differing
+      const _lwStart = (() => { try { const d = new Date(state.weekStart); d.setDate(d.getDate()-7); return dateToStr(d); } catch(e) { return '2026-03-30'; } })();
+      const _mkSyntheticWeek = (startStr) => {
+        const days = [];
+        const base = new Date(startStr);
+        for (let i = 0; i < 7; i++) {
+          const d = new Date(base); d.setDate(base.getDate()+i);
+          days.push({ date: dateToStr(d), activities: [] });
+        }
+        return { weekStart: startStr, days };
+      };
+      const lwLocal  = _mkSyntheticWeek(_lwStart);
+      const lwRemote = _mkSyntheticWeek(_lwStart);
+      _seedDay(lwLocal.days[0],  8, 0, 'NT', 'Workshop',      'Prep + tool check');
+      _seedDay(lwRemote.days[0], 8, 0, 'NT', 'Workshop',      'Prep + tool check');
+      _seedDay(lwLocal.days[1],  8, 2, 'NT', 'Site Alpha',    'Full install day — with overtime');
+      _seedDay(lwRemote.days[1], 8, 0, 'NT', 'Site Alpha',    'Full install day — with overtime');
+      _seedDay(lwLocal.days[2],  8, 0, 'NT', 'Site Alpha',    'Commissioning');
+      _seedDay(lwRemote.days[2], 8, 0, 'NT', 'Site Alpha',    'Commissioning');
+      const _lwTL = _weekTotalHours(lwLocal).toFixed(1);
+      const _lwTR = _weekTotalHours(lwRemote).toFixed(1);
+      _registerConflict({
+        id: 'test_ts_lw',
+        section: 'Timesheet', icon: '📅',
+        description: `Previous week — cloud missing 2h overtime on day 2 (${_lwTL}h local vs ${_lwTR}h cloud).`,
+        displayType: 'rows',
+        localData: lwLocal, remoteData: lwRemote,
+        localMeta:  { time: 'This device',  rows: [{code:'Total',val:_lwTL+'h',note:'Your entries',hi:true}], summary: `Total local: ${_lwTL}h` },
+        remoteMeta: { time: 'Cloud',        rows: [{code:'Total',val:_lwTR+'h',note:'Cloud entries',hi:false}], summary: `Total cloud: ${_lwTR}h` },
+      });
+
+      // 1c. Timesheet — third variant: two weeks ago, cloud has more days filled in
+      const _pwStart = (() => { try { const d = new Date(state.weekStart); d.setDate(d.getDate()-14); return dateToStr(d); } catch(e) { return '2026-03-23'; } })();
+      const pwLocal  = _mkSyntheticWeek(_pwStart);
+      const pwRemote = _mkSyntheticWeek(_pwStart);
+      _seedDay(pwLocal.days[0],  7, 0, 'NT', 'Workshop',  'Paperwork');
+      _seedDay(pwRemote.days[0], 7, 0, 'NT', 'Workshop',  'Paperwork');
+      // Local has no data for day 3, cloud does
+      _seedDay(pwRemote.days[3], 8, 0, 'NT', 'Site Bravo', 'Emergency repair — only in cloud');
+      // Local has a different day 4 from cloud
+      _seedDay(pwLocal.days[4],  8, 0, 'NT', 'Local entry day 4', 'Paperwork at base');
+      _seedDay(pwRemote.days[4], 8, 0, 'DT', 'Cloud entry day 4', 'Travel day — code changed');
+      const _pwTL = _weekTotalHours(pwLocal).toFixed(1);
+      const _pwTR = _weekTotalHours(pwRemote).toFixed(1);
+      _registerConflict({
+        id: 'test_ts_pw',
+        section: 'Timesheet', icon: '📅',
+        description: `Two weeks ago — cloud has entries missing on your device (${_pwTL}h local vs ${_pwTR}h cloud).`,
+        displayType: 'rows',
+        localData: pwLocal, remoteData: pwRemote,
+        localMeta:  { time: 'This device',  rows: [{code:'Total',val:_pwTL+'h',note:'Your entries',hi:true}], summary: `Total local: ${_pwTL}h` },
+        remoteMeta: { time: 'Cloud',        rows: [{code:'Total',val:_pwTR+'h',note:'Cloud entries',hi:false}], summary: `Total cloud: ${_pwTR}h` },
       });
 
       // 2. Notes — use actual noteContent (TipTap HTML body), not just description
@@ -22331,6 +22489,36 @@
         remoteMeta: { time: 'Cloud version (older)',     content: noteBodyRemote, noteTitle, noteLocation: sampleNote?.location || '', noteData: remoteNoteObj },
       });
 
+      // 2b. Notes — second variant: cloud has a totally different body (heavy edit)
+      const noteB_local  = '<p><strong>Generator service — Site 14</strong></p><p>Oil level: <em>OK</em></p><p>Coolant: <em>OK</em></p><p>Battery: 12.7V — healthy</p><p>Fuel: 78%</p><p>Run hours: 412</p><p>Action: Schedule full service in 100 hours.</p>';
+      const noteB_remote = '<p><strong>Generator service — Site 14</strong></p><p>Oil level: <em>LOW</em> — topped up 0.5L</p><p>Coolant: <em>OK</em></p><p>Battery: 12.4V — flagged for replacement</p><p>Fuel: 65%</p><p>Action: Order new battery, schedule full service.</p><p style="color:#94a3b8"><em>[different device, last edited 2 days ago]</em></p>';
+      const noteB_localObj  = { id: 'test_note_2', description: 'Generator service — Site 14', noteContent: noteB_local,  location: 'Site 14', date: '2026-04-04', dueDate: '', priority: 'high',   status: 'open' };
+      const noteB_remoteObj = { id: 'test_note_2', description: 'Generator service — Site 14', noteContent: noteB_remote, location: 'Site 14', date: '2026-04-04', dueDate: '', priority: 'high',   status: 'open' };
+      _registerConflict({
+        id: 'test_notes_2',
+        section: 'Notes', icon: '📝',
+        description: '"Generator service — Site 14" has heavy edits on both sides.',
+        displayType: 'split',
+        localData: noteB_localObj, remoteData: noteB_remoteObj,
+        localMeta:  { time: 'This device, 1h ago',     content: noteB_local,  noteTitle: 'Generator service — Site 14', noteLocation: 'Site 14', noteData: noteB_localObj  },
+        remoteMeta: { time: 'Other device, 2 days ago', content: noteB_remote, noteTitle: 'Generator service — Site 14', noteLocation: 'Site 14', noteData: noteB_remoteObj },
+      });
+
+      // 2c. Notes — third variant: TITLE differs as well as content
+      const noteC_local  = '<p>Quick check on panel 4B — all OK, signed off.</p>';
+      const noteC_remote = '<p>Panel 4B — needs follow-up next week, brought spares.</p>';
+      const noteC_localObj  = { id: 'test_note_3', description: 'Panel 4B check — DONE',     noteContent: noteC_local,  location: 'Customer Z', date: '2026-04-05', dueDate: '', priority: 'medium', status: 'closed' };
+      const noteC_remoteObj = { id: 'test_note_3', description: 'Panel 4B — follow-up due', noteContent: noteC_remote, location: 'Customer Z', date: '2026-04-05', dueDate: '2026-04-10', priority: 'medium', status: 'open' };
+      _registerConflict({
+        id: 'test_notes_3',
+        section: 'Notes', icon: '📝',
+        description: 'Panel 4B note — title, body and status all differ.',
+        displayType: 'split',
+        localData: noteC_localObj, remoteData: noteC_remoteObj,
+        localMeta:  { time: 'This device',  content: noteC_local,  noteTitle: 'Panel 4B check — DONE',     noteLocation: 'Customer Z', noteData: noteC_localObj  },
+        remoteMeta: { time: 'Cloud',        content: noteC_remote, noteTitle: 'Panel 4B — follow-up due', noteLocation: 'Customer Z', noteData: noteC_remoteObj },
+      });
+
       // 3. Notebooks — use actual noteContent from a real page
       const samplePage = (state.jPages || []).find(p => (p.noteContent||'').length > 10);
       const pageTitle   = samplePage ? (samplePage.title || 'Untitled page').slice(0, 50) : 'Site visit — Substation A';
@@ -22356,40 +22544,88 @@
         remoteMeta: { time: 'Cloud (older)', content: pageBodyRemote, noteTitle: pageTitle, noteData: Object.assign(samplePage ? deepCopy(samplePage) : { id: 'test_page', title: pageTitle }, { noteContent: pageBodyRemote }) },
       });
 
-      // 4. Callouts
+      // 3b. Notebooks — second variant: brand new page on local, doesn't exist in cloud
+      const pageB_local  = '<h2>Training — IR Camera Course</h2><p>Date: 4 Apr 2026</p><p>Trainer: Mike O\'B</p><p>Topics covered:</p><ul><li>Thermal imaging principles</li><li>Hot spot identification</li><li>Reporting templates</li></ul><p>Cert valid 2 years.</p>';
+      const pageB_remote = '<p style="color:#94a3b8"><em>(no cloud version — page only exists on this device)</em></p>';
+      const pageB_localObj  = { id: 'test_page_2', title: 'IR Camera Course — Training', noteContent: pageB_local,  notebookId: 'training', sectionId: 'certs' };
+      const pageB_remoteObj = { id: 'test_page_2', title: 'IR Camera Course — Training', noteContent: pageB_remote, notebookId: 'training', sectionId: 'certs' };
+      _registerConflict({
+        id: 'test_notebooks_2',
+        section: 'Notebooks', icon: '📓',
+        description: '"IR Camera Course — Training" exists locally but not in the cloud.',
+        displayType: 'split',
+        localData: pageB_localObj, remoteData: pageB_remoteObj,
+        localMeta:  { time: 'This device, today',  content: pageB_local,  noteTitle: 'IR Camera Course — Training', noteData: pageB_localObj  },
+        remoteMeta: { time: 'Not in cloud',        content: pageB_remote, noteTitle: 'IR Camera Course — Training', noteData: pageB_remoteObj },
+      });
+
+      // 4. Callouts — partial entry in cloud
       _registerConflict({
         id: 'test_callouts',
         section: 'Callouts', icon: '🔧',
         description: 'A callout entry has missing hours and job details in the cloud version.',
         displayType: 'rows',
         localData: null, remoteData: null,
-        localMeta: { time: 'This device', rows:[{code:'Who',val:'R. Morrow',note:'',hi:true},{code:'Hrs',val:'6h',note:'callout',hi:true},{code:'Job',val:'HV fault — ESB Grid',note:'',hi:true}], summary:'1 callout entry' },
+        localMeta:  { time: 'This device',   rows:[{code:'Who',val:'R. Morrow',note:'',hi:true},{code:'Hrs',val:'6h',note:'callout',hi:true},{code:'Job',val:'HV fault — ESB Grid',note:'',hi:true}], summary:'1 callout entry' },
         remoteMeta: { time: 'Cloud version', rows:[{code:'Who',val:'R. Morrow',note:'',hi:false},{code:'Hrs',val:'—',note:'missing in cloud',hi:false},{code:'Job',val:'—',note:'missing in cloud',hi:false}], summary:'Partial entry' },
       });
 
-      // 5. Routines
+      // 4b. Callouts — full extra entry exists locally that isn't in cloud
+      _registerConflict({
+        id: 'test_callouts_2',
+        section: 'Callouts', icon: '🔧',
+        description: 'A weekend callout entry exists locally but is missing from the cloud.',
+        displayType: 'rows',
+        localData: null, remoteData: null,
+        localMeta:  { time: 'This device',  rows:[{code:'Date',val:'Sat 4 Apr',note:'',hi:true},{code:'Who',val:'R. Morrow',note:'',hi:true},{code:'Hrs',val:'4h',note:'',hi:true},{code:'Job',val:'Bakery freezer breakdown',note:'',hi:true}], summary:'2 callout entries total locally' },
+        remoteMeta: { time: 'Cloud',        rows:[{code:'Date',val:'—',note:'no Sat 4 Apr entry',hi:false},{code:'Who',val:'—',note:'',hi:false},{code:'Hrs',val:'—',note:'',hi:false},{code:'Job',val:'—',note:'',hi:false}], summary:'1 callout entry in cloud' },
+      });
+
+      // 5. Routines — local has extra steps
       _registerConflict({
         id: 'test_routines',
         section: 'Routines', icon: '📋',
         description: 'A routine has steps missing from the cloud version.',
         displayType: 'rows',
         localData: null, remoteData: null,
-        localMeta: { time: 'This device', rows:[{code:'6.',val:'IR scan',note:'added step',hi:true},{code:'7.',val:'Log readings',note:'added step',hi:true},{code:'8.',val:'Sign off',note:'added step',hi:true}], summary:'8 steps total' },
+        localMeta:  { time: 'This device',   rows:[{code:'6.',val:'IR scan',note:'added step',hi:true},{code:'7.',val:'Log readings',note:'added step',hi:true},{code:'8.',val:'Sign off',note:'added step',hi:true}], summary:'8 steps total' },
         remoteMeta: { time: 'Cloud version', rows:[{code:'6.',val:'—',note:'missing',hi:false},{code:'7.',val:'—',note:'missing',hi:false},{code:'8.',val:'—',note:'missing',hi:false}], summary:'5 steps total (cloud)' },
       });
 
-      // 6. Note Tags
+      // 5b. Routines — cloud has steps in different order
+      _registerConflict({
+        id: 'test_routines_2',
+        section: 'Routines', icon: '📋',
+        description: '"Daily site checks" routine — steps reordered in the cloud.',
+        displayType: 'rows',
+        localData: null, remoteData: null,
+        localMeta:  { time: 'This device',  rows:[{code:'1.',val:'Check switchgear',note:'',hi:true},{code:'2.',val:'Check earth bonds',note:'',hi:true},{code:'3.',val:'Check transformer oil',note:'',hi:true},{code:'4.',val:'Sign off',note:'',hi:true}], summary:'4 steps in this order' },
+        remoteMeta: { time: 'Cloud',        rows:[{code:'1.',val:'Check transformer oil',note:'reordered',hi:false},{code:'2.',val:'Check switchgear',note:'reordered',hi:false},{code:'3.',val:'Check earth bonds',note:'reordered',hi:false},{code:'4.',val:'Sign off',note:'',hi:false}], summary:'4 steps, different order' },
+      });
+
+      // 6. Note Tags — one extra tag locally
       _registerConflict({
         id: 'test_tags',
         section: 'Note Tags', icon: '🏷️',
         description: 'Your local tag list has a tag missing from the cloud version.',
         displayType: 'rows',
         localData: null, remoteData: null,
-        localMeta: { time: 'This device', rows:[{code:'New',val:'Inspection',note:'tag added locally',hi:true}], summary:'6 tags total' },
+        localMeta:  { time: 'This device',   rows:[{code:'New',val:'Inspection',note:'tag added locally',hi:true}], summary:'6 tags total' },
         remoteMeta: { time: 'Cloud version', rows:[{code:'—',val:'missing',note:'"Inspection" not in cloud',hi:false}], summary:'5 tags total' },
       });
 
-      showToast('⚠️ Test conflicts injected — 6 sections. Tap View all or ☰.');
+      // 6b. Note Tags — cloud has a tag local doesn't, plus a renamed tag
+      _registerConflict({
+        id: 'test_tags_2',
+        section: 'Note Tags', icon: '🏷️',
+        description: 'Cloud has a new tag and one of your tags has been renamed.',
+        displayType: 'rows',
+        localData: null, remoteData: null,
+        localMeta:  { time: 'This device',  rows:[{code:'Tag',val:'HV',note:'your name',hi:true},{code:'—',val:'(no Trainee tag)',note:'not on this device',hi:true}], summary:'6 tags total' },
+        remoteMeta: { time: 'Cloud',        rows:[{code:'Tag',val:'High Voltage',note:'renamed in cloud',hi:false},{code:'New',val:'Trainee',note:'added in cloud',hi:false}], summary:'7 tags total' },
+      });
+
+      showToast('⚠️ Test conflicts injected — 14 conflicts across 6 sections. Tap View all or ☰.');
     }
 
     let _signingIn = false;
