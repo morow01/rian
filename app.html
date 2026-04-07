@@ -11671,7 +11671,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.1.106';
+    const VERSION = '5.1.107';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -22858,8 +22858,8 @@
       // 2b. Notes — second variant: cloud has a totally different body (heavy edit)
       const noteB_local  = '<p><strong>Generator service — Site 14</strong></p><p>Oil level: <em>OK</em></p><p>Coolant: <em>OK</em></p><p>Battery: 12.7V — healthy</p><p>Fuel: 78%</p><p>Run hours: 412</p><p>Action: Schedule full service in 100 hours.</p>';
       const noteB_remote = '<p><strong>Generator service — Site 14</strong></p><p>Oil level: <em>LOW</em> — topped up 0.5L</p><p>Coolant: <em>OK</em></p><p>Battery: 12.4V — flagged for replacement</p><p>Fuel: 65%</p><p>Action: Order new battery, schedule full service.</p><p style="color:#94a3b8"><em>[different device, last edited 2 days ago]</em></p>';
-      const noteB_localObj  = { id: 'test_note_2', description: 'Generator service — Site 14', noteContent: noteB_local,  location: 'Site 14', date: '2026-04-04', dueDate: '', priority: 'high',   status: 'open' };
-      const noteB_remoteObj = { id: 'test_note_2', description: 'Generator service — Site 14', noteContent: noteB_remote, location: 'Site 14', date: '2026-04-04', dueDate: '', priority: 'high',   status: 'open' };
+      const noteB_localObj  = { id: 'test_note_2', description: 'Generator service — Site 14', noteContent: noteB_local,  location: 'Site 14', date: '2026-04-04', dueDate: '2026-04-14', priority: 'high',   status: 'open',   category: 'fault' };
+      const noteB_remoteObj = { id: 'test_note_2', description: 'Generator service — Site 14', noteContent: noteB_remote, location: 'Site 14', date: '2026-04-04', dueDate: '2026-04-14', priority: 'high',   status: 'open',   category: 'fault' };
       _registerConflict({
         id: 'test_notes_2',
         section: 'Notes', icon: '📝',
@@ -22873,8 +22873,8 @@
       // 2c. Notes — third variant: TITLE differs as well as content
       const noteC_local  = '<p>Quick check on panel 4B — all OK, signed off.</p>';
       const noteC_remote = '<p>Panel 4B — needs follow-up next week, brought spares.</p>';
-      const noteC_localObj  = { id: 'test_note_3', description: 'Panel 4B check — DONE',     noteContent: noteC_local,  location: 'Customer Z', date: '2026-04-05', dueDate: '', priority: 'medium', status: 'closed' };
-      const noteC_remoteObj = { id: 'test_note_3', description: 'Panel 4B — follow-up due', noteContent: noteC_remote, location: 'Customer Z', date: '2026-04-05', dueDate: '2026-04-10', priority: 'medium', status: 'open' };
+      const noteC_localObj  = { id: 'test_note_3', description: 'Panel 4B check — DONE',     noteContent: noteC_local,  location: 'Customer Z', date: '2026-04-05', dueDate: '',           priority: 'medium', status: 'closed', category: 'job'     };
+      const noteC_remoteObj = { id: 'test_note_3', description: 'Panel 4B — follow-up due', noteContent: noteC_remote, location: 'Customer Z', date: '2026-04-05', dueDate: '2026-04-10', priority: 'medium', status: 'open',   category: 'followup' };
       _registerConflict({
         id: 'test_notes_3',
         section: 'Notes', icon: '📝',
