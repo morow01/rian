@@ -2153,9 +2153,9 @@
     .conflict-split-time { font-size: 10px; color: var(--text-muted); margin-bottom: 8px; }
     .conflict-split-content { font-size: 11px; color: var(--text-secondary); line-height: 1.6; white-space: pre-wrap; }
     .conflict-action-row { display: flex; gap: 8px; padding: 10px 12px 20px; }
-    .conflict-btn-later  { flex:1; background:var(--bg-card); color:var(--text-muted); border:1.5px solid var(--border); border-radius:12px; padding:11px 6px; font-size:13px; font-weight:700; font-family:inherit; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px; transition:all .15s; }
+    .conflict-btn-later  { flex:1; background:var(--bg-card-alt); color:var(--text-muted); border:1.5px solid var(--border); border-radius:12px; padding:11px 6px; font-size:13px; font-weight:700; font-family:inherit; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px; transition:all .15s; }
     .conflict-btn-later:active  { transform:scale(0.98); }
-    .conflict-btn-cloud  { flex:1; background:var(--btn-danger-bg,#fef2f1); color:var(--btn-danger-color,#e8453c); border:1.5px solid var(--btn-danger-border,#f5c6c2); border-radius:12px; padding:11px 6px; font-size:13px; font-weight:700; font-family:inherit; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px; transition:all .15s; }
+    .conflict-btn-cloud  { flex:1; background:rgba(251,191,36,0.1); color:#D97706; border:1.5px solid rgba(251,191,36,0.35); border-radius:12px; padding:11px 6px; font-size:13px; font-weight:700; font-family:inherit; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px; transition:all .15s; }
     .conflict-btn-cloud:active  { transform:scale(0.98); }
     .conflict-btn-keep   { flex:1; background:var(--priority-low-bg); color:var(--priority-low-dark,#34a853); border:1.5px solid var(--priority-low-border,#d4edda); border-radius:12px; padding:11px 6px; font-size:13px; font-weight:700; font-family:inherit; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px; transition:all .15s; }
     .conflict-btn-keep:active   { transform:scale(0.98); }
@@ -11671,7 +11671,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.1.103';
+    const VERSION = '5.1.104';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
