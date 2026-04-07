@@ -2153,9 +2153,12 @@
     .conflict-split-time { font-size: 10px; color: var(--text-muted); margin-bottom: 8px; }
     .conflict-split-content { font-size: 11px; color: var(--text-secondary); line-height: 1.6; white-space: pre-wrap; }
     .conflict-action-row { display: flex; gap: 8px; padding: 10px 12px 20px; }
-    .conflict-btn-later   { flex:1; background:none; color:var(--text-muted); border:1px solid var(--border); border-radius:8px; padding:10px 0; font-size:13px; font-weight:600; cursor:pointer; }
-    .conflict-btn-cloud   { flex:1; background:none; color:#D97706; border:1px solid #F59E0B; border-radius:8px; padding:10px 0; font-size:13px; font-weight:700; cursor:pointer; }
-    .conflict-btn-keep    { flex:1; background:var(--accent); color:#fff; border:none; border-radius:8px; padding:10px 0; font-size:13px; font-weight:700; cursor:pointer; }
+    .conflict-btn-later  { flex:1; background:var(--bg-card); color:var(--text-secondary); border:1.5px solid var(--border); border-radius:12px; padding:11px 6px; font-size:13px; font-weight:600; font-family:inherit; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px; transition:all .15s; }
+    .conflict-btn-later:active  { transform:scale(0.98); }
+    .conflict-btn-cloud  { flex:1; background:var(--bg-card); color:var(--accent); border:1.5px solid var(--accent); border-radius:12px; padding:11px 6px; font-size:13px; font-weight:700; font-family:inherit; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px; transition:all .15s; }
+    .conflict-btn-cloud:active  { transform:scale(0.98); }
+    .conflict-btn-keep   { flex:1; background:var(--accent); color:#fff; border:none; border-radius:12px; padding:11px 6px; font-size:13px; font-weight:700; font-family:inherit; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px; transition:all .15s; }
+    .conflict-btn-keep:active   { transform:scale(0.98); }
     .conflicts-empty { text-align:center; padding: 60px 24px; color: var(--text-muted); }
     .conflicts-empty-icon { font-size: 44px; margin-bottom: 12px; }
     .conflicts-empty-title { font-size: 16px; font-weight: 700; color: var(--text-primary); margin-bottom: 6px; }
@@ -11668,7 +11671,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.1.101';
+    const VERSION = '5.1.102';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -22605,9 +22608,9 @@
           <div class="conflict-modal-sub">${esc(c.description)}</div>
           ${versionsHtml}
           <div class="conflict-action-row">
-            <button class="conflict-btn-later"  onclick="document.getElementById('conflict-resolution-modal').remove()" style="display:flex;align-items:center;justify-content:center;gap:6px">${_cIcons.x} Later</button>
-            <button class="conflict-btn-cloud"  onclick="_resolveConflict('${esc(id)}','cloud')" style="display:flex;align-items:center;justify-content:center;gap:6px">${_cIcons.cloudDown} Use Cloud</button>
-            <button class="conflict-btn-keep"   onclick="_resolveConflict('${esc(id)}','local')" style="display:flex;align-items:center;justify-content:center;gap:6px">${_cIcons.check} Keep Mine</button>
+            <button class="conflict-btn-later"  onclick="document.getElementById('conflict-resolution-modal').remove()">${_cIcons.x} Later</button>
+            <button class="conflict-btn-cloud"  onclick="_resolveConflict('${esc(id)}','cloud')">${_cIcons.cloudDown} Use Cloud</button>
+            <button class="conflict-btn-keep"   onclick="_resolveConflict('${esc(id)}','local')">${_cIcons.check} Keep Mine</button>
           </div>
         </div>`;
       modal.addEventListener('click', e => { if (e.target === modal) modal.remove(); });
