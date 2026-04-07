@@ -2235,6 +2235,8 @@
     .c-act-row-badge.changed    { color: #ef4444; background: rgba(239,68,68,0.1); }
     /* Stacked activity-level detail overlay (sits on top of day overlay) */
     .conflict-actview-overlay { position: fixed; inset: 0; background: transparent; z-index: 310; display: flex; align-items: flex-end; justify-content: center; }
+    /* Prevent body scroll when any conflict overlay is open */
+    .conflict-scroll-locked { overflow: hidden !important; }
 
     /* ── Side-by-side comparison view (replaces Yours/Cloud/Changes tabs) ── */
     .csbs-wrap { padding: 12px; background: var(--bg-card-alt); }
@@ -7952,6 +7954,10 @@
       border-color: var(--border);
       box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
     }
+    /* Straight divider line when note is expanded — remove border-radius so border-bottom stays flat */
+    .note-card.expanded .note-row {
+      border-radius: 0;
+    }
 
     .note-card.done-card {
       opacity: 0.5;
@@ -11671,7 +11677,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.1.107';
+    const VERSION = '5.2.18';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -21706,16 +21712,54 @@
       const _arrowSvg = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>`;
       const _chevDownSvg = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>`;
 
+      // Build notebook meta rows (notebook · section on line 1, date on line 2) for Notebooks conflict rows
+      const _notebookMetaHtml = (c) => {
+        if (c.section !== 'Notebooks') return '';
+        const m = c.localMeta || {};
+        const pd = (c.localData || c.remoteData || {});
+        const calSvg = `<svg class="note-meta-icon" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>`;
+        let line1 = '';
+        if (m.notebookTitle) {
+          line1 += `<div class="note-meta-item"><svg class="note-meta-icon" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg><span>${esc(m.notebookTitle)}</span></div>`;
+        }
+        if (m.sectionTitle) {
+          line1 += `<div class="note-meta-item"><svg class="note-meta-icon" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg><span>${esc(m.sectionTitle)}</span></div>`;
+        }
+        const line2 = pd.date ? `<div class="note-meta-item">${calSvg}<span>${formatDateShort(pd.date)}</span></div>` : '';
+        let html = '';
+        if (line1) html += `<div class="note-row-meta" style="margin-top:3px;padding-left:0">${line1}</div>`;
+        if (line2) html += `<div class="note-row-meta" style="margin-top:2px;padding-left:0">${line2}</div>`;
+        return html;
+      };
+
+      // Build note meta row (location + date) for Notes conflict rows — matches Notes view style
+      const _noteMetaHtml = (c) => {
+        if (c.section !== 'Notes') return '';
+        const nd = c.localMeta?.noteData || c.remoteMeta?.noteData;
+        if (!nd) return '';
+        let m = '';
+        if (nd.location) {
+          m += `<div class="note-meta-item"><svg class="note-meta-icon" width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 010-5 2.5 2.5 0 010 5z"/></svg><span>${esc(nd.location.replace(/\s*\([^)]+\)\s*$/, '').trim())}</span></div>`;
+        }
+        if (nd.date) {
+          m += `<div class="note-meta-item"><svg class="note-meta-icon" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg><span>${formatDateShort(nd.date)}</span></div>`;
+        }
+        return m ? `<div class="note-row-meta" style="margin-top:3px;padding-left:0">${m}</div>` : '';
+      };
+
       const rowsHtml = _groupOrder.map(section => {
         const items = _groups[section];
         // Single conflict — direct row that opens the modal
         if (items.length === 1) {
           const c = items[0];
-          return `<div class="conflict-list-row" onclick="_openConflictModal('${esc(c.id)}')">
+          const rowHandler = c.displayType === 'split' ? `_openConflictNoteDetail('${esc(c.id)}')` : `_openConflictModal('${esc(c.id)}')`;
+          return `<div class="conflict-list-row" onclick="${rowHandler}">
             <span class="conflict-list-icon" style="color:#D97706">${_cIcon(section)}</span>
             <div class="conflict-list-meta">
               <div class="conflict-list-section">${esc(section)}</div>
+              ${_notebookMetaHtml(c)}
               <div class="conflict-list-desc">${esc(c.description)}</div>
+              ${_noteMetaHtml(c)}
               <div class="conflict-list-time">${_formatSnapTime(c.detectedAt).relative}</div>
             </div>
             <span class="conflict-list-badge">CONFLICT</span>
@@ -21739,10 +21783,13 @@
             const ws = c.localData?.weekStart || c.remoteData?.weekStart;
             if (ws) label = _fmtWeekRange(ws);
           }
+          const subHandler = c.displayType === 'split' ? `_openConflictNoteDetail('${esc(c.id)}')` : `_openConflictModal('${esc(c.id)}')`;
           return `
-          <div class="conflict-list-row conflict-list-subrow" onclick="event.stopPropagation();_openConflictModal('${esc(c.id)}')" style="padding-left:54px;background:var(--bg-card-alt);border-top:1px solid var(--border)">
+          <div class="conflict-list-row conflict-list-subrow" onclick="event.stopPropagation();${subHandler}" style="padding-left:54px;background:var(--bg-card-alt);border-top:1px solid var(--border)">
             <div class="conflict-list-meta" style="flex:1">
+              ${_notebookMetaHtml(c)}
               <div class="conflict-list-desc" style="font-weight:600;color:var(--text-primary)">${esc(label)}</div>
+              ${_noteMetaHtml(c)}
               <div class="conflict-list-time">${_formatSnapTime(c.detectedAt).relative}</div>
             </div>
             <span class="conflict-list-badge">CONFLICT</span>
@@ -22349,11 +22396,12 @@
       el.innerHTML = `
         <div class="conflict-fullview-sheet">
           <div class="conflict-fullview-header">
-            <button class="back-btn" onclick="document.getElementById('conflict-actview')?.remove()">${backIcon}</button>
+            <button class="back-btn" style="margin-left:auto" onclick="document.getElementById('conflict-actview')?.remove();_unlockBodyScroll()">${_cIcons.x}</button>
           </div>
           <div class="conflict-fullview-body" id="cav_body" style="padding:0;padding-right:2px">${bodyHtml}</div>
         </div>`;
       document.body.appendChild(el);
+      _lockBodyScroll();
     }
 
     // LCS diff on string arrays — returns [{type:'same'|'mine'|'theirs', text}]
@@ -22495,12 +22543,26 @@
       el.innerHTML = `
         <div class="conflict-fullview-sheet">
           <div class="conflict-fullview-header">
-            <button class="back-btn" onclick="document.getElementById('conflict-fullview')?.remove()">${backIcon}</button>
+            <span style="color:#D97706;display:flex">${_cIcons.warning}</span>
+            <span class="conflict-fullview-title">Notes Conflict</span>
+            <button class="back-btn" onclick="_closeConflictNoteDetail()">${_cIcons.x}</button>
           </div>
           <div class="conflict-fullview-body" style="padding:0;padding-right:2px">${bodyHtml}</div>
+          <div class="conflict-action-row">
+            <button class="conflict-btn-later"  onclick="_closeConflictNoteDetail()">${_cIcons.x} Later</button>
+            <button class="conflict-btn-cloud"  onclick="_resolveConflict('${esc(conflictId)}','cloud');_closeConflictNoteDetail()">${_cIcons.cloudDown} Use Cloud</button>
+            <button class="conflict-btn-keep"   onclick="_resolveConflict('${esc(conflictId)}','local');_closeConflictNoteDetail()">${_cIcons.check} Keep Mine</button>
+          </div>
         </div>`;
-      el.addEventListener('click', e => { if (e.target === el) el.remove(); });
+      el.addEventListener('click', e => { if (e.target === el) _closeConflictNoteDetail(); });
       document.body.appendChild(el);
+      _lockBodyScroll();
+    }
+
+    function _closeConflictNoteDetail() {
+      const el = document.getElementById('conflict-fullview');
+      if (el) el.remove();
+      _unlockBodyScroll();
     }
 
     function _switchNoteDetailTab(side) {
@@ -22514,6 +22576,16 @@
       if (side === 'local')  body.innerHTML = el._localHtml;
       if (side === 'remote') body.innerHTML = el._remoteHtml;
       if (side === 'diff')   body.innerHTML = el._diffHtml;
+    }
+
+    // Body scroll lock helpers — prevent background scroll while any conflict overlay is open
+    function _lockBodyScroll() {
+      document.body.classList.add('conflict-scroll-locked');
+    }
+    function _unlockBodyScroll() {
+      // Only release if no conflict overlays remain
+      const hasOverlay = document.querySelector('.conflict-modal-overlay, .conflict-fullview-overlay, .conflict-actview-overlay');
+      if (!hasOverlay) document.body.classList.remove('conflict-scroll-locked');
     }
 
     // Open resolution modal for a specific conflict
@@ -22582,26 +22654,8 @@
           <div style="padding:8px 12px 4px;font-size:11px;color:var(--text-muted)">Tap a day to compare your version vs cloud</div>
           ${dayBlocks || '<div style="padding:12px 16px;font-size:12px;color:var(--text-muted)">No differing days found.</div>'}`;
 
-      // ── Notes / Notebooks: single tappable row → fullscreen note detail ──
-      } else if (c.displayType === 'split') {
-        // Cache both versions for the detail overlay
-        const rawLocal  = c.localMeta?.content  || '';
-        const rawRemote = c.remoteMeta?.content || '';
-        const isHtml = /<[a-z][\s\S]*>/i.test(rawLocal + rawRemote);
-        _cFullViewCache['fv_' + c.id + '_local']  = { title: 'Your version — ' + (c.localMeta?.time  || 'This device'), content: rawLocal,  isHtml, noteData: c.localMeta?.noteData  || null };
-        _cFullViewCache['fv_' + c.id + '_remote'] = { title: 'Cloud version — ' + (c.remoteMeta?.time || 'Cloud'),       content: rawRemote, isHtml, noteData: c.remoteMeta?.noteData || null };
-        const noteLabel = c.localMeta?.noteTitle || c.description || 'Note';
-        const arrowSvg = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>`;
-        versionsHtml = `
-          <div style="padding:8px 12px 4px;font-size:11px;color:var(--text-muted)">Tap to compare your version vs cloud</div>
-          <div class="c-day-block">
-            <div class="c-day-head" onclick="_openConflictNoteDetail('${esc(c.id)}')" style="cursor:pointer">
-              <span class="c-day-label" style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(noteLabel)}</span>
-              <span class="c-day-chevron" style="color:var(--text-muted)">${arrowSvg}</span>
-            </div>
-          </div>`;
-
       // ── Callouts / Routines / Tags: simple rows ──
+      // (Notes conflicts go directly to _openConflictNoteDetail from the list)
       } else {
         const makeCard = (iconHtml, label, cls, meta) => {
           const rows = (meta.rows || []).map(r => `
@@ -22631,18 +22685,25 @@
           <div class="conflict-modal-handle"></div>
           <div class="conflict-modal-title" style="display:flex;align-items:center;gap:8px">
             <span style="color:#D97706;display:flex">${_cIcons.warning}</span>
-            <span>${esc(c.section)} Conflict</span>
+            <span style="flex:1">${esc(c.section)} Conflict</span>
+            <button class="back-btn" onclick="_closeConflictModal()">${_cIcons.x}</button>
           </div>
-          <div class="conflict-modal-sub">${esc(c.description)}</div>
           ${versionsHtml}
           <div class="conflict-action-row">
-            <button class="conflict-btn-later"  onclick="document.getElementById('conflict-resolution-modal').remove()">${_cIcons.x} Later</button>
-            <button class="conflict-btn-cloud"  onclick="_resolveConflict('${esc(id)}','cloud')">${_cIcons.cloudDown} Use Cloud</button>
-            <button class="conflict-btn-keep"   onclick="_resolveConflict('${esc(id)}','local')">${_cIcons.check} Keep Mine</button>
+            <button class="conflict-btn-later"  onclick="_closeConflictModal()">${_cIcons.x} Later</button>
+            <button class="conflict-btn-cloud"  onclick="_resolveConflict('${esc(id)}','cloud');_closeConflictModal()">${_cIcons.cloudDown} Use Cloud</button>
+            <button class="conflict-btn-keep"   onclick="_resolveConflict('${esc(id)}','local');_closeConflictModal()">${_cIcons.check} Keep Mine</button>
           </div>
         </div>`;
-      modal.addEventListener('click', e => { if (e.target === modal) modal.remove(); });
+      modal.addEventListener('click', e => { if (e.target === modal) _closeConflictModal(); });
       document.body.appendChild(modal);
+      _lockBodyScroll();
+    }
+
+    function _closeConflictModal() {
+      const el = document.getElementById('conflict-resolution-modal');
+      if (el) el.remove();
+      _unlockBodyScroll();
     }
 
     // Inject content into the active conflict tab body (safe — uses textContent or direct innerHTML from our own cache)
@@ -22899,30 +22960,39 @@
         const lines = pageBodyRaw.split('\n');
         return lines.slice(0, Math.max(1, lines.length - 1)).join('\n') + '\n[cloud — older version]';
       })();
+      // Resolve notebook/section titles for the sample page
+      const _nbResolve = (page) => {
+        if (!page) return { notebookTitle: 'Field Notes', sectionTitle: 'General' };
+        const sec  = (state.jSections  || []).find(s => s.id === page.sectionId);
+        const nb   = (state.jNotebooks || []).find(n => n.id === (sec?.notebookId || page.notebookId));
+        return { notebookTitle: nb?.title || 'Field Notes', sectionTitle: sec?.title || 'General' };
+      };
+      const { notebookTitle: nbTitle1, sectionTitle: secTitle1 } = _nbResolve(samplePage);
+      const pageLocalObj1  = samplePage ? deepCopy(samplePage) : { id: 'test_page', title: pageTitle, noteContent: pageBodyRaw, date: '2026-04-03' };
+      const pageRemoteObj1 = Object.assign(deepCopy(pageLocalObj1), { noteContent: pageBodyRemote });
       _registerConflict({
         id: 'test_notebooks',
         section: 'Notebooks', icon: '📓',
-        description: `"${pageTitle}" has two versions.`,
+        description: pageTitle,
         displayType: 'split',
-        localData: samplePage ? deepCopy(samplePage) : { id: 'test_page', title: pageTitle, noteContent: pageBodyRaw },
-        remoteData: Object.assign(samplePage ? deepCopy(samplePage) : { id: 'test_page', title: pageTitle }, { noteContent: pageBodyRemote }),
-        localMeta:  { time: 'This device',   content: pageBodyRaw,    noteTitle: pageTitle, noteData: samplePage ? deepCopy(samplePage) : { id: 'test_page', title: pageTitle, noteContent: pageBodyRaw } },
-        remoteMeta: { time: 'Cloud (older)', content: pageBodyRemote, noteTitle: pageTitle, noteData: Object.assign(samplePage ? deepCopy(samplePage) : { id: 'test_page', title: pageTitle }, { noteContent: pageBodyRemote }) },
+        localData: pageLocalObj1, remoteData: pageRemoteObj1,
+        localMeta:  { time: 'This device',   content: pageBodyRaw,    noteTitle: pageTitle, notebookTitle: nbTitle1, sectionTitle: secTitle1, noteData: pageLocalObj1  },
+        remoteMeta: { time: 'Cloud (older)', content: pageBodyRemote, noteTitle: pageTitle, notebookTitle: nbTitle1, sectionTitle: secTitle1, noteData: pageRemoteObj1 },
       });
 
       // 3b. Notebooks — second variant: brand new page on local, doesn't exist in cloud
       const pageB_local  = '<h2>Training — IR Camera Course</h2><p>Date: 4 Apr 2026</p><p>Trainer: Mike O\'B</p><p>Topics covered:</p><ul><li>Thermal imaging principles</li><li>Hot spot identification</li><li>Reporting templates</li></ul><p>Cert valid 2 years.</p>';
       const pageB_remote = '<p style="color:#94a3b8"><em>(no cloud version — page only exists on this device)</em></p>';
-      const pageB_localObj  = { id: 'test_page_2', title: 'IR Camera Course — Training', noteContent: pageB_local,  notebookId: 'training', sectionId: 'certs' };
-      const pageB_remoteObj = { id: 'test_page_2', title: 'IR Camera Course — Training', noteContent: pageB_remote, notebookId: 'training', sectionId: 'certs' };
+      const pageB_localObj  = { id: 'test_page_2', title: 'IR Camera Course — Training', noteContent: pageB_local,  notebookId: 'test_nb_training', sectionId: 'test_sec_certs', date: '2026-04-04' };
+      const pageB_remoteObj = { id: 'test_page_2', title: 'IR Camera Course — Training', noteContent: pageB_remote, notebookId: 'test_nb_training', sectionId: 'test_sec_certs', date: '2026-04-04' };
       _registerConflict({
         id: 'test_notebooks_2',
         section: 'Notebooks', icon: '📓',
-        description: '"IR Camera Course — Training" exists locally but not in the cloud.',
+        description: 'IR Camera Course — Training',
         displayType: 'split',
         localData: pageB_localObj, remoteData: pageB_remoteObj,
-        localMeta:  { time: 'This device, today',  content: pageB_local,  noteTitle: 'IR Camera Course — Training', noteData: pageB_localObj  },
-        remoteMeta: { time: 'Not in cloud',        content: pageB_remote, noteTitle: 'IR Camera Course — Training', noteData: pageB_remoteObj },
+        localMeta:  { time: 'This device, today', content: pageB_local,  noteTitle: 'IR Camera Course — Training', notebookTitle: 'Training', sectionTitle: 'Certs & Courses', noteData: pageB_localObj  },
+        remoteMeta: { time: 'Not in cloud',       content: pageB_remote, noteTitle: 'IR Camera Course — Training', notebookTitle: 'Training', sectionTitle: 'Certs & Courses', noteData: pageB_remoteObj },
       });
 
       // 4. Callouts — partial entry in cloud
@@ -23001,24 +23071,23 @@
       const provider = new firebase.auth.GoogleAuthProvider();
       provider.setCustomParameters({ prompt: 'select_account' });
       try {
-        // Always try popup first — redirect is broken on many browsers
-        // (Firefox, Brave, and mobile browsers with storage partitioning)
+        // Popup works in Chrome PWA — try it first
         await auth_fb.signInWithPopup(provider);
       } catch (e) {
-        console.warn('[Rian] Popup sign-in error:', e.code, e.message);
+        console.warn('[Rian] Sign-in error:', e.code, e.message);
         // User closed the popup — not an error, just reset
-        if (e.code === 'auth/popup-closed-by-user') {
+        if (e.code === 'auth/popup-closed-by-user' || e.code === 'auth/cancelled-popup-request') {
           _signingIn = false;
           return;
         }
-        // If popup was blocked, fall back to redirect
-        if (e.code === 'auth/popup-blocked') {
+        // Popup blocked — fall back to redirect
+        if (e.code === 'auth/popup-blocked' || e.code === 'auth/operation-not-supported-in-this-environment') {
           try {
             await auth_fb.signInWithRedirect(provider);
             return;
-          } catch (e2) { /* fall through */ }
+          } catch (e2) { /* fall through to error display */ }
         }
-        // Show the actual error code on screen to help diagnose browser-specific issues
+        // Show the actual error code on screen
         const errEl = document.getElementById('login-error-msg');
         if (errEl) {
           errEl.textContent = (e.code || 'error') + ': ' + (e.message || 'Unknown error');
@@ -27204,12 +27273,20 @@ Rules:
       }
 
       try {
-        console.log('[Rian Debug] Checking getRedirectResult (to see if Brave dropped the token)');
         const redir = await auth_fb.getRedirectResult();
-        console.log('[Rian Debug] Redirect Result:', redir);
+        if (redir && redir.user) {
+          console.log('[Rian] Redirect sign-in succeeded:', redir.user.uid);
+        }
       } catch (err) {
-        console.error('[Rian Debug] Redirect Result ERROR (Brave wiped the token?):', err);
-        showToast('Brave blocked login: ' + err.message);
+        console.error('[Rian] getRedirectResult error:', err.code, err.message);
+        // Show in the login error area if visible, otherwise toast
+        const errEl = document.getElementById('login-error-msg');
+        if (errEl) {
+          errEl.textContent = 'Sign-in failed: ' + (err.code || err.message || 'unknown error');
+          errEl.style.display = 'block';
+        } else {
+          showToast('Sign-in error: ' + (err.code || err.message));
+        }
       }
 
       // Firebase auth state observer — drives the whole app lifecycle
