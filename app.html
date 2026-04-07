@@ -2218,7 +2218,7 @@
     /* Day detail full-view — read-only task card */
     .c-ddf-empty { font-size: 13px; color: var(--text-muted); font-style: italic; padding: 16px 14px; text-align: center; }
     /* Disable all interactions in read-only card */
-    .c-ddf-readonly { pointer-events: none; margin-bottom: 14px; }
+    .c-ddf-readonly { pointer-events: none; margin: 0 0 14px 0 !important; }
     .c-ddf-readonly::before, .c-ddf-readonly::after { display: none !important; }
     /* Tappable activity rows inside the day detail overlay */
     .c-act-row { display: flex; align-items: center; gap: 10px; padding: 12px 14px; border-bottom: 1px solid var(--border); cursor: pointer; background: var(--bg-card); -webkit-tap-highlight-color: transparent; user-select: none; }
@@ -11668,7 +11668,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.1.99';
+    const VERSION = '5.1.100';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -22319,7 +22319,7 @@
           <div class="conflict-fullview-header">
             <button class="back-btn" onclick="document.getElementById('conflict-actview')?.remove()">${backIcon}</button>
           </div>
-          <div class="conflict-fullview-body" id="cav_body" style="padding:0">${bodyHtml}</div>
+          <div class="conflict-fullview-body" id="cav_body" style="padding:0;padding-right:2px">${bodyHtml}</div>
         </div>`;
       document.body.appendChild(el);
     }
