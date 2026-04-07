@@ -11667,7 +11667,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.1.96';
+    const VERSION = '5.1.97';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -22316,7 +22316,7 @@
       el.innerHTML = `
         <div class="conflict-fullview-sheet">
           <div class="conflict-fullview-header">
-            <button class="conflict-fullview-close" onclick="document.getElementById('conflict-actview')?.remove()">${backIcon}</button>
+            <button class="back-btn" onclick="document.getElementById('conflict-actview')?.remove()">${backIcon}</button>
           </div>
           <div class="conflict-fullview-body" id="cav_body" style="padding:0">${bodyHtml}</div>
         </div>`;
