@@ -11677,7 +11677,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.2.18';
+    const VERSION = '5.2.21';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -21713,23 +21713,26 @@
       const _chevDownSvg = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>`;
 
       // Build notebook meta rows (notebook · section on line 1, date on line 2) for Notebooks conflict rows
+      // Notebook · Section breadcrumb (shown ABOVE description)
       const _notebookMetaHtml = (c) => {
         if (c.section !== 'Notebooks') return '';
         const m = c.localMeta || {};
-        const pd = (c.localData || c.remoteData || {});
-        const calSvg = `<svg class="note-meta-icon" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>`;
-        let line1 = '';
+        let items = '';
         if (m.notebookTitle) {
-          line1 += `<div class="note-meta-item"><svg class="note-meta-icon" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg><span>${esc(m.notebookTitle)}</span></div>`;
+          items += `<div class="note-meta-item"><svg class="note-meta-icon" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg><span>${esc(m.notebookTitle)}</span></div>`;
         }
         if (m.sectionTitle) {
-          line1 += `<div class="note-meta-item"><svg class="note-meta-icon" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg><span>${esc(m.sectionTitle)}</span></div>`;
+          items += `<div class="note-meta-item"><svg class="note-meta-icon" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg><span>${esc(m.sectionTitle)}</span></div>`;
         }
-        const line2 = pd.date ? `<div class="note-meta-item">${calSvg}<span>${formatDateShort(pd.date)}</span></div>` : '';
-        let html = '';
-        if (line1) html += `<div class="note-row-meta" style="margin-top:3px;padding-left:0">${line1}</div>`;
-        if (line2) html += `<div class="note-row-meta" style="margin-top:2px;padding-left:0">${line2}</div>`;
-        return html;
+        return items ? `<div class="note-row-meta" style="margin-top:3px;padding-left:0">${items}</div>` : '';
+      };
+      // Date (shown BELOW description)
+      const _notebookDateHtml = (c) => {
+        if (c.section !== 'Notebooks') return '';
+        const pd = (c.localData || c.remoteData || {});
+        if (!pd.date) return '';
+        const calSvg = `<svg class="note-meta-icon" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>`;
+        return `<div class="note-row-meta" style="margin-top:2px;padding-left:0"><div class="note-meta-item">${calSvg}<span>${formatDateShort(pd.date)}</span></div></div>`;
       };
 
       // Build note meta row (location + date) for Notes conflict rows — matches Notes view style
@@ -21759,7 +21762,7 @@
               <div class="conflict-list-section">${esc(section)}</div>
               ${_notebookMetaHtml(c)}
               <div class="conflict-list-desc">${esc(c.description)}</div>
-              ${_noteMetaHtml(c)}
+              ${_notebookDateHtml(c)}${_noteMetaHtml(c)}
               <div class="conflict-list-time">${_formatSnapTime(c.detectedAt).relative}</div>
             </div>
             <span class="conflict-list-badge">CONFLICT</span>
@@ -21789,7 +21792,7 @@
             <div class="conflict-list-meta" style="flex:1">
               ${_notebookMetaHtml(c)}
               <div class="conflict-list-desc" style="font-weight:600;color:var(--text-primary)">${esc(label)}</div>
-              ${_noteMetaHtml(c)}
+              ${_notebookDateHtml(c)}${_noteMetaHtml(c)}
               <div class="conflict-list-time">${_formatSnapTime(c.detectedAt).relative}</div>
             </div>
             <span class="conflict-list-badge">CONFLICT</span>
@@ -24506,7 +24509,10 @@
       await ref.set({ ...state.routines, _updatedAt: Date.now() });
     }
 
-    // Scan all weeks in Firestore looking for activities with description containing "routines"
+    // Routines Bundle codes — selecting any of these triggers a routines visit
+    const ROUTINES_BUNDLE_CODES = new Set(['MXY0005A10', 'MCY0003A10', 'MTX0005A10']);
+
+    // Scan all weeks in Firestore looking for activities with Routines Bundle codes selected
     async function scanWeeksForRoutines() {
       if (!state.currentUser) return;
       const uid = state.currentUser.uid;
@@ -24518,8 +24524,12 @@
         data.days.forEach(day => {
           if (!day.activities || !day.date) return;
           day.activities.forEach(act => {
+            // Trigger on Routines Bundle code selection (any of the 3 bundle codes)
+            // OR if description contains "routine/routines" (including common misspellings)
+            const hasBundle = Array.isArray(act.codes) && act.codes.some(c => ROUTINES_BUNDLE_CODES.has(c.c));
             const desc = (act.description || '').trim().toLowerCase();
-            if (desc !== 'routines') return;
+            const hasRoutineDesc = /\brotuines?\b|\broutines?\b/i.test(act.description || '');
+            if (!hasBundle && !hasRoutineDesc) return;
             // Location modal stores "Name (CODE)" — strip the code suffix to match picker keys
             const loc = (act.location || '').trim().replace(/\s*\([^)]+\)$/, '');
             if (!loc) return;
