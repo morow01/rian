@@ -5331,6 +5331,8 @@
       /* space for toolbar above */
       line-height: 0;
       overflow: visible;
+      /* pan-y: browser handles vertical scroll, JS handles pinch */
+      touch-action: pan-y;
     }
 
     .img-resize-wrap .tt-resizable-img {
@@ -11767,7 +11769,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.2.64';
+    const VERSION = '5.2.65';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
