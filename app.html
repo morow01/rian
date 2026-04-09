@@ -11770,7 +11770,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.2.84';
+    const VERSION = '5.2.85';
 
     // Auto-update: if stored version differs, wipe SW caches and reload for fresh code.
     // The network-first SW already delivers new app.html; this clears the old SW so it
@@ -29730,6 +29730,7 @@ QUESTION: ${query}`;
         var _lastPanX = 0, _lastPanY = 0, _lastPanTime = 0;
         var _velX = 0, _velY = 0;
         var _rafId = null;
+        var _velSamples = []; // rolling window for velocity calc
         function _dist(t) {
           var dx=t[0].clientX-t[1].clientX, dy=t[0].clientY-t[1].clientY;
           return Math.sqrt(dx*dx+dy*dy);
@@ -29753,15 +29754,28 @@ QUESTION: ${query}`;
         }
         function _stopMomentum() {
           if (_rafId){cancelAnimationFrame(_rafId);_rafId=null;}
-          _velX=0; _velY=0;
+          _velX=0; _velY=0; _velSamples=[];
         }
         function _startMomentum() {
-          _stopMomentum();
-          var friction=0.93;
-          function step(){
-            _velX*=friction; _velY*=friction;
+          if (_rafId){cancelAnimationFrame(_rafId);_rafId=null;}
+          // Compute velocity from rolling window (last 80ms)
+          var now=Date.now();
+          while (_velSamples.length>1 && now-_velSamples[0].t>80) _velSamples.shift();
+          if (_velSamples.length>=2) {
+            var first=_velSamples[0], last=_velSamples[_velSamples.length-1];
+            var dt=last.t-first.t;
+            if (dt>0){ _velX=(last.x-first.x)/dt; _velY=(last.y-first.y)/dt; }
+          }
+          _velSamples=[];
+          if (Math.abs(_velX)<0.05&&Math.abs(_velY)<0.05) return;
+          var friction=0.92;
+          var _lastTS=0;
+          function step(ts){
+            var dt=_lastTS?Math.min(ts-_lastTS,32):16; _lastTS=ts;
+            var decay=Math.pow(friction,dt/16);
+            _velX*=decay; _velY*=decay;
             if (Math.abs(_velX)<0.05&&Math.abs(_velY)<0.05){_rafId=null;return;}
-            _tx+=_velX*16; _ty+=_velY*16;
+            _tx+=_velX*dt; _ty+=_velY*dt;
             _clamp(); _apply();
             _rafId=requestAnimationFrame(step);
           }
@@ -29808,7 +29822,7 @@ QUESTION: ${query}`;
             _panStartX=t.clientX; _panStartY=t.clientY;
             _lastPanX=t.clientX; _lastPanY=t.clientY;
             _lastPanTime=Date.now();
-            _velX=0; _velY=0;
+            _velX=0; _velY=0; _velSamples=[];
           }
         }, {passive:false, capture:true});
         document.addEventListener('touchmove', function(ev) {
@@ -29831,11 +29845,12 @@ QUESTION: ${query}`;
             if (!_inEditor(t.clientX,t.clientY) && !_panMoved) return;
             ev.preventDefault();
             _panMoved=true;
-            var now=Date.now(), dt=Math.max(1,now-_lastPanTime);
-            _velX=(t.clientX-_lastPanX)/dt;
-            _velY=(t.clientY-_lastPanY)/dt;
+            var now=Date.now();
             _tx+=t.clientX-_lastPanX; _ty+=t.clientY-_lastPanY;
             _lastPanX=t.clientX; _lastPanY=t.clientY; _lastPanTime=now;
+            // Push to rolling window; trim entries older than 100ms
+            _velSamples.push({t:now,x:t.clientX,y:t.clientY});
+            while (_velSamples.length>1 && now-_velSamples[0].t>100) _velSamples.shift();
             _clamp(); _apply();
           }
         }, {passive:false, capture:true});
