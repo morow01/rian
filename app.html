@@ -11770,7 +11770,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.2.76';
+    const VERSION = '5.2.77';
 
     // Auto-update: if stored version differs, wipe SW caches and reload for fresh code.
     // The network-first SW already delivers new app.html; this clears the old SW so it
@@ -28160,10 +28160,32 @@ Rules:
         }
       }
 
+      // Optimistic pre-load: show cached data immediately before auth fires.
+      // Firebase Auth can take 1-3s to resolve; this makes the app feel instant.
+      (async function _preload() {
+        const cachedUid = localStorage.getItem('rian_last_uid');
+        if (!cachedUid) return; // first-ever load or signed out — nothing to show
+        try {
+          const friday = getCurrentFriday();
+          const ws = dateToStr(friday);
+          const local = await dbGet('weeks', ws);
+          if (local && local.userId === cachedUid && local.data) {
+            state.currentUser = { uid: cachedUid }; // temp stub so loadWeek proceeds
+            state.weekData = deepCopy(local.data);
+            enforceCorrectDates(ws, state.weekData);
+            state.weekStart = ws;
+            autoExpandToday();
+            render();
+          }
+        } catch (e) { /* ignore — auth will re-render correctly */ }
+      })();
+
       // Firebase auth state observer — drives the whole app lifecycle
       auth_fb.onAuthStateChanged(async user => {
         console.log('[Rian Debug] onAuthStateChanged fired. User:', user ? user.uid : 'null');
         state.currentUser = user;
+        if (user) localStorage.setItem('rian_last_uid', user.uid);
+        else localStorage.removeItem('rian_last_uid');
         if (!user) {
           // Signed out — tear down listeners and show login
           if (weekUnsubscribe) { weekUnsubscribe(); weekUnsubscribe = null; }
