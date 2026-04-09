@@ -11712,7 +11712,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.2.54';
+    const VERSION = '5.2.55';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -12510,6 +12510,71 @@
       for (const n of notes) _raiseNoteHWM(n.id, (n.noteContent || '').length);
     }
     // ───────────────────────────────────────────────────────────────
+    // "Compression accepted at" timestamp — when THIS device accepted an intentional
+    // compression from another device. Stored in localStorage so the HWM guard knows
+    // the smaller size is deliberate, not data loss.
+    function _getNoteHWMCat(id) {
+      try { return parseInt(localStorage.getItem('rian_nhwm_cat_' + id) || '0', 10); }
+      catch(e) { return 0; }
+    }
+    function _setNoteHWMCat(id, ts) {
+      try { localStorage.setItem('rian_nhwm_cat_' + id, String(ts)); }
+      catch(e) {}
+    }
+    // ── Image compression utilities ───────────────────────────────
+    // Compress a single data: URL to JPEG via canvas.
+    function _compressDataUrl(dataUrl, maxW, quality) {
+      maxW = maxW || 1400; quality = quality || 0.75;
+      return new Promise(function(resolve) {
+        if (!dataUrl || dataUrl.indexOf('data:image') !== 0) { resolve(dataUrl); return; }
+        var img = new window.Image();
+        img.onload = function() {
+          var w = img.naturalWidth, h = img.naturalHeight;
+          if (w > maxW) { h = Math.round(h * maxW / w); w = maxW; }
+          var c = document.createElement('canvas');
+          c.width = w; c.height = h;
+          c.getContext('2d').drawImage(img, 0, 0, w, h);
+          resolve(c.toDataURL('image/jpeg', quality));
+        };
+        img.onerror = function() { resolve(dataUrl); };
+        img.src = dataUrl;
+      });
+    }
+    // Compress all base64 images inside TipTap HTML (uses DOMParser).
+    async function _compressNoteContentImages(html, maxW, quality) {
+      if (!html || html.indexOf('data:image') === -1) return html;
+      var doc = new DOMParser().parseFromString('<div>' + html + '</div>', 'text/html');
+      var imgs = doc.querySelectorAll('img[src^="data:image"]');
+      if (!imgs.length) return html;
+      await Promise.all(Array.from(imgs).map(async function(img) {
+        var c = await _compressDataUrl(img.src, maxW || 1400, quality || 0.75);
+        if (c.length < img.src.length) img.src = c;
+      }));
+      return doc.querySelector('div').innerHTML;
+    }
+    // Compress notes for Firestore when total doc size > 800 KB.
+    // Returns { notes, didCompress, compressedIds }.
+    async function _compressNotesForFs(notes) {
+      var totalSize = JSON.stringify(notes).length;
+      if (totalSize < 800000) return { notes: notes, didCompress: false, compressedIds: [] };
+      console.log('[Rian] Notes doc ' + totalSize + ' bytes — compressing images for Firestore');
+      var now = Date.now();
+      var out = []; var compressedIds = [];
+      for (var i = 0; i < notes.length; i++) {
+        var n = notes[i];
+        if (!n.noteContent || n.noteContent.indexOf('data:image') === -1) { out.push(n); continue; }
+        var orig = n.noteContent;
+        var comp = await _compressNoteContentImages(orig, 1400, 0.75);
+        if (comp.length < orig.length) {
+          var nc = Object.assign({}, n, { noteContent: comp, _compressedAt: now });
+          out.push(nc); compressedIds.push(n.id);
+        } else {
+          out.push(n);
+        }
+      }
+      return { notes: out, didCompress: compressedIds.length > 0, compressedIds: compressedIds };
+    }
+    // ─────────────────────────────────────────────────────────────
     let notesUnsubscribe = null;
     let calloutsUnsubscribe = null;
 
@@ -17216,7 +17281,28 @@
         await dbPut('notes', { id: 'notes_all', userId: state.currentUser?.uid || null, data: state.notes, updatedAt: ts });
         if (state.currentUser) {
           try {
-            await fsSetNotes(state.notes);
+            // Compress images if notes doc exceeds Firestore's ~1 MB document limit
+            let _notesToFs = state.notes;
+            if (JSON.stringify(_notesToFs).length > 800000) {
+              const _cr = await _compressNotesForFs(_notesToFs);
+              if (_cr.didCompress) {
+                state.notes = _cr.notes;
+                // Reset HWM + cat on THIS device so our own guard accepts the smaller size
+                for (const _cid of _cr.compressedIds) {
+                  const _cn = state.notes.find(function(n) { return n.id === _cid; });
+                  if (_cn) {
+                    const _cSize = (_cn.noteContent || '').length;
+                    _setNoteHWMExplicit(_cid, _cSize);
+                    _setNoteHWMCat(_cid, _cn._compressedAt || Date.now());
+                  }
+                }
+                await dbPut('notes', { id: 'notes_all', userId: state.currentUser?.uid || null, data: state.notes, updatedAt: ts });
+                _notesToFs = state.notes;
+                showToast('📦 Images compressed — notes syncing');
+                console.log('[Rian] Notes after compression:', JSON.stringify(_notesToFs).length, 'bytes');
+              }
+            }
+            await fsSetNotes(_notesToFs);
             state.notesSyncStatus = 'synced';
           } catch (e) {
             state.notesSyncStatus = 'error';
@@ -17326,6 +17412,12 @@
                   return deepCopy(ln); // user edited → keep local
                 }
                 if (ln && (ln.updatedAt || 0) >= (rn.updatedAt || 0)) return deepCopy(ln); // local same-or-newer
+                // Accept intentional compression from another device (bypass HWM guard)
+                if (rn._compressedAt && rn._compressedAt > _getNoteHWMCat(rn.id)) {
+                  _setNoteHWMCat(rn.id, rn._compressedAt);
+                  _setNoteHWMExplicit(rn.id, (rn.noteContent || '').length);
+                  _mergeChanged = true; return deepCopy(rn);
+                }
                 // Note HWM guard (timer path) — same protection as main path
                 const _tnhwm = _getNoteHWM(rn.id);
                 const _trSize = (rn.noteContent || '').length;
@@ -17414,6 +17506,12 @@
           // for this note, a stale device likely overwrote with stripped/degraded content
           // (e.g. images removed). Keep local, bump updatedAt so our version propagates
           // back to the stale device and wins the next timestamp comparison everywhere.
+          // Accept intentional compression from another device (bypass HWM guard)
+          if (rn._compressedAt && rn._compressedAt > _getNoteHWMCat(rn.id)) {
+            _setNoteHWMCat(rn.id, rn._compressedAt);
+            _setNoteHWMExplicit(rn.id, (rn.noteContent || '').length);
+            return deepCopy(rn);
+          }
           const _nhwm = _getNoteHWM(rn.id);
           const _rSize = (rn.noteContent || '').length;
           if (_nhwm > NOTE_HWM_MIN && _rSize < _nhwm * NOTE_HWM_THRESHOLD) {
@@ -29256,6 +29354,28 @@ QUESTION: ${query}`;
           ResizableImage.configure({ inline: false, allowBase64: true }),
         ],
         content: '',
+        editorProps: {
+          handlePaste(view, event) {
+            // Intercept raw image paste (e.g. screenshot from clipboard) and compress
+            const items = event.clipboardData && event.clipboardData.items;
+            if (!items) return false;
+            for (let i = 0; i < items.length; i++) {
+              if (items[i].type.startsWith('image/')) {
+                event.preventDefault();
+                const file = items[i].getAsFile();
+                if (!file) continue;
+                const reader = new FileReader();
+                reader.onload = async function(ev) {
+                  const dataUrl = await _compressDataUrl(ev.target.result, 1400, 0.75);
+                  if (_tiptapEditor) _tiptapEditor.chain().focus().setImage({ src: dataUrl }).run();
+                };
+                reader.readAsDataURL(file);
+                return true; // handled — don't let TipTap insert uncompressed
+              }
+            }
+            return false;
+          }
+        },
         onUpdate({ editor }) {
           if (_tiptapOnUpdate) _tiptapOnUpdate(editor);
           _scheduleTaskSortableInit(); // also calls initImageDrag via shared timer
