@@ -11758,7 +11758,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.2.59';
+    const VERSION = '5.2.60';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -29516,6 +29516,13 @@ QUESTION: ${query}`;
 
             container.addEventListener('touchstart', (e) => {
               if (e.target.closest('.img-resize-presets')) return; // toolbar handles itself
+              // Two-finger touch = pinch-to-zoom → open lightbox immediately
+              if (e.touches.length >= 2) {
+                e.preventDefault();
+                _lpCancel();
+                if (window.openLightbox) window.openLightbox(img.src);
+                return;
+              }
               e.preventDefault(); // prevent keyboard + synthetic mouse events
               const t = e.touches[0];
               _lpX0 = t.clientX; _lpY0 = t.clientY; _lpActive = false;
