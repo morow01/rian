@@ -4468,6 +4468,8 @@
       /* clearfix: contains floated images */
       color: #3A3836;
       min-height: 200px;
+      /* Allow vertical scroll; let JS handle pinch on images */
+      touch-action: pan-y;
     }
 
     .tt-prose {
@@ -11769,7 +11771,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.2.65';
+    const VERSION = '5.2.66';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
