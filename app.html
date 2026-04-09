@@ -11770,7 +11770,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.2.83';
+    const VERSION = '5.2.84';
 
     // Auto-update: if stored version differs, wipe SW caches and reload for fresh code.
     // The network-first SW already delivers new app.html; this clears the old SW so it
@@ -29720,43 +29720,64 @@ QUESTION: ${query}`;
       (function() {
         if (window._edPinchBound) return;
         window._edPinchBound = true;
-        var _s = 1, _tx = 0, _ty = 0;       // live transform state
+        var _s = 1, _tx = 0, _ty = 0;
         var _pinching = false;
-        var _p0s, _p0tx, _p0ty;             // state snapshot at pinch start
-        var _p0dist, _p0midX, _p0midY;      // pinch start distance + midpoint (viewport)
-        var _p0pivX, _p0pivY;               // pinch pivot in editor-local coords
-        var _panning = false, _lastPanX = 0, _lastPanY = 0;
+        var _p0s, _p0tx, _p0ty;
+        var _p0dist, _p0midX, _p0midY;
+        var _p0pivX, _p0pivY;
+        // pan state
+        var _panStartX = 0, _panStartY = 0, _panMoved = false;
+        var _lastPanX = 0, _lastPanY = 0, _lastPanTime = 0;
+        var _velX = 0, _velY = 0;
+        var _rafId = null;
         function _dist(t) {
-          var dx = t[0].clientX-t[1].clientX, dy = t[0].clientY-t[1].clientY;
+          var dx=t[0].clientX-t[1].clientX, dy=t[0].clientY-t[1].clientY;
           return Math.sqrt(dx*dx+dy*dy);
         }
         function _clamp() {
-          var ed = document.getElementById('note-fs-editor');
-          var pm = document.querySelector('#note-fs-editor .ProseMirror');
+          var ed=document.getElementById('note-fs-editor');
+          var pm=document.querySelector('#note-fs-editor .ProseMirror');
           if (!ed||!pm) return;
-          var edST = ed.scrollTop || 0, edSL = ed.scrollLeft || 0;
-          var maxTx = edSL, maxTy = edST;
-          var minTx = Math.min(maxTx, edSL + ed.clientWidth  - pm.offsetWidth  * _s);
-          var minTy = Math.min(maxTy, edST + ed.clientHeight - pm.offsetHeight * _s);
-          _tx = Math.max(minTx, Math.min(maxTx, _tx));
-          _ty = Math.max(minTy, Math.min(maxTy, _ty));
+          var edST=ed.scrollTop||0, edSL=ed.scrollLeft||0;
+          var maxTx=edSL, maxTy=edST;
+          var minTx=Math.min(maxTx, edSL+ed.clientWidth -pm.offsetWidth *_s);
+          var minTy=Math.min(maxTy, edST+ed.clientHeight-pm.offsetHeight*_s);
+          _tx=Math.max(minTx,Math.min(maxTx,_tx));
+          _ty=Math.max(minTy,Math.min(maxTy,_ty));
         }
         function _apply() {
-          var pm = document.querySelector('#note-fs-editor .ProseMirror');
+          var pm=document.querySelector('#note-fs-editor .ProseMirror');
           if (!pm) return;
-          if (_s <= 1.02) { pm.style.transform=''; _s=1; _tx=0; _ty=0; }
-          else { pm.style.transform='translate('+_tx+'px,'+_ty+'px) scale('+_s+')'; }
+          if (_s<=1.02){pm.style.transform='';_s=1;_tx=0;_ty=0;}
+          else{pm.style.transform='translate('+_tx+'px,'+_ty+'px) scale('+_s+')';}
+        }
+        function _stopMomentum() {
+          if (_rafId){cancelAnimationFrame(_rafId);_rafId=null;}
+          _velX=0; _velY=0;
+        }
+        function _startMomentum() {
+          _stopMomentum();
+          var friction=0.93;
+          function step(){
+            _velX*=friction; _velY*=friction;
+            if (Math.abs(_velX)<0.05&&Math.abs(_velY)<0.05){_rafId=null;return;}
+            _tx+=_velX*16; _ty+=_velY*16;
+            _clamp(); _apply();
+            _rafId=requestAnimationFrame(step);
+          }
+          _rafId=requestAnimationFrame(step);
         }
         window._edZoomReset = function() {
-          _s=1; _tx=0; _ty=0; _pinching=false; _panning=false;
+          _stopMomentum();
+          _s=1;_tx=0;_ty=0;_pinching=false;_panMoved=false;
           var pm=document.querySelector('#note-fs-editor .ProseMirror');
           if (pm) pm.style.transform='';
         };
-        function _modalOpen() {
+        function _modalOpen(){
           var m=document.getElementById('note-fs-modal');
           return m&&!m.classList.contains('hidden');
         }
-        function _inEditor(x,y) {
+        function _inEditor(x,y){
           var ed=document.getElementById('note-fs-editor');
           if (!ed) return false;
           var r=ed.getBoundingClientRect();
@@ -29764,12 +29785,12 @@ QUESTION: ${query}`;
         }
         document.addEventListener('touchstart', function(ev) {
           if (!_modalOpen()) return;
-          if (ev.touches.length === 2) {
+          if (ev.touches.length===2) {
             var t0=ev.touches[0], t1=ev.touches[1];
             if (!_inEditor(t0.clientX,t0.clientY)&&!_inEditor(t1.clientX,t1.clientY)) return;
             ev.preventDefault();
-            _pinching=true; _panning=false;
-            // Snapshot current state — touchmove will recompute from here, no drift
+            _stopMomentum();
+            _pinching=true; _panMoved=false;
             _p0s=_s; _p0tx=_tx; _p0ty=_ty;
             _p0dist=_dist(ev.touches);
             _p0midX=(t0.clientX+t1.clientX)/2;
@@ -29781,10 +29802,15 @@ QUESTION: ${query}`;
           } else if (ev.touches.length===1 && _s>1.02) {
             var t=ev.touches[0];
             if (!_inEditor(t.clientX,t.clientY)) return;
-            ev.preventDefault();
-            _panning=true; _lastPanX=t.clientX; _lastPanY=t.clientY;
+            _stopMomentum();
+            // Don't preventDefault here — allow taps to reach editor for text cursor
+            _panMoved=false;
+            _panStartX=t.clientX; _panStartY=t.clientY;
+            _lastPanX=t.clientX; _lastPanY=t.clientY;
+            _lastPanTime=Date.now();
+            _velX=0; _velY=0;
           }
-        }, { passive:false, capture:true });
+        }, {passive:false, capture:true});
         document.addEventListener('touchmove', function(ev) {
           if (!_modalOpen()) return;
           if (ev.touches.length===2 && _pinching) {
@@ -29792,24 +29818,33 @@ QUESTION: ${query}`;
             var t0=ev.touches[0], t1=ev.touches[1];
             var d=_dist(ev.touches);
             var midX=(t0.clientX+t1.clientX)/2, midY=(t0.clientY+t1.clientY)/2;
-            // Scale = start scale × (current dist / start dist), clamped 1–5
             _s=Math.min(5,Math.max(1, _p0s*(d/_p0dist)));
-            // Keep pivot fixed: pivX = pivX*(1 - s/p0s) + p0tx*(s/p0s) + panX
             var ratio=_s/_p0s;
-            _tx=_p0pivX*(1-ratio)+_p0tx*ratio + (midX-_p0midX);
-            _ty=_p0pivY*(1-ratio)+_p0ty*ratio + (midY-_p0midY);
+            _tx=_p0pivX*(1-ratio)+_p0tx*ratio+(midX-_p0midX);
+            _ty=_p0pivY*(1-ratio)+_p0ty*ratio+(midY-_p0midY);
             _clamp(); _apply();
-          } else if (ev.touches.length===1 && _panning && _s>1.02) {
-            ev.preventDefault();
+          } else if (ev.touches.length===1 && _s>1.02) {
             var t=ev.touches[0];
+            var dx=t.clientX-_panStartX, dy=t.clientY-_panStartY;
+            // Only start panning after 8px movement threshold (preserves taps)
+            if (!_panMoved && Math.sqrt(dx*dx+dy*dy)<8) return;
+            if (!_inEditor(t.clientX,t.clientY) && !_panMoved) return;
+            ev.preventDefault();
+            _panMoved=true;
+            var now=Date.now(), dt=Math.max(1,now-_lastPanTime);
+            _velX=(t.clientX-_lastPanX)/dt;
+            _velY=(t.clientY-_lastPanY)/dt;
             _tx+=t.clientX-_lastPanX; _ty+=t.clientY-_lastPanY;
-            _lastPanX=t.clientX; _lastPanY=t.clientY;
+            _lastPanX=t.clientX; _lastPanY=t.clientY; _lastPanTime=now;
             _clamp(); _apply();
           }
-        }, { passive: false, capture: true });
+        }, {passive:false, capture:true});
         document.addEventListener('touchend', function(ev) {
-          if (ev.touches.length < 2) _pinching = false;
-          if (ev.touches.length === 0) _panning = false;
+          if (ev.touches.length<2) _pinching=false;
+          if (ev.touches.length===0) {
+            if (_panMoved) _startMomentum();
+            _panMoved=false;
+          }
         }, true);
       })();
       // openOnClick:false means clicking a link places the cursor and the link
