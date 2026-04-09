@@ -11712,7 +11712,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.2.53';
+    const VERSION = '5.2.54';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -12481,6 +12481,33 @@
     }
     function _raiseCoHWM(count) {
       if (count > _getCoHWM()) _setCoHWM(count);
+    }
+    // ── Notes content high-water-mark (HWM) guard ─────────────────
+    // Tracks the maximum noteContent byte-length ever seen per note on
+    // THIS browser. Protects against a device with stale cached content
+    // (e.g. without images) clobbering a note that grew significantly
+    // on another device. Key: rian_nhwm_{noteId}.
+    // Inbound: reject remote note if size < 50% of HWM (only for notes >5KB).
+    // Explicit save: call _setNoteHWMExplicit() to allow intentional shrinkage.
+    const NOTE_HWM_THRESHOLD = 0.5;  // reject remote < 50% of HWM
+    const NOTE_HWM_MIN       = 5000; // only guard notes that have reached 5KB+
+    function _getNoteHWM(id) {
+      try { return parseInt(localStorage.getItem('rian_nhwm_' + id) || '0', 10); }
+      catch(e) { return 0; }
+    }
+    function _setNoteHWM(id, size) {
+      try { localStorage.setItem('rian_nhwm_' + id, String(Math.max(0, size))); }
+      catch(e) {}
+    }
+    function _raiseNoteHWM(id, size) {
+      if (size > _getNoteHWM(id)) _setNoteHWM(id, size);
+    }
+    // Called when user EXPLICITLY saves a note — allows intentional shrinkage on THIS device.
+    function _setNoteHWMExplicit(id, size) { _setNoteHWM(id, size); }
+    // Raise HWMs for all notes in an array (call after loading from IndexedDB or cloud).
+    function _raiseNoteHWMs(notes) {
+      if (!Array.isArray(notes)) return;
+      for (const n of notes) _raiseNoteHWM(n.id, (n.noteContent || '').length);
     }
     // ───────────────────────────────────────────────────────────────
     let notesUnsubscribe = null;
@@ -17261,6 +17288,7 @@
       const stored = await dbGet('notes', 'notes_all');
       if (state.notes.length === 0 && stored && stored.data.length > 0) {
         state.notes = stored.data;
+        _raiseNoteHWMs(state.notes); // initialise HWMs from cached data
       }
       // Migrate notes: strip HTML from descriptions, split long ones into desc + noteContent
       migrateNotesHTML(state.notes);
@@ -17298,6 +17326,13 @@
                   return deepCopy(ln); // user edited → keep local
                 }
                 if (ln && (ln.updatedAt || 0) >= (rn.updatedAt || 0)) return deepCopy(ln); // local same-or-newer
+                // Note HWM guard (timer path) — same protection as main path
+                const _tnhwm = _getNoteHWM(rn.id);
+                const _trSize = (rn.noteContent || '').length;
+                if (_tnhwm > NOTE_HWM_MIN && _trSize < _tnhwm * NOTE_HWM_THRESHOLD) {
+                  _mergeChanged = true;
+                  if (ln) { const _k = deepCopy(ln); _k.updatedAt = Date.now(); return _k; }
+                }
                 _mergeChanged = true; return deepCopy(rn); // remote is strictly newer
               });
               for (const ln of (state.notes || [])) {
@@ -17364,13 +17399,37 @@
             const userEdited = (ln.updatedAt || 0) > openTs; // user made changes since opening
             if (!userEdited && rn.updatedAt > openTs) {
               // Opened with stale content, user hasn't edited yet → take remote silently
+              _raiseNoteHWM(rn.id, (rn.noteContent || '').length);
               return deepCopy(rn);
             }
             // Keep local (user's edits are preserved)
             hadNewerLocal = true; return deepCopy(ln);
           }
           // Keep local if it's strictly newer
-          if (ln && (ln.updatedAt || 0) > (rn.updatedAt || 0)) { hadNewerLocal = true; return deepCopy(ln); }
+          if (ln && (ln.updatedAt || 0) > (rn.updatedAt || 0)) {
+            _raiseNoteHWM(ln.id, (ln.noteContent || '').length);
+            hadNewerLocal = true; return deepCopy(ln);
+          }
+          // Note HWM guard: if remote has significantly less content than we've ever seen
+          // for this note, a stale device likely overwrote with stripped/degraded content
+          // (e.g. images removed). Keep local, bump updatedAt so our version propagates
+          // back to the stale device and wins the next timestamp comparison everywhere.
+          const _nhwm = _getNoteHWM(rn.id);
+          const _rSize = (rn.noteContent || '').length;
+          if (_nhwm > NOTE_HWM_MIN && _rSize < _nhwm * NOTE_HWM_THRESHOLD) {
+            console.warn('[Rian] Note HWM guard: blocked remote overwrite for', rn.id,
+                         '— remote', _rSize, 'bytes vs HWM', _nhwm, 'bytes');
+            showToast('⚠️ Note protected from data loss — "' +
+                      (ln?.description || rn.id).slice(0, 30) + '"');
+            hadNewerLocal = true;
+            if (ln) {
+              const _kept = deepCopy(ln);
+              _kept.updatedAt = Date.now(); // bump timestamp so our version wins on all devices
+              return _kept;
+            }
+            return deepCopy(rn); // no local copy at all — can't protect
+          }
+          _raiseNoteHWM(rn.id, _rSize);
           return deepCopy(rn);
         });
         // Keep local-only notes that were created very recently (haven't synced yet)
@@ -17380,6 +17439,7 @@
           }
         }
         state.notes = merged;
+        _raiseNoteHWMs(state.notes); // keep HWMs current after each sync
 
         // Strip any HTML still in descriptions from remote data.
         const _migrated = migrateNotesHTML(state.notes);
@@ -30155,6 +30215,8 @@ QUESTION: ${query}`;
                           : state.notes;
           const n = _closeArr.find(x => x.id === _fnFsNoteId);
           if (n) { n.noteContent = html; n.updatedAt = Date.now(); }
+          // User explicitly saved — allow intentional shrinkage on THIS device
+          if (_fnFsSource === 'notes') _setNoteHWMExplicit(_fnFsNoteId, (html || '').length);
           _tiptapLastSavedNoteId = _fnFsNoteId;
           _tiptapLastSaveAt = Date.now();
           if (_fnFsSource === 'jpage') scheduleJSave();
