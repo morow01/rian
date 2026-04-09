@@ -11770,7 +11770,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.2.80';
+    const VERSION = '5.2.81';
 
     // Auto-update: if stored version differs, wipe SW caches and reload for fresh code.
     // The network-first SW already delivers new app.html; this clears the old SW so it
@@ -29715,21 +29715,25 @@ QUESTION: ${query}`;
       initImageDrag();
       // Content-only pinch-zoom + pan. Toolbar stays fixed.
       // transform: translate(tx,ty) scale(s) with transform-origin:0 0
-      // Pivot stays under fingers; single-finger drag pans when zoomed.
+      // Each pinch snapshots the state at touchstart; touchmove computes the
+      // full transform from scratch (no incremental drift). Pivot = finger midpoint.
       (function() {
         if (window._edPinchBound) return;
         window._edPinchBound = true;
-        var _s = 1, _tx = 0, _ty = 0;
-        var _pinching = false, _lastDist = 0, _lastMidX = 0, _lastMidY = 0;
+        var _s = 1, _tx = 0, _ty = 0;       // live transform state
+        var _pinching = false;
+        var _p0s, _p0tx, _p0ty;             // state snapshot at pinch start
+        var _p0dist, _p0midX, _p0midY;      // pinch start distance + midpoint (viewport)
+        var _p0pivX, _p0pivY;               // pinch pivot in editor-local coords
         var _panning = false, _lastPanX = 0, _lastPanY = 0;
         function _dist(t) {
-          var dx = t[0].clientX - t[1].clientX, dy = t[0].clientY - t[1].clientY;
-          return Math.sqrt(dx*dx + dy*dy);
+          var dx = t[0].clientX-t[1].clientX, dy = t[0].clientY-t[1].clientY;
+          return Math.sqrt(dx*dx+dy*dy);
         }
         function _clamp() {
           var ed = document.getElementById('note-fs-editor');
           var pm = document.querySelector('#note-fs-editor .ProseMirror');
-          if (!ed || !pm) return;
+          if (!ed||!pm) return;
           var minTx = Math.min(0, ed.clientWidth  - pm.offsetWidth  * _s);
           var minTy = Math.min(0, ed.clientHeight - pm.offsetHeight * _s);
           _tx = Math.max(minTx, Math.min(0, _tx));
@@ -29738,70 +29742,66 @@ QUESTION: ${query}`;
         function _apply() {
           var pm = document.querySelector('#note-fs-editor .ProseMirror');
           if (!pm) return;
-          if (_s <= 1.02) { pm.style.transform = ''; _s=1; _tx=0; _ty=0; }
-          else { pm.style.transform = 'translate('+_tx+'px,'+_ty+'px) scale('+_s+')'; }
+          if (_s <= 1.02) { pm.style.transform=''; _s=1; _tx=0; _ty=0; }
+          else { pm.style.transform='translate('+_tx+'px,'+_ty+'px) scale('+_s+')'; }
         }
         window._edZoomReset = function() {
           _s=1; _tx=0; _ty=0; _pinching=false; _panning=false;
-          var pm = document.querySelector('#note-fs-editor .ProseMirror');
-          if (pm) pm.style.transform = '';
+          var pm=document.querySelector('#note-fs-editor .ProseMirror');
+          if (pm) pm.style.transform='';
         };
         function _modalOpen() {
-          var m = document.getElementById('note-fs-modal');
-          return m && !m.classList.contains('hidden');
+          var m=document.getElementById('note-fs-modal');
+          return m&&!m.classList.contains('hidden');
         }
-        function _inEditor(x, y) {
-          var ed = document.getElementById('note-fs-editor');
+        function _inEditor(x,y) {
+          var ed=document.getElementById('note-fs-editor');
           if (!ed) return false;
-          var r = ed.getBoundingClientRect();
-          return x >= r.left && x <= r.right && y >= r.top && y <= r.bottom;
+          var r=ed.getBoundingClientRect();
+          return x>=r.left&&x<=r.right&&y>=r.top&&y<=r.bottom;
         }
         document.addEventListener('touchstart', function(ev) {
           if (!_modalOpen()) return;
           if (ev.touches.length === 2) {
-            var t0 = ev.touches[0], t1 = ev.touches[1];
-            if (!_inEditor(t0.clientX, t0.clientY) && !_inEditor(t1.clientX, t1.clientY)) return;
+            var t0=ev.touches[0], t1=ev.touches[1];
+            if (!_inEditor(t0.clientX,t0.clientY)&&!_inEditor(t1.clientX,t1.clientY)) return;
             ev.preventDefault();
-            _pinching = true; _panning = false;
-            _lastDist = _dist(ev.touches);
-            _lastMidX = (t0.clientX + t1.clientX) / 2;
-            _lastMidY = (t0.clientY + t1.clientY) / 2;
-          } else if (ev.touches.length === 1 && _s > 1.02) {
-            var t = ev.touches[0];
-            if (!_inEditor(t.clientX, t.clientY)) return;
-            ev.preventDefault(); // prevent native scroll while zoomed — JS pan takes over
-            _panning = true; _lastPanX = t.clientX; _lastPanY = t.clientY;
+            _pinching=true; _panning=false;
+            // Snapshot current state — touchmove will recompute from here, no drift
+            _p0s=_s; _p0tx=_tx; _p0ty=_ty;
+            _p0dist=_dist(ev.touches);
+            _p0midX=(t0.clientX+t1.clientX)/2;
+            _p0midY=(t0.clientY+t1.clientY)/2;
+            var ed=document.getElementById('note-fs-editor');
+            var r=ed?ed.getBoundingClientRect():{left:0,top:0};
+            _p0pivX=_p0midX-r.left;   // editor-local pivot
+            _p0pivY=_p0midY-r.top;
+          } else if (ev.touches.length===1 && _s>1.02) {
+            var t=ev.touches[0];
+            if (!_inEditor(t.clientX,t.clientY)) return;
+            ev.preventDefault();
+            _panning=true; _lastPanX=t.clientX; _lastPanY=t.clientY;
           }
-        }, { passive: false, capture: true });
+        }, { passive:false, capture:true });
         document.addEventListener('touchmove', function(ev) {
           if (!_modalOpen()) return;
-          if (ev.touches.length === 2 && _pinching) {
+          if (ev.touches.length===2 && _pinching) {
             ev.preventDefault();
-            var t0 = ev.touches[0], t1 = ev.touches[1];
-            var d = _dist(ev.touches);
-            var midX = (t0.clientX + t1.clientX) / 2;
-            var midY = (t0.clientY + t1.clientY) / 2;
-            if (_lastDist > 0) {
-              var oldS = _s;
-              _s = Math.min(5, Math.max(1, _s * (d / _lastDist)));
-              // Adjust translate so the pinch midpoint stays fixed in the editor
-              var ed = document.getElementById('note-fs-editor');
-              if (ed) {
-                var r = ed.getBoundingClientRect();
-                var lx = midX - r.left, ly = midY - r.top;
-                _tx = lx - (lx - _tx) * (_s / oldS);
-                _ty = ly - (ly - _ty) * (_s / oldS);
-              }
-              // Also pan with midpoint movement
-              _tx += midX - _lastMidX; _ty += midY - _lastMidY;
-              _clamp(); _apply();
-            }
-            _lastDist = d; _lastMidX = midX; _lastMidY = midY;
-          } else if (ev.touches.length === 1 && _panning && _s > 1.02) {
+            var t0=ev.touches[0], t1=ev.touches[1];
+            var d=_dist(ev.touches);
+            var midX=(t0.clientX+t1.clientX)/2, midY=(t0.clientY+t1.clientY)/2;
+            // Scale = start scale × (current dist / start dist), clamped 1–5
+            _s=Math.min(5,Math.max(1, _p0s*(d/_p0dist)));
+            // Keep pivot fixed: pivX = pivX*(1 - s/p0s) + p0tx*(s/p0s) + panX
+            var ratio=_s/_p0s;
+            _tx=_p0pivX*(1-ratio)+_p0tx*ratio + (midX-_p0midX);
+            _ty=_p0pivY*(1-ratio)+_p0ty*ratio + (midY-_p0midY);
+            _clamp(); _apply();
+          } else if (ev.touches.length===1 && _panning && _s>1.02) {
             ev.preventDefault();
-            var t = ev.touches[0];
-            _tx += t.clientX - _lastPanX; _ty += t.clientY - _lastPanY;
-            _lastPanX = t.clientX; _lastPanY = t.clientY;
+            var t=ev.touches[0];
+            _tx+=t.clientX-_lastPanX; _ty+=t.clientY-_lastPanY;
+            _lastPanX=t.clientX; _lastPanY=t.clientY;
             _clamp(); _apply();
           }
         }, { passive: false, capture: true });
