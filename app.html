@@ -4462,7 +4462,7 @@
     #note-fs-editor .ProseMirror {
       outline: none;
       padding: 16px;
-      font-size: 14px;
+      font-size: 16px; /* ≥16px prevents Android Chrome auto-zoom on focus */
       line-height: 1.7;
       overflow: hidden;
       /* clearfix: contains floated images */
@@ -11770,7 +11770,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.2.87';
+    const VERSION = '5.2.88';
 
     // Auto-update: if stored version differs, wipe SW caches and reload for fresh code.
     // The network-first SW already delivers new app.html; this clears the old SW so it
@@ -30106,16 +30106,18 @@ QUESTION: ${query}`;
     // explicit height (and top offset) on the modal so sticky-bottom elements
     // (#tt-sel-bar, #tt-ai-preview) stay visible above the keyboard.
     let _lastVvHeight = 0;
+    let _learnedKbdHeight = 280; // estimated keyboard height, refined on first open
     function _ttAdjustForKeyboard() {
       const modal = document.getElementById('note-fs-modal');
       if (!modal || modal.classList.contains('hidden')) return;
       const vv = window.visualViewport;
       if (!vv) return;
       const newH = vv.height;
-      // Keyboard just opened (viewport shrank >150px): reset zoom so the
-      // CSS transform doesn't produce a visual glitch during keyboard animation
-      if (_lastVvHeight && _lastVvHeight - newH > 150 && window._edZoomReset) {
-        window._edZoomReset();
+      const shrink = _lastVvHeight ? _lastVvHeight - newH : 0;
+      // Keyboard just opened (viewport shrank >150px)
+      if (shrink > 150) {
+        _learnedKbdHeight = shrink; // refine our estimate
+        if (window._edZoomReset) window._edZoomReset(); // clear zoom to avoid transform glitch
       }
       _lastVvHeight = newH;
       modal.style.height = newH + 'px';
@@ -30126,6 +30128,18 @@ QUESTION: ${query}`;
       window.visualViewport.addEventListener('resize', _ttAdjustForKeyboard);
       window.visualViewport.addEventListener('scroll', _ttAdjustForKeyboard);
     }
+    // Preemptively shrink modal on editor focus so content is already hidden
+    // behind the keyboard area before the keyboard animation begins
+    document.addEventListener('focusin', function(ev) {
+      const editor = document.getElementById('note-fs-editor');
+      const modal  = document.getElementById('note-fs-modal');
+      if (!editor || !modal || modal.classList.contains('hidden')) return;
+      if (!editor.contains(ev.target)) return;
+      const vv = window.visualViewport;
+      if (!vv) return;
+      const preH = vv.height - _learnedKbdHeight;
+      if (preH > 150) modal.style.height = preH + 'px';
+    }, true);
 
     // ── AI preview state — module-scope so _ttDoAiRephrase and _ttBindToolbar share them ──
     let _aiPending = null;
@@ -31459,7 +31473,7 @@ QUESTION: ${query}`;
 
   <!-- ===== NOTE FULLSCREEN MODAL ===== -->
   <div id="note-fs-modal" class="hidden fixed inset-0 flex flex-col items-center"
-    style="background:var(--bg-page);z-index:9999;">
+    style="background:var(--bg-page);z-index:9999;overflow:hidden;">
     <div class="flex flex-col w-full flex-1 overflow-hidden" style="max-width:672px;background:var(--bg-page);">
       <div style="background:var(--bg-header);position:relative;z-index:50000"
         class="text-white px-4 py-3 flex items-center gap-3 safe-top">
