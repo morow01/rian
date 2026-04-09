@@ -11791,7 +11791,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.2.93';
+    const VERSION = '5.2.94';
 
     // Auto-update: if stored version differs, wipe SW caches and reload for fresh code.
     // The network-first SW already delivers new app.html; this clears the old SW so it
@@ -29646,9 +29646,13 @@ QUESTION: ${query}`;
 
             container.addEventListener('touchcancel', _lpCancel);
 
-            // Desktop: click to select
+            // Desktop: click to select, double-click to open lightbox
             container.addEventListener('click', () => {
               editor.commands.setNodeSelection(getPos());
+            });
+            container.addEventListener('dblclick', (e) => {
+              e.preventDefault();
+              if (window.openLightbox) window.openLightbox(img.src);
             });
 
             container.append(img, presets, handle);
@@ -31508,7 +31512,7 @@ QUESTION: ${query}`;
 
   <!-- ===== NOTE FULLSCREEN MODAL ===== -->
   <div id="note-fs-modal" class="hidden fixed inset-0 flex flex-col items-center"
-    style="background:var(--bg-card);z-index:9999;overflow:hidden;">
+    style="background:var(--bg-page);z-index:9999;overflow:hidden;">
     <div class="flex flex-col w-full flex-1 overflow-hidden" style="max-width:672px;background:var(--bg-card);">
       <div style="background:var(--bg-header);position:relative;z-index:50000"
         class="text-white px-4 py-3 flex items-center gap-3 safe-top">
