@@ -11771,7 +11771,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.2.67';
+    const VERSION = '5.2.68';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -29700,13 +29700,13 @@ QUESTION: ${query}`;
       _ttBindToolbar();
       initTaskSortable();
       initImageDrag();
-      // Pinch-to-lightbox via Pointer Events — more reliable than Touch Events
-      // across PWA, Chrome, Firefox, Samsung Internet on Android.
-      // Track active pointers on img-resize-wrap; when 2 land on same wrap → open lightbox.
+      // Pinch-to-lightbox via Pointer Events.
+      // Key insight: when pinching, the second finger often lands OUTSIDE the image,
+      // so we track ALL pointers and open lightbox when 2+ are down with ANY on an image.
       (function() {
         if (window._imgPinchPointerBound) return;
         window._imgPinchPointerBound = true;
-        var _ptrs = new Map(); // pointerId → wrap element
+        var _ptrs = new Map(); // pointerId → wrap (or null if not on image)
         function _wrapFromPoint(x, y) {
           var el = document.elementFromPoint(x, y);
           while (el) {
@@ -29717,22 +29717,19 @@ QUESTION: ${query}`;
         }
         document.addEventListener('pointerdown', function(ev) {
           var modal = document.getElementById('note-fs-modal');
-          if (!modal || modal.classList.contains('hidden')) return;
-          var wrap = _wrapFromPoint(ev.clientX, ev.clientY);
-          if (!wrap) { return; }
-          _ptrs.set(ev.pointerId, wrap);
+          if (!modal || modal.classList.contains('hidden')) { _ptrs.clear(); return; }
+          // Track every pointer — wrap is null if finger not on an image
+          _ptrs.set(ev.pointerId, _wrapFromPoint(ev.clientX, ev.clientY));
           if (_ptrs.size >= 2) {
-            ev.preventDefault();
-            var imgEl = wrap.querySelector('img.tt-resizable-img');
-            // also check first pointer's wrap in case pointers landed on different parts
-            if (!imgEl) {
-              for (var w of _ptrs.values()) {
-                imgEl = w.querySelector('img.tt-resizable-img');
-                if (imgEl) break;
-              }
+            // Find the first pointer that landed on an image wrap
+            var targetWrap = null;
+            _ptrs.forEach(function(w) { if (w && !targetWrap) targetWrap = w; });
+            if (targetWrap) {
+              ev.preventDefault();
+              var imgEl = targetWrap.querySelector('img.tt-resizable-img');
+              _ptrs.clear();
+              if (imgEl && window.openLightbox) window.openLightbox(imgEl.src);
             }
-            _ptrs.clear();
-            if (imgEl && window.openLightbox) window.openLightbox(imgEl.src);
           }
         }, { passive: false, capture: true });
         document.addEventListener('pointerup',     function(ev) { _ptrs.delete(ev.pointerId); }, true);
