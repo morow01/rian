@@ -5362,6 +5362,27 @@
       display: none !important;
     }
 
+    /* ── Drag-to-resize corner handle ── */
+    .img-resize-handle {
+      position: absolute;
+      bottom: -6px;
+      right: -6px;
+      width: 18px;
+      height: 18px;
+      background: #818cf8;
+      border: 2px solid #fff;
+      border-radius: 4px;
+      cursor: nwse-resize;
+      touch-action: none;
+      opacity: 0;
+      transition: opacity 0.15s;
+      z-index: 20;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+    }
+    .img-resize-wrap.selected .img-resize-handle {
+      opacity: 1;
+    }
+
     .img-resize-wrap img {
       -webkit-user-drag: none;
     }
@@ -11770,7 +11791,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.2.92';
+    const VERSION = '5.2.93';
 
     // Auto-update: if stored version differs, wipe SW caches and reload for fresh code.
     // The network-first SW already delivers new app.html; this clears the old SW so it
@@ -29395,11 +29416,6 @@ QUESTION: ${query}`;
                 </svg>
               </button>
               <span class="preset-divider"></span>
-              <button data-size="25%">S</button>
-              <button data-size="50%">M</button>
-              <button data-size="75%">L</button>
-              <button data-size="100%">XL</button>
-              <span class="preset-divider"></span>
               <button data-action="zoom" title="View fullscreen">
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                   <polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/>
@@ -29542,8 +29558,49 @@ QUESTION: ${query}`;
 
             let _lpLastTap = 0;
 
+            // ── Drag-to-resize handle ────────────────────────────────────
+            const handle = document.createElement('div');
+            handle.classList.add('img-resize-handle');
+            let _rzActive = false, _rzStartX = 0, _rzStartW = 0;
+
+            handle.addEventListener('pointerdown', (e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              handle.setPointerCapture(e.pointerId);
+              _rzActive = true;
+              _rzStartX = e.clientX;
+              _rzStartW = img.getBoundingClientRect().width;
+            });
+
+            handle.addEventListener('pointermove', (e) => {
+              if (!_rzActive) return;
+              const pm = container.closest('.ProseMirror');
+              const edW = pm ? pm.offsetWidth : 300;
+              const newW = Math.max(60, _rzStartW + (e.clientX - _rzStartX));
+              const pct = Math.min(100, Math.max(10, Math.round(newW / edW * 100)));
+              const isFloat = currentAttrs.align === 'wrap-left' || currentAttrs.align === 'wrap-right';
+              if (isFloat) { container.style.width = pct + '%'; }
+              else { img.style.width = pct + '%'; }
+            });
+
+            handle.addEventListener('pointerup', (e) => {
+              if (!_rzActive) return;
+              _rzActive = false;
+              const pm = container.closest('.ProseMirror');
+              const edW = pm ? pm.offsetWidth : 300;
+              const newW = Math.max(60, _rzStartW + (e.clientX - _rzStartX));
+              const pct = Math.min(100, Math.max(10, Math.round(newW / edW * 100)));
+              const pos = getPos();
+              editor.chain().command(({ tr }) => {
+                tr.setNodeMarkup(pos, undefined, { ...currentAttrs, width: pct + '%' });
+                return true;
+              }).run();
+            });
+
+            handle.addEventListener('pointercancel', () => { _rzActive = false; });
+
             container.addEventListener('touchstart', (e) => {
-              if (e.target.closest('.img-resize-presets')) return;
+              if (e.target.closest('.img-resize-presets') || e.target.closest('.img-resize-handle')) return;
               // Pinch is handled by the global capture listener on the editor element.
               // Here we only handle single-touch: no preventDefault so scroll works.
               if (e.touches.length >= 2) return;
@@ -29594,7 +29651,7 @@ QUESTION: ${query}`;
               editor.commands.setNodeSelection(getPos());
             });
 
-            container.append(img, presets);
+            container.append(img, presets, handle);
 
             return {
               dom: container,
