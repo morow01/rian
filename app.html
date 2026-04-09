@@ -11770,7 +11770,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.2.86';
+    const VERSION = '5.2.87';
 
     // Auto-update: if stored version differs, wipe SW caches and reload for fresh code.
     // The network-first SW already delivers new app.html; this clears the old SW so it
@@ -30105,12 +30105,20 @@ QUESTION: ${query}`;
     // When the soft keyboard opens, window.visualViewport shrinks. We set an
     // explicit height (and top offset) on the modal so sticky-bottom elements
     // (#tt-sel-bar, #tt-ai-preview) stay visible above the keyboard.
+    let _lastVvHeight = 0;
     function _ttAdjustForKeyboard() {
       const modal = document.getElementById('note-fs-modal');
       if (!modal || modal.classList.contains('hidden')) return;
       const vv = window.visualViewport;
       if (!vv) return;
-      modal.style.height = vv.height + 'px';
+      const newH = vv.height;
+      // Keyboard just opened (viewport shrank >150px): reset zoom so the
+      // CSS transform doesn't produce a visual glitch during keyboard animation
+      if (_lastVvHeight && _lastVvHeight - newH > 150 && window._edZoomReset) {
+        window._edZoomReset();
+      }
+      _lastVvHeight = newH;
+      modal.style.height = newH + 'px';
       modal.style.top = vv.offsetTop + 'px';
       modal.style.bottom = 'auto';
     }
