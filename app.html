@@ -11771,7 +11771,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.2.69';
+    const VERSION = '5.2.70';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -29700,13 +29700,12 @@ QUESTION: ${query}`;
       _ttBindToolbar();
       initTaskSortable();
       initImageDrag();
-      // Pinch-to-lightbox via Pointer Events.
-      // Key insight: when pinching, the second finger often lands OUTSIDE the image,
-      // so we track ALL pointers and open lightbox when 2+ are down with ANY on an image.
+      // Pinch-to-lightbox via Touch Events.
+      // Touch Events (touchstart) ALWAYS fire regardless of touch-action — unlike
+      // Pointer Events which get pointercancel when touch-action:pan-y is in effect.
       (function() {
-        if (window._imgPinchPointerBound) return;
-        window._imgPinchPointerBound = true;
-        var _ptrs = new Map(); // pointerId → wrap (or null if not on image)
+        if (window._imgPinchTouchBound) return;
+        window._imgPinchTouchBound = true;
         function _wrapFromPoint(x, y) {
           var el = document.elementFromPoint(x, y);
           while (el) {
@@ -29715,25 +29714,22 @@ QUESTION: ${query}`;
           }
           return null;
         }
-        document.addEventListener('pointerdown', function(ev) {
+        document.addEventListener('touchstart', function(ev) {
           var modal = document.getElementById('note-fs-modal');
-          if (!modal || modal.classList.contains('hidden')) { _ptrs.clear(); return; }
-          // Track every pointer — wrap is null if finger not on an image
-          _ptrs.set(ev.pointerId, _wrapFromPoint(ev.clientX, ev.clientY));
-          if (_ptrs.size >= 2) {
-            // Find the first pointer that landed on an image wrap
-            var targetWrap = null;
-            _ptrs.forEach(function(w) { if (w && !targetWrap) targetWrap = w; });
-            if (targetWrap) {
-              ev.preventDefault();
-              var imgEl = targetWrap.querySelector('img.tt-resizable-img');
-              _ptrs.clear();
-              if (imgEl && window.openLightbox) window.openLightbox(imgEl.src);
-            }
+          if (!modal || modal.classList.contains('hidden')) return;
+          if (ev.touches.length < 2) return;
+          // Check if any touch is on an image wrap
+          var targetWrap = null;
+          for (var i = 0; i < ev.touches.length; i++) {
+            var t = ev.touches[i];
+            var w = _wrapFromPoint(t.clientX, t.clientY);
+            if (w) { targetWrap = w; break; }
           }
+          if (!targetWrap) return;
+          ev.preventDefault(); // stop browser scroll/zoom
+          var imgEl = targetWrap.querySelector('img.tt-resizable-img');
+          if (imgEl && window.openLightbox) window.openLightbox(imgEl.src);
         }, { passive: false, capture: true });
-        document.addEventListener('pointerup',     function(ev) { _ptrs.delete(ev.pointerId); }, true);
-        document.addEventListener('pointercancel', function(ev) { _ptrs.delete(ev.pointerId); }, true);
       })();
       // openOnClick:false means clicking a link places the cursor and the link
       // bubble appears (via onSelectionUpdate → _ttUpdateLinkBubble). The user
