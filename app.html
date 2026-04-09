@@ -4468,8 +4468,8 @@
       /* clearfix: contains floated images */
       color: #3A3836;
       min-height: 200px;
-      /* Allow vertical scroll; let JS handle pinch on images */
-      touch-action: pan-y;
+      /* pan-y + pinch-zoom: scroll vertically, native pinch-to-zoom */
+      touch-action: pan-y pinch-zoom;
     }
 
     .tt-prose {
@@ -11770,7 +11770,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.2.74';
+    const VERSION = '5.2.75';
 
     // ── Notes categories ──
     const DEFAULT_NOTE_CATEGORIES = [
@@ -17672,20 +17672,10 @@
                   return deepCopy(ln); // user edited → keep local
                 }
                 if (ln && (ln.updatedAt || 0) >= (rn.updatedAt || 0)) return deepCopy(ln); // local same-or-newer
-                // Accept intentional compression from another device (bypass HWM guard)
-                if (rn._compressedAt && rn._compressedAt > _getNoteHWMCat(rn.id)) {
-                  _setNoteHWMCat(rn.id, rn._compressedAt);
-                  _setNoteHWMExplicit(rn.id, (rn.noteContent || '').length);
-                  _mergeChanged = true; return deepCopy(rn);
-                }
-                // Note HWM guard (timer path) — same protection as main path
-                const _tnhwm = _getNoteHWM(rn.id);
+                // Remote is strictly newer — accept and lower HWM
                 const _trSize = (rn.noteContent || '').length;
-                if (_tnhwm > NOTE_HWM_MIN && _trSize < _tnhwm * NOTE_HWM_THRESHOLD) {
-                  _mergeChanged = true;
-                  if (ln) { const _k = deepCopy(ln); _k.updatedAt = Date.now(); return _k; }
-                }
-                _mergeChanged = true; return deepCopy(rn); // remote is strictly newer
+                _setNoteHWMExplicit(rn.id, _trSize);
+                _mergeChanged = true; return deepCopy(rn);
               });
               for (const ln of (state.notes || [])) {
                 if (!_timerRemote.notes.find(rn => rn.id === ln.id) && (ln.updatedAt || 0) > Date.now() - 120000) {
@@ -17762,32 +17752,10 @@
             _raiseNoteHWM(ln.id, (ln.noteContent || '').length);
             hadNewerLocal = true; return deepCopy(ln);
           }
-          // Note HWM guard: if remote has significantly less content than we've ever seen
-          // for this note, a stale device likely overwrote with stripped/degraded content
-          // (e.g. images removed). Keep local, bump updatedAt so our version propagates
-          // back to the stale device and wins the next timestamp comparison everywhere.
-          // Accept intentional compression from another device (bypass HWM guard)
-          if (rn._compressedAt && rn._compressedAt > _getNoteHWMCat(rn.id)) {
-            _setNoteHWMCat(rn.id, rn._compressedAt);
-            _setNoteHWMExplicit(rn.id, (rn.noteContent || '').length);
-            return deepCopy(rn);
-          }
-          const _nhwm = _getNoteHWM(rn.id);
+          // Remote is newer-or-equal — accept it and lower HWM to current size.
+          // (Stale-remote is already rejected above via the updatedAt comparison.)
           const _rSize = (rn.noteContent || '').length;
-          if (_nhwm > NOTE_HWM_MIN && _rSize < _nhwm * NOTE_HWM_THRESHOLD) {
-            console.warn('[Rian] Note HWM guard: blocked remote overwrite for', rn.id,
-                         '— remote', _rSize, 'bytes vs HWM', _nhwm, 'bytes');
-            showToast('⚠️ Note protected from data loss — "' +
-                      (ln?.description || rn.id).slice(0, 30) + '"');
-            hadNewerLocal = true;
-            if (ln) {
-              const _kept = deepCopy(ln);
-              _kept.updatedAt = Date.now(); // bump timestamp so our version wins on all devices
-              return _kept;
-            }
-            return deepCopy(rn); // no local copy at all — can't protect
-          }
-          _raiseNoteHWM(rn.id, _rSize);
+          _setNoteHWMExplicit(rn.id, _rSize);
           return deepCopy(rn);
         });
         // Keep local-only notes that were created very recently (haven't synced yet)
@@ -20171,7 +20139,7 @@
         }
       }
       document.getElementById('note-fs-modal').classList.remove('hidden');
-      document.querySelector('meta[name=viewport]').content = 'width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes';
+      document.querySelector('meta[name=viewport]').setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes');
       setTimeout(async () => {
         await _ensureTipTap();
         _tiptapOnUpdate = null; // prevent stale handler firing during setContent below
@@ -26406,7 +26374,7 @@
       if (titleEl) titleEl.textContent = 'Callout Note';
       if (subEl) { subEl.textContent = ''; subEl.style.display = 'none'; }
       document.getElementById('note-fs-modal').classList.remove('hidden');
-      document.querySelector('meta[name=viewport]').content = 'width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes';
+      document.querySelector('meta[name=viewport]').setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes');
       setTimeout(async () => {
         await _ensureTipTap();
         _tiptapOnUpdate = null; // prevent stale handler firing during setContent below
@@ -30611,7 +30579,7 @@ QUESTION: ${query}`;
         subEl.style.display = loc ? 'block' : 'none';
       }
       document.getElementById('note-fs-modal').classList.remove('hidden');
-      document.querySelector('meta[name=viewport]').content = 'width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes';
+      document.querySelector('meta[name=viewport]').setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes');
       setTimeout(async () => {
         await _ensureTipTap();
         _tiptapOnUpdate = null; // prevent stale handler firing during setContent below
@@ -30641,9 +30609,7 @@ QUESTION: ${query}`;
       _fsMod.classList.add('hidden');
       // Re-lock zoom now that editor is closed, and snap scale back to 1
       const _vp = document.querySelector('meta[name=viewport]');
-      _vp.content = 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no';
-      // Force reset to scale=1 (some browsers need a flicker to honour the new constraint)
-      _vp.content = 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no';
+      _vp.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no');
       // Reset any visualViewport-driven sizing so next open starts clean
       _fsMod.style.height = '';
       _fsMod.style.top = '';
