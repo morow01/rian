@@ -21,6 +21,7 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-storage-compat.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mammoth@1/mammoth.browser.min.js"></script>
   <!-- Firebase Messaging SDK removed — using raw Web Push API instead -->
   <style>
     /* ===== THEME VARIABLES ===== */
@@ -4169,6 +4170,97 @@
       font-weight: 500;
     }
 
+    /* ── DOCX Import modal ──────────────────────────────────────────── */
+    #docx-import-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.45);
+      z-index: 2100; display: flex; align-items: flex-end;
+      justify-content: center;
+    }
+    #docx-import-overlay.hidden { display: none; }
+    .docx-import-sheet {
+      background: var(--bg-card); border-radius: 20px 20px 0 0;
+      width: 100%; max-width: 600px; padding: 24px 20px 32px;
+      max-height: 88vh; display: flex; flex-direction: column; gap: 14px;
+      overflow: hidden;
+    }
+    .docx-import-title {
+      font-size: 17px; font-weight: 700; color: var(--text-primary);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .docx-import-label {
+      font-size: 12px; font-weight: 600; color: var(--text-secondary);
+      text-transform: uppercase; letter-spacing: .05em; margin-bottom: 4px;
+    }
+    .docx-import-input {
+      width: 100%; box-sizing: border-box;
+      padding: 10px 13px; border-radius: 10px;
+      border: 1.5px solid var(--border); background: var(--bg-card);
+      color: var(--text-primary); font-size: 14px; font-family: inherit;
+      outline: none;
+    }
+    .docx-import-input:focus { border-color: var(--accent); }
+    .docx-import-dropzone {
+      border: 2px dashed var(--border); border-radius: 14px;
+      padding: 22px 16px; text-align: center; cursor: pointer;
+      background: var(--bg-card-alt); transition: border-color .2s, background .2s;
+      position: relative;
+    }
+    .docx-import-dropzone.drag-over {
+      border-color: var(--accent); background: rgba(45,107,228,.06);
+    }
+    .docx-import-dropzone input[type=file] {
+      position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%;
+    }
+    .docx-import-dropzone-label {
+      font-size: 13px; color: var(--text-muted); pointer-events: none;
+    }
+    .docx-import-file-list {
+      flex: 1; overflow-y: auto; display: flex; flex-direction: column;
+      gap: 6px; max-height: 220px;
+    }
+    .docx-import-file-row {
+      display: flex; align-items: center; gap: 10px;
+      padding: 8px 10px; border-radius: 9px;
+      background: var(--bg-card-alt); font-size: 13px;
+    }
+    .docx-import-file-name {
+      flex: 1; white-space: nowrap; overflow: hidden;
+      text-overflow: ellipsis; color: var(--text-primary);
+    }
+    .docx-import-file-status {
+      font-size: 11px; font-weight: 600; white-space: nowrap; padding: 2px 7px;
+      border-radius: 6px;
+    }
+    .docx-status-pending  { background: #f1f5f9; color: #64748b; }
+    .docx-status-working  { background: #eff6ff; color: var(--accent); }
+    .docx-status-done     { background: #f0fdf4; color: #16a34a; }
+    .docx-status-error    { background: #fef2f2; color: #dc2626; }
+    .docx-import-footer {
+      display: flex; gap: 10px;
+    }
+    .docx-import-cancel-btn {
+      flex: 1; padding: 13px; border-radius: 12px;
+      border: 1.5px solid var(--border); background: none;
+      color: var(--text-secondary); font-size: 15px; font-weight: 600;
+      font-family: inherit; cursor: pointer;
+    }
+    .docx-import-run-btn {
+      flex: 2; padding: 13px; border-radius: 12px;
+      border: none; background: var(--accent); color: #fff;
+      font-size: 15px; font-weight: 600; font-family: inherit; cursor: pointer;
+      transition: opacity .2s;
+    }
+    .docx-import-run-btn:disabled { opacity: .45; cursor: default; }
+    .docx-import-import-btn {
+      display: flex; align-items: center; justify-content: center;
+      gap: 6px; margin: -4px 16px 4px;
+      background: none; border: none; color: var(--text-muted);
+      font-size: 12px; font-weight: 600; font-family: inherit;
+      cursor: pointer; padding: 6px 0; letter-spacing: .01em;
+    }
+    .docx-import-import-btn:hover { color: var(--accent); }
+    /* ── end DOCX Import modal ──────────────────────────────────────── */
+
     .add-note-dashed {
       margin: 12px 16px 20px;
       padding: 13px 16px;
@@ -5133,6 +5225,15 @@
     }
     #note-fs-editor .ProseMirror.resize-cursor {
       cursor: col-resize;
+    }
+    /* Fix: Chrome contenteditable adds a ~6px ghost line-box when any block element
+       trails the <p> inside a td/th. The column-resize-handle is always appended last.
+       Compensate by subtracting 6px from padding-bottom while the handle is in the cell. */
+    #note-fs-editor .ProseMirror th:has(.column-resize-handle) {
+      padding-bottom: 4px; /* 10px normal - 6px ghost */
+    }
+    #note-fs-editor .ProseMirror td:has(.column-resize-handle) {
+      padding-bottom: 6px; /* 12px normal - 6px ghost */
     }
 
     :is(#note-fs-editor .ProseMirror, .tt-prose) th {
@@ -8021,6 +8122,64 @@
       transition: transform 0.15s, box-shadow 0.15s;
     }
     .j-fab:active { transform: scale(0.96); box-shadow: 0 2px 8px rgba(45,107,228,0.3); }
+    .j-import-btn {
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      width: calc(100% - 32px); margin: 8px 16px 0;
+      background: var(--bg-card); color: var(--text-secondary);
+      border: 1.5px dashed var(--border); border-radius: 14px;
+      padding: 14px 18px; font-size: 14px; font-weight: 600;
+      cursor: pointer; font-family: inherit;
+      transition: border-color 0.15s, background 0.15s;
+    }
+    .j-import-btn:active { background: var(--bg-card-alt); }
+    /* DOCX import overlay */
+    .jdocx-overlay {
+      position: fixed; inset: 0; z-index: 900;
+      background: rgba(0,0,0,0.45);
+      display: flex; align-items: flex-end; justify-content: center;
+    }
+    .jdocx-sheet {
+      background: var(--bg-card); border-radius: 20px 20px 0 0;
+      width: 100%; max-width: 600px;
+      padding: 20px 20px 32px; box-sizing: border-box;
+      max-height: 85vh; overflow-y: auto;
+    }
+    .jdocx-title { font-size: 16px; font-weight: 700; color: var(--text-primary); margin-bottom: 14px; }
+    .jdocx-seg { display: flex; background: var(--bg-card-alt); border-radius: 10px; padding: 3px; margin-bottom: 14px; gap: 3px; }
+    .jdocx-seg-btn { flex: 1; border: none; background: transparent; border-radius: 8px; padding: 8px 10px; font-size: 13px; font-weight: 600; color: var(--text-muted); cursor: pointer; font-family: inherit; transition: background 0.15s, color 0.15s; }
+    .jdocx-seg-btn.active { background: var(--bg-card); color: var(--text-primary); box-shadow: 0 1px 4px rgba(0,0,0,0.10); }
+    .jdocx-label { font-size: 12px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+    .jdocx-input {
+      width: 100%; box-sizing: border-box;
+      background: var(--bg-card-alt); border: 1.5px solid var(--border);
+      border-radius: 10px; padding: 10px 12px; font-size: 15px;
+      color: var(--text-primary); font-family: inherit; margin-bottom: 14px; outline: none;
+    }
+    .jdocx-input:focus { border-color: var(--accent); }
+    .jdocx-drop {
+      border: 2px dashed var(--border); border-radius: 12px;
+      padding: 28px 16px; text-align: center; cursor: pointer;
+      color: var(--text-muted); font-size: 14px; transition: border-color 0.15s, background 0.15s;
+      margin-bottom: 14px;
+    }
+    .jdocx-drop.drag-over { border-color: var(--accent); background: rgba(45,107,228,0.06); }
+    .jdocx-drop svg { display: block; margin: 0 auto 8px; opacity: 0.5; }
+    .jdocx-file-list { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
+    .jdocx-file-row {
+      display: flex; align-items: center; gap: 8px;
+      background: var(--bg-card-alt); border-radius: 8px; padding: 8px 10px;
+      font-size: 13px; color: var(--text-primary);
+    }
+    .jdocx-file-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .jdocx-badge { font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 20px; white-space: nowrap; }
+    .jdocx-badge.pending  { background: #e2e8f0; color: #64748b; }
+    .jdocx-badge.working  { background: #dbeafe; color: #1d4ed8; }
+    .jdocx-badge.done     { background: #dcfce7; color: #15803d; }
+    .jdocx-badge.error    { background: #fee2e2; color: #dc2626; }
+    .jdocx-actions { display: flex; gap: 10px; }
+    .jdocx-cancel { flex: 1; background: var(--bg-card-alt); border: 1.5px solid var(--border); border-radius: 12px; padding: 13px; font-size: 15px; font-weight: 600; color: var(--text-secondary); cursor: pointer; font-family: inherit; }
+    .jdocx-run { flex: 2; background: var(--accent); border: none; border-radius: 12px; padding: 13px; font-size: 15px; font-weight: 700; color: #fff; cursor: pointer; font-family: inherit; }
+    .jdocx-run:disabled { opacity: 0.5; cursor: not-allowed; }
     .j-sheet-overlay {
       position: fixed; inset: 0; z-index: 800;
       background: rgba(0,0,0,0.4);
@@ -11794,7 +11953,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.3.21';
+    const VERSION = '5.3.33';
 
     // Auto-update: if stored version differs, wipe SW caches and reload for fresh code.
     // The network-first SW already delivers new app.html; this clears the old SW so it
@@ -14517,6 +14676,7 @@
     async function sendWeeklyEmail() {
       if (!state.weekData) { showToast('No week data to send.'); return; }
       if (!state.currentUser) { showToast('Please sign in to send email.'); return; }
+      if (!state.currentUser.email) { showToast('No email address on this account — sign out and sign in with your Google account.'); return; }
       showConfirm(
         'Email weekly timesheet?',
         `Sends a formatted summary of this week — tasks, codes, hours and notes — to ${state.currentUser.email}.`,
@@ -14728,7 +14888,8 @@
         <div class="theme-dropdown ${state.isMenuOpen ? 'open' : ''}" id="theme-dropdown" onclick="event.stopPropagation()">
           ${(() => {
           const u = state.currentUser;
-          const displayName = u ? (u.displayName || u.email || 'there') : 'there';
+          const displayName = u ? (u.displayName || u.providerData?.[0]?.displayName || (u.email ? u.email.split('@')[0] : u.uid ? u.uid.slice(0,8) : 'Unknown')) : 'Unknown';
+          const displayEmail = u ? (u.email || u.providerData?.[0]?.email || '') : '';
           const photoURL = u ? (u.photoURL || '') : '';
           const initial = displayName[0].toUpperCase();
           const avatarHtml = photoURL
@@ -14744,6 +14905,7 @@
                 <div class="menu-avatar-wrap">${avatarHtml}</div>
                 <div class="menu-signed-in-label">Signed in as</div>
                 <div class="menu-display-name">${esc(displayName)}</div>
+                ${displayEmail ? `<div style="font-size:11px;color:#94a3b8;margin-top:2px;word-break:break-all;">${esc(displayEmail)}</div>` : ''}
                 <button class="menu-signout-btn" onclick="signOutUser()">
                   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
                   Sign Out
@@ -18014,15 +18176,7 @@
         if (!snap.exists) { if (state.jSections.length) fsSetJSections(state.jSections).catch(()=>{}); return; }
         const r = snap.data();
         if (r.sections?.length) {
-          var prevCount = state.jSections.length;
-          var merged = _mergeArr(r.sections, state.jSections);
-          // Safety: never let merge reduce total section count (prevents data loss)
-          if (merged.length < prevCount) {
-            console.warn('[Rian] Section merge would drop items! prev:', prevCount, 'merged:', merged.length, '— keeping local, pushing back');
-            fsSetJSections(state.jSections).catch(function(){});
-            return;
-          }
-          state.jSections = merged;
+          state.jSections = _mergeArr(r.sections, state.jSections);
           dbPut('notes', { id:'j_sections', userId, data:state.jSections, updatedAt:r._updatedAt||Date.now() });
         }
         if (state.view === 'journal') render();
@@ -18073,6 +18227,162 @@
         localStorage.setItem('jSectionId',  state.jSectionId  || '');
       } catch(e) {}
       render();
+    }
+
+    // ── DOCX → Notebooks import ──
+    var _jDocxFiles = [];  // [{file, title, date, status, error}]
+
+    var _jDocxMode = 'new'; // 'new' | 'existing'
+    function openJDocxImport() {
+      _jDocxFiles = [];
+      _jDocxMode = 'new';
+      document.getElementById('jdocx-overlay').style.display = 'flex';
+      document.getElementById('jdocx-sec-name').value = '';
+      document.getElementById('jdocx-file-list').innerHTML = '';
+      document.getElementById('jdocx-run-btn').disabled = true;
+      document.getElementById('jdocx-file-input').value = '';
+      // Reset to "new" tab
+      document.getElementById('jdocx-seg-new').classList.add('active');
+      document.getElementById('jdocx-seg-existing').classList.remove('active');
+      document.getElementById('jdocx-new-wrap').style.display = '';
+      document.getElementById('jdocx-existing-wrap').style.display = 'none';
+      // Populate existing sections dropdown
+      const nbId = state.jNotebookId;
+      const secs = state.jSections.filter(s => s.notebookId === nbId && !s.deleted).sort((a,b) => (a.displayOrder||0)-(b.displayOrder||0));
+      const sel = document.getElementById('jdocx-sec-select');
+      sel.innerHTML = secs.map(s => '<option value="' + s.id + '">' + esc(s.title) + '</option>').join('');
+      _jDocxDragSetup();
+    }
+    function _jDocxSegSelect(mode) {
+      _jDocxMode = mode;
+      document.getElementById('jdocx-seg-new').classList.toggle('active', mode === 'new');
+      document.getElementById('jdocx-seg-existing').classList.toggle('active', mode === 'existing');
+      document.getElementById('jdocx-new-wrap').style.display = mode === 'new' ? '' : 'none';
+      document.getElementById('jdocx-existing-wrap').style.display = mode === 'existing' ? '' : 'none';
+    }
+    function closeJDocxImport() {
+      document.getElementById('jdocx-overlay').style.display = 'none';
+    }
+    function _jDocxDragSetup() {
+      const drop = document.getElementById('jdocx-drop');
+      if (!drop || drop._jDocxDragReady) return;
+      drop._jDocxDragReady = true;
+      drop.addEventListener('dragover', e => { e.preventDefault(); drop.classList.add('drag-over'); });
+      drop.addEventListener('dragleave', () => drop.classList.remove('drag-over'));
+      drop.addEventListener('drop', e => {
+        e.preventDefault(); drop.classList.remove('drag-over');
+        _jDocxHandleFiles(e.dataTransfer.files);
+      });
+    }
+    function _jDocxHandleFiles(filesOrList) {
+      const files = Array.from(filesOrList).filter(f => f.name.toLowerCase().endsWith('.docx'));
+      if (!files.length) { showToast('No DOCX files found.'); return; }
+      // Parse title and date from filename: "NN - Title - Weekday DD Month YYYY.docx"
+      const monthMap = {january:1,february:2,march:3,april:4,may:5,june:6,july:7,august:8,september:9,october:10,november:11,december:12};
+      files.forEach(f => {
+        let title = f.name.replace(/\.docx$/i, '');
+        let date = null;
+        // Try: "NN - Title - Weekday DD Month YYYY"
+        const m = title.match(/^(?:\d+\s*-\s*)?(.*?)\s*-\s*\w+\s+(\d{1,2})\s+(\w+)\s+(\d{4})$/i);
+        if (m) {
+          title = m[1].trim();
+          const mo = monthMap[m[3].toLowerCase()];
+          if (mo) {
+            const d = new Date(parseInt(m[4]), mo - 1, parseInt(m[2]));
+            date = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+          }
+        }
+        _jDocxFiles.push({ file: f, title, date, status: 'pending', error: null });
+      });
+      // Auto-fill section name from date range if empty
+      const secEl = document.getElementById('jdocx-sec-name');
+      if (!secEl.value.trim() && _jDocxFiles.length) {
+        const dates = _jDocxFiles.map(x => x.date).filter(Boolean).sort();
+        if (dates.length) {
+          const first = new Date(dates[0] + 'T00:00:00');
+          const monthName = first.toLocaleString('default', {month:'long', year:'numeric'});
+          secEl.value = monthName;
+        } else {
+          // Try to get month from first filename
+          const m2 = _jDocxFiles[0].file.name.match(/(\w+)\s+(\d{4})/i);
+          if (m2) secEl.value = m2[1] + ' ' + m2[2];
+        }
+      }
+      _jDocxRenderList();
+      document.getElementById('jdocx-run-btn').disabled = false;
+    }
+    function _jDocxRenderList() {
+      const el = document.getElementById('jdocx-file-list');
+      if (!el) return;
+      el.innerHTML = _jDocxFiles.map((f,i) => {
+        const badgeClass = f.status === 'done' ? 'done' : f.status === 'error' ? 'error' : f.status === 'working' ? 'working' : 'pending';
+        const badgeText = f.status === 'done' ? '✓ Done' : f.status === 'error' ? '✗ Error' : f.status === 'working' ? '…' : 'Pending';
+        return '<div class="jdocx-file-row">'
+          + '<span class="jdocx-file-name" title="' + esc(f.file.name) + '">' + esc(f.title || f.file.name) + '</span>'
+          + '<span class="jdocx-badge ' + badgeClass + '">' + badgeText + '</span>'
+          + '</div>';
+      }).join('');
+    }
+    async function _jDocxRun() {
+      if (!_jDocxFiles.length) return;
+      const nbId = state.jNotebookId;
+      if (!nbId) { showToast('No notebook selected.'); return; }
+      const runBtn = document.getElementById('jdocx-run-btn');
+      const cancelBtn = document.querySelector('.jdocx-cancel');
+      runBtn.disabled = true;
+      if (cancelBtn) cancelBtn.disabled = true;
+      const now = Date.now();
+      let secId;
+      if (_jDocxMode === 'existing') {
+        // Use chosen existing section
+        secId = document.getElementById('jdocx-sec-select').value;
+        if (!secId) { showToast('Pick a section.'); runBtn.disabled = false; if (cancelBtn) cancelBtn.disabled = false; return; }
+      } else {
+        // Create a new section
+        const secName = (document.getElementById('jdocx-sec-name').value || '').trim() || 'Imported';
+        const existingSecs = state.jSections.filter(s => s.notebookId === nbId);
+        const usedColors = existingSecs.map(s => s.color);
+        const secColor = J_COLORS.find(c => !usedColors.includes(c)) || J_COLORS[existingSecs.length % J_COLORS.length];
+        secId = uid();
+        state.jSections.push({ id: secId, notebookId: nbId, title: secName, color: secColor, displayOrder: existingSecs.length, createdAt: now, updatedAt: now });
+      }
+      // Convert each file and create a page
+      for (let i = 0; i < _jDocxFiles.length; i++) {
+        _jDocxFiles[i].status = 'working';
+        _jDocxRenderList();
+        try {
+          const arrayBuf = await _jDocxFiles[i].file.arrayBuffer();
+          const result = await mammoth.convertToHtml({ arrayBuffer: arrayBuf }, {
+            convertImage: mammoth.images.imgElement(function(image) {
+              return image.read('base64').then(function(b64) {
+                return { src: 'data:' + image.contentType + ';base64,' + b64 };
+              });
+            })
+          });
+          const pg = {
+            id: uid(), sectionId: secId,
+            title: _jDocxFiles[i].title || _jDocxFiles[i].file.name.replace(/\.docx$/i,''),
+            noteContent: result.value || '',
+            date: _jDocxFiles[i].date || dateToStr(new Date()),
+            displayOrder: i, createdAt: now + i, updatedAt: now + i
+          };
+          state.jPages.push(pg);
+          _jDocxFiles[i].status = 'done';
+        } catch(e) {
+          _jDocxFiles[i].status = 'error';
+          _jDocxFiles[i].error = e.message;
+          console.warn('[Rian] DOCX import error:', e);
+        }
+        _jDocxRenderList();
+      }
+      scheduleJSave();
+      const done = _jDocxFiles.filter(f => f.status === 'done').length;
+      const errs = _jDocxFiles.filter(f => f.status === 'error').length;
+      showToast(done + ' page' + (done===1?'':'s') + ' imported' + (errs ? ', ' + errs + ' failed' : '') + '.');
+      closeJDocxImport();
+      // Navigate into the new section
+      state.jSectionId = secId;
+      navJournal('pages', { sectionId: secId });
     }
 
     // ── Add / Rename sheets ──
@@ -18186,9 +18496,9 @@
     // ── Reorder ──
     function _jSortedItems(type) {
       if (type === 'notebook')
-        return state.jNotebooks.slice().sort(function(a,b){ return (a.displayOrder||0)-(b.displayOrder||0); });
+        return state.jNotebooks.filter(function(n){ return !n.deleted; }).sort(function(a,b){ return (a.displayOrder||0)-(b.displayOrder||0); });
       if (type === 'section')
-        return state.jSections.filter(function(s){ return s.notebookId===state.jNotebookId; })
+        return state.jSections.filter(function(s){ return s.notebookId===state.jNotebookId && !s.deleted; })
           .sort(function(a,b){ return (a.displayOrder||0)-(b.displayOrder||0); });
       return state.jPages.filter(function(p){ return p.sectionId===state.jSectionId&&!p.deleted; })
         .sort(function(a,b){
@@ -18374,15 +18684,19 @@
     // ── Delete ──
     function jDeleteNotebook(id) {
       const nb = state.jNotebooks.find(n => n.id === id);
-      const secIds = state.jSections.filter(s => s.notebookId === id).map(s => s.id);
-      const pgCount = state.jPages.filter(p => secIds.includes(p.sectionId)).length;
+      const secIds = state.jSections.filter(s => s.notebookId === id && !s.deleted).map(s => s.id);
+      const pgCount = state.jPages.filter(p => secIds.includes(p.sectionId) && !p.deleted).length;
       showConfirmDialog(
         'Delete notebook?',
         'Delete "' + (nb ? nb.title : 'this notebook') + '"' + (pgCount ? ' and all ' + pgCount + ' page' + (pgCount===1?'':'s') + ' inside' : '') + '? This cannot be undone.',
         function() {
-          state.jPages     = state.jPages.filter(p => !secIds.includes(p.sectionId));
-          state.jSections  = state.jSections.filter(s => s.notebookId !== id);
-          state.jNotebooks = state.jNotebooks.filter(n => n.id !== id);
+          const now = Date.now();
+          // Soft-delete all pages in these sections
+          state.jPages.forEach(function(p) { if (secIds.includes(p.sectionId)) { p.deleted = true; p.updatedAt = now; } });
+          // Soft-delete all sections in this notebook
+          state.jSections.forEach(function(s) { if (s.notebookId === id) { s.deleted = true; s.updatedAt = now; } });
+          // Soft-delete the notebook itself
+          if (nb) { nb.deleted = true; nb.updatedAt = now; }
           scheduleJSave(); render();
         }
       );
@@ -18394,8 +18708,11 @@
         'Delete section?',
         'Delete "' + (sec ? sec.title : 'this section') + '"' + (pgCount ? ' and its ' + pgCount + ' page' + (pgCount===1?'':'s') : '') + '? This cannot be undone.',
         function() {
-          state.jPages    = state.jPages.filter(p => p.sectionId !== id);
-          state.jSections = state.jSections.filter(s => s.id !== id);
+          const now = Date.now();
+          // Soft-delete all pages in this section
+          state.jPages.forEach(function(p) { if (p.sectionId === id) { p.deleted = true; p.updatedAt = now; } });
+          // Soft-delete the section itself
+          if (sec) { sec.deleted = true; sec.updatedAt = now; }
           if (state.jSectionId === id) { state.jSectionId = null; state.jScreen = 'sections'; }
           scheduleJSave(); render();
         }
@@ -18407,7 +18724,7 @@
         'Delete page?',
         'Delete "' + (pg ? (pg.title || 'Untitled') : 'this page') + '"? This cannot be undone.',
         function() {
-          state.jPages = state.jPages.filter(p => p.id !== id);
+          if (pg) { pg.deleted = true; pg.updatedAt = Date.now(); }
           scheduleJSave(); render();
         }
       );
@@ -18976,7 +19293,11 @@
         : `<div class="add-note-dashed" onclick="addNote()">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
             Add Note
-          </div>`;
+          </div>
+          <button class="docx-import-import-btn" onclick="openDocxImport()">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            Import from DOCX
+          </button>`;
 
       const noSel = state.selectedNotes.size === 0;
       const bulkBar = `
@@ -19137,7 +19458,7 @@
       const _nbRowIcon = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>';
       const nbs = _jSortedItems('notebook');
       const rows = nbs.map(function(nb) {
-        const secs = state.jSections.filter(function(s){ return s.notebookId === nb.id; });
+        const secs = state.jSections.filter(function(s){ return s.notebookId === nb.id && !s.deleted; });
         const pgs  = state.jPages.filter(function(p){ return secs.some(function(s){ return s.id === p.sectionId; }) && !p.deleted; });
         const meta = secs.length + ' section' + (secs.length===1?'':'s') + ' \xb7 ' + pgs.length + ' page' + (pgs.length===1?'':'s');
         const dragAttrs = edit
@@ -19227,6 +19548,10 @@
           + '</div>'
         + '<div class="j-list-label">Sections</div>'
         + (rows || empty)
+        + (edit ? '' : '<button class="j-import-btn" onclick="openJDocxImport()">'
+            + '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>'
+            + ' Import DOCX'
+          + '</button>')
         + (edit ? '' : '<button class="j-fab" onclick="jOpenAdd(\'section\')">'
             + '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>'
             + ' Add Section'
@@ -19455,7 +19780,7 @@
       const checkSvg = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
       var sectionRows = '';
       _jSortedItems('notebook').forEach(function(nb) {
-        const secs = state.jSections.filter(function(s){ return s.notebookId === nb.id; })
+        const secs = state.jSections.filter(function(s){ return s.notebookId === nb.id && !s.deleted; })
           .sort(function(a,b){ return (a.displayOrder||0)-(b.displayOrder||0); });
         if (!secs.length) return;
         sectionRows += '<div class="j-cmpick-nb">' + esc(nb.title) + '</div>';
@@ -20207,6 +20532,159 @@
         if (ta) ta.focus();
       }, 80);
     }
+
+    // ── DOCX Import ──────────────────────────────────────────────────────────
+    let _docxImportFiles   = [];   // Array of { file, name, title, date, status, html }
+    let _docxImportRunning = false;
+
+    const _DATE_RE_IMPORT = /^(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday)\s+(\d{1,2})\s+(January|February|March|April|May|June|July|August|September|October|November|December)\s+(\d{4})$/i;
+    const _MONTH_MAP = {january:1,february:2,march:3,april:4,may:5,june:6,july:7,august:8,september:9,october:10,november:11,december:12};
+
+    function _parseImportDate(str) {
+      const m = _DATE_RE_IMPORT.exec(str.trim());
+      if (!m) return null;
+      return `${m[4]}-${String(_MONTH_MAP[m[3].toLowerCase()]).padStart(2,'0')}-${String(m[2]).padStart(2,'0')}`;
+    }
+
+    function _titleFromFilename(stem) {
+      // "01 - Title - Weekday DD Month YYYY" → "Title"
+      const parts = stem.split(' - ');
+      if (parts.length >= 3) {
+        const candidate = parts.slice(1, parts.length - 1).join(' - ');
+        return candidate.replace(/^[=\-\s]+|[=\-\s]+$/g, '').trim() || stem;
+      }
+      if (parts.length === 2) return parts[1].replace(/^[=\-\s]+|[=\-\s]+$/g, '').trim();
+      return stem;
+    }
+
+    function _dateFromFilename(stem) {
+      const parts = stem.split(' - ');
+      const last = parts[parts.length - 1];
+      return _parseImportDate(last);
+    }
+
+    function openDocxImport() {
+      _docxImportFiles = [];
+      _docxImportRunning = false;
+      document.getElementById('docx-import-section-name').value = '';
+      document.getElementById('docx-import-file-list').innerHTML = '';
+      document.getElementById('docx-import-file-input').value = '';
+      document.getElementById('docx-import-run-btn').disabled = true;
+      document.getElementById('docx-import-run-btn').textContent = 'Import';
+      document.getElementById('docx-import-overlay').classList.remove('hidden');
+      _docxImportSetupDrag();
+    }
+
+    function closeDocxImport() {
+      if (_docxImportRunning) return;
+      document.getElementById('docx-import-overlay').classList.add('hidden');
+    }
+
+    function _docxImportSetupDrag() {
+      const dz = document.getElementById('docx-import-dropzone');
+      if (!dz || dz._dragSetup) return;
+      dz._dragSetup = true;
+      dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('drag-over'); });
+      dz.addEventListener('dragleave', () => dz.classList.remove('drag-over'));
+      dz.addEventListener('drop', e => {
+        e.preventDefault(); dz.classList.remove('drag-over');
+        const files = Array.from(e.dataTransfer.files).filter(f => f.name.endsWith('.docx'));
+        _docxImportHandleFiles(files);
+      });
+    }
+
+    function _docxImportHandleFiles(filesOrList) {
+      const files = Array.from(filesOrList).filter(f => f.name.endsWith('.docx'));
+      if (!files.length) return;
+      _docxImportFiles = files.map(f => {
+        const stem = f.name.replace(/\.docx$/i, '');
+        return { file: f, name: f.name, title: _titleFromFilename(stem), date: _dateFromFilename(stem) || dateToStr(new Date()), status: 'pending', html: null };
+      });
+      // Auto-fill section name from first file's date if blank
+      const secInput = document.getElementById('docx-import-section-name');
+      if (!secInput.value.trim() && files.length) {
+        const m = files[0].name.match(/(January|February|March|April|May|June|July|August|September|October|November|December)\s+(\d{4})/i);
+        if (m) secInput.value = m[1].charAt(0).toUpperCase() + m[1].slice(1).toLowerCase() + ' ' + m[2];
+      }
+      _docxImportRenderList();
+      document.getElementById('docx-import-run-btn').disabled = false;
+      document.getElementById('docx-import-run-btn').textContent = `Import ${files.length} Note${files.length === 1 ? '' : 's'}`;
+    }
+
+    function _docxImportRenderList() {
+      const list = document.getElementById('docx-import-file-list');
+      if (!list) return;
+      const statusLabel = { pending:'Pending', working:'Converting…', done:'Done', error:'Error' };
+      const statusCls   = { pending:'docx-status-pending', working:'docx-status-working', done:'docx-status-done', error:'docx-status-error' };
+      list.innerHTML = _docxImportFiles.map(f => `
+        <div class="docx-import-file-row">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;color:var(--text-muted)"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          <span class="docx-import-file-name" title="${esc(f.name)}">${esc(f.title || f.name)}</span>
+          <span class="docx-import-file-status ${statusCls[f.status] || ''}">${statusLabel[f.status] || f.status}</span>
+        </div>`).join('');
+    }
+
+    async function _docxImportRun() {
+      if (_docxImportRunning || !_docxImportFiles.length) return;
+      if (typeof mammoth === 'undefined') { alert('mammoth.js not loaded — check your internet connection.'); return; }
+      _docxImportRunning = true;
+      const btn = document.getElementById('docx-import-run-btn');
+      btn.disabled = true;
+
+      // Create or reuse section
+      const sectionName = (document.getElementById('docx-import-section-name').value.trim()) || 'Imported Notes';
+      const section = createSection(sectionName, 'folder', null, null, '');
+      const now = Date.now();
+
+      // Convert each file
+      for (let i = 0; i < _docxImportFiles.length; i++) {
+        const entry = _docxImportFiles[i];
+        entry.status = 'working';
+        _docxImportRenderList();
+        try {
+          const buf = await entry.file.arrayBuffer();
+          const result = await mammoth.convertToHtml({ arrayBuffer: buf }, {
+            convertImage: mammoth.images.imgElement(img =>
+              img.read('base64').then(b64 => ({ src: `data:${img.contentType};base64,${b64}`, style: 'max-width:100%' }))
+            )
+          });
+          // Clean up: strip empty consecutive paragraphs
+          let html = result.value.replace(/(<p>\s*<\/p>\s*){3,}/g, '<p></p><p></p>').trim();
+          entry.html   = html;
+          entry.status = 'done';
+        } catch(e) {
+          entry.status = 'error';
+          entry.html   = `<p><em>Failed to convert: ${e.message}</em></p>`;
+        }
+        btn.textContent = `Importing ${i+1}/${_docxImportFiles.length}…`;
+        _docxImportRenderList();
+      }
+
+      // Build note objects and prepend section + notes to state
+      const noteItems = _docxImportFiles.map((entry, idx) => ({
+        id:           uid(),
+        description:  entry.title,
+        noteContent:  entry.html || '',
+        location:     '',
+        date:         entry.date || dateToStr(new Date()),
+        priority:     'medium',
+        status:       'open',
+        category:     '',
+        sectionId:    section.id,
+        displayOrder: idx,
+        createdAt:    now + idx,
+        updatedAt:    now + idx,
+      }));
+
+      state.notes = [section, ...noteItems, ...state.notes];
+      scheduleNotesSave();
+      render();
+
+      _docxImportRunning = false;
+      btn.textContent = '✓ Done';
+      setTimeout(closeDocxImport, 800);
+    }
+    // ── end DOCX Import ───────────────────────────────────────────────────────
 
     // ── Field Note panel (inside Notes section cards) ──
     let _fnFsNoteId = null;
@@ -28295,6 +28773,15 @@ Rules:
       // Firebase auth state observer — drives the whole app lifecycle
       auth_fb.onAuthStateChanged(async user => {
         console.log('[Rian Debug] onAuthStateChanged fired. User:', user ? user.uid : 'null');
+
+        // Reject accounts with no email BEFORE touching state — anonymous/partial sessions
+        // that somehow persist in Firebase. Sign out immediately; next fire will be null → renderLogin()
+        if (user && !user.email) {
+          console.warn('[Rian] Account has no email — signing out. UID:', user.uid);
+          await auth_fb.signOut();
+          return;
+        }
+
         state.currentUser = user;
         if (user) localStorage.setItem('rian_last_uid', user.uid);
         else localStorage.removeItem('rian_last_uid');
@@ -29230,7 +29717,7 @@ QUESTION: ${query}`;
     async function _loadTipTapModules() {
       if (_tiptapModules) return _tiptapModules;
       const [
-        { Editor, NodeSelection },
+        { Editor, NodeSelection, DOMParser: PmDOMParser },
         { default: StarterKit },
         { default: Underline },
         { TextStyle },
@@ -29363,6 +29850,7 @@ QUESTION: ${query}`;
         TextAlign, TaskList, TaskItem, TaskItemWithHandle, Table, TableRow, TableHeader, TableCell,
         TableCellWithBg, TableHeaderWithBg,
         Link, Subscript, Superscript, Image,
+        PmDOMParser,
       };
       return _tiptapModules;
     }
@@ -31065,11 +31553,28 @@ QUESTION: ${query}`;
 
     function _ttSetContent(html) {
       if (!_tiptapEditor) return;
-      // Strip target="_blank" from stored links — TipTap's openOnClick:true uses window.open
-      // instead, so the anchor target attribute is unused and kept clean in storage.
+      // Strip target="_blank" from stored links
       const cleaned = (html || '').replace(/\s+target="_blank"/g, '');
+      try {
+        // Parse HTML via ProseMirror's DOMParser, then dispatch with addToHistory:false
+        // so the initial page load NEVER enters the undo stack. This prevents undo from
+        // wiping the page back to blank.
+        const PmDOMParser = _tiptapModules?.PmDOMParser;
+        if (PmDOMParser?.fromSchema) {
+          const wrapper = document.createElement('div');
+          wrapper.innerHTML = cleaned || '<p></p>';
+          const parsedDoc = PmDOMParser.fromSchema(_tiptapEditor.schema).parse(wrapper);
+          const { tr } = _tiptapEditor.state;
+          tr.replaceWith(0, _tiptapEditor.state.doc.content.size, parsedDoc.content);
+          tr.setMeta('addToHistory', false);
+          _tiptapEditor.view.dispatch(tr);
+          return;
+        }
+      } catch(e) {
+        console.warn('[Rian] _ttSetContent fast-path failed, falling back:', e);
+      }
+      // Fallback: use commands API + attempt clearHistory
       _tiptapEditor.commands.setContent(cleaned || '', false);
-      // Clear undo history so you can't undo back into a previous note's changes
       _tiptapEditor.commands.clearHistory?.();
     }
 
@@ -31770,7 +32275,83 @@ QUESTION: ${query}`;
     </div>
   </div>
 
+  <!-- ===== DOCX IMPORT MODAL ===== -->
+  <div id="docx-import-overlay" class="hidden" onclick="if(event.target===this&&!_docxImportRunning)closeDocxImport()">
+    <div class="docx-import-sheet">
+      <div class="docx-import-title">
+        <span>Import DOCX Notes</span>
+        <button onclick="closeDocxImport()" style="background:none;border:none;cursor:pointer;color:var(--text-muted);padding:4px;line-height:1;font-size:20px;" aria-label="Close">×</button>
+      </div>
+
+      <!-- Section name -->
+      <div>
+        <div class="docx-import-label">Section name</div>
+        <input id="docx-import-section-name" class="docx-import-input" type="text" placeholder="e.g. March 2026" />
+      </div>
+
+      <!-- Drop zone -->
+      <div class="docx-import-dropzone" id="docx-import-dropzone">
+        <input type="file" id="docx-import-file-input" accept=".docx" multiple
+          onchange="_docxImportHandleFiles(this.files)" />
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+          stroke-linecap="round" stroke-linejoin="round" style="color:var(--text-muted);margin:0 auto 8px;display:block">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+          <polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
+        </svg>
+        <div class="docx-import-dropzone-label">
+          Drop <strong>.docx</strong> files here or <span style="color:var(--accent);font-weight:600">browse</span>
+        </div>
+      </div>
+
+      <!-- File list -->
+      <div class="docx-import-file-list" id="docx-import-file-list"></div>
+
+      <!-- Footer -->
+      <div class="docx-import-footer">
+        <button class="docx-import-cancel-btn" onclick="closeDocxImport()">Cancel</button>
+        <button class="docx-import-run-btn" id="docx-import-run-btn" onclick="_docxImportRun()" disabled>
+          Import
+        </button>
+      </div>
+    </div>
+  </div>
+  <!-- ===== END DOCX IMPORT MODAL ===== -->
+
   <!-- ===== NOTE FULLSCREEN MODAL ===== -->
+  <!-- DOCX → Notebooks import overlay -->
+  <!-- DOCX → Notebooks import overlay -->
+  <div id="jdocx-overlay" class="jdocx-overlay" style="display:none" onclick="if(event.target===this)closeJDocxImport()">
+    <div class="jdocx-sheet">
+      <div class="jdocx-title">Import DOCX into Notebooks</div>
+      <!-- Section toggle -->
+      <div class="jdocx-seg" id="jdocx-seg">
+        <button class="jdocx-seg-btn active" id="jdocx-seg-new" onclick="_jDocxSegSelect('new')">New section</button>
+        <button class="jdocx-seg-btn" id="jdocx-seg-existing" onclick="_jDocxSegSelect('existing')">Existing section</button>
+      </div>
+      <!-- New section name -->
+      <div id="jdocx-new-wrap">
+        <div class="jdocx-label">Section Name</div>
+        <input id="jdocx-sec-name" class="jdocx-input" type="text" placeholder="e.g. March 2025" />
+      </div>
+      <!-- Existing section picker -->
+      <div id="jdocx-existing-wrap" style="display:none">
+        <div class="jdocx-label">Section</div>
+        <select id="jdocx-sec-select" class="jdocx-input"></select>
+      </div>
+      <div class="jdocx-label">Files</div>
+      <div id="jdocx-drop" class="jdocx-drop" onclick="document.getElementById('jdocx-file-input').click()">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        Tap to pick files or drag &amp; drop DOCX files here
+      </div>
+      <input id="jdocx-file-input" type="file" accept=".docx" multiple style="display:none" onchange="_jDocxHandleFiles(this.files)">
+      <div id="jdocx-file-list" class="jdocx-file-list"></div>
+      <div class="jdocx-actions">
+        <button class="jdocx-cancel" onclick="closeJDocxImport()">Cancel</button>
+        <button id="jdocx-run-btn" class="jdocx-run" onclick="_jDocxRun()" disabled>Import</button>
+      </div>
+    </div>
+  </div>
+
   <div id="note-fs-modal" class="hidden fixed inset-0 flex flex-col items-center"
     style="background:var(--bg-page);z-index:9999;overflow:hidden;">
     <div class="flex flex-col w-full flex-1 overflow-hidden" style="max-width:672px;background:var(--bg-card);">
