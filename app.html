@@ -11953,7 +11953,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.3.46';
+    const VERSION = '5.3.47';
 
     // Auto-update: if stored version differs, wipe SW caches and reload for fresh code.
     // The network-first SW already delivers new app.html; this clears the old SW so it
@@ -30811,6 +30811,29 @@ QUESTION: ${query}`;
       if (imgInput) imgInput.addEventListener('change', (ev) => _ttHandleImageUpload(ev));
       // Undo / Redo / Clear
       on('tt-undo', () => e.chain().focus().undo().run());
+      // ── Zoom controls ─────────────────────────────────────────────────────
+      (function() {
+        const steps = [0.4, 0.5, 0.6, 0.7, 0.75, 0.8, 0.9, 1.0, 1.1, 1.25, 1.5];
+        let cur = 1.0;
+        function applyZoom(z) {
+          cur = z;
+          const pm = document.querySelector('#note-fs-editor .ProseMirror');
+          const lbl = document.getElementById('tt-zoom-label');
+          if (pm) pm.style.zoom = (z === 1) ? '' : String(z);
+          if (lbl) lbl.textContent = Math.round(z * 100) + '%';
+          if (z !== 1 && window._edZoomReset) window._edZoomReset();
+        }
+        window._ttZoomReset = () => applyZoom(1.0);
+        on('tt-zoom-out', () => {
+          const idx = steps.reduce((best, s, i) => s < cur - 0.001 ? i : best, -1);
+          if (idx >= 0) applyZoom(steps[idx]);
+        });
+        on('tt-zoom-in', () => {
+          const idx = steps.findIndex(s => s > cur + 0.001);
+          if (idx >= 0) applyZoom(steps[idx]);
+        });
+        document.getElementById('tt-zoom-label')?.addEventListener('click', () => applyZoom(1.0));
+      })();
       on('tt-redo', () => e.chain().focus().redo().run());
       on('tt-clear', () => { e.chain().focus().unsetAllMarks().clearNodes().run(); _ttUpdateToolbar(e); });
       // Helper: close colour palette after picking
@@ -31658,7 +31681,8 @@ QUESTION: ${query}`;
       const _fsMod = document.getElementById('note-fs-modal');
       _fsMod.classList.add('hidden');
       document.body.style.overflow = ''; // restore body scroll
-      if (window._edZoomReset) window._edZoomReset(); // reset content-only zoom
+      if (window._edZoomReset) window._edZoomReset(); // reset pinch zoom
+      if (window._ttZoomReset) window._ttZoomReset(); // reset toolbar zoom
       // Clear any keyboard-offset padding so next open starts clean
       const _edReset = document.getElementById('note-fs-editor');
       if (_edReset) _edReset.style.paddingBottom = '';
@@ -32604,6 +32628,12 @@ QUESTION: ${query}`;
               <line x1="2" y1="2" x2="22" y2="22" />
             </svg>
           </button>
+          <div class="tt-sep"></div>
+          <!-- Zoom controls -->
+          <div class="tt-sep"></div>
+          <button class="tt-btn" id="tt-zoom-out" title="Zoom out" style="font-size:15px;font-weight:700;line-height:1;padding:0 5px">−</button>
+          <span id="tt-zoom-label" title="Reset to 100%" style="font-size:10px;font-weight:700;min-width:30px;text-align:center;color:var(--text-secondary);cursor:pointer;user-select:none">100%</span>
+          <button class="tt-btn" id="tt-zoom-in" title="Zoom in" style="font-size:15px;font-weight:700;line-height:1;padding:0 5px">+</button>
           <div class="tt-sep"></div>
           <!-- Colour palette toggle -->
           <button class="tt-btn" id="tt-palette" title="Text colour / highlight"
