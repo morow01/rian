@@ -11791,7 +11791,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.2.99';
+    const VERSION = '5.3.0';
 
     // Auto-update: if stored version differs, wipe SW caches and reload for fresh code.
     // The network-first SW already delivers new app.html; this clears the old SW so it
@@ -29794,6 +29794,14 @@ QUESTION: ${query}`;
       _ttBindToolbar();
       initTaskSortable();
       initImageDrag();
+      // Android: native long-press selection fires selectionchange but may not
+      // trigger TipTap's onSelectionUpdate. Listen directly as a fallback.
+      document.addEventListener('selectionchange', () => {
+        if (!_tiptapEditor) return;
+        const modal = document.getElementById('note-fs-modal');
+        if (!modal || modal.classList.contains('hidden')) return;
+        setTimeout(() => { if (_tiptapEditor) _ttUpdateAiFab(_tiptapEditor); }, 50);
+      });
       // Content-only pinch-zoom + pan. Toolbar stays fixed.
       // transform: translate(tx,ty) scale(s) with transform-origin:0 0
       // Each pinch snapshots the state at touchstart; touchmove computes the
