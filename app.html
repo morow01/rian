@@ -11953,7 +11953,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.3.34';
+    const VERSION = '5.3.35';
 
     // Auto-update: if stored version differs, wipe SW caches and reload for fresh code.
     // The network-first SW already delivers new app.html; this clears the old SW so it
@@ -28771,28 +28771,23 @@ Rules:
       })();
 
       // Firebase auth state observer — drives the whole app lifecycle
-      auth_fb.onAuthStateChanged(async user => {
+      auth_fb.onAuthStateChanged(async (rawUser) => {
+        let user = rawUser;
         console.log('[Rian Debug] onAuthStateChanged fired. User:', user ? user.uid : 'null');
 
         // If user exists but email is missing, the session may be a stale cached credential
-        // that hasn't fully hydrated yet. Call reload() to force a fresh profile fetch first.
+        // that hasn't fully hydrated yet. Call reload() to force a fresh profile fetch.
         if (user && !user.email) {
-          try {
-            await user.reload();
-          } catch(e) {
-            console.warn('[Rian] user.reload() failed:', e);
-          }
-          // After reload, re-read the current user (reload() mutates the object)
-          const refreshed = auth_fb.currentUser;
-          if (!refreshed || !refreshed.email) {
+          try { await user.reload(); } catch(e) { console.warn('[Rian] user.reload() failed:', e); }
+          user = auth_fb.currentUser;
+          if (!user || !user.email) {
             // Still no email after reload — genuinely invalid session, sign out
-            console.warn('[Rian] Account has no email after reload — signing out. UID:', user.uid);
+            console.warn('[Rian] Account has no email after reload — signing out.');
             await auth_fb.signOut();
             return;
           }
-          // Valid account now — let it fall through with refreshed user
-          console.log('[Rian] Email resolved after reload:', refreshed.email);
-          return; // onAuthStateChanged will re-fire with the refreshed user
+          console.log('[Rian] Email resolved after reload:', user.email);
+          // Fall through with the refreshed user object
         }
 
         state.currentUser = user;
