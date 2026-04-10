@@ -11793,7 +11793,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.3.9';
+    const VERSION = '5.3.10';
 
     // Auto-update: if stored version differs, wipe SW caches and reload for fresh code.
     // The network-first SW already delivers new app.html; this clears the old SW so it
@@ -30048,7 +30048,19 @@ QUESTION: ${query}`;
       on('tt-strike', () => { e.chain().focus().toggleStrike().run(); _ttUpdateToolbar(e); });
       // Headings
       const _closeHdgMenu = () => document.getElementById('tt-hdg-menu')?.classList.remove('tt-open');
-      on('tt-para', () => { e.chain().focus().setParagraph().run(); _closeHdgMenu(); _ttUpdateToolbar(e); });
+      on('tt-para', () => {
+        const ed = _tiptapEditor; if (!ed) return;
+        // Convert any block type to plain paragraph and lift out of wrappers
+        let c = ed.chain().focus().setParagraph();
+        if (ed.isActive('blockquote')) c = c.lift('blockquote');
+        if (ed.isActive('codeBlock'))  c = c.toggleCodeBlock();
+        c.run();
+        // Lift out of list wrappers (must be separate commands after the first chain runs)
+        if (ed.isActive('taskList'))   ed.chain().focus().liftListItem('taskItem').run();
+        else if (ed.isActive('bulletList') || ed.isActive('orderedList'))
+          ed.chain().focus().liftListItem('listItem').run();
+        _closeHdgMenu(); _ttUpdateToolbar(e);
+      });
       on('tt-h1', () => { e.chain().focus().toggleHeading({ level: 1 }).run(); _closeHdgMenu(); _ttUpdateToolbar(e); });
       on('tt-h2', () => { e.chain().focus().toggleHeading({ level: 2 }).run(); _closeHdgMenu(); _ttUpdateToolbar(e); });
       on('tt-h3', () => { e.chain().focus().toggleHeading({ level: 3 }).run(); _closeHdgMenu(); _ttUpdateToolbar(e); });
@@ -30375,7 +30387,7 @@ QUESTION: ${query}`;
 
     function _ttUpdateToolbar(editor) {
       const map = {
-        'tt-para': () => editor.isActive('paragraph') && !editor.isActive('heading'),
+        'tt-para': () => editor.isActive('paragraph') && !editor.isActive('heading') && !editor.isActive('bulletList') && !editor.isActive('orderedList') && !editor.isActive('taskList') && !editor.isActive('blockquote') && !editor.isActive('codeBlock'),
         'tt-bold': () => editor.isActive('bold'),
         'tt-italic': () => editor.isActive('italic'),
         'tt-strike': () => editor.isActive('strike'),
