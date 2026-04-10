@@ -11792,7 +11792,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.3.15';
+    const VERSION = '5.3.16';
 
     // Auto-update: if stored version differs, wipe SW caches and reload for fresh code.
     // The network-first SW already delivers new app.html; this clears the old SW so it
@@ -20257,6 +20257,8 @@
         await _ensureTipTap();
         _tiptapOnUpdate = null; // prevent stale handler firing during setContent below
         _ttSetContent(note.noteContent || '');
+        // Blur so cursor isn't visible at top — user taps to edit
+        if (_tiptapEditor) try { _tiptapEditor.commands.blur(); } catch(e) {}
         _tiptapLastSaveAt = Date.now(); // keep echo protection active from moment of open
         _tiptapLastSavedNoteId = noteId;
         window._tiptapNoteEdited = false; // track whether user actually changed anything
@@ -26491,6 +26493,8 @@
         await _ensureTipTap();
         _tiptapOnUpdate = null; // prevent stale handler firing during setContent below
         _ttSetContent(currentValue);
+        // Blur so cursor isn't visible at top — user taps to edit
+        if (_tiptapEditor) try { _tiptapEditor.commands.blur(); } catch(e) {}
         _tiptapOnUpdate = (editor) => {
           const html = _ttGetHTML();
           const coTa = document.getElementById('co-notes-ta');
@@ -31078,6 +31082,8 @@ QUESTION: ${query}`;
         await _ensureTipTap();
         _tiptapOnUpdate = null; // prevent stale handler firing during setContent below
         _ttSetContent(currentValue);
+        // Blur so cursor isn't visible at top — user taps to edit
+        if (_tiptapEditor) try { _tiptapEditor.commands.blur(); } catch(e) {}
         _tiptapOnUpdate = (editor) => {
           const html = _ttGetHTML();
           const mainTa = document.querySelector(`.act-notes-area[data-act="${actId}"]`);
