@@ -11793,7 +11793,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.3.7';
+    const VERSION = '5.3.8';
 
     // Auto-update: if stored version differs, wipe SW caches and reload for fresh code.
     // The network-first SW already delivers new app.html; this clears the old SW so it
@@ -30712,15 +30712,15 @@ QUESTION: ${query}`;
       if (newFrom === null) {
         editor.chain().focus().selectAll().run();
       } else {
-        const prevFrom = editor.state.selection.from;
-        const prevTo   = editor.state.selection.to;
+        const prevText = state.doc.textBetween(
+          editor.state.selection.from, editor.state.selection.to);
         editor.chain().focus().setTextSelection({ from: newFrom, to: newTo }).run();
-        // TipTap normalises non-text boundary positions (listItem, bulletList start/end)
-        // back to the nearest text position, so the selection may not actually change.
-        // When that happens, pass the attempted bounds as "virtual" so the next call
-        // walks above the failed level instead of retrying it.
+        // Expanding from paragraph → taskItem changes positions by 1 token each side
+        // but selects the SAME text.  Compare text content to detect this invisible
+        // expansion and silently skip to the next level up.
         const ns = editor.state.selection;
-        if (ns.from === prevFrom && ns.to === prevTo) {
+        const newText = editor.state.doc.textBetween(ns.from, ns.to);
+        if (newText === prevText) {
           _ttExpandSelection(newFrom, newTo, attempt + 1);
           return;
         }
