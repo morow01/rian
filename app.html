@@ -11793,7 +11793,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.3.5';
+    const VERSION = '5.3.6';
 
     // Auto-update: if stored version differs, wipe SW caches and reload for fresh code.
     // The network-first SW already delivers new app.html; this clears the old SW so it
@@ -30664,7 +30664,9 @@ QUESTION: ${query}`;
 
     // Progressive selection: word → list item → list → document
     // Each tap walks up one level in the ProseMirror node tree.
-    function _ttExpandSelection() {
+    function _ttExpandSelection(attempt) {
+      attempt = attempt || 0;
+      if (attempt > 8) return; // safety against infinite recursion
       const editor = _tiptapEditor;
       if (!editor) return;
 
@@ -30694,7 +30696,7 @@ QUESTION: ${query}`;
       let newFrom = null, newTo = null;
 
       for (let d = $from.depth; d >= 0; d--) {
-        const nf = d === 0 ? 1        : $from.start(d);
+        const nf = d === 0 ? 1          : $from.start(d);
         const nt = d === 0 ? docSize - 1 : $from.end(d);
         if (nf < from || nt > to) {
           newFrom = nf; newTo = nt;
@@ -30706,6 +30708,14 @@ QUESTION: ${query}`;
         editor.chain().focus().selectAll().run();
       } else {
         editor.chain().focus().setTextSelection({ from: newFrom, to: newTo }).run();
+        // TipTap normalises listItem/bulletList boundary positions back to the nearest
+        // text position, so the selection may appear unchanged even though we moved up
+        // a level. Detect this and silently expand one more step.
+        const ns = editor.state.selection;
+        if (ns.from === from && ns.to === to) {
+          _ttExpandSelection(attempt + 1);
+          return;
+        }
       }
 
       const hint = document.getElementById('tt-sel-bar-hint');
