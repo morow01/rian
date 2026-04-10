@@ -11953,7 +11953,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.3.36';
+    const VERSION = '5.3.38';
 
     // Auto-update: if stored version differs, wipe SW caches and reload for fresh code.
     // The network-first SW already delivers new app.html; this clears the old SW so it
@@ -14888,8 +14888,7 @@
         <div class="theme-dropdown ${state.isMenuOpen ? 'open' : ''}" id="theme-dropdown" onclick="event.stopPropagation()">
           ${(() => {
           const u = state.currentUser;
-          const displayName = u ? (u.displayName || u.providerData?.[0]?.displayName || (u.email ? u.email.split('@')[0] : u.uid ? u.uid.slice(0,8) : 'Unknown')) : 'Unknown';
-          const displayEmail = u ? (u.email || u.providerData?.[0]?.email || '') : '';
+          const displayName = u ? (u.displayName || u.email || 'there') : 'there';
           const photoURL = u ? (u.photoURL || '') : '';
           const initial = displayName[0].toUpperCase();
           const avatarHtml = photoURL
@@ -14905,7 +14904,7 @@
                 <div class="menu-avatar-wrap">${avatarHtml}</div>
                 <div class="menu-signed-in-label">Signed in as</div>
                 <div class="menu-display-name">${esc(displayName)}</div>
-                ${displayEmail ? `<div style="font-size:11px;color:#94a3b8;margin-top:2px;word-break:break-all;">${esc(displayEmail)}</div>` : ''}
+                ${u && u.email ? `<div style="font-size:11px;color:#94a3b8;margin-top:2px;word-break:break-all;">${esc(u.email)}</div>` : ''}
                 <button class="menu-signout-btn" onclick="signOutUser()">
                   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
                   Sign Out
@@ -28771,23 +28770,8 @@ Rules:
       })();
 
       // Firebase auth state observer — drives the whole app lifecycle
-      auth_fb.onAuthStateChanged(async (rawUser) => {
-        let user = rawUser;
+      auth_fb.onAuthStateChanged(async user => {
         console.log('[Rian Debug] onAuthStateChanged fired. User:', user ? user.uid : 'null');
-
-        // After a browser restart, Firebase may restore a cached session with
-        // user.email temporarily null. Call reload() to hydrate the profile,
-        // then re-render so the display name updates from UID → real name.
-        if (user && !user.email) {
-          try {
-            await user.reload();
-            user = auth_fb.currentUser || user;
-            console.log('[Rian] Profile reloaded. Email:', user.email || '(still empty)');
-          } catch(e) {
-            console.warn('[Rian] user.reload() failed — continuing with stale profile:', e);
-          }
-        }
-
         state.currentUser = user;
         if (user) localStorage.setItem('rian_last_uid', user.uid);
         else localStorage.removeItem('rian_last_uid');
