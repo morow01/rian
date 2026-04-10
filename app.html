@@ -11793,7 +11793,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.3.8';
+    const VERSION = '5.3.9';
 
     // Auto-update: if stored version differs, wipe SW caches and reload for fresh code.
     // The network-first SW already delivers new app.html; this clears the old SW so it
@@ -12718,6 +12718,20 @@
           _lb.addEventListener('touchstart', _onTouchStart, { passive: false });
           _lb.addEventListener('touchmove', _onTouchMove, { passive: false });
           _lb.addEventListener('touchend', _onTouchEnd);
+          // Desktop scroll-wheel zoom (centred on cursor)
+          _lb.addEventListener('wheel', function(e) {
+            e.preventDefault();
+            var rect = _lbImg.getBoundingClientRect();
+            var mx = e.clientX, my = e.clientY;
+            var factor = e.deltaY < 0 ? 1.15 : 1 / 1.15;
+            var newScale = Math.min(_maxScale, Math.max(_minScale, _scale * factor));
+            var scaleDiff = newScale / _scale;
+            _originX = mx - window.innerWidth / 2 + ((_originX + window.innerWidth / 2 - mx) * scaleDiff);
+            _originY = my - window.innerHeight / 2 + ((_originY + window.innerHeight / 2 - my) * scaleDiff);
+            _scale = newScale;
+            if (_scale <= 1.01) { _originX = 0; _originY = 0; }
+            _applyTransform();
+          }, { passive: false });
           // tap on backdrop (outside image) closes if not zoomed
           _lb.addEventListener('click', function(e) {
             if (e.target === _lb && _scale <= 1.05) window.closeLightbox();
@@ -29690,6 +29704,19 @@ QUESTION: ${query}`;
               },
               selectNode() {
                 container.classList.add('selected');
+                // Flip toolbar below image if there's no room above (image near top of editor)
+                const editorEl = container.closest('.ProseMirror');
+                if (editorEl) {
+                  const edTop = editorEl.getBoundingClientRect().top;
+                  const cTop  = container.getBoundingClientRect().top;
+                  if (cTop - edTop < 56) {
+                    presets.style.top = 'auto';
+                    presets.style.bottom = '-48px';
+                  } else {
+                    presets.style.top = '-48px';
+                    presets.style.bottom = '';
+                  }
+                }
                 // Focus the container div (not a text input — won't trigger mobile keyboard)
                 // This lets keydown events (Delete, Enter) reach our handler above
                 const sx = window.scrollX, sy = window.scrollY;
@@ -30021,6 +30048,7 @@ QUESTION: ${query}`;
       on('tt-strike', () => { e.chain().focus().toggleStrike().run(); _ttUpdateToolbar(e); });
       // Headings
       const _closeHdgMenu = () => document.getElementById('tt-hdg-menu')?.classList.remove('tt-open');
+      on('tt-para', () => { e.chain().focus().setParagraph().run(); _closeHdgMenu(); _ttUpdateToolbar(e); });
       on('tt-h1', () => { e.chain().focus().toggleHeading({ level: 1 }).run(); _closeHdgMenu(); _ttUpdateToolbar(e); });
       on('tt-h2', () => { e.chain().focus().toggleHeading({ level: 2 }).run(); _closeHdgMenu(); _ttUpdateToolbar(e); });
       on('tt-h3', () => { e.chain().focus().toggleHeading({ level: 3 }).run(); _closeHdgMenu(); _ttUpdateToolbar(e); });
@@ -30347,6 +30375,7 @@ QUESTION: ${query}`;
 
     function _ttUpdateToolbar(editor) {
       const map = {
+        'tt-para': () => editor.isActive('paragraph') && !editor.isActive('heading'),
         'tt-bold': () => editor.isActive('bold'),
         'tt-italic': () => editor.isActive('italic'),
         'tt-strike': () => editor.isActive('strike'),
@@ -31692,6 +31721,7 @@ QUESTION: ${query}`;
           </button>
           <div class="tt-sep"></div>
           <!-- Text formatting -->
+          <button class="tt-btn" id="tt-para" title="Plain text" style="font-size:12px;font-weight:700">P</button>
           <button class="tt-btn" id="tt-bold" title="Bold"><b>B</b></button>
           <button class="tt-btn" id="tt-italic" title="Italic"><i>I</i></button>
           <button class="tt-btn" id="tt-strike" title="Strikethrough">
