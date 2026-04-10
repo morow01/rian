@@ -11793,7 +11793,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.3.3';
+    const VERSION = '5.3.4';
 
     // Auto-update: if stored version differs, wipe SW caches and reload for fresh code.
     // The network-first SW already delivers new app.html; this clears the old SW so it
@@ -20202,7 +20202,6 @@
             else scheduleNotesSave();
           }
         };
-        _tiptapEditor.commands.focus();
         _ttUpdateToolbar(_tiptapEditor);
       }, 80);
     }
@@ -26429,7 +26428,6 @@
             if (preview) preview.innerHTML = html || '<span class="notes-rich-placeholder">Tap to add a note…</span>';
           }
         };
-        _tiptapEditor.commands.focus();
         _ttUpdateToolbar(_tiptapEditor);
       }, 80);
     }
