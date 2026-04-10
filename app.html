@@ -11953,7 +11953,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.3.43';
+    const VERSION = '5.3.44';
 
     // Auto-update: if stored version differs, wipe SW caches and reload for fresh code.
     // The network-first SW already delivers new app.html; this clears the old SW so it
@@ -28781,7 +28781,10 @@ Rules:
         // the stale user object so the rest of the app always sees a full profile.
         if (user && !user.email) {
           try {
-            const profSnap = await db_fs.doc(`users/${user.uid}`).get();
+            const profSnap = await Promise.race([
+              db_fs.doc(`users/${user.uid}`).get(),
+              new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 3000))
+            ]);
             if (profSnap.exists) {
               const prof = profSnap.data();
               if (prof.email) user._rian_email = prof.email;
@@ -28789,7 +28792,7 @@ Rules:
               console.log('[Rian] Profile patched from Firestore:', prof.email);
             }
           } catch (e) {
-            console.warn('[Rian] Firestore profile fetch failed:', e);
+            console.warn('[Rian] Firestore profile fetch failed/timed out:', e.message);
           }
         }
 
