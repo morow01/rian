@@ -5159,29 +5159,6 @@
       overflow-x: auto;
     }
 
-    /* Column resize handle */
-    #note-fs-editor .ProseMirror .column-resize-handle {
-      position: absolute;
-      right: -2px;
-      top: 0;
-      bottom: 0;
-      width: 4px;
-      background: #818cf8;
-      opacity: 0;
-      cursor: col-resize;
-      transition: opacity .15s;
-      pointer-events: auto;
-      z-index: 20;
-    }
-
-    #note-fs-editor .ProseMirror td:hover .column-resize-handle,
-    #note-fs-editor .ProseMirror th:hover .column-resize-handle {
-      opacity: 0.5;
-    }
-
-    #note-fs-editor .ProseMirror.resize-cursor {
-      cursor: col-resize;
-    }
 
     /* Table context bar */
     #note-fs-tt-table-bar {
@@ -11792,7 +11769,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.3.16';
+    const VERSION = '5.3.17';
 
     // Auto-update: if stored version differs, wipe SW caches and reload for fresh code.
     // The network-first SW already delivers new app.html; this clears the old SW so it
@@ -29816,7 +29793,7 @@ QUESTION: ${query}`;
           TextAlign.configure({ types: ['heading', 'paragraph'] }),
           TaskList,
           TaskItemWithHandle,
-          Table.configure({ resizable: true }),
+          Table.configure({ resizable: false }),
           TableRow,
           TableHeaderWithBg,
           TableCellWithBg,
