@@ -11791,7 +11791,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.2.98';
+    const VERSION = '5.2.99';
 
     // Auto-update: if stored version differs, wipe SW caches and reload for fresh code.
     // The network-first SW already delivers new app.html; this clears the old SW so it
@@ -30635,6 +30635,42 @@ QUESTION: ${query}`;
       }
     }
 
+    // Progressive selection: word → block → all
+    function _ttExpandSelection() {
+      const editor = _tiptapEditor;
+      if (!editor) return;
+      const { state } = editor;
+      const { from, to } = state.selection;
+      if (from === to) return; // nothing selected
+
+      const $from = state.doc.resolve(from);
+      const $to   = state.doc.resolve(to);
+
+      // Get the innermost block boundaries
+      const blockFrom = $from.start($from.depth);
+      const blockTo   = $from.end($from.depth);
+
+      // Already covers the whole document?
+      const docSize = state.doc.content.size;
+      if (from <= 1 && to >= docSize - 1) return; // already all — nothing more to do
+
+      // Already covers this block? → expand to all
+      if (from <= blockFrom && to >= blockTo) {
+        editor.chain().focus().selectAll().run();
+      } else {
+        // Expand to current block
+        editor.chain().focus().setTextSelection({ from: blockFrom, to: blockTo }).run();
+      }
+      // Update the hint label to reflect next level
+      const hint = document.getElementById('tt-sel-bar-hint');
+      if (hint) {
+        const newFrom = editor.state.selection.from;
+        const newTo   = editor.state.selection.to;
+        const newDocSize = editor.state.doc.content.size;
+        hint.textContent = (newFrom <= 1 && newTo >= newDocSize - 1) ? '' : 'tap to expand';
+      }
+    }
+
     // onclick="_ttDoAiRephrase()" on the button handles mobile + desktop directly
 
     function _ttUpdateLinkBubble(editor) {
@@ -32004,6 +32040,18 @@ QUESTION: ${query}`;
       </div><!-- end tt-toolbar-wrap -->
       <!-- TipTap editor area -->
       <div id="note-fs-editor"></div>
+      <!-- Selection action bar: shown when text is selected -->
+      <div id="tt-sel-bar">
+        <button id="tt-sel-more-btn" onclick="_ttExpandSelection()" style="display:flex;align-items:center;gap:6px;background:#e0e7ff;color:#4338ca;border:none;border-radius:20px;padding:7px 14px;font-size:13px;font-weight:700;cursor:pointer;-webkit-tap-highlight-color:transparent;">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3"/><path d="M21 8V5a2 2 0 0 0-2-2h-3"/><path d="M3 16v3a2 2 0 0 0 2 2h3"/><path d="M16 21h3a2 2 0 0 0 2-2v-3"/></svg>
+          Select More
+        </button>
+        <button id="tt-sel-bar-ai" onclick="_ttDoAiRephrase()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/></svg>
+          AI Rephrase
+        </button>
+        <span id="tt-sel-bar-hint" style="font-size:12px;color:var(--text-muted);margin-left:4px;">tap to expand</span>
+      </div>
       <!-- AI rephrase preview panel (hidden until AI returns a suggestion) -->
       <div id="tt-ai-preview" style="display:none;">
         <div style="font-size:11px;font-weight:700;color:#818cf8;text-transform:uppercase;letter-spacing:0.5px;">✦ AI
