@@ -11953,7 +11953,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.3.40';
+    const VERSION = '5.3.41';
 
     // Auto-update: if stored version differs, wipe SW caches and reload for fresh code.
     // The network-first SW already delivers new app.html; this clears the old SW so it
@@ -14890,7 +14890,7 @@
           ${(() => {
           const u = state.currentUser;
           const displayName = u ? (u.displayName || u.email || localStorage.getItem('rian_user_name') || localStorage.getItem('rian_user_email')?.split('@')[0] || 'there') : 'there';
-          const photoURL = u ? (u.photoURL || '') : '';
+          const photoURL = u ? (u.photoURL || localStorage.getItem('rian_user_photo') || '') : '';
           const initial = displayName[0].toUpperCase();
           const avatarHtml = photoURL
             ? `<img src="${esc(photoURL)}" class="menu-avatar-img" alt="User avatar" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="menu-avatar-initials" style="display:none">${initial}</div>`
@@ -28778,6 +28778,7 @@ Rules:
           localStorage.setItem('rian_last_uid', user.uid);
           if (user.displayName) localStorage.setItem('rian_user_name', user.displayName);
           if (user.email) localStorage.setItem('rian_user_email', user.email);
+          if (user.photoURL) localStorage.setItem('rian_user_photo', user.photoURL);
         } else {
           localStorage.removeItem('rian_last_uid');
         }
