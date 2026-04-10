@@ -11794,7 +11794,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.3.20';
+    const VERSION = '5.3.21';
 
     // Auto-update: if stored version differs, wipe SW caches and reload for fresh code.
     // The network-first SW already delivers new app.html; this clears the old SW so it
@@ -17606,6 +17606,7 @@
     }
 
     async function setView(v) {
+      if (state.view && state.view !== v) state.prevView = state.view;
       state.view = v;
       localStorage.setItem('lastView', v);
       window.scrollTo(0, 0);
@@ -22495,7 +22496,7 @@
 
       return `
         <div style="background:var(--bg-card);border-bottom:1px solid var(--border);padding:14px 16px 12px;display:flex;align-items:center;gap:10px">
-          <button class="back-btn" onclick="history.back ? history.back() : setView('week')"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
+          <button class="back-btn" onclick="setView(state.prevView || 'week')"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
           <span style="font-size:17px;font-weight:800;flex:1;color:var(--text-primary)">Sync Conflicts</span>
           ${n > 0 ? `<span style="background:#DC2626;color:#fff;border-radius:10px;padding:2px 9px;font-size:12px;font-weight:800">${n}</span>` : ''}
         </div>
