@@ -11953,7 +11953,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.3.44';
+    const VERSION = '5.3.45';
 
     // Auto-update: if stored version differs, wipe SW caches and reload for fresh code.
     // The network-first SW already delivers new app.html; this clears the old SW so it
@@ -24537,6 +24537,7 @@
         // Popup blocked — fall back to redirect
         if (e.code === 'auth/popup-blocked' || e.code === 'auth/operation-not-supported-in-this-environment') {
           try {
+            sessionStorage.setItem('rian_redirect_signin', '1');
             await auth_fb.signInWithRedirect(provider);
             return;
           } catch (e2) { /* fall through to error display */ }
@@ -28735,20 +28736,25 @@ Rules:
         console.warn('[Rian] App data load error:', e);
       }
 
-      try {
-        const redir = await auth_fb.getRedirectResult();
-        if (redir && redir.user) {
-          console.log('[Rian] Redirect sign-in succeeded:', redir.user.uid);
-        }
-      } catch (err) {
-        console.error('[Rian] getRedirectResult error:', err.code, err.message);
-        // Show in the login error area if visible, otherwise toast
-        const errEl = document.getElementById('login-error-msg');
-        if (errEl) {
-          errEl.textContent = 'Sign-in failed: ' + (err.code || err.message || 'unknown error');
-          errEl.style.display = 'block';
-        } else {
-          showToast('Sign-in error: ' + (err.code || err.message));
+      // Only call getRedirectResult if we actually came from a redirect sign-in.
+      // Calling it unconditionally hits Firebase servers on every page load and is
+      // slow when IDB is unavailable (no cached state to read).
+      if (sessionStorage.getItem('rian_redirect_signin')) {
+        sessionStorage.removeItem('rian_redirect_signin');
+        try {
+          const redir = await auth_fb.getRedirectResult();
+          if (redir && redir.user) {
+            console.log('[Rian] Redirect sign-in succeeded:', redir.user.uid);
+          }
+        } catch (err) {
+          console.error('[Rian] getRedirectResult error:', err.code, err.message);
+          const errEl = document.getElementById('login-error-msg');
+          if (errEl) {
+            errEl.textContent = 'Sign-in failed: ' + (err.code || err.message || 'unknown error');
+            errEl.style.display = 'block';
+          } else {
+            showToast('Sign-in error: ' + (err.code || err.message));
+          }
         }
       }
 
