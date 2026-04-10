@@ -11793,7 +11793,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.3.6';
+    const VERSION = '5.3.7';
 
     // Auto-update: if stored version differs, wipe SW caches and reload for fresh code.
     // The network-first SW already delivers new app.html; this clears the old SW so it
@@ -30664,25 +30664,30 @@ QUESTION: ${query}`;
 
     // Progressive selection: word → list item → list → document
     // Each tap walks up one level in the ProseMirror node tree.
-    function _ttExpandSelection(attempt) {
+    function _ttExpandSelection(virtFrom, virtTo, attempt) {
       attempt = attempt || 0;
       if (attempt > 8) return; // safety against infinite recursion
       const editor = _tiptapEditor;
       if (!editor) return;
 
-      // Get current selection — prefer TipTap state, fall back to native (Android long-press)
+      // Use virtual bounds if provided (from a previous expansion that TipTap
+      // normalised away), otherwise read actual selection from editor / native
       let from, to;
-      const ttSel = editor.state.selection;
-      if (!ttSel.empty) {
-        from = ttSel.from; to = ttSel.to;
+      if (virtFrom != null && virtTo != null) {
+        from = virtFrom; to = virtTo;
       } else {
-        const nativeSel = window.getSelection();
-        if (!nativeSel || nativeSel.isCollapsed) return;
-        try {
-          const a = editor.view.posAtDOM(nativeSel.anchorNode, nativeSel.anchorOffset);
-          const f = editor.view.posAtDOM(nativeSel.focusNode,  nativeSel.focusOffset);
-          from = Math.min(a, f); to = Math.max(a, f);
-        } catch(e) { return; }
+        const ttSel = editor.state.selection;
+        if (!ttSel.empty) {
+          from = ttSel.from; to = ttSel.to;
+        } else {
+          const nativeSel = window.getSelection();
+          if (!nativeSel || nativeSel.isCollapsed) return;
+          try {
+            const a = editor.view.posAtDOM(nativeSel.anchorNode, nativeSel.anchorOffset);
+            const f = editor.view.posAtDOM(nativeSel.focusNode,  nativeSel.focusOffset);
+            from = Math.min(a, f); to = Math.max(a, f);
+          } catch(e) { return; }
+        }
       }
       if (from === to) return;
 
@@ -30690,8 +30695,8 @@ QUESTION: ${query}`;
       const docSize = state.doc.content.size;
       if (from <= 1 && to >= docSize - 1) return; // already all
 
-      // Walk up the node tree: find the nearest ancestor that is strictly larger
-      // than the current selection — this gives word→listItem→list→doc hierarchy
+      // Walk up the node tree from the resolved position.
+      // Virtual bounds let us skip levels that TipTap already normalised away.
       const $from = state.doc.resolve(from);
       let newFrom = null, newTo = null;
 
@@ -30707,13 +30712,16 @@ QUESTION: ${query}`;
       if (newFrom === null) {
         editor.chain().focus().selectAll().run();
       } else {
+        const prevFrom = editor.state.selection.from;
+        const prevTo   = editor.state.selection.to;
         editor.chain().focus().setTextSelection({ from: newFrom, to: newTo }).run();
-        // TipTap normalises listItem/bulletList boundary positions back to the nearest
-        // text position, so the selection may appear unchanged even though we moved up
-        // a level. Detect this and silently expand one more step.
+        // TipTap normalises non-text boundary positions (listItem, bulletList start/end)
+        // back to the nearest text position, so the selection may not actually change.
+        // When that happens, pass the attempted bounds as "virtual" so the next call
+        // walks above the failed level instead of retrying it.
         const ns = editor.state.selection;
-        if (ns.from === from && ns.to === to) {
-          _ttExpandSelection(attempt + 1);
+        if (ns.from === prevFrom && ns.to === prevTo) {
+          _ttExpandSelection(newFrom, newTo, attempt + 1);
           return;
         }
       }
