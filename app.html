@@ -11791,7 +11791,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.3.0';
+    const VERSION = '5.3.1';
 
     // Auto-update: if stored version differs, wipe SW caches and reload for fresh code.
     // The network-first SW already delivers new app.html; this clears the old SW so it
@@ -29794,13 +29794,26 @@ QUESTION: ${query}`;
       _ttBindToolbar();
       initTaskSortable();
       initImageDrag();
-      // Android: native long-press selection fires selectionchange but may not
-      // trigger TipTap's onSelectionUpdate. Listen directly as a fallback.
+      // Android: native long-press selection fires selectionchange but TipTap's
+      // internal state may not be synced yet. Check window.getSelection() directly.
       document.addEventListener('selectionchange', () => {
         if (!_tiptapEditor) return;
         const modal = document.getElementById('note-fs-modal');
         if (!modal || modal.classList.contains('hidden')) return;
-        setTimeout(() => { if (_tiptapEditor) _ttUpdateAiFab(_tiptapEditor); }, 50);
+        setTimeout(() => {
+          const bar = document.getElementById('tt-sel-bar');
+          if (!bar) return;
+          const aiPanel = document.getElementById('tt-ai-preview');
+          const aiOpen = aiPanel && aiPanel.style.display !== 'none';
+          const nativeSel = window.getSelection();
+          const hasNative = nativeSel && !nativeSel.isCollapsed && (nativeSel.toString().trim().length > 0);
+          const hasTiptap = _tiptapEditor && !_tiptapEditor.state.selection.empty;
+          if ((hasNative || hasTiptap) && !aiOpen) {
+            bar.style.display = 'flex';
+          } else if (!hasNative && !hasTiptap) {
+            bar.style.display = 'none';
+          }
+        }, 150);
       });
       // Content-only pinch-zoom + pan. Toolbar stays fixed.
       // transform: translate(tx,ty) scale(s) with transform-origin:0 0
@@ -30647,35 +30660,41 @@ QUESTION: ${query}`;
     function _ttExpandSelection() {
       const editor = _tiptapEditor;
       if (!editor) return;
+
+      // Get current selection — prefer TipTap state, fall back to native (Android long-press)
+      let from, to;
+      const ttSel = editor.state.selection;
+      if (!ttSel.empty) {
+        from = ttSel.from; to = ttSel.to;
+      } else {
+        const nativeSel = window.getSelection();
+        if (!nativeSel || nativeSel.isCollapsed) return;
+        try {
+          const a = editor.view.posAtDOM(nativeSel.anchorNode, nativeSel.anchorOffset);
+          const f = editor.view.posAtDOM(nativeSel.focusNode,  nativeSel.focusOffset);
+          from = Math.min(a, f); to = Math.max(a, f);
+        } catch(e) { return; }
+      }
+      if (from === to) return;
+
       const { state } = editor;
-      const { from, to } = state.selection;
-      if (from === to) return; // nothing selected
-
-      const $from = state.doc.resolve(from);
-      const $to   = state.doc.resolve(to);
-
-      // Get the innermost block boundaries
+      const $from   = state.doc.resolve(from);
       const blockFrom = $from.start($from.depth);
       const blockTo   = $from.end($from.depth);
+      const docSize   = state.doc.content.size;
 
-      // Already covers the whole document?
-      const docSize = state.doc.content.size;
-      if (from <= 1 && to >= docSize - 1) return; // already all — nothing more to do
+      if (from <= 1 && to >= docSize - 1) return; // already all
 
-      // Already covers this block? → expand to all
       if (from <= blockFrom && to >= blockTo) {
         editor.chain().focus().selectAll().run();
       } else {
-        // Expand to current block
         editor.chain().focus().setTextSelection({ from: blockFrom, to: blockTo }).run();
       }
-      // Update the hint label to reflect next level
+
       const hint = document.getElementById('tt-sel-bar-hint');
       if (hint) {
-        const newFrom = editor.state.selection.from;
-        const newTo   = editor.state.selection.to;
-        const newDocSize = editor.state.doc.content.size;
-        hint.textContent = (newFrom <= 1 && newTo >= newDocSize - 1) ? '' : 'tap to expand';
+        const ns = editor.state.selection;
+        hint.textContent = (ns.from <= 1 && ns.to >= editor.state.doc.content.size - 1) ? '' : 'tap to expand';
       }
     }
 
