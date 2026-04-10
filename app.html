@@ -11953,7 +11953,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.3.42';
+    const VERSION = '5.3.43';
 
     // Auto-update: if stored version differs, wipe SW caches and reload for fresh code.
     // The network-first SW already delivers new app.html; this clears the old SW so it
@@ -14676,7 +14676,7 @@
     async function sendWeeklyEmail() {
       if (!state.weekData) { showToast('No week data to send.'); return; }
       if (!state.currentUser) { showToast('Please sign in to send email.'); return; }
-      const _email = state.currentUser.email || localStorage.getItem('rian_user_email') || '';
+      const _email = state.currentUser.email || state.currentUser._rian_email || localStorage.getItem('rian_user_email') || '';
       if (!_email) { showToast('No email address on this account — sign out and sign in with your Google account.'); return; }
       showConfirm(
         'Email weekly timesheet?',
@@ -14889,7 +14889,9 @@
         <div class="theme-dropdown ${state.isMenuOpen ? 'open' : ''}" id="theme-dropdown" onclick="event.stopPropagation()">
           ${(() => {
           const u = state.currentUser;
-          const displayName = u ? (u.displayName || u.email || localStorage.getItem('rian_user_name') || localStorage.getItem('rian_user_email')?.split('@')[0] || 'there') : 'there';
+          const _rName = u ? (u.displayName || u._rian_displayName || localStorage.getItem('rian_user_name') || '') : '';
+          const _rEmail = u ? (u.email || u._rian_email || localStorage.getItem('rian_user_email') || '') : '';
+          const displayName = _rName || (_rEmail ? _rEmail.split('@')[0] : 'there');
           const photoURL = u ? (u.photoURL || localStorage.getItem('rian_user_photo') || '') : '';
           const initial = displayName[0].toUpperCase();
           const avatarHtml = photoURL
@@ -14905,7 +14907,7 @@
                 <div class="menu-avatar-wrap">${avatarHtml}</div>
                 <div class="menu-signed-in-label">Signed in as</div>
                 <div class="menu-display-name">${esc(displayName)}</div>
-                ${(() => { const _e = u ? (u.email || localStorage.getItem('rian_user_email') || '') : ''; return _e ? '<div style="font-size:11px;color:#94a3b8;margin-top:2px;word-break:break-all;">' + esc(_e) + '</div>' : ''; })()}
+                ${_rEmail ? '<div style="font-size:11px;color:#94a3b8;margin-top:2px;word-break:break-all;">' + esc(_rEmail) + '</div>' : ''}
                 <button class="menu-signout-btn" onclick="signOutUser()">
                   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
                   Sign Out
@@ -25138,7 +25140,7 @@
           _format: 'rian-export-v1',
           _exportedAt: new Date().toISOString(),
           _sourceUid: uid,
-          _sourceEmail: state.currentUser.email || localStorage.getItem('rian_user_email') || '',
+          _sourceEmail: state.currentUser.email || state.currentUser._rian_email || localStorage.getItem('rian_user_email') || '',
           _version: VERSION
         };
         if (incWeeks) {
@@ -28775,24 +28777,31 @@ Rules:
         console.log('[Rian Debug] onAuthStateChanged fired. User:', user ? user.uid : 'null');
 
         // Firebase can restore a cached session with null email/displayName/photoURL.
-        // reload() fetches the full profile from the server. If it fails (offline),
-        // the localStorage cache from the last good sign-in is the fallback.
+        // Read the Firestore user profile (written on every real sign-in) to patch
+        // the stale user object so the rest of the app always sees a full profile.
         if (user && !user.email) {
           try {
-            await user.reload();
-            user = auth_fb.currentUser;
-            console.log('[Rian] Profile reloaded:', user?.email || '(still null)');
+            const profSnap = await db_fs.doc(`users/${user.uid}`).get();
+            if (profSnap.exists) {
+              const prof = profSnap.data();
+              if (prof.email) user._rian_email = prof.email;
+              if (prof.displayName) user._rian_displayName = prof.displayName;
+              console.log('[Rian] Profile patched from Firestore:', prof.email);
+            }
           } catch (e) {
-            console.warn('[Rian] reload() failed (offline?):', e);
+            console.warn('[Rian] Firestore profile fetch failed:', e);
           }
         }
 
         state.currentUser = user;
         if (user) {
           localStorage.setItem('rian_last_uid', user.uid);
-          if (user.displayName) localStorage.setItem('rian_user_name', user.displayName);
-          if (user.email) localStorage.setItem('rian_user_email', user.email);
-          if (user.photoURL) localStorage.setItem('rian_user_photo', user.photoURL);
+          const _name = user.displayName || user._rian_displayName;
+          const _email = user.email || user._rian_email;
+          const _photo = user.photoURL;
+          if (_name) localStorage.setItem('rian_user_name', _name);
+          if (_email) localStorage.setItem('rian_user_email', _email);
+          if (_photo) localStorage.setItem('rian_user_photo', _photo);
         } else {
           localStorage.removeItem('rian_last_uid');
         }
