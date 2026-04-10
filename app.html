@@ -11953,7 +11953,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.3.45';
+    const VERSION = '5.3.46';
 
     // Auto-update: if stored version differs, wipe SW caches and reload for fresh code.
     // The network-first SW already delivers new app.html; this clears the old SW so it
@@ -14669,11 +14669,10 @@
     }
 
     async function sendWeeklyEmailFromPreview() {
-      closeEmailPreview();
-      await sendWeeklyEmail();
+      await sendWeeklyEmail(true);
     }
 
-    async function sendWeeklyEmail() {
+    async function sendWeeklyEmail(fromPreview) {
       if (!state.weekData) { showToast('No week data to send.'); return; }
       if (!state.currentUser) { showToast('Please sign in to send email.'); return; }
       const _email = state.currentUser.email || state.currentUser._rian_email || localStorage.getItem('rian_user_email') || '';
@@ -14682,6 +14681,7 @@
         'Email weekly timesheet?',
         `Sends a formatted summary of this week — tasks, codes, hours and notes — to ${_email}.`,
         async () => {
+          if (fromPreview) closeEmailPreview();
           showToast('Sending email…', 6000);
           try {
             await db_fs.collection('mail').add({
