@@ -11793,7 +11793,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.3.4';
+    const VERSION = '5.3.5';
 
     // Auto-update: if stored version differs, wipe SW caches and reload for fresh code.
     // The network-first SW already delivers new app.html; this clears the old SW so it
@@ -30662,7 +30662,8 @@ QUESTION: ${query}`;
       }
     }
 
-    // Progressive selection: word → block → all
+    // Progressive selection: word → list item → list → document
+    // Each tap walks up one level in the ProseMirror node tree.
     function _ttExpandSelection() {
       const editor = _tiptapEditor;
       if (!editor) return;
@@ -30684,17 +30685,27 @@ QUESTION: ${query}`;
       if (from === to) return;
 
       const { state } = editor;
-      const $from   = state.doc.resolve(from);
-      const blockFrom = $from.start($from.depth);
-      const blockTo   = $from.end($from.depth);
-      const docSize   = state.doc.content.size;
-
+      const docSize = state.doc.content.size;
       if (from <= 1 && to >= docSize - 1) return; // already all
 
-      if (from <= blockFrom && to >= blockTo) {
+      // Walk up the node tree: find the nearest ancestor that is strictly larger
+      // than the current selection — this gives word→listItem→list→doc hierarchy
+      const $from = state.doc.resolve(from);
+      let newFrom = null, newTo = null;
+
+      for (let d = $from.depth; d >= 0; d--) {
+        const nf = d === 0 ? 1        : $from.start(d);
+        const nt = d === 0 ? docSize - 1 : $from.end(d);
+        if (nf < from || nt > to) {
+          newFrom = nf; newTo = nt;
+          break;
+        }
+      }
+
+      if (newFrom === null) {
         editor.chain().focus().selectAll().run();
       } else {
-        editor.chain().focus().setTextSelection({ from: blockFrom, to: blockTo }).run();
+        editor.chain().focus().setTextSelection({ from: newFrom, to: newTo }).run();
       }
 
       const hint = document.getElementById('tt-sel-bar-hint');
