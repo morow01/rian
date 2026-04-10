@@ -11794,7 +11794,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.3.18';
+    const VERSION = '5.3.19';
 
     // Auto-update: if stored version differs, wipe SW caches and reload for fresh code.
     // The network-first SW already delivers new app.html; this clears the old SW so it
@@ -12556,7 +12556,8 @@
       weekData.days.forEach(d => (d.activities || []).forEach(a => {
         if ((parseFloat(a.ordinary) || 0) > 0 ||
             (parseFloat(a.overtime) || 0) > 0 ||
-            (a.code || '').trim() ||
+            (a.codes && a.codes.length > 0) ||   // was a.code (typo — field is a.codes[])
+            (a.location || '').trim() ||
             (a.notes || '').trim()) count++;
       }));
       return count;
@@ -14047,10 +14048,13 @@
       // version rather than whatever state.weekData points to at fire time.
       const capturedWeekData = deepCopy(state.weekData);
       saveTimer = setTimeout(async () => {
-        // If the week has changed, loadWeek() should have already flushed this
-        // save — but if not (e.g. unexpected state), save to the captured week
-        // rather than silently dropping the edit.
-        const dataToSave = (state.weekStart === capturedWeekStart) ? state.weekData : capturedWeekData;
+        // Always save the captured snapshot of state at edit time.
+        // Using state.weekData here would cause a race: if a Firestore snapshot
+        // arrives within the 1s debounce it overwrites state.weekData with stale
+        // data (e.g. empty hours from another device), and the timer then persists
+        // that stale state, destroying the user's edit. capturedWeekData is always
+        // correct — it's the deepCopy taken right when the user's edit fired.
+        const dataToSave = capturedWeekData;
         const uid = state.currentUser?.uid || null;
         await dbPut('weeks', { weekStart: capturedWeekStart, userId: uid, data: dataToSave, updatedAt: dataToSave._updatedAt });
         // First-snapshot gate (v5.1.90) — if we haven't heard from Firestore
