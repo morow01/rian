@@ -11970,7 +11970,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.3.60';
+    const VERSION = '5.3.61';
 
     // Auto-update: if stored version differs, wipe SW caches and reload for fresh code.
     // The network-first SW already delivers new app.html; this clears the old SW so it
@@ -31099,6 +31099,9 @@ QUESTION: ${query}`;
       const cellPopup = document.getElementById('tt-cell-popup');
       if (editor.isActive('table')) {
         if (tableBar) tableBar.style.display = 'flex';
+        // Mark TH button active when cursor is in a header row
+        const thrBtn = document.getElementById('tcp-thr-btn');
+        if (thrBtn) thrBtn.classList.toggle('tt-active', editor.isActive('tableHeader'));
         if (cellTrigger) {
           const { view } = editor;
           const { from } = view.state.selection;
@@ -31220,6 +31223,7 @@ QUESTION: ${query}`;
       else if (action === 'col-after') { e.chain().focus().addColumnAfter().run(); }
       else if (action === 'col-del') { showRianDialog({ title: 'Delete Column', message: 'Delete this column and all its content?', confirmText: 'Delete', danger: true }).then(ok => { if (ok) e.chain().focus().deleteColumn().run(); }); }
       else if (action === 'table-del') { e.chain().focus().deleteTable().run(); }
+      else if (action === 'thr') { e.chain().focus().toggleHeaderRow().run(); }
       else if (action === 'merge-sel') {
         // Merge an existing multi-cell CellSelection
         const ok = e.chain().focus().mergeCells().run();
@@ -32805,6 +32809,13 @@ QUESTION: ${query}`;
                 <line x1="7.5" y1="9.5" x2="12.5" y2="10.5" />
                 <line x1="12.5" y1="9.5" x2="7.5" y2="10.5" />
               </svg>Delete</button>
+          </div>
+          <div class="tcp-grid" style="grid-template-columns:1fr;margin-top:5px">
+            <button id="tcp-thr-btn" class="tcp-btn" style="justify-content:center" onmousedown="event.preventDefault()" onclick="_ttCellAct('thr')"><svg
+                viewBox="0 0 20 20">
+                <rect x="2" y="2" width="16" height="7" rx="1.5" />
+                <rect x="2" y="11" width="16" height="7" rx="1.5" fill="none" />
+              </svg>Toggle header row</button>
           </div>
           <div class="tcp-sep"></div>
           <div class="tcp-section">Column</div>
