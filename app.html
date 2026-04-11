@@ -6447,8 +6447,8 @@
     /* Tables — shrink-wrap to content by default, expand only if needed */
     :is(#note-fs-editor .ProseMirror, .tt-prose) table {
       border-collapse: collapse;
-      width: auto !important;
-      min-width: 0 !important;
+      width: auto;
+      min-width: 0;
       margin: 10px 0;
       font-size: 14px;
       font-family: 'DM Sans', sans-serif;
@@ -13961,7 +13961,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.3.82';
+    const VERSION = '5.3.83';
 
     // Auto-update: if stored version differs, wipe SW caches and reload for fresh code.
     // The network-first SW already delivers new app.html; this clears the old SW so it
@@ -32471,6 +32471,34 @@ QUESTION: ${query}`;
       _ttBindToolbar();
       initTaskSortable();
       initImageDrag();
+      // Table size guard — the columnResizing plugin sets inline min-width on
+      // every table = sum of column default widths (100px × N cols).  For tables
+      // without user-set colwidths this is bloated.  We watch for style changes
+      // and strip the min-width on tables whose cols have no explicit width.
+      // Tables where the user has dragged a column (col width set) keep theirs.
+      (function _initTableSizeGuard() {
+        const pm = document.querySelector('#note-fs-editor .ProseMirror');
+        if (!pm) return;
+        let _g = false;
+        new MutationObserver(function(ms) {
+          if (_g) return;
+          _g = true;
+          for (var i = 0; i < ms.length; i++) {
+            var t = ms[i].target;
+            if (t.tagName === 'TABLE' && ms[i].attributeName === 'style') {
+              var cols = t.querySelectorAll('colgroup col');
+              var hasW = false;
+              for (var j = 0; j < cols.length; j++) {
+                if (cols[j].style.width) { hasW = true; break; }
+              }
+              if (!hasW && t.style.minWidth && t.style.minWidth !== '0px') {
+                t.style.minWidth = '0';
+              }
+            }
+          }
+          _g = false;
+        }).observe(pm, { attributes: true, attributeFilter: ['style'], subtree: true });
+      })();
       // Android: native long-press selection fires selectionchange but TipTap's
       // internal state may not be synced yet. Check window.getSelection() directly.
       document.addEventListener('selectionchange', () => {
