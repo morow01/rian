@@ -6511,7 +6511,7 @@
       letter-spacing: 0.06em;
       text-transform: uppercase;
       color: #6B6860;
-      padding: 6px 6px;
+      padding: 6px 6px !important;
       border-bottom: 2px solid #E2E0DA;
       border-right: 1px solid #E2E0DA;
     }
@@ -6521,7 +6521,7 @@
     }
 
     :is(#note-fs-editor .ProseMirror, .tt-prose) td {
-      padding: 6px 6px;
+      padding: 6px 6px !important;
       color: #3A3836;
       border-bottom: 1px solid #F0EFEB;
       border-right: 1px solid #F0EFEB;
@@ -13965,7 +13965,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.3.70';
+    const VERSION = '5.3.71';
 
     // Auto-update: if stored version differs, wipe SW caches and reload for fresh code.
     // The network-first SW already delivers new app.html; this clears the old SW so it
@@ -32383,6 +32383,36 @@ QUESTION: ${query}`;
         ],
         content: '',
         editorProps: {
+          transformPastedHTML(html) {
+            // Strip inline padding/width/height from table cells and tables so
+            // imported DOCX/HTML tables use our CSS sizing instead of baked-in styles.
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+            doc.querySelectorAll('td, th').forEach(el => {
+              const s = el.style;
+              s.removeProperty('padding');
+              s.removeProperty('padding-top');
+              s.removeProperty('padding-right');
+              s.removeProperty('padding-bottom');
+              s.removeProperty('padding-left');
+              s.removeProperty('width');
+              s.removeProperty('min-width');
+              s.removeProperty('max-width');
+              s.removeProperty('height');
+              s.removeProperty('min-height');
+            });
+            doc.querySelectorAll('table').forEach(el => {
+              const s = el.style;
+              s.removeProperty('width');
+              s.removeProperty('min-width');
+              s.removeProperty('table-layout');
+            });
+            doc.querySelectorAll('col').forEach(el => {
+              el.removeAttribute('width');
+              el.style.removeProperty('width');
+            });
+            return doc.body.innerHTML;
+          },
           handlePaste(view, event) {
             // Intercept raw image paste (screenshot from clipboard) — compress + upload to Storage
             const items = event.clipboardData && event.clipboardData.items;
