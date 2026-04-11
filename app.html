@@ -6444,20 +6444,14 @@
 
     /* hide in read-only previews */
 
-    /* Tables — shrink-wrap to content. !important overrides TipTap's resizing plugin
-       which injects inline style="min-width:Xpx" and col style="width:Xpx" via JS. */
+    /* Tables — shrink-wrap to content by default, expand only if needed */
     :is(#note-fs-editor .ProseMirror, .tt-prose) table {
       border-collapse: collapse;
-      width: auto !important;
-      min-width: 0 !important;
-      table-layout: auto !important;
+      width: auto;
+      min-width: 0;
       margin: 10px 0;
       font-size: 14px;
       font-family: 'DM Sans', sans-serif;
-    }
-
-    :is(#note-fs-editor .ProseMirror, .tt-prose) col {
-      width: auto !important;
     }
 
     :is(#note-fs-editor .ProseMirror, .tt-prose) td,
@@ -13967,7 +13961,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.3.77';
+    const VERSION = '5.3.78';
 
     // Auto-update: if stored version differs, wipe SW caches and reload for fresh code.
     // The network-first SW already delivers new app.html; this clears the old SW so it
@@ -33252,6 +33246,22 @@ QUESTION: ${query}`;
       else if (action === 'col-del') { showRianDialog({ title: 'Delete Column', message: 'Delete this column and all its content?', confirmText: 'Delete', danger: true }).then(ok => { if (ok) e.chain().focus().deleteColumn().run(); }); }
       else if (action === 'table-del') { e.chain().focus().deleteTable().run(); }
       else if (action === 'thr') { e.chain().focus().toggleHeaderRow().run(); }
+      else if (action === 'fit-content') {
+        // Strip all stored colwidth attrs from every cell in the table so columns
+        // collapse to their content width (TipTap's resizing plugin re-measures from content).
+        const { state, view } = e;
+        const { tr } = state;
+        let changed = false;
+        state.doc.descendants((node, pos) => {
+          if (node.type.name === 'tableCell' || node.type.name === 'tableHeader') {
+            if (node.attrs.colwidth) {
+              tr.setNodeMarkup(pos, null, { ...node.attrs, colwidth: null });
+              changed = true;
+            }
+          }
+        });
+        if (changed) { tr.setMeta('addToHistory', true); view.dispatch(tr); }
+      }
       else if (action === 'merge-sel') {
         // Merge an existing multi-cell CellSelection
         const ok = e.chain().focus().mergeCells().run();
@@ -34953,6 +34963,17 @@ QUESTION: ${query}`;
                 <line x1="8" y1="10" x2="12" y2="10" />
                 <polyline points="9.5,7.5 12,10 9.5,12.5" />
               </svg>Merge cells</button>
+          </div>
+          <!-- Fit to content -->
+          <div class="tcp-grid" style="grid-template-columns:1fr;margin-top:5px">
+            <button class="tcp-btn" style="justify-content:center" onmousedown="event.preventDefault()" onclick="_ttCellAct('fit-content')"><svg
+                viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="2" y="2" width="16" height="16" rx="1.5" />
+                <line x1="6" y1="2" x2="6" y2="18" />
+                <line x1="14" y1="2" x2="14" y2="18" />
+                <polyline points="3,7 6,10 3,13" />
+                <polyline points="17,7 14,10 17,13" />
+              </svg>Fit to content</button>
           </div>
           <!-- Split + Delete always visible, side by side -->
           <div class="tcp-grid" style="grid-template-columns:1fr 1fr;margin-top:5px">
