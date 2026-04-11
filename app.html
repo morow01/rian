@@ -13961,7 +13961,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.3.79';
+    const VERSION = '5.3.80';
 
     // Auto-update: if stored version differs, wipe SW caches and reload for fresh code.
     // The network-first SW already delivers new app.html; this clears the old SW so it
@@ -33247,40 +33247,12 @@ QUESTION: ${query}`;
       else if (action === 'table-del') { e.chain().focus().deleteTable().run(); }
       else if (action === 'thr') { e.chain().focus().toggleHeaderRow().run(); }
       else if (action === 'fit-content') {
-        // 1. Strip stored colwidth attrs from every cell in the document
-        const { state, view } = e;
-        const { tr } = state;
-        let changed = false;
-        state.doc.descendants((node, pos) => {
-          if (node.type.name === 'tableCell' || node.type.name === 'tableHeader') {
-            if (node.attrs.colwidth) {
-              tr.setNodeMarkup(pos, null, { ...node.attrs, colwidth: null });
-              changed = true;
-            }
-          }
-        });
-        if (changed) { tr.setMeta('addToHistory', true); view.dispatch(tr); }
-        // 2. Clear inline styles that TipTap's resizing plugin injected into the DOM.
-        //    Without this the plugin re-reads the old rendered widths and puts them right back.
-        setTimeout(() => {
-          const edEl = document.getElementById('note-fs-editor');
-          if (!edEl) return;
-          edEl.querySelectorAll('table').forEach(tbl => {
-            tbl.style.removeProperty('width');
-            tbl.style.removeProperty('min-width');
-            tbl.querySelectorAll('col').forEach(c => {
-              c.style.removeProperty('width');
-              c.style.removeProperty('min-width');
-              c.removeAttribute('width');
-            });
-            tbl.querySelectorAll('colgroup').forEach(cg => cg.remove());
-            tbl.querySelectorAll('td, th').forEach(c => {
-              c.style.removeProperty('width');
-              c.style.removeProperty('min-width');
-              c.removeAttribute('colwidth');
-            });
-          });
-        }, 0);
+        // Brute force: get HTML, strip all table sizing, set it back.
+        // This guarantees colwidths/colgroups are gone from both state AND DOM.
+        const html = e.getHTML();
+        const cleaned = _ttCleanTableHtml(html);
+        e.commands.setContent(cleaned, false);
+        showToast('Table widths reset');
       }
       else if (action === 'merge-sel') {
         // Merge an existing multi-cell CellSelection
