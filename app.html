@@ -13961,7 +13961,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.3.81';
+    const VERSION = '5.3.82';
 
     // Auto-update: if stored version differs, wipe SW caches and reload for fresh code.
     // The network-first SW already delivers new app.html; this clears the old SW so it
@@ -33247,13 +33247,28 @@ QUESTION: ${query}`;
       else if (action === 'table-del') { e.chain().focus().deleteTable().run(); }
       else if (action === 'thr') { e.chain().focus().toggleHeaderRow().run(); }
       else if (action === 'fit-content') {
-        // Strip stored colwidths from ProseMirror state so columns auto-size.
-        // CSS !important on table min-width already overrides the plugin's inline
-        // style, so once colwidths are gone the table shrinks to content.
-        const html = e.getHTML();
-        const cleaned = _ttCleanTableHtml(html);
-        e.commands.setContent(cleaned, false);
-        // Schedule a note save so cleaned widths persist to Firestore
+        // Walk ProseMirror doc and null out every colwidth attr in the
+        // table that contains the cursor.  This is safe — no HTML round-trip,
+        // no risk of destroying content.  CSS !important on table min-width
+        // already overrides the plugin's inline style, so once colwidths are
+        // gone the table auto-sizes to content.
+        const { $from } = e.state.selection;
+        let tablePos = null;
+        for (let d = $from.depth; d > 0; d--) {
+          if ($from.node(d).type.name === 'table') { tablePos = $from.before(d); break; }
+        }
+        if (tablePos == null) { showToast('Place cursor in a table first'); return; }
+        const tableNode = e.state.doc.nodeAt(tablePos);
+        const tr = e.state.tr;
+        tableNode.descendants((node, offset) => {
+          if (node.type.name === 'tableCell' || node.type.name === 'tableHeader') {
+            if (node.attrs.colwidth) {
+              tr.setNodeMarkup(tablePos + 1 + offset, undefined,
+                { ...node.attrs, colwidth: null });
+            }
+          }
+        });
+        e.view.dispatch(tr);
         if (typeof scheduleNotesSave === 'function') scheduleNotesSave();
         showToast('Table widths reset');
       }
