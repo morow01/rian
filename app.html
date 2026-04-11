@@ -11953,7 +11953,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.3.55';
+    const VERSION = '5.3.56';
 
     // Auto-update: if stored version differs, wipe SW caches and reload for fresh code.
     // The network-first SW already delivers new app.html; this clears the old SW so it
@@ -30473,19 +30473,26 @@ QUESTION: ${query}`;
         var _cachedEd = null, _cachedPm = null;
         function _getEd() { return _cachedEd || (_cachedEd = document.getElementById('note-fs-editor')); }
         function _getPm() { return _cachedPm || (_cachedPm = document.querySelector('#note-fs-editor .ProseMirror')); }
-        // Invalidate cache when editor might be recreated
-        window._edPinchInvalidate = function() { _cachedEd = null; _cachedPm = null; };
+        window._edPinchInvalidate = function() { _cachedEd = null; _cachedPm = null; _boundsStale = true; };
         function _dist(t) {
           var dx=t[0].clientX-t[1].clientX, dy=t[0].clientY-t[1].clientY;
           return Math.sqrt(dx*dx+dy*dy);
         }
-        function _clamp() {
+        // Cached layout bounds — snapshotted at gesture start, never read mid-gesture
+        var _bEdW=0, _bEdH=0, _bPmW=0, _bPmH=0, _bEdST=0, _bEdSL=0, _boundsStale=true;
+        function _snapBounds() {
           var ed=_getEd(), pm=_getPm();
           if (!ed||!pm) return;
-          var edST=ed.scrollTop||0, edSL=ed.scrollLeft||0;
-          var maxTx=edSL, maxTy=edST;
-          var minTx=Math.min(maxTx, edSL+ed.clientWidth -pm.offsetWidth *_s);
-          var minTy=Math.min(maxTy, edST+ed.clientHeight-pm.offsetHeight*_s);
+          _bEdW=ed.clientWidth; _bEdH=ed.clientHeight;
+          _bPmW=pm.offsetWidth; _bPmH=pm.offsetHeight;
+          _bEdST=ed.scrollTop||0; _bEdSL=ed.scrollLeft||0;
+          _boundsStale=false;
+        }
+        function _clamp() {
+          if (_boundsStale) _snapBounds();
+          var maxTx=_bEdSL, maxTy=_bEdST;
+          var minTx=Math.min(maxTx, _bEdSL+_bEdW-_bPmW*_s);
+          var minTy=Math.min(maxTy, _bEdST+_bEdH-_bPmH*_s);
           _tx=Math.max(minTx,Math.min(maxTx,_tx));
           _ty=Math.max(minTy,Math.min(maxTy,_ty));
         }
@@ -30501,10 +30508,10 @@ QUESTION: ${query}`;
             pm.style.transform='translate('+_tx+'px,'+_ty+'px) scale('+_s+')';
           }
         }
-        // Throttled apply — batches multiple touchmove updates per frame
+        // Batches clamp+apply into a single rAF — zero layout reads mid-gesture
         function _applyThrottled() {
           if (_applyRaf) return;
-          _applyRaf = requestAnimationFrame(function() { _applyRaf = null; _apply(); });
+          _applyRaf = requestAnimationFrame(function() { _applyRaf = null; _clamp(); _apply(); });
         }
         function _stopMomentum() {
           if (_rafId){cancelAnimationFrame(_rafId);_rafId=null;}
@@ -30539,7 +30546,7 @@ QUESTION: ${query}`;
         window._edZoomReset = function() {
           _stopMomentum();
           _s=1;_tx=0;_ty=0;_pinching=false;_panMoved=false;
-          _cachedEd=null; _cachedPm=null;
+          _cachedEd=null; _cachedPm=null; _boundsStale=true;
           var pm=document.querySelector('#note-fs-editor .ProseMirror');
           if (pm) { pm.style.transform=''; pm.style.willChange=''; }
         };
@@ -30560,6 +30567,7 @@ QUESTION: ${query}`;
             if (!_inEditor(t0.clientX,t0.clientY)&&!_inEditor(t1.clientX,t1.clientY)) return;
             ev.preventDefault();
             _stopMomentum();
+            _snapBounds();
             _pinching=true; _panMoved=false;
             _p0s=_s; _p0tx=_tx; _p0ty=_ty;
             _p0dist=_dist(ev.touches);
@@ -30573,6 +30581,7 @@ QUESTION: ${query}`;
             var t=ev.touches[0];
             if (!_inEditor(t.clientX,t.clientY)) return;
             _stopMomentum();
+            _snapBounds();
             // Don't preventDefault here — allow taps to reach editor for text cursor
             _panMoved=false;
             _panStartX=t.clientX; _panStartY=t.clientY;
@@ -30592,7 +30601,7 @@ QUESTION: ${query}`;
             var ratio=_s/_p0s;
             _tx=_p0pivX*(1-ratio)+_p0tx*ratio+(midX-_p0midX);
             _ty=_p0pivY*(1-ratio)+_p0ty*ratio+(midY-_p0midY);
-            _clamp(); _applyThrottled();
+            _applyThrottled();
           } else if (ev.touches.length===1 && _s>1.02) {
             var t=ev.touches[0];
             var dx=t.clientX-_panStartX, dy=t.clientY-_panStartY;
@@ -30607,7 +30616,7 @@ QUESTION: ${query}`;
             // Push to rolling window; trim entries older than 100ms
             _velSamples.push({t:now,x:t.clientX,y:t.clientY});
             while (_velSamples.length>1 && now-_velSamples[0].t>100) _velSamples.shift();
-            _clamp(); _applyThrottled();
+            _applyThrottled();
           }
         }, {passive:false, capture:true});
         document.addEventListener('touchend', function(ev) {
