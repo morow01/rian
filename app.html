@@ -13965,7 +13965,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.3.71';
+    const VERSION = '5.3.72';
 
     // Auto-update: if stored version differs, wipe SW caches and reload for fresh code.
     // The network-first SW already delivers new app.html; this clears the old SW so it
@@ -33664,10 +33664,49 @@ QUESTION: ${query}`;
       }
     }
 
+    function _ttCleanTableHtml(html) {
+      // Strip baked-in colwidths and cell padding/width styles from DOCX-imported tables
+      // so columns size from content rather than stored pixel widths.
+      if (!html || !html.includes('<table')) return html;
+      try {
+        const tmp = document.createElement('div');
+        tmp.innerHTML = html;
+        tmp.querySelectorAll('td, th').forEach(el => {
+          const s = el.style;
+          s.removeProperty('padding');
+          s.removeProperty('padding-top');
+          s.removeProperty('padding-right');
+          s.removeProperty('padding-bottom');
+          s.removeProperty('padding-left');
+          s.removeProperty('width');
+          s.removeProperty('min-width');
+          s.removeProperty('max-width');
+          s.removeProperty('height');
+          s.removeProperty('min-height');
+          el.removeAttribute('colwidth');
+          el.removeAttribute('data-colwidth');
+        });
+        tmp.querySelectorAll('col').forEach(el => {
+          el.removeAttribute('width');
+          el.style.removeProperty('width');
+        });
+        tmp.querySelectorAll('colgroup').forEach(el => el.remove());
+        tmp.querySelectorAll('table').forEach(el => {
+          const s = el.style;
+          s.removeProperty('width');
+          s.removeProperty('min-width');
+          s.removeProperty('table-layout');
+        });
+        return tmp.innerHTML;
+      } catch (e) {
+        return html;
+      }
+    }
+
     function _ttSetContent(html) {
       if (!_tiptapEditor) return;
-      // Strip target="_blank" from stored links
-      const cleaned = (html || '').replace(/\s+target="_blank"/g, '');
+      // Strip target="_blank" from stored links, then clean table sizing
+      const cleaned = _ttCleanTableHtml((html || '').replace(/\s+target="_blank"/g, ''));
       try {
         // Parse HTML via ProseMirror's DOMParser, then dispatch with addToHistory:false
         // so the initial page load NEVER enters the undo stack. This prevents undo from
