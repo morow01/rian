@@ -4537,7 +4537,6 @@
       font-size: 10px; font-weight: 600; letter-spacing: 0.08em;
       text-transform: uppercase; color: #94A3B8;
     }
-    .tt-hdg-para { font-size: 13px; color: var(--text-secondary); }
     .tt-menu-div { height: 1px; background: var(--border); margin: 3px 4px; }
 
     /* Font size dropdown */
@@ -11970,7 +11969,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.3.61';
+    const VERSION = '5.3.62';
 
     // Auto-update: if stored version differs, wipe SW caches and reload for fresh code.
     // The network-first SW already delivers new app.html; this clears the old SW so it
@@ -30716,11 +30715,6 @@ QUESTION: ${query}`;
       on('tt-h1', () => { e.chain().focus().toggleHeading({ level: 1 }).run(); _closeHdgMenu(); _ttUpdateToolbar(e); });
       on('tt-h2', () => { e.chain().focus().toggleHeading({ level: 2 }).run(); _closeHdgMenu(); _ttUpdateToolbar(e); });
       on('tt-h3', () => { e.chain().focus().toggleHeading({ level: 3 }).run(); _closeHdgMenu(); _ttUpdateToolbar(e); });
-      on('tt-hdg-para', () => {
-        const ed = _tiptapEditor; if (!ed) return;
-        ed.chain().focus().setParagraph().run();
-        _closeHdgMenu(); _ttUpdateToolbar(ed);
-      });
       on('tt-thr', () => {
         const ed = _tiptapEditor; if (!ed) return;
         ed.chain().focus().toggleHeaderRow().run();
@@ -32523,8 +32517,6 @@ QUESTION: ${query}`;
               <button class="tt-list-item tt-hdg-h1" id="tt-h1">Heading 1</button>
               <button class="tt-list-item tt-hdg-h2" id="tt-h2">Heading 2</button>
               <button class="tt-list-item tt-hdg-h3" id="tt-h3">Heading 3</button>
-              <div class="tt-menu-div"></div>
-              <button class="tt-list-item tt-hdg-para" id="tt-hdg-para">Paragraph</button>
             </div>
           </div>
           <div class="tt-sep"></div>
