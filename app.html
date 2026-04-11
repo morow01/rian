@@ -6456,7 +6456,7 @@
 
     :is(#note-fs-editor .ProseMirror, .tt-prose) td,
     :is(#note-fs-editor .ProseMirror, .tt-prose) th {
-      min-width: 60px;
+      min-width: 32px;
       vertical-align: middle;
       position: relative;
       /* required for selectedCell::after overlay and column-resize-handle */
@@ -6494,13 +6494,13 @@
        trails the <p> inside a td/th. The column-resize-handle is always appended last.
        Compensate by subtracting 6px from padding-bottom while the handle is in the cell. */
     #note-fs-editor .ProseMirror th:has(.column-resize-handle) {
-      padding-bottom: 4px;
-      /* 10px normal - 6px ghost */
+      padding-bottom: 2px;
+      /* 8px normal - 6px ghost */
     }
 
     #note-fs-editor .ProseMirror td:has(.column-resize-handle) {
-      padding-bottom: 6px;
-      /* 12px normal - 6px ghost */
+      padding-bottom: 2px;
+      /* 8px normal - 6px ghost */
     }
 
     :is(#note-fs-editor .ProseMirror, .tt-prose) th {
@@ -6511,7 +6511,7 @@
       letter-spacing: 0.06em;
       text-transform: uppercase;
       color: #6B6860;
-      padding: 10px 16px;
+      padding: 8px 8px;
       border-bottom: 2px solid #E2E0DA;
       border-right: 1px solid #E2E0DA;
     }
@@ -6521,7 +6521,7 @@
     }
 
     :is(#note-fs-editor .ProseMirror, .tt-prose) td {
-      padding: 12px 16px;
+      padding: 8px 8px;
       color: #3A3836;
       border-bottom: 1px solid #F0EFEB;
       border-right: 1px solid #F0EFEB;
@@ -13958,7 +13958,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.3.68';
+    const VERSION = '5.3.69';
 
     // Auto-update: if stored version differs, wipe SW caches and reload for fresh code.
     // The network-first SW already delivers new app.html; this clears the old SW so it
