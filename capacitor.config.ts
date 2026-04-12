@@ -6,9 +6,10 @@ const config: CapacitorConfig = {
   webDir: 'www',
   // Load the app from the local web assets (no server needed)
   server: {
-    // Custom hostname avoids https://localhost referrer which Firebase blocks
-    hostname: 'app.rian.fieldlog',
-    androidScheme: 'https',
+    // Load live app from GitHub Pages — updates instantly when PWA is pushed.
+    // Service worker handles offline caching so it works in the field too.
+    url: 'https://morow01.github.io/rian/app.html',
+    cleartext: false,
     // Allow navigation to external Firebase/Google auth URLs
     allowNavigation: [
       'accounts.google.com',
