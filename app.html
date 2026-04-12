@@ -6447,8 +6447,8 @@
     /* Tables — shrink-wrap to content by default, expand only if needed */
     :is(#note-fs-editor .ProseMirror, .tt-prose) table {
       border-collapse: collapse;
-      width: auto;
-      min-width: 0;
+      width: 100%;
+      min-width: 100%;
       margin: 10px 0;
       font-size: 14px;
       font-family: 'DM Sans', sans-serif;
@@ -6456,7 +6456,7 @@
 
     :is(#note-fs-editor .ProseMirror, .tt-prose) td,
     :is(#note-fs-editor .ProseMirror, .tt-prose) th {
-      min-width: 25px;
+      min-width: 60px;
       vertical-align: middle;
       position: relative;
       /* required for selectedCell::after overlay and column-resize-handle */
@@ -6553,7 +6553,8 @@
 
     :is(#note-fs-editor .ProseMirror, .tt-prose) .tableWrapper {
       overflow-x: auto;
-      display: inline-block;
+      display: block;
+      width: 100%;
       max-width: 100%;
     }
 
@@ -13961,7 +13962,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.3.90';
+    const VERSION = '5.3.91';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
