@@ -13961,7 +13961,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.3.87';
+    const VERSION = '5.3.90';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -26540,27 +26540,39 @@
     async function signInWithGoogle() {
       if (_signingIn) return;
       _signingIn = true;
-      const provider = new firebase.auth.GoogleAuthProvider();
-      provider.setCustomParameters({ prompt: 'select_account' });
       try {
-        // Popup works in Chrome PWA — try it first
-        await auth_fb.signInWithPopup(provider);
-      } catch (e) {
-        console.warn('[Rian] Sign-in error:', e.code, e.message);
-        // User closed the popup — not an error, just reset
-        if (e.code === 'auth/popup-closed-by-user' || e.code === 'auth/cancelled-popup-request') {
-          _signingIn = false;
+        // Native Android — use Capacitor Firebase Auth plugin (avoids WebView OAuth block)
+        if (IS_NATIVE && window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.FirebaseAuthentication) {
+          const { FirebaseAuthentication } = window.Capacitor.Plugins;
+          const result = await FirebaseAuthentication.signInWithGoogle();
+          // Sync native credential to Firebase web SDK
+          if (result && result.credential && result.credential.idToken) {
+            const credential = firebase.auth.GoogleAuthProvider.credential(result.credential.idToken);
+            await auth_fb.signInWithCredential(credential);
+          }
           return;
         }
-        // Popup blocked — fall back to redirect
-        if (e.code === 'auth/popup-blocked' || e.code === 'auth/operation-not-supported-in-this-environment') {
-          try {
-            sessionStorage.setItem('rian_redirect_signin', '1');
-            await auth_fb.signInWithRedirect(provider);
+        // Web / PWA — use popup with redirect fallback
+        const provider = new firebase.auth.GoogleAuthProvider();
+        provider.setCustomParameters({ prompt: 'select_account' });
+        try {
+          await auth_fb.signInWithPopup(provider);
+        } catch (e) {
+          console.warn('[Rian] Sign-in error:', e.code, e.message);
+          if (e.code === 'auth/popup-closed-by-user' || e.code === 'auth/cancelled-popup-request') {
             return;
-          } catch (e2) { /* fall through to error display */ }
+          }
+          if (e.code === 'auth/popup-blocked' || e.code === 'auth/operation-not-supported-in-this-environment') {
+            try {
+              sessionStorage.setItem('rian_redirect_signin', '1');
+              await auth_fb.signInWithRedirect(provider);
+              return;
+            } catch (e2) { /* fall through to error display */ }
+          }
+          throw e;
         }
-        // Show the actual error code on screen
+      } catch (e) {
+        console.warn('[Rian] Sign-in error:', e.code, e.message);
         const errEl = document.getElementById('login-error-msg');
         if (errEl) {
           errEl.textContent = (e.code || 'error') + ': ' + (e.message || 'Unknown error');

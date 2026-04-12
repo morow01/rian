@@ -6,6 +6,9 @@ const config: CapacitorConfig = {
   webDir: 'www',
   // Load the app from the local web assets (no server needed)
   server: {
+    // Custom hostname avoids https://localhost referrer which Firebase blocks
+    hostname: 'app.rian.fieldlog',
+    androidScheme: 'https',
     // Allow navigation to external Firebase/Google auth URLs
     allowNavigation: [
       'accounts.google.com',
@@ -36,6 +39,10 @@ const config: CapacitorConfig = {
     StatusBar: {
       style: 'DARK',
       backgroundColor: '#0f1e2e',
+    },
+    FirebaseAuthentication: {
+      skipNativeAuth: false,
+      providers: ['google.com'],
     },
   },
 };

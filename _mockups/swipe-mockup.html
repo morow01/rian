@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Swipe Trigger Feedback Mockup</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0f172a; color: #e2e8f0; padding: 20px 16px 40px; }
+  h2 { font-size: 13px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.08em; margin: 24px 0 10px; }
+  h2:first-of-type { margin-top: 8px; }
+
+  .note-card {
+    background: #1e293b;
+    border-radius: 14px;
+    border: 1.5px solid #334155;
+    overflow: hidden;
+    position: relative;
+    margin-bottom: 8px;
+    user-select: none;
+  }
+  .note-row {
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: #1e293b;
+    position: relative;
+    z-index: 1;
+    border-radius: 14px;
+  }
+  .note-dot { width: 8px; height: 8px; border-radius: 50%; background: #3b82f6; flex-shrink: 0; }
+  .note-title { font-size: 14px; font-weight: 600; color: #e2e8f0; flex: 1; }
+  .note-meta { font-size: 11px; color: #64748b; }
+
+  .swipe-bg {
+    position: absolute;
+    inset: 0;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+    pointer-events: none;
+  }
+  .swipe-label {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 12px; font-weight: 700;
+  }
+
+  /* Demo button */
+  .demo-btn {
+    width: 100%;
+    margin-top: 6px;
+    padding: 10px;
+    border-radius: 10px;
+    border: 1.5px solid #334155;
+    background: #1e293b;
+    color: #94a3b8;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.15s;
+  }
+  .demo-btn:active { background: #273549; }
+
+  .option-label {
+    font-size: 11px;
+    color: #475569;
+    margin-top: 4px;
+    text-align: center;
+  }
+
+  /* ── OPTION 1: Icon pulse ── */
+  @keyframes iconPulse {
+    0%   { transform: scale(1); }
+    30%  { transform: scale(1.5); }
+    60%  { transform: scale(0.85); }
+    100% { transform: scale(1); }
+  }
+  .pulse-anim { animation: iconPulse 0.35s cubic-bezier(0.36,0.07,0.19,0.97) forwards; }
+
+  /* ── OPTION 2: Background flash ── */
+  @keyframes bgFlash {
+    0%   { opacity: 0.25; }
+    40%  { opacity: 1; }
+    100% { opacity: 0.25; }
+  }
+  .flash-anim { animation: bgFlash 0.35s ease forwards; }
+
+  /* ── OPTION 3: Border highlight ── */
+  @keyframes borderGlow {
+    0%   { box-shadow: none; }
+    40%  { box-shadow: 0 0 0 2.5px currentColor; }
+    100% { box-shadow: none; }
+  }
+  .border-right { animation: borderRight 0.4s ease forwards; }
+  .border-left  { animation: borderLeft  0.4s ease forwards; }
+  @keyframes borderRight {
+    0%   { box-shadow: none; border-color: #334155; }
+    40%  { box-shadow: 0 0 0 2px #22c55e; border-color: #22c55e; }
+    100% { box-shadow: none; border-color: #334155; }
+  }
+  @keyframes borderLeft {
+    0%   { box-shadow: none; border-color: #334155; }
+    40%  { box-shadow: 0 0 0 2px #ef4444; border-color: #ef4444; }
+    100% { box-shadow: none; border-color: #334155; }
+  }
+
+  /* ── OPTION 4: Row colour wash ── */
+  @keyframes rowWashGreen {
+    0%   { background: #1e293b; }
+    35%  { background: rgba(34,197,94,0.18); }
+    100% { background: #1e293b; }
+  }
+  @keyframes rowWashRed {
+    0%   { background: #1e293b; }
+    35%  { background: rgba(239,68,68,0.18); }
+    100% { background: #1e293b; }
+  }
+  .wash-green { animation: rowWashGreen 0.4s ease forwards; }
+  .wash-red   { animation: rowWashRed   0.4s ease forwards; }
+
+  svg { flex-shrink: 0; }
+  .divider { height: 1px; background: #1e293b; margin: 4px 0 0; }
+</style>
+</head>
+<body>
+
+<!-- ──────────── OPTION 1 ──────────── -->
+<h2>Option 1 — Icon pulse</h2>
+<div class="note-card" id="card1">
+  <div class="swipe-bg" id="bg1" style="background:rgba(34,197,94,0.12); opacity:0.4;">
+    <span id="icon1done" class="swipe-label" style="color:#22c55e;">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+      Mark Done
+    </span>
+    <span id="icon1del" class="swipe-label" style="color:#ef4444;">
+      Delete
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+    </span>
+  </div>
+  <div class="note-row">
+    <div class="note-dot"></div>
+    <div class="note-title">Fix exchange test fault</div>
+    <div class="note-meta">Today</div>
+  </div>
+</div>
+<button class="demo-btn" onclick="demo1('right')">▶ Trigger right (Done)</button>
+<button class="demo-btn" onclick="demo1('left')" style="margin-top:4px">◀ Trigger left (Delete)</button>
+<div class="option-label">Icon bounces/pops at the trigger point</div>
+
+<!-- ──────────── OPTION 2 ──────────── -->
+<h2>Option 2 — Background flash</h2>
+<div class="note-card" id="card2">
+  <div class="swipe-bg" id="bg2" style="background:rgba(34,197,94,0.12); opacity:0.4;">
+    <span class="swipe-label" style="color:#22c55e;">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+      Mark Done
+    </span>
+    <span class="swipe-label" style="color:#ef4444;">
+      Delete
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+    </span>
+  </div>
+  <div class="note-row">
+    <div class="note-dot" style="background:#f59e0b;"></div>
+    <div class="note-title">Call back Eir about outage</div>
+    <div class="note-meta">Yesterday</div>
+  </div>
+</div>
+<button class="demo-btn" onclick="demo2('right')">▶ Trigger right (Done)</button>
+<button class="demo-btn" onclick="demo2('left')" style="margin-top:4px">◀ Trigger left (Delete)</button>
+<div class="option-label">Background floods to full colour then fades</div>
+
+<!-- ──────────── OPTION 3 ──────────── -->
+<h2>Option 3 — Border glow</h2>
+<div class="note-card" id="card3">
+  <div class="swipe-bg" id="bg3" style="background:rgba(34,197,94,0.12); opacity:0.4;">
+    <span class="swipe-label" style="color:#22c55e;">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+      Mark Done
+    </span>
+    <span class="swipe-label" style="color:#ef4444;">
+      Delete
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+    </span>
+  </div>
+  <div class="note-row">
+    <div class="note-dot" style="background:#ef4444;"></div>
+    <div class="note-title">Submit weekly timesheet</div>
+    <div class="note-meta">Mon</div>
+  </div>
+</div>
+<button class="demo-btn" onclick="demo3('right')">▶ Trigger right (Done)</button>
+<button class="demo-btn" onclick="demo3('left')" style="margin-top:4px">◀ Trigger left (Delete)</button>
+<div class="option-label">Card border glows green or red at trigger point</div>
+
+<!-- ──────────── OPTION 4 ──────────── -->
+<h2>Option 4 — Row colour wash</h2>
+<div class="note-card" id="card4">
+  <div class="swipe-bg" id="bg4" style="background:rgba(34,197,94,0.12); opacity:0.4;">
+    <span class="swipe-label" style="color:#22c55e;">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+      Mark Done
+    </span>
+    <span class="swipe-label" style="color:#ef4444;">
+      Delete
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+    </span>
+  </div>
+  <div class="note-row" id="row4">
+    <div class="note-dot" style="background:#22c55e;"></div>
+    <div class="note-title">Order new patch cables</div>
+    <div class="note-meta">Tue</div>
+  </div>
+</div>
+<button class="demo-btn" onclick="demo4('right')">▶ Trigger right (Done)</button>
+<button class="demo-btn" onclick="demo4('left')" style="margin-top:4px">◀ Trigger left (Delete)</button>
+<div class="option-label">The card row itself washes green or red then returns</div>
+
+<script>
+function reflow(el) { void el.offsetWidth; }
+
+// Option 1 — icon pulse
+function demo1(dir) {
+  const bg = document.getElementById('bg1');
+  const iconDone = document.getElementById('icon1done');
+  const iconDel  = document.getElementById('icon1del');
+  bg.style.background = dir === 'right' ? 'rgba(34,197,94,0.15)' : 'rgba(239,68,68,0.15)';
+  bg.style.opacity = '0.5';
+  const icon = dir === 'right' ? iconDone : iconDel;
+  icon.classList.remove('pulse-anim');
+  reflow(icon);
+  icon.classList.add('pulse-anim');
+  icon.addEventListener('animationend', () => icon.classList.remove('pulse-anim'), { once: true });
+}
+
+// Option 2 — background flash
+function demo2(dir) {
+  const bg = document.getElementById('bg2');
+  bg.style.background = dir === 'right' ? 'rgba(34,197,94,0.5)' : 'rgba(239,68,68,0.5)';
+  bg.classList.remove('flash-anim');
+  reflow(bg);
+  bg.classList.add('flash-anim');
+  bg.addEventListener('animationend', () => {
+    bg.classList.remove('flash-anim');
+    bg.style.background = 'rgba(34,197,94,0.12)';
+    bg.style.opacity = '0.4';
+  }, { once: true });
+}
+
+// Option 3 — border glow
+function demo3(dir) {
+  const card = document.getElementById('card3');
+  const bg = document.getElementById('bg3');
+  bg.style.background = dir === 'right' ? 'rgba(34,197,94,0.12)' : 'rgba(239,68,68,0.12)';
+  const cls = dir === 'right' ? 'border-right' : 'border-left';
+  card.classList.remove('border-right', 'border-left');
+  reflow(card);
+  card.classList.add(cls);
+  card.addEventListener('animationend', () => card.classList.remove(cls), { once: true });
+}
+
+// Option 4 — row wash
+function demo4(dir) {
+  const row = document.getElementById('row4');
+  const cls = dir === 'right' ? 'wash-green' : 'wash-red';
+  row.classList.remove('wash-green', 'wash-red');
+  reflow(row);
+  row.classList.add(cls);
+  row.addEventListener('animationend', () => row.classList.remove(cls), { once: true });
+}
+</script>
+</body>
+</html>

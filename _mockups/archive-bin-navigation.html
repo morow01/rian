@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Archive & Bin Navigation — Mockup Options</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'DM Sans', sans-serif; background: #E8EEF5; padding: 24px 16px 48px; }
+    h1 { font-size: 18px; font-weight: 800; color: #0F1C2E; text-align: center; margin-bottom: 6px; }
+    .subtitle { font-size: 13px; color: #4A6580; text-align: center; margin-bottom: 32px; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; max-width: 900px; margin: 0 auto; }
+    @media (max-width: 600px) { .grid { grid-template-columns: 1fr; } }
+    .option { background: #fff; border-radius: 20px; padding: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+    .option-label { font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #2D6BE4; margin-bottom: 4px; }
+    .option-title { font-size: 16px; font-weight: 800; color: #0F1C2E; margin-bottom: 4px; }
+    .option-desc { font-size: 12px; color: #4A6580; margin-bottom: 16px; line-height: 1.5; }
+    /* Phone frame */
+    .phone { background: #F4F7FA; border-radius: 16px; overflow: hidden; border: 1px solid #D4E0EC; font-size: 13px; color: #0F1C2E; }
+    .phone-header { background: #0F1C2E; padding: 10px 14px; display: flex; align-items: center; justify-content: space-between; }
+    .phone-header span { color: #fff; font-size: 11px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; }
+    .phone-header .back { color: rgba(255,255,255,0.6); font-size: 11px; font-weight: 600; display: flex; align-items: center; gap: 4px; cursor: pointer; }
+    /* Search bar */
+    .search-bar { background: #fff; padding: 8px 12px; display: flex; align-items: center; gap: 8px; border-bottom: 1px solid #D4E0EC; }
+    .search-input { flex: 1; background: #F4F7FA; border: 1.5px solid #D4E0EC; border-radius: 10px; padding: 7px 12px; font-size: 12px; color: #4A6580; }
+    .icon-btn { background: #fff; border: 1.5px solid #D4E0EC; border-radius: 10px; padding: 7px 9px; font-size: 12px; color: #4A6580; display: flex; align-items: center; gap: 4px; cursor: pointer; white-space: nowrap; }
+    .icon-btn.active-archive { background: rgba(234,88,12,0.1); border-color: rgba(234,88,12,0.4); color: #ea580c; }
+    .icon-btn.active-bin { background: rgba(239,68,68,0.1); border-color: rgba(239,68,68,0.4); color: #ef4444; }
+    /* Note cards */
+    .note-card { background: #fff; margin: 8px 12px; border-radius: 12px; padding: 11px 13px; border: 1px solid #D4E0EC; }
+    .note-title { font-weight: 600; font-size: 13px; color: #0F1C2E; }
+    .note-meta { font-size: 11px; color: #8BA5BE; margin-top: 2px; }
+    .note-title.done { text-decoration: line-through; color: #8BA5BE; }
+    .section-label { font-size: 10px; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; color: #8BA5BE; padding: 10px 12px 2px; }
+    .section-label.orange { color: #ea580c; }
+    .section-label.red { color: #ef4444; }
+    /* Sub-tabs */
+    .sub-tabs { display: flex; background: #fff; border-bottom: 1px solid #D4E0EC; }
+    .sub-tab { flex: 1; text-align: center; padding: 9px 4px; font-size: 11px; font-weight: 700; color: #8BA5BE; border-bottom: 2px solid transparent; cursor: pointer; }
+    .sub-tab.active { color: #2D6BE4; border-bottom-color: #2D6BE4; }
+    .sub-tab.active.orange { color: #ea580c; border-bottom-color: #ea580c; }
+    .sub-tab.active.red { color: #ef4444; border-bottom-color: #ef4444; }
+    /* Bottom sheet */
+    .sheet-overlay { background: rgba(15,28,46,0.18); padding: 60px 0 0; position: relative; }
+    .sheet { background: #fff; border-radius: 18px 18px 0 0; padding: 0 0 8px; }
+    .sheet-handle { width: 36px; height: 4px; background: #D4E0EC; border-radius: 99px; margin: 10px auto 12px; }
+    .sheet-header { display: flex; align-items: center; justify-content: space-between; padding: 0 14px 10px; border-bottom: 1px solid #D4E0EC; }
+    .sheet-title { font-size: 14px; font-weight: 700; color: #0F1C2E; display: flex; align-items: center; gap: 6px; }
+    .sheet-close { font-size: 18px; color: #8BA5BE; background: none; border: none; cursor: pointer; line-height: 1; }
+    /* Archive item in sheet */
+    .archive-item { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; border-bottom: 1px solid #F0EFEB; }
+    .archive-item-info .title { font-size: 13px; font-weight: 600; color: #0F1C2E; }
+    .archive-item-info .meta { font-size: 11px; color: #8BA5BE; margin-top: 1px; }
+    .restore-btn { font-size: 11px; font-weight: 700; color: #22c55e; background: rgba(34,197,94,0.1); border: 1px solid rgba(34,197,94,0.3); border-radius: 7px; padding: 5px 9px; cursor: pointer; }
+    /* Collapsible section */
+    .collapsible-row { display: flex; align-items: center; justify-content: space-between; padding: 9px 12px 5px; cursor: pointer; }
+    .collapsible-label { font-size: 10px; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; display: flex; align-items: center; gap: 5px; }
+    .collapsible-label.orange { color: #ea580c; }
+    .collapsible-label.red { color: #ef4444; }
+    .chevron { font-size: 10px; color: #8BA5BE; transition: transform 0.2s; }
+    .chevron.open { transform: rotate(180deg); }
+    .badge { background: #ea580c; color: #fff; font-size: 9px; font-weight: 700; border-radius: 99px; padding: 1px 5px; }
+    .badge.red { background: #ef4444; }
+    /* Pros/cons */
+    .pros-cons { display: flex; gap: 12px; margin-top: 14px; }
+    .pros, .cons { flex: 1; }
+    .pros-cons .label { font-size: 10px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 5px; }
+    .pros .label { color: #16a34a; }
+    .cons .label { color: #ef4444; }
+    .pros-cons li { font-size: 11px; color: #4A6580; line-height: 1.5; list-style: none; padding-left: 12px; position: relative; }
+    .pros-cons li::before { position: absolute; left: 0; }
+    .pros li::before { content: '✓'; color: #16a34a; }
+    .cons li::before { content: '✗'; color: #ef4444; }
+  </style>
+</head>
+<body>
+
+<h1>Archive & Bin Navigation</h1>
+<p class="subtitle">4 options for how Archive and Bin fit into the Notes view</p>
+
+<div class="grid">
+
+  <!-- OPTION A: Back button -->
+  <div class="option">
+    <div class="option-label">Option A</div>
+    <div class="option-title">Back Button</div>
+    <div class="option-desc">Archive/Bin replace the notes list with a header back button to return. Icons still toggle the view.</div>
+    <div class="phone">
+      <div class="phone-header">
+        <span class="back">← Notes</span>
+        <span style="color:rgba(255,255,255,0.9)">Archive</span>
+        <span style="width:48px"></span>
+      </div>
+      <div class="search-bar">
+        <div class="search-input">Search archive…</div>
+        <div class="icon-btn active-archive">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg>
+        </div>
+      </div>
+      <div class="archive-item">
+        <div class="archive-item-info"><div class="title">Battery Issues GCF</div><div class="meta">Archived 2 days ago</div></div>
+        <button class="restore-btn">Restore</button>
+      </div>
+      <div class="archive-item">
+        <div class="archive-item-info"><div class="title">Power Routine BXG</div><div class="meta">Archived 5 days ago</div></div>
+        <button class="restore-btn">Restore</button>
+      </div>
+      <div class="archive-item">
+        <div class="archive-item-info"><div class="title">Fibre Break MMK</div><div class="meta">Auto-archived · 14 days</div></div>
+        <button class="restore-btn">Restore</button>
+      </div>
+    </div>
+    <div class="pros-cons">
+      <div class="pros">
+        <div class="label">Pros</div>
+        <ul>
+          <li>Clear navigation</li>
+          <li>Header names the view</li>
+          <li>Familiar pattern</li>
+        </ul>
+      </div>
+      <div class="cons">
+        <div class="label">Cons</div>
+        <ul>
+          <li>Full screen swap</li>
+          <li>Extra tap to go back</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- OPTION B: Bottom Sheet -->
+  <div class="option">
+    <div class="option-label">Option B</div>
+    <div class="option-title">Slide-up Panel</div>
+    <div class="option-desc">Archive/Bin slide up as a panel over the notes list. Notes stay visible underneath. Dismiss with X or swipe down.</div>
+    <div class="phone">
+      <div class="phone-header"><span>Notes</span></div>
+      <div class="search-bar">
+        <div class="search-input">Search notes…</div>
+        <div class="icon-btn active-archive" style="position:relative">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg>
+          <span style="position:absolute;top:-5px;right:-5px;background:#ea580c;color:#fff;font-size:9px;font-weight:700;border-radius:99px;min-width:14px;height:14px;display:flex;align-items:center;justify-content:center;padding:0 3px;">3</span>
+        </div>
+        <div class="icon-btn">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+        </div>
+      </div>
+      <div style="position:relative">
+        <div class="note-card" style="opacity:0.35"><div class="note-title">Site Visit KEH</div><div class="note-meta">Killeigh · High</div></div>
+        <div class="note-card" style="opacity:0.35"><div class="note-title done">Routine Check BXG</div><div class="note-meta">Done · 3 days ago</div></div>
+        <div class="sheet-overlay">
+          <div class="sheet">
+            <div class="sheet-handle"></div>
+            <div class="sheet-header">
+              <div class="sheet-title">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ea580c" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg>
+                <span>Archive (3)</span>
+              </div>
+              <button class="sheet-close">×</button>
+            </div>
+            <div class="archive-item">
+              <div class="archive-item-info"><div class="title">Battery Issues GCF</div><div class="meta">2 days ago</div></div>
+              <button class="restore-btn">Restore</button>
+            </div>
+            <div class="archive-item">
+              <div class="archive-item-info"><div class="title">Power Routine BXG</div><div class="meta">5 days ago</div></div>
+              <button class="restore-btn">Restore</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="pros-cons">
+      <div class="pros">
+        <div class="label">Pros</div>
+        <ul>
+          <li>Notes stay in context</li>
+          <li>X to dismiss is intuitive</li>
+          <li>Modern feel</li>
+        </ul>
+      </div>
+      <div class="cons">
+        <div class="label">Cons</div>
+        <ul>
+          <li>Less space for items</li>
+          <li>More complex to build</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- OPTION C: Collapsible sections -->
+  <div class="option">
+    <div class="option-label">Option C</div>
+    <div class="option-title">Collapsible Sections</div>
+    <div class="option-desc">Archive and Bin live at the bottom of the notes scroll as expandable sections — no navigation change at all.</div>
+    <div class="phone">
+      <div class="phone-header"><span>Notes</span></div>
+      <div class="search-bar">
+        <div class="search-input">Search notes…</div>
+      </div>
+      <div class="section-label">Open</div>
+      <div class="note-card"><div class="note-title">Site Visit KEH</div><div class="note-meta">Killeigh · High priority</div></div>
+      <div class="section-label">Done</div>
+      <div class="note-card"><div class="note-title done">Routine Check BXG</div><div class="note-meta">Marked done 3 days ago</div></div>
+      <!-- Archive collapsible -->
+      <div class="collapsible-row">
+        <div class="collapsible-label orange">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg>
+          Archive <span class="badge">3</span>
+        </div>
+        <span class="chevron open">▼</span>
+      </div>
+      <div class="archive-item" style="padding:8px 12px;border-bottom:1px solid #F0EFEB;">
+        <div class="archive-item-info"><div class="title" style="font-size:12px">Battery Issues GCF</div><div class="meta">2 days ago</div></div>
+        <button class="restore-btn" style="font-size:10px;padding:4px 7px">Restore</button>
+      </div>
+      <!-- Bin collapsible -->
+      <div class="collapsible-row">
+        <div class="collapsible-label red">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+          Bin <span class="badge red">1</span>
+        </div>
+        <span class="chevron">▼</span>
+      </div>
+    </div>
+    <div class="pros-cons">
+      <div class="pros">
+        <div class="label">Pros</div>
+        <ul>
+          <li>No navigation needed</li>
+          <li>Mirrors Done section</li>
+          <li>Simplest to build</li>
+        </ul>
+      </div>
+      <div class="cons">
+        <div class="label">Cons</div>
+        <ul>
+          <li>Long scroll if many notes</li>
+          <li>Icons in search bar redundant</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- OPTION D: Sub-tabs -->
+  <div class="option">
+    <div class="option-label">Option D</div>
+    <div class="option-title">Tab Bar Inside Notes</div>
+    <div class="option-desc">A 3-tab row at the top of the notes section: Notes · Archive · Bin. One tap to switch, always visible.</div>
+    <div class="phone">
+      <div class="phone-header"><span>Notes</span></div>
+      <div class="search-bar">
+        <div class="search-input">Search archive…</div>
+      </div>
+      <div class="sub-tabs">
+        <div class="sub-tab">Notes</div>
+        <div class="sub-tab active orange">Archive <span class="badge" style="font-size:9px;padding:1px 5px;background:#ea580c;color:#fff;border-radius:99px;margin-left:3px">3</span></div>
+        <div class="sub-tab">Bin <span class="badge red" style="font-size:9px;padding:1px 5px;background:#ef4444;color:#fff;border-radius:99px;margin-left:3px">1</span></div>
+      </div>
+      <div class="archive-item" style="background:#fff;margin:8px 12px;border-radius:12px;border:1px solid #D4E0EC;">
+        <div class="archive-item-info"><div class="title">Battery Issues GCF</div><div class="meta">Archived 2 days ago · Gracefield</div></div>
+        <button class="restore-btn">Restore</button>
+      </div>
+      <div class="archive-item" style="background:#fff;margin:0 12px 8px;border-radius:12px;border:1px solid #D4E0EC;">
+        <div class="archive-item-info"><div class="title">Power Routine BXG</div><div class="meta">Auto-archived · 14 days done</div></div>
+        <button class="restore-btn">Restore</button>
+      </div>
+      <div class="archive-item" style="background:#fff;margin:0 12px 8px;border-radius:12px;border:1px solid #D4E0EC;">
+        <div class="archive-item-info"><div class="title">Fibre Break MMK</div><div class="meta">Archived 8 days ago · Mountmellick</div></div>
+        <button class="restore-btn">Restore</button>
+      </div>
+    </div>
+    <div class="pros-cons">
+      <div class="pros">
+        <div class="label">Pros</div>
+        <ul>
+          <li>Cleanest UX</li>
+          <li>Always one tap away</li>
+          <li>Search works per tab</li>
+        </ul>
+      </div>
+      <div class="cons">
+        <div class="label">Cons</div>
+        <ul>
+          <li>Tabs take vertical space</li>
+          <li>Slight restructure needed</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TipTap Style Mockup — All Styles</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Inter', -apple-system, sans-serif; background: #F1F0EC; min-height: 100vh; padding: 24px 12px 60px; }
+
+  .page-title { text-align: center; font-size: 13px; font-weight: 700; color: #94A3B8; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 24px; }
+
+  .columns { display: flex; gap: 20px; max-width: 1080px; margin: 0 auto; }
+  @media (max-width: 800px) { .columns { flex-direction: column; } }
+
+  .col { flex: 1; min-width: 0; }
+  .col-label { text-align: center; font-size: 12px; font-weight: 700; color: #64748B; margin-bottom: 8px; letter-spacing: 0.02em; }
+  .col-sublabel { text-align: center; font-size: 11px; color: #94A3B8; margin-bottom: 14px; }
+
+  /* Editor chrome */
+  .editor-chrome { background: white; border-radius: 14px; box-shadow: 0 2px 16px rgba(0,0,0,0.07); overflow: hidden; }
+  .editor-topbar { background: #F8F7F5; border-bottom: 1px solid #E8E6E0; padding: 8px 12px; display: flex; align-items: center; gap: 5px; }
+  .topbar-dot { width: 8px; height: 8px; border-radius: 50%; }
+  .d1 { background: #FCA5A5; } .d2 { background: #FDE68A; } .d3 { background: #86EFAC; }
+  .topbar-title { margin-left: 8px; font-size: 11px; font-weight: 600; color: #A0998F; }
+
+  /* Content area — shared base */
+  .prose {
+    padding: 22px 18px 28px;
+    font-family: 'Inter', -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  .prose p {
+    font-size: 13.5px; color: #3A3836; line-height: 1.75;
+    margin-bottom: 10px;
+  }
+  .prose strong { font-weight: 600; color: #1A1917; }
+  .prose em { font-style: italic; color: #57534E; }
+  .prose a { color: #2D6BE4; text-decoration: underline; text-underline-offset: 2px; text-decoration-color: rgba(45,107,228,0.35); }
+  .prose a:hover { text-decoration-color: #2D6BE4; }
+
+  /* Tables */
+  .prose table { border-collapse: collapse; width: 100%; margin: 10px 0 14px; font-size: 12px; }
+  .prose td, .prose th { padding: 7px 11px; border: 1px solid #E8E6E0; vertical-align: middle; }
+  .prose th {
+    font-weight: 600; font-size: 10.5px; letter-spacing: 0.05em;
+    text-transform: uppercase; color: #6B6860; text-align: left;
+    background: #F5F4F0; border-bottom: 2px solid #E2E0DA;
+  }
+  .prose td { color: #3A3836; }
+  .prose td:first-child { font-weight: 500; color: #1A1917; }
+  .prose td.ok { color: #166534; background: #F0FDF4; }
+  .prose td.warn { color: #92400E; background: #FFFBEB; }
+  .prose td.bad { color: #991B1B; background: #FEF2F2; font-weight: 600; }
+
+  /* Blockquote */
+  .prose blockquote {
+    border-left: 3px solid #CBD5E1; padding: 10px 14px;
+    margin: 12px 0; background: #F8FAFC; border-radius: 0 6px 6px 0;
+    color: #64748B; font-size: 13px; line-height: 1.65;
+  }
+  .prose blockquote strong { color: #334155; }
+
+  /* Inline code */
+  .prose code {
+    font-family: 'DM Mono', monospace; font-size: 11.5px;
+    background: #F1F5F9; color: #0F172A; padding: 1.5px 5px; border-radius: 4px;
+    border: 1px solid #E2E8F0;
+  }
+
+  /* Code block */
+  .prose pre {
+    background: #1E293B; color: #E2E8F0; border-radius: 8px;
+    padding: 14px 16px; margin: 12px 0; font-size: 11.5px;
+    font-family: 'DM Mono', monospace; line-height: 1.6;
+    overflow-x: auto;
+  }
+  .prose pre .kw { color: #C084FC; }
+  .prose pre .str { color: #86EFAC; }
+  .prose pre .cmt { color: #64748B; font-style: italic; }
+  .prose pre .fn { color: #7DD3FC; }
+  .prose pre .num { color: #FDE68A; }
+
+  /* Task list */
+  .prose ul.tasks { list-style: none; padding: 0; margin: 8px 0 12px; }
+  .prose ul.tasks li { display: flex; align-items: flex-start; gap: 8px; font-size: 13px; color: #3A3836; margin-bottom: 5px; line-height: 1.55; }
+  .cb { width: 16px; height: 16px; border-radius: 4px; border: 1.5px solid #CBD5E1; flex-shrink: 0; display: flex; align-items: center; justify-content: center; margin-top: 2px; }
+  .done .cb { background: #4ADE80; border-color: #22C55E; }
+  .done .cb::after { content: '✓'; color: white; font-size: 10px; font-weight: 800; line-height: 1; }
+  .done > span { color: #94A3B8; text-decoration: line-through; }
+
+  /* Bullet list */
+  .prose ul.regular { padding-left: 18px; margin: 6px 0 12px; }
+  .prose ul.regular li { font-size: 13.5px; color: #3A3836; margin-bottom: 3px; line-height: 1.7; }
+  .prose ul.regular li::marker { color: #94A3B8; }
+
+  /* Ordered list */
+  .prose ol { padding-left: 18px; margin: 6px 0 12px; }
+  .prose ol li { font-size: 13.5px; color: #3A3836; margin-bottom: 3px; line-height: 1.7; }
+  .prose ol li::marker { color: #94A3B8; font-weight: 600; font-size: 12px; }
+
+  /* Horizontal rule */
+  .prose hr { border: none; border-top: 1px solid #E8E6E0; margin: 16px 0; }
+
+  /* ─────────────────────────────── */
+  /* VERSION A: Blueprint            */
+  /* ─────────────────────────────── */
+  .v-a h1 {
+    font-size: 22px; font-weight: 700; color: #0F172A;
+    letter-spacing: -0.03em; line-height: 1.25;
+    border-bottom: 2px solid #E2E8F0; padding-bottom: 8px; margin-bottom: 14px;
+  }
+  .v-a h2 {
+    font-size: 15px; font-weight: 700; color: #2563EB;
+    letter-spacing: -0.01em; line-height: 1.3;
+    margin-top: 20px; margin-bottom: 8px;
+  }
+  .v-a h3 {
+    font-size: 10px; font-weight: 700; color: #94A3B8;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    margin-top: 14px; margin-bottom: 6px;
+  }
+
+  /* ─────────────────────────────── */
+  /* VERSION B: Field Notes          */
+  /* ─────────────────────────────── */
+  .v-b h1 {
+    font-size: 21px; font-weight: 800; color: #1C1917;
+    letter-spacing: -0.03em; line-height: 1.25;
+    border-left: 4px solid #D97706; padding-left: 12px;
+    margin-bottom: 14px;
+  }
+  .v-b h2 {
+    font-size: 15px; font-weight: 600; color: #92400E;
+    line-height: 1.3;
+    border-bottom: 1.5px solid #FDE68A; padding-bottom: 3px;
+    margin-top: 20px; margin-bottom: 8px;
+  }
+  .v-b h3 {
+    font-size: 12px; font-weight: 600; color: #78716C;
+    font-style: italic;
+    margin-top: 14px; margin-bottom: 6px;
+  }
+
+  /* ─────────────────────────────── */
+  /* Suggestions row                 */
+  /* ─────────────────────────────── */
+  .suggestions { max-width: 1080px; margin: 36px auto 0; }
+  .sug-title { font-size: 11px; font-weight: 700; color: #94A3B8; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 14px; text-align: center; }
+  .sug-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; }
+  .sug-card { background: white; border-radius: 10px; padding: 14px; box-shadow: 0 1px 6px rgba(0,0,0,0.05); }
+  .sug-card-title { font-size: 11px; font-weight: 700; color: #475569; margin-bottom: 6px; }
+  .sug-card p { font-size: 11.5px; color: #78716C; line-height: 1.55; }
+  .badge { display: inline-block; font-size: 9px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; padding: 2px 6px; border-radius: 4px; margin-bottom: 6px; }
+  .badge-new { background: #DCFCE7; color: #166534; }
+  .badge-tweak { background: #FEF3C7; color: #92400E; }
+</style>
+</head>
+<body>
+
+<div class="page-title">TipTap Style Comparison — Pick a heading direction</div>
+
+<div class="columns">
+
+  <!-- ==================== VERSION A ==================== -->
+  <div class="col">
+    <div class="col-label">Version A — Blueprint</div>
+    <div class="col-sublabel">Clean · technical · blue accent</div>
+    <div class="editor-chrome">
+      <div class="editor-topbar">
+        <div class="topbar-dot d1"></div><div class="topbar-dot d2"></div><div class="topbar-dot d3"></div>
+        <span class="topbar-title">Site 14 — Battery Inspection</span>
+      </div>
+      <div class="prose v-a">
+
+        <h1>Site 14 — Substation Inspection</h1>
+        <p>Attended site with <strong>J. Morrison</strong> on 11 Apr 2026. DC power system operational, <em>minor alarms present</em>. Battery bank Block A shows one cell below threshold. <a href="#">Ticket #4821</a> raised for replacement.</p>
+
+        <h2>Battery Bank — Block A</h2>
+        <h3>Cell Voltage Readings (24V String)</h3>
+        <table>
+          <thead><tr><th>Cell</th><th>Voltage</th><th>Float</th><th>Temp</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td>2.21V</td><td>2.25V</td><td>22°C</td><td class="ok">OK</td></tr>
+            <tr><td>2</td><td>2.19V</td><td>2.25V</td><td>23°C</td><td class="warn">Low</td></tr>
+            <tr><td>3</td><td>2.22V</td><td>2.25V</td><td>22°C</td><td class="ok">OK</td></tr>
+            <tr><td>4</td><td>2.08V</td><td>2.25V</td><td>24°C</td><td class="bad">Replace</td></tr>
+            <tr><td>5</td><td>2.20V</td><td>2.25V</td><td>22°C</td><td class="ok">OK</td></tr>
+          </tbody>
+        </table>
+
+        <h2>Rectifiers</h2>
+        <h3>Active Alarms</h3>
+        <blockquote><strong>Rectifier 2 — High DC voltage</strong> alarm since 14:32. Unit still regulating within limits, no load impact. Monitor until next scheduled visit on Thursday.</blockquote>
+
+        <p>Firmware version checked: <code>v3.12.4-rc2</code>. Current draw measured at <code>48.2A</code> under load test. All within expected range per <a href="#">Spec EN-50272-2</a>.</p>
+
+        <h2>DC Power Load Test</h2>
+        <h3>Procedure Notes</h3>
+        <ol>
+          <li>Isolate battery bank from rectifier bus</li>
+          <li>Apply <strong>constant current</strong> drain at 0.1C for 10 minutes</li>
+          <li>Record terminal voltage every 60 seconds</li>
+          <li>Reconnect and verify float voltage recovery within 15 min</li>
+        </ol>
+
+        <pre><span class="cmt">// Load test measurement log</span>
+<span class="kw">const</span> readings = [
+  { t: <span class="num">0</span>,  v: <span class="num">2.21</span>, a: <span class="num">4.8</span> },
+  { t: <span class="num">60</span>, v: <span class="num">2.19</span>, a: <span class="num">4.7</span> },
+  { t: <span class="num">120</span>,v: <span class="num">2.18</span>, a: <span class="num">4.8</span> },
+];
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="str">'Test complete'</span>);</pre>
+
+        <h2>Actions Required</h2>
+        <h3>Task List</h3>
+        <ul class="tasks">
+          <li class="done"><div class="cb"></div><span>Check float voltage on all cells</span></li>
+          <li class="done"><div class="cb"></div><span>Inspect inter-cell bus bar connections</span></li>
+          <li class="done"><div class="cb"></div><span>Photo all cell labels &amp; serial numbers</span></li>
+          <li><div class="cb"></div><span>Log rectifier alarm to NOC — call Dave</span></li>
+          <li><div class="cb"></div><span>Order replacement cell for unit 4 (ETA ~5 days)</span></li>
+          <li><div class="cb"></div><span>Schedule return visit after delivery</span></li>
+        </ul>
+
+        <hr>
+        <h3>Additional Notes</h3>
+        <ul class="regular">
+          <li>Earth bar tightened — was loose at the M10 bolt</li>
+          <li>Fire extinguisher tag checked — expires <strong>Nov 2026</strong></li>
+          <li>AC supply healthy, no UPS bypass alarms</li>
+        </ul>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== VERSION B ==================== -->
+  <div class="col">
+    <div class="col-label">Version B — Field Notes</div>
+    <div class="col-sublabel">Warm · bold · amber accent</div>
+    <div class="editor-chrome">
+      <div class="editor-topbar">
+        <div class="topbar-dot d1"></div><div class="topbar-dot d2"></div><div class="topbar-dot d3"></div>
+        <span class="topbar-title">Site 14 — Battery Inspection</span>
+      </div>
+      <div class="prose v-b">
+
+        <h1>Site 14 — Substation Inspection</h1>
+        <p>Attended site with <strong>J. Morrison</strong> on 11 Apr 2026. DC power system operational, <em>minor alarms present</em>. Battery bank Block A shows one cell below threshold. <a href="#">Ticket #4821</a> raised for replacement.</p>
+
+        <h2>Battery Bank — Block A</h2>
+        <h3>Cell Voltage Readings (24V String)</h3>
+        <table>
+          <thead><tr><th>Cell</th><th>Voltage</th><th>Float</th><th>Temp</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td>2.21V</td><td>2.25V</td><td>22°C</td><td class="ok">OK</td></tr>
+            <tr><td>2</td><td>2.19V</td><td>2.25V</td><td>23°C</td><td class="warn">Low</td></tr>
+            <tr><td>3</td><td>2.22V</td><td>2.25V</td><td>22°C</td><td class="ok">OK</td></tr>
+            <tr><td>4</td><td>2.08V</td><td>2.25V</td><td>24°C</td><td class="bad">Replace</td></tr>
+            <tr><td>5</td><td>2.20V</td><td>2.25V</td><td>22°C</td><td class="ok">OK</td></tr>
+          </tbody>
+        </table>
+
+        <h2>Rectifiers</h2>
+        <h3>Active Alarms</h3>
+        <blockquote><strong>Rectifier 2 — High DC voltage</strong> alarm since 14:32. Unit still regulating within limits, no load impact. Monitor until next scheduled visit on Thursday.</blockquote>
+
+        <p>Firmware version checked: <code>v3.12.4-rc2</code>. Current draw measured at <code>48.2A</code> under load test. All within expected range per <a href="#">Spec EN-50272-2</a>.</p>
+
+        <h2>DC Power Load Test</h2>
+        <h3>Procedure Notes</h3>
+        <ol>
+          <li>Isolate battery bank from rectifier bus</li>
+          <li>Apply <strong>constant current</strong> drain at 0.1C for 10 minutes</li>
+          <li>Record terminal voltage every 60 seconds</li>
+          <li>Reconnect and verify float voltage recovery within 15 min</li>
+        </ol>
+
+        <pre><span class="cmt">// Load test measurement log</span>
+<span class="kw">const</span> readings = [
+  { t: <span class="num">0</span>,  v: <span class="num">2.21</span>, a: <span class="num">4.8</span> },
+  { t: <span class="num">60</span>, v: <span class="num">2.19</span>, a: <span class="num">4.7</span> },
+  { t: <span class="num">120</span>,v: <span class="num">2.18</span>, a: <span class="num">4.8</span> },
+];
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="str">'Test complete'</span>);</pre>
+
+        <h2>Actions Required</h2>
+        <h3>Task List</h3>
+        <ul class="tasks">
+          <li class="done"><div class="cb"></div><span>Check float voltage on all cells</span></li>
+          <li class="done"><div class="cb"></div><span>Inspect inter-cell bus bar connections</span></li>
+          <li class="done"><div class="cb"></div><span>Photo all cell labels &amp; serial numbers</span></li>
+          <li><div class="cb"></div><span>Log rectifier alarm to NOC — call Dave</span></li>
+          <li><div class="cb"></div><span>Order replacement cell for unit 4 (ETA ~5 days)</span></li>
+          <li><div class="cb"></div><span>Schedule return visit after delivery</span></li>
+        </ul>
+
+        <hr>
+        <h3>Additional Notes</h3>
+        <ul class="regular">
+          <li>Earth bar tightened — was loose at the M10 bolt</li>
+          <li>Fire extinguisher tag checked — expires <strong>Nov 2026</strong></li>
+          <li>AC supply healthy, no UPS bypass alarms</li>
+        </ul>
+
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- SUGGESTIONS -->
+<div class="suggestions">
+  <div class="sug-title">Other style improvements I'd suggest</div>
+  <div class="sug-grid">
+    <div class="sug-card">
+      <div class="badge badge-new">New</div>
+      <div class="sug-card-title">Status colours in table cells</div>
+      <p>Green/amber/red tint for OK/Warn/Bad cells. Makes scanning voltage tables instant — shown above in the mockup.</p>
+    </div>
+    <div class="sug-card">
+      <div class="badge badge-tweak">Tweak</div>
+      <div class="sug-card-title">Blockquote background</div>
+      <p>Add a light blue-gray tint (#F8FAFC) so alarm/callout notes stand out from body text. Currently plain white.</p>
+    </div>
+    <div class="sug-card">
+      <div class="badge badge-tweak">Tweak</div>
+      <div class="sug-card-title">Code block dark theme</div>
+      <p>Darker code blocks (#1E293B) with syntax colour hints. Current code blocks are light gray — harder to distinguish from body.</p>
+    </div>
+    <div class="sug-card">
+      <div class="badge badge-tweak">Tweak</div>
+      <div class="sug-card-title">Inline code border</div>
+      <p>Add a subtle 1px border (#E2E8F0) around inline code. Stops <code style="font-family:DM Mono,monospace;font-size:10px;background:#F1F5F9;padding:1px 4px;border-radius:3px;border:1px solid #E2E8F0">code</code> from blending into body text.</p>
+    </div>
+    <div class="sug-card">
+      <div class="badge badge-new">New</div>
+      <div class="sug-card-title">Horizontal rule style</div>
+      <p>A clean 1px line (#E8E6E0) to visually separate note sections. Useful for long site visit notes.</p>
+    </div>
+    <div class="sug-card">
+      <div class="badge badge-tweak">Tweak</div>
+      <div class="sug-card-title">Ordered list markers</div>
+      <p>Muted gray (#94A3B8) markers with slightly smaller weight. Keeps numbered procedures readable without being noisy.</p>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

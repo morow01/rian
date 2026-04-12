@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Archive Note Preview Options</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #F0EEE9; padding: 32px 16px; }
+  h1 { font-size: 18px; font-weight: 700; color: #1A1917; margin-bottom: 6px; }
+  .subtitle { font-size: 13px; color: #6B6860; margin-bottom: 32px; }
+  .options { display: flex; gap: 32px; justify-content: center; flex-wrap: wrap; }
+  .option { display: flex; flex-direction: column; align-items: center; gap: 14px; }
+  .option-label { font-size: 13px; font-weight: 700; color: #1A1917; text-align: center; }
+  .option-desc { font-size: 11px; color: #6B6860; text-align: center; max-width: 200px; line-height: 1.5; }
+  .pros-cons { font-size: 11px; color: #6B6860; max-width: 200px; line-height: 1.6; }
+  .pros-cons .pro { color: #22c55e; }
+  .pros-cons .con { color: #ef4444; }
+
+  /* Phone frame */
+  .phone { width: 220px; height: 420px; background: #fff; border-radius: 32px; border: 3px solid #1A1917; overflow: hidden; position: relative; box-shadow: 0 8px 32px rgba(0,0,0,0.15); flex-shrink: 0; }
+  .phone-notch { height: 24px; background: #1A1917; border-radius: 0 0 12px 12px; width: 80px; margin: 0 auto; }
+  .phone-screen { height: calc(100% - 28px); overflow: hidden; position: relative; background: #F0EEE9; }
+
+  /* Tab bar */
+  .tab-bar { display: flex; border-bottom: 1.5px solid #E2E0DA; background: #fff; }
+  .tab { flex: 1; padding: 8px 0 6px; text-align: center; font-size: 10px; font-weight: 600; color: #9B9892; display: flex; align-items: center; justify-content: center; gap: 3px; }
+  .tab.active { color: #1A1917; border-bottom: 2.5px solid #C4B5A0; }
+  .tab svg { width: 10px; height: 10px; }
+  .tab-count { font-size: 9px; font-weight: 700; border-radius: 99px; padding: 0 4px; height: 13px; display: inline-flex; align-items: center; }
+  .tab-count.archive { background: rgba(234,88,12,0.12); color: #ea580c; }
+
+  /* Search bar */
+  .search-bar { padding: 6px 10px; background: #fff; }
+  .search-input { width: 100%; padding: 6px 10px; border-radius: 8px; border: 1.5px solid #E2E0DA; background: #FAFAF8; font-size: 10px; color: #9B9892; }
+
+  /* Archive cards */
+  .archive-list { padding: 8px 10px; display: flex; flex-direction: column; gap: 7px; overflow: hidden; }
+  .arc-card { background: #fff; border: 1px solid #E2E0DA; border-radius: 10px; padding: 10px 12px; display: flex; align-items: center; gap: 8px; cursor: pointer; transition: background 0.15s; }
+  .arc-card:hover { background: #FAFAF8; }
+  .arc-card-body { flex: 1; min-width: 0; }
+  .arc-card-title { font-size: 11px; font-weight: 600; color: #1A1917; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .arc-card-meta { font-size: 9px; color: #9B9892; margin-top: 2px; }
+  .arc-card-ago { font-size: 9px; color: #9B9892; }
+  .arc-btn { width: 28px; height: 28px; border-radius: 7px; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .arc-btn.restore { background: rgba(34,197,94,0.1); color: #22c55e; }
+  .arc-btn.delete { background: rgba(239,68,68,0.08); color: #ef4444; }
+
+  /* OPTION A — Expand in place */
+  .arc-card.expanded { display: block; padding: 10px 12px; }
+  .arc-card.expanded .arc-card-title { white-space: normal; margin-bottom: 6px; }
+  .arc-card-content { font-size: 10px; color: #3A3836; line-height: 1.5; border-top: 1px solid #F0EFEB; padding-top: 7px; margin-top: 4px; }
+  .arc-card-actions { display: flex; gap: 6px; margin-top: 8px; padding-top: 7px; border-top: 1px solid #F0EFEB; }
+  .arc-action-btn { flex: 1; padding: 6px 0; border-radius: 7px; border: none; font-size: 10px; font-weight: 700; cursor: pointer; }
+  .arc-action-btn.restore { background: rgba(34,197,94,0.1); color: #22c55e; }
+  .arc-action-btn.delete { background: rgba(239,68,68,0.08); color: #ef4444; }
+
+  /* OPTION B — Bottom sheet */
+  .bottom-sheet { position: absolute; bottom: 0; left: 0; right: 0; background: #fff; border-radius: 16px 16px 0 0; padding: 12px 14px 16px; box-shadow: 0 -4px 20px rgba(0,0,0,0.15); z-index: 10; }
+  .sheet-handle { width: 32px; height: 3px; background: #E2E0DA; border-radius: 99px; margin: 0 auto 12px; }
+  .sheet-title { font-size: 13px; font-weight: 700; color: #1A1917; margin-bottom: 4px; }
+  .sheet-meta { font-size: 10px; color: #9B9892; margin-bottom: 10px; }
+  .sheet-content { font-size: 11px; color: #3A3836; line-height: 1.6; border: 1px solid #F0EFEB; border-radius: 8px; padding: 8px 10px; background: #FAFAF8; margin-bottom: 10px; max-height: 120px; overflow: hidden; }
+  .sheet-actions { display: flex; gap: 8px; }
+  .sheet-btn { flex: 1; padding: 8px 0; border-radius: 10px; border: none; font-size: 11px; font-weight: 700; cursor: pointer; }
+  .sheet-btn.restore { background: rgba(34,197,94,0.12); color: #22c55e; }
+  .sheet-btn.delete { background: rgba(239,68,68,0.08); color: #ef4444; }
+  .sheet-close { position: absolute; top: 12px; right: 14px; width: 24px; height: 24px; border-radius: 99px; background: #F0EFEB; border: none; font-size: 14px; cursor: pointer; color: #6B6860; display: flex; align-items: center; justify-content: center; line-height: 1; }
+  .sheet-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.25); z-index: 9; }
+
+  /* OPTION C — Fullscreen */
+  .fs-view { position: absolute; inset: 0; background: #fff; z-index: 10; display: flex; flex-direction: column; }
+  .fs-header { display: flex; align-items: center; gap: 8px; padding: 10px 12px; border-bottom: 1px solid #E2E0DA; }
+  .fs-back { width: 28px; height: 28px; border-radius: 8px; background: #F0EFEB; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; color: #1A1917; flex-shrink: 0; }
+  .fs-header-title { font-size: 12px; font-weight: 700; color: #1A1917; flex: 1; }
+  .fs-badge { font-size: 9px; font-weight: 700; background: rgba(234,88,12,0.12); color: #ea580c; border-radius: 6px; padding: 2px 6px; }
+  .fs-body { flex: 1; padding: 14px 14px; overflow: hidden; }
+  .fs-note-title { font-size: 14px; font-weight: 700; color: #1A1917; margin-bottom: 8px; }
+  .fs-note-meta { font-size: 10px; color: #9B9892; margin-bottom: 12px; display: flex; gap: 8px; }
+  .fs-note-content { font-size: 11px; color: #3A3836; line-height: 1.7; }
+  .fs-note-content p { margin-bottom: 6px; }
+  .fs-note-content ul { padding-left: 14px; }
+  .fs-note-content li { margin-bottom: 4px; }
+  .fs-footer { padding: 10px 14px 14px; border-top: 1px solid #E2E0DA; display: flex; gap: 8px; }
+  .fs-btn { flex: 1; padding: 9px 0; border-radius: 10px; border: none; font-size: 11px; font-weight: 700; cursor: pointer; }
+  .fs-btn.restore { background: rgba(34,197,94,0.12); color: #22c55e; }
+  .fs-btn.delete { background: rgba(239,68,68,0.08); color: #ef4444; }
+</style>
+</head>
+<body>
+<h1>Archive Note Preview Options</h1>
+<p class="subtitle">How to view a note before deciding to restore or delete it</p>
+
+<div class="options">
+
+  <!-- OPTION A: Expand in-place -->
+  <div class="option">
+    <div class="option-label">A — Expand in-place</div>
+    <div class="phone">
+      <div class="phone-notch"></div>
+      <div class="phone-screen">
+        <div class="tab-bar">
+          <div class="tab">Notes</div>
+          <div class="tab active">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg>
+            Archive <span class="tab-count archive">4</span>
+          </div>
+          <div class="tab">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+            Bin
+          </div>
+        </div>
+        <div class="search-bar">
+          <div class="search-input" style="color:#C4B5A0">Search archive…</div>
+        </div>
+        <div class="archive-list">
+          <!-- Collapsed card -->
+          <div class="arc-card">
+            <div class="arc-card-body">
+              <div class="arc-card-title">Order voltmeter</div>
+              <div class="arc-card-meta">Thu 12. Mar '26</div>
+              <div class="arc-card-ago">Archived 8h ago</div>
+            </div>
+            <button class="arc-btn restore">↺</button>
+            <button class="arc-btn delete">🗑</button>
+          </div>
+          <!-- Expanded card -->
+          <div class="arc-card expanded" style="background:#FAFAF8;border-color:#C4B5A0;">
+            <div class="arc-card-title">Sen email to Gareth Flynn — order small rectifiers</div>
+            <div class="arc-card-meta" style="margin-bottom:0">📍 Mucklagh · Thu 19. Mar '26</div>
+            <div class="arc-card-content">
+              Need to order 4x small rectifiers for Mucklagh DC panel. Contact Gareth directly on Blocworx system — reference job R24635962.
+            </div>
+            <div class="arc-card-actions">
+              <button class="arc-action-btn restore">↺ Restore</button>
+              <button class="arc-action-btn delete">🗑 Delete</button>
+            </div>
+          </div>
+          <!-- Another collapsed -->
+          <div class="arc-card">
+            <div class="arc-card-body">
+              <div class="arc-card-title">Get VCM card from Aidan</div>
+              <div class="arc-card-ago">Archived 23h ago</div>
+            </div>
+            <button class="arc-btn restore">↺</button>
+            <button class="arc-btn delete">🗑</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="pros-cons">
+      <div class="pro">✓ No navigation, stays in context</div>
+      <div class="pro">✓ See multiple notes at once</div>
+      <div class="con">✗ Limited space for long notes</div>
+      <div class="con">✗ Images/tables won't render well</div>
+    </div>
+  </div>
+
+  <!-- OPTION B: Bottom sheet -->
+  <div class="option">
+    <div class="option-label">B — Bottom sheet</div>
+    <div class="phone">
+      <div class="phone-notch"></div>
+      <div class="phone-screen">
+        <div class="tab-bar">
+          <div class="tab">Notes</div>
+          <div class="tab active">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg>
+            Archive <span class="tab-count archive">4</span>
+          </div>
+          <div class="tab">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+            Bin
+          </div>
+        </div>
+        <div class="search-bar">
+          <div class="search-input" style="color:#C4B5A0">Search archive…</div>
+        </div>
+        <div class="archive-list">
+          <div class="arc-card" style="opacity:0.4">
+            <div class="arc-card-body">
+              <div class="arc-card-title">Order voltmeter</div>
+              <div class="arc-card-ago">Archived 8h ago</div>
+            </div>
+          </div>
+          <div class="arc-card" style="opacity:0.4">
+            <div class="arc-card-body">
+              <div class="arc-card-title">Sen email to Gareth Flynn…</div>
+              <div class="arc-card-ago">Archived 23h ago</div>
+            </div>
+          </div>
+        </div>
+        <!-- Overlay -->
+        <div class="sheet-overlay"></div>
+        <!-- Bottom sheet -->
+        <div class="bottom-sheet">
+          <button class="sheet-close">×</button>
+          <div class="sheet-handle"></div>
+          <div class="sheet-title">Order voltmeter</div>
+          <div class="sheet-meta">📅 Thu 12. Mar '26 · Archived 8h ago</div>
+          <div class="sheet-content">
+            Need a new voltmeter for site visits — the Fluke 113 is getting unreliable. Check with stores first, if not available order from supplier.
+          </div>
+          <div class="sheet-actions">
+            <button class="sheet-btn restore">↺ Restore</button>
+            <button class="sheet-btn delete">🗑 Delete</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="pros-cons">
+      <div class="pro">✓ Full note content visible</div>
+      <div class="pro">✓ Familiar mobile pattern</div>
+      <div class="pro">✓ Restore/Delete right there</div>
+      <div class="con">✗ Covers rest of the list</div>
+    </div>
+  </div>
+
+  <!-- OPTION C: Fullscreen -->
+  <div class="option">
+    <div class="option-label">C — Fullscreen read-only</div>
+    <div class="phone">
+      <div class="phone-notch"></div>
+      <div class="phone-screen">
+        <div class="fs-view">
+          <div class="fs-header">
+            <button class="fs-back">←</button>
+            <div class="fs-header-title">Archive</div>
+            <div class="fs-badge">Archived 8h ago</div>
+          </div>
+          <div class="fs-body">
+            <div class="fs-note-title">Order voltmeter</div>
+            <div class="fs-note-meta">
+              <span>📅 Thu 12. Mar '26</span>
+            </div>
+            <div class="fs-note-content">
+              <p>Need a new voltmeter for site visits — the Fluke 113 is getting unreliable.</p>
+              <p>Check with stores first before ordering from supplier. Need CAT III 600V rating minimum.</p>
+              <ul>
+                <li>Check Mucklagh stores</li>
+                <li>Ask Aidan about spare</li>
+                <li>Fluke 117 or equivalent</li>
+              </ul>
+            </div>
+          </div>
+          <div class="fs-footer">
+            <button class="fs-btn restore">↺ Restore to Notes</button>
+            <button class="fs-btn delete">🗑 Delete</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="pros-cons">
+      <div class="pro">✓ Full space for content</div>
+      <div class="pro">✓ Images/tables render fully</div>
+      <div class="con">✗ Extra navigation step (back)</div>
+      <div class="con">✗ Loses list context</div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

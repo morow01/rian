@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Context Menu Mockup</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, 'Inter', sans-serif;
+    background: #f0f2f5;
+    padding: 24px 16px 80px;
+    min-height: 100vh;
+  }
+
+  h2 {
+    font-size: 11px; font-weight: 800; letter-spacing: 0.08em;
+    color: #94a3b8; text-transform: uppercase;
+    margin-bottom: 12px; padding-left: 4px;
+  }
+  .section { margin-bottom: 36px; }
+
+  .card {
+    background: #fff; border-radius: 16px;
+    border: 1px solid #e2e8f0; overflow: visible;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+    position: relative;
+  }
+
+  .field-label {
+    font-size: 11px; font-weight: 800; color: #94a3b8;
+    text-transform: uppercase; letter-spacing: 0.06em;
+    display: block; margin-bottom: 6px;
+  }
+  .field-box {
+    background: #f8fafc; border: 1.5px solid #e2e8f0;
+    border-radius: 8px; padding: 10px 12px;
+    font-size: 13px; font-family: inherit; color: #1e293b; width: 100%;
+  }
+  .field-wrap { padding: 14px 14px 0; display: flex; flex-direction: column; gap: 12px; }
+
+  .notes-panel-row {
+    background: #f8fafc; border: 1.5px solid #e2e8f0;
+    border-radius: 8px; padding: 10px 12px;
+    display: flex; align-items: center; gap: 8px;
+    color: #94a3b8; font-size: 13px;
+  }
+  .notes-panel-row span { flex: 1; }
+
+  /* ── Bottom action row ── */
+  .action-row {
+    display: flex; gap: 8px;
+    padding: 14px; margin-top: 14px;
+    align-items: center;
+  }
+
+  .btn {
+    flex: 1; padding: 11px 8px; border-radius: 12px;
+    font-size: 13px; font-weight: 700; font-family: inherit;
+    cursor: pointer; display: flex; align-items: center;
+    justify-content: center; gap: 6px; border: 1.5px solid;
+    transition: transform 0.1s;
+  }
+  .btn:active { transform: scale(0.97); }
+  .btn svg { width: 15px; height: 15px; flex-shrink: 0; }
+
+  .btn-green  { background: #f0fdf4; color: #16a34a; border-color: #bbf7d0; }
+  .btn-red    { background: #fef2f1; color: #e8453c; border-color: #f5c6c2; }
+
+  /* ── More (⋯) button ── */
+  .btn-more {
+    width: 42px; height: 42px; flex: none;
+    border-radius: 12px; border: 1.5px solid #e2e8f0;
+    background: #f8fafc; color: #64748b;
+    cursor: pointer; display: flex; align-items: center;
+    justify-content: center; font-size: 18px; font-weight: 700;
+    letter-spacing: 1px; transition: all 0.15s;
+    position: relative;
+  }
+  .btn-more:active { transform: scale(0.95); }
+  .btn-more.open { background: #1e293b; color: #fff; border-color: #1e293b; }
+
+  /* ── Context menu ── */
+  .ctx-menu {
+    position: absolute; right: 14px; bottom: calc(100% + 6px);
+    background: #fff; border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+    min-width: 190px; overflow: hidden;
+    display: none; z-index: 100;
+    animation: popIn 0.15s ease;
+  }
+  .ctx-menu.show { display: block; }
+
+  @keyframes popIn {
+    from { opacity: 0; transform: scale(0.92) translateY(6px); }
+    to   { opacity: 1; transform: scale(1) translateY(0); }
+  }
+
+  .ctx-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 13px 16px; cursor: pointer;
+    font-size: 14px; font-weight: 600; color: #1e293b;
+    transition: background 0.1s;
+  }
+  .ctx-item:not(:last-child) { border-bottom: 1px solid #f1f5f9; }
+  .ctx-item:active { background: #f8fafc; }
+  .ctx-item svg { width: 17px; height: 17px; flex-shrink: 0; }
+  .ctx-item.danger { color: #e8453c; }
+
+  .ctx-icon-blue   { color: #2563eb; }
+  .ctx-icon-purple { color: #7c3aed; }
+  .ctx-icon-slate  { color: #475569; }
+  .ctx-icon-green  { color: #16a34a; }
+
+  /* priority dots */
+  .dot { width: 10px; height: 10px; border-radius: 50%; cursor: pointer; flex-shrink: 0; }
+  .dot-red    { background: #e8453c; }
+  .dot-yellow { background: #f59e0b; border: 1.5px solid #e2e8f0; }
+  .dot-green  { background: #22c55e; border: 1.5px solid #e2e8f0; }
+
+  /* option tabs */
+  .option-tabs { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+  .tab {
+    padding: 6px 14px; border-radius: 20px; font-size: 12px;
+    font-weight: 700; cursor: pointer; border: 1.5px solid #e2e8f0;
+    background: #fff; color: #64748b; transition: all 0.15s;
+  }
+  .tab.active { background: #1e293b; color: #fff; border-color: #1e293b; }
+
+  .hint {
+    font-size: 12px; color: #94a3b8; text-align: center;
+    margin-top: -8px; margin-bottom: 20px;
+  }
+</style>
+</head>
+<body>
+
+<div class="option-tabs">
+  <div class="tab active" onclick="showTab('v1')">Variant 1 — ⋯ right</div>
+  <div class="tab" onclick="showTab('v2')">Variant 2 — ⋯ left</div>
+  <div class="tab" onclick="showTab('v3')">Variant 3 — no ⋯ on Notes</div>
+</div>
+<p class="hint">Tap the ⋯ button to open the context menu</p>
+
+<!-- ══════════════════════════════
+     VARIANT 1 — ⋯ on the right
+═══════════════════════════════ -->
+<div id="v1">
+
+  <div class="section">
+    <h2>Timesheet Task</h2>
+    <div class="card" id="task-card-v1">
+      <div class="field-wrap">
+        <div><span class="field-label">Description</span><div class="field-box">Van</div></div>
+        <div class="notes-panel-row">
+          <svg width="15" height="15" viewBox="0 0 13 13" fill="none"><path d="M2 10.5L3.5 9H11V1H2v9.5z" stroke="#BBBBB8" stroke-width="1.4" stroke-linejoin="round"/><path d="M4 4.5h5M4 6.5h3" stroke="#BBBBB8" stroke-width="1.3" stroke-linecap="round"/></svg>
+          <span>Add a note…</span>
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4.5 3l3 3-3 3" stroke="#D0D0CE" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </div>
+        <div><span class="field-label">Location</span><div class="field-box">Sallins (SLS)</div></div>
+        <div><span class="field-label">Work Codes</span><div class="field-box" style="color:#2563eb;font-weight:600">Van Maintenance COps FE <span style="font-family:monospace;font-size:11px;color:#94a3b8">WVM0001A99</span></div></div>
+        <div style="display:flex;gap:10px">
+          <div style="flex:1"><span class="field-label">Ordinary Hrs</span><div class="field-box" style="text-align:center;font-size:18px;font-weight:700">2</div></div>
+          <div style="flex:1"><span class="field-label" style="color:#d97706">Overtime Hrs</span><div class="field-box" style="text-align:center;font-size:18px;font-weight:700;color:#d97706;border-color:#fde68a;background:#fffbeb">0</div></div>
+        </div>
+      </div>
+      <div class="action-row" style="position:relative">
+        <button class="btn btn-red">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+          Delete
+        </button>
+        <button class="btn-more" id="more-task-v1" onclick="toggleMenu('menu-task-v1','more-task-v1')">···</button>
+        <!-- context menu -->
+        <div class="ctx-menu" id="menu-task-v1">
+          <div class="ctx-item" onclick="closeAll()">
+            <svg class="ctx-icon-blue" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            Copy to…
+          </div>
+          <div class="ctx-item" onclick="closeAll()">
+            <svg class="ctx-icon-purple" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            Add to Calendar
+          </div>
+          <div class="ctx-item" onclick="closeAll()">
+            <svg class="ctx-icon-green" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+            + Note
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>Note</h2>
+    <div class="card" id="note-card-v1">
+      <div class="field-wrap">
+        <div><span class="field-label">Description</span><div class="field-box">Remove rectifiers one by one. Extend Alarms on Vertiv</div></div>
+        <div class="notes-panel-row">
+          <svg width="15" height="15" viewBox="0 0 13 13" fill="none"><path d="M2 10.5L3.5 9H11V1H2v9.5z" stroke="#BBBBB8" stroke-width="1.4" stroke-linejoin="round"/><path d="M4 4.5h5M4 6.5h3" stroke="#BBBBB8" stroke-width="1.3" stroke-linecap="round"/></svg>
+          <span>The cab running on two rectifiers as th…</span>
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4.5 3l3 3-3 3" stroke="#D0D0CE" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </div>
+        <div><span class="field-label">Location</span><div class="field-box">Mucklagh (MUK)</div></div>
+      </div>
+      <div style="display:flex;align-items:center;padding:12px 14px 0;gap:10px">
+        <span style="font-size:11px;font-weight:800;color:#94a3b8;text-transform:uppercase;letter-spacing:0.06em">Priority</span>
+        <div class="dot dot-red"></div>
+        <div class="dot dot-yellow"></div>
+        <div class="dot dot-green"></div>
+      </div>
+      <div class="action-row" style="position:relative">
+        <button class="btn btn-green">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          Mark Done
+        </button>
+        <button class="btn btn-red">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+          Delete
+        </button>
+        <button class="btn-more" id="more-note-v1" onclick="toggleMenu('menu-note-v1','more-note-v1')">···</button>
+        <div class="ctx-menu" id="menu-note-v1">
+          <div class="ctx-item" onclick="closeAll()">
+            <svg class="ctx-icon-slate" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/><line x1="12" y1="12" x2="12" y2="16"/><line x1="10" y1="14" x2="14" y2="14"/></svg>
+            Convert to Task
+          </div>
+          <div class="ctx-item" onclick="closeAll()">
+            <svg class="ctx-icon-purple" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            Add to Calendar
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /v1 -->
+
+
+<!-- ══════════════════════════════
+     VARIANT 2 — ⋯ on the left
+═══════════════════════════════ -->
+<div id="v2" style="display:none">
+
+  <div class="section">
+    <h2>Timesheet Task</h2>
+    <div class="card">
+      <div class="field-wrap">
+        <div><span class="field-label">Description</span><div class="field-box">Van</div></div>
+        <div class="notes-panel-row">
+          <svg width="15" height="15" viewBox="0 0 13 13" fill="none"><path d="M2 10.5L3.5 9H11V1H2v9.5z" stroke="#BBBBB8" stroke-width="1.4" stroke-linejoin="round"/><path d="M4 4.5h5M4 6.5h3" stroke="#BBBBB8" stroke-width="1.3" stroke-linecap="round"/></svg>
+          <span>Add a note…</span>
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4.5 3l3 3-3 3" stroke="#D0D0CE" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </div>
+        <div><span class="field-label">Location</span><div class="field-box">Sallins (SLS)</div></div>
+        <div><span class="field-label">Work Codes</span><div class="field-box" style="color:#2563eb;font-weight:600">Van Maintenance COps FE <span style="font-family:monospace;font-size:11px;color:#94a3b8">WVM0001A99</span></div></div>
+        <div style="display:flex;gap:10px">
+          <div style="flex:1"><span class="field-label">Ordinary Hrs</span><div class="field-box" style="text-align:center;font-size:18px;font-weight:700">2</div></div>
+          <div style="flex:1"><span class="field-label" style="color:#d97706">Overtime Hrs</span><div class="field-box" style="text-align:center;font-size:18px;font-weight:700;color:#d97706;border-color:#fde68a;background:#fffbeb">0</div></div>
+        </div>
+      </div>
+      <div class="action-row" style="position:relative">
+        <button class="btn-more" id="more-task-v2" onclick="toggleMenu('menu-task-v2','more-task-v2')">···</button>
+        <button class="btn btn-red">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+          Delete
+        </button>
+        <div class="ctx-menu" id="menu-task-v2" style="right:auto;left:14px">
+          <div class="ctx-item" onclick="closeAll()">
+            <svg class="ctx-icon-blue" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            Copy to…
+          </div>
+          <div class="ctx-item" onclick="closeAll()">
+            <svg class="ctx-icon-purple" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            Add to Calendar
+          </div>
+          <div class="ctx-item" onclick="closeAll()">
+            <svg class="ctx-icon-green" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+            + Note
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>Note</h2>
+    <div class="card">
+      <div class="field-wrap">
+        <div><span class="field-label">Description</span><div class="field-box">Remove rectifiers one by one. Extend Alarms on Vertiv</div></div>
+        <div class="notes-panel-row">
+          <svg width="15" height="15" viewBox="0 0 13 13" fill="none"><path d="M2 10.5L3.5 9H11V1H2v9.5z" stroke="#BBBBB8" stroke-width="1.4" stroke-linejoin="round"/><path d="M4 4.5h5M4 6.5h3" stroke="#BBBBB8" stroke-width="1.3" stroke-linecap="round"/></svg>
+          <span>The cab running on two rectifiers as th…</span>
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4.5 3l3 3-3 3" stroke="#D0D0CE" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </div>
+        <div><span class="field-label">Location</span><div class="field-box">Mucklagh (MUK)</div></div>
+      </div>
+      <div style="display:flex;align-items:center;padding:12px 14px 0;gap:10px">
+        <span style="font-size:11px;font-weight:800;color:#94a3b8;text-transform:uppercase;letter-spacing:0.06em">Priority</span>
+        <div class="dot dot-red"></div><div class="dot dot-yellow"></div><div class="dot dot-green"></div>
+      </div>
+      <div class="action-row" style="position:relative">
+        <button class="btn-more" id="more-note-v2" onclick="toggleMenu('menu-note-v2','more-note-v2')">···</button>
+        <button class="btn btn-green">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          Mark Done
+        </button>
+        <button class="btn btn-red">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+          Delete
+        </button>
+        <div class="ctx-menu" id="menu-note-v2" style="right:auto;left:14px">
+          <div class="ctx-item" onclick="closeAll()">
+            <svg class="ctx-icon-slate" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/><line x1="12" y1="12" x2="12" y2="16"/><line x1="10" y1="14" x2="14" y2="14"/></svg>
+            Convert to Task
+          </div>
+          <div class="ctx-item" onclick="closeAll()">
+            <svg class="ctx-icon-purple" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            Add to Calendar
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /v2 -->
+
+
+<!-- ══════════════════════════════
+     VARIANT 3 — Notes: no ⋯, Task only actions row is clean
+═══════════════════════════════ -->
+<div id="v3" style="display:none">
+
+  <div class="section">
+    <h2>Timesheet Task</h2>
+    <div class="card">
+      <div class="field-wrap">
+        <div><span class="field-label">Description</span><div class="field-box">Van</div></div>
+        <div class="notes-panel-row">
+          <svg width="15" height="15" viewBox="0 0 13 13" fill="none"><path d="M2 10.5L3.5 9H11V1H2v9.5z" stroke="#BBBBB8" stroke-width="1.4" stroke-linejoin="round"/><path d="M4 4.5h5M4 6.5h3" stroke="#BBBBB8" stroke-width="1.3" stroke-linecap="round"/></svg>
+          <span>Add a note…</span>
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4.5 3l3 3-3 3" stroke="#D0D0CE" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </div>
+        <div><span class="field-label">Location</span><div class="field-box">Sallins (SLS)</div></div>
+        <div><span class="field-label">Work Codes</span><div class="field-box" style="color:#2563eb;font-weight:600">Van Maintenance COps FE <span style="font-family:monospace;font-size:11px;color:#94a3b8">WVM0001A99</span></div></div>
+        <div style="display:flex;gap:10px">
+          <div style="flex:1"><span class="field-label">Ordinary Hrs</span><div class="field-box" style="text-align:center;font-size:18px;font-weight:700">2</div></div>
+          <div style="flex:1"><span class="field-label" style="color:#d97706">Overtime Hrs</span><div class="field-box" style="text-align:center;font-size:18px;font-weight:700;color:#d97706;border-color:#fde68a;background:#fffbeb">0</div></div>
+        </div>
+      </div>
+      <div class="action-row" style="position:relative">
+        <button class="btn btn-red">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+          Delete
+        </button>
+        <button class="btn-more" id="more-task-v3" onclick="toggleMenu('menu-task-v3','more-task-v3')">···</button>
+        <div class="ctx-menu" id="menu-task-v3">
+          <div class="ctx-item" onclick="closeAll()">
+            <svg class="ctx-icon-blue" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            Copy to…
+          </div>
+          <div class="ctx-item" onclick="closeAll()">
+            <svg class="ctx-icon-purple" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            Add to Calendar
+          </div>
+          <div class="ctx-item" onclick="closeAll()">
+            <svg class="ctx-icon-green" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+            + Note
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>Note — clean, no ⋯</h2>
+    <div class="card">
+      <div class="field-wrap">
+        <div><span class="field-label">Description</span><div class="field-box">Remove rectifiers one by one. Extend Alarms on Vertiv</div></div>
+        <div class="notes-panel-row">
+          <svg width="15" height="15" viewBox="0 0 13 13" fill="none"><path d="M2 10.5L3.5 9H11V1H2v9.5z" stroke="#BBBBB8" stroke-width="1.4" stroke-linejoin="round"/><path d="M4 4.5h5M4 6.5h3" stroke="#BBBBB8" stroke-width="1.3" stroke-linecap="round"/></svg>
+          <span>The cab running on two rectifiers as th…</span>
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4.5 3l3 3-3 3" stroke="#D0D0CE" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </div>
+        <div><span class="field-label">Location</span><div class="field-box">Mucklagh (MUK)</div></div>
+      </div>
+      <div style="display:flex;align-items:center;padding:12px 14px 0;gap:10px">
+        <span style="font-size:11px;font-weight:800;color:#94a3b8;text-transform:uppercase;letter-spacing:0.06em">Priority</span>
+        <div class="dot dot-red"></div><div class="dot dot-yellow"></div><div class="dot dot-green"></div>
+        <!-- Task + Calendar as small inline pills, not icon buttons -->
+        <div style="margin-left:auto;display:flex;gap:6px">
+          <button style="padding:4px 10px;border-radius:8px;border:1.5px solid #e2e8f0;background:#f8fafc;font-size:11px;font-weight:700;color:#475569;cursor:pointer;font-family:inherit">→ Task</button>
+          <button style="padding:4px 10px;border-radius:8px;border:1.5px solid #e2e8f0;background:#f8fafc;font-size:11px;font-weight:700;color:#475569;cursor:pointer;font-family:inherit">📅 Cal</button>
+        </div>
+      </div>
+      <div class="action-row">
+        <button class="btn btn-green">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          Mark Done
+        </button>
+        <button class="btn btn-red">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+          Delete
+        </button>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /v3 -->
+
+
+<script>
+  function toggleMenu(menuId, btnId) {
+    const menu = document.getElementById(menuId);
+    const btn  = document.getElementById(btnId);
+    const isOpen = menu.classList.contains('show');
+    closeAll();
+    if (!isOpen) {
+      menu.classList.add('show');
+      btn.classList.add('open');
+    }
+  }
+  function closeAll() {
+    document.querySelectorAll('.ctx-menu').forEach(m => m.classList.remove('show'));
+    document.querySelectorAll('.btn-more').forEach(b => b.classList.remove('open'));
+  }
+  document.addEventListener('click', e => {
+    if (!e.target.closest('.btn-more') && !e.target.closest('.ctx-menu')) closeAll();
+  });
+
+  function showTab(id) {
+    ['v1','v2','v3'].forEach(v => {
+      document.getElementById(v).style.display = v === id ? 'block' : 'none';
+    });
+    document.querySelectorAll('.tab').forEach((t, i) => {
+      t.classList.toggle('active', ['v1','v2','v3'][i] === id);
+    });
+  }
+</script>
+</body>
+</html>

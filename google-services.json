@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "670175047784",
+    "project_id": "eir-fieldlog",
+    "storage_bucket": "eir-fieldlog.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:670175047784:android:caf78a58f72f884252cbdd",
+        "android_client_info": {
+          "package_name": "com.rian.fieldlog"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "670175047784-t2hbh7fj1bhg6ueirgvl3n59plabs46q.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBhZAEjFH4CgBuRJhfOrzk8U_PmVikwsUQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "670175047784-t2hbh7fj1bhg6ueirgvl3n59plabs46q.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

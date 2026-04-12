@@ -1,0 +1,6 @@
+- [Rob — Developer Profile](user_rob.md) — field tech, solo dev, concise collaborator, hates re-explaining
+- [Conflict Resolution Feature](project_conflict_resolution.md) — active work: Firestore sync conflict UI, Timesheet DONE, Notes IN PROGRESS (v5.1.74)
+- [Always save progress to memory](feedback_session_loss.md) — proactively save work state; crashes have wiped context multiple times
+- [Claude reset script](reference_claude_reset.md) — Rob's PowerShell wipe at `<repo>/_claude-reset.ps1`; what survives a reset and what doesn't
+- [App map document](reference_app_map.md) — `_docs/APP_MAP.md`; living inventory of every view/modal/dialog. Timesheet section done, others stubbed.
+- [Android App (Capacitor)](project_android_capacitor.md) — native Android wrapper via Capacitor 8.x. Last good PWA version v5.3.86. Setup docs at `_docs/ANDROID_SETUP.md`.

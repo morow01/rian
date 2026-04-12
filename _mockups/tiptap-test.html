@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>TipTap Editor Test</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #f1f5f9;
+      --card: #ffffff;
+      --border: #e2e8f0;
+      --accent: #3b82f6;
+      --text: #1e293b;
+      --muted: #94a3b8;
+      --toolbar-h: 52px;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── Header ── */
+    .header {
+      background: var(--card);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 16px 10px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .header h1 { font-size: 17px; font-weight: 700; flex: 1; }
+    .header .badge {
+      font-size: 11px; font-weight: 700; padding: 3px 8px;
+      border-radius: 999px; background: #eff6ff; color: var(--accent);
+      border: 1px solid #bfdbfe;
+    }
+    .header .status {
+      font-size: 11px; font-weight: 600; padding: 3px 8px;
+      border-radius: 999px;
+    }
+    .status.loading { background: #fef9c3; color: #a16207; border: 1px solid #fde68a; }
+    .status.ready   { background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; }
+    .status.error   { background: #fee2e2; color: #dc2626; border: 1px solid #fecaca; }
+
+    /* ── Toolbar ── */
+    .toolbar {
+      background: var(--card);
+      border-bottom: 1px solid var(--border);
+      height: var(--toolbar-h);
+      display: flex;
+      align-items: center;
+      padding: 0 8px;
+      gap: 2px;
+      overflow-x: auto;
+      overflow-y: hidden;
+      scrollbar-width: none;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    .toolbar::-webkit-scrollbar { display: none; }
+
+    .tb-sep {
+      width: 1px; height: 24px;
+      background: var(--border);
+      flex-shrink: 0;
+      margin: 0 4px;
+    }
+
+    .tb-btn {
+      width: 36px; height: 36px;
+      border: none;
+      background: transparent;
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      color: #475569;
+      font-size: 14px;
+      font-weight: 700;
+      flex-shrink: 0;
+      transition: background 0.1s, color 0.1s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .tb-btn:active { background: #f1f5f9; }
+    .tb-btn.active { background: #eff6ff; color: var(--accent); }
+    .tb-btn svg { width: 16px; height: 16px; }
+    .tb-btn.danger.active { background: #fef2f2; color: #ef4444; }
+
+    /* colour swatches */
+    .tb-color {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      border: 2px solid transparent;
+      cursor: pointer;
+      flex-shrink: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .tb-color:active { transform: scale(0.9); }
+    .tb-color.active { border-color: var(--accent); box-shadow: 0 0 0 2px #bfdbfe; }
+
+    /* ── Editor area ── */
+    .editor-wrap {
+      flex: 1;
+      padding: 16px;
+      overflow-y: auto;
+    }
+
+    .editor-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 16px;
+      min-height: 300px;
+    }
+
+    .ProseMirror {
+      outline: none;
+      font-size: 15px;
+      line-height: 1.6;
+      color: var(--text);
+      min-height: 200px;
+    }
+    .ProseMirror p { margin-bottom: 8px; }
+    .ProseMirror p:last-child { margin-bottom: 0; }
+    .ProseMirror h1, .ProseMirror h2, .ProseMirror h3 { font-weight: 700; margin: 12px 0 6px; }
+    .ProseMirror h1 { font-size: 22px; }
+    .ProseMirror h2 { font-size: 18px; }
+    .ProseMirror h3 { font-size: 16px; }
+    .ProseMirror ul, .ProseMirror ol { padding-left: 20px; margin-bottom: 8px; }
+    .ProseMirror li { margin-bottom: 3px; }
+    .ProseMirror blockquote {
+      border-left: 3px solid var(--accent);
+      padding-left: 12px;
+      color: var(--muted);
+      margin: 8px 0;
+    }
+    .ProseMirror code {
+      background: #f1f5f9; border-radius: 4px;
+      padding: 1px 5px; font-size: 13px;
+    }
+    .ProseMirror mark { border-radius: 3px; padding: 0 2px; }
+    .ProseMirror p.is-editor-empty:first-child::before {
+      content: attr(data-placeholder);
+      color: var(--muted);
+      pointer-events: none;
+      float: left;
+      height: 0;
+    }
+
+    /* ── HTML output panel ── */
+    .output-panel {
+      background: var(--card);
+      border-top: 1px solid var(--border);
+      padding: 14px 16px;
+    }
+    .output-label {
+      font-size: 10px; font-weight: 800; color: var(--muted);
+      text-transform: uppercase; letter-spacing: 0.5px;
+      margin-bottom: 8px;
+    }
+    .output-html {
+      font-size: 12px; font-family: monospace;
+      color: #475569;
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px;
+      max-height: 120px;
+      overflow-y: auto;
+      word-break: break-all;
+      white-space: pre-wrap;
+    }
+    .output-note {
+      font-size: 12px; color: var(--muted);
+      margin-top: 8px;
+    }
+
+    /* ── Colour picker row ── */
+    .color-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 0 8px;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .color-row::-webkit-scrollbar { display: none; }
+    .color-section {
+      background: var(--card);
+      border-bottom: 1px solid var(--border);
+      padding: 8px 0;
+      position: sticky;
+      top: var(--toolbar-h);
+      z-index: 9;
+    }
+    .color-section-label {
+      font-size: 10px; font-weight: 700; color: var(--muted);
+      text-transform: uppercase; letter-spacing: 0.4px;
+      padding: 0 10px 4px;
+    }
+
+    /* loading state */
+    .loading-msg {
+      display: flex; align-items: center; justify-content: center;
+      min-height: 200px;
+      color: var(--muted);
+      font-size: 14px;
+      gap: 10px;
+    }
+    .spinner {
+      width: 18px; height: 18px;
+      border: 2px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <h1>TipTap Editor Test</h1>
+    <span class="badge">v2.4</span>
+    <span class="status loading" id="status">Loading…</span>
+  </div>
+
+  <!-- Toolbar (disabled until editor ready) -->
+  <div class="toolbar" id="toolbar" style="opacity:0.4;pointer-events:none">
+    <button class="tb-btn" id="btn-bold" title="Bold"><b>B</b></button>
+    <button class="tb-btn" id="btn-italic" title="Italic"><i>I</i></button>
+    <button class="tb-btn" id="btn-underline" title="Underline"><u>U</u></button>
+    <button class="tb-btn" id="btn-strike" title="Strikethrough">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"/><path d="M16 6c0-1.66-1.79-3-4-3s-4 1.34-4 3 1.79 3 4 3"/><path d="M8 18c0 1.66 1.79 3 4 3s4-1.34 4-3-1.79-3-4-3"/></svg>
+    </button>
+
+    <div class="tb-sep"></div>
+
+    <button class="tb-btn" id="btn-ul" title="Bullet list">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="9" y1="6" x2="20" y2="6"/><line x1="9" y1="12" x2="20" y2="12"/><line x1="9" y1="18" x2="20" y2="18"/><circle cx="4" cy="6" r="1" fill="currentColor"/><circle cx="4" cy="12" r="1" fill="currentColor"/><circle cx="4" cy="18" r="1" fill="currentColor"/></svg>
+    </button>
+    <button class="tb-btn" id="btn-ol" title="Numbered list">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="10" y1="6" x2="21" y2="6"/><line x1="10" y1="12" x2="21" y2="12"/><line x1="10" y1="18" x2="21" y2="18"/><path d="M4 6h1v4"/><path d="M4 10h2"/><path d="M6 18H4c0-1 2-2 2-3s-1-1.5-2-1"/></svg>
+    </button>
+
+    <div class="tb-sep"></div>
+
+    <button class="tb-btn" id="btn-h1" title="H1" style="font-size:12px;font-weight:800">H1</button>
+    <button class="tb-btn" id="btn-h2" title="H2" style="font-size:12px;font-weight:800">H2</button>
+    <button class="tb-btn" id="btn-h3" title="H3" style="font-size:12px;font-weight:800">H3</button>
+
+    <div class="tb-sep"></div>
+
+    <button class="tb-btn" id="btn-quote" title="Blockquote">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1zm12 0c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2h.75c0 2.25.25 4-2.75 4v3c0 1 0 1 1 1z"/></svg>
+    </button>
+    <button class="tb-btn" id="btn-code" title="Inline code" style="font-family:monospace;font-size:13px">&lt;/&gt;</button>
+
+    <div class="tb-sep"></div>
+
+    <button class="tb-btn" id="btn-undo" title="Undo">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 14 4 9 9 4"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg>
+    </button>
+    <button class="tb-btn" id="btn-redo" title="Redo">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 14 20 9 15 4"/><path d="M4 20v-7a4 4 0 0 1 4-4h12"/></svg>
+    </button>
+
+    <div class="tb-sep"></div>
+
+    <button class="tb-btn danger" id="btn-clear" title="Clear formatting">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/><line x1="2" y1="2" x2="22" y2="22"/></svg>
+    </button>
+  </div>
+
+  <!-- Colour section -->
+  <div class="color-section" id="color-section" style="opacity:0.4;pointer-events:none">
+    <div class="color-section-label">Text colour &amp; highlight</div>
+    <div class="color-row">
+      <span style="font-size:10px;font-weight:700;color:var(--muted);flex-shrink:0">A</span>
+      <button class="tb-color" id="col-black"  style="background:#1e293b" title="Black"></button>
+      <button class="tb-color" id="col-red"    style="background:#e53935" title="Red"></button>
+      <button class="tb-color" id="col-orange" style="background:#f57c00" title="Orange"></button>
+      <button class="tb-color" id="col-green"  style="background:#2e7d32" title="Green"></button>
+      <button class="tb-color" id="col-blue"   style="background:#1565c0" title="Blue"></button>
+      <button class="tb-color" id="col-purple" style="background:#6a1b9a" title="Purple"></button>
+      <button class="tb-color" id="col-reset"  style="background:#94a3b8;border:1px solid #cbd5e1" title="Remove colour"></button>
+
+      <div class="tb-sep" style="height:20px"></div>
+
+      <span style="font-size:10px;font-weight:700;color:var(--muted);flex-shrink:0">🖊</span>
+      <button class="tb-color" id="hl-yellow" style="background:#fef08a" title="Yellow"></button>
+      <button class="tb-color" id="hl-green"  style="background:#bbf7d0" title="Green"></button>
+      <button class="tb-color" id="hl-red"    style="background:#fecaca" title="Red"></button>
+      <button class="tb-color" id="hl-blue"   style="background:#bfdbfe" title="Blue"></button>
+      <button class="tb-color" id="hl-purple" style="background:#e9d5ff" title="Purple"></button>
+      <button class="tb-color" id="hl-orange" style="background:#fed7aa" title="Orange"></button>
+      <button class="tb-color" id="hl-reset"  style="background:#f1f5f9;border:1px solid #cbd5e1" title="Remove highlight"></button>
+    </div>
+  </div>
+
+  <!-- Editor -->
+  <div class="editor-wrap">
+    <div class="editor-card">
+      <div id="editor">
+        <div class="loading-msg">
+          <div class="spinner"></div>
+          Loading TipTap…
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Output -->
+  <div class="output-panel">
+    <div class="output-label">HTML output (what gets saved to Firestore)</div>
+    <div class="output-html" id="html-output">Waiting for editor…</div>
+    <div class="output-note">✓ Plain HTML — fully compatible with existing Rian note content</div>
+  </div>
+
+  <script type="module">
+    import { Editor } from 'https://esm.sh/@tiptap/core@2.4.0';
+    import StarterKit from 'https://esm.sh/@tiptap/starter-kit@2.4.0';
+    import Underline from 'https://esm.sh/@tiptap/extension-underline@2.4.0';
+    import { TextStyle } from 'https://esm.sh/@tiptap/extension-text-style@2.4.0';
+    import { Color } from 'https://esm.sh/@tiptap/extension-color@2.4.0';
+    import Highlight from 'https://esm.sh/@tiptap/extension-highlight@2.4.0';
+    import { Placeholder } from 'https://esm.sh/@tiptap/extension-placeholder@2.4.0';
+
+    const statusEl  = document.getElementById('status');
+    const toolbar   = document.getElementById('toolbar');
+    const colorSect = document.getElementById('color-section');
+
+    function setStatus(s) {
+      statusEl.className = 'status ' + s;
+      statusEl.textContent = s === 'loading' ? 'Loading…' : s === 'ready' ? 'Ready ✓' : 'Error ✗';
+    }
+
+    let editor;
+
+    try {
+      // Clear the loading placeholder before TipTap appends its own element
+      document.getElementById('editor').innerHTML = '';
+
+      editor = new Editor({
+        element: document.getElementById('editor'),
+        extensions: [
+          StarterKit.configure({ history: true }),
+          Underline,
+          TextStyle,
+          Color,
+          Highlight.configure({ multicolor: true }),
+          Placeholder.configure({ placeholder: 'Start typing your note here…' }),
+        ],
+        content: '<p>Try <strong>bold</strong>, <em>italic</em>, <u>underline</u>, <mark style="background:#fef08a">highlight</mark>, and more.</p><p>Works exactly like Quill but stores plain HTML — existing notes stay intact.</p>',
+        onUpdate({ editor }) { updateOutput(editor); updateToolbarState(editor); },
+        onSelectionUpdate({ editor }) { updateToolbarState(editor); },
+      });
+
+      // Enable toolbar
+      toolbar.style.opacity   = '';
+      toolbar.style.pointerEvents = '';
+      colorSect.style.opacity = '';
+      colorSect.style.pointerEvents = '';
+
+      setStatus('ready');
+      updateOutput(editor);
+      updateToolbarState(editor);
+
+      // ── Wire up toolbar buttons ──
+      const on = (id, fn) => { const el = document.getElementById(id); if (el) el.addEventListener('click', fn); };
+
+      on('btn-bold',      () => cmd('toggleBold'));
+      on('btn-italic',    () => cmd('toggleItalic'));
+      on('btn-underline', () => cmd('toggleUnderline'));
+      on('btn-strike',    () => cmd('toggleStrike'));
+      on('btn-ul',        () => cmd('toggleBulletList'));
+      on('btn-ol',        () => cmd('toggleOrderedList'));
+      on('btn-h1',        () => cmd('toggleHeading', { level: 1 }));
+      on('btn-h2',        () => cmd('toggleHeading', { level: 2 }));
+      on('btn-h3',        () => cmd('toggleHeading', { level: 3 }));
+      on('btn-quote',     () => cmd('toggleBlockquote'));
+      on('btn-code',      () => cmd('toggleCode'));
+      on('btn-undo',      () => editor.chain().focus().undo().run());
+      on('btn-redo',      () => editor.chain().focus().redo().run());
+      on('btn-clear',     () => { cmd('unsetAllMarks'); cmd('clearNodes'); });
+
+      // Text colours
+      on('col-black',  () => editor.chain().focus().setColor('#1e293b').run());
+      on('col-red',    () => editor.chain().focus().setColor('#e53935').run());
+      on('col-orange', () => editor.chain().focus().setColor('#f57c00').run());
+      on('col-green',  () => editor.chain().focus().setColor('#2e7d32').run());
+      on('col-blue',   () => editor.chain().focus().setColor('#1565c0').run());
+      on('col-purple', () => editor.chain().focus().setColor('#6a1b9a').run());
+      on('col-reset',  () => editor.chain().focus().unsetColor().run());
+
+      // Highlights
+      on('hl-yellow', () => editor.chain().focus().setHighlight({ color: '#fef08a' }).run());
+      on('hl-green',  () => editor.chain().focus().setHighlight({ color: '#bbf7d0' }).run());
+      on('hl-red',    () => editor.chain().focus().setHighlight({ color: '#fecaca' }).run());
+      on('hl-blue',   () => editor.chain().focus().setHighlight({ color: '#bfdbfe' }).run());
+      on('hl-purple', () => editor.chain().focus().setHighlight({ color: '#e9d5ff' }).run());
+      on('hl-orange', () => editor.chain().focus().setHighlight({ color: '#fed7aa' }).run());
+      on('hl-reset',  () => editor.chain().focus().unsetHighlight().run());
+
+    } catch (err) {
+      setStatus('error');
+      document.getElementById('editor').innerHTML = `<div style="padding:16px;color:#dc2626;font-size:13px">Failed to load TipTap: ${err.message}</div>`;
+      console.error(err);
+    }
+
+    function cmd(command, attrs) {
+      if (!editor) return;
+      const chain = editor.chain().focus();
+      if (attrs) chain[command](attrs).run();
+      else chain[command]().run();
+      updateToolbarState(editor);
+    }
+
+    function updateOutput(editor) {
+      const html = editor.getHTML();
+      document.getElementById('html-output').textContent =
+        html === '<p></p>' ? '(empty)' : html;
+    }
+
+    function updateToolbarState(editor) {
+      const map = {
+        'btn-bold':      () => editor.isActive('bold'),
+        'btn-italic':    () => editor.isActive('italic'),
+        'btn-underline': () => editor.isActive('underline'),
+        'btn-strike':    () => editor.isActive('strike'),
+        'btn-ul':        () => editor.isActive('bulletList'),
+        'btn-ol':        () => editor.isActive('orderedList'),
+        'btn-h1':        () => editor.isActive('heading', { level: 1 }),
+        'btn-h2':        () => editor.isActive('heading', { level: 2 }),
+        'btn-h3':        () => editor.isActive('heading', { level: 3 }),
+        'btn-quote':     () => editor.isActive('blockquote'),
+        'btn-code':      () => editor.isActive('code'),
+      };
+      for (const [id, check] of Object.entries(map)) {
+        const el = document.getElementById(id);
+        if (el) el.classList.toggle('active', check());
+      }
+    }
+  </script>
+</body>
+</html>

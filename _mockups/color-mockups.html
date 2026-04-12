@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Note Card Color Options</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: #f0f4f8;
+      padding: 30px;
+      color: #0f1c2e;
+    }
+    .container { max-width: 1200px; margin: 0 auto; }
+    h1 { margin-bottom: 30px; font-size: 24px; color: #0f1c2e; }
+    .options { display: grid; grid-template-columns: 1fr; gap: 40px; margin-bottom: 50px; }
+    .option-group { background: white; padding: 24px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .option-title { font-size: 16px; font-weight: 700; margin-bottom: 16px; color: #0f1c2e; }
+    .option-desc { font-size: 13px; color: #64748b; margin-bottom: 20px; line-height: 1.5; }
+
+    /* Note card styles */
+    .note-card {
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .note-title { font-weight: 600; font-size: 14px; color: #0f1c2e; }
+    .note-meta { display: flex; gap: 12px; font-size: 12px; color: #64748b; align-items: center; }
+    .meta-item { display: flex; align-items: center; gap: 4px; }
+    .meta-icon { width: 14px; height: 14px; opacity: 0.7; }
+    .note-bottom { display: flex; gap: 8px; align-items: center; }
+
+    /* Badge styles */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .pin-btn { width: 18px; height: 18px; opacity: 0.5; margin-left: auto; }
+    .pin-btn.active { opacity: 1; }
+    .due-date { font-size: 12px; color: #64748b; display: flex; gap: 4px; align-items: center; }
+
+    /* Option 1: Current (bright colors) */
+    .opt1-job { background: #3b82f6; color: white; }
+    .opt1-fault { background: #ef4444; color: white; }
+    .opt1-followup { background: #f59e0b; color: white; }
+    .opt1-meeting { background: #8b5cf6; color: white; }
+    .opt1-personal { background: #10b981; color: white; }
+    .opt1-idea { background: #f97316; color: white; }
+    .opt1-due { color: #f97316; font-weight: 600; }
+
+    /* Option 2: Desaturated badges (grayer, lower saturation) */
+    .opt2-job { background: #60a5fa; color: white; }
+    .opt2-fault { background: #f87171; color: white; }
+    .opt2-followup { background: #fbbf24; color: white; }
+    .opt2-meeting { background: #a78bfa; color: white; }
+    .opt2-personal { background: #34d399; color: white; }
+    .opt2-idea { background: #fb923c; color: white; }
+    .opt2-due { color: #64748b; font-weight: 500; }
+
+    /* Option 3: Monochrome badges */
+    .opt3-badge { background: #cbd5e1; color: #1e293b; }
+    .opt3-due { color: #64748b; font-weight: 500; }
+
+    /* Option 4: No badges */
+    .opt4-due { color: #64748b; font-weight: 500; }
+
+    /* Option 5: Subtle badges */
+    .opt5-job { background: #dbeafe; color: #1e40af; }
+    .opt5-fault { background: #fee2e2; color: #991b1b; }
+    .opt5-followup { background: #fef3c7; color: #92400e; }
+    .opt5-meeting { background: #ede9fe; color: #5b21b6; }
+    .opt5-personal { background: #dcfce7; color: #15803d; }
+    .opt5-idea { background: #fed7aa; color: #9a3412; }
+    .opt5-due { color: #64748b; font-weight: 500; }
+
+    .comparison { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 40px; }
+    @media (max-width: 900px) { .comparison { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Note Card Color Options — Which feels less "children's colouring book"?</h1>
+
+    <!-- OPTION 1: Current -->
+    <div class="option-group">
+      <div class="option-title">OPTION 1: Current (Bright Colors)</div>
+      <div class="option-desc">All bright, saturated category colors. Due dates colored (red/orange). Pin button blue, bell yellow when active.</div>
+
+      <div class="note-card">
+        <div class="note-title">Remove rectifiers one by one. Extend...</div>
+        <div class="note-meta">
+          <div class="meta-item">📍 Mucklagh</div>
+          <div class="meta-item">📅 Thu 19. Mar '26</div>
+        </div>
+        <div class="note-bottom">
+          <span class="badge opt1-job">💼 Job</span>
+          <span class="pin-btn active">📌</span>
+          <span class="due-date opt1-due">⏱ Due in 2d</span>
+        </div>
+      </div>
+
+      <div class="note-card">
+        <div class="note-title">Faulty Rectifier In Naragmore And A R...</div>
+        <div class="note-meta">
+          <div class="meta-item">📍 Naraghmore</div>
+          <div class="meta-item">📅 Wed 25. Mar '26</div>
+          <span>🔔</span>
+        </div>
+        <div class="note-bottom">
+          <span class="badge opt1-fault">⚠️ Fault</span>
+          <span class="pin-btn">📌</span>
+        </div>
+      </div>
+
+      <div class="note-card">
+        <div class="note-title">Take The Ticket In Portlaoise PGS Whi...</div>
+        <div class="note-meta">
+          <div class="meta-item">📍 Portlaoise</div>
+          <div class="meta-item">📅 Wed 25. Mar '26</div>
+        </div>
+        <div class="note-bottom">
+          <span class="badge opt1-followup">↩️ Follow-up</span>
+          <span class="pin-btn">📌</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- OPTION 2: Desaturated (mid-tone) -->
+    <div class="option-group">
+      <div class="option-title">OPTION 2: Desaturated Badges (Mid-Tone Colors)</div>
+      <div class="option-desc">Badges less vibrant, still readable. Due dates monochrome gray. Removes color coding from status.</div>
+
+      <div class="note-card">
+        <div class="note-title">Remove rectifiers one by one. Extend...</div>
+        <div class="note-meta">
+          <div class="meta-item">📍 Mucklagh</div>
+          <div class="meta-item">📅 Thu 19. Mar '26</div>
+        </div>
+        <div class="note-bottom">
+          <span class="badge opt2-job">💼 Job</span>
+          <span class="pin-btn active">📌</span>
+          <span class="due-date opt2-due">⏱ Due in 2d</span>
+        </div>
+      </div>
+
+      <div class="note-card">
+        <div class="note-title">Faulty Rectifier In Naragmore And A R...</div>
+        <div class="note-meta">
+          <div class="meta-item">📍 Naraghmore</div>
+          <div class="meta-item">📅 Wed 25. Mar '26</div>
+          <span>🔔</span>
+        </div>
+        <div class="note-bottom">
+          <span class="badge opt2-fault">⚠️ Fault</span>
+          <span class="pin-btn">📌</span>
+        </div>
+      </div>
+
+      <div class="note-card">
+        <div class="note-title">Take The Ticket In Portlaoise PGS Whi...</div>
+        <div class="note-meta">
+          <div class="meta-item">📍 Portlaoise</div>
+          <div class="meta-item">📅 Wed 25. Mar '26</div>
+        </div>
+        <div class="note-bottom">
+          <span class="badge opt2-followup">↩️ Follow-up</span>
+          <span class="pin-btn">📌</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- OPTION 3: Monochrome Badges -->
+    <div class="option-group">
+      <div class="option-title">OPTION 3: Monochrome Badges (Neutral Gray)</div>
+      <div class="option-desc">All badges same gray color. Icons distinguish categories, not color. Cleanest, least colorful.</div>
+
+      <div class="note-card">
+        <div class="note-title">Remove rectifiers one by one. Extend...</div>
+        <div class="note-meta">
+          <div class="meta-item">📍 Mucklagh</div>
+          <div class="meta-item">📅 Thu 19. Mar '26</div>
+        </div>
+        <div class="note-bottom">
+          <span class="badge opt3-badge">💼 Job</span>
+          <span class="pin-btn active">📌</span>
+          <span class="due-date opt3-due">⏱ Due in 2d</span>
+        </div>
+      </div>
+
+      <div class="note-card">
+        <div class="note-title">Faulty Rectifier In Naragmore And A R...</div>
+        <div class="note-meta">
+          <div class="meta-item">📍 Naraghmore</div>
+          <div class="meta-item">📅 Wed 25. Mar '26</div>
+          <span>🔔</span>
+        </div>
+        <div class="note-bottom">
+          <span class="badge opt3-badge">⚠️ Fault</span>
+          <span class="pin-btn">📌</span>
+        </div>
+      </div>
+
+      <div class="note-card">
+        <div class="note-title">Take The Ticket In Portlaoise PGS Whi...</div>
+        <div class="note-meta">
+          <div class="meta-item">📍 Portlaoise</div>
+          <div class="meta-item">📅 Wed 25. Mar '26</div>
+        </div>
+        <div class="note-bottom">
+          <span class="badge opt3-badge">↩️ Follow-up</span>
+          <span class="pin-btn">📌</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- OPTION 4: No Badges -->
+    <div class="option-group">
+      <div class="option-title">OPTION 4: Remove Badges Entirely</div>
+      <div class="option-desc">Category shown only in expanded view. Very minimal, but less scannable at a glance.</div>
+
+      <div class="note-card">
+        <div class="note-title">Remove rectifiers one by one. Extend...</div>
+        <div class="note-meta">
+          <div class="meta-item">📍 Mucklagh</div>
+          <div class="meta-item">📅 Thu 19. Mar '26</div>
+        </div>
+        <div class="note-bottom">
+          <span class="pin-btn active">📌</span>
+          <span class="due-date opt4-due">⏱ Due in 2d</span>
+        </div>
+      </div>
+
+      <div class="note-card">
+        <div class="note-title">Faulty Rectifier In Naragmore And A R...</div>
+        <div class="note-meta">
+          <div class="meta-item">📍 Naraghmore</div>
+          <div class="meta-item">📅 Wed 25. Mar '26</div>
+          <span>🔔</span>
+        </div>
+        <div class="note-bottom">
+          <span class="pin-btn">📌</span>
+        </div>
+      </div>
+
+      <div class="note-card">
+        <div class="note-title">Take The Ticket In Portlaoise PGS Whi...</div>
+        <div class="note-meta">
+          <div class="meta-item">📍 Portlaoise</div>
+          <div class="meta-item">📅 Wed 25. Mar '26</div>
+        </div>
+        <div class="note-bottom">
+          <span class="pin-btn">📌</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- OPTION 5: Subtle Badges -->
+    <div class="option-group">
+      <div class="option-title">OPTION 5: Subtle Badges (Light Backgrounds)</div>
+      <div class="option-desc">Light, pastel badge backgrounds with darker text. Less intense, still colorful but subtle. Readable white text but softer feel.</div>
+
+      <div class="note-card">
+        <div class="note-title">Remove rectifiers one by one. Extend...</div>
+        <div class="note-meta">
+          <div class="meta-item">📍 Mucklagh</div>
+          <div class="meta-item">📅 Thu 19. Mar '26</div>
+        </div>
+        <div class="note-bottom">
+          <span class="badge opt5-job">💼 Job</span>
+          <span class="pin-btn active">📌</span>
+          <span class="due-date opt5-due">⏱ Due in 2d</span>
+        </div>
+      </div>
+
+      <div class="note-card">
+        <div class="note-title">Faulty Rectifier In Naragmore And A R...</div>
+        <div class="note-meta">
+          <div class="meta-item">📍 Naraghmore</div>
+          <div class="meta-item">📅 Wed 25. Mar '26</div>
+          <span>🔔</span>
+        </div>
+        <div class="note-bottom">
+          <span class="badge opt5-fault">⚠️ Fault</span>
+          <span class="pin-btn">📌</span>
+        </div>
+      </div>
+
+      <div class="note-card">
+        <div class="note-title">Take The Ticket In Portlaoise PGS Whi...</div>
+        <div class="note-meta">
+          <div class="meta-item">📍 Portlaoise</div>
+          <div class="meta-item">📅 Wed 25. Mar '26</div>
+        </div>
+        <div class="note-bottom">
+          <span class="badge opt5-followup">↩️ Follow-up</span>
+          <span class="pin-btn">📌</span>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top: 50px; padding: 20px; background: #f0f4f8; border-radius: 8px;">
+      <p style="font-size: 14px; color: #0f1c2e; margin-bottom: 8px;"><strong>Which option feels better?</strong></p>
+      <p style="font-size: 12px; color: #64748b;">Let me know which you prefer and I'll implement it.</p>
+    </div>
+  </div>
+</body>
+</html>

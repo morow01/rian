@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Routines Conflict Mockups</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: #f0f2f5;
+    padding: 24px 16px;
+    color: #1a1a1a;
+  }
+  h1 { font-size: 13px; color: #888; text-transform: uppercase; letter-spacing: .08em; margin-bottom: 24px; }
+  .label { font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: .08em; margin-bottom: 14px; font-weight: 600; }
+
+  /* ── Shared card shell ── */
+  .mock-shell {
+    background: #fff;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 4px 24px rgba(0,0,0,.10);
+    max-width: 400px;
+    margin: 0 auto 40px;
+  }
+
+  /* ── Modal header ── */
+  .modal-hdr {
+    display: flex; align-items: center; gap: 10px;
+    padding: 16px 18px 14px;
+    border-bottom: 1px solid #f0f0f0;
+  }
+  .modal-hdr-icon { color: #D97706; display:flex; }
+  .modal-hdr-title { font-size: 17px; font-weight: 700; flex: 1; }
+  .modal-close {
+    width: 34px; height: 34px; border-radius: 50%;
+    background: #f2f2f2; border: none; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; color: #666;
+  }
+
+  /* ── Section label (YOUR VERSION / CLOUD) ── */
+  .side-label {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 10px; font-weight: 700; letter-spacing: .08em;
+    color: #2D6BE4; padding: 12px 16px 6px;
+  }
+  .side-label svg { opacity: .7; }
+
+  /* ── Diff section heading ── */
+  .diff-section-hdr {
+    font-size: 11px; font-weight: 700; color: #888;
+    letter-spacing: .06em; text-transform: uppercase;
+    padding: 10px 16px 6px;
+  }
+
+  /* ── Diff row ── */
+  .diff-row {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 16px;
+    border-bottom: 1px solid #f5f5f5;
+  }
+  .diff-row:last-child { border-bottom: none; }
+  .diff-badge {
+    flex-shrink: 0;
+    font-size: 11px; font-weight: 700;
+    border-radius: 5px;
+    padding: 2px 6px;
+    min-width: 28px; text-align: center;
+  }
+  .badge-add  { background: #d1fae5; color: #065f46; }
+  .badge-rem  { background: #fee2e2; color: #991b1b; }
+  .badge-chg  { background: #fef3c7; color: #92400e; }
+  .diff-row-body { flex: 1; min-width: 0; }
+  .diff-row-main { font-size: 14px; font-weight: 500; }
+  .diff-row-sub  { font-size: 12px; color: #888; margin-top: 1px; }
+  .diff-counts {
+    display: flex; gap: 6px; align-items: center;
+    flex-shrink: 0;
+  }
+  .count-pill {
+    font-size: 11px; font-weight: 600; padding: 2px 8px;
+    border-radius: 20px;
+  }
+  .count-local  { background: #dbeafe; color: #1d4ed8; }
+  .count-cloud  { background: #f3f4f6; color: #374151; }
+  .count-vs { font-size: 11px; color: #bbb; }
+
+  /* ── Divider ── */
+  .divider { height: 1px; background: #f0f0f0; margin: 4px 0; }
+  .thick-divider { height: 8px; background: #f8f8f8; }
+
+  /* ── Footer buttons ── */
+  .modal-footer {
+    display: flex; gap: 8px;
+    padding: 14px 16px;
+    border-top: 1px solid #f0f0f0;
+  }
+  .btn {
+    flex: 1; padding: 11px 8px; border-radius: 12px;
+    font-size: 14px; font-weight: 600; border: none; cursor: pointer;
+  }
+  .btn-mine  { background: #2D6BE4; color: #fff; }
+  .btn-cloud { background: #f0f0f0; color: #333; }
+
+  /* ── Empty state ── */
+  .diff-empty {
+    padding: 10px 16px 12px;
+    font-size: 13px; color: #aaa; font-style: italic;
+  }
+
+  /* ── OPTION B: side-by-side mini grid ── */
+  .vs-wrap {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 0;
+  }
+  .vs-col { padding: 10px 14px; }
+  .vs-col + .vs-col { border-left: 1px solid #f0f0f0; }
+  .vs-col-hdr {
+    font-size: 10px; font-weight: 700; letter-spacing: .08em;
+    color: #888; margin-bottom: 8px; text-transform: uppercase;
+    display: flex; align-items: center; gap: 5px;
+  }
+  .site-chip {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-size: 12px; padding: 3px 8px; border-radius: 20px;
+    margin: 2px 0; font-weight: 500;
+  }
+  .chip-present { background: #f0f4ff; color: #1d4ed8; }
+  .chip-missing { background: #fef2f2; color: #dc2626; text-decoration: line-through; opacity:.6; }
+  .chip-new     { background: #ecfdf5; color: #059669; }
+  .site-chip-row { display: flex; flex-wrap: wrap; gap: 4px; }
+
+  .visit-diff-row {
+    display: flex; align-items: center;
+    padding: 7px 16px;
+    gap: 10px;
+    border-bottom: 1px solid #f5f5f5;
+  }
+  .visit-diff-row:last-child { border-bottom: none; }
+  .visit-site { font-size: 13px; font-weight: 600; flex: 1; }
+  .visit-month { font-size: 12px; color: #888; }
+  .visit-nums {
+    display: flex; gap: 4px; align-items: center;
+    font-size: 12px;
+  }
+  .vn-local  { background: #dbeafe; color: #1d4ed8; border-radius: 6px; padding: 2px 7px; font-weight: 700; }
+  .vn-cloud  { background: #f3f4f6; color: #374151; border-radius: 6px; padding: 2px 7px; font-weight: 700; }
+  .vn-arrow  { color: #bbb; font-size: 10px; }
+</style>
+</head>
+<body>
+
+<h1>Routines Conflict — Option A: Flat diff rows</h1>
+
+<div class="mock-shell">
+  <!-- Header -->
+  <div class="modal-hdr">
+    <span class="modal-hdr-icon">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#D97706" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+    </span>
+    <span class="modal-hdr-title">Routines Conflict</span>
+    <button class="modal-close">×</button>
+  </div>
+
+  <!-- Sites section -->
+  <div class="diff-section-hdr">Sites</div>
+
+  <div class="diff-row">
+    <span class="diff-badge badge-add">+</span>
+    <div class="diff-row-body">
+      <div class="diff-row-main">Ballydaly</div>
+      <div class="diff-row-sub">Added on this device only</div>
+    </div>
+  </div>
+
+  <div class="diff-row">
+    <span class="diff-badge badge-rem">–</span>
+    <div class="diff-row-body">
+      <div class="diff-row-main">Collins Lane</div>
+      <div class="diff-row-sub">Present in cloud, missing locally</div>
+    </div>
+  </div>
+
+  <div class="thick-divider"></div>
+
+  <!-- Visits section -->
+  <div class="diff-section-hdr">Visits</div>
+
+  <div class="diff-row">
+    <span class="diff-badge badge-chg">≠</span>
+    <div class="diff-row-body">
+      <div class="diff-row-main">Clara</div>
+      <div class="diff-row-sub">Apr 2026</div>
+    </div>
+    <div class="diff-counts">
+      <span class="count-pill count-local">2 local</span>
+      <span class="count-vs">vs</span>
+      <span class="count-pill count-cloud">1 cloud</span>
+    </div>
+  </div>
+
+  <div class="diff-row">
+    <span class="diff-badge badge-chg">≠</span>
+    <div class="diff-row-body">
+      <div class="diff-row-main">Geashill</div>
+      <div class="diff-row-sub">Mar 2026</div>
+    </div>
+    <div class="diff-counts">
+      <span class="count-pill count-local">30 local</span>
+      <span class="count-vs">vs</span>
+      <span class="count-pill count-cloud">28 cloud</span>
+    </div>
+  </div>
+
+  <div class="diff-row">
+    <span class="diff-badge badge-chg">≠</span>
+    <div class="diff-row-body">
+      <div class="diff-row-main">Ballinagar</div>
+      <div class="diff-row-sub">Mar 2026</div>
+    </div>
+    <div class="diff-counts">
+      <span class="count-pill count-local">0 local</span>
+      <span class="count-vs">vs</span>
+      <span class="count-pill count-cloud">30 cloud</span>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="modal-footer">
+    <button class="btn btn-mine">Keep Mine</button>
+    <button class="btn btn-cloud">Use Cloud</button>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════════════════════════ -->
+
+<h1>Routines Conflict — Option B: Side-by-side</h1>
+
+<div class="mock-shell">
+  <!-- Header -->
+  <div class="modal-hdr">
+    <span class="modal-hdr-icon">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#D97706" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+    </span>
+    <span class="modal-hdr-title">Routines Conflict</span>
+    <button class="modal-close">×</button>
+  </div>
+
+  <!-- Side-by-side sites -->
+  <div class="diff-section-hdr">Sites</div>
+  <div class="vs-wrap">
+    <div class="vs-col">
+      <div class="vs-col-hdr">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+        Your device
+      </div>
+      <div class="site-chip-row">
+        <span class="site-chip chip-present">Ballinagar</span>
+        <span class="site-chip chip-present">Ballinakill</span>
+        <span class="site-chip chip-new">Ballydaly</span>
+        <span class="site-chip chip-present">Clara</span>
+        <span class="site-chip chip-present">Geashill</span>
+      </div>
+    </div>
+    <div class="vs-col">
+      <div class="vs-col-hdr">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/></svg>
+        Cloud
+      </div>
+      <div class="site-chip-row">
+        <span class="site-chip chip-present">Ballinagar</span>
+        <span class="site-chip chip-present">Ballinakill</span>
+        <span class="site-chip chip-missing">Ballydaly</span>
+        <span class="site-chip chip-present">Clara</span>
+        <span class="site-chip chip-new">Collins Lane</span>
+        <span class="site-chip chip-present">Geashill</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="thick-divider"></div>
+
+  <!-- Visits diffs only -->
+  <div class="diff-section-hdr">Visit count differences</div>
+
+  <div class="visit-diff-row">
+    <div style="flex:1">
+      <div class="visit-site">Clara</div>
+      <div class="visit-month">Apr 2026</div>
+    </div>
+    <div class="visit-nums">
+      <span class="vn-local">2</span>
+      <span class="vn-arrow">→</span>
+      <span class="vn-cloud">1</span>
+    </div>
+  </div>
+
+  <div class="visit-diff-row">
+    <div style="flex:1">
+      <div class="visit-site">Geashill</div>
+      <div class="visit-month">Mar 2026</div>
+    </div>
+    <div class="visit-nums">
+      <span class="vn-local">30</span>
+      <span class="vn-arrow">→</span>
+      <span class="vn-cloud">28</span>
+    </div>
+  </div>
+
+  <div class="visit-diff-row">
+    <div style="flex:1">
+      <div class="visit-site">Ballinagar</div>
+      <div class="visit-month">Mar 2026</div>
+    </div>
+    <div class="visit-nums">
+      <span class="vn-local">0</span>
+      <span class="vn-arrow">→</span>
+      <span class="vn-cloud">30</span>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="modal-footer">
+    <button class="btn btn-mine">Keep Mine</button>
+    <button class="btn btn-cloud">Use Cloud</button>
+  </div>
+</div>
+
+</body>
+</html>

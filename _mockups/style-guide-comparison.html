@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Style Guide — Before & After</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300;1,9..40,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: #F0EFEB;
+  min-height: 100vh;
+  padding: 2rem;
+  color: #1A1917;
+}
+
+/* Toggle bar */
+.toggle-bar {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  background: #E2E0DA;
+  border-radius: 10px;
+  padding: 4px;
+  width: fit-content;
+  margin: 0 auto 2.5rem;
+}
+.toggle-btn {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 7px 20px;
+  border: none;
+  background: transparent;
+  border-radius: 7px;
+  cursor: pointer;
+  color: #6B6860;
+  transition: all 0.18s;
+}
+.toggle-btn.active {
+  background: #FFFFFF;
+  color: #1A1917;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+/* Panels */
+.panels { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; max-width: 1200px; margin: 0 auto; }
+
+.panel {
+  background: #fff;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid rgba(0,0,0,0.07);
+}
+.panel-header {
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid rgba(0,0,0,0.07);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.panel-header .badge {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 3px 9px;
+  border-radius: 5px;
+}
+.badge-before { background: #F0EFEB; color: #6B6860; }
+.badge-after { background: #1A1917; color: #fff; }
+.panel-title { font-size: 13px; color: #6B6860; }
+.panel-body { padding: 1.75rem 1.5rem; display: flex; flex-direction: column; gap: 2rem; }
+
+/* ─── BEFORE styles ─── */
+.before .section-heading {
+  font-size: 14px;
+  font-weight: 700;
+  margin-bottom: 10px;
+  color: #111;
+}
+
+.before .inline-row { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 10px; font-size: 14px; }
+.before .t-bold { font-weight: 700; }
+.before .t-italic { font-style: italic; }
+.before .t-strike { text-decoration: line-through; }
+.before .t-underline { text-decoration: underline; }
+.before .t-code { font-family: monospace; background: #f0f0f0; padding: 1px 5px; border-radius: 3px; font-size: 13px; }
+.before .sep { color: #aaa; }
+
+.before .h1 { font-size: 22px; font-weight: 700; margin-bottom: 6px; }
+.before .h2 { font-size: 17px; font-weight: 700; margin-bottom: 6px; }
+.before .h3 { font-size: 14px; font-weight: 700; }
+
+.before .color-row { display: flex; flex-wrap: wrap; gap: 6px 12px; font-size: 14px; }
+.before .c-red { color: red; }
+.before .c-blue { color: blue; }
+.before .c-green { color: green; }
+.before .c-purple { color: purple; }
+.before .c-orange { color: orange; }
+
+.before .hl-row { display: flex; flex-wrap: wrap; gap: 6px; font-size: 14px; }
+.before .hl { padding: 0 5px; }
+.before .hl-y { background: yellow; }
+.before .hl-g { background: #90EE90; }
+.before .hl-r { background: #FFB6C1; }
+.before .hl-b { background: #ADD8E6; }
+
+.before ul, .before ol { padding-left: 20px; font-size: 14px; }
+.before li { margin-bottom: 3px; }
+
+.before .task-list { list-style: none; padding: 0; font-size: 14px; }
+.before .task-item { display: flex; align-items: center; gap: 6px; margin-bottom: 4px; }
+.before .task-item.nested { padding-left: 22px; }
+.before .task-item.done span { text-decoration: line-through; color: #888; }
+.before input[type=checkbox] { width: 14px; height: 14px; }
+
+.before .blockquote { border-left: 3px solid #ccc; padding: 6px 12px; color: #555; font-size: 14px; }
+
+.before .code-block { background: #f5f5f5; border-radius: 6px; padding: 12px; font-family: monospace; font-size: 12.5px; line-height: 1.6; color: #333; }
+
+/* ─── AFTER styles ─── */
+.after .section-label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #9C9A96;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 0.5px solid rgba(0,0,0,0.08);
+}
+
+.after .inline-row { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; font-size: 14.5px; line-height: 2.1; }
+.after .t-bold { font-weight: 600; }
+.after .t-italic { font-style: italic; color: #5C5A56; }
+.after .t-strike { text-decoration: line-through; color: #9C9A96; }
+.after .t-underline { text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 1px; }
+.after .t-code {
+  font-family: 'DM Mono', monospace;
+  font-size: 12px;
+  background: #F5F4F0;
+  border: 1px solid rgba(0,0,0,0.08);
+  border-radius: 5px;
+  padding: 2px 7px;
+  color: #1A1917;
+}
+.after .sep { color: #C8C6C0; font-weight: 300; }
+.after .t-sup { font-size: 10.5px; vertical-align: super; color: #9C9A96; }
+.after .t-sub { font-size: 10.5px; vertical-align: sub; color: #9C9A96; }
+
+.after .h1 { font-size: 28px; font-weight: 600; letter-spacing: -0.03em; line-height: 1.15; margin-bottom: 8px; }
+.after .h2 { font-size: 19px; font-weight: 600; letter-spacing: -0.02em; margin-bottom: 6px; }
+.after .h3 { font-size: 15px; font-weight: 500; letter-spacing: -0.01em; color: #3A3836; }
+
+.after .color-row { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 14.5px; align-items: center; }
+.after .c-red { color: #C84B27; }
+.after .c-blue { color: #185FA5; }
+.after .c-green { color: #3B6D11; }
+.after .c-purple { color: #534AB7; }
+.after .c-orange { color: #BA7517; }
+
+.after .hl-row { display: flex; flex-wrap: wrap; gap: 6px 8px; font-size: 14px; align-items: center; }
+.after .hl { padding: 2px 8px; border-radius: 4px; font-weight: 400; }
+.after .hl-y { background: #FDF3C0; color: #7A5E00; }
+.after .hl-g { background: #D6F0C2; color: #2B5A09; }
+.after .hl-r { background: #FDDDD8; color: #8F2610; }
+.after .hl-b { background: #D0E8FA; color: #0B3C72; }
+
+.after ul.styled, .after ol.styled {
+  padding-left: 1.2rem;
+  color: #5C5A56;
+  font-size: 14px;
+}
+.after li { line-height: 1.9; padding-left: 3px; }
+.after li::marker { color: #C8C6C0; }
+
+.after .task-list { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.after .task-item { display: flex; align-items: flex-start; gap: 9px; font-size: 14px; color: #5C5A56; line-height: 1.6; }
+.after .task-item.nested { padding-left: 28px; }
+.after .task-item.done > span { text-decoration: line-through; color: #B0AEA8; }
+.after .checkbox {
+  width: 15px; height: 15px; border-radius: 4px; flex-shrink: 0; margin-top: 2px;
+  border: 1.5px solid rgba(0,0,0,0.2); background: transparent;
+  display: flex; align-items: center; justify-content: center;
+}
+.after .checkbox.checked { background: #1A1917; border-color: #1A1917; }
+.after .checkbox.checked::after {
+  content: '';
+  display: block; width: 8px; height: 5px;
+  border-left: 1.5px solid white; border-bottom: 1.5px solid white;
+  transform: rotate(-45deg) translateY(-1px);
+}
+
+.after .blockquote {
+  border-left: 2.5px solid rgba(0,0,0,0.15);
+  padding: 10px 16px;
+  background: #F5F4F0;
+  border-radius: 0 8px 8px 0;
+  font-size: 14px;
+  color: #5C5A56;
+  line-height: 1.7;
+  font-style: italic;
+}
+
+.after .code-block {
+  background: #1C1B19;
+  border-radius: 10px;
+  padding: 16px 18px;
+  font-family: 'DM Mono', monospace;
+  font-size: 12.5px;
+  line-height: 1.75;
+  overflow-x: auto;
+  color: #D4D0C8;
+}
+.after .kw { color: #A89BEF; }
+.after .fn { color: #6EC99B; }
+.after .str { color: #A8CC7A; }
+.after .punct { color: #6B6860; }
+.after .cm { color: #5C5A56; font-style: italic; }
+
+/* single view */
+.panels.single { grid-template-columns: 1fr; max-width: 620px; }
+
+@media (max-width: 780px) {
+  .panels { grid-template-columns: 1fr; }
+  body { padding: 1rem; }
+}
+</style>
+</head>
+<body>
+
+<div class="toggle-bar">
+  <button class="toggle-btn active" onclick="setView('both')">Side by side</button>
+  <button class="toggle-btn" onclick="setView('before')">Before</button>
+  <button class="toggle-btn" onclick="setView('after')">After</button>
+</div>
+
+<div class="panels" id="panels">
+
+  <!-- BEFORE -->
+  <div class="panel before" id="panel-before">
+    <div class="panel-header">
+      <span class="badge badge-before">Before</span>
+      <span class="panel-title">Your original styles</span>
+    </div>
+    <div class="panel-body">
+
+      <div>
+        <div class="section-heading">Text Styles</div>
+        <div class="inline-row">
+          <span>Basic text</span><span class="sep">·</span>
+          <span class="t-bold">Bold</span><span class="sep">·</span>
+          <span class="t-italic">Italic</span><span class="sep">·</span>
+          <span class="t-strike">Strikethrough</span><span class="sep">·</span>
+          <span class="t-underline">Underline</span><span class="sep">·</span>
+          <code class="t-code">Inline code</code>
+        </div>
+      </div>
+
+      <div>
+        <div class="section-heading">Headings</div>
+        <div class="h1">Heading 1 — biggest title</div>
+        <div class="h2">Heading 2 — section title</div>
+        <div class="h3">Heading 3 — subsection</div>
+      </div>
+
+      <div>
+        <div class="section-heading">Text Colours</div>
+        <div class="color-row">
+          <span class="c-red">Red text</span><span class="sep">·</span>
+          <span class="c-blue">Blue text</span><span class="sep">·</span>
+          <span class="c-green">Green text</span><span class="sep">·</span>
+          <span class="c-purple">Purple text</span><span class="sep">·</span>
+          <span class="c-orange">Orange text</span>
+        </div>
+      </div>
+
+      <div>
+        <div class="section-heading">Highlights</div>
+        <div class="hl-row">
+          <span class="hl hl-y">Yellow highlight</span>
+          <span class="sep">·</span>
+          <span class="hl hl-g">Green highlight</span>
+          <span class="sep">·</span>
+          <span class="hl hl-r">Red highlight</span>
+          <span class="sep">·</span>
+          <span class="hl hl-b">Blue highlight</span>
+        </div>
+      </div>
+
+      <div>
+        <div class="section-heading">Lists</div>
+        <ul style="padding-left:18px;font-size:14px;margin-bottom:10px;">
+          <li>First item</li><li>Second item</li><li>Third item</li>
+        </ul>
+        <ol style="padding-left:20px;font-size:14px;">
+          <li>Step one</li><li>Step two</li><li>Step three</li>
+        </ol>
+      </div>
+
+      <div>
+        <div class="section-heading">Task List</div>
+        <ul class="task-list">
+          <li class="task-item done"><input type="checkbox" checked disabled><span>Completed task</span></li>
+          <li class="task-item"><input type="checkbox" disabled><span>Open task</span></li>
+          <li class="task-item nested"><input type="checkbox" disabled><span>Nested subtask A</span></li>
+          <li class="task-item nested done"><input type="checkbox" checked disabled><span>Nested subtask B (done)</span></li>
+        </ul>
+      </div>
+
+      <div>
+        <div class="section-heading">Blockquote</div>
+        <div class="blockquote">This is a blockquote — great for callouts, warnings, or quotes from other sources.</div>
+      </div>
+
+      <div>
+        <div class="section-heading">Code Block</div>
+        <div class="code-block">function hello(name) {
+  return `Hello, ${name}!`;
+}</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- AFTER -->
+  <div class="panel after" id="panel-after">
+    <div class="panel-header">
+      <span class="badge badge-after">After</span>
+      <span class="panel-title">Improved styles</span>
+    </div>
+    <div class="panel-body">
+
+      <div>
+        <div class="section-label">Text styles</div>
+        <div class="inline-row">
+          <span>Basic text</span><span class="sep">·</span>
+          <span class="t-bold">Bold</span><span class="sep">·</span>
+          <span class="t-italic">Italic</span><span class="sep">·</span>
+          <span class="t-strike">Strikethrough</span><span class="sep">·</span>
+          <span class="t-underline">Underline</span><span class="sep">·</span>
+          <code class="t-code">Inline code</code>
+        </div>
+        <div class="inline-row" style="margin-top:4px;">
+          <span class="t-sup">Superscript</span><span class="sep">·</span>
+          <span class="t-sub">Subscript</span>
+        </div>
+      </div>
+
+      <div>
+        <div class="section-label">Headings</div>
+        <div class="h1">Heading 1 — biggest title</div>
+        <div class="h2">Heading 2 — section title</div>
+        <div class="h3">Heading 3 — subsection</div>
+      </div>
+
+      <div>
+        <div class="section-label">Text colours</div>
+        <div class="color-row">
+          <span class="c-red">Red text</span><span class="sep">·</span>
+          <span class="c-blue">Blue text</span><span class="sep">·</span>
+          <span class="c-green">Green text</span><span class="sep">·</span>
+          <span class="c-purple">Purple text</span><span class="sep">·</span>
+          <span class="c-orange">Orange text</span>
+        </div>
+      </div>
+
+      <div>
+        <div class="section-label">Highlights</div>
+        <div class="hl-row">
+          <span class="hl hl-y">Yellow highlight</span>
+          <span class="sep">·</span>
+          <span class="hl hl-g">Green highlight</span>
+          <span class="sep">·</span>
+          <span class="hl hl-r">Red highlight</span>
+          <span class="sep">·</span>
+          <span class="hl hl-b">Blue highlight</span>
+        </div>
+      </div>
+
+      <div>
+        <div class="section-label">Lists</div>
+        <ul class="styled" style="margin-bottom:10px;">
+          <li>First item</li><li>Second item</li><li>Third item</li>
+        </ul>
+        <ol class="styled">
+          <li>Step one</li><li>Step two</li><li>Step three</li>
+        </ol>
+      </div>
+
+      <div>
+        <div class="section-label">Task list</div>
+        <ul class="task-list">
+          <li class="task-item done"><div class="checkbox checked"></div><span>Completed task</span></li>
+          <li class="task-item"><div class="checkbox"></div><span>Open task</span></li>
+          <li class="task-item nested"><div class="checkbox"></div><span>Nested subtask A</span></li>
+          <li class="task-item nested done"><div class="checkbox checked"></div><span>Nested subtask B (done)</span></li>
+        </ul>
+      </div>
+
+      <div>
+        <div class="section-label">Blockquote</div>
+        <div class="blockquote">This is a blockquote — great for callouts, warnings, or quotes from other sources.</div>
+      </div>
+
+      <div>
+        <div class="section-label">Code block</div>
+        <div class="code-block"><span class="cm">// greet a user by name</span>
+<span class="kw">function</span> <span class="fn">hello</span><span class="punct">(</span>name<span class="punct">) {</span>
+  <span class="kw">return</span> <span class="str">`Hello, ${name}!`</span><span class="punct">;</span>
+<span class="punct">}</span></div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<script>
+function setView(v) {
+  const before = document.getElementById('panel-before');
+  const after = document.getElementById('panel-after');
+  const panels = document.getElementById('panels');
+  const btns = document.querySelectorAll('.toggle-btn');
+  btns.forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+
+  if (v === 'both') {
+    before.style.display = '';
+    after.style.display = '';
+    panels.style.gridTemplateColumns = '1fr 1fr';
+    panels.style.maxWidth = '1200px';
+  } else if (v === 'before') {
+    before.style.display = '';
+    after.style.display = 'none';
+    panels.style.gridTemplateColumns = '1fr';
+    panels.style.maxWidth = '580px';
+  } else {
+    before.style.display = 'none';
+    after.style.display = '';
+    panels.style.gridTemplateColumns = '1fr';
+    panels.style.maxWidth = '580px';
+  }
+}
+</script>
+
+</body>
+</html>

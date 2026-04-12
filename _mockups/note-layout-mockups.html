@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Note Card Layout Mockups</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #f0f4f8;
+      padding: 40px 20px;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 40px;
+      color: #0f1c2e;
+      font-size: 28px;
+    }
+    .mockup-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+      gap: 30px;
+      margin-bottom: 40px;
+    }
+    .mockup-section {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .mockup-title {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 20px;
+      color: #2d6be4;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .option-num {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      background: #2d6be4;
+      color: white;
+      border-radius: 50%;
+      font-weight: 700;
+      font-size: 14px;
+    }
+    .note-card {
+      background: white;
+      border: 1px solid #d4e0ec;
+      border-radius: 10px;
+      padding: 12px;
+      margin-bottom: 15px;
+    }
+    .note-line {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      margin-bottom: 6px;
+      font-size: 13px;
+    }
+    .note-line:last-child {
+      margin-bottom: 0;
+    }
+    .note-title {
+      font-weight: 600;
+      color: #0f1c2e;
+      flex: 1;
+      min-width: 0;
+    }
+    .expand-arrow {
+      color: #94a3b8;
+      font-size: 12px;
+    }
+    .meta-item {
+      display: inline-flex;
+      gap: 4px;
+      align-items: center;
+      color: #64748b;
+      font-size: 12px;
+    }
+    .icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 14px;
+      height: 14px;
+    }
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+    .chip-category {
+      background: rgba(45, 107, 228, 0.1);
+      color: #2d6be4;
+    }
+    .chip-due-red {
+      background: rgba(239, 68, 68, 0.1);
+      color: #ef4444;
+      font-weight: 700;
+    }
+    .chip-due-orange {
+      background: rgba(249, 115, 22, 0.1);
+      color: #f97316;
+      font-weight: 600;
+    }
+    .chip-due-gray {
+      background: rgba(100, 116, 139, 0.1);
+      color: #64748b;
+    }
+    .btn-small {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 20px;
+      height: 20px;
+      border: 1.5px solid #d4e0ec;
+      background: transparent;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 10px;
+      color: #94a3b8;
+    }
+    .divider {
+      color: #e2e8f0;
+      margin: 0 4px;
+    }
+    .description {
+      font-size: 11px;
+      color: #94a3b8;
+      font-style: italic;
+    }
+    .section-header {
+      background: #f4f7fa;
+      padding: 8px 12px;
+      border-radius: 6px;
+      margin-bottom: 12px;
+      font-size: 11px;
+      font-weight: 700;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Note Card Layout Options</h1>
+
+    <div class="mockup-grid">
+      <!-- OPTION 1 -->
+      <div class="mockup-section">
+        <div class="mockup-title">
+          <span class="option-num">1</span>
+          Always 3 Lines (Recommended)
+        </div>
+
+        <div class="note-card">
+          <div class="note-line">
+            <span class="note-title">Faulty Rectifier In Narargm...</span>
+            <span class="expand-arrow">›</span>
+          </div>
+          <div class="note-line">
+            <span class="meta-item"><span class="icon">📍</span> Narraghmore</span>
+            <span class="divider">·</span>
+            <span class="meta-item"><span class="icon">📅</span> Wed 25. Mar</span>
+            <span class="divider">·</span>
+            <span class="meta-item"><span class="icon">🔔</span></span>
+          </div>
+          <div class="note-line">
+            <span class="chip chip-category">Safety</span>
+            <span class="btn-small">📌</span>
+            <span class="chip chip-due-orange">Due tomorrow</span>
+          </div>
+        </div>
+
+        <div class="note-card">
+          <div class="note-line">
+            <span class="note-title">Check transformer readings...</span>
+            <span class="expand-arrow">›</span>
+          </div>
+          <div class="note-line">
+            <span class="meta-item"><span class="icon">📍</span> Dublin site</span>
+            <span class="divider">·</span>
+            <span class="meta-item"><span class="icon">📅</span> Mon 24. Mar</span>
+          </div>
+          <div class="note-line">
+            <span class="chip chip-category">Maintenance</span>
+            <span class="btn-small">📌</span>
+            <span class="chip chip-due-gray">Set due date</span>
+          </div>
+        </div>
+
+        <div class="note-card">
+          <div class="note-line">
+            <span class="note-title">Overdue cable replacement...</span>
+            <span class="expand-arrow">›</span>
+          </div>
+          <div class="note-line">
+            <span class="meta-item"><span class="icon">📍</span> Cork facility</span>
+          </div>
+          <div class="note-line">
+            <span class="chip chip-category">Urgent</span>
+            <span class="btn-small">📌</span>
+            <span class="chip chip-due-red">⚠ Overdue by 3d</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- OPTION 2 -->
+      <div class="mockup-section">
+        <div class="mockup-title">
+          <span class="option-num">2</span>
+          Compact Format (Actions Top)
+        </div>
+
+        <div class="note-card">
+          <div class="note-line">
+            <span class="note-title">Faulty Rectifier In Narargm...</span>
+            <span class="chip chip-category" style="margin-left: auto;">Safety</span>
+            <span class="btn-small">📌</span>
+            <span class="chip chip-due-orange">Due ↓</span>
+          </div>
+          <div class="note-line">
+            <span class="meta-item"><span class="icon">📍</span> Narraghmore</span>
+            <span class="divider">·</span>
+            <span class="meta-item"><span class="icon">📅</span> Wed 25. Mar</span>
+            <span class="divider">·</span>
+            <span class="meta-item"><span class="icon">🔔</span></span>
+          </div>
+          <div class="note-line description">
+            Shows description or empty
+          </div>
+        </div>
+
+        <div class="note-card">
+          <div class="note-line">
+            <span class="note-title">Check transformer readings...</span>
+            <span class="chip chip-category" style="margin-left: auto;">Maintenance</span>
+            <span class="btn-small">📌</span>
+            <span class="chip chip-due-gray">Set</span>
+          </div>
+          <div class="note-line">
+            <span class="meta-item"><span class="icon">📍</span> Dublin site</span>
+            <span class="divider">·</span>
+            <span class="meta-item"><span class="icon">📅</span> Mon 24. Mar</span>
+          </div>
+          <div class="note-line description">
+            Shows description or empty
+          </div>
+        </div>
+
+        <div class="note-card">
+          <div class="note-line">
+            <span class="note-title">Overdue cable replacement...</span>
+            <span class="chip chip-category" style="margin-left: auto;">Urgent</span>
+            <span class="btn-small">📌</span>
+            <span class="chip chip-due-red">⚠</span>
+          </div>
+          <div class="note-line">
+            <span class="meta-item"><span class="icon">📍</span> Cork facility</span>
+          </div>
+          <div class="note-line description">
+            Shows description or empty
+          </div>
+        </div>
+      </div>
+
+      <!-- OPTION 3 -->
+      <div class="mockup-section">
+        <div class="mockup-title">
+          <span class="option-num">3</span>
+          Card Footer Style
+        </div>
+
+        <div class="note-card">
+          <div class="note-line">
+            <span class="note-title">Faulty Rectifier In Narargm...</span>
+            <span class="expand-arrow">›</span>
+          </div>
+          <div class="note-line">
+            <span class="meta-item"><span class="icon">📍</span> Narraghmore</span>
+            <span class="divider">·</span>
+            <span class="meta-item"><span class="icon">📅</span> Wed 25. Mar</span>
+            <span class="divider">·</span>
+            <span class="meta-item"><span class="icon">🔔</span></span>
+          </div>
+          <div class="note-line" style="border-top: 1px solid #e2e8f0; padding-top: 6px; margin-top: 6px;">
+            <span class="chip chip-category">Safety</span>
+            <span class="divider">|</span>
+            <span class="btn-small">📌</span>
+            <span class="divider">|</span>
+            <span class="chip chip-due-orange">Due tomorrow</span>
+          </div>
+        </div>
+
+        <div class="note-card">
+          <div class="note-line">
+            <span class="note-title">Check transformer readings...</span>
+            <span class="expand-arrow">›</span>
+          </div>
+          <div class="note-line">
+            <span class="meta-item"><span class="icon">📍</span> Dublin site</span>
+            <span class="divider">·</span>
+            <span class="meta-item"><span class="icon">📅</span> Mon 24. Mar</span>
+          </div>
+          <div class="note-line" style="border-top: 1px solid #e2e8f0; padding-top: 6px; margin-top: 6px;">
+            <span class="chip chip-category">Maintenance</span>
+            <span class="divider">|</span>
+            <span class="btn-small">📌</span>
+            <span class="divider">|</span>
+            <span class="chip chip-due-gray">Set due date</span>
+          </div>
+        </div>
+
+        <div class="note-card">
+          <div class="note-line">
+            <span class="note-title">Overdue cable replacement...</span>
+            <span class="expand-arrow">›</span>
+          </div>
+          <div class="note-line">
+            <span class="meta-item"><span class="icon">📍</span> Cork facility</span>
+          </div>
+          <div class="note-line" style="border-top: 1px solid #e2e8f0; padding-top: 6px; margin-top: 6px;">
+            <span class="chip chip-category">Urgent</span>
+            <span class="divider">|</span>
+            <span class="btn-small">📌</span>
+            <span class="divider">|</span>
+            <span class="chip chip-due-red">⚠ Overdue by 3d</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="background: white; border-radius: 12px; padding: 20px; text-align: center;">
+      <h2 style="color: #0f1c2e; margin-bottom: 12px;">My Recommendation: Option 1</h2>
+      <p style="color: #64748b; line-height: 1.6;">
+        Always 3 lines keeps visual consistency, groups metadata (location/date) in line 2,
+        and actions (category/pin/due date) in line 3. Notes without due dates show "Set due date"
+        placeholder, so height is always the same.
+      </p>
+    </div>
+  </div>
+</body>
+</html>
