@@ -23570,8 +23570,9 @@
       // Always re-push so we stay in the app
       history.pushState({ app: true }, '');
     });
-    // Push initial state so first back press is catchable
-    history.pushState({ app: true }, '');
+    // Push multiple initial states so the WebView has a buffer before exiting
+    // (without @capacitor/app plugin, the WebView pops history on back press)
+    for (let _hi = 0; _hi < 5; _hi++) history.pushState({ app: true }, '');
 
     // Online / offline handling — Firestore reconnects automatically
     window.addEventListener('online', () => {
