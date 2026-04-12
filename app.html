@@ -13364,7 +13364,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.4.5';
+    const VERSION = '5.4.6';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -23499,6 +23499,7 @@
 
     // Exit app — try every known method
     function _exitApp() {
+      try { if (window.RianNative?.exitApp) { window.RianNative.exitApp(); return; } } catch(e){}
       try { if (window.Capacitor?.Plugins?.App?.exitApp) { window.Capacitor.Plugins.App.exitApp(); return; } } catch(e){}
       try { if (navigator.app?.exitApp) { navigator.app.exitApp(); return; } } catch(e){}
       try { window.close(); } catch(e){}
