@@ -13962,7 +13962,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.3.99';
+    const VERSION = '5.4.0';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -24530,11 +24530,23 @@
         return;
       }
       // 4. Journal drill-down
-      if (state.view === 'journal' && (state.jScreen === 'sections' || state.jScreen === 'pages')) {
-        navJBack();
+      if (state.view === 'journal') {
+        if (state.jScreen === 'sections' || state.jScreen === 'pages') {
+          navJBack();
+        } else {
+          // at notebooks (top level) — go back to week
+          setView(state.prevView || 'week');
+        }
+        history.pushState({ app: true }, '');
         return;
       }
-      // 5. Nothing left to handle — exit confirmation
+      // 4b. Any other non-week view — go back to week
+      if (state.view && state.view !== 'week') {
+        setView(state.prevView || 'week');
+        history.pushState({ app: true }, '');
+        return;
+      }
+      // 5. Already on week — exit confirmation
       history.pushState({ app: true }, ''); // re-push so we stay in app
       if (_backExitTimer) {
         // Second back press within 2s — exit
