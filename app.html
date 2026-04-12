@@ -13961,7 +13961,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.3.85';
+    const VERSION = '5.3.86';
 
     // Auto-update: if stored version differs, wipe SW caches and reload for fresh code.
     // The network-first SW already delivers new app.html; this clears the old SW so it
@@ -35117,3 +35117,24 @@ QUESTION: ${query}`;
       </svg>
     </button>
     <button class="tt-link-bbl-btn" id="tt-link-bbl-remove" title="Remove link" onmousedown="event.preventDefault()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+        stroke-linejoin="round">
+        <line x1="18" y1="6" x2="6" y2="18" />
+        <line x1="6" y1="6" x2="18" y2="18" />
+      </svg>
+    </button>
+  </div>
+
+  <!-- ===== RIAN CUSTOM DIALOG ===== -->
+  <div id="rian-dialog-overlay" role="dialog" aria-modal="true" onclick="_rdnOverlayClick(event)">
+    <div id="rian-dialog">
+      <div class="rdn-title" id="rdn-title"></div>
+      <div class="rdn-msg" id="rdn-msg"></div>
+      <input class="rdn-input" id="rdn-input" autocomplete="off" spellcheck="false" style="display:none">
+      <div class="rdn-actions" id="rdn-actions"></div>
+    </div>
+  </div>
+
+</body>
+
+</html>
