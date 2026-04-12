@@ -4817,20 +4817,63 @@
     }
 
 
+    /* ===== ACTIVITY NOTE MODAL ===== */
+    #notes-modal {
+      display: none;
+      position: fixed; inset: 0;
+      z-index: 1000;
+      background: rgba(0,0,0,0.5);
+      justify-content: center; align-items: center;
+    }
+    #notes-modal.open { display: flex; }
+    #notes-modal-inner {
+      background: var(--bg-card);
+      border-radius: 14px;
+      padding: 16px;
+      width: 90%; max-width: 360px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+    }
+    #notes-modal-header {
+      display: flex; align-items: center; gap: 8px;
+      color: var(--text-primary);
+      font-weight: 600; font-size: 15px;
+      margin-bottom: 12px;
+    }
+    #notes-modal-ta {
+      width: 100%; min-height: 80px;
+      background: var(--bg-card-alt);
+      color: var(--text-primary);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px;
+      font-size: 13px;
+      resize: vertical;
+      font-family: inherit;
+    }
+    #notes-modal-footer {
+      display: flex; justify-content: flex-end; gap: 10px;
+      margin-top: 12px;
+    }
+    .tbl-note-tooltip { display: none; }
+
     /* ===== PRIVACY BANNER ===== */
     #privacy-banner {
       position: fixed;
-      bottom: 0; left: 0; right: 0;
+      bottom: 0; left: 50%; transform: translateX(-50%);
       z-index: 9999;
+      width: calc(100% - 24px);
+      max-width: 420px;
       background: var(--bg-card);
-      border-top: 1px solid var(--border);
+      border: 1px solid var(--border);
+      border-bottom: none;
+      border-radius: 14px 14px 0 0;
       padding: 16px 20px 24px;
       box-shadow: 0 -4px 24px rgba(0,0,0,0.3);
       animation: slideUp 0.3s ease;
     }
     @keyframes slideUp {
-      from { transform: translateY(100%); }
-      to { transform: translateY(0); }
+      from { transform: translateX(-50%) translateY(100%); }
+      to { transform: translateX(-50%) translateY(0); }
     }
     #privacy-banner p {
       font-size: 13px;
@@ -9574,6 +9617,38 @@
       line-height: 1.6;
     }
 
+    .add-note-dashed {
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      padding: 14px; margin: 0 16px 8px;
+      border: 2px dashed var(--border);
+      border-radius: 14px;
+      color: var(--text-muted);
+      font-size: 14px; font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s;
+    }
+    .add-note-dashed:active { background: rgba(45,107,228,0.06); border-color: var(--accent); color: var(--accent); }
+    .docx-import-import-btn {
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+      width: calc(100% - 32px); margin: 0 16px 12px;
+      padding: 10px;
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--text-muted);
+      font-size: 12px; font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .docx-import-import-btn:active { background: rgba(45,107,228,0.06); color: var(--accent); }
+    .notes-selection-banner {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 10px 16px; margin: 0 16px 8px;
+      background: rgba(45,107,228,0.08);
+      border: 1px solid rgba(45,107,228,0.25);
+      border-radius: 12px;
+    }
+
     .note-card {
       background: var(--bg-card);
       border-radius: 16px;
@@ -13302,7 +13377,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.4.3';
+    const VERSION = '5.4.5';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -16242,7 +16317,7 @@
           const _rName = u ? (u.displayName || u._rian_displayName || localStorage.getItem('rian_user_name') || '') : '';
           const _rEmail = u ? (u.email || u._rian_email || localStorage.getItem('rian_user_email') || '') : '';
           const displayName = _rName || (_rEmail ? _rEmail.split('@')[0] : 'there');
-          const photoURL = u ? (u.photoURL || localStorage.getItem('rian_user_photo') || '') : '';
+          const photoURL = u ? (u.photoURL || u._rian_photoURL || localStorage.getItem('rian_user_photo') || '') : '';
           const initial = displayName[0].toUpperCase();
           const avatarHtml = photoURL
             ? `<img src="${esc(photoURL)}" class="menu-avatar-img" alt="User avatar" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="menu-avatar-initials" style="display:none">${initial}</div>`
@@ -23594,44 +23669,51 @@
 
     // Browser / phone back button — navigate within app instead of closing
     var _backExitTimer = null;
-    window.addEventListener('popstate', (e) => {
-      // 1. Note fullscreen editor (both timesheet notes and journal pages)
+    function _handleBackButton() {
+      // 1. Any open bottom sheet / action sheet
+      const sheets = document.querySelectorAll('.btm-sheet.open, .bottom-sheet.open');
+      if (sheets.length) {
+        sheets.forEach(s => s.classList.remove('open'));
+        return;
+      }
+      // 2. Note fullscreen editor (both timesheet notes and journal pages)
       const noteFsOpen = !document.getElementById('note-fs-modal')?.classList.contains('hidden');
       if (noteFsOpen) {
         closeNoteFullscreen();
         return;
       }
-      // 2. On-call schedule overlay
+      // 3. Hamburger menu open
+      const themeMenu = document.getElementById('themeMenu');
+      if (themeMenu && !themeMenu.classList.contains('hidden')) {
+        closeThemeMenu();
+        return;
+      }
+      // 4. On-call schedule overlay
       if (state.coScheduleOpen) {
         ocCloseSchedule();
         return;
       }
-      // 3. Callouts week detail
+      // 5. Callouts week detail
       if (state.view === 'callouts' && state.calloutsView === 'week') {
         coBack();
         return;
       }
-      // 4. Journal drill-down
+      // 6. Journal drill-down
       if (state.view === 'journal') {
         if (state.jScreen === 'sections' || state.jScreen === 'pages') {
           navJBack();
         } else {
-          // at notebooks (top level) — go back to week
           setView(state.prevView || 'week');
         }
-        history.pushState({ app: true }, '');
         return;
       }
-      // 4b. Any other non-week view — go back to week
+      // 7. Any other non-week view — go back to week
       if (state.view && state.view !== 'week') {
         setView(state.prevView || 'week');
-        history.pushState({ app: true }, '');
         return;
       }
-      // 5. Already on week — exit confirmation
-      history.pushState({ app: true }, ''); // re-push so we stay in app
+      // 8. Already on week — exit confirmation (double-tap)
       if (_backExitTimer) {
-        // Second back press within 2s — exit
         clearTimeout(_backExitTimer);
         _backExitTimer = null;
         if (IS_NATIVE && window.Capacitor?.Plugins?.App) {
@@ -23643,6 +23725,20 @@
         showToast('Press back again to exit', 2000);
         _backExitTimer = setTimeout(() => { _backExitTimer = null; }, 2000);
       }
+    }
+
+    // Capacitor native back button (more reliable than popstate on Android)
+    if (IS_NATIVE && window.Capacitor?.Plugins?.App) {
+      window.Capacitor.Plugins.App.addListener('backButton', (ev) => {
+        _handleBackButton();
+      });
+    }
+
+    // Fallback: browser popstate for PWA / desktop
+    window.addEventListener('popstate', (e) => {
+      _handleBackButton();
+      // Always re-push so we stay in the app
+      history.pushState({ app: true }, '');
     });
     // Push initial state so first back press is catchable
     history.pushState({ app: true }, '');
@@ -29952,7 +30048,7 @@ Rules:
         // Firebase can restore a cached session with null email/displayName/photoURL.
         // Read the Firestore user profile (written on every real sign-in) to patch
         // the stale user object so the rest of the app always sees a full profile.
-        if (user && !user.email) {
+        if (user && (!user.email || !user.photoURL)) {
           try {
             const profSnap = await Promise.race([
               db_fs.doc(`users/${user.uid}`).get(),
@@ -29960,9 +30056,13 @@ Rules:
             ]);
             if (profSnap.exists) {
               const prof = profSnap.data();
-              if (prof.email) user._rian_email = prof.email;
-              if (prof.displayName) user._rian_displayName = prof.displayName;
-              console.log('[Rian] Profile patched from Firestore:', prof.email);
+              if (prof.email && !user.email) user._rian_email = prof.email;
+              if (prof.displayName && !user.displayName) user._rian_displayName = prof.displayName;
+              if (prof.photoURL && !user.photoURL) {
+                user._rian_photoURL = prof.photoURL;
+                localStorage.setItem('rian_user_photo', prof.photoURL);
+              }
+              console.log('[Rian] Profile patched from Firestore:', prof.email || user.email);
             }
           } catch (e) {
             console.warn('[Rian] Firestore profile fetch failed/timed out:', e.message);
@@ -29995,6 +30095,7 @@ Rules:
         const _prof = { lastSeen: Date.now() };
         if (user.displayName) _prof.displayName = user.displayName;
         if (user.email) _prof.email = user.email;
+        if (user.photoURL) _prof.photoURL = user.photoURL;
         db_fs.doc(`users/${user.uid}`).set(_prof, { merge: true }).catch(e => console.warn('[Rian]', e));
 
         // Show one-time privacy notice to existing users who bypassed login screen

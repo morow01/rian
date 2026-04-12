@@ -8,6 +8,7 @@
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
   <style>
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    html{scroll-behavior:smooth;}
     :root{
       --navy:#0F1C2E;--navy2:#162438;--accent:#2D6BE4;--accent-light:#EBF1FD;
       --page:#E8EEF5;--card:#FFFFFF;--border:#D4E0EC;--text:#0F1C2E;
@@ -252,31 +253,6 @@
     .finder-detail-label{font-size:7px;color:var(--faint);width:55px;flex-shrink:0;}
     .finder-detail-val{font-size:7.5px;font-weight:500;}
 
-    /* ── DESKTOP SECTION ── */
-    .desktop-section{padding:80px 24px;background:#fff;}
-    .desktop-inner{max-width:1080px;margin:0 auto;}
-    .desktop-section .section-number{font-size:11px;font-weight:800;letter-spacing:0.12em;text-transform:uppercase;color:var(--accent);margin-bottom:8px;}
-    .desktop-section h2{font-size:clamp(26px,3vw,38px);font-weight:800;letter-spacing:-0.02em;line-height:1.15;margin-bottom:12px;}
-    .desktop-section .lead{font-size:16px;color:var(--muted);margin-bottom:32px;line-height:1.7;max-width:640px;}
-    .browser-chrome{background:var(--navy);border-radius:14px;overflow:hidden;box-shadow:0 32px 72px rgba(0,0,0,0.22),0 0 0 1px rgba(255,255,255,0.06);}
-    .browser-titlebar{background:#1a2840;padding:10px 16px;display:flex;align-items:center;gap:10px;border-bottom:1px solid rgba(255,255,255,0.06);}
-    .browser-dots{display:flex;gap:6px;}
-    .browser-dot{width:10px;height:10px;border-radius:50%;}
-    .browser-dot.red{background:#ff5f56;}.browser-dot.amber{background:#ffbd2e;}.browser-dot.green{background:#27c93f;}
-    .browser-url{flex:1;background:rgba(255,255,255,0.07);border-radius:6px;padding:4px 10px;font-size:11px;color:rgba(255,255,255,0.35);font-family:'DM Mono',monospace;}
-    .ss-wrap{overflow-x:auto;background:var(--page);}
-    .ss-table{width:100%;border-collapse:collapse;font-size:12px;min-width:700px;}
-    .ss-table thead th{background:var(--navy2);color:rgba(255,255,255,0.5);font-size:10px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;padding:8px 12px;text-align:left;border-right:1px solid rgba(255,255,255,0.08);white-space:nowrap;}
-    .ss-table thead th:last-child{border-right:none;}
-    .ss-table tbody td{padding:9px 12px;border-bottom:1px solid var(--border);border-right:1px solid var(--border);color:var(--text);white-space:nowrap;}
-    .ss-table tbody td:last-child{border-right:none;}
-    .ss-table tbody tr.day-header-row td{background:rgba(15,28,46,0.04);font-weight:700;font-size:11px;color:var(--navy);padding:6px 12px;}
-    .ss-code{background:rgba(45,107,228,0.1);color:var(--accent);border-radius:4px;padding:2px 6px;font-size:10px;font-weight:700;font-family:'DM Mono',monospace;}
-    .ss-ot{color:var(--ot);font-weight:700;}
-    .ss-muted{color:var(--faint);font-size:11px;}
-    .ss-total-row td{background:var(--navy)!important;color:#fff!important;font-weight:700;font-size:11px;padding:8px 12px;border-color:rgba(255,255,255,0.1)!important;}
-    .ss-total-row td.ot-total{color:var(--ot)!important;}
-
     /* ── WEEKLY SUMMARY MOCKUP ── */
     .ws-screen{background:var(--page);}
     .ws-card{background:#fff;border-radius:10px;margin:6px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,0.07);position:relative;}
@@ -348,6 +324,7 @@
   <div class="nav-links">
     <a href="#timesheet" class="nav-link active">Timesheet</a>
     <a href="#notes" class="nav-link">Notes</a>
+    <a href="#journal" class="nav-link">Journal</a>
     <a href="#finder" class="nav-link">Finder</a>
     <a href="#routines" class="nav-link">Routines</a>
     <a href="#callout" class="nav-link">Callout</a>
@@ -362,14 +339,14 @@
 <section class="hero">
   <div class="hero-badge">Mobile First · Field Ready · Cloud Synced</div>
   <h1>Your whole job<br><span>in one pocket</span></h1>
-  <p>Timesheets, field notes, and site lookup — all in one fast app built for technicians on the tools.</p>
+  <p>Timesheets, field notes, journal, site finder, routines, and on-call tracking — all in one fast app built for technicians on the tools.</p>
   <div class="hero-cta">
     <a href="./app.html" target="_blank" rel="noopener" class="btn-launch">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
       Launch App
     </a>
   </div>
-  <p style="margin-top:10px;font-size:11px;color:rgba(255,255,255,0.25);letter-spacing:0.05em;">v4.26.99</p>
+  <p style="margin-top:10px;font-size:11px;color:rgba(255,255,255,0.25);letter-spacing:0.05em;">v5.4.4</p>
 </section>
 
 <!-- ════ SECTION 1 — TIMESHEET ════ -->
@@ -410,13 +387,14 @@
           <div class="app-header">
             <div class="app-header-row">
               <div class="app-nav-btn"><svg width="5" height="8" viewBox="0 0 5 8"><polygon points="5,0 0,4 5,8" fill="rgba(255,255,255,0.5)"/></svg></div>
-              <div><div class="app-week">10 – 14 Mar 2026</div><div class="app-week-sub">Synced · v4.26.99</div></div>
+              <div><div class="app-week">10 – 14 Mar 2026</div><div class="app-week-sub">Synced · v5.4.4</div></div>
               <div class="app-nav-btn"><svg width="5" height="8" viewBox="0 0 5 8"><polygon points="0,0 5,4 0,8" fill="rgba(255,255,255,0.5)"/></svg></div>
             </div>
           </div>
           <div class="app-tabs">
             <div class="app-tab active">Timesheet</div>
             <div class="app-tab">Notes</div>
+            <div class="app-tab">Journal</div>
             <div class="app-tab">Finder</div>
           </div>
           <div class="ts-week-body">
@@ -444,44 +422,13 @@
   </div>
 </section>
 
-<!-- ════ SECTION 1b — DESKTOP VIEW (unchanged) ════ -->
-<section class="desktop-section">
-  <div class="desktop-inner">
-    <div class="section-number">01 — Timesheet · Desktop</div>
-    <h2>Spreadsheet view for the big screen</h2>
-    <p class="lead">Switch to table layout on desktop or tablet. Every day, task, code and hour in one scannable grid — perfect for end-of-week review.</p>
-    <div class="browser-chrome">
-      <div class="browser-titlebar">
-        <div class="browser-dots"><div class="browser-dot red"></div><div class="browser-dot amber"></div><div class="browser-dot green"></div></div>
-        <div class="browser-url">app.rian.io · Timesheet · Table View</div>
-      </div>
-      <div class="ss-wrap">
-        <table class="ss-table">
-          <thead>
-            <tr><th>Day / Task</th><th>Code</th><th>Location</th><th>Description</th><th>ORD</th><th>OT</th></tr>
-          </thead>
-          <tbody>
-            <tr class="day-header-row"><td colspan="6">Monday 10 Mar</td></tr>
-            <tr><td style="padding-left:20px">Install switchboard panels</td><td><span class="ss-code">INST-SW</span></td><td>Bankstown</td><td class="ss-muted">Main DB replacement, level 2</td><td>4</td><td class="ss-muted">—</td></tr>
-            <tr><td style="padding-left:20px">Cable tray installation</td><td><span class="ss-code">INST-CT</span></td><td>Bankstown</td><td class="ss-muted">East wing, 3rd floor</td><td>4</td><td class="ss-muted">—</td></tr>
-            <tr class="day-header-row"><td colspan="6">Tuesday 11 Mar</td></tr>
-            <tr><td style="padding-left:20px">Terminations — MCC Panel</td><td><span class="ss-code">TERM-LV</span></td><td>Granville</td><td class="ss-muted">Control cabinet wiring</td><td>5</td><td class="ss-muted">—</td></tr>
-            <tr><td style="padding-left:20px">Test &amp; commission</td><td><span class="ss-code">TEST-CM</span></td><td>Granville</td><td class="ss-muted">Pre-energisation checks</td><td>4</td><td class="ss-ot">2</td></tr>
-            <tr class="ss-total-row"><td><strong>Weekly Total</strong></td><td></td><td></td><td></td><td>39</td><td class="ot-total">10</td></tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ════ SECTION 2 — NOTES  ★ UPDATED ★ ════ -->
+<!-- ════ SECTION 02 — NOTES ════ -->
 <section class="feature-section" id="notes">
   <div class="feature-inner">
 
     <!-- Text -->
     <div class="feature-text">
-      <div class="section-number">02 — Notes <span class="updated-badge">Updated</span></div>
+      <div class="section-number">02 — Notes</div>
       <h2>Notes that work as hard as you do</h2>
       <p class="lead">Capture faults, follow-ups, meeting outcomes, and job reminders — all categorised, filtered, and searchable. Nothing falls through the cracks.</p>
       <ul class="feature-list">
@@ -550,6 +497,7 @@
           <div class="app-tabs">
             <div class="app-tab">Timesheet</div>
             <div class="app-tab active">Notes</div>
+            <div class="app-tab">Journal</div>
             <div class="app-tab">Finder</div>
           </div>
           <div class="notes-body">
@@ -654,6 +602,7 @@
           <div class="app-tabs">
             <div class="app-tab">Timesheet</div>
             <div class="app-tab active">Notes</div>
+            <div class="app-tab">Journal</div>
             <div class="app-tab">Finder</div>
           </div>
           <div class="notes-body">
@@ -716,11 +665,102 @@
   </div>
 </section>
 
-<!-- ════ SECTION 03 — FINDER ════ -->
+<!-- ════ SECTION 03 — JOURNAL ★ NEW ★ ════ -->
+<section class="feature-section" id="journal">
+  <div class="feature-inner">
+    <div class="feature-text">
+      <div class="section-number">03 — Journal <span class="updated-badge">New</span></div>
+      <h2>Your digital field notebook</h2>
+      <p class="lead">Organise site visits, voltage readings, ticket tables and photos into notebooks, sections and pages — structured the way you think, with rich text editing powered by TipTap.</p>
+      <ul class="feature-list">
+        <li>
+          <div class="icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+          </div>
+          <div>
+            <strong>Notebooks → Sections → Pages</strong>
+            <span>Three-level hierarchy mirrors how you organise work — one notebook per project, sections for areas, pages for individual visits.</span>
+          </div>
+        </li>
+        <li>
+          <div class="icon purple">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+          </div>
+          <div>
+            <strong>Rich text editor</strong>
+            <span>Headings, bold, lists, tables, images, code blocks — a full TipTap editor so your field notes look professional.</span>
+          </div>
+        </li>
+        <li>
+          <div class="icon green">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          </div>
+          <div>
+            <strong>Cloud sync</strong>
+            <span>Every page syncs to Firestore in real time. Start a note on your phone, finish it on your tablet — it's always up to date.</span>
+          </div>
+        </li>
+        <li>
+          <div class="icon orange">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+          </div>
+          <div>
+            <strong>Colour-coded sections</strong>
+            <span>Assign colours to sections so you can tell areas apart at a glance. Copy or move pages between sections easily.</span>
+          </div>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Phone mockup -->
+    <div class="phones">
+      <div class="phone">
+        <div class="phone-notch"></div>
+        <div class="phone-screen">
+          <div class="app-header">
+            <div class="app-header-row">
+              <div class="app-nav-btn"></div>
+              <div class="app-week">Journal</div>
+              <div class="app-nav-btn"></div>
+            </div>
+          </div>
+          <div class="app-tabs">
+            <div class="app-tab">Timesheet</div>
+            <div class="app-tab">Notes</div>
+            <div class="app-tab active">Journal</div>
+            <div class="app-tab">Finder</div>
+          </div>
+          <div style="padding:10px 10px 0;display:flex;flex-direction:column;gap:8px;">
+            <!-- Notebook cards -->
+            <div style="background:#fff;border-radius:8px;padding:10px 12px;border-left:3px solid #2D6BE4;box-shadow:0 1px 3px rgba(0,0,0,0.06);">
+              <div style="font-size:9px;font-weight:700;color:var(--text);margin-bottom:2px;">Cabinets &amp; Pillars</div>
+              <div style="font-size:6px;color:var(--faint);">12 pages · Updated 2 hrs ago</div>
+            </div>
+            <div style="background:#fff;border-radius:8px;padding:10px 12px;border-left:3px solid #8b5cf6;box-shadow:0 1px 3px rgba(0,0,0,0.06);">
+              <div style="font-size:9px;font-weight:700;color:var(--text);margin-bottom:2px;">Exchange Upgrades</div>
+              <div style="font-size:6px;color:var(--faint);">8 pages · Updated yesterday</div>
+            </div>
+            <div style="background:#fff;border-radius:8px;padding:10px 12px;border-left:3px solid #16a34a;box-shadow:0 1px 3px rgba(0,0,0,0.06);">
+              <div style="font-size:9px;font-weight:700;color:var(--text);margin-bottom:2px;">Training Notes</div>
+              <div style="font-size:6px;color:var(--faint);">5 pages · Updated 3 days ago</div>
+            </div>
+            <div style="background:#fff;border-radius:8px;padding:10px 12px;border-left:3px solid #F5A623;box-shadow:0 1px 3px rgba(0,0,0,0.06);">
+              <div style="font-size:9px;font-weight:700;color:var(--text);margin-bottom:2px;">Fault Investigations</div>
+              <div style="font-size:6px;color:var(--faint);">15 pages · Updated today</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ════ SECTION 04 — FINDER ════ -->
 <section class="feature-section" id="finder">
   <div class="feature-inner">
     <div class="feature-text">
-      <div class="section-number">03 — Finder</div>
+      <div class="section-number">04 — Finder</div>
       <h2>Find any site, exchange or cabinet</h2>
       <p class="lead">Search your full database of exchanges and cabinets instantly. Get address, location coordinates, power supply, and security details — all in one place.</p>
       <ul class="feature-list">
@@ -750,7 +790,7 @@
             <div class="app-header-row"><div class="app-nav-btn"></div><div class="app-week">Finder</div><div class="app-nav-btn"></div></div>
           </div>
           <div class="app-tabs">
-            <div class="app-tab">Timesheet</div><div class="app-tab">Notes</div><div class="app-tab active">Finder</div>
+            <div class="app-tab">Timesheet</div><div class="app-tab">Notes</div><div class="app-tab">Journal</div><div class="app-tab active">Finder</div>
           </div>
           <div class="finder-body">
             <div class="finder-tabs">
@@ -786,11 +826,11 @@
   </div>
 </section>
 
-<!-- ════ SECTION 04 — ROUTINES ════ -->
+<!-- ════ SECTION 05 — ROUTINES ════ -->
 <section class="feature-section" id="routines">
   <div class="feature-inner">
     <div class="feature-text">
-      <div class="section-number">04 — Routines <span class="updated-badge">New</span></div>
+      <div class="section-number">05 — Routines</div>
       <h2>Track every routine visit, month by month</h2>
       <p class="lead">See your full year of routine site visits in one grid. Choose the sites you maintain regularly and the app fills in each month automatically from your timesheet — no double entry.</p>
       <ul class="feature-list">
@@ -894,11 +934,11 @@
   </div>
 </section>
 
-<!-- ════ SECTION 05 — CALLOUT ════ -->
+<!-- ════ SECTION 06 — CALLOUT ════ -->
 <section class="feature-section" id="callout">
   <div class="feature-inner">
     <div class="feature-text">
-      <div class="section-number">05 — Callout <span class="updated-badge">New</span></div>
+      <div class="section-number">06 — Callout</div>
       <h2>Your on-call record, always accurate</h2>
       <p class="lead">Track every on-call week, log each incident against it, and see your stats build over time. Everything your supervisor or payroll team needs — organised by week, ready to share.</p>
       <ul class="feature-list">
@@ -916,7 +956,7 @@
         </li>
         <li>
           <div class="icon green"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></div>
-          <div><strong>Export &amp; email</strong><span>Send a formatted callout summary straight to your email — everything you need to fill out the company timesheet accurately.</span></div>
+          <div><strong>Included in weekly export</strong><span>When you email your weekly timesheet, callout entries for that week are automatically included — no extra steps.</span></div>
         </li>
       </ul>
     </div>
@@ -982,7 +1022,7 @@
 <footer class="footer">
   <p><strong>Rian</strong> · Built for field technicians</p>
   <p style="margin-top:6px">Data cached locally · Syncs to cloud · Mobile first</p>
-  <p style="margin-top:6px;font-size:11px;opacity:0.45">v4.26.1</p>
+  <p style="margin-top:6px;font-size:11px;opacity:0.45">v5.4.4</p>
   <div style="margin-top:24px">
     <a href="./app.html" target="_blank" rel="noopener" class="btn-launch" style="font-size:14px;padding:11px 24px;">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
