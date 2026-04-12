@@ -5830,8 +5830,8 @@
     /* Tables — shrink-wrap to content by default, expand only if needed */
     :is(#note-fs-editor .ProseMirror, .tt-prose) table {
       border-collapse: collapse;
-      width: 100%;
-      min-width: 100%;
+      width: auto;
+      min-width: unset;
       margin: 10px 0;
       font-size: 14px;
       font-family: 'DM Sans', sans-serif;
@@ -5936,8 +5936,7 @@
 
     :is(#note-fs-editor .ProseMirror, .tt-prose) .tableWrapper {
       overflow-x: auto;
-      display: block;
-      width: 100%;
+      display: inline-block;
       max-width: 100%;
     }
 
@@ -13364,7 +13363,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.4.6';
+    const VERSION = '5.4.7';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
