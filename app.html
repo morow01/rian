@@ -5830,8 +5830,8 @@
     /* Tables — shrink-wrap to content by default, expand only if needed */
     :is(#note-fs-editor .ProseMirror, .tt-prose) table {
       border-collapse: collapse;
-      width: auto;
-      min-width: unset;
+      width: auto !important;
+      min-width: unset !important;
       margin: 10px 0;
       font-size: 14px;
       font-family: 'DM Sans', sans-serif;
@@ -13363,7 +13363,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.4.8';
+    const VERSION = '5.4.9';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
