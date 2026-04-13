@@ -13363,7 +13363,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.4.9';
+    const VERSION = '5.4.10';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -23600,14 +23600,16 @@
       }, 2000);
     }
 
-    // Fallback: browser popstate for PWA / desktop
+    // PWA / browser back button — trap popstate so back never exits the app.
+    // On Android standalone PWA, if the history stack empties the app closes.
+    // We re-push immediately on every pop so the stack never runs dry.
     window.addEventListener('popstate', (e) => {
+      // Re-push FIRST so we can never run out of history
+      history.pushState({ rian: true }, '');
       _handleBackButton();
-      // Always re-push so we stay in the app
-      history.pushState({ app: true }, '');
     });
-    // Push initial history states as buffer
-    for (let _hi = 0; _hi < 10; _hi++) history.pushState({ app: true }, '');
+    // Seed the stack — one entry is enough since popstate always replenishes
+    history.pushState({ rian: true }, '');
 
     // Online / offline handling — Firestore reconnects automatically
     window.addEventListener('online', () => {
