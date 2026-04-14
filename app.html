@@ -13529,7 +13529,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.5.7';
+    const VERSION = '5.5.8';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -33261,6 +33261,16 @@ QUESTION: ${query}`;
       if (hint) hint.textContent = 'Tap to talk';
     }
 
+    function _batteryTextSubmit() {
+      const inp = document.getElementById('battery-text-input');
+      const text = (inp?.value || '').trim();
+      if (!text) return;
+      inp.value = '';
+      if (inp.blur) inp.blur();
+      if (_batteryChat?.listening) _batteryStopListening();
+      _batterySendToAI(text);
+    }
+
     function _batteryMicToggle() {
       if (!_batteryChat) return;
       if (_batteryChat.listening) { _batteryStopListening(); return; }
@@ -34561,11 +34571,21 @@ The state block is invisible to the user — only include in your response so th
         <div id="battery-results-inner"></div>
       </div>
 
-      <div id="battery-mic-bar" style="padding:14px 18px;border-top:1px solid var(--border);display:flex;align-items:center;gap:12px;background:var(--bg-card-alt);">
-        <button id="battery-mic-btn" onclick="_batteryMicToggle()" style="width:48px;height:48px;border-radius:50%;border:none;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 4px 12px rgba(45,107,228,0.3);flex-shrink:0;">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0" stroke="currentColor" stroke-width="2" fill="none"/></svg>
-        </button>
-        <div id="battery-mic-hint" style="flex:1;font-size:13px;color:var(--text-secondary);">Tap to talk</div>
+      <div id="battery-mic-bar" style="padding:12px 18px;border-top:1px solid var(--border);background:var(--bg-card-alt);display:flex;flex-direction:column;gap:10px;">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <button id="battery-mic-btn" onclick="_batteryMicToggle()" style="width:48px;height:48px;border-radius:50%;border:none;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 4px 12px rgba(45,107,228,0.3);flex-shrink:0;">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0" stroke="currentColor" stroke-width="2" fill="none"/></svg>
+          </button>
+          <div id="battery-mic-hint" style="flex:1;font-size:13px;color:var(--text-secondary);">Tap to talk</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <input id="battery-text-input" type="text" placeholder="…or type a reply"
+            autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+            data-lpignore="true" data-form-type="other" data-1p-ignore="true"
+            onkeydown="if(event.key==='Enter'){event.preventDefault();_batteryTextSubmit();}"
+            style="flex:1;padding:9px 12px;border:1px solid var(--border);border-radius:10px;font-size:13px;background:var(--bg-card);outline:none;font-family:inherit;">
+          <button id="battery-send-btn" onclick="_batteryTextSubmit()" style="padding:9px 14px;border-radius:10px;border:none;background:var(--accent);color:#fff;font-size:13px;font-weight:700;cursor:pointer;flex-shrink:0;">Send</button>
+        </div>
       </div>
 
       <div id="battery-actions" class="hidden" style="display:flex;gap:10px;padding:12px 18px;background:var(--bg-card);border-top:1px solid var(--border);">
