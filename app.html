@@ -13529,7 +13529,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.5.17';
+    const VERSION = '5.5.18';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -33190,12 +33190,15 @@ QUESTION: ${query}`;
     // BATTERY RECORDER — voice AI for battery cell voltage readings
     // ═══════════════════════════════════════════════════════════════
     let _batteryChat = null;
+    let _batteryCurrentAudio = null;
 
     function openBatteryRecorder() {
       if (!state.geminiKey) {
         showToast('Add your Gemini API key in ☰ Menu → AI Settings first');
         return;
       }
+      // Stop any audio from a previous session BEFORE reassigning _batteryChat
+      _batteryStopSpeaking();
       _batteryChat = {
         history: [],
         mode: null,            // 'battery' or 'generic'
@@ -33358,7 +33361,7 @@ QUESTION: ${query}`;
         const wav = _pcmToWav(pcm, 24000, 1, 16);
         const blob = new Blob([wav], { type: 'audio/wav' });
         const audio = new Audio(URL.createObjectURL(blob));
-        _batteryChat._currentAudio = audio;
+        _batteryCurrentAudio = audio;
         let finished = false;
         const finish = () => { if (finished) return; finished = true; try { URL.revokeObjectURL(audio.src); } catch {} afterSpeak(); };
         audio.onended = finish;
@@ -33383,9 +33386,10 @@ QUESTION: ${query}`;
 
     function _batteryStopSpeaking() {
       if ('speechSynthesis' in window) speechSynthesis.cancel();
-      if (_batteryChat?._currentAudio) {
-        try { _batteryChat._currentAudio.pause(); } catch {}
-        _batteryChat._currentAudio = null;
+      if (_batteryCurrentAudio) {
+        try { _batteryCurrentAudio.pause(); } catch {}
+        try { _batteryCurrentAudio.src = ''; } catch {}
+        _batteryCurrentAudio = null;
       }
     }
 
