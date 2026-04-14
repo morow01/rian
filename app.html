@@ -1526,7 +1526,7 @@
       align-items: center;
       gap: 10px;
       cursor: pointer;
-      background: transparent;
+      background: #f8fafc;
       transition: border-color 0.15s, background 0.15s;
       color: var(--text-muted);
       font-size: 14px;
@@ -1536,7 +1536,7 @@
     .note-inline-empty:hover,
     .note-inline-empty:active {
       border-color: var(--accent);
-      background: rgba(45,107,228,0.04);
+      background: rgba(45,107,228,0.06);
       color: var(--accent);
     }
     .note-inline-empty svg { flex-shrink: 0; }
@@ -13529,7 +13529,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.5.25';
+    const VERSION = '5.5.26';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
