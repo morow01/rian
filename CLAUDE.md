@@ -16,7 +16,7 @@ A Progressive Web App for field technicians — timesheets, notes (TipTap rich t
 
 ## Version
 `const VERSION = 'x.y.z'` in `app.html` (~line 13965). Bump on every change. Only location that needs updating (index.html version references are static).
-Current version: **5.4.10**
+Current version: **5.5.24**
 
 ## Git
 - Remote: `https://github.com/morow01/rian.git`, branch: `main`
@@ -66,6 +66,21 @@ Or use the existing pattern: `esc(value).replace(/'/g, "\\'")`  and wrap in `\'.
 - `loadNotes()` / `scheduleNotesSave()` — notes Firestore sync with per-note merge
 - `maybeTakeAutoSnapshot()` — auto-backup on save
 - `buildEmailHtml()` / `buildPreviewHtml()` — email export HTML builders
+
+### Voice Table Recorder Key Functions
+- `openBatteryRecorder()` — opens modal, resets state, pre-warms mic, unlocks AudioContext
+- `closeBatteryRecorder()` — stops audio + mic, restores body scroll
+- `_batteryMicToggle()` — start/stop SpeechRecognition (continuous:false)
+- `_batteryTextSubmit()` — sends text input to AI
+- `_batterySendToAI(text)` — multi-turn chat with Gemini, parses `<state>` block
+- `_batterySpeak(text)` — Gemini TTS (model `gemini-2.5-flash-preview-tts`) with browser fallback
+- `_batteryPlayPCM(bytes, rate, onEnd, onFail)` — decode + play via Web Audio API
+- `_batteryStopSpeaking()` — cancels speechSynthesis, stops active AudioBufferSourceNode
+- `_batteryCycleVoice()` — rotates through 9 Gemini prebuilt voices
+- `_batteryUpdateProgress()` / `_batteryShowResults()` — UI updates based on mode
+- `_batteryBuildCellsHtml` / `_batteryBuildGenericHtml` — table HTML generators
+- `_batteryTitleCase(s)` — Title-Case with acronym preservation
+- `_batteryInsertTable()` — inserts result HTML at cursor in TipTap
 
 ### Notebooks (Journal) Key Functions
 - `jOpenRename(id, currentTitle)` — opens rename bottom sheet for any notebook/section/page
@@ -191,6 +206,29 @@ Tables shrink-wrap to content (not 100% width). Column resizing is enabled via `
 
 ### PWA Back Button (v5.4.10)
 On Android standalone PWA, the system back gesture exits the app if the history stack empties. The app traps `popstate` and re-pushes a history entry *before* calling `_handleBackButton()`, so the stack never runs dry. Only one seed entry is needed at init since popstate always replenishes.
+
+### Offline Support via Service Worker (v5.4.11)
+Service worker registration (in app.html init) no longer skips native mode. Same `sw.js` serves both PWA and APK — network-first, cache fallback. First launch online installs the cache; later launches work offline. Data sync (Firestore) still requires internet, but cached IndexedDB data loads.
+
+### WebView Media Autoplay (v5.5.17)
+`MainActivity.java` sets `webView.getSettings().setMediaPlaybackRequiresUserGesture(false)` — needed so Gemini TTS audio can play after the async fetch completes (the user-tap gesture context is lost by then). Without this, audio silently fails in APK even though it works in PWA.
+
+### Voice Table Recorder (v5.5.0–5.5.24)
+Green battery-icon button in the TipTap fullscreen header (next to mic) opens `#battery-modal`. Conversational AI built on Gemini for voice-to-table capture. Two modes:
+- **battery**: user says "battery with 24 cells" → AI walks through cells 1..N + overall voltage → outputs 4-column Cell/Volts/Cell/Volts table.
+- **generic**: user lists fields like "rectifiers, DC load, boost voltage, temperature" → AI asks each → outputs 2-column key-value table with title header (e.g. "VALUES", "ALARM LIMITS").
+
+Key implementation details:
+- State tracked via hidden `<state>{...}</state>` JSON block at end of each AI reply (stripped from visible text).
+- `_batteryChat.complete` only set when AI's visible message literally contains "All done" AND `nextAsk === 'complete'` — prevents premature finish during clarification questions.
+- Field names Title-Cased at render time (`_batteryTitleCase()`), preserving short all-caps acronyms (DC, AC, UPS).
+- TTS via Gemini `gemini-2.5-flash-preview-tts` model with "Puck" (male) default voice; 9-voice picker in modal header, persisted in localStorage. On HTTP error/timeout → 30 s backoff then falls back to browser `speechSynthesis` (male voice + pitch 0.7). Fallback picks Ryan/David/Daniel/Alex etc., never explicitly female voices.
+- Audio played via Web Audio API (`AudioContext.createBufferSource` on decoded 24kHz mono 16-bit PCM) — more reliable in Android WebView than `<audio>` blob URLs. AudioContext unlocked in `openBatteryRecorder()` during the user tap.
+- Mic: `SpeechRecognition` with `continuous: false`. Pre-warmed once in `openBatteryRecorder` (briefly `start()` then `stop()`) to satisfy user-gesture rule so subsequent `recognition.start()` calls within the session work without a fresh tap.
+- After AI finishes speaking, mic auto-opens (hands-free flow).
+- Text input alongside mic in single row — submits via Enter or Send button. Calling `inp.blur()` before sending prevents focus issues that previously broke the mic click target.
+- Modal locks body scroll via `document.body.style.overflow = 'hidden'` so the note page behind doesn't move.
+- "Insert into note" pipes the generated HTML into `_tiptapEditor.chain().focus().insertContent(html + '<p></p>').run()`.
 
 ### Building the APK
 From the project root (`C:\Users\morow\OneDrive\Vibe Code\TimeSheet\`):
