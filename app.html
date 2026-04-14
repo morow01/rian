@@ -13529,7 +13529,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.5.8';
+    const VERSION = '5.5.9';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -33206,8 +33206,8 @@ QUESTION: ${query}`;
         recognition: null
       };
       document.getElementById('battery-transcript').innerHTML = '';
-      document.getElementById('battery-results').classList.add('hidden');
-      document.getElementById('battery-actions').classList.add('hidden');
+      document.getElementById('battery-results').style.display = 'none';
+      document.getElementById('battery-actions').style.display = 'none';
       document.getElementById('battery-mic-bar').style.display = 'flex';
       document.getElementById('battery-subtitle').textContent = 'Tell me the battery setup';
       document.getElementById('battery-progress-txt').textContent = '0 cells';
@@ -33239,14 +33239,57 @@ QUESTION: ${query}`;
         try {
           speechSynthesis.cancel();
           const u = new SpeechSynthesisUtterance(text);
-          u.rate = 1.05;
-          u.pitch = 1;
+          u.rate = 1;
+          u.pitch = 1.05;
           u.volume = 1;
           u.lang = 'en-GB';
+          // Pick a more natural voice if available
+          const voice = _batteryPickVoice();
+          if (voice) u.voice = voice;
+          // Auto-start listening when AI finishes speaking — hands-free flow
+          u.onend = () => {
+            if (!_batteryChat || _batteryChat.complete) return;
+            if (_batteryChat.listening) return;
+            // Small delay so audio buffers fully release before mic opens
+            setTimeout(() => {
+              if (_batteryChat && !_batteryChat.complete && !_batteryChat.listening) {
+                _batteryMicToggle();
+              }
+            }, 250);
+          };
           speechSynthesis.speak(u);
         } catch (e) { /* ignore */ }
       }
       return msg;
+    }
+
+    function _batteryPickVoice() {
+      try {
+        const voices = speechSynthesis.getVoices() || [];
+        if (!voices.length) return null;
+        // Priority: natural-sounding English voices
+        const wantOrder = [
+          v => /Google UK English Female/i.test(v.name),
+          v => /Google US English/i.test(v.name) && /female|zira/i.test(v.name + (v.voiceURI||'')),
+          v => /Microsoft Aria/i.test(v.name),
+          v => /Microsoft Jenny/i.test(v.name),
+          v => /Samantha/i.test(v.name),
+          v => /Natural/i.test(v.name) && /en/i.test(v.lang),
+          v => /Google/i.test(v.name) && /en/i.test(v.lang),
+          v => /^en-GB/i.test(v.lang),
+          v => /^en/i.test(v.lang),
+        ];
+        for (const match of wantOrder) {
+          const found = voices.find(match);
+          if (found) return found;
+        }
+        return voices[0];
+      } catch { return null; }
+    }
+
+    // Prime voices list (Chrome loads async)
+    if ('speechSynthesis' in window) {
+      speechSynthesis.onvoiceschanged = () => { /* voices now available */ };
     }
 
     function _batteryStopListening() {
@@ -33395,9 +33438,9 @@ The state block is invisible to the user — only include in your response so th
       const overall = _batteryChat.overallV;
       const html = _batteryBuildResultHtml(readings, total, overall);
       document.getElementById('battery-results-inner').innerHTML = html;
-      document.getElementById('battery-results').classList.remove('hidden');
+      document.getElementById('battery-results').style.display = 'block';
       document.getElementById('battery-mic-bar').style.display = 'none';
-      document.getElementById('battery-actions').classList.remove('hidden');
+      document.getElementById('battery-actions').style.display = 'flex';
       document.getElementById('battery-subtitle').textContent = '✓ All captured';
       if (navigator.vibrate) navigator.vibrate([40, 60, 40]);
     }
@@ -34567,7 +34610,7 @@ The state block is invisible to the user — only include in your response so th
 
       <div id="battery-transcript" style="padding:14px 18px;flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:10px;min-height:200px;"></div>
 
-      <div id="battery-results" class="hidden" style="padding:14px 18px;background:#FAFAFA;border-top:1px solid var(--border);max-height:300px;overflow-y:auto;">
+      <div id="battery-results" style="display:none;padding:14px 18px;background:#FAFAFA;border-top:1px solid var(--border);max-height:300px;overflow-y:auto;">
         <div id="battery-results-inner"></div>
       </div>
 
@@ -34588,7 +34631,7 @@ The state block is invisible to the user — only include in your response so th
         </div>
       </div>
 
-      <div id="battery-actions" class="hidden" style="display:flex;gap:10px;padding:12px 18px;background:var(--bg-card);border-top:1px solid var(--border);">
+      <div id="battery-actions" style="display:none;gap:10px;padding:12px 18px;background:var(--bg-card);border-top:1px solid var(--border);">
         <button onclick="_batteryReset()" style="padding:10px 14px;border-radius:10px;border:1px solid var(--border);background:transparent;font-size:13px;font-weight:600;cursor:pointer;color:var(--text-secondary);">Record another</button>
         <button onclick="_batteryInsertTable()" style="padding:10px 14px;border-radius:10px;border:none;background:var(--accent);color:#fff;font-size:13px;font-weight:700;cursor:pointer;flex:1;">Insert into note</button>
       </div>
