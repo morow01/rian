@@ -13529,7 +13529,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.5.13';
+    const VERSION = '5.5.14';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -33198,9 +33198,13 @@ QUESTION: ${query}`;
       }
       _batteryChat = {
         history: [],
-        totalCells: null,
-        readings: {},
-        overallV: null,
+        mode: null,            // 'battery' or 'generic'
+        title: null,           // e.g. "Values", "Alarm Limits", "Battery"
+        totalCells: null,      // battery mode
+        readings: {},          // battery mode
+        overallV: null,        // battery mode
+        fields: [],            // generic mode: ordered field names
+        values: {},            // generic mode: { fieldName: value }
         complete: false,
         listening: false,
         recognition: null,
@@ -33210,8 +33214,8 @@ QUESTION: ${query}`;
       document.getElementById('battery-results').style.display = 'none';
       document.getElementById('battery-actions').style.display = 'none';
       document.getElementById('battery-mic-bar').style.display = 'flex';
-      document.getElementById('battery-subtitle').textContent = 'Tell me the battery setup';
-      document.getElementById('battery-progress-txt').textContent = '0 cells';
+      document.getElementById('battery-subtitle').textContent = 'Tell me what to record';
+      document.getElementById('battery-progress-txt').textContent = '—';
       document.getElementById('battery-progress-fill').style.width = '0%';
       _batteryUpdateVoiceBadge();
       // Pre-warm SpeechRecognition so auto-mic works after first AI reply.
@@ -33229,7 +33233,7 @@ QUESTION: ${query}`;
           try { warm.start(); } catch {}
         }
       } catch {}
-      _batteryAddMsg('ai', 'Ready. How many cells does this battery have?');
+      _batteryAddMsg('ai', 'What would you like to record?');
       document.getElementById('battery-modal').classList.remove('hidden');
     }
 
@@ -33484,25 +33488,37 @@ QUESTION: ${query}`;
       _batteryChat.history.push({ role: 'user', parts: [{ text: userText }] });
       const thinkingEl = _batteryAddMsg('ai', 'Thinking…', { thinking: true });
 
-      const systemPrompt = `You are a battery reading voice assistant. User reads cell voltage values aloud.
+      const systemPrompt = `You are a voice assistant helping a field engineer record tabular data. Two modes:
+
+MODE "battery": user records cell voltages of a battery.
+- Ask how many cells (default 24 if unclear), then ask cell 1, cell 2, ... in order.
+- After last cell, ask for overall voltage.
+- Typical per-cell: 1.8-2.4 V. Typical overall: 45-56 V.
+
+MODE "generic": user records any key-value table.
+- User tells you the field names, e.g. "rectifiers, DC load, boost voltage, float voltage, temperature".
+- User may also give a title, e.g. "Alarm limits" or "Values".
+- Ask each field in order. Record whatever value user gives (numbers, units like °C or %).
+
+DETECTION:
+- If user mentions "battery", "cells", "24 cells" etc → mode=battery
+- If user lists fields like "rectifiers, DC load..." → mode=generic
 
 RULES:
-- Keep spoken replies under 10 words. Be terse and clear, like a voice assistant.
-- First: determine total cell count from user (default 24 if unclear).
-- Then ask for cell 1, cell 2, ... up to total, one at a time.
-- After last cell, ask "What's the overall voltage?"
-- Values are in volts. Typical range: 1.8 to 2.4 per cell, 45 to 56 total.
-- If a value is unclear or out of range, repeat it back as a question: "Cell 5 was two point twenty-eight, right?"
-- If user corrects a cell ("cell 3 was 2.28"), update that cell.
+- Keep spoken replies under 10 words. Be terse like a voice assistant.
+- If a value is unclear, repeat it back as a question: "Rectifiers was four, right?"
+- If user corrects a value, update it.
+- If user says "done" or "that's all", set nextAsk to "complete".
 
 OUTPUT FORMAT — always end your response with a state block:
-<state>{"totalCells": N, "readings": {"1": 2.28, "2": 2.15}, "overall": null, "nextAsk": "cell 3" | "overall" | "confirm" | "complete"}</state>
+<state>{"mode": "battery" | "generic", "title": "Values" | null, "totalCells": N, "readings": {"1": 2.28}, "overall": null, "fields": ["Rectifiers","DC Load"], "values": {"Rectifiers": 4, "DC Load": 16.9}, "nextAsk": "cell 3" | "overall" | "Rectifiers" | "confirm" | "complete"}</state>
 
-IMPORTANT — nextAsk values:
-- "cell N" when waiting for a specific cell reading
-- "overall" when all cells captured but need overall voltage
-- "confirm" when asking user to confirm a value you are unsure about
-- "complete" ONLY when ALL cells confirmed, overall captured, and you have NO more questions
+nextAsk values:
+- "cell N" (battery mode) when waiting for a specific cell
+- "overall" (battery mode) when all cells captured but need overall voltage
+- "<field name>" (generic mode) when waiting for a specific field value
+- "confirm" when asking user to confirm an unclear value
+- "complete" ONLY when ALL data captured AND you have NO more questions
 
 When nextAsk is "complete", your visible message MUST be exactly "All done!" (nothing else).
 The state block is invisible to the user.`;
@@ -33535,10 +33551,13 @@ The state block is invisible to the user.`;
         if (stateMatch) {
           try {
             const s = JSON.parse(stateMatch[1]);
+            if (s.mode) _batteryChat.mode = s.mode;
+            if (s.title) _batteryChat.title = s.title;
             if (s.totalCells != null) _batteryChat.totalCells = s.totalCells;
             if (s.readings && typeof s.readings === 'object') _batteryChat.readings = s.readings;
             if (s.overall != null) _batteryChat.overallV = s.overall;
-            // Only mark complete when AI explicitly says it, not just because data is present
+            if (Array.isArray(s.fields)) _batteryChat.fields = s.fields;
+            if (s.values && typeof s.values === 'object') _batteryChat.values = s.values;
             if (s.nextAsk === 'complete' && /all done|complete|finished/i.test(visible)) {
               _batteryChat.complete = true;
             }
@@ -33554,24 +33573,33 @@ The state block is invisible to the user.`;
     }
 
     function _batteryUpdateProgress() {
-      const recorded = Object.keys(_batteryChat.readings || {}).length;
-      const total = _batteryChat.totalCells || 0;
-      const overall = _batteryChat.overallV != null ? 1 : 0;
-      const pct = total > 0 ? ((recorded + overall) / (total + 1)) * 100 : 0;
-      document.getElementById('battery-progress-fill').style.width = pct + '%';
-      document.getElementById('battery-progress-txt').textContent =
-        total ? `${recorded} / ${total} cells${overall ? ' + overall' : ''}` : `${recorded} cells`;
-      if (total) {
-        document.getElementById('battery-subtitle').textContent =
-          recorded < total ? `Cell ${recorded + 1} of ${total}` : (overall ? 'Complete' : 'Awaiting overall voltage');
+      const fill = document.getElementById('battery-progress-fill');
+      const txt = document.getElementById('battery-progress-txt');
+      const sub = document.getElementById('battery-subtitle');
+      if (_batteryChat.mode === 'generic') {
+        const total = _batteryChat.fields.length;
+        const recorded = Object.keys(_batteryChat.values || {}).filter(k => _batteryChat.values[k] != null && _batteryChat.values[k] !== '').length;
+        const pct = total > 0 ? (recorded / total) * 100 : 0;
+        fill.style.width = pct + '%';
+        txt.textContent = total ? `${recorded} / ${total}` : `${recorded} fields`;
+        if (_batteryChat.title) sub.textContent = _batteryChat.title + (total ? ` — ${recorded}/${total}` : '');
+        else sub.textContent = total ? `${recorded} / ${total} fields` : 'Recording…';
+      } else {
+        // battery mode (or still detecting)
+        const recorded = Object.keys(_batteryChat.readings || {}).length;
+        const total = _batteryChat.totalCells || 0;
+        const overall = _batteryChat.overallV != null ? 1 : 0;
+        const pct = total > 0 ? ((recorded + overall) / (total + 1)) * 100 : 0;
+        fill.style.width = pct + '%';
+        txt.textContent = total ? `${recorded} / ${total} cells${overall ? ' + overall' : ''}` : (recorded ? `${recorded} cells` : '—');
+        if (total) {
+          sub.textContent = recorded < total ? `Cell ${recorded + 1} of ${total}` : (overall ? 'Complete' : 'Awaiting overall voltage');
+        }
       }
     }
 
     function _batteryShowResults() {
-      const readings = _batteryChat.readings;
-      const total = _batteryChat.totalCells || Object.keys(readings).length;
-      const overall = _batteryChat.overallV;
-      const html = _batteryBuildResultHtml(readings, total, overall);
+      const html = _batteryBuildCurrentHtml();
       document.getElementById('battery-results-inner').innerHTML = html;
       document.getElementById('battery-results').style.display = 'block';
       document.getElementById('battery-mic-bar').style.display = 'none';
@@ -33580,7 +33608,14 @@ The state block is invisible to the user.`;
       if (navigator.vibrate) navigator.vibrate([40, 60, 40]);
     }
 
-    function _batteryBuildResultHtml(readings, total, overall) {
+    function _batteryBuildCurrentHtml() {
+      if (_batteryChat.mode === 'generic') {
+        return _batteryBuildGenericHtml(_batteryChat.fields, _batteryChat.values, _batteryChat.title);
+      }
+      return _batteryBuildCellsHtml(_batteryChat.readings, _batteryChat.totalCells || Object.keys(_batteryChat.readings).length, _batteryChat.overallV);
+    }
+
+    function _batteryBuildCellsHtml(readings, total, overall) {
       const overallHtml = overall != null ? `<p><strong>Overall:</strong> ${overall} V</p>` : '';
       const half = Math.ceil(total / 2);
       let rows = '';
@@ -33595,13 +33630,18 @@ The state block is invisible to the user.`;
       return `${overallHtml}<table class="bat-result-table"><thead><tr><th>Cell</th><th>Volts</th><th>Cell</th><th>Volts</th></tr></thead><tbody>${rows}</tbody></table>`;
     }
 
+    function _batteryBuildGenericHtml(fields, values, title) {
+      const header = title ? esc(title).toUpperCase() : 'VALUES';
+      const rows = fields.map(f => `<tr><td><strong>${esc(f)}</strong></td><td>${values[f] != null ? esc(String(values[f])) : ''}</td></tr>`).join('');
+      return `<table class="bat-result-table"><thead><tr><th>${header}</th><th></th></tr></thead><tbody>${rows}</tbody></table>`;
+    }
+
     function _batteryInsertTable() {
       if (!_tiptapEditor || !_batteryChat) return;
-      const html = _batteryBuildResultHtml(_batteryChat.readings, _batteryChat.totalCells, _batteryChat.overallV);
-      // Insert at cursor
+      const html = _batteryBuildCurrentHtml();
       _tiptapEditor.chain().focus().insertContent(html + '<p></p>').run();
       closeBatteryRecorder();
-      showToast('Battery table inserted');
+      showToast('Table inserted');
     }
 
     // Open the Fault Assistant as a full-screen overlay
@@ -34214,7 +34254,7 @@ The state block is invisible to the user.`;
         </button>
         <button id="fs-battery-btn" onclick="openBatteryRecorder()" class="text-white p-1 flex items-center justify-center"
           style="flex-shrink:0;border:none;background:none;cursor:pointer;-webkit-tap-highlight-color:transparent;"
-          title="Record battery readings">
+          title="Voice table recorder">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
             <path d="M15 3h-2V1h-2v2H9C7.9 3 7 3.9 7 5v16c0 1.1.9 2 2 2h6c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM13 17h-2v-2h2v2zm2-5h-2v-5h2v5z"/>
           </svg>
@@ -34729,8 +34769,8 @@ The state block is invisible to the user.`;
           <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M15 3h-2V1h-2v2H9C7.9 3 7 3.9 7 5v16c0 1.1.9 2 2 2h6c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"/></svg>
         </div>
         <div style="flex:1;min-width:0;">
-          <div style="font-size:15px;font-weight:700;">Battery Recorder</div>
-          <div id="battery-subtitle" style="font-size:12px;color:var(--text-secondary);">Tell me the battery setup</div>
+          <div style="font-size:15px;font-weight:700;">Voice Table</div>
+          <div id="battery-subtitle" style="font-size:12px;color:var(--text-secondary);">Tell me what to record</div>
         </div>
         <button onclick="_batteryCycleVoice()" title="Change voice" style="background:transparent;border:1px solid var(--border);border-radius:8px;padding:4px 10px;cursor:pointer;display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text-secondary);">
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>
