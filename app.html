@@ -13529,7 +13529,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.5.22';
+    const VERSION = '5.5.23';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -33378,7 +33378,12 @@ QUESTION: ${query}`;
           })
         });
         clearTimeout(tmo);
-        if (!resp.ok) { _batteryDbg('TTS HTTP ' + resp.status); throw new Error('TTS ' + resp.status); }
+        if (!resp.ok) {
+          let errBody = '';
+          try { errBody = (await resp.text()).slice(0, 200); } catch {}
+          _batteryDbg('TTS HTTP ' + resp.status + ' — ' + errBody);
+          throw new Error('TTS ' + resp.status);
+        }
         const data = await resp.json();
         const b64 = data.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data;
         if (!b64) { _batteryDbg('no audio data'); throw new Error('no audio data'); }
