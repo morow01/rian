@@ -13486,7 +13486,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.4.30';
+    const VERSION = '5.4.31';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -15562,8 +15562,10 @@
       const h = scrollEl.clientHeight;
       const sh = scrollEl.scrollHeight;
       if (sh <= h + 2) { thumb.classList.remove('show'); return; }
+      // Use the outer wrapper's height as the track so thumb reaches the visual edges
       const thumbSize = 10;
-      const trackH = h - thumbSize - 4; // 2px inset top + 2px bottom
+      const wrapH = wrap.clientHeight;
+      const trackH = wrapH - thumbSize - 4; // 2px inset top + 2px bottom
       const ratio = Math.min(1, Math.max(0, scrollEl.scrollTop / (sh - h)));
       const thumbY = 2 + ratio * trackH;
       thumb.style.transform = `translateY(${thumbY}px)`;
