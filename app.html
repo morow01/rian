@@ -13363,7 +13363,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.4.10';
+    const VERSION = '5.4.11';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -29831,10 +29831,10 @@ Rules:
     async function init() {
       try { initTheme(); } catch (e) { console.warn('[Rian] Theme blocked by browser:', e); }
 
-      if ('serviceWorker' in navigator && !IS_NATIVE) {
+      if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register(`sw.js?v=${VERSION}`).catch(e => console.warn('[Rian]', e));
-        // Note: no controllerchange reload needed — fetch strategy is network-first,
-        // so app.html is always served fresh from the network on page load.
+        // Network-first strategy: always serves latest when online,
+        // falls back to cache when offline. Works in both PWA and APK.
       }
 
       try {
