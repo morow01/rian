@@ -13386,7 +13386,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.4.13';
+    const VERSION = '5.4.14';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -31361,9 +31361,9 @@ QUESTION: ${query}`;
               const edW = pm ? pm.offsetWidth : 300;
               const newW = _rzCalcW(e.clientX, e.clientY);
               const pct = Math.min(100, Math.max(10, Math.round(newW / edW * 100)));
-              const isFloat = currentAttrs.align === 'wrap-left' || currentAttrs.align === 'wrap-right';
-              if (isFloat) { container.style.width = pct + '%'; }
-              else { img.style.width = pct + '%'; }
+              // Wrapper holds the width in both float and no-wrap modes
+              // so the resize handle stays anchored to the image corner.
+              container.style.width = pct + '%';
             });
 
             handle.addEventListener('pointerup', (e) => {
