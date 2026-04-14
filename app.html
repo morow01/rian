@@ -5545,6 +5545,29 @@
       }
     }
 
+    /* ── Unified blurred backdrop for all overlay modals ── */
+    #confirm-modal,
+    #date-modal,
+    #snapshot-modal,
+    #export-modal,
+    #import-modal,
+    #backup-modal,
+    #restore-confirm-modal,
+    #paste-ticket-modal,
+    #remind-modal,
+    #voice-listen-modal,
+    #voice-confirm-modal,
+    #note-voice-confirm-modal,
+    #rtn-picker-modal,
+    #rtn-log-modal,
+    #note-confirm-modal,
+    #task-picker-modal,
+    #copy-picker-modal,
+    #exit-dialog {
+      backdrop-filter: blur(3px);
+      -webkit-backdrop-filter: blur(3px);
+    }
+
     /* ── Rian custom dialog ── */
     #rian-dialog-overlay {
       display: none;
@@ -13363,7 +13386,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.4.11';
+    const VERSION = '5.4.12';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
