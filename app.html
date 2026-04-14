@@ -13529,7 +13529,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.5.19';
+    const VERSION = '5.5.20';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -33246,6 +33246,7 @@ QUESTION: ${query}`;
       } catch {}
       _batteryAddMsg('ai', 'What would you like to record?');
       document.getElementById('battery-modal').classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
     }
 
     function _batteryUpdateVoiceBadge() {
@@ -33281,6 +33282,7 @@ QUESTION: ${query}`;
       if (_batteryChat?.listening) _batteryStopListening();
       _batteryStopSpeaking();
       document.getElementById('battery-modal').classList.add('hidden');
+      document.body.style.overflow = '';
     }
 
     function _batteryReset() {
@@ -33300,6 +33302,19 @@ QUESTION: ${query}`;
         _batterySpeak(text);
       }
       return msg;
+    }
+
+    // Shown as a small debug line below the mic hint on APK for 2 seconds
+    function _batteryDbg(msg) {
+      try {
+        const hint = document.getElementById('battery-mic-hint');
+        if (!hint) return;
+        const prev = hint.textContent;
+        hint.textContent = '[' + msg + ']';
+        clearTimeout(hint._dbgT);
+        hint._dbgT = setTimeout(() => { if (hint.textContent.startsWith('[')) hint.textContent = prev; }, 2500);
+      } catch {}
+      console.log('[Battery]', msg);
     }
 
     // Speak with Gemini TTS (natural voice) or fall back to browser TTS
@@ -33361,12 +33376,12 @@ QUESTION: ${query}`;
           })
         });
         clearTimeout(tmo);
-        if (!resp.ok) throw new Error('TTS ' + resp.status);
+        if (!resp.ok) { _batteryDbg('TTS HTTP ' + resp.status); throw new Error('TTS ' + resp.status); }
         const data = await resp.json();
         const b64 = data.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data;
-        if (!b64) throw new Error('no audio data');
+        if (!b64) { _batteryDbg('no audio data'); throw new Error('no audio data'); }
+        _batteryDbg('got ' + Math.round(b64.length / 1024) + 'kb audio');
         const pcm = Uint8Array.from(atob(b64), c => c.charCodeAt(0));
-        // Play via Web Audio API — more reliable in Android WebView than <audio> blobs
         await _batteryPlayPCM(pcm, 24000, afterSpeak, useBrowserTTS);
       } catch (e) {
         clearTimeout(tmo);
@@ -33397,10 +33412,11 @@ QUESTION: ${query}`;
     async function _batteryPlayPCM(pcmBytes, sampleRate, onEnd, onFail) {
       try {
         const AC = window.AudioContext || window.webkitAudioContext;
-        if (!AC) { console.log('[Battery] no AudioContext'); onFail(); return; }
+        if (!AC) { _batteryDbg('no AudioContext'); onFail(); return; }
         if (!_batteryAudioCtx) _batteryAudioCtx = new AC();
+        _batteryDbg('ctx ' + _batteryAudioCtx.state);
         if (_batteryAudioCtx.state === 'suspended') {
-          try { await _batteryAudioCtx.resume(); } catch {}
+          try { await _batteryAudioCtx.resume(); _batteryDbg('ctx resumed'); } catch {}
         }
         // Decode 16-bit signed LE PCM → Float32
         const samples = pcmBytes.byteLength / 2;
@@ -33421,9 +33437,9 @@ QUESTION: ${query}`;
         let finished = false;
         source.onended = () => { if (finished) return; finished = true; _batteryCurrentSource = null; onEnd(); };
         source.start(0);
-        console.log('[Battery] playing', samples, 'samples @', sampleRate, 'Hz');
+        _batteryDbg('playing ' + samples + ' samples');
       } catch (e) {
-        console.log('[Battery] PCM play error:', e?.message);
+        _batteryDbg('PCM err: ' + (e?.message || 'x'));
         onFail();
       }
     }
