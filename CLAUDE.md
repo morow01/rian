@@ -99,15 +99,18 @@ Or use the existing pattern: `esc(value).replace(/'/g, "\\'")`  and wrap in `\'.
 Notebooks state keys: `jNotebooks`, `jSections`, `jPages`, `jEditId`, `jRenameTitle`, `jNbActionId`, `jSecActionId`, `jPageActionId`, `jDatePickId`, `jCopyMovePgId`, `jCopyMoveMode`, `jCopyMoveTargetSecId`.
 
 ## CSS Variables
-`--accent: #2D6BE4`, `--bg-card`, `--bg-card-alt`, `--bg-input: #F4F7FA`, `--border`, `--text-primary`, `--text-secondary`, `--text-muted`, `--font-mono` (DM Mono). One alt theme exists today: `[data-theme="claude"]` (see app.html ~line 1736).
+`--accent: #2D6BE4`, `--bg-card`, `--bg-card-alt`, `--bg-input: #F4F7FA`, `--border`, `--text-primary`, `--text-secondary`, `--text-muted`, `--font-mono` (DM Mono).
+
+**Theme state**: `[data-theme="claude"]` (app.html ~line 1736) is the ONLY theme currently defined, and `initTheme()` at ~line 23781 **force-sets it on every load**. `setTheme()` is a stub that reads `/* themes removed */`. So the app always runs claude theme. Rob had a theme switcher with Gameboy/Retro/Win 3.1/B&W/iOS in earlier versions but removed the selector — the blocks were deleted too.
 
 ## Planned: Theming Refactor
-Rob plans multiple themes (dark, Gameboy, Win 3.1, B&W, iOS). App has ~985 hex colors hardcoded; ~20-30% are structural (backgrounds, borders, text) and will break under non-default themes. Brand accents + status colors can stay hardcoded.
+Rob plans to bring back multiple themes (dark, Gameboy, Win 3.1, B&W, iOS). App has ~985 hex colors; ~20-30% are structural (backgrounds, borders, text) and will break under themes with dramatically different palettes. Brand accents + status colors (red/green/amber) can stay hardcoded.
 
 **Approach when asked to start themeing**:
-1. Expand CSS variable palette in `:root` (backgrounds page/card/card-alt/input/header, text primary/secondary/muted, borders default/strong, shadows). Keep the `--accent`, status colors (red/green/amber) out of themes — those stay fixed.
-2. Search & replace structural hex literals (e.g. `#f8fafc`, `#ffffff` on backgrounds) with `var(--bg-input, #f8fafc)` style fallback syntax.
-3. Only THEN add new theme blocks that override variables.
+1. **Restore the theme switcher UI** (settings menu option to pick theme, persist to localStorage). Update `setTheme()` to actually set `data-theme`.
+2. **Expand the variable palette** — define all structural tokens in the `claude` block first: page/card/card-alt/input/header/accent backgrounds, text primary/secondary/muted, borders default/strong, shadows. Status/brand stay out of theming.
+3. **Search & replace** structural hex literals (e.g. `#f8fafc`, `#ffffff` backgrounds, `#e2e8f0` borders) with `var(--bg-input, #f8fafc)` syntax (variable with hardcoded fallback).
+4. **Then** add new theme blocks that override only the variables.
 Do it in small committed steps; don't try to migrate everything in one commit.
 
 ## About Rob (the developer)
