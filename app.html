@@ -13529,7 +13529,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.5.2';
+    const VERSION = '5.5.3';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -33277,6 +33277,8 @@ QUESTION: ${query}`;
         showToast('Speech recognition not supported');
         return;
       }
+      // Cancel any ongoing TTS — it can lock the audio channel on Android
+      if ('speechSynthesis' in window) speechSynthesis.cancel();
       const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
       const r = new SR();
       r.lang = 'en-IE';
@@ -33287,17 +33289,34 @@ QUESTION: ${query}`;
       _batteryChat.listening = true;
       document.getElementById('battery-mic-btn').classList.add('listening');
       document.getElementById('battery-mic-hint').textContent = 'Listening…';
+      let gotResult = false;
       r.onresult = (e) => {
         const transcript = e.results[0]?.[0]?.transcript || '';
+        gotResult = true;
         _batteryStopListening();
         if (transcript) _batterySendToAI(transcript);
       };
       r.onerror = (e) => {
         _batteryStopListening();
         if (e.error !== 'aborted' && e.error !== 'no-speech') showToast('Speech error: ' + e.error);
+        if (e.error === 'no-speech') {
+          const hint = document.getElementById('battery-mic-hint');
+          if (hint) hint.textContent = 'No speech detected — tap to try again';
+        }
       };
-      r.onend = () => { _batteryChat.listening = false; const btn = document.getElementById('battery-mic-btn'); if (btn) btn.classList.remove('listening'); };
-      try { r.start(); } catch (e) { _batteryStopListening(); }
+      r.onend = () => {
+        _batteryChat.listening = false;
+        const btn = document.getElementById('battery-mic-btn');
+        if (btn) btn.classList.remove('listening');
+        if (!gotResult) {
+          const hint = document.getElementById('battery-mic-hint');
+          if (hint && hint.textContent === 'Listening…') hint.textContent = 'Tap to talk';
+        }
+      };
+      // Small delay gives TTS time to fully stop on Android
+      setTimeout(() => {
+        try { r.start(); } catch (e) { _batteryStopListening(); showToast('Mic error: ' + e.message); }
+      }, 150);
       if (navigator.vibrate) navigator.vibrate(30);
     }
 
