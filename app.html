@@ -1510,19 +1510,13 @@
       max-height: 140px;
       transition: border-color 0.15s;
       font-size: 12px;
-      scrollbar-width: thin;
-      scrollbar-color: rgba(0,0,0,0.2) transparent;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
     }
     .note-inline-preview::-webkit-scrollbar {
-      width: 4px;
-    }
-    .note-inline-preview::-webkit-scrollbar-track {
-      background: transparent;
-      margin: 10px 0;
-    }
-    .note-inline-preview::-webkit-scrollbar-thumb {
-      background: rgba(0,0,0,0.2);
-      border-radius: 3px;
+      display: none;
+      width: 0;
+      height: 0;
     }
     .note-inline-preview:hover,
     .note-inline-preview:active {
@@ -13463,7 +13457,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.4.21';
+    const VERSION = '5.4.22';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
