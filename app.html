@@ -1513,11 +1513,13 @@
       scrollbar-width: thin;
       scrollbar-color: rgba(0,0,0,0.25) transparent;
     }
-    .note-inline-preview::-webkit-scrollbar { width: 5px; }
+    .note-inline-preview::-webkit-scrollbar { width: 6px; }
     .note-inline-preview::-webkit-scrollbar-track { background: transparent; }
     .note-inline-preview::-webkit-scrollbar-thumb {
-      background: rgba(0,0,0,0.25);
-      border-radius: 3px;
+      background: rgba(0,0,0,0.3);
+      border-radius: 999px;
+      border: 1px solid transparent;
+      background-clip: padding-box;
     }
     .note-inline-preview:hover,
     .note-inline-preview:active {
@@ -13458,7 +13460,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.4.23';
+    const VERSION = '5.4.24';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
