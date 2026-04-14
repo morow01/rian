@@ -13529,7 +13529,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.5.24';
+    const VERSION = '5.5.25';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -20425,6 +20425,7 @@
                 oninput="updateNoteField(this);autoGrow(this)">${esc(note.description)}</textarea>
             </div>
             <div class="note-detail-row">
+              <span class="field-label" style="display:block; margin-bottom: 6px; font-size: 11px; font-weight: 800; color: #94a3b8; text-transform: uppercase;">Notes</span>
               ${renderNoteInline(nc, `openFieldNoteFullscreen('${note.id}')`, `data-fn-inline="${note.id}"`)}
               <textarea class="act-notes-area" data-fn-area="${note.id}" style="display:none">${esc(nc)}</textarea>
             </div>
