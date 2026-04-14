@@ -13529,7 +13529,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.5.9';
+    const VERSION = '5.5.10';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -33218,7 +33218,7 @@ QUESTION: ${query}`;
 
     function closeBatteryRecorder() {
       if (_batteryChat?.listening) _batteryStopListening();
-      if ('speechSynthesis' in window) speechSynthesis.cancel();
+      _batteryStopSpeaking();
       document.getElementById('battery-modal').classList.add('hidden');
     }
 
@@ -33234,33 +33234,104 @@ QUESTION: ${query}`;
       msg.innerHTML = `<div class="bat-avatar">${who === 'ai' ? 'AI' : 'U'}</div><div class="${bubbleCls}">${esc(text)}</div>`;
       tr.appendChild(msg);
       tr.scrollTop = tr.scrollHeight;
-      // Speak AI replies aloud (skip the "Thinking…" placeholder)
-      if (who === 'ai' && !opts.thinking && 'speechSynthesis' in window) {
-        try {
-          speechSynthesis.cancel();
-          const u = new SpeechSynthesisUtterance(text);
-          u.rate = 1;
-          u.pitch = 1.05;
-          u.volume = 1;
-          u.lang = 'en-GB';
-          // Pick a more natural voice if available
-          const voice = _batteryPickVoice();
-          if (voice) u.voice = voice;
-          // Auto-start listening when AI finishes speaking — hands-free flow
-          u.onend = () => {
-            if (!_batteryChat || _batteryChat.complete) return;
-            if (_batteryChat.listening) return;
-            // Small delay so audio buffers fully release before mic opens
-            setTimeout(() => {
-              if (_batteryChat && !_batteryChat.complete && !_batteryChat.listening) {
-                _batteryMicToggle();
-              }
-            }, 250);
-          };
-          speechSynthesis.speak(u);
-        } catch (e) { /* ignore */ }
+      // Speak AI replies aloud — try Gemini TTS first, fall back to browser TTS
+      if (who === 'ai' && !opts.thinking) {
+        _batterySpeak(text);
       }
       return msg;
+    }
+
+    // Speak with Gemini TTS (natural voice) or fall back to browser TTS
+    async function _batterySpeak(text) {
+      // Stop any ongoing speech
+      _batteryStopSpeaking();
+      const afterSpeak = () => {
+        if (!_batteryChat || _batteryChat.complete || _batteryChat.listening) return;
+        setTimeout(() => {
+          if (_batteryChat && !_batteryChat.complete && !_batteryChat.listening) {
+            _batteryMicToggle();
+          }
+        }, 250);
+      };
+      try {
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=${state.geminiKey}`;
+        const resp = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{ parts: [{ text }] }],
+            generationConfig: {
+              responseModalities: ['AUDIO'],
+              speechConfig: {
+                voiceConfig: {
+                  prebuiltVoiceConfig: { voiceName: 'Aoede' }
+                }
+              }
+            }
+          })
+        });
+        if (!resp.ok) throw new Error('TTS ' + resp.status);
+        const data = await resp.json();
+        const b64 = data.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data;
+        if (!b64) throw new Error('no audio data');
+        // Gemini returns PCM 24kHz mono 16-bit LE; wrap in WAV header and play
+        const pcm = Uint8Array.from(atob(b64), c => c.charCodeAt(0));
+        const wav = _pcmToWav(pcm, 24000, 1, 16);
+        const blob = new Blob([wav], { type: 'audio/wav' });
+        const audio = new Audio(URL.createObjectURL(blob));
+        _batteryChat._currentAudio = audio;
+        audio.onended = () => { URL.revokeObjectURL(audio.src); afterSpeak(); };
+        audio.onerror = () => { URL.revokeObjectURL(audio.src); afterSpeak(); };
+        await audio.play();
+      } catch (e) {
+        console.log('[Battery] Gemini TTS failed, using browser TTS:', e.message);
+        // Fallback to browser TTS
+        if ('speechSynthesis' in window) {
+          try {
+            const u = new SpeechSynthesisUtterance(text);
+            u.rate = 1; u.pitch = 1.05; u.volume = 1; u.lang = 'en-GB';
+            const voice = _batteryPickVoice();
+            if (voice) u.voice = voice;
+            u.onend = afterSpeak;
+            speechSynthesis.speak(u);
+          } catch { afterSpeak(); }
+        } else {
+          afterSpeak();
+        }
+      }
+    }
+
+    function _batteryStopSpeaking() {
+      if ('speechSynthesis' in window) speechSynthesis.cancel();
+      if (_batteryChat?._currentAudio) {
+        try { _batteryChat._currentAudio.pause(); } catch {}
+        _batteryChat._currentAudio = null;
+      }
+    }
+
+    // Wrap raw PCM bytes with a WAV header
+    function _pcmToWav(pcmBytes, sampleRate, channels, bitsPerSample) {
+      const byteRate = sampleRate * channels * bitsPerSample / 8;
+      const blockAlign = channels * bitsPerSample / 8;
+      const dataSize = pcmBytes.byteLength;
+      const buffer = new ArrayBuffer(44 + dataSize);
+      const view = new DataView(buffer);
+      const writeStr = (offset, str) => { for (let i = 0; i < str.length; i++) view.setUint8(offset + i, str.charCodeAt(i)); };
+      writeStr(0, 'RIFF');
+      view.setUint32(4, 36 + dataSize, true);
+      writeStr(8, 'WAVE');
+      writeStr(12, 'fmt ');
+      view.setUint32(16, 16, true);         // PCM chunk size
+      view.setUint16(20, 1, true);          // format = PCM
+      view.setUint16(22, channels, true);
+      view.setUint32(24, sampleRate, true);
+      view.setUint32(28, byteRate, true);
+      view.setUint16(32, blockAlign, true);
+      view.setUint16(34, bitsPerSample, true);
+      writeStr(36, 'data');
+      view.setUint32(40, dataSize, true);
+      new Uint8Array(buffer, 44).set(pcmBytes);
+      return buffer;
     }
 
     function _batteryPickVoice() {
@@ -33321,7 +33392,7 @@ QUESTION: ${query}`;
         showToast('Speech recognition not supported');
         return;
       }
-      if ('speechSynthesis' in window) speechSynthesis.cancel();
+      _batteryStopSpeaking();
       const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
       const r = new SR();
       r.lang = 'en-IE';
