@@ -13386,7 +13386,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.4.12';
+    const VERSION = '5.4.13';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -31113,27 +31113,28 @@ QUESTION: ${query}`;
                 img.style.marginLeft = '';
                 img.style.marginRight = '';
               } else {
-                // Block layout — no text wrap
+                // Block layout — no text wrap. Wrapper matches image width
+                // so resize handle stays anchored to the image corner.
                 container.style.float = '';
-                container.style.width = '';
+                container.style.width = width;
                 container.style.display = 'block';
                 container.style.marginTop = '';
                 container.style.marginBottom = '';
-                container.style.marginLeft = '';
-                container.style.marginRight = '';
                 delete container.dataset.float;
-                img.style.width = width;
+                img.style.width = '100%';
                 img.style.display = 'block';
+                img.style.marginLeft = '';
+                img.style.marginRight = '';
                 if (align === 'left') {
-                  img.style.marginLeft = '0';
-                  img.style.marginRight = 'auto';
+                  container.style.marginLeft = '0';
+                  container.style.marginRight = 'auto';
                 } else if (align === 'right') {
-                  img.style.marginLeft = 'auto';
-                  img.style.marginRight = '0';
+                  container.style.marginLeft = 'auto';
+                  container.style.marginRight = '0';
                 } else {
                   // center or legacy 'none'
-                  img.style.marginLeft = 'auto';
-                  img.style.marginRight = 'auto';
+                  container.style.marginLeft = 'auto';
+                  container.style.marginRight = 'auto';
                 }
               }
             };
