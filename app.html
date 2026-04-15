@@ -10534,15 +10534,12 @@
     .remind-overlay {
       position: fixed;
       inset: 0;
-      z-index: 700;
+      z-index: 10100;
       background: rgba(0, 0, 0, 0.4);
       display: flex;
       align-items: flex-end;
       justify-content: center;
       animation: fadeIn 0.15s ease;
-    }
-
-    .remind-overlay {
       overflow-y: auto;
     }
 
@@ -13529,7 +13526,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.5.31';
+    const VERSION = '5.5.32';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -18575,11 +18572,9 @@
     }
 
     function openNoteReminder(noteId) {
-      console.log('[Remind] openNoteReminder', noteId);
-      showToast('Opening reminder…');
       remindState.voiceMode = false;
       const note = state.notes.find(n => n.id === noteId);
-      if (!note) { showToast('Note not found: ' + noteId); return; }
+      if (!note) return;
       remindState.noteId = noteId;
       const desc = note.description || 'Unnamed';
       const loc = note.location || '';
@@ -18660,9 +18655,6 @@
         </div>
       </div>`;
       modal.classList.remove('hidden');
-      modal.style.display = '';
-      console.log('[Remind] modal shown', modal);
-      showToast('Modal opened');
     }
 
     function cancelNoteReminder(reminderId) {
