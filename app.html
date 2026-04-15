@@ -2009,6 +2009,169 @@
       --amber-rgb: 251, 191, 36;
     }
 
+    /* ===== iOS LIGHT THEME ===== */
+    /* Apple iOS aesthetic — system grays, pure white cards, iOS blue accent */
+    [data-theme="ios"] {
+      --font-body: -apple-system, BlinkMacSystemFont, 'DM Sans', sans-serif;
+      --font-mono: 'SF Mono', 'DM Mono', monospace;
+
+      /* Backgrounds — iOS grouped table style */
+      --bg-page: #F2F2F7;              /* iOS systemGroupedBackground */
+      --bg-header: #FFFFFF;            /* iOS nav bar — white */
+      --bg-header-tab: #F2F2F7;
+      --bg-card: #FFFFFF;              /* iOS secondarySystemGroupedBackground */
+      --bg-card-alt: #F2F2F7;
+      --bg-day-header: #FFFFFF;
+      --bg-day-header-we: #F7F7FA;
+      --bg-weekend: #F7F7FA;
+      --bg-section-muted: #F2F2F7;
+      --bg-input: #FFFFFF;
+      --bg-modal: #FFFFFF;
+      --bg-modal-search: #E5E5EA;
+      --bg-code-btn: #EAF3FF;
+      --bg-code-group: #E5E5EA;        /* iOS segmented control container */
+      --bg-segment-active: #FFFFFF;    /* white pill */
+      --bg-code-item: #FFFFFF;
+      --bg-code-item-sel: #EAF3FF;
+      --bg-ot: #FFF8E6;
+      --summary-even: #F2F2F7;
+
+      /* Text — iOS labels */
+      --text-header: #000000;          /* primary label on white nav bar */
+      --text-header-sub: rgba(60, 60, 67, 0.6);
+      --text-primary: #000000;         /* iOS label */
+      --text-secondary: #3C3C43;       /* iOS secondary label base */
+      --text-muted: #8E8E93;           /* iOS secondaryLabel */
+      --text-input: #000000;
+      --text-day: #000000;
+      --text-day-we: #8E8E93;
+      --text-hours: #007AFF;           /* iOS system blue */
+      --text-ot: #FF9500;              /* iOS system orange */
+      --text-display: #000000;
+      --text-warm: #3C3C43;
+      --text-slate: #8E8E93;
+      --text-dim: #AEAEB2;
+      --text-ink: #000000;
+
+      /* Borders — iOS separators */
+      --border: #C6C6C8;               /* iOS separator */
+      --border-input: #C7C7CC;
+      --border-strong: #AEAEB2;
+      --border-warm: #C7C7CC;
+      --border-warm-light: #D1D1D6;
+      --border-subtle: #E5E5EA;
+      --border-medium: #C6C6C8;
+
+      /* Accent — iOS System Blue */
+      --accent: #007AFF;
+      --accent-light: #EAF3FF;
+      --accent-chip-bg: #EAF3FF;
+      --accent-chip-text: #0055CC;
+      --accent-rgb: 0, 122, 255;
+      --accent-alpha-06: rgba(0, 122, 255, 0.06);
+      --accent-alpha-10: rgba(0, 122, 255, 0.10);
+      --accent-alpha-30: rgba(0, 122, 255, 0.30);
+
+      /* Danger — iOS System Red */
+      --btn-danger-bg: #FFF2F2;
+      --btn-danger-color: #FF3B30;
+      --btn-danger-border: rgba(255, 59, 48, 0.20);
+
+      /* Shadows — iOS uses very minimal shadow */
+      --shadow-rgb: 0, 0, 0;
+      --shadow-brand-rgb: 0, 122, 255;
+      --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.07);
+
+      /* Overlay */
+      --overlay: rgba(0, 0, 0, 0.40);
+
+      /* Tab active */
+      --tab-active: #007AFF;
+
+      /* Alpha tints */
+      --amber-alpha-10: rgba(255, 149, 0, 0.12);
+      --amber-alpha-40: rgba(255, 149, 0, 0.40);
+      --slate-alpha-10: rgba(142, 142, 147, 0.12);
+      --slate-alpha-40: rgba(142, 142, 147, 0.40);
+      --blue-alpha-10: rgba(0, 122, 255, 0.10);
+      --blue-alpha-40: rgba(0, 122, 255, 0.40);
+
+      /* TipTap prose */
+      --prose-h1-color: #000000;
+      --prose-h1-ribbon: #007AFF;
+      --prose-h2-color: #007AFF;
+      --prose-h2-underline: #C6C6C8;
+      --prose-h3-color: #8E8E93;
+      --prose-hr-color: #C6C6C8;
+      --prose-blockquote-bg: #F2F2F7;
+      --prose-blockquote-border: rgba(0, 0, 0, 0.10);
+      --prose-code-bg: #E5E5EA;
+      --prose-code-text: #000000;
+      --prose-code-block-bg: #E5E5EA;
+      --prose-code-block-text: #000000;
+      --table-header-bg: #F2F2F7;
+      --table-header-text: #3C3C43;
+      --table-border: #C6C6C8;
+      --table-border-light: #E5E5EA;
+      --table-row-hover-bg: #F2F2F7;
+      --tt-btn-active-bg: #EAF3FF;
+      --tt-btn-active-color: #007AFF;
+      --tt-table-bar-bg: #E5E5EA;
+      --tt-sel-bar-border: #C6C6C8;
+
+      /* Pills */
+      --pill-slate-bg: #E5E5EA;
+      --pill-slate-color: #3C3C43;
+      --pill-amber-color: #FF9500;
+
+      /* Date + task badges */
+      --date-badge-bg: #E5E5EA;
+      --date-badge-color: #000000;
+      --task-num-bg: #F2F2F7;
+      --task-num-color: #3C3C43;
+
+      /* Hours stepper */
+      --stepper-bg: #F2F2F7;
+      --stepper-border: #C6C6C8;
+      --stepper-text: #000000;
+      --stepper-btn-color: #8E8E93;
+      --ot-stepper-bg: #FFF8E6;
+      --ot-stepper-border: #FF9500;
+      --ot-stepper-text: #CC7A00;
+
+      /* Activity code chips */
+      --code-text: #000000;
+      --code-del-text: #8E8E93;
+      --code-add-text: #8E8E93;
+      --section-divider: #C6C6C8;
+
+      /* RGB triples */
+      --priority-high-rgb: 255, 59, 48;    /* iOS red */
+      --priority-low-rgb: 52, 199, 89;     /* iOS green */
+      --priority-medium-rgb: 255, 149, 0;  /* iOS orange */
+      --amber-rgb: 255, 149, 0;
+
+      /* Priority borders */
+      --priority-low-border: #CCF5D6;
+      --priority-low-dark: #34C759;
+    }
+
+    [data-theme="ios"] body {
+      font-family: var(--font-body);
+      background-color: var(--bg-page);
+    }
+
+    [data-theme="ios"] .font-mono,
+    [data-theme="ios"] .t-code,
+    [data-theme="ios"] .task-hours,
+    [data-theme="ios"] .val {
+      font-family: var(--font-mono) !important;
+    }
+
+    [data-theme="ios"] .day-header {
+      background: var(--bg-card);
+    }
+
     /* ===== CHAMPAGNE DARK THEME ===== */
     /* Warm dark browns — cold slate replaced with rich mahogany, same golden amber accent */
     [data-theme="champagne-dark"] {
@@ -14128,7 +14291,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.6.42';
+    const VERSION = '5.6.43';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -24407,6 +24570,7 @@
       dark:             { label: 'Dark',             metaColor: '#0a0f1a' },
       champagne:        { label: 'Champagne',        metaColor: '#2a1f0e' },
       'champagne-dark': { label: 'Champagne Dark',   metaColor: '#0e0b05' },
+      ios:              { label: 'iOS',              metaColor: '#FFFFFF' },
     };
     const DEFAULT_THEME = 'claude';
 
