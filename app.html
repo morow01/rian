@@ -13395,7 +13395,7 @@
         <button onclick="closeConfirmModal()"
           style="padding:10px 20px;border-radius:8px;border:1.5px solid var(--border);background:transparent;color:var(--text-muted);font-weight:600;cursor:pointer;font-size:13px">Cancel</button>
         <button id="confirm-btn" onclick="executeConfirmAction()"
-          style="padding:10px 20px;border-radius:8px;border:none;background:#ef4444;color:#fff;font-weight:600;cursor:pointer;font-size:13px">Confirm</button>
+          style="padding:10px 20px;border-radius:8px;border:none;background:var(--priority-high);color:#fff;font-weight:600;cursor:pointer;font-size:13px">Confirm</button>
       </div>
     </div>
   </div>
@@ -13573,7 +13573,7 @@
           class="flex-1 py-3 rounded-xl font-medium"
           style="border:2px solid var(--border);color:var(--text-secondary)">Cancel</button>
         <button onclick="doExportWithOptions()" id="exp-btn" class="flex-1 py-3 rounded-xl font-bold text-white"
-          style="background:#F5A623">Export</button>
+          style="background:var(--text-ot)">Export</button>
       </div>
     </div>
   </div>
@@ -13627,7 +13627,7 @@
             class="flex-1 py-3 rounded-xl font-medium"
             style="border:2px solid var(--border);color:var(--text-secondary)">Cancel</button>
           <button onclick="doImportWithOptions()" id="imp-btn" class="flex-1 py-3 rounded-xl font-bold text-white"
-            style="background:#16a34a">Import</button>
+            style="background:var(--priority-low-dark)">Import</button>
         </div>
       </div>
     </div>
@@ -13685,7 +13685,7 @@
         <button onclick="document.getElementById('restore-confirm-modal').classList.add('hidden')"
           style="flex:1;background:var(--bg-elevated);color:var(--text-primary);border:1px solid var(--border);border-radius:10px;padding:11px;font-size:0.9rem;font-weight:600;cursor:pointer">Cancel</button>
         <button id="restore-confirm-btn"
-          style="flex:1;background:#dc2626;color:#fff;border:none;border-radius:10px;padding:11px;font-size:0.9rem;font-weight:600;cursor:pointer">Restore</button>
+          style="flex:1;background:var(--priority-high-dark);color:#fff;border:none;border-radius:10px;padding:11px;font-size:0.9rem;font-weight:600;cursor:pointer">Restore</button>
       </div>
     </div>
   </div>
@@ -13735,7 +13735,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.6.19';
+    const VERSION = '5.6.20';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -13843,7 +13843,7 @@
     // local write queue gets stuck in a storm (see incident 2026-04-06).
     // After cleanup, redirects to /app so the SDK opens a fresh DB.
     if (new URLSearchParams(location.search).get('cleanup') === '1') {
-      document.documentElement.innerHTML = '<body style="font-family:sans-serif;background:#0f1e2e;color:#e2e8f0;padding:40px;text-align:center;"><h2>Cleaning up Firestore cache…</h2><p id="cu-status">Working…</p></body>';
+      document.documentElement.innerHTML = '<body style="font-family:sans-serif;background:#0f1e2e;color:var(--border-strong);padding:40px;text-align:center;"><h2>Cleaning up Firestore cache…</h2><p id="cu-status">Working…</p></body>';
       try { Object.keys(localStorage).filter(k => k.startsWith('firestore')).forEach(k => localStorage.removeItem(k)); } catch (e) { }
       const _cuReq = indexedDB.deleteDatabase('firestore/[DEFAULT]/eir-fieldlog/main');
       const _cuDone = (msg) => {
@@ -13872,7 +13872,7 @@
       db_fs.enablePersistence().catch(e => console.warn('[Rian]', e));
     } catch (firebaseErr) {
       console.error("Firebase init failed (likely blocked by Brave Shields):", firebaseErr);
-      document.body.innerHTML = '<div style="margin: 40px auto; max-width: 600px; padding: 20px; background: #fee2e2; border: 1px solid #ef4444; border-radius: 8px; font-family: sans-serif; text-align: center;"><h2>⚠️ App Blocked by Brave Shields</h2><p>Your browser is blocking IndexedDB or essential scripts needed to run this application. Please click the <strong>Lion icon</strong> (Brave Shields) in your address bar and turn Shields <strong>OFF</strong> for localhost, then refresh the page.</p></div>';
+      document.body.innerHTML = '<div style="margin: 40px auto; max-width: 600px; padding: 20px; background: #fee2e2; border: 1px solid var(--priority-high); border-radius: 8px; font-family: sans-serif; text-align: center;"><h2>⚠️ App Blocked by Brave Shields</h2><p>Your browser is blocking IndexedDB or essential scripts needed to run this application. Please click the <strong>Lion icon</strong> (Brave Shields) in your address bar and turn Shields <strong>OFF</strong> for localhost, then refresh the page.</p></div>';
       throw firebaseErr; // halt execution
     }
     const DAY_NAMES = ['Friday', 'Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday'];
@@ -16361,7 +16361,7 @@
     }
 
     function buildPreviewHtml(weekData) {
-      if (!weekData) return '<p style="padding:16px;color:#64748b">No data.</p>';
+      if (!weekData) return '<p style="padding:16px;color:var(--text-slate)">No data.</p>';
       const range = formatWeekRange(weekData.weekStart);
       const summary = calcSummary(weekData);
       const totalOrd = summary.reduce((s, r) => s + r.ordinary, 0);
@@ -16749,7 +16749,7 @@
                 <div class="menu-avatar-wrap">${avatarHtml}</div>
                 <div class="menu-signed-in-label">Signed in as</div>
                 <div class="menu-display-name">${esc(displayName)}</div>
-                ${_rEmail ? '<div style="font-size:11px;color:#94a3b8;margin-top:2px;word-break:break-all;">' + esc(_rEmail) + '</div>' : ''}
+                ${_rEmail ? '<div style="font-size:11px;color:var(--text-dim);margin-top:2px;word-break:break-all;">' + esc(_rEmail) + '</div>' : ''}
                 <button class="menu-signout-btn" onclick="signOutUser()">
                   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
                   Sign Out
@@ -16834,7 +16834,7 @@
                   <button class="menu-row" onclick="toggleMicFab()">
                     <span class="menu-row-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="8" y1="22" x2="16" y2="22"/></svg></span>
                     <span class="menu-row-body"><span class="menu-row-label">Voice button</span><span class="menu-row-sub">${state.micFabHidden ? 'Hidden — tap to show' : 'Visible — tap to hide'}</span></span>
-                    <span style="width:36px;height:20px;border-radius:10px;background:${state.micFabHidden ? '#e2e8f0' : 'var(--accent)'};position:relative;transition:background 0.2s;flex-shrink:0;display:inline-block;">
+                    <span style="width:36px;height:20px;border-radius:10px;background:${state.micFabHidden ? 'var(--border-strong)' : 'var(--accent)'};position:relative;transition:background 0.2s;flex-shrink:0;display:inline-block;">
                       <span style="position:absolute;top:2px;left:${state.micFabHidden ? '2px' : '18px'};width:16px;height:16px;border-radius:50%;background:#fff;transition:left 0.2s;box-shadow:0 1px 4px rgba(var(--shadow-rgb),0.18);display:block;"></span>
                     </span>
                   </button>
@@ -16918,17 +16918,17 @@
       </div>
     </div>
     <div class="flex" style="background:var(--bg-header-tab);">
-      <button onclick="setView('week')" class="flex-1 py-2.5 text-[11px] font-bold tracking-widest uppercase relative" style="padding-left:14px;padding-right:14px;color:${state.view === 'week' ? '#F5A623' : 'var(--text-header-sub)'};${state.view === 'week' ? 'border-bottom:2.5px solid #F5A623' : ''}">
+      <button onclick="setView('week')" class="flex-1 py-2.5 text-[11px] font-bold tracking-widest uppercase relative" style="padding-left:14px;padding-right:14px;color:${state.view === 'week' ? 'var(--text-ot)' : 'var(--text-header-sub)'};${state.view === 'week' ? 'border-bottom:2.5px solid var(--text-ot)' : ''}">
         <span style="display:inline-flex;align-items:center;gap:4px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Timesheet</span>
       </button>
-      <button onclick="setView('notes')" class="flex-1 py-2.5 text-[11px] font-bold tracking-widest uppercase relative" style="color:${state.view === 'notes' ? '#F5A623' : 'var(--text-header-sub)'};${state.view === 'notes' ? 'border-bottom:2.5px solid #F5A623' : ''}">
+      <button onclick="setView('notes')" class="flex-1 py-2.5 text-[11px] font-bold tracking-widest uppercase relative" style="color:${state.view === 'notes' ? 'var(--text-ot)' : 'var(--text-header-sub)'};${state.view === 'notes' ? 'border-bottom:2.5px solid var(--text-ot)' : ''}">
         <span style="display:inline-flex;align-items:center;gap:4px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>Notes</span>
         ${{ pending: 'var(--priority-medium)', syncing: '#3b82f6', error: 'var(--priority-high)' }[state.notesSyncStatus] ? `<span class="notes-sync-dot" style="background:${{ pending: 'var(--priority-medium)', syncing: '#3b82f6', error: 'var(--priority-high)' }[state.notesSyncStatus]}"></span>` : ''}
       </button>
-      <button onclick="setView('journal')" class="flex-1 py-2.5 text-[11px] font-bold tracking-widest uppercase relative" style="color:${state.view === 'journal' ? '#F5A623' : 'var(--text-header-sub)'};${state.view === 'journal' ? 'border-bottom:2.5px solid #F5A623' : ''}">
+      <button onclick="setView('journal')" class="flex-1 py-2.5 text-[11px] font-bold tracking-widest uppercase relative" style="color:${state.view === 'journal' ? 'var(--text-ot)' : 'var(--text-header-sub)'};${state.view === 'journal' ? 'border-bottom:2.5px solid var(--text-ot)' : ''}">
         <span style="display:inline-flex;align-items:center;gap:4px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>Journal</span>
       </button>
-      <button onclick="setView('exchanges')" class="flex-1 py-2.5 text-[11px] font-bold tracking-widest uppercase" style="color:${state.view === 'exchanges' ? '#F5A623' : 'var(--text-header-sub)'};${state.view === 'exchanges' ? 'border-bottom:2.5px solid #F5A623' : ''}">
+      <button onclick="setView('exchanges')" class="flex-1 py-2.5 text-[11px] font-bold tracking-widest uppercase" style="color:${state.view === 'exchanges' ? 'var(--text-ot)' : 'var(--text-header-sub)'};${state.view === 'exchanges' ? 'border-bottom:2.5px solid var(--text-ot)' : ''}">
         <span style="display:inline-flex;align-items:center;gap:4px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>Finder</span>
       </button>
     </div>
@@ -18063,7 +18063,7 @@
         const cls = isSource ? 'copy-picker-day disabled' : (isSelected ? 'copy-picker-day selected' : 'copy-picker-day');
         const checkCls = isSelected ? 'copy-picker-day-check checked' : 'copy-picker-day-check';
         const checkSvg = isSelected ? '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>' : '';
-        const label = isSource ? `${dayName} <span style="font-weight:400;color:#94a3b8;">— source</span>` : dayName;
+        const label = isSource ? `${dayName} <span style="font-weight:400;color:var(--text-dim);">— source</span>` : dayName;
         html += `<div class="${cls}" onclick="toggleCopyDay('${dateStr}')">
           <div class="${checkCls}">${checkSvg}</div>
           <div class="copy-picker-day-name">${label}</div>
@@ -18247,7 +18247,7 @@
       const dateLabel = dayDate ? formatDate(dayDate) : '';
       const calIcon = '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>';
       const notePlain = act.notes ? act.notes.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim() : '';
-      const hasNotes = notePlain ? `<div style="margin-top:6px;font-size:11px;color:#64748b;"><span style="font-weight:700;color:#94a3b8;">Note:</span> ${esc(notePlain.length > 80 ? notePlain.slice(0, 80) + '…' : notePlain)}</div>` : '';
+      const hasNotes = notePlain ? `<div style="margin-top:6px;font-size:11px;color:var(--text-slate);"><span style="font-weight:700;color:var(--text-dim);">Note:</span> ${esc(notePlain.length > 80 ? notePlain.slice(0, 80) + '…' : notePlain)}</div>` : '';
       const modal = document.getElementById('note-confirm-modal');
       modal.innerHTML = `<div class="note-confirm-overlay" onclick="if(event.target===this)closeAddToNotes()">
         <div class="note-confirm-sheet">
@@ -18257,7 +18257,7 @@
             <div class="note-confirm-preview-label">Note preview</div>
             <div class="note-confirm-preview-title">${esc(desc)}</div>
             <div class="note-confirm-preview-meta">
-              ${loc ? '<svg width="10" height="10" viewBox="0 0 24 24" fill="#94a3b8"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 010-5 2.5 2.5 0 010 5z"/></svg> ' + esc(loc) + ' <span style="color:#cbd5e1">·</span> ' : ''}
+              ${loc ? '<svg width="10" height="10" viewBox="0 0 24 24" fill="#94a3b8"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 010-5 2.5 2.5 0 010 5z"/></svg> ' + esc(loc) + ' <span style="color:var(--text-secondary)">·</span> ' : ''}
               ${calIcon} ${dateLabel}
             </div>
             ${hasNotes}
@@ -18433,7 +18433,7 @@
       const desc = note.description || 'Unnamed';
       const loc = note.location || '';
       const noteContentPlain = note.noteContent ? note.noteContent.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim() : '';
-      const notePreview = noteContentPlain ? `<span style="color:#cbd5e1">·</span> <span style="font-size:11px;color:#64748b;">Note: ${esc(noteContentPlain.length > 60 ? noteContentPlain.slice(0, 60) + '…' : noteContentPlain)}</span>` : '';
+      const notePreview = noteContentPlain ? `<span style="color:var(--text-secondary)">·</span> <span style="font-size:11px;color:var(--text-slate);">Note: ${esc(noteContentPlain.length > 60 ? noteContentPlain.slice(0, 60) + '…' : noteContentPlain)}</span>` : '';
       const isCurrent = ws === state.weekStart;
       const endD = new Date(ws + 'T00:00:00');
       endD.setDate(endD.getDate() + 6);
@@ -18452,7 +18452,7 @@
               ${notePreview}
             </div>
           </div>
-          <div style="padding:0 12px 4px;"><span style="font-size:11px;font-weight:800;color:#94a3b8;text-transform:uppercase;">Select Day</span></div>
+          <div style="padding:0 12px 4px;"><span style="font-size:11px;font-weight:800;color:var(--text-dim);text-transform:uppercase;">Select Day</span></div>
           <div class="copy-picker-weeknav" style="margin:0 12px 6px;">
             <button onclick="taskPickerNavWeek(-1)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
             <div><span class="copy-picker-weeknav-label">${weekLabel}</span>${isCurrent ? '<span class="copy-picker-weeknav-badge">current</span>' : ''}</div>
@@ -18692,7 +18692,7 @@
       const rem = getReminderForNote(noteId);
       if (!rem) {
         return `<div class="note-reminder-field">
-          <span class="field-label" style="display:block; margin-bottom: 6px; font-size: 11px; font-weight: 800; color: #94a3b8; text-transform: uppercase;">Reminder</span>
+          <span class="field-label" style="display:block; margin-bottom: 6px; font-size: 11px; font-weight: 800; color: var(--text-dim); text-transform: uppercase;">Reminder</span>
           <div class="note-reminder-unset" onclick="openNoteReminder('${noteId}')">
             <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
             <span style="flex:1">Add reminder...</span>
@@ -18706,17 +18706,17 @@
         String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
       if (rem.fired) {
         return `<div class="note-reminder-field">
-          <span class="field-label" style="display:block; margin-bottom: 6px; font-size: 11px; font-weight: 800; color: #94a3b8; text-transform: uppercase;">Reminder</span>
+          <span class="field-label" style="display:block; margin-bottom: 6px; font-size: 11px; font-weight: 800; color: var(--text-dim); text-transform: uppercase;">Reminder</span>
           <div class="note-reminder-fired" onclick="openNoteReminder('${noteId}')" style="cursor:pointer" title="Tap to reschedule">
             <div class="note-rem-bell"><svg viewBox="0 0 24 24" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></div>
             <div class="note-rem-info"><div class="note-rem-info-label">Reminded</div><div class="note-rem-info-dt">${dateStr}</div></div>
-            <span class="note-rem-badge" style="background:#f0f2f5;color:#64748b;">+ Reschedule</span>
+            <span class="note-rem-badge" style="background:#f0f2f5;color:var(--text-slate);">+ Reschedule</span>
             <button class="note-rem-x" onclick="event.stopPropagation();removeNoteReminder('${noteId}')" title="Remove">✕</button>
           </div>
         </div>`;
       }
       return `<div class="note-reminder-field">
-        <span class="field-label" style="display:block; margin-bottom: 6px; font-size: 11px; font-weight: 800; color: #94a3b8; text-transform: uppercase;">Reminder</span>
+        <span class="field-label" style="display:block; margin-bottom: 6px; font-size: 11px; font-weight: 800; color: var(--text-dim); text-transform: uppercase;">Reminder</span>
         <div class="note-reminder-set" onclick="openNoteReminder('${noteId}')" style="cursor:pointer">
           <div class="note-rem-bell"><svg viewBox="0 0 24 24" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></div>
           <div class="note-rem-info"><div class="note-rem-info-label">Triggers</div><div class="note-rem-info-dt">${dateStr}</div></div>
@@ -20417,8 +20417,8 @@
       return [
         activeCat ? `<span class="nf-summary-pill" style="background:${activeCat.color}" onclick="event.stopPropagation();setNotesCategoryFilter('${activeCat.key}')">${activeCat.icon.replace('width="18" height="18"', 'width="11" height="11"')} ${activeCat.label}<span class="nf-pill-x">${X}</span></span>` : '',
         activePriLabel ? `<span class="nf-summary-pill nf-pri-${f}" onclick="event.stopPropagation();setNotesFilter('all')">${activePriLabel}<span class="nf-pill-x">${X}</span></span>` : '',
-        activeRemLabel ? `<span class="nf-summary-pill" style="background:${rf === 'active' ? '#F5A623' : '#94a3b8'}" onclick="event.stopPropagation();setNotesRemindersFilter('${rf}')">${activeRemLabel}<span class="nf-pill-x">${X}</span></span>` : '',
-        state.notesOverdueFilter ? `<span class="nf-summary-pill" style="background:#ef4444" onclick="event.stopPropagation();setNotesOverdueFilter()">${CLOCK_FLAT} Overdue<span class="nf-pill-x">${X}</span></span>` : '',
+        activeRemLabel ? `<span class="nf-summary-pill" style="background:${rf === 'active' ? 'var(--text-ot)' : 'var(--text-dim)'}" onclick="event.stopPropagation();setNotesRemindersFilter('${rf}')">${activeRemLabel}<span class="nf-pill-x">${X}</span></span>` : '',
+        state.notesOverdueFilter ? `<span class="nf-summary-pill" style="background:var(--priority-high)" onclick="event.stopPropagation();setNotesOverdueFilter()">${CLOCK_FLAT} Overdue<span class="nf-pill-x">${X}</span></span>` : '',
         state.notesHasDueDateFilter ? `<span class="nf-summary-pill" style="background:#60a5fa" onclick="event.stopPropagation();setNotesHasDueDateFilter()">${CLOCK_FLAT} Has Due Date<span class="nf-pill-x">${X}</span></span>` : '',
       ].filter(Boolean).join('');
     }
@@ -20522,7 +20522,7 @@
         return `<div class="notes-chip${isActive ? ' cat-active' : ''}" data-cat-key="${cat.key}" style="${chipStyle}" onclick="setNotesCategoryFilter('${cat.key}')">${getCatIconHtml(cat, 13)} ${cat.label} (${catCounts[cat.key]})</div>`;
       }).join('');
       const untaggedActive = cf === 'untagged';
-      const untaggedChip = `<div class="notes-chip${untaggedActive ? ' cat-active' : ''}" data-cat-key="untagged" style="${untaggedActive ? 'background:#64748b;border-color:#64748b;color:#fff;' : 'background:rgba(100,116,139,0.10);border-color:rgba(100,116,139,0.40);color:#64748b;'}" onclick="setNotesCategoryFilter('untagged')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg> Untagged (${untaggedCount})</div>`;
+      const untaggedChip = `<div class="notes-chip${untaggedActive ? ' cat-active' : ''}" data-cat-key="untagged" style="${untaggedActive ? 'background:var(--text-slate);border-color:var(--text-slate);color:#fff;' : 'background:rgba(100,116,139,0.10);border-color:rgba(100,116,139,0.40);color:var(--text-slate);'}" onclick="setNotesCategoryFilter('untagged')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg> Untagged (${untaggedCount})</div>`;
 
       const priChipDefs = [
         { key: 'all', label: `All (${openNotes.length})`, solidColor: null, rgb: null },
@@ -20546,10 +20546,10 @@
 
       const rf = state.notesRemindersFilter || '';
       const BELL_CHIP = `<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>`;
-      const remChip = `<div class="notes-chip" data-rem-key="active" style="${rf === 'active' ? 'background:#F5A623;border-color:#F5A623;color:#fff;' : 'background:rgba(245,166,35,0.10);border-color:rgba(245,166,35,0.40);color:#F5A623;'}" onclick="setNotesRemindersFilter('active')">${BELL_CHIP} Active (${counts.reminders})</div>`;
-      const remPastChip = `<div class="notes-chip" data-rem-key="passed" style="${rf === 'passed' ? 'background:#94a3b8;border-color:#94a3b8;color:#fff;' : 'background:rgba(148,163,184,0.10);border-color:rgba(148,163,184,0.40);color:#94a3b8;'}" onclick="setNotesRemindersFilter('passed')">${BELL_CHIP} Passed (${counts.pastReminders})</div>`;
+      const remChip = `<div class="notes-chip" data-rem-key="active" style="${rf === 'active' ? 'background:var(--text-ot);border-color:var(--text-ot);color:#fff;' : 'background:rgba(245,166,35,0.10);border-color:rgba(245,166,35,0.40);color:var(--text-ot);'}" onclick="setNotesRemindersFilter('active')">${BELL_CHIP} Active (${counts.reminders})</div>`;
+      const remPastChip = `<div class="notes-chip" data-rem-key="passed" style="${rf === 'passed' ? 'background:var(--text-dim);border-color:var(--text-dim);color:#fff;' : 'background:rgba(148,163,184,0.10);border-color:rgba(148,163,184,0.40);color:var(--text-dim);'}" onclick="setNotesRemindersFilter('passed')">${BELL_CHIP} Passed (${counts.pastReminders})</div>`;
       const CLOCK_CHIP = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`;
-      const overdueChip = `<div class="notes-chip" data-overdue-key="overdue" style="${state.notesOverdueFilter ? 'background:#ef4444;border-color:#ef4444;color:#fff;' : 'background:rgba(239,68,68,0.10);border-color:rgba(239,68,68,0.40);color:#ef4444;'}" onclick="setNotesOverdueFilter()">${CLOCK_CHIP} Overdue (${counts.overdue})</div>`;
+      const overdueChip = `<div class="notes-chip" data-overdue-key="overdue" style="${state.notesOverdueFilter ? 'background:var(--priority-high);border-color:var(--priority-high);color:#fff;' : 'background:rgba(239,68,68,0.10);border-color:rgba(239,68,68,0.40);color:var(--priority-high);'}" onclick="setNotesOverdueFilter()">${CLOCK_CHIP} Overdue (${counts.overdue})</div>`;
       const hasDueDateChip = `<div class="notes-chip" data-duedate-key="hasdue" style="${state.notesHasDueDateFilter ? 'background:#60a5fa;border-color:#60a5fa;color:#fff;' : 'background:rgba(96,165,250,0.10);border-color:rgba(96,165,250,0.40);color:#60a5fa;'}" onclick="setNotesHasDueDateFilter()">${CLOCK_CHIP} Has Due Date (${counts.hasDueDate})</div>`;
 
       const filterPanel = `
@@ -20624,7 +20624,7 @@
               <button class="note-pin-btn ${note.pinned ? 'pinned' : ''}" onclick="event.stopPropagation();toggleNotePin('${note.id}')" title="${note.pinned ? 'Unpin' : 'Pin'}" style="margin-right:6px"><svg width="14" height="14" viewBox="0 0 24 24" fill="${note.pinned ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="17" x2="12" y2="22"/><path d="M5 17h14v-1.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V6h1a2 2 0 0 0 0-4H8a2 2 0 0 0 0 4h1v4.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24Z"/></svg></button>
               ${catBadge}
               <span style="flex:1"></span>
-              ${note.dueDate ? `<span style="color:${isNoteOverdue(note) ? '#ef4444' : '#64748b'};font-weight:500;font-size:12.5px;display:flex;align-items:center;gap:4px"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>${formatDueStatus(note)}</span>` : ''}
+              ${note.dueDate ? `<span style="color:${isNoteOverdue(note) ? 'var(--priority-high)' : 'var(--text-slate)'};font-weight:500;font-size:12.5px;display:flex;align-items:center;gap:4px"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>${formatDueStatus(note)}</span>` : ''}
             </div>
           </div>`;
 
@@ -20637,19 +20637,19 @@
         const detail = `
           <div class="note-detail">
             <div class="note-detail-row">
-              <span class="field-label" style="display:block; margin-bottom: 6px; font-size: 11px; font-weight: 800; color: #94a3b8; text-transform: uppercase;">Description</span>
+              <span class="field-label" style="display:block; margin-bottom: 6px; font-size: 11px; font-weight: 800; color: var(--text-dim); text-transform: uppercase;">Description</span>
               <textarea data-note-id="${note.id}" data-note-field="description" rows="1"
                 style="resize:none;overflow:hidden"
                 autocomplete="off" data-lpignore="true" data-form-type="other" data-1p-ignore="true"
                 oninput="updateNoteField(this);autoGrow(this)">${esc(note.description)}</textarea>
             </div>
             <div class="note-detail-row">
-              <span class="field-label" style="display:block; margin-bottom: 6px; font-size: 11px; font-weight: 800; color: #94a3b8; text-transform: uppercase;">Notes</span>
+              <span class="field-label" style="display:block; margin-bottom: 6px; font-size: 11px; font-weight: 800; color: var(--text-dim); text-transform: uppercase;">Notes</span>
               ${renderNoteInline(nc, `openFieldNoteFullscreen('${note.id}')`, `data-fn-inline="${note.id}"`)}
               <textarea class="act-notes-area" data-fn-area="${note.id}" style="display:none">${esc(nc)}</textarea>
             </div>
             <div class="note-detail-row">
-              <span class="field-label" style="display:block; margin-bottom: 6px; font-size: 11px; font-weight: 800; color: #94a3b8; text-transform: uppercase;">Location</span>
+              <span class="field-label" style="display:block; margin-bottom: 6px; font-size: 11px; font-weight: 800; color: var(--text-dim); text-transform: uppercase;">Location</span>
               <input type="text" data-note-id="${note.id}" data-note-field="location"
                 name="rian-loc-${note.id}"
                 value="${esc(note.location)}"
@@ -20660,7 +20660,7 @@
                 onclick="openLocationModal(null, null, '${note.id}')" />
             </div>
             <div class="note-detail-row">
-              <span class="field-label" style="display:block; margin-bottom: 6px; font-size: 11px; font-weight: 800; color: #94a3b8; text-transform: uppercase;">Due Date</span>
+              <span class="field-label" style="display:block; margin-bottom: 6px; font-size: 11px; font-weight: 800; color: var(--text-dim); text-transform: uppercase;">Due Date</span>
               <input type="date" data-note-id="${note.id}" data-note-field="dueDate" value="${note.dueDate || ''}"
                 autocomplete="off" data-lpignore="true"
                 onchange="updateNoteField(this)">
@@ -20783,7 +20783,7 @@
       const overdueCardHtml = n => `<div class="note-card ${state.expandedNotes.has(n.id) ? 'expanded' : ''} ${state.selectedNotes.has(n.id) ? 'selected' : ''}" data-note-id="${n.id}">${renderNote(n)}</div>`;
       const CLOCK_SVG = `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`;
       const overdueSection = overdueNotes.length
-        ? `<div class="notes-section-label" style="color:#ef4444;display:flex;align-items:center;gap:5px;">${CLOCK_SVG} Overdue (${overdueNotes.length})</div>` + overdueNotes.map(overdueCardHtml).join('')
+        ? `<div class="notes-section-label" style="color:var(--priority-high);display:flex;align-items:center;gap:5px;">${CLOCK_SVG} Overdue (${overdueNotes.length})</div>` + overdueNotes.map(overdueCardHtml).join('')
         : '';
       const pinnedSection = pinnedOpen.length
         ? `<div class="notes-section-label" style="display:flex;align-items:center;gap:5px;"><svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M5 17h14v-1.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V6h1a2 2 0 0 0 0-4H8a2 2 0 0 0 0 4h1v4.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24Z M12 17 L12 22"/></svg> Pinned</div>` +
@@ -20859,8 +20859,8 @@
                     ${metaBits.length ? `<div style="display:flex;align-items:center;gap:8px;margin-top:4px;font-size:12px;color:var(--text-muted);">${metaBits.join('')}</div>` : ''}
                     ${ago ? `<div style="font-size:11px;color:var(--text-muted);margin-top:3px;">Archived ${ago}</div>` : ''}
                   </div>
-                  <button onclick="unarchiveNote('${n.id}')" title="Restore" style="flex-shrink:0;background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.3);border-radius:8px;padding:7px;cursor:pointer;color:#22c55e;display:flex;align-items:center;justify-content:center;" title="Restore to notes"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg></button>
-                  <button onclick="deleteNote('${n.id}')" title="Delete" style="flex-shrink:0;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.25);border-radius:8px;padding:7px;cursor:pointer;color:#ef4444;display:flex;align-items:center;justify-content:center;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button>
+                  <button onclick="unarchiveNote('${n.id}')" title="Restore" style="flex-shrink:0;background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.3);border-radius:8px;padding:7px;cursor:pointer;color:var(--priority-low);display:flex;align-items:center;justify-content:center;" title="Restore to notes"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg></button>
+                  <button onclick="deleteNote('${n.id}')" title="Delete" style="flex-shrink:0;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.25);border-radius:8px;padding:7px;cursor:pointer;color:var(--priority-high);display:flex;align-items:center;justify-content:center;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button>
                 </div>`;
           }).join('')
         }
@@ -20884,8 +20884,8 @@
                     ${metaBits.length ? `<div style="display:flex;align-items:center;gap:8px;margin-top:4px;font-size:12px;color:var(--text-muted);">${metaBits.join('')}</div>` : ''}
                     ${ago ? `<div style="font-size:11px;color:var(--text-muted);margin-top:3px;">Deleted ${ago}</div>` : ''}
                   </div>
-                  <button onclick="restoreNote('${n.id}')" title="Restore" style="flex-shrink:0;background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.3);border-radius:8px;padding:7px;cursor:pointer;color:#22c55e;display:flex;align-items:center;justify-content:center;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg></button>
-                  <button onclick="permanentDeleteNote('${n.id}')" title="Delete forever" style="flex-shrink:0;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.25);border-radius:8px;padding:7px;cursor:pointer;color:#ef4444;display:flex;align-items:center;justify-content:center;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button>
+                  <button onclick="restoreNote('${n.id}')" title="Restore" style="flex-shrink:0;background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.3);border-radius:8px;padding:7px;cursor:pointer;color:var(--priority-low);display:flex;align-items:center;justify-content:center;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg></button>
+                  <button onclick="permanentDeleteNote('${n.id}')" title="Delete forever" style="flex-shrink:0;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.25);border-radius:8px;padding:7px;cursor:pointer;color:var(--priority-high);display:flex;align-items:center;justify-content:center;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button>
                 </div>`;
           }).join('')
         }
@@ -23874,7 +23874,7 @@
         + '<div style="font-size:13px;color:var(--text-secondary);line-height:1.5;margin-bottom:20px;">Are you sure you want to close the app?</div>'
         + '<div style="display:flex;gap:10px;justify-content:flex-end;">'
         + '<button onclick="document.getElementById(\'exit-dialog\').remove()" style="padding:10px 20px;border-radius:10px;border:1px solid var(--border);background:transparent;color:var(--text-secondary);font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;">Cancel</button>'
-        + '<button onclick="_exitApp()" style="padding:10px 20px;border-radius:10px;border:none;background:#ef4444;color:#fff;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;">Exit</button>'
+        + '<button onclick="_exitApp()" style="padding:10px 20px;border-radius:10px;border:none;background:var(--priority-high);color:#fff;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;">Exit</button>'
         + '</div></div>';
       overlay.addEventListener('click', function(e) { if (e.target === overlay) overlay.remove(); });
       document.body.appendChild(overlay);
@@ -24102,7 +24102,7 @@
               <svg width="18" height="18" viewBox="0 0 48 48" style="flex-shrink:0"><path fill="#fff" d="M44.5 20H24v8.5h11.8C34.7 33.9 30.1 37 24 37c-7.2 0-13-5.8-13-13s5.8-13 13-13c3.1 0 5.9 1.1 8.1 2.9l6.4-6.4C34.6 4.1 29.6 2 24 2 11.8 2 2 11.8 2 24s9.8 22 22 22c11 0 21-8 21-22 0-1.3-.2-2.7-.5-4z"/></svg>
               Sign in with Google
             </button>
-            <div id="login-error-msg" style="display:none;margin-top:14px;padding:10px 12px;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);border-radius:8px;font-size:11px;color:#ef4444;text-align:left;word-break:break-all;"></div>
+            <div id="login-error-msg" style="display:none;margin-top:14px;padding:10px 12px;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);border-radius:8px;font-size:11px;color:var(--priority-high);text-align:left;word-break:break-all;"></div>
             <p style="margin-top:18px;font-size:11px;color:var(--text-muted);line-height:1.5;">By signing in you agree to our <a href="privacy.html" target="_blank" style="color:var(--accent);text-decoration:none;">Privacy Policy</a>. We store your work data in Firebase to sync across your devices. No ads, no data sharing.</p>
           </div>
         </div>`;
@@ -24284,7 +24284,7 @@
       const n = state.conflicts.filter(c => !c.resolved).length; // unresolved count
 
       const emptyHtml = `<div class="conflicts-empty">
-        <div class="conflicts-empty-icon" style="color:#16A34A;display:flex;justify-content:center"><svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>
+        <div class="conflicts-empty-icon" style="color:var(--priority-low-dark);display:flex;justify-content:center"><svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>
         <div class="conflicts-empty-title">All synced</div>
         <div class="conflicts-empty-sub">No conflicts across any section.</div>
       </div>`;
@@ -24292,7 +24292,7 @@
       // Banner shown when all conflicts are resolved (but still in list)
       const allResolvedBanner = (total > 0 && n === 0) ? `<div class="conflict-resolved-banner">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-        <span style="font-size:13px;font-weight:700;color:#16A34A">All ${total} conflict${total > 1 ? 's' : ''} resolved</span>
+        <span style="font-size:13px;font-weight:700;color:var(--priority-low-dark)">All ${total} conflict${total > 1 ? 's' : ''} resolved</span>
       </div>` : '';
 
       // Group conflicts by section so each section appears only once.
@@ -24467,14 +24467,14 @@
       // Bulk resolve buttons — only when unresolved conflicts remain
       const bulkActionsHtml = n > 0 ? `<div class="c-bulk-actions">
         <button onclick="_resolveAllConflicts('cloud')" style="flex:1;padding:9px 10px;border-radius:10px;font-size:13px;font-weight:700;border:1.5px solid var(--accent);color:var(--accent);background:rgba(45,107,228,0.08);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;font-family:inherit">${_cIcons.cloudDown} Use Cloud All</button>
-        <button onclick="_resolveAllConflicts('keep')" style="flex:1;padding:9px 10px;border-radius:10px;font-size:13px;font-weight:700;border:1.5px solid #16A34A;color:#16A34A;background:rgba(22,163,74,0.08);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;font-family:inherit">${_cIcons.check} Keep All Mine</button>
+        <button onclick="_resolveAllConflicts('keep')" style="flex:1;padding:9px 10px;border-radius:10px;font-size:13px;font-weight:700;border:1.5px solid var(--priority-low-dark);color:var(--priority-low-dark);background:rgba(22,163,74,0.08);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;font-family:inherit">${_cIcons.check} Keep All Mine</button>
       </div>` : '';
 
       return `
         <div style="background:var(--bg-card);border-bottom:1px solid var(--border);padding:14px 16px 12px;display:flex;align-items:center;gap:10px">
           <button class="back-btn" onclick="setView(state.prevView || 'week')"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
           <span style="font-size:17px;font-weight:800;flex:1;color:var(--text-primary)">Sync Conflicts</span>
-          ${n > 0 ? `<span style="background:#DC2626;color:#fff;border-radius:10px;padding:2px 9px;font-size:12px;font-weight:800">${n}</span>` : ''}
+          ${n > 0 ? `<span style="background:var(--priority-high-dark);color:#fff;border-radius:10px;padding:2px 9px;font-size:12px;font-weight:800">${n}</span>` : ''}
         </div>
         ${n > 0 ? `<div style="padding:10px 16px 6px;font-size:12px;color:var(--text-secondary)">These items differ between this device and the cloud. Tap each to review and choose which version to keep.</div>` : ''}
         ${allResolvedBanner}
@@ -24790,7 +24790,7 @@
 
       // Due date status
       const dueStatusHtml = due
-        ? `<span style="color:${(typeof isNoteOverdue === 'function' && isNoteOverdue(note)) ? '#ef4444' : '#64748b'};font-weight:500;font-size:12px;display:flex;align-items:center;gap:3px"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>${typeof formatDueStatus === 'function' ? formatDueStatus(note) : esc(due)}</span>`
+        ? `<span style="color:${(typeof isNoteOverdue === 'function' && isNoteOverdue(note)) ? 'var(--priority-high)' : 'var(--text-slate)'};font-weight:500;font-size:12px;display:flex;align-items:center;gap:3px"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>${typeof formatDueStatus === 'function' ? formatDueStatus(note) : esc(due)}</span>`
         : '';
 
       // Badges row (pin + tag + due date) — mirrors the real note card's second meta row
@@ -25869,7 +25869,7 @@
           if (isH) {
             // Trim the last HTML block
             const lastTag = noteBodyRaw.lastIndexOf('</');
-            return lastTag > 0 ? noteBodyRaw.slice(0, lastTag).trimEnd() + ' <em style="color:#94a3b8">[cloud — older, missing recent edits]</em>' : noteBodyRaw;
+            return lastTag > 0 ? noteBodyRaw.slice(0, lastTag).trimEnd() + ' <em style="color:var(--text-dim)">[cloud — older, missing recent edits]</em>' : noteBodyRaw;
           }
           const lines = noteBodyRaw.split('\n');
           return lines.slice(0, Math.max(1, lines.length - 1)).join('\n') + '\n[cloud — older version]';
@@ -25888,7 +25888,7 @@
 
         // 2b. Notes — second variant: cloud has a totally different body (heavy edit)
         const noteB_local = '<p><strong>Generator service — Site 14</strong></p><p>Oil level: <em>OK</em></p><p>Coolant: <em>OK</em></p><p>Battery: 12.7V — healthy</p><p>Fuel: 78%</p><p>Run hours: 412</p><p>Action: Schedule full service in 100 hours.</p>';
-        const noteB_remote = '<p><strong>Generator service — Site 14</strong></p><p>Oil level: <em>LOW</em> — topped up 0.5L</p><p>Coolant: <em>OK</em></p><p>Battery: 12.4V — flagged for replacement</p><p>Fuel: 65%</p><p>Action: Order new battery, schedule full service.</p><p style="color:#94a3b8"><em>[different device, last edited 2 days ago]</em></p>';
+        const noteB_remote = '<p><strong>Generator service — Site 14</strong></p><p>Oil level: <em>LOW</em> — topped up 0.5L</p><p>Coolant: <em>OK</em></p><p>Battery: 12.4V — flagged for replacement</p><p>Fuel: 65%</p><p>Action: Order new battery, schedule full service.</p><p style="color:var(--text-dim)"><em>[different device, last edited 2 days ago]</em></p>';
         const noteB_localObj = { id: 'test_note_2', description: 'Generator service — Site 14', noteContent: noteB_local, location: 'Site 14', date: '2026-04-04', dueDate: '2026-04-14', priority: 'high', status: 'open', category: 'fault' };
         const noteB_remoteObj = { id: 'test_note_2', description: 'Generator service — Site 14', noteContent: noteB_remote, location: 'Site 14', date: '2026-04-04', dueDate: '2026-04-14', priority: 'high', status: 'open', category: 'fault' };
         _registerConflict({
@@ -25927,7 +25927,7 @@
           const isH = /<[a-z]/i.test(pageBodyRaw);
           if (isH) {
             const lastTag = pageBodyRaw.lastIndexOf('</');
-            return lastTag > 0 ? pageBodyRaw.slice(0, lastTag).trimEnd() + ' <em style="color:#94a3b8">[cloud — older, missing recent edits]</em>' : pageBodyRaw;
+            return lastTag > 0 ? pageBodyRaw.slice(0, lastTag).trimEnd() + ' <em style="color:var(--text-dim)">[cloud — older, missing recent edits]</em>' : pageBodyRaw;
           }
           const lines = pageBodyRaw.split('\n');
           return lines.slice(0, Math.max(1, lines.length - 1)).join('\n') + '\n[cloud — older version]';
@@ -25954,7 +25954,7 @@
 
         // 3b. Notebooks — second variant: brand new page on local, doesn't exist in cloud
         const pageB_local = '<h2>Training — IR Camera Course</h2><p>Date: 4 Apr 2026</p><p>Trainer: Mike O\'B</p><p>Topics covered:</p><ul><li>Thermal imaging principles</li><li>Hot spot identification</li><li>Reporting templates</li></ul><p>Cert valid 2 years.</p>';
-        const pageB_remote = '<p style="color:#94a3b8"><em>(no cloud version — page only exists on this device)</em></p>';
+        const pageB_remote = '<p style="color:var(--text-dim)"><em>(no cloud version — page only exists on this device)</em></p>';
         const pageB_localObj = { id: 'test_page_2', title: 'IR Camera Course — Training', noteContent: pageB_local, notebookId: 'test_nb_training', sectionId: 'test_sec_certs', date: '2026-04-04' };
         const pageB_remoteObj = { id: 'test_page_2', title: 'IR Camera Course — Training', noteContent: pageB_remote, notebookId: 'test_nb_training', sectionId: 'test_sec_certs', date: '2026-04-04' };
         _registerConflict({
@@ -26308,7 +26308,7 @@
       const iconClass = s._label === 'manual' ? 'snap-manual'
         : s._label === 'pre-restore' ? 'snap-pre-restore' : 'snap-auto';
       const label = s._label === 'manual' ? ' <span class="snap-tag" style="background:rgba(16,185,129,0.12);color:#059669;">manual</span>'
-        : s._label === 'pre-restore' ? ' <span class="snap-tag" style="background:rgba(251,146,60,0.15);color:#f97316;">pre-restore</span>'
+        : s._label === 'pre-restore' ? ' <span class="snap-tag" style="background:rgba(251,146,60,0.15);color:var(--priority-medium);">pre-restore</span>'
           : '';
       const d = new Date(s._savedAt);
       const timeStr = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
@@ -26571,7 +26571,7 @@
       const opacity = disabled ? 'opacity:0.4;' : '';
       const countHtml = count ? `<span style="font-size:13px;color:var(--text-secondary);white-space:nowrap">${esc(count)}</span>` : '';
       return `<label style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);cursor:${disabled ? 'default' : 'pointer'};${opacity}">
-        <input type="checkbox" id="${id}" ${checked ? 'checked' : ''} ${disabled ? 'disabled' : ''} style="width:20px;height:20px;accent-color:#F5A623;cursor:${disabled ? 'default' : 'pointer'};flex-shrink:0">
+        <input type="checkbox" id="${id}" ${checked ? 'checked' : ''} ${disabled ? 'disabled' : ''} style="width:20px;height:20px;accent-color:var(--text-ot);cursor:${disabled ? 'default' : 'pointer'};flex-shrink:0">
         <span style="display:flex;align-items:center;color:var(--text-secondary);flex-shrink:0">${icon}</span>
         <span style="flex:1;font-size:15px;color:${disabled ? 'var(--text-secondary)' : 'var(--text-primary)'};font-weight:500">${label}</span>
         ${countHtml}
@@ -28063,7 +28063,7 @@
         html += `<div class="oc-stats">
           <div class="oc-stat"><div class="oc-stat-val" style="color:var(--accent)">${totalOnCall + totalExtra}</div><div class="oc-stat-label">On-Call<br>Weeks</div></div>
           <div class="oc-stat"><div class="oc-stat-val" style="color:#F59E0B">${totalExtra}</div><div class="oc-stat-label">Extra<br>Shifts</div></div>
-          <div class="oc-stat"><div class="oc-stat-val" style="color:#EF4444">${totalIncidents}</div><div class="oc-stat-label">Total<br>Incidents</div></div>
+          <div class="oc-stat"><div class="oc-stat-val" style="color:var(--priority-high)">${totalIncidents}</div><div class="oc-stat-label">Total<br>Incidents</div></div>
           <div class="oc-stat"><div class="oc-stat-val" style="color:#8B5CF6">${avgPerWeek}</div><div class="oc-stat-label">Avg /<br>Week</div></div>
         </div>`;
         html += `</div>`;
@@ -34663,7 +34663,7 @@ The state block is invisible to the user.`;
           </svg>
         </button>
         <button onclick="closeNoteFullscreen()"
-          style="font-size:13px;color:#fff;padding:5px 14px;border-radius:8px;background:#F5A623;border:none;cursor:pointer;font-weight:700;flex-shrink:0;">Done</button>
+          style="font-size:13px;color:#fff;padding:5px 14px;border-radius:8px;background:var(--text-ot);border:none;cursor:pointer;font-weight:700;flex-shrink:0;">Done</button>
       </div>
       <!-- TipTap toolbar row + colour dropdown wrapper -->
       <div class="tt-toolbar-wrap">
@@ -34889,7 +34889,7 @@ The state block is invisible to the user.`;
               <line x1="7" y1="15.5" x2="13" y2="15.5" />
             </svg>
           </button>
-          <button class="tt-btn" id="tt-row-del" title="Delete row" style="color:#ef4444">
+          <button class="tt-btn" id="tt-row-del" title="Delete row" style="color:var(--priority-high)">
             <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
               stroke-linejoin="round">
               <rect x="2" y="6" width="16" height="8" rx="1.5" />
@@ -34915,7 +34915,7 @@ The state block is invisible to the user.`;
               <line x1="15.5" y1="7" x2="15.5" y2="13" />
             </svg>
           </button>
-          <button class="tt-btn" id="tt-col-del" title="Delete column" style="color:#ef4444">
+          <button class="tt-btn" id="tt-col-del" title="Delete column" style="color:var(--priority-high)">
             <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
               stroke-linejoin="round">
               <rect x="6" y="2" width="8" height="16" rx="1.5" />
@@ -34953,7 +34953,7 @@ The state block is invisible to the user.`;
           <span class="tt-tbl-label" style="font-size:10px;opacity:0.7;">Cell</span>
           <button class="tt-swatch" id="tt-cell-bg-none" style="background:var(--bg-page);border-color:var(--border)"
             title="No fill"></button>
-          <button class="tt-swatch" id="tt-cell-bg-white" style="background:#ffffff;border-color:#e2e8f0"
+          <button class="tt-swatch" id="tt-cell-bg-white" style="background:#ffffff;border-color:var(--border-strong)"
             title="White"></button>
           <button class="tt-swatch" id="tt-cell-bg-blue" style="background:#dbeafe" title="Blue"></button>
           <button class="tt-swatch" id="tt-cell-bg-green" style="background:#dcfce7" title="Green"></button>
@@ -34962,7 +34962,7 @@ The state block is invisible to the user.`;
           <button class="tt-swatch" id="tt-cell-bg-purple" style="background:#ede9fe" title="Purple"></button>
           <button class="tt-swatch" id="tt-cell-bg-gray" style="background:#f1f5f9" title="Gray"></button>
           <div class="tt-sep"></div>
-          <button class="tt-btn" id="tt-table-del" title="Delete table" style="color:#ef4444">
+          <button class="tt-btn" id="tt-table-del" title="Delete table" style="color:var(--priority-high)">
             <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
               stroke-linejoin="round">
               <rect x="2" y="2" width="16" height="16" rx="1.5" />
@@ -35108,7 +35108,7 @@ The state block is invisible to the user.`;
           <button class="tt-swatch" id="tt-col-green" style="background:#2e7d32" title="Green"></button>
           <button class="tt-swatch" id="tt-col-blue" style="background:#1565c0" title="Blue"></button>
           <button class="tt-swatch" id="tt-col-purple" style="background:#6a1b9a" title="Purple"></button>
-          <button class="tt-swatch" id="tt-col-reset" style="background:#94a3b8;border-color:#cbd5e1"
+          <button class="tt-swatch" id="tt-col-reset" style="background:var(--text-dim);border-color:var(--text-secondary)"
             title="Default colour"></button>
           <div class="tt-sep"></div>
           <span class="tt-colors-label">🖊</span>
@@ -35118,7 +35118,7 @@ The state block is invisible to the user.`;
           <button class="tt-swatch" id="tt-hl-blue" style="background:#bfdbfe" title="Blue"></button>
           <button class="tt-swatch" id="tt-hl-purple" style="background:#e9d5ff" title="Purple"></button>
           <button class="tt-swatch" id="tt-hl-orange" style="background:#fed7aa" title="Orange"></button>
-          <button class="tt-swatch" id="tt-hl-reset" style="background:#f1f5f9;border-color:#cbd5e1"
+          <button class="tt-swatch" id="tt-hl-reset" style="background:#f1f5f9;border-color:var(--text-secondary)"
             title="Remove highlight"></button>
         </div>
       </div><!-- end tt-toolbar-wrap -->
