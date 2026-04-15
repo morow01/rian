@@ -128,6 +128,28 @@
       /* Alpha variants of blue (due date chips, info) */
       --blue-alpha-10: rgba(96, 165, 250, 0.10);
       --blue-alpha-40: rgba(96, 165, 250, 0.40);
+      /* ── TipTap prose content theming (v5.6.14) ── */
+      --prose-h1-color: #1C1917;
+      --prose-h1-ribbon: #D97706;
+      --prose-h2-color: #92400E;
+      --prose-h2-underline: #FDE68A;
+      --prose-h3-color: #928982;
+      --prose-hr-color: #E8E6E0;
+      --prose-blockquote-bg: #F5F4F0;
+      --prose-blockquote-border: rgba(0, 0, 0, 0.15);
+      --prose-code-bg: #F5F4F0;
+      --prose-code-text: #3A3836;
+      --prose-code-block-bg: #1C1B19;
+      --prose-code-block-text: #D4D0C8;
+      --table-header-bg: #F5F4F0;
+      --table-header-text: #6B6860;
+      --table-border: #E2E0DA;
+      --table-border-light: #dcdad4;
+      --table-row-hover-bg: #FAFAF8;
+      --tt-btn-active-bg: #ede9fe;
+      --tt-btn-active-color: #818cf8;
+      --tt-table-bar-bg: #f8f7ff;
+      --tt-sel-bar-border: #c7d2fe;
     }
 
     /* Force .font-mono to use the theme font instead of Tailwind's monospace stack.
@@ -1905,6 +1927,29 @@
       --slate-alpha-40: rgba(148, 163, 184, 0.40);
       --blue-alpha-10: rgba(96, 165, 250, 0.18);
       --blue-alpha-40: rgba(96, 165, 250, 0.40);
+
+      /* TipTap prose theming — dark mode */
+      --prose-h1-color: #f1f5f9;
+      --prose-h1-ribbon: #fbbf24;
+      --prose-h2-color: #fbbf24;
+      --prose-h2-underline: #78350f;
+      --prose-h3-color: #94a3b8;
+      --prose-hr-color: #334155;
+      --prose-blockquote-bg: #273449;
+      --prose-blockquote-border: rgba(255, 255, 255, 0.15);
+      --prose-code-bg: #0f172a;
+      --prose-code-text: #e2e8f0;
+      --prose-code-block-bg: #0f172a;
+      --prose-code-block-text: #e2e8f0;
+      --table-header-bg: #273449;
+      --table-header-text: #cbd5e1;
+      --table-border: #334155;
+      --table-border-light: #273449;
+      --table-row-hover-bg: #273449;
+      --tt-btn-active-bg: #1e3a8a;
+      --tt-btn-active-color: #93c5fd;
+      --tt-table-bar-bg: #0f172a;
+      --tt-sel-bar-border: #1e3a8a;
     }
 
     [data-theme="dark"] body {
@@ -5332,8 +5377,8 @@
     }
 
     .tt-btn.tt-active {
-      background: #ede9fe;
-      color: #818cf8;
+      background: var(--tt-btn-active-bg);
+      color: var(--tt-btn-active-color);
     }
 
     .tt-btn svg {
@@ -5402,8 +5447,8 @@
     }
 
     .tt-list-item.tt-active {
-      background: #ede9fe;
-      color: #818cf8;
+      background: var(--tt-btn-active-bg);
+      color: var(--tt-btn-active-color);
     }
 
     /* Heading dropdown — visual style previews */
@@ -5505,8 +5550,8 @@
       font-weight: 800;
       letter-spacing: -0.03em;
       line-height: 1.25;
-      color: #1C1917;
-      border-left: 4px solid #D97706;
+      color: var(--prose-h1-color);
+      border-left: 4px solid var(--prose-h1-ribbon);
       padding-left: 12px;
       margin-bottom: 14px;
       display: block;
@@ -5516,8 +5561,8 @@
       font-size: 15px;
       font-weight: 600;
       line-height: 1.3;
-      color: #92400E;
-      border-bottom: 1.5px solid #FDE68A;
+      color: var(--prose-h2-color);
+      border-bottom: 1.5px solid var(--prose-h2-underline);
       padding-bottom: 3px;
       margin-bottom: 8px;
       display: inline-block;
@@ -5529,14 +5574,14 @@
       text-transform: uppercase;
       letter-spacing: 0.08em;
       line-height: 1.4;
-      color: #928982;
+      color: var(--prose-h3-color);
       margin-bottom: 6px;
       display: block;
     }
 
     :is(#note-fs-editor .ProseMirror, .tt-prose) hr {
       border: none;
-      border-top: 1px solid #E8E6E0;
+      border-top: 1px solid var(--prose-hr-color);
       margin: 20px 0;
     }
 
@@ -5565,11 +5610,11 @@
     }
 
     :is(#note-fs-editor .ProseMirror, .tt-prose) blockquote {
-      border-left: 2.5px solid rgba(0, 0, 0, 0.15);
+      border-left: 2.5px solid var(--prose-blockquote-border);
       padding: 10px 16px;
-      background: #F5F4F0;
+      background: var(--prose-blockquote-bg);
       border-radius: 0 8px 8px 0;
-      color: #5C5A56;
+      color: var(--text-secondary);
       line-height: 1.7;
       font-style: italic;
       margin: 8px 0;
@@ -5740,7 +5785,7 @@
       gap: 8px;
       padding: 8px 14px 10px;
       background: var(--bg-card);
-      border-top: 1.5px solid #c7d2fe;
+      border-top: 1.5px solid var(--tt-sel-bar-border);
       animation: ttAiSlideUp 0.18s ease;
     }
 
@@ -5983,11 +6028,11 @@
     :is(#note-fs-editor .ProseMirror, .tt-prose) code {
       font-family: 'DM Mono', monospace;
       font-size: 12px;
-      background: #F5F4F0;
-      border: 1px solid rgba(0, 0, 0, 0.08);
+      background: var(--prose-code-bg);
+      border: 1px solid rgba(var(--shadow-rgb), 0.08);
       border-radius: 5px;
       padding: 2px 7px;
-      color: var(--text-warm);
+      color: var(--prose-code-text);
     }
 
     :is(#note-fs-editor .ProseMirror, .tt-prose) mark {
@@ -6036,8 +6081,8 @@
 
     /* Code block */
     :is(#note-fs-editor .ProseMirror, .tt-prose) pre {
-      background: #1C1B19;
-      color: #D4D0C8;
+      background: var(--prose-code-block-bg);
+      color: var(--prose-code-block-text);
       border-radius: 10px;
       padding: 16px 18px;
       font-size: 12.5px;
@@ -6199,16 +6244,16 @@
     }
 
     :is(#note-fs-editor .ProseMirror, .tt-prose) th {
-      background: #F5F4F0;
+      background: var(--table-header-bg);
       text-align: left;
       font-weight: 600;
       font-size: 11px;
       letter-spacing: 0.06em;
       text-transform: uppercase;
-      color: #6B6860;
+      color: var(--table-header-text);
       padding: 6px 6px !important;
-      border-bottom: 2px solid #E2E0DA;
-      border-right: 1px solid #E2E0DA;
+      border-bottom: 2px solid var(--table-border);
+      border-right: 1px solid var(--table-border);
     }
 
     :is(#note-fs-editor .ProseMirror, .tt-prose) th:last-child {
@@ -6218,8 +6263,8 @@
     :is(#note-fs-editor .ProseMirror, .tt-prose) td {
       padding: 6px 6px !important;
       color: var(--text-warm);
-      border-bottom: 1px solid #dcdad4;
-      border-right: 1px solid #dcdad4;
+      border-bottom: 1px solid var(--table-border-light);
+      border-right: 1px solid var(--table-border-light);
     }
 
     :is(#note-fs-editor .ProseMirror, .tt-prose) td:last-child {
@@ -6235,7 +6280,7 @@
     }
 
     :is(#note-fs-editor .ProseMirror, .tt-prose) tbody tr:hover td {
-      background: #FAFAF8;
+      background: var(--table-row-hover-bg);
     }
 
     #note-fs-editor .ProseMirror .selectedCell::after {
@@ -6256,7 +6301,7 @@
     /* Table context bar */
     #note-fs-tt-table-bar {
       border-bottom: 1px solid var(--border);
-      background: #f8f7ff;
+      background: var(--tt-table-bar-bg);
       padding: 4px 8px;
       flex-shrink: 0;
       display: none;
@@ -13672,7 +13717,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.6.13';
+    const VERSION = '5.6.14';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
