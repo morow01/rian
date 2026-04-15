@@ -13529,7 +13529,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.5.28';
+    const VERSION = '5.5.29';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -33339,10 +33339,54 @@ QUESTION: ${query}`;
           afterSpeak();
         }
       };
-      // Backoff if a recent attempt just failed — retry Gemini after 30s gap
+
+      // Middle tier: Google Cloud Text-to-Speech (same API key, WaveNet voices,
+      // much higher quotas than preview Gemini TTS). Requires Cloud TTS API
+      // enabled in the Google Cloud project — if not, returns 403 and we drop
+      // to browser TTS.
+      const useCloudTTS = async () => {
+        const gemVoice = _batteryChat?.voice || 'Puck';
+        // Map Gemini voice names to closest Cloud TTS male/female WaveNet voice
+        const femaleGem = /^(Aoede|Kore|Leda|Callirrhoe)$/i;
+        const cloudVoice = femaleGem.test(gemVoice)
+          ? 'en-GB-Wavenet-A'   // female British
+          : 'en-GB-Wavenet-B';  // male British
+        try {
+          const resp = await fetch(
+            `https://texttospeech.googleapis.com/v1/text:synthesize?key=${state.geminiKey}`,
+            {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                input: { text },
+                voice: { languageCode: 'en-GB', name: cloudVoice },
+                audioConfig: { audioEncoding: 'MP3', speakingRate: 1, pitch: 0 }
+              })
+            }
+          );
+          if (!resp.ok) throw new Error('Cloud TTS ' + resp.status);
+          const data = await resp.json();
+          const b64 = data.audioContent;
+          if (!b64) throw new Error('no audioContent');
+          const bytes = Uint8Array.from(atob(b64), c => c.charCodeAt(0));
+          const blob = new Blob([bytes], { type: 'audio/mpeg' });
+          const audio = new Audio(URL.createObjectURL(blob));
+          _batteryCurrentAudio = audio;
+          let done = false;
+          const finish = () => { if (done) return; done = true; try { URL.revokeObjectURL(audio.src); } catch {} afterSpeak(); };
+          audio.onended = finish;
+          audio.onerror = () => { done = true; try { URL.revokeObjectURL(audio.src); } catch {} useBrowserTTS(); };
+          try { await audio.play(); console.log('[Battery] Cloud TTS playing'); return true; }
+          catch { try { URL.revokeObjectURL(audio.src); } catch {} useBrowserTTS(); return true; }
+        } catch (e) {
+          console.log('[Battery] Cloud TTS failed:', e.message);
+          return false;
+        }
+      };
+      // Backoff if a recent Gemini attempt just failed — try Cloud TTS then browser
       const now = Date.now();
       if (_batteryChat && _batteryChat._ttsBackoffUntil && now < _batteryChat._ttsBackoffUntil) {
-        useBrowserTTS();
+        if (!(await useCloudTTS())) useBrowserTTS();
         return;
       }
       // 5-second timeout so we don't hang too long on failures
@@ -33381,11 +33425,9 @@ QUESTION: ${query}`;
         await _batteryPlayPCM(pcm, 24000, afterSpeak, useBrowserTTS);
       } catch (e) {
         clearTimeout(tmo);
-        console.log('[Battery] Gemini TTS failed, falling back:', e.message);
-        // Short 30s backoff — next attempt within that window skips Gemini.
-        // After that, try again so transient errors don't lock us out.
+        console.log('[Battery] Gemini TTS failed, trying Cloud TTS:', e.message);
         if (_batteryChat) _batteryChat._ttsBackoffUntil = Date.now() + 30000;
-        useBrowserTTS();
+        if (!(await useCloudTTS())) useBrowserTTS();
       }
     }
 
