@@ -13529,7 +13529,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.5.29';
+    const VERSION = '5.5.30';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -18575,9 +18575,11 @@
     }
 
     function openNoteReminder(noteId) {
+      console.log('[Remind] openNoteReminder', noteId);
+      showToast('Opening reminder…');
       remindState.voiceMode = false;
       const note = state.notes.find(n => n.id === noteId);
-      if (!note) return;
+      if (!note) { showToast('Note not found: ' + noteId); return; }
       remindState.noteId = noteId;
       const desc = note.description || 'Unnamed';
       const loc = note.location || '';
