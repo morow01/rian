@@ -16,9 +16,11 @@ A Progressive Web App for field technicians — timesheets, notes (TipTap rich t
 
 ## Version
 `const VERSION = 'x.y.z'` in `app.html` (~line 13965). Bump on every change. Only location that needs updating (index.html version references are static).
-Current version: **5.6.0**
+Current version: **5.6.17**
 
-**Theme migration in progress** — see [`docs/theme-migration-plan.md`](docs/theme-migration-plan.md) for the step-by-step plan (v5.6.0–5.6.13).
+**Theme migration in progress** — see [`docs/theme-migration-plan.md`](docs/theme-migration-plan.md) for the completed steps and remaining work. Two themes are active: `claude` (default light) and `dark` (slate-based). Theme picker lives in ☰ menu → Display. Switcher at `setTheme(key)`, registry at `THEME_META`.
+
+**Known remaining dark-theme gaps** (as of 5.6.17): scattered inline `style="..."` attributes in JS template literals still carry hardcoded hex colors for pill backgrounds, menu rows, chips, and various dynamically-rendered elements. Fixing these requires finding each occurrence in the JS render code (not the CSS blocks) and swapping the hex for the appropriate CSS variable. The "3 tasks" pill (line 17487) was one example — it had `style="background:#EDF1F5;color:#5A7289"` that beat the `.pill-slate` CSS rule. Future work: a sweep of all inline `style="background:#..."` / `style="color:#..."` occurrences to replace with `var(--...)`.
 
 ## Git
 - Remote: `https://github.com/morow01/rian.git`, branch: `main`

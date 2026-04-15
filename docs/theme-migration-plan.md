@@ -105,3 +105,22 @@ Gaps found during audit that should become themable:
 - **v5.6.14** — TipTap fullscreen editor dark-theme pass. Added prose-specific vars (`--prose-h1/h2/h3-color`, `--prose-h1-ribbon`, `--prose-h2-underline`, `--prose-hr-color`, `--prose-blockquote-bg/-border`, `--prose-code-bg/-text`, `--prose-code-block-bg/-text`, `--table-header-bg/-text`, `--table-border/-border-light`, `--table-row-hover-bg`, `--tt-btn-active-bg/-color`, `--tt-table-bar-bg`, `--tt-sel-bar-border`). Migrated h1/h2/h3, hr, blockquote, inline code, code block, th/td borders, row hover, table bar, toolbar active button, list active item, selection bar border. Overridden in `[data-theme="dark"]` with slate/amber values that read on dark backgrounds. Headings + tables + code blocks now legible in dark mode.
 - **v5.6.15** — Day/task pills theme-aware. `.pill-slate`, `.pill-blue`, `.pill-amber`, `.pill-hrs`, `.pill-ot` migrated to variables. Added `--pill-slate-bg/-color` and `--pill-amber-color` (others already had variables via `--accent-chip-bg/-text`, `--accent`, `--bg-ot`). Dark overrides: slate pill `#273449`/`#cbd5e1`, amber text `#fbbf24`. Blue/hrs pills automatically adapt via accent-chip vars.
 - **v5.6.16** — Day number badge + task number badge theme-aware. `.date-badge` (showing 10/11/12…) and `.task-num` (showing 1/2/3…) both migrated from hardcoded slate colours to new `--date-badge-bg/-color` and `--task-num-bg/-color` variables. Dark overrides use slate-600/200 instead of slate-300/white. `.task-num.ot` now uses `--bg-ot` + `--text-ot`.
+- **v5.6.17** — First inline-style pill fix. Line 17487 had `<span class="pill-hrs" style="background:#EDF1F5;color:#5A7289">3 tasks</span>` — the inline style beat the `.pill-slate` CSS rule, so the pill stayed light even in dark theme. Swapped inline hex for `var(--pill-slate-bg/-color)`. Also fixed Sync Conflicts menu row (amber + red badge hardcodes → theme vars).
+
+## Still to do — inline-style sweep
+
+**The CSS-block migration is 90% done.** The remaining dark-mode issues are **inline `style="..."` attributes inside JavaScript template literals**. Examples:
+- `style="background:#FEF3DC"` for warn-coloured menu rows
+- `style="color:#D97706"` for warn icon text
+- `style="background:rgba(45,107,228,0.1)"` for chip backgrounds
+- `style="background:#DC2626;color:#fff"` for badge counters
+- `style="color:#94a3b8"` for muted text in dynamically-rendered rows
+
+To find them all: grep for `style="[^"]*#[0-9a-fA-F]` or `style="[^"]*rgba(` across the file. Then for each:
+1. Decide if the colour is structural (needs migration) or brand/status (stays hardcoded)
+2. If structural, swap `#HEX` for the appropriate `var(--name)`
+3. Test in both themes
+
+Chrome DevTools with the live app is the fastest way to find what's still hardcoded — hover over any spot that looks wrong in dark mode and inspect the element.
+
+Target for the next pass: scan the top ~10 most-visible views (week/timesheet, notes, journal, routines, callouts, search, AI assistant, reminder modal, note fullscreen, battery recorder) and fix their inline styles.
