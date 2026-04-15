@@ -154,6 +154,11 @@
       --pill-slate-bg: #EDF1F5;
       --pill-slate-color: #5A7289;
       --pill-amber-color: #C07800;
+      /* Date + task number badges */
+      --date-badge-bg: #95a6c1;
+      --date-badge-color: #ffffff;
+      --task-num-bg: #EAECEF;
+      --task-num-color: #5A7289;
     }
 
     /* Force .font-mono to use the theme font instead of Tailwind's monospace stack.
@@ -228,8 +233,8 @@
       height: 40px;
       min-width: 40px;
       border-radius: 10px;
-      background: #95a6c1;
-      color: #fff;
+      background: var(--date-badge-bg);
+      color: var(--date-badge-color);
       flex-shrink: 0;
       transition: background 0.2s;
     }
@@ -239,7 +244,7 @@
     }
 
     .day-weekend .date-badge {
-      background: #95a6c1;
+      background: var(--date-badge-bg);
       opacity: 0.65;
     }
 
@@ -1502,8 +1507,8 @@
       width: 30px;
       height: 30px;
       border-radius: 8px;
-      background: #EAECEF;
-      color: #5A7289;
+      background: var(--task-num-bg);
+      color: var(--task-num-color);
       font-size: 13px;
       font-weight: 700;
       display: flex;
@@ -1513,8 +1518,8 @@
     }
 
     .task-num.ot {
-      background: #FEF3DC;
-      color: #E59A0D;
+      background: var(--bg-ot);
+      color: var(--text-ot);
     }
 
     /* .day-name and .day-date defined above (no duplicate) */
@@ -1958,6 +1963,11 @@
       --pill-slate-bg: #273449;
       --pill-slate-color: #cbd5e1;
       --pill-amber-color: #fbbf24;
+      /* Date + task number badges — darker bg */
+      --date-badge-bg: #475569;
+      --date-badge-color: #f1f5f9;
+      --task-num-bg: #273449;
+      --task-num-color: #cbd5e1;
     }
 
     [data-theme="dark"] body {
@@ -13725,7 +13735,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.6.15';
+    const VERSION = '5.6.16';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
