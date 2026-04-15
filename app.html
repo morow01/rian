@@ -13529,7 +13529,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.5.30';
+    const VERSION = '5.5.31';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -18660,7 +18660,9 @@
         </div>
       </div>`;
       modal.classList.remove('hidden');
-
+      modal.style.display = '';
+      console.log('[Remind] modal shown', modal);
+      showToast('Modal opened');
     }
 
     function cancelNoteReminder(reminderId) {
