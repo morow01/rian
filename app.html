@@ -150,6 +150,10 @@
       --tt-btn-active-color: #818cf8;
       --tt-table-bar-bg: #f8f7ff;
       --tt-sel-bar-border: #c7d2fe;
+      /* Pills used on day rows & task rows */
+      --pill-slate-bg: #EDF1F5;
+      --pill-slate-color: #5A7289;
+      --pill-amber-color: #C07800;
     }
 
     /* Force .font-mono to use the theme font instead of Tailwind's monospace stack.
@@ -326,18 +330,18 @@
     }
 
     .pill-slate {
-      background: #EDF1F5;
-      color: #5A7289;
+      background: var(--pill-slate-bg);
+      color: var(--pill-slate-color);
     }
 
     .pill-blue {
-      background: #EBF1FD;
-      color: #1A4FB5;
+      background: var(--accent-chip-bg);
+      color: var(--accent-chip-text);
     }
 
     .pill-amber {
-      background: #FEF3DC;
-      color: #C07800;
+      background: var(--bg-ot);
+      color: var(--pill-amber-color);
       font-weight: 500;
     }
 
@@ -347,8 +351,8 @@
       border-radius: 8px;
       font-size: 11px;
       font-weight: 500;
-      background: #EBF1FD;
-      color: #2D6BE4;
+      background: var(--accent-chip-bg);
+      color: var(--accent);
       white-space: nowrap;
     }
 
@@ -357,8 +361,8 @@
       border-radius: 8px;
       font-size: 11px;
       font-weight: 500;
-      background: #FEF3DC;
-      color: #C07800;
+      background: var(--bg-ot);
+      color: var(--pill-amber-color);
       white-space: nowrap;
     }
 
@@ -1950,6 +1954,10 @@
       --tt-btn-active-color: #93c5fd;
       --tt-table-bar-bg: #0f172a;
       --tt-sel-bar-border: #1e3a8a;
+      /* Pills — darker bg with lighter text */
+      --pill-slate-bg: #273449;
+      --pill-slate-color: #cbd5e1;
+      --pill-amber-color: #fbbf24;
     }
 
     [data-theme="dark"] body {
@@ -13717,7 +13725,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.6.14';
+    const VERSION = '5.6.15';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
