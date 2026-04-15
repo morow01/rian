@@ -618,7 +618,7 @@
       text-transform: uppercase;
       letter-spacing: 0.1em;
       color: var(--accent);
-      background: #EBF1FD;
+      background: var(--accent-chip-bg);
       padding: 2px 6px;
       border-radius: 4px;
       margin-bottom: 6px;
@@ -1209,7 +1209,7 @@
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      color: #475569;
+      color: var(--text-secondary);
       font-family: inherit;
     }
 
@@ -1591,7 +1591,7 @@
     .bat-bubble.warn { background: #FEF3C7; color: #92400E; }
     .bat-bubble.thinking { opacity: 0.6; font-style: italic; }
     #battery-mic-btn.listening {
-      background: #EF4444 !important;
+      background: var(--priority-high) !important;
       animation: bat-pulse 1.3s infinite;
     }
     @keyframes bat-pulse {
@@ -2400,7 +2400,7 @@
     }
 
     .menu-row.danger {
-      color: #ef4444;
+      color: var(--priority-high);
     }
 
     .menu-row.danger+.menu-row.danger {
@@ -2468,7 +2468,7 @@
     }
 
     .conflict-global-banner {
-      background: #FEF3DC;
+      background: var(--bg-ot);
       border-bottom: 2px solid #F59E0B;
       padding: 9px 16px;
       display: flex;
@@ -2505,7 +2505,7 @@
       align-items: center;
       padding: 12px 16px;
       border-bottom: 1px solid var(--border);
-      background: #FEF3DC;
+      background: var(--bg-ot);
       gap: 12px;
       cursor: pointer;
     }
@@ -2668,7 +2668,7 @@
     }
 
     .conflict-version-card.local .conflict-version-head {
-      background: #EBF1FD;
+      background: var(--accent-chip-bg);
       border-color: #bdd0f7;
     }
 
@@ -2702,7 +2702,7 @@
 
     .c-tag-only-local {
       border-left: 3px solid var(--accent) !important;
-      background: #EBF1FD !important;
+      background: var(--accent-chip-bg) !important;
     }
 
     .c-tag-only-remote {
@@ -2793,7 +2793,7 @@
 
     .conflict-split-pane.local {
       border: 1px solid var(--accent);
-      background: #EBF1FD;
+      background: var(--accent-chip-bg);
     }
 
     .conflict-split-pane.remote {
@@ -2966,7 +2966,7 @@
     }
 
     .c-day-meta.no-data {
-      color: #DC2626;
+      color: var(--priority-high-dark);
       font-weight: 600;
     }
 
@@ -3167,7 +3167,7 @@
     }
 
     .c-act-row-badge.changed {
-      color: #ef4444;
+      color: var(--priority-high);
       background: rgba(var(--priority-high-rgb), 0.1);
     }
 
@@ -3662,7 +3662,7 @@
     .c-note-ro-diff-badge {
       font-size: 10px;
       font-weight: 700;
-      color: #ef4444;
+      color: var(--priority-high);
       background: rgba(var(--priority-high-rgb), 0.1);
       border-radius: 4px;
       padding: 1px 5px;
@@ -3686,7 +3686,7 @@
 
     .c-act-diff .act-field-label,
     .c-act-diff .act-field-label-ot {
-      color: #ef4444 !important;
+      color: var(--priority-high) !important;
     }
 
     /* Day diff Changes tab */
@@ -4544,7 +4544,7 @@
     }
 
     .sum-td-code-desk.missing {
-      color: #DC2626;
+      color: var(--priority-high-dark);
       text-transform: uppercase;
     }
 
@@ -4563,7 +4563,7 @@
     }
 
     .sum-td-code-mob.missing {
-      color: #DC2626;
+      color: var(--priority-high-dark);
       text-transform: uppercase;
     }
 
@@ -4574,7 +4574,7 @@
     }
 
     .sum-td-desc.missing {
-      color: #DC2626;
+      color: var(--priority-high-dark);
     }
 
     /* Number cells */
@@ -4596,7 +4596,7 @@
     }
 
     .sum-td-num.missing {
-      color: #DC2626;
+      color: var(--priority-high-dark);
     }
 
     /* Total row */
@@ -4744,23 +4744,23 @@
     }
 
     .sum-new-row.sum-missing .sum-row-code {
-      color: #ef4444;
+      color: var(--priority-high);
     }
 
     .sum-new-row.sum-missing .sum-row-desc {
-      color: #ef4444;
+      color: var(--priority-high);
     }
 
     .sum-new-row.sum-missing .sum-td-num {
-      color: #ef4444;
+      color: var(--priority-high);
     }
 
     .sum-new-row.sum-missing .sum-row-bar-fill {
-      background: #ef4444;
+      background: var(--priority-high);
     }
 
     .sum-new-row.sum-missing .sum-row-bar-ot-fill {
-      background: #ef4444;
+      background: var(--priority-high);
       opacity: 0.6;
     }
 
@@ -5337,7 +5337,7 @@
     }
 
     .ai-mic-inline.listening {
-      color: #ef4444;
+      color: var(--priority-high);
     }
 
     /* ── TipTap rich text editor (note fullscreen) ── */
@@ -6066,7 +6066,7 @@
     }
 
     .rdn-btn-danger {
-      background: #ef4444;
+      background: var(--priority-high);
       color: #fff;
     }
 
@@ -6078,7 +6078,7 @@
     }
 
     .rdn-btn-ghost.red {
-      color: #ef4444;
+      color: var(--priority-high);
     }
 
     :is(#note-fs-editor .ProseMirror, .tt-prose) code {
@@ -6447,7 +6447,7 @@
       background: #fafafa;
       cursor: pointer;
       font-size: 10px;
-      color: #475569;
+      color: var(--text-secondary);
       line-height: 1.2;
       text-align: center;
       -webkit-tap-highlight-color: transparent;
@@ -6468,7 +6468,7 @@
     }
 
     .tcp-btn.tcp-del {
-      color: #ef4444;
+      color: var(--priority-high);
     }
 
     .tcp-sep {
@@ -6854,7 +6854,7 @@
     }
 
     .ai-mic-btn.listening {
-      background: #ef4444;
+      background: var(--priority-high);
       color: #fff;
       animation: aiPulse 1.5s infinite;
     }
@@ -6954,7 +6954,7 @@
 
     .finder-mic-btn-inline.listening {
       background: #fee2e2;
-      color: #ef4444;
+      color: var(--priority-high);
       animation: aiPulse 1.5s infinite;
     }
 
@@ -7562,11 +7562,11 @@
 
     .notes-tab .tab-count.bin-count {
       background: rgba(var(--priority-high-rgb), 0.08);
-      color: #ef4444;
+      color: var(--priority-high);
     }
 
     .notes-tab.active .tab-count.bin-count {
-      background: #ef4444;
+      background: var(--priority-high);
       color: #fff;
     }
 
@@ -7769,7 +7769,7 @@
 
     .note-preview-btn.delete {
       background: rgba(var(--priority-high-rgb), 0.08);
-      color: #ef4444;
+      color: var(--priority-high);
     }
 
     /* ── Collapsible filter bar ── */
@@ -7844,7 +7844,7 @@
     }
 
     .nf-pri-high {
-      background: #ef4444;
+      background: var(--priority-high);
     }
 
     .nf-pri-medium {
@@ -8286,7 +8286,7 @@
       font-size: 13px;
       font-weight: 600;
       cursor: pointer;
-      color: #ef4444;
+      color: var(--priority-high);
       transition: background 0.1s;
     }
 
@@ -8321,7 +8321,7 @@
 
     .ncm-action-remove {
       background: rgba(var(--priority-high-rgb), 0.08);
-      color: #ef4444;
+      color: var(--priority-high);
       border: 1.5px solid rgba(var(--priority-high-rgb), 0.35);
     }
 
@@ -8331,7 +8331,7 @@
 
     .ncm-action-edit {
       background: var(--bg-card);
-      color: #475569;
+      color: var(--text-secondary);
       border: 1.5px solid var(--border);
     }
 
@@ -8635,7 +8635,7 @@
 
     .te-row-del:hover,
     .te-row-del:active {
-      color: #ef4444;
+      color: var(--priority-high);
       background: rgba(var(--priority-high-rgb), 0.1);
     }
 
@@ -9106,7 +9106,7 @@
     }
 
     .sec-modal-btn.danger {
-      color: #ef4444;
+      color: var(--priority-high);
       border-color: rgba(var(--priority-high-rgb), 0.3);
     }
 
@@ -9877,7 +9877,7 @@
 
     .jdocx-badge.error {
       background: #fee2e2;
-      color: #dc2626;
+      color: var(--priority-high-dark);
     }
 
     .jdocx-actions {
@@ -9999,7 +9999,7 @@
     }
 
     .j-del-btn:active {
-      color: #ef4444;
+      color: var(--priority-high);
     }
 
     .j-top-bar {
@@ -10157,7 +10157,7 @@
     }
 
     .note-swipe-icon-del {
-      color: #ef4444;
+      color: var(--priority-high);
     }
 
     .note-swipe-bg[data-dir="right"] .note-swipe-icon-done {
@@ -12717,7 +12717,7 @@
 
     .suggest-item-desc {
       font-size: 11px;
-      color: #475569;
+      color: var(--text-secondary);
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -13779,7 +13779,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.6.23';
+    const VERSION = '5.6.24';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
