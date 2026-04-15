@@ -69,18 +69,18 @@
       /* ── Priority / status colours (notes, AI results, sync) ── */
       --priority-high: #ef4444;
       --priority-high-dark: #dc2626;
-      --priority-high-bg: rgba(239, 68, 68, 0.08);
-      --priority-high-bg-strong: rgba(239, 68, 68, 0.1);
-      --priority-high-border: rgba(239, 68, 68, 0.3);
+      --priority-high-bg: rgba(var(--priority-high-rgb), 0.08);
+      --priority-high-bg-strong: rgba(var(--priority-high-rgb), 0.1);
+      --priority-high-border: rgba(var(--priority-high-rgb), 0.3);
       --priority-medium: #f97316;
-      --priority-medium-bg: rgba(249, 115, 22, 0.08);
-      --priority-medium-bg-strong: rgba(249, 115, 22, 0.1);
-      --priority-medium-border: rgba(249, 115, 22, 0.3);
+      --priority-medium-bg: rgba(var(--priority-medium-rgb), 0.08);
+      --priority-medium-bg-strong: rgba(var(--priority-medium-rgb), 0.1);
+      --priority-medium-border: rgba(var(--priority-medium-rgb), 0.3);
       --priority-low: #22c55e;
       --priority-low-dark: #16a34a;
-      --priority-low-bg: rgba(34, 197, 94, 0.08);
-      --priority-low-bg-strong: rgba(34, 197, 94, 0.1);
-      --priority-low-border: rgba(34, 197, 94, 0.3);
+      --priority-low-bg: rgba(var(--priority-low-rgb), 0.08);
+      --priority-low-bg-strong: rgba(var(--priority-low-rgb), 0.1);
+      --priority-low-border: rgba(var(--priority-low-rgb), 0.3);
       /* ── v5.6.x theme-migration additions ── */
       /* Backgrounds */
       --bg-section-muted: #f8fafc;      /* near-white input/preview surface */
@@ -116,12 +116,12 @@
       --gradient-warn-to: #f97316;
       /* Alpha variants of accent — for chips, pills, hover states.
          Chosen to match patterns found in audit (rgba tints at 08/10/30/40). */
-      --accent-alpha-06: rgba(45, 107, 228, 0.06);
-      --accent-alpha-10: rgba(45, 107, 228, 0.10);
-      --accent-alpha-30: rgba(45, 107, 228, 0.30);
+      --accent-alpha-06: rgba(var(--accent-rgb), 0.06);
+      --accent-alpha-10: rgba(var(--accent-rgb), 0.10);
+      --accent-alpha-30: rgba(var(--accent-rgb), 0.30);
       /* Alpha variants of amber/orange (used for active tab, reminders) */
-      --amber-alpha-10: rgba(245, 166, 35, 0.10);
-      --amber-alpha-40: rgba(245, 166, 35, 0.40);
+      --amber-alpha-10: rgba(var(--amber-rgb), 0.10);
+      --amber-alpha-40: rgba(var(--amber-rgb), 0.40);
       /* Alpha variants of slate (passed reminders, muted chips) */
       --slate-alpha-10: rgba(148, 163, 184, 0.10);
       --slate-alpha-40: rgba(148, 163, 184, 0.40);
@@ -172,6 +172,12 @@
       --code-del-text: #BBBBB8;
       --code-add-text: #8A8A88;
       --section-divider: #EBEBEA;
+      /* RGB triples — use as rgba(var(--X-rgb), opacity) for any alpha tint */
+      --accent-rgb: 45, 107, 228;
+      --priority-high-rgb: 239, 68, 68;
+      --priority-low-rgb: 22, 163, 74;
+      --priority-medium-rgb: 249, 115, 22;
+      --amber-rgb: 245, 166, 35;
     }
 
     /* Force .font-mono to use the theme font instead of Tailwind's monospace stack.
@@ -228,7 +234,7 @@
     }
 
     .day-header:active {
-      background: rgba(45, 107, 228, 0.04);
+      background: rgba(var(--accent-rgb), 0.04);
     }
 
     .day-card.expanded .day-header {
@@ -641,7 +647,7 @@
     .group-code-tag {
       font-size: 10px;
       font-family: var(--font-mono);
-      background: rgba(0, 0, 0, 0.05);
+      background: rgba(var(--shadow-rgb), 0.05);
       color: var(--text-muted);
       padding: 2px 6px;
       border-radius: 4px;
@@ -900,7 +906,7 @@
       position: fixed;
       inset: 0;
       z-index: 60;
-      background: rgba(0, 0, 0, 0.4);
+      background: rgba(var(--shadow-rgb), 0.4);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -909,7 +915,7 @@
     }
 
     .note-confirm-sheet {
-      background: #fff;
+      background: var(--bg-card);
       border-radius: 16px;
       width: 100%;
       max-width: 380px;
@@ -982,7 +988,7 @@
       font-size: 13px;
       font-family: inherit;
       color: var(--text-ink);
-      background: #fff;
+      background: var(--bg-card);
     }
 
     .note-confirm-actions {
@@ -995,7 +1001,7 @@
       padding: 12px;
       border-radius: 10px;
       border: 1.5px solid #e2e8f0;
-      background: #fff;
+      background: var(--bg-card);
       font-size: 13px;
       font-weight: 700;
       color: var(--text-slate);
@@ -1134,7 +1140,7 @@
       position: fixed;
       inset: 0;
       z-index: 60;
-      background: rgba(0, 0, 0, 0.4);
+      background: rgba(var(--shadow-rgb), 0.4);
       display: flex;
       align-items: flex-end;
       justify-content: center;
@@ -1142,7 +1148,7 @@
     }
 
     .copy-picker-sheet {
-      background: #fff;
+      background: var(--bg-card);
       border-radius: 20px 20px 0 0;
       width: 100%;
       max-width: 480px;
@@ -1198,7 +1204,7 @@
       height: 30px;
       border-radius: 8px;
       border: 1px solid #e2e8f0;
-      background: #fff;
+      background: var(--bg-card);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -1300,7 +1306,7 @@
       padding: 12px;
       border-radius: 10px;
       border: 1.5px solid #e2e8f0;
-      background: #fff;
+      background: var(--bg-card);
       font-size: 13px;
       font-weight: 700;
       color: var(--text-slate);
@@ -1589,8 +1595,8 @@
       animation: bat-pulse 1.3s infinite;
     }
     @keyframes bat-pulse {
-      0%, 100% { box-shadow: 0 0 0 0 rgba(239,68,68,0.5); }
-      50% { box-shadow: 0 0 0 10px rgba(239,68,68,0); }
+      0%, 100% { box-shadow: 0 0 0 0 rgba(var(--priority-high-rgb), 0.5); }
+      50% { box-shadow: 0 0 0 10px rgba(var(--priority-high-rgb), 0); }
     }
     .bat-result-table {
       width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 10px;
@@ -1627,7 +1633,7 @@
     .note-inline-empty:hover,
     .note-inline-empty:active {
       border-color: var(--accent);
-      background: rgba(45,107,228,0.06);
+      background: rgba(var(--accent-rgb), 0.06);
       color: var(--accent);
     }
     .note-inline-empty svg { flex-shrink: 0; }
@@ -1661,7 +1667,7 @@
       right: 4px;
       width: 10px;
       height: 10px;
-      background: rgba(0,0,0,0.22);
+      background: rgba(var(--shadow-rgb), 0.22);
       border-radius: 50%;
       opacity: 0;
       transition: opacity 0.8s ease;
@@ -1943,8 +1949,8 @@
       --accent-alpha-06: rgba(59, 130, 246, 0.12);
       --accent-alpha-10: rgba(59, 130, 246, 0.18);
       --accent-alpha-30: rgba(59, 130, 246, 0.35);
-      --amber-alpha-10: rgba(245, 166, 35, 0.18);
-      --amber-alpha-40: rgba(245, 166, 35, 0.40);
+      --amber-alpha-10: rgba(var(--amber-rgb), 0.18);
+      --amber-alpha-40: rgba(var(--amber-rgb), 0.40);
       --slate-alpha-10: rgba(148, 163, 184, 0.18);
       --slate-alpha-40: rgba(148, 163, 184, 0.40);
       --blue-alpha-10: rgba(96, 165, 250, 0.18);
@@ -1994,6 +2000,12 @@
       --code-del-text: #64748b;
       --code-add-text: #94a3b8;
       --section-divider: #334155;
+      /* RGB triples — bumped for dark theme so chips/tints stay visible */
+      --accent-rgb: 59, 130, 246;          /* matches dark --accent #3b82f6 */
+      --priority-high-rgb: 239, 68, 68;
+      --priority-low-rgb: 34, 197, 94;
+      --priority-medium-rgb: 249, 115, 22;
+      --amber-rgb: 251, 191, 36;
     }
 
     [data-theme="dark"] body {
@@ -2130,14 +2142,14 @@
       display: block;
       position: fixed;
       inset: 0;
-      background: rgba(0, 0, 0, 0);
+      background: rgba(var(--shadow-rgb), 0);
       z-index: 10000;
       pointer-events: none;
       transition: background 0.28s;
     }
 
     .menu-backdrop.show {
-      background: rgba(0, 0, 0, 0.3);
+      background: rgba(var(--shadow-rgb), 0.3);
       pointer-events: auto;
     }
 
@@ -2322,8 +2334,8 @@
       gap: 7px;
       padding: 10px 16px;
       border-radius: 10px;
-      border: 1.5px solid rgba(239, 68, 68, 0.35);
-      background: rgba(239, 68, 68, 0.08);
+      border: 1.5px solid rgba(var(--priority-high-rgb), 0.35);
+      background: rgba(var(--priority-high-rgb), 0.08);
       color: #ff7070;
       font-size: 13px;
       font-weight: 600;
@@ -2334,7 +2346,7 @@
     }
 
     .menu-signout-btn:hover {
-      background: rgba(239, 68, 68, 0.15);
+      background: rgba(var(--priority-high-rgb), 0.15);
     }
 
     /* ── Section wrappers ── */
@@ -2352,7 +2364,7 @@
     }
 
     .menu-section-label.danger {
-      color: rgba(239, 68, 68, 0.6);
+      color: rgba(var(--priority-high-rgb), 0.6);
     }
 
     /* ── White card container ── */
@@ -2392,7 +2404,7 @@
     }
 
     .menu-row.danger+.menu-row.danger {
-      border-top-color: rgba(239, 68, 68, 0.12);
+      border-top-color: rgba(var(--priority-high-rgb), 0.12);
     }
 
     .menu-row-icon {
@@ -2424,7 +2436,7 @@
     }
 
     .menu-row.danger .menu-row-sub {
-      color: rgba(239, 68, 68, 0.55);
+      color: rgba(var(--priority-high-rgb), 0.55);
     }
 
     .menu-row-chevron {
@@ -2434,7 +2446,7 @@
     }
 
     .menu-row.danger .menu-row-chevron {
-      color: rgba(239, 68, 68, 0.25);
+      color: rgba(var(--priority-high-rgb), 0.25);
     }
 
     /* ── Sync Conflict UI ─────────────────────────────────── */
@@ -2554,12 +2566,12 @@
     }
 
     .c-resolved-badge.cloud {
-      background: rgba(45, 107, 228, 0.14);
+      background: rgba(var(--accent-rgb), 0.14);
       color: var(--accent);
     }
 
     .c-resolved-badge.kept {
-      background: rgba(22, 163, 74, 0.14);
+      background: rgba(var(--priority-low-rgb), 0.14);
       color: #16A34A;
     }
 
@@ -2848,9 +2860,9 @@
 
     .conflict-btn-cloud {
       flex: 1;
-      background: rgba(45, 107, 228, 0.08);
+      background: rgba(var(--accent-rgb), 0.08);
       color: var(--accent);
-      border: 1.5px solid rgba(45, 107, 228, 0.25);
+      border: 1.5px solid rgba(var(--accent-rgb), 0.25);
       border-radius: 12px;
       padding: 11px 6px;
       font-size: 13px;
@@ -3146,17 +3158,17 @@
 
     .c-act-row-badge.yours-only {
       color: #15803d;
-      background: rgba(22, 163, 74, 0.1);
+      background: rgba(var(--priority-low-rgb), 0.1);
     }
 
     .c-act-row-badge.cloud-only {
       color: #b91c1c;
-      background: rgba(220, 38, 38, 0.08);
+      background: rgba(var(--priority-high-rgb), 0.08);
     }
 
     .c-act-row-badge.changed {
       color: #ef4444;
-      background: rgba(239, 68, 68, 0.1);
+      background: rgba(var(--priority-high-rgb), 0.1);
     }
 
     /* Stacked activity-level detail overlay (sits on top of day overlay) */
@@ -3244,12 +3256,12 @@
     }
 
     .csbs-titlebar-pill.only-yours {
-      background: rgba(22, 163, 74, 0.12);
+      background: rgba(var(--priority-low-rgb), 0.12);
       color: #15803d;
     }
 
     .csbs-titlebar-pill.only-cloud {
-      background: rgba(220, 38, 38, 0.10);
+      background: rgba(var(--priority-high-rgb), 0.10);
       color: #b91c1c;
     }
 
@@ -3272,13 +3284,13 @@
     }
 
     .csbs-head.local {
-      background: rgba(22, 163, 74, 0.06);
+      background: rgba(var(--priority-low-rgb), 0.06);
       color: #15803d;
       border-right: 1px solid var(--border);
     }
 
     .csbs-head.remote {
-      background: rgba(220, 38, 38, 0.05);
+      background: rgba(var(--priority-high-rgb), 0.05);
       color: #b91c1c;
     }
 
@@ -3351,15 +3363,15 @@
     }
 
     .csbs-pill.only-yours {
-      background: rgba(22, 163, 74, 0.12);
+      background: rgba(var(--priority-low-rgb), 0.12);
       color: #15803d;
-      border-color: rgba(22, 163, 74, 0.35);
+      border-color: rgba(var(--priority-low-rgb), 0.35);
     }
 
     .csbs-pill.only-cloud {
-      background: rgba(220, 38, 38, 0.10);
+      background: rgba(var(--priority-high-rgb), 0.10);
       color: #b91c1c;
-      border-color: rgba(220, 38, 38, 0.35);
+      border-color: rgba(var(--priority-high-rgb), 0.35);
     }
 
     .csbs-field-vals {
@@ -3381,11 +3393,11 @@
     }
 
     .csbs-cell.local.diff {
-      background: rgba(22, 163, 74, 0.05);
+      background: rgba(var(--priority-low-rgb), 0.05);
     }
 
     .csbs-cell.remote.diff {
-      background: rgba(220, 38, 38, 0.04);
+      background: rgba(var(--priority-high-rgb), 0.04);
     }
 
     .csbs-cell.local.diff .csbs-val-text {
@@ -3444,12 +3456,12 @@
     }
 
     .csbs-summary.local {
-      background: rgba(22, 163, 74, 0.08);
+      background: rgba(var(--priority-low-rgb), 0.08);
       color: #166534;
     }
 
     .csbs-summary.remote {
-      background: rgba(220, 38, 38, 0.06);
+      background: rgba(var(--priority-high-rgb), 0.06);
       color: #991b1b;
     }
 
@@ -3630,7 +3642,7 @@
     .c-note-ro-diff .c-note-ro-field,
     .c-note-ro-diff .c-note-ro-note-body {
       border-color: #ef4444;
-      background: rgba(239, 68, 68, 0.05);
+      background: rgba(var(--priority-high-rgb), 0.05);
     }
 
     .c-note-ro-diff-label {
@@ -3651,7 +3663,7 @@
       font-size: 10px;
       font-weight: 700;
       color: #ef4444;
-      background: rgba(239, 68, 68, 0.1);
+      background: rgba(var(--priority-high-rgb), 0.1);
       border-radius: 4px;
       padding: 1px 5px;
       text-transform: uppercase;
@@ -3663,13 +3675,13 @@
     .c-act-diff .act-codes-wrap,
     .c-act-diff .hrs-stepper {
       border: 1.5px solid #ef4444 !important;
-      background: rgba(239, 68, 68, 0.05) !important;
+      background: rgba(var(--priority-high-rgb), 0.05) !important;
       border-radius: 8px;
     }
 
     .c-act-diff.notes-panel {
       border: 1.5px solid #ef4444 !important;
-      background: rgba(239, 68, 68, 0.05) !important;
+      background: rgba(var(--priority-high-rgb), 0.05) !important;
     }
 
     .c-act-diff .act-field-label,
@@ -3716,7 +3728,7 @@
     .c-day-diff-mine {
       color: #15803d;
       font-weight: 600;
-      background: rgba(22, 163, 74, 0.1);
+      background: rgba(var(--priority-low-rgb), 0.1);
       border-radius: 4px;
       padding: 1px 6px;
     }
@@ -3724,7 +3736,7 @@
     .c-day-diff-theirs {
       color: #b91c1c;
       font-weight: 600;
-      background: rgba(220, 38, 38, 0.08);
+      background: rgba(var(--priority-high-rgb), 0.08);
       border-radius: 4px;
       padding: 1px 6px;
     }
@@ -3762,7 +3774,7 @@
 
     .c-diff-mine {
       padding: 3px 14px;
-      background: rgba(22, 163, 74, 0.1);
+      background: rgba(var(--priority-low-rgb), 0.1);
       border-left: 3px solid #16A34A;
       color: #15803d;
       font-weight: 500;
@@ -3770,7 +3782,7 @@
 
     .c-diff-theirs {
       padding: 3px 14px;
-      background: rgba(220, 38, 38, 0.08);
+      background: rgba(var(--priority-high-rgb), 0.08);
       border-left: 3px solid #DC2626;
       color: #b91c1c;
       text-decoration: line-through;
@@ -4418,7 +4430,7 @@
       align-items: center;
       justify-content: space-between;
       padding: 11px 14px;
-      background: #fff;
+      background: var(--bg-card);
       border: none;
       cursor: pointer;
       text-align: left;
@@ -4513,11 +4525,11 @@
     }
 
     .sum-grid-row.sum-missing {
-      background: rgba(239, 68, 68, 0.04);
+      background: rgba(var(--priority-high-rgb), 0.04);
     }
 
     .sum-grid-row.sum-missing:hover {
-      background: rgba(239, 68, 68, 0.07);
+      background: rgba(var(--priority-high-rgb), 0.07);
     }
 
     /* Desktop-only code column (hidden on mobile) */
@@ -5045,7 +5057,7 @@
     /* Work Codes modal — desktop: centered dialog instead of full-screen */
     @media (min-width: 1024px) {
       #code-modal {
-        background: rgba(0, 0, 0, 0.55);
+        background: rgba(var(--shadow-rgb), 0.55);
         align-items: center;
         justify-content: center;
       }
@@ -5066,7 +5078,7 @@
 
       /* Location modal — desktop: centered dialog */
       #location-modal {
-        background: rgba(0, 0, 0, 0.55);
+        background: rgba(var(--shadow-rgb), 0.55);
         align-items: center;
         justify-content: center;
       }
@@ -5087,7 +5099,7 @@
 
       /* Finder search modal — desktop: centered dialog */
       #finder-search-modal {
-        background: rgba(0, 0, 0, 0.55);
+        background: rgba(var(--shadow-rgb), 0.55);
         align-items: center;
         justify-content: center;
       }
@@ -5200,7 +5212,7 @@
       display: none;
       position: fixed; inset: 0;
       z-index: 1000;
-      background: rgba(0,0,0,0.5);
+      background: rgba(var(--shadow-rgb), 0.5);
       justify-content: center; align-items: center;
     }
     #notes-modal.open { display: flex; }
@@ -6395,7 +6407,7 @@
       display: none;
       position: fixed;
       z-index: 10030;
-      background: #fff;
+      background: var(--bg-card);
       border: 1px solid var(--border);
       border-radius: 14px;
       box-shadow: 0 8px 28px rgba(var(--shadow-rgb), 0.16);
@@ -6648,7 +6660,7 @@
       position: fixed;
       inset: 0;
       z-index: 99999;
-      background: rgba(0, 0, 0, 0.92);
+      background: rgba(var(--shadow-rgb), 0.92);
       touch-action: none;
       overflow: hidden;
       justify-content: center;
@@ -6677,7 +6689,7 @@
       width: 36px;
       height: 36px;
       border-radius: 50%;
-      background: rgba(0, 0, 0, 0.55);
+      background: rgba(var(--shadow-rgb), 0.55);
       border: 1.5px solid rgba(255, 255, 255, 0.35);
       color: #fff;
       font-size: 20px;
@@ -6736,7 +6748,7 @@
 
     .ai-search-stacked:focus-within {
       border-color: var(--accent);
-      box-shadow: 0 4px 16px rgba(45, 107, 228, 0.1);
+      box-shadow: 0 4px 16px rgba(var(--accent-rgb), 0.1);
     }
 
     .ai-expanding-input {
@@ -6796,7 +6808,7 @@
     }
 
     .ai-scope-seg.active {
-      background: #fff;
+      background: var(--bg-card);
       color: var(--text-primary);
       font-weight: 700;
       box-shadow: 0 1px 4px rgba(var(--shadow-rgb), 0.11), 0 0 0 0.5px rgba(var(--shadow-rgb), 0.04);
@@ -6877,15 +6889,15 @@
 
     @keyframes aiPulse {
       0% {
-        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4);
+        box-shadow: 0 0 0 0 rgba(var(--priority-high-rgb), 0.4);
       }
 
       70% {
-        box-shadow: 0 0 0 10px rgba(239, 68, 68, 0);
+        box-shadow: 0 0 0 10px rgba(var(--priority-high-rgb), 0);
       }
 
       100% {
-        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+        box-shadow: 0 0 0 0 rgba(var(--priority-high-rgb), 0);
       }
     }
 
@@ -6903,7 +6915,7 @@
 
     .finder-search-wrap:focus-within {
       border-color: var(--accent);
-      box-shadow: 0 4px 16px rgba(45, 107, 228, 0.1);
+      box-shadow: 0 4px 16px rgba(var(--accent-rgb), 0.1);
     }
 
     .finder-search-input {
@@ -7534,7 +7546,7 @@
     }
 
     .notes-tab:not(.active) .tab-count {
-      background: rgba(0, 0, 0, 0.06);
+      background: rgba(var(--shadow-rgb), 0.06);
       color: var(--text-muted);
     }
 
@@ -7549,7 +7561,7 @@
     }
 
     .notes-tab .tab-count.bin-count {
-      background: rgba(239, 68, 68, 0.08);
+      background: rgba(var(--priority-high-rgb), 0.08);
       color: #ef4444;
     }
 
@@ -7562,7 +7574,7 @@
     .note-preview-overlay {
       position: fixed;
       inset: 0;
-      background: rgba(0, 0, 0, 0.35);
+      background: rgba(var(--shadow-rgb), 0.35);
       z-index: 200;
       animation: overlayIn 0.2s ease;
     }
@@ -7751,12 +7763,12 @@
     }
 
     .note-preview-btn.restore {
-      background: rgba(34, 197, 94, 0.12);
+      background: rgba(var(--priority-low-rgb), 0.12);
       color: #22c55e;
     }
 
     .note-preview-btn.delete {
-      background: rgba(239, 68, 68, 0.08);
+      background: rgba(var(--priority-high-rgb), 0.08);
       color: #ef4444;
     }
 
@@ -7942,7 +7954,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      background: #fff;
+      background: var(--bg-card);
       transition: all 0.2s;
     }
 
@@ -7997,7 +8009,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      background: #fff;
+      background: var(--bg-card);
       transition: all 0.2s;
       z-index: 2;
     }
@@ -8096,20 +8108,20 @@
     }
 
     .notes-chip.high {
-      background: rgba(239, 68, 68, 0.10);
-      border-color: rgba(239, 68, 68, 0.40);
+      background: rgba(var(--priority-high-rgb), 0.10);
+      border-color: rgba(var(--priority-high-rgb), 0.40);
       color: var(--priority-high);
     }
 
     .notes-chip.medium {
-      background: rgba(249, 115, 22, 0.10);
-      border-color: rgba(249, 115, 22, 0.40);
+      background: rgba(var(--priority-medium-rgb), 0.10);
+      border-color: rgba(var(--priority-medium-rgb), 0.40);
       color: var(--priority-medium);
     }
 
     .notes-chip.low {
-      background: rgba(34, 197, 94, 0.10);
-      border-color: rgba(34, 197, 94, 0.40);
+      background: rgba(var(--priority-low-rgb), 0.10);
+      border-color: rgba(var(--priority-low-rgb), 0.40);
       color: var(--priority-low);
     }
 
@@ -8280,7 +8292,7 @@
 
     .ncm-remove:hover,
     .ncm-remove:active {
-      background: rgba(239, 68, 68, 0.06);
+      background: rgba(var(--priority-high-rgb), 0.06);
     }
 
     .ncm-action-row {
@@ -8308,13 +8320,13 @@
     }
 
     .ncm-action-remove {
-      background: rgba(239, 68, 68, 0.08);
+      background: rgba(var(--priority-high-rgb), 0.08);
       color: #ef4444;
-      border: 1.5px solid rgba(239, 68, 68, 0.35);
+      border: 1.5px solid rgba(var(--priority-high-rgb), 0.35);
     }
 
     .ncm-action-remove:active {
-      background: rgba(239, 68, 68, 0.18);
+      background: rgba(var(--priority-high-rgb), 0.18);
     }
 
     .ncm-action-edit {
@@ -8624,7 +8636,7 @@
     .te-row-del:hover,
     .te-row-del:active {
       color: #ef4444;
-      background: rgba(239, 68, 68, 0.1);
+      background: rgba(var(--priority-high-rgb), 0.1);
     }
 
     .te-add-form {
@@ -8770,7 +8782,7 @@
       width: 16px;
       height: 16px;
       border-radius: 50%;
-      background: #fff;
+      background: var(--bg-card);
       transition: transform 0.2s;
       box-shadow: 0 1px 3px rgba(var(--shadow-rgb), 0.2);
     }
@@ -8967,7 +8979,7 @@
     }
 
     .sec-add-btn:active {
-      background: rgba(45, 107, 228, 0.12);
+      background: rgba(var(--accent-rgb), 0.12);
     }
 
     .sec-children {
@@ -9016,7 +9028,7 @@
       position: fixed;
       inset: 0;
       z-index: 700;
-      background: rgba(0, 0, 0, 0.4);
+      background: rgba(var(--shadow-rgb), 0.4);
       display: flex;
       align-items: flex-end;
       justify-content: center;
@@ -9095,7 +9107,7 @@
 
     .sec-modal-btn.danger {
       color: #ef4444;
-      border-color: rgba(239, 68, 68, 0.3);
+      border-color: rgba(var(--priority-high-rgb), 0.3);
     }
 
     .sec-modal-btn:active {
@@ -9192,8 +9204,8 @@
 
     .j-placeholder {
       border-radius: 10px;
-      background: rgba(45, 107, 228, 0.07);
-      border: 2px dashed rgba(45, 107, 228, 0.35);
+      background: rgba(var(--accent-rgb), 0.07);
+      border: 2px dashed rgba(var(--accent-rgb), 0.35);
       box-sizing: border-box;
       flex-shrink: 0;
     }
@@ -9285,7 +9297,7 @@
 
     .j-cmpick-sec:active,
     .j-cmpick-sec.selected {
-      background: rgba(45, 107, 228, 0.06);
+      background: rgba(var(--accent-rgb), 0.06);
     }
 
     .j-cmpick-radio {
@@ -9669,7 +9681,7 @@
       font-size: 14px;
       font-weight: 700;
       cursor: pointer;
-      box-shadow: 0 4px 16px rgba(45, 107, 228, 0.4);
+      box-shadow: 0 4px 16px rgba(var(--accent-rgb), 0.4);
       display: flex;
       align-items: center;
       gap: 6px;
@@ -9680,7 +9692,7 @@
 
     .j-fab:active {
       transform: scale(0.96);
-      box-shadow: 0 2px 8px rgba(45, 107, 228, 0.3);
+      box-shadow: 0 2px 8px rgba(var(--accent-rgb), 0.3);
     }
 
     .j-import-btn {
@@ -9711,7 +9723,7 @@
       position: fixed;
       inset: 0;
       z-index: 900;
-      background: rgba(0, 0, 0, 0.45);
+      background: rgba(var(--shadow-rgb), 0.45);
       display: flex;
       align-items: flex-end;
       justify-content: center;
@@ -9805,7 +9817,7 @@
 
     .jdocx-drop.drag-over {
       border-color: var(--accent);
-      background: rgba(45, 107, 228, 0.06);
+      background: rgba(var(--accent-rgb), 0.06);
     }
 
     .jdocx-drop svg {
@@ -9908,7 +9920,7 @@
       position: fixed;
       inset: 0;
       z-index: 800;
-      background: rgba(0, 0, 0, 0.4);
+      background: rgba(var(--shadow-rgb), 0.4);
       display: flex;
       align-items: flex-end;
       justify-content: center;
@@ -10027,12 +10039,12 @@
       cursor: pointer;
       transition: background 0.15s, border-color 0.15s;
     }
-    .add-note-dashed:active { background: rgba(45,107,228,0.06); border-color: var(--accent); color: var(--accent); }
+    .add-note-dashed:active { background: rgba(var(--accent-rgb), 0.06); border-color: var(--accent); color: var(--accent); }
     .notes-selection-banner {
       display: flex; align-items: center; justify-content: space-between;
       padding: 10px 16px; margin: 0 16px 8px;
-      background: rgba(45,107,228,0.08);
-      border: 1px solid rgba(45,107,228,0.25);
+      background: rgba(var(--accent-rgb), 0.08);
+      border: 1px solid rgba(var(--accent-rgb), 0.25);
       border-radius: 12px;
     }
 
@@ -10070,7 +10082,7 @@
     }
 
     .note-card.pinned-card {
-      border-color: rgba(245, 166, 35, 0.35);
+      border-color: rgba(var(--amber-rgb), 0.35);
     }
 
     .note-pin-btn {
@@ -10118,7 +10130,7 @@
     }
 
     .note-swipe-bg[data-dir="right"] {
-      background: rgba(34, 197, 94, 0.15);
+      background: rgba(var(--priority-low-rgb), 0.15);
       transition: background 0.15s;
     }
 
@@ -10128,7 +10140,7 @@
     }
 
     .note-swipe-bg[data-dir="right"].swipe-confirmed {
-      background: rgba(34, 197, 94, 0.85);
+      background: rgba(var(--priority-low-rgb), 0.85);
     }
 
     .note-swipe-bg[data-dir="left"].swipe-confirmed {
@@ -10528,7 +10540,7 @@
       height: 30px;
       border-radius: 50%;
       flex-shrink: 0;
-      background: #fff;
+      background: var(--bg-card);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -10565,7 +10577,7 @@
       font-weight: 700;
       padding: 3px 8px;
       border-radius: 8px;
-      background: #fff;
+      background: var(--bg-card);
       color: #d4900a;
     }
 
@@ -10776,7 +10788,7 @@
       position: fixed;
       inset: 0;
       z-index: 10100;
-      background: rgba(0, 0, 0, 0.4);
+      background: rgba(var(--shadow-rgb), 0.4);
       display: flex;
       align-items: flex-end;
       justify-content: center;
@@ -10785,7 +10797,7 @@
     }
 
     .remind-sheet {
-      background: #fff;
+      background: var(--bg-card);
       border-radius: 20px 20px 0 0;
       width: 100%;
       max-width: 480px;
@@ -10802,7 +10814,7 @@
     }
 
     .remind-actions-sticky {
-      background: #fff;
+      background: var(--bg-card);
       padding: 10px 12px;
       padding-bottom: max(12px, env(safe-area-inset-bottom, 12px));
       border-top: 1px solid #f1f5f9;
@@ -10835,7 +10847,7 @@
       padding: 4px 10px;
       border-radius: 6px;
       border: 1px solid #f59e0b;
-      background: #fff;
+      background: var(--bg-card);
       font-size: 11px;
       font-weight: 700;
       color: #b45309;
@@ -10903,7 +10915,7 @@
       padding: 7px 12px;
       border-radius: 8px;
       border: 1px solid #e2e8f0;
-      background: #fff;
+      background: var(--bg-card);
       font-size: 11px;
       font-weight: 600;
       color: var(--text-slate);
@@ -10951,7 +10963,7 @@
       font-family: inherit;
       font-size: 14px;
       color: var(--text-ink);
-      background: #fff;
+      background: var(--bg-card);
     }
 
     .remind-actions {
@@ -10965,7 +10977,7 @@
       padding: 12px;
       border-radius: 10px;
       border: 1.5px solid #e2e8f0;
-      background: #fff;
+      background: var(--bg-card);
       font-size: 13px;
       font-weight: 700;
       color: var(--text-slate);
@@ -11013,7 +11025,7 @@
       position: fixed;
       inset: 0;
       z-index: 60;
-      background: rgba(0, 0, 0, 0.4);
+      background: rgba(var(--shadow-rgb), 0.4);
       display: flex;
       align-items: flex-end;
       justify-content: center;
@@ -11021,7 +11033,7 @@
     }
 
     .task-picker-sheet {
-      background: #fff;
+      background: var(--bg-card);
       border-radius: 20px 20px 0 0;
       width: 100%;
       max-width: 480px;
@@ -11171,7 +11183,7 @@
       padding: 12px;
       border-radius: 10px;
       border: 1.5px solid #e2e8f0;
-      background: #fff;
+      background: var(--bg-card);
       font-size: 13px;
       font-weight: 700;
       color: var(--text-slate);
@@ -11994,7 +12006,7 @@
     }
 
     .rtn-td-cell.cur-col {
-      background: rgba(45, 107, 228, 0.05);
+      background: rgba(var(--accent-rgb), 0.05);
     }
 
     /* Cell button */
@@ -12182,7 +12194,7 @@
       position: fixed;
       inset: 0;
       z-index: 62;
-      background: rgba(0, 0, 0, 0.45);
+      background: rgba(var(--shadow-rgb), 0.45);
       align-items: flex-end;
       justify-content: center;
     }
@@ -12723,7 +12735,7 @@
       font-size: 11px;
       font-weight: 700;
       color: #6d28d9;
-      background: #fff;
+      background: var(--bg-card);
       border: 1.5px solid #ddd6fe;
       border-radius: 20px;
       padding: 3px 10px;
@@ -12915,7 +12927,7 @@
       background: var(--accent);
       color: #fff;
       border: none;
-      box-shadow: 0 4px 18px rgba(45, 107, 228, 0.45);
+      box-shadow: 0 4px 18px rgba(var(--accent-rgb), 0.45);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -13118,7 +13130,7 @@
     }
 
     .vl-btn.done {
-      background: #fff;
+      background: var(--bg-card);
       color: var(--text-primary);
     }
 
@@ -13188,7 +13200,7 @@
       position: fixed;
       inset: 0;
       z-index: 520;
-      background: rgba(0, 0, 0, 0.5);
+      background: rgba(var(--shadow-rgb), 0.5);
       align-items: flex-end;
       justify-content: center;
     }
@@ -13418,7 +13430,7 @@
 
   <!-- ===== CONFIRMATION DIALOG MODAL ===== -->
   <div id="confirm-modal" class="hidden fixed inset-0 flex items-center justify-center"
-    style="background:rgba(0,0,0,0.6);z-index:99999">
+    style="background:rgba(var(--shadow-rgb), 0.6);z-index:99999">
     <div
       style="background:var(--bg-modal);border-radius:12px;padding:24px;max-width:360px;width:90%;box-shadow:0 10px 40px rgba(var(--shadow-rgb),0.3)">
       <div style="font-size:18px;font-weight:700;margin-bottom:8px;color:var(--text)" id="confirm-title">Confirm</div>
@@ -13667,7 +13679,7 @@
 
   <!-- Cloud Backups modal -->
   <div id="backup-modal" class="hidden fixed inset-0 flex flex-col"
-    style="background:rgba(0,0,0,0.6);z-index:900;overflow-y:auto">
+    style="background:rgba(var(--shadow-rgb), 0.6);z-index:900;overflow-y:auto">
     <div style="margin:auto;width:100%;max-width:600px;padding:16px 12px 32px">
       <div style="background:var(--bg-card);border-radius:16px;overflow:hidden;box-shadow:0 8px 40px rgba(var(--shadow-rgb),0.35)">
         <div
@@ -13707,7 +13719,7 @@
 
   <!-- Restore confirm modal -->
   <div id="restore-confirm-modal" class="hidden fixed inset-0 flex items-center justify-center"
-    style="background:rgba(0,0,0,0.6);z-index:910">
+    style="background:rgba(var(--shadow-rgb), 0.6);z-index:910">
     <div
       style="background:var(--bg-card);border-radius:16px;padding:24px;max-width:360px;width:90%;box-shadow:0 8px 40px rgba(var(--shadow-rgb),0.35)">
       <div style="font-weight:700;font-size:1rem;color:var(--text-primary);margin-bottom:8px">Restore from backup?</div>
@@ -13767,7 +13779,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.6.22';
+    const VERSION = '5.6.23';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -16571,7 +16583,7 @@
       if (!el) {
         el = document.createElement('div');
         el.id = 'toast-msg';
-        el.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.82);color:#fff;padding:10px 20px;border-radius:24px;font-size:14px;z-index:9999;pointer-events:none;transition:opacity 0.3s';
+        el.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:rgba(var(--shadow-rgb), 0.82);color:#fff;padding:10px 20px;border-radius:24px;font-size:14px;z-index:9999;pointer-events:none;transition:opacity 0.3s';
         document.body.appendChild(el);
       }
       el.textContent = msg;
@@ -16587,7 +16599,7 @@
         el.id = 'toast-msg';
         document.body.appendChild(el);
       }
-      el.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.85);color:#fff;padding:10px 14px 10px 20px;border-radius:24px;font-size:14px;z-index:9999;transition:opacity 0.3s;display:flex;align-items:center;gap:14px;white-space:nowrap;';
+      el.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:rgba(var(--shadow-rgb), 0.85);color:#fff;padding:10px 14px 10px 20px;border-radius:24px;font-size:14px;z-index:9999;transition:opacity 0.3s;display:flex;align-items:center;gap:14px;white-space:nowrap;';
       el.innerHTML = `<span>${msg}</span><button style="background:none;border:none;color:#60a5fa;font-weight:700;font-size:13px;cursor:pointer;padding:0;font-family:inherit;flex-shrink:0;">${actionLabel}</button>`;
       el.style.opacity = '1';
       clearTimeout(el._timer);
@@ -20415,7 +20427,7 @@
       document.querySelectorAll('[data-overdue-key]').forEach(el => {
         el.style.cssText = state.notesOverdueFilter
           ? `background:#ef4444;border-color:#ef4444;color:#fff;`
-          : `background:rgba(239,68,68,0.10);border-color:rgba(239,68,68,0.40);color:#ef4444;`;
+          : `background:rgba(var(--priority-high-rgb), 0.10);border-color:rgba(var(--priority-high-rgb), 0.40);color:#ef4444;`;
       });
       // Has Due Date chip
       document.querySelectorAll('[data-duedate-key]').forEach(el => {
@@ -20578,10 +20590,10 @@
 
       const rf = state.notesRemindersFilter || '';
       const BELL_CHIP = `<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>`;
-      const remChip = `<div class="notes-chip" data-rem-key="active" style="${rf === 'active' ? 'background:var(--text-ot);border-color:var(--text-ot);color:#fff;' : 'background:rgba(245,166,35,0.10);border-color:rgba(245,166,35,0.40);color:var(--text-ot);'}" onclick="setNotesRemindersFilter('active')">${BELL_CHIP} Active (${counts.reminders})</div>`;
+      const remChip = `<div class="notes-chip" data-rem-key="active" style="${rf === 'active' ? 'background:var(--text-ot);border-color:var(--text-ot);color:#fff;' : 'background:rgba(var(--amber-rgb), 0.10);border-color:rgba(var(--amber-rgb), 0.40);color:var(--text-ot);'}" onclick="setNotesRemindersFilter('active')">${BELL_CHIP} Active (${counts.reminders})</div>`;
       const remPastChip = `<div class="notes-chip" data-rem-key="passed" style="${rf === 'passed' ? 'background:var(--text-dim);border-color:var(--text-dim);color:#fff;' : 'background:rgba(148,163,184,0.10);border-color:rgba(148,163,184,0.40);color:var(--text-dim);'}" onclick="setNotesRemindersFilter('passed')">${BELL_CHIP} Passed (${counts.pastReminders})</div>`;
       const CLOCK_CHIP = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`;
-      const overdueChip = `<div class="notes-chip" data-overdue-key="overdue" style="${state.notesOverdueFilter ? 'background:var(--priority-high);border-color:var(--priority-high);color:#fff;' : 'background:rgba(239,68,68,0.10);border-color:rgba(239,68,68,0.40);color:var(--priority-high);'}" onclick="setNotesOverdueFilter()">${CLOCK_CHIP} Overdue (${counts.overdue})</div>`;
+      const overdueChip = `<div class="notes-chip" data-overdue-key="overdue" style="${state.notesOverdueFilter ? 'background:var(--priority-high);border-color:var(--priority-high);color:#fff;' : 'background:rgba(var(--priority-high-rgb), 0.10);border-color:rgba(var(--priority-high-rgb), 0.40);color:var(--priority-high);'}" onclick="setNotesOverdueFilter()">${CLOCK_CHIP} Overdue (${counts.overdue})</div>`;
       const hasDueDateChip = `<div class="notes-chip" data-duedate-key="hasdue" style="${state.notesHasDueDateFilter ? 'background:#60a5fa;border-color:#60a5fa;color:#fff;' : 'background:rgba(96,165,250,0.10);border-color:rgba(96,165,250,0.40);color:#60a5fa;'}" onclick="setNotesHasDueDateFilter()">${CLOCK_CHIP} Has Due Date (${counts.hasDueDate})</div>`;
 
       const filterPanel = `
@@ -20891,8 +20903,8 @@
                     ${metaBits.length ? `<div style="display:flex;align-items:center;gap:8px;margin-top:4px;font-size:12px;color:var(--text-muted);">${metaBits.join('')}</div>` : ''}
                     ${ago ? `<div style="font-size:11px;color:var(--text-muted);margin-top:3px;">Archived ${ago}</div>` : ''}
                   </div>
-                  <button onclick="unarchiveNote('${n.id}')" title="Restore" style="flex-shrink:0;background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.3);border-radius:8px;padding:7px;cursor:pointer;color:var(--priority-low);display:flex;align-items:center;justify-content:center;" title="Restore to notes"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg></button>
-                  <button onclick="deleteNote('${n.id}')" title="Delete" style="flex-shrink:0;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.25);border-radius:8px;padding:7px;cursor:pointer;color:var(--priority-high);display:flex;align-items:center;justify-content:center;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button>
+                  <button onclick="unarchiveNote('${n.id}')" title="Restore" style="flex-shrink:0;background:rgba(var(--priority-low-rgb), 0.1);border:1px solid rgba(var(--priority-low-rgb), 0.3);border-radius:8px;padding:7px;cursor:pointer;color:var(--priority-low);display:flex;align-items:center;justify-content:center;" title="Restore to notes"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg></button>
+                  <button onclick="deleteNote('${n.id}')" title="Delete" style="flex-shrink:0;background:rgba(var(--priority-high-rgb), 0.08);border:1px solid rgba(var(--priority-high-rgb), 0.25);border-radius:8px;padding:7px;cursor:pointer;color:var(--priority-high);display:flex;align-items:center;justify-content:center;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button>
                 </div>`;
           }).join('')
         }
@@ -20916,8 +20928,8 @@
                     ${metaBits.length ? `<div style="display:flex;align-items:center;gap:8px;margin-top:4px;font-size:12px;color:var(--text-muted);">${metaBits.join('')}</div>` : ''}
                     ${ago ? `<div style="font-size:11px;color:var(--text-muted);margin-top:3px;">Deleted ${ago}</div>` : ''}
                   </div>
-                  <button onclick="restoreNote('${n.id}')" title="Restore" style="flex-shrink:0;background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.3);border-radius:8px;padding:7px;cursor:pointer;color:var(--priority-low);display:flex;align-items:center;justify-content:center;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg></button>
-                  <button onclick="permanentDeleteNote('${n.id}')" title="Delete forever" style="flex-shrink:0;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.25);border-radius:8px;padding:7px;cursor:pointer;color:var(--priority-high);display:flex;align-items:center;justify-content:center;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button>
+                  <button onclick="restoreNote('${n.id}')" title="Restore" style="flex-shrink:0;background:rgba(var(--priority-low-rgb), 0.1);border:1px solid rgba(var(--priority-low-rgb), 0.3);border-radius:8px;padding:7px;cursor:pointer;color:var(--priority-low);display:flex;align-items:center;justify-content:center;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg></button>
+                  <button onclick="permanentDeleteNote('${n.id}')" title="Delete forever" style="flex-shrink:0;background:rgba(var(--priority-high-rgb), 0.08);border:1px solid rgba(var(--priority-high-rgb), 0.25);border-radius:8px;padding:7px;cursor:pointer;color:var(--priority-high);display:flex;align-items:center;justify-content:center;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button>
                 </div>`;
           }).join('')
         }
@@ -21410,7 +21422,7 @@
       // Notebooks
       state.jNotebooks.forEach(function (nb) {
         if (nb.title.toLowerCase().includes(q))
-          results.push({ type: 'notebook', icon: nbIcon, id: nb.id, title: nb.title, crumb: 'Notebook', snippet: '', color: 'rgba(45,107,228,0.12)', iconColor: 'var(--accent)' });
+          results.push({ type: 'notebook', icon: nbIcon, id: nb.id, title: nb.title, crumb: 'Notebook', snippet: '', color: 'rgba(var(--accent-rgb), 0.12)', iconColor: 'var(--accent)' });
       });
       // Sections
       state.jSections.forEach(function (sec) {
@@ -23900,7 +23912,7 @@
       if (document.getElementById('exit-dialog')) return;
       const overlay = document.createElement('div');
       overlay.id = 'exit-dialog';
-      overlay.style.cssText = 'position:fixed;inset:0;z-index:10000;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;padding:24px;animation:fadeIn 0.15s ease';
+      overlay.style.cssText = 'position:fixed;inset:0;z-index:10000;background:rgba(var(--shadow-rgb), 0.5);display:flex;align-items:center;justify-content:center;padding:24px;animation:fadeIn 0.15s ease';
       overlay.innerHTML = '<div style="background:var(--bg-card);border-radius:16px;padding:24px;width:100%;max-width:320px;box-shadow:0 16px 48px rgba(var(--shadow-rgb),0.3);">'
         + '<div style="font-size:17px;font-weight:700;color:var(--text-primary);margin-bottom:8px;">Exit Rian?</div>'
         + '<div style="font-size:13px;color:var(--text-secondary);line-height:1.5;margin-bottom:20px;">Are you sure you want to close the app?</div>'
@@ -24126,7 +24138,7 @@
               <div style="font-size:12px;color:var(--text-secondary);line-height:1.7;">Turning off Shields isn't enough. Fix:<br>
               1. In Brave go to <strong>brave://settings/cookies</strong><br>
               2. Click <strong>Add</strong> under <em>"Sites that can always use cookies"</em><br>
-              3. Enter <code style="background:rgba(0,0,0,0.08);padding:1px 4px;border-radius:3px;">[*.]firebaseapp.com</code><br>
+              3. Enter <code style="background:rgba(var(--shadow-rgb), 0.08);padding:1px 4px;border-radius:3px;">[*.]firebaseapp.com</code><br>
               4. Tick <strong>Including third-party cookies</strong><br>
               5. Reload and sign in again.</div>
             </div>
@@ -24134,7 +24146,7 @@
               <svg width="18" height="18" viewBox="0 0 48 48" style="flex-shrink:0"><path fill="#fff" d="M44.5 20H24v8.5h11.8C34.7 33.9 30.1 37 24 37c-7.2 0-13-5.8-13-13s5.8-13 13-13c3.1 0 5.9 1.1 8.1 2.9l6.4-6.4C34.6 4.1 29.6 2 24 2 11.8 2 2 11.8 2 24s9.8 22 22 22c11 0 21-8 21-22 0-1.3-.2-2.7-.5-4z"/></svg>
               Sign in with Google
             </button>
-            <div id="login-error-msg" style="display:none;margin-top:14px;padding:10px 12px;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);border-radius:8px;font-size:11px;color:var(--priority-high);text-align:left;word-break:break-all;"></div>
+            <div id="login-error-msg" style="display:none;margin-top:14px;padding:10px 12px;background:rgba(var(--priority-high-rgb), 0.1);border:1px solid rgba(var(--priority-high-rgb), 0.3);border-radius:8px;font-size:11px;color:var(--priority-high);text-align:left;word-break:break-all;"></div>
             <p style="margin-top:18px;font-size:11px;color:var(--text-muted);line-height:1.5;">By signing in you agree to our <a href="privacy.html" target="_blank" style="color:var(--accent);text-decoration:none;">Privacy Policy</a>. We store your work data in Firebase to sync across your devices. No ads, no data sharing.</p>
           </div>
         </div>`;
@@ -24498,8 +24510,8 @@
 
       // Bulk resolve buttons — only when unresolved conflicts remain
       const bulkActionsHtml = n > 0 ? `<div class="c-bulk-actions">
-        <button onclick="_resolveAllConflicts('cloud')" style="flex:1;padding:9px 10px;border-radius:10px;font-size:13px;font-weight:700;border:1.5px solid var(--accent);color:var(--accent);background:rgba(45,107,228,0.08);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;font-family:inherit">${_cIcons.cloudDown} Use Cloud All</button>
-        <button onclick="_resolveAllConflicts('keep')" style="flex:1;padding:9px 10px;border-radius:10px;font-size:13px;font-weight:700;border:1.5px solid var(--priority-low-dark);color:var(--priority-low-dark);background:rgba(22,163,74,0.08);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;font-family:inherit">${_cIcons.check} Keep All Mine</button>
+        <button onclick="_resolveAllConflicts('cloud')" style="flex:1;padding:9px 10px;border-radius:10px;font-size:13px;font-weight:700;border:1.5px solid var(--accent);color:var(--accent);background:rgba(var(--accent-rgb), 0.08);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;font-family:inherit">${_cIcons.cloudDown} Use Cloud All</button>
+        <button onclick="_resolveAllConflicts('keep')" style="flex:1;padding:9px 10px;border-radius:10px;font-size:13px;font-weight:700;border:1.5px solid var(--priority-low-dark);color:var(--priority-low-dark);background:rgba(var(--priority-low-rgb), 0.08);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;font-family:inherit">${_cIcons.check} Keep All Mine</button>
       </div>` : '';
 
       return `
@@ -35197,7 +35209,7 @@ The state block is invisible to the user.`;
   </div>
 
   <!-- Battery recorder modal -->
-  <div id="battery-modal" class="hidden fixed inset-0 flex items-center justify-center" style="background:rgba(0,0,0,0.5);z-index:10010;backdrop-filter:blur(3px);padding:16px;">
+  <div id="battery-modal" class="hidden fixed inset-0 flex items-center justify-center" style="background:rgba(var(--shadow-rgb), 0.5);z-index:10010;backdrop-filter:blur(3px);padding:16px;">
     <div style="background:var(--bg-card);border-radius:20px;width:100%;max-width:460px;height:calc(100vh - 32px);max-height:800px;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 20px 60px rgba(var(--shadow-rgb),0.3);">
       <div style="padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;">
         <div style="width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,var(--gradient-success-from),var(--gradient-success-to));color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
@@ -35229,7 +35241,7 @@ The state block is invisible to the user.`;
       </div>
 
       <div id="battery-mic-bar" style="padding:12px 14px;border-top:1px solid var(--border);background:var(--bg-card-alt);display:flex;align-items:center;gap:8px;">
-        <button id="battery-mic-btn" onclick="_batteryMicToggle()" style="width:44px;height:44px;border-radius:50%;border:none;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 4px 12px rgba(45,107,228,0.3);flex-shrink:0;">
+        <button id="battery-mic-btn" onclick="_batteryMicToggle()" style="width:44px;height:44px;border-radius:50%;border:none;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 4px 12px rgba(var(--accent-rgb), 0.3);flex-shrink:0;">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0" stroke="currentColor" stroke-width="2" fill="none"/></svg>
         </button>
         <input id="battery-text-input" type="text" placeholder="Tap mic or type…"
