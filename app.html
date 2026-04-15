@@ -159,6 +159,19 @@
       --date-badge-color: #ffffff;
       --task-num-bg: #EAECEF;
       --task-num-color: #5A7289;
+      /* Hours stepper (default + OT variant) */
+      --stepper-bg: #F5F5F3;
+      --stepper-border: #EAEBEA;
+      --stepper-text: #1A1A1A;
+      --stepper-btn-color: #8A8A88;
+      --ot-stepper-bg: #FFF8F0;
+      --ot-stepper-border: #FFD88A;
+      --ot-stepper-text: #C27A00;
+      /* Activity code chips */
+      --code-text: #1A1A1A;
+      --code-del-text: #BBBBB8;
+      --code-add-text: #8A8A88;
+      --section-divider: #EBEBEA;
     }
 
     /* Force .font-mono to use the theme font instead of Tailwind's monospace stack.
@@ -526,7 +539,7 @@
       padding: 5px 10px;
       font-size: 12px;
       font-weight: 500;
-      color: #1A1A1A;
+      color: var(--code-text);
     }
 
     .act-code-mono {
@@ -540,7 +553,7 @@
       background: none;
       border: none;
       cursor: pointer;
-      color: #BBBBB8;
+      color: var(--code-del-text);
       font-size: 13px;
       line-height: 1;
       padding: 0;
@@ -554,12 +567,12 @@
 
     .act-add-code {
       background: none;
-      border: 1.5px dashed #D0D0CE;
+      border: 1.5px dashed var(--border);
       border-radius: 7px;
       padding: 4px 10px;
       font-family: inherit;
       font-size: 12px;
-      color: #8A8A88;
+      color: var(--code-add-text);
       cursor: pointer;
       display: inline-flex;
       align-items: center;
@@ -1726,7 +1739,7 @@
 
     .notes-panel-body.open {
       max-height: 400px;
-      border-top: 1.5px solid #EBEBEA;
+      border-top: 1.5px solid var(--section-divider);
     }
 
     .notes-ta-wrap {
@@ -1741,16 +1754,16 @@
     .hrs-stepper {
       display: flex;
       align-items: center;
-      background: #F5F5F3;
-      outline: 1.5px solid #EAEBEA;
+      background: var(--stepper-bg);
+      outline: 1.5px solid var(--stepper-border);
       border-radius: 10px;
       overflow: hidden;
       height: 40px;
     }
 
     .ot-box .hrs-stepper {
-      background: #FFF8F0;
-      outline: 1.5px solid #FFD88A;
+      background: var(--ot-stepper-bg);
+      outline: 1.5px solid var(--ot-stepper-border);
     }
 
     .hrs-stepper button {
@@ -1758,7 +1771,7 @@
       height: 100%;
       background: transparent;
       border: none;
-      color: #8A8A88;
+      color: var(--stepper-btn-color);
       font-size: 16px;
       font-weight: 300;
       display: flex;
@@ -1772,8 +1785,8 @@
     }
 
     .hrs-stepper button:hover {
-      color: #1A1A1A;
-      background: rgba(0, 0, 0, 0.04);
+      color: var(--stepper-text);
+      background: rgba(var(--shadow-rgb), 0.04);
     }
 
     .hrs-stepper button:active {
@@ -1781,7 +1794,7 @@
     }
 
     .ot-box .hrs-stepper button:hover {
-      color: #C27A00;
+      color: var(--ot-stepper-text);
     }
 
     .hrs-stepper .val {
@@ -1790,7 +1803,7 @@
       font-family: var(--font-mono, 'DM Mono', monospace);
       font-size: 15px;
       font-weight: 500;
-      color: #1A1A1A;
+      color: var(--stepper-text);
       border: none;
       background: transparent;
       outline: none;
@@ -1807,7 +1820,7 @@
     }
 
     .ot-box .hrs-stepper .val {
-      color: #C27A00;
+      color: var(--ot-stepper-text);
     }
 
     /* ===== CLAUDE THEME (v3.1) ===== */
@@ -1968,6 +1981,19 @@
       --date-badge-color: #f1f5f9;
       --task-num-bg: #273449;
       --task-num-color: #cbd5e1;
+      /* Hours stepper — dark variant */
+      --stepper-bg: #273449;
+      --stepper-border: #475569;
+      --stepper-text: #f1f5f9;
+      --stepper-btn-color: #94a3b8;
+      --ot-stepper-bg: #3a2d00;
+      --ot-stepper-border: #92400e;
+      --ot-stepper-text: #fbbf24;
+      /* Activity code chips */
+      --code-text: #f1f5f9;
+      --code-del-text: #64748b;
+      --code-add-text: #94a3b8;
+      --section-divider: #334155;
     }
 
     [data-theme="dark"] body {
@@ -13741,7 +13767,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.6.21';
+    const VERSION = '5.6.22';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
