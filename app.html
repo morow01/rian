@@ -15214,7 +15214,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.6.56';
+    const VERSION = '5.6.57';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -20993,6 +20993,27 @@
               const _protectId = _tid || (_tipRecent ? _tip : null) || _tipClosed;
               const _lmap = new Map((state.notes || []).map(n => [n.id, n]));
               let _mergeChanged = false;
+              // ── Pre-merge safety net: snapshot any local note that is about to
+              //    be overwritten by remote. Keeps last 20 snapshots in localStorage
+              //    keyed by rian_merge_snap_{noteId}_{timestamp}. Retrievable from
+              //    browser console if something goes wrong. ──
+              const _snapBeforeMerge = (ln, reason) => {
+                if (!ln || !(ln.noteContent || '').trim()) return; // nothing to save
+                try {
+                  const key = 'rian_merge_snap_' + ln.id + '_' + Date.now();
+                  const snap = { id: ln.id, desc: ln.description, content: ln.noteContent, updatedAt: ln.updatedAt, reason };
+                  localStorage.setItem(key, JSON.stringify(snap));
+                  // Prune old snapshots for this note (keep last 5)
+                  const allKeys = [];
+                  for (let i = 0; i < localStorage.length; i++) {
+                    const k = localStorage.key(i);
+                    if (k && k.startsWith('rian_merge_snap_' + ln.id + '_')) allKeys.push(k);
+                  }
+                  allKeys.sort();
+                  while (allKeys.length > 5) { localStorage.removeItem(allKeys.shift()); }
+                  console.log('[Rian] Pre-merge snapshot saved:', key, reason);
+                } catch (e) { /* localStorage full — non-critical */ }
+              };
               const _merged = _timerRemote.notes.map(rn => {
                 const ln = _lmap.get(rn.id);
                 if (ln && ln.id === _protectId) {
@@ -21007,7 +21028,10 @@
                     showActionToast('⚠ Empty note replaced by content from another device', 'OK', null, 5000);
                     _mergeChanged = true; return deepCopy(rn);
                   }
-                  if (!_edited && rn.updatedAt > _openTs) { _mergeChanged = true; return deepCopy(rn); } // stale open, no edits → take remote
+                  if (!_edited && rn.updatedAt > _openTs) {
+                    _snapBeforeMerge(ln, 'stale-open-remote-newer');
+                    _mergeChanged = true; return deepCopy(rn);
+                  }
                   return deepCopy(ln); // user edited → keep local
                 }
                 // SAFETY: empty local should never beat non-empty remote
@@ -21019,7 +21043,8 @@
                   _mergeChanged = true; return deepCopy(rn);
                 }
                 if (ln && (ln.updatedAt || 0) >= (rn.updatedAt || 0)) return deepCopy(ln); // local same-or-newer
-                // Remote is strictly newer — accept and lower HWM
+                // Remote is strictly newer — snapshot local before accepting
+                _snapBeforeMerge(ln, 'remote-newer');
                 const _trSize = (rn.noteContent || '').length;
                 _setNoteHWMExplicit(rn.id, _trSize);
                 _mergeChanged = true; return deepCopy(rn);
