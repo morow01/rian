@@ -15214,7 +15214,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.6.55';
+    const VERSION = '5.6.56';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -21002,14 +21002,22 @@
                   // regardless of timestamps — empty should never overwrite data.
                   const _localEmpty = !(ln.noteContent || '').trim();
                   const _remoteHasContent = !!(rn.noteContent || '').trim();
-                  if (_localEmpty && _remoteHasContent) { _mergeChanged = true; return deepCopy(rn); }
+                  if (_localEmpty && _remoteHasContent) {
+                    console.warn('[Rian] PROTECTED: local was empty but remote has content for note', rn.id, '— taking remote');
+                    showActionToast('⚠ Empty note replaced by content from another device', 'OK', null, 5000);
+                    _mergeChanged = true; return deepCopy(rn);
+                  }
                   if (!_edited && rn.updatedAt > _openTs) { _mergeChanged = true; return deepCopy(rn); } // stale open, no edits → take remote
                   return deepCopy(ln); // user edited → keep local
                 }
                 // SAFETY: empty local should never beat non-empty remote
                 const _lnEmpty = !(ln?.noteContent || '').trim();
                 const _rnHasContent = !!(rn.noteContent || '').trim();
-                if (ln && _lnEmpty && _rnHasContent) { _mergeChanged = true; return deepCopy(rn); }
+                if (ln && _lnEmpty && _rnHasContent) {
+                  console.warn('[Rian] PROTECTED: local note', rn.id, 'was empty, remote has content — taking remote');
+                  showActionToast('⚠ Synced content from another device (local was empty)', 'OK', null, 5000);
+                  _mergeChanged = true; return deepCopy(rn);
+                }
                 if (ln && (ln.updatedAt || 0) >= (rn.updatedAt || 0)) return deepCopy(ln); // local same-or-newer
                 // Remote is strictly newer — accept and lower HWM
                 const _trSize = (rn.noteContent || '').length;
