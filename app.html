@@ -15214,7 +15214,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.6.50';
+    const VERSION = '5.6.51';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -18300,7 +18300,7 @@
                   <div class="menu-ai-key-row">
                     <div class="menu-ai-key-hint">Gemini API key — used for voice entry &amp; Fault Assistant. Get a free key at <a href="https://aistudio.google.com" target="_blank">aistudio.google.com</a></div>
                     <div class="menu-ai-key-wrap">
-                      <input class="menu-ai-key-input" id="menu-gemini-key" type="password" placeholder="AIza…" value="${esc(state.geminiKey || '')}" autocomplete="off" spellcheck="false">
+                      <input class="menu-ai-key-input" id="menu-gemini-key" type="text" placeholder="AIza…" value="${esc(state.geminiKey || '')}" autocomplete="nope" spellcheck="false" style="-webkit-text-security:disc;text-security:disc;">
                       <button class="menu-ai-key-eye" type="button" onclick="toggleKeyVisibility()" title="Show / hide key">
                         <svg id="menu-key-eye-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                           <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
@@ -31509,10 +31509,11 @@ Rules:
       const input = document.getElementById('menu-gemini-key');
       const icon = document.getElementById('menu-key-eye-icon');
       if (!input) return;
-      const showing = input.type === 'text';
-      input.type = showing ? 'password' : 'text';
-      // Swap to eye-off icon when key is visible
-      icon.innerHTML = showing
+      // Toggle CSS text masking (not type=password, which triggers Chrome's password manager)
+      const masked = input.style.webkitTextSecurity === 'disc';
+      input.style.webkitTextSecurity = masked ? 'none' : 'disc';
+      input.style.textSecurity = masked ? 'none' : 'disc';
+      icon.innerHTML = masked
         ? '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>'
         : '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/>';
     }
