@@ -15214,7 +15214,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.6.59';
+    const VERSION = '5.6.60';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -17480,9 +17480,26 @@
           const editingDayIdx = userEditing ? parseInt(active.dataset.day) : null;
           const editingValue = userEditing ? active.value : null;
 
+          // Collect draft activities before overwriting — drafts are local-only
+          // and never synced, so incoming remote data won't have them.
+          const _draftsPerDay = {};
+          if (state.weekData?.days) {
+            state.weekData.days.forEach((d, i) => {
+              const drafts = (d.activities || []).filter(a => a._draft);
+              if (drafts.length) _draftsPerDay[i] = drafts;
+            });
+          }
+
           state.weekData = deepCopy(remote);
           // Ensure the local updatedAt reflects the server time (as a number)
           state.weekData._updatedAt = remoteTs;
+
+          // Re-inject draft activities that were in progress before the snapshot
+          for (const [di, drafts] of Object.entries(_draftsPerDay)) {
+            if (state.weekData.days[di]) {
+              state.weekData.days[di].activities.push(...drafts);
+            }
+          }
 
           // Restore the value the user is currently typing (prevent echo truncation)
           if (editingField && editingActId != null && editingDayIdx != null && !isNaN(editingDayIdx)) {
