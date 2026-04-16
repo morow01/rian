@@ -14812,7 +14812,7 @@
         style="background:var(--bg-modal-search);border-bottom:1px solid var(--border)">
         <div class="finder-search-wrap">
           <input id="location-search" type="text" name="rian_x_q1" placeholder="Town name or code…" class="finder-search-input"
-            autocomplete="nope" role="combobox" inputmode="search"
+            autocomplete="off" role="combobox" inputmode="search"
             autocorrect="off" autocapitalize="off" spellcheck="false"
             data-lpignore="true" data-form-type="other" data-1p-ignore="true"
             oninput="filterLocations(this.value)">
@@ -14843,7 +14843,7 @@
         style="background:var(--bg-modal-search);border-bottom:1px solid var(--border)">
         <div class="finder-search-wrap">
           <input id="finder-modal-search" type="text" name="rian_x_q2" placeholder="Name or Code…" class="finder-search-input"
-            autocomplete="nope" role="combobox" inputmode="search"
+            autocomplete="off" role="combobox" inputmode="search"
             autocorrect="off" autocapitalize="off" spellcheck="false"
             data-lpignore="true" data-form-type="other" data-1p-ignore="true"
             oninput="filterFinderModal(this.value)">
@@ -15214,7 +15214,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.6.51';
+    const VERSION = '5.6.52';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
