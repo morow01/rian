@@ -15214,7 +15214,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.6.61';
+    const VERSION = '5.6.62';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -16726,7 +16726,7 @@
       const days = DAY_NAMES.map((name, i) => {
         const d = new Date(weekStart + 'T00:00:00');
         d.setDate(d.getDate() + i);
-        return { date: dateToStr(d), dayName: name, activities: [createActivity()] };
+        return { date: dateToStr(d), dayName: name, activities: [] };
       });
       return { weekStart, days };
     }
@@ -19508,12 +19508,12 @@
 
     function removeActivity(actId, di) {
       const day = state.weekData.days[di];
-      if (day.activities.length <= 1) {
-        day.activities = [createActivity()];
-      } else {
-        day.activities = day.activities.filter(a => a.id !== actId);
-      }
-      scheduleAutoSave();
+      const act = day.activities.find(a => a.id === actId);
+      // Draft tasks just get removed locally — no sync needed
+      const wasDraft = act && act._draft;
+      day.activities = day.activities.filter(a => a.id !== actId);
+      state.activitiesExpanded.delete(actId);
+      if (!wasDraft) scheduleAutoSave();
       render();
     }
 
@@ -30256,7 +30256,7 @@
       const co = _coGetOrCreate();
       if (!co) return;
       delete co._draft;
-      _coDoSave();
+      saveCallouts();
       render();
       showToast('Callout saved');
     }
