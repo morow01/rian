@@ -16614,7 +16614,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.8.13';
+    const VERSION = '5.8.14';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -25989,11 +25989,10 @@
       if (!note) return;
       _fnFsNoteId = noteId;
       history.pushState({ noteFs: true }, '');
-      // Record wall-clock time when editor opens. The stale-editor guard on close
-      // compares n.updatedAt against this. Using Date.now() (not note.updatedAt)
-      // so that local field edits (description, date etc.) which bump updatedAt
-      // via updateNoteField() don't trigger the "updated on another device" warning.
       window._tiptapNoteOpenTs = Date.now();
+      // Snapshot the content at open time so the stale-editor guard can detect
+      // genuine remote content changes vs harmless timestamp bumps from local field edits
+      window._tiptapNoteOpenContent = note.noteContent || '';
       // Reuse the existing fullscreen editor modal
       const titleEl = document.getElementById('note-fs-title');
       const subEl = document.getElementById('note-fs-subtitle');
@@ -37473,10 +37472,11 @@ QUESTION: ${query}`;
             : _fnFsSource === 'journal' ? state.journal
               : state.notes;
           const n = _closeArr.find(x => x.id === _fnFsNoteId);
-          // v5.8.0: Stale-editor guard — if the note was updated remotely while
-          // TipTap was open, warn the user instead of silently overwriting.
-          if (n && (n.updatedAt || 0) > (window._tiptapNoteOpenTs || 0) + 2000) {
-            // Remote update arrived after we opened the editor
+          // v5.8.14: Stale-editor guard — only warn if the note's CONTENT actually
+          // changed while TipTap was open (not just updatedAt from local field edits).
+          var _contentChangedRemotely = n && (n.noteContent || '') !== (window._tiptapNoteOpenContent || '') && (n.noteContent || '') !== html;
+          if (_contentChangedRemotely) {
+            // Remote content change arrived after we opened the editor
             const keepLocal = confirm(
               'This note was updated on another device while you were editing.\n\n' +
               'Keep YOUR version (OK) or discard your changes and keep the cloud version (Cancel)?'
