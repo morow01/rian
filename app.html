@@ -15738,7 +15738,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.8.9';
+    const VERSION = '5.8.10';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -16475,6 +16475,16 @@
     let db = null;
     let weekUnsubscribe = null;
     let _lastFirestoreSnapAt = 0; // timestamp of last onSnapshot delivery — used by stale-listener heartbeat
+    // Track deliberately deleted activity IDs so merge-on-save / poll sync
+    // won't resurrect them. Map of id → deletion timestamp. Entries older
+    // than 5 minutes are pruned to prevent unbounded growth.
+    var _deletedActIds = {};
+    function _trackDeletedAct(id) { _deletedActIds[id] = Date.now(); }
+    function _isRecentlyDeleted(id) { return _deletedActIds[id] && (Date.now() - _deletedActIds[id] < 300000); }
+    function _pruneDeletedIds() {
+      var cutoff = Date.now() - 300000;
+      Object.keys(_deletedActIds).forEach(function(k) { if (_deletedActIds[k] < cutoff) delete _deletedActIds[k]; });
+    }
 
     // ── Hours high-water-mark (HWM) guard ──────────────────────────
     // Tracks the maximum total hours ever seen for each week on THIS browser.
@@ -17001,8 +17011,9 @@
               var mergedActs = (localDay.activities || []).slice();
 
               // Add remote-only activities (created on another browser, missed by snapshot)
+              _pruneDeletedIds();
               Object.keys(remoteMap).forEach(function(rid) {
-                if (!localMap[rid]) {
+                if (!localMap[rid] && !_isRecentlyDeleted(rid)) {
                   // Activity exists only in remote — another browser added it
                   // Only include if it has actual content (not a ghost)
                   var ra = remoteMap[rid];
@@ -18059,6 +18070,17 @@
           state.weekData = deepCopy(remote);
           // Ensure the local updatedAt reflects the server time (as a number)
           state.weekData._updatedAt = remoteTs;
+
+          // Remove recently-deleted activities that the snapshot brought back
+          // (snapshot arrives from server/cache before our delete-save lands)
+          _pruneDeletedIds();
+          if (Object.keys(_deletedActIds).length > 0) {
+            state.weekData.days.forEach(function(d) {
+              d.activities = (d.activities || []).filter(function(a) {
+                return !a.id || !_isRecentlyDeleted(a.id);
+              });
+            });
+          }
 
           // Strip _draft flag and remove completely empty ghost tasks that
           // leaked to Firestore before v5.6.63.
@@ -20477,6 +20499,7 @@
     }
 
     function removeActivity(actId, di) {
+      _trackDeletedAct(actId); // prevent merge-on-save from resurrecting
       const day = state.weekData.days[di];
       day.activities = day.activities.filter(a => a.id !== actId);
       state.activitiesExpanded.delete(actId);
@@ -26832,6 +26855,15 @@
           }
           state.weekData = deepCopy(remote);
           state.weekData._updatedAt = remoteTs;
+          // Strip recently-deleted activities
+          _pruneDeletedIds();
+          if (Object.keys(_deletedActIds).length > 0) {
+            state.weekData.days.forEach(function(d) {
+              d.activities = (d.activities || []).filter(function(a) {
+                return !a.id || !_isRecentlyDeleted(a.id);
+              });
+            });
+          }
           // Re-attach drafts
           Object.keys(_draftsPerDay).forEach(function(i) {
             if (state.weekData.days[parseInt(i)]) {
@@ -26855,8 +26887,9 @@
               if (!remoteDay || !remoteDay.activities) return;
               var localIds = {};
               (localDay.activities || []).forEach(function(a) { if (a.id) localIds[a.id] = true; });
+              _pruneDeletedIds();
               remoteDay.activities.forEach(function(ra) {
-                if (ra.id && !localIds[ra.id]) {
+                if (ra.id && !localIds[ra.id] && !_isRecentlyDeleted(ra.id)) {
                   if ((ra.description || '').trim() || (ra.location || '').trim() ||
                       (parseFloat(ra.ordinary) || 0) > 0 || (parseFloat(ra.overtime) || 0) > 0 ||
                       (ra.codes && ra.codes.length > 0)) {
