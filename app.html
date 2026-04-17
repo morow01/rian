@@ -15738,7 +15738,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.8.7';
+    const VERSION = '5.8.8';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -16977,19 +16977,67 @@
       const ref = userDoc(`weeks/${weekStart}`);
       if (!ref) return;
 
-      // v5.6.97: Outbound HWM guard disabled. It was blocking legitimate
-      // saves and creating infinite conflict loops when HWM values were
-      // inflated by the duplicate bug. Auto-dedup handles data protection now.
-
-      // IMPORTANT: use the client-side _updatedAt (Date.now()) set at edit time,
-      // NOT serverTimestamp(). serverTimestamp() is assigned by Firestore when it
-      // *processes* the write — so a stale offline write flushed later gets a brand-
-      // new timestamp, making old data look newer than fresh data on another device
-      // and defeating the conflict check in onSnapshot. Client timestamps represent
-      // when the data was actually created, which is what we want to compare.
+      // v5.8.8 MERGE-ON-SAVE: Before writing, fetch the latest remote data
+      // and merge activities per-day so we never overwrite tasks added by
+      // another browser whose snapshot we missed.
       const ts = weekData._updatedAt || Date.now();
-      await ref.set({ ...weekData, _updatedAt: ts });
-      maybeTakeAutoSnapshot(weekStart, weekData).catch(e => console.warn('[Rian]', e));
+      let merged = { ...weekData, _updatedAt: ts };
+      try {
+        const snap = await ref.get({ source: 'server' });
+        if (snap.exists) {
+          const remote = snap.data();
+          if (remote.days && merged.days && remote.days.length === merged.days.length) {
+            merged.days = merged.days.map(function(localDay, di) {
+              var remoteDay = remote.days[di];
+              if (!remoteDay || !remoteDay.activities) return localDay;
+
+              // Build maps by activity ID
+              var localMap = {};
+              (localDay.activities || []).forEach(function(a) { if (a.id) localMap[a.id] = a; });
+              var remoteMap = {};
+              (remoteDay.activities || []).forEach(function(a) { if (a.id) remoteMap[a.id] = a; });
+
+              // Start with all local activities (user's edits take priority)
+              var mergedActs = (localDay.activities || []).slice();
+
+              // Add remote-only activities (created on another browser, missed by snapshot)
+              Object.keys(remoteMap).forEach(function(rid) {
+                if (!localMap[rid]) {
+                  // Activity exists only in remote — another browser added it
+                  // Only include if it has actual content (not a ghost)
+                  var ra = remoteMap[rid];
+                  if ((ra.description || '').trim() || (ra.location || '').trim() ||
+                      (parseFloat(ra.ordinary) || 0) > 0 || (parseFloat(ra.overtime) || 0) > 0 ||
+                      (ra.codes && ra.codes.length > 0)) {
+                    mergedActs.push(ra);
+                    console.info('[Rian] Merge-on-save: recovered remote activity "' +
+                      (ra.description || '').substring(0, 30) + '" on day ' + di);
+                  }
+                }
+              });
+
+              return { ...localDay, activities: mergedActs };
+            });
+            console.info('[Rian] Merge-on-save: merged with remote (local acts preserved, remote-only recovered)');
+          }
+        }
+      } catch (e) {
+        // If server fetch fails (offline, etc.), save local data as-is
+        console.warn('[Rian] Merge-on-save: server fetch failed, saving local only —', e.message);
+      }
+
+      await ref.set(merged);
+      // Also update local state with the merged data so it reflects recovered activities
+      if (state.weekStart === weekStart && merged.days) {
+        // Only update if we actually recovered something
+        var localTotal = weekData.days.reduce(function(s, d) { return s + (d.activities || []).length; }, 0);
+        var mergedTotal = merged.days.reduce(function(s, d) { return s + (d.activities || []).length; }, 0);
+        if (mergedTotal > localTotal) {
+          state.weekData.days = deepCopy(merged.days);
+          render();
+        }
+      }
+      maybeTakeAutoSnapshot(weekStart, merged).catch(e => console.warn('[Rian]', e));
     }
 
     async function fsSetNotes(notes) {
@@ -26725,29 +26773,31 @@
       if (document.visibilityState === 'hidden') flushPendingSaves();
     });
 
-    // ── Firestore listener heartbeat ──────────────────────────────────
-    // Chrome's WebSocket for Firestore onSnapshot can silently go stale
-    // when a tab is backgrounded. When the user returns, the listener
-    // exists but no snapshots arrive. This forces a network reconnect
-    // if the last snapshot is older than 60s, ensuring fresh data.
-    document.addEventListener('visibilitychange', () => {
-      if (document.visibilityState !== 'visible') return;
+    // ── Firestore listener heartbeat (v5.8.8) ─────────────────────────
+    // Chrome's WebSocket for Firestore onSnapshot can silently go stale.
+    // Two triggers: (1) tab becomes visible after backgrounding,
+    //               (2) periodic 2-minute check while tab is active.
+    // If last snapshot >60s ago → force network reconnect.
+    let _fsReconnecting = false;
+    function _fsHeartbeatCheck() {
+      if (_fsReconnecting) return;
       if (!state.currentUser) return;
       const staleMs = Date.now() - _lastFirestoreSnapAt;
       if (_lastFirestoreSnapAt > 0 && staleMs > 60000) {
+        _fsReconnecting = true;
         console.info('[Rian] Firestore listener stale (' + Math.round(staleMs / 1000) + 's) — forcing reconnect');
         const _fs = firebase.firestore();
         _fs.disableNetwork().then(() => _fs.enableNetwork()).then(() => {
-          // After reconnect, Firestore will deliver a fresh snapshot
-          // which triggers render() via the onSnapshot handler.
-          // But as a safety net, force a render after a short delay
-          // in case the snapshot arrives before the handler re-attaches.
-          setTimeout(() => {
-            if (state.view === 'week') render();
-          }, 1500);
-        }).catch(e => console.warn('[Rian] Heartbeat reconnect failed:', e));
+          _fsReconnecting = false;
+          setTimeout(() => { render(); }, 1500);
+        }).catch(e => { _fsReconnecting = false; console.warn('[Rian] Heartbeat reconnect failed:', e); });
       }
+    }
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') _fsHeartbeatCheck();
     });
+    // Periodic check every 2 minutes (catches stale listeners even without tab switch)
+    setInterval(_fsHeartbeatCheck, 120000);
 
     window.addEventListener('pagehide', () => {
       flushPendingSaves();
