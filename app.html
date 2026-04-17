@@ -15291,7 +15291,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.6.96';
+    const VERSION = '5.6.97';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -16525,51 +16525,9 @@
       const ref = userDoc(`weeks/${weekStart}`);
       if (!ref) return;
 
-      // ── Outbound HWM guard (added v5.1.89) ─────────────────────────────────
-      // Protects against this device wiping cloud data because of a stale or
-      // freshly-scaffolded in-memory state. Triggered when:
-      //   - we have a known HWM for this week (>HWM_THRESHOLD)
-      //   - and the data we're about to write is >HWM_THRESHOLD hours below it
-      // The guard does TWO things: (a) refuses the write, (b) raises a conflict
-      // so the user can decide whether to overwrite or refresh.
-      // The single-allow-list `_hwmAllowOutbound[weekStart]` lets a user-confirmed
-      // restore (e.g. after raising HWM intentionally) bypass the guard once.
-      try {
-        const hwm = _getHWM(weekStart);
-        const local = _weekTotalHours(weekData);
-        const allow = (window._hwmAllowOutbound || {})[weekStart];
-        if (allow) { delete window._hwmAllowOutbound[weekStart]; }
-        else if (hwm > HWM_THRESHOLD && local < hwm - HWM_THRESHOLD) {
-          console.warn('[Rian] BLOCKED outbound write — local hours regression:', local.toFixed(1), '< HWM', hwm.toFixed(1), 'for week', weekStart);
-          // Try to fetch the cloud version so the conflict has both sides
-          let remoteData = null;
-          try {
-            const cur = await ref.get();
-            if (cur.exists) remoteData = cur.data();
-          } catch (e) { /* ignore */ }
-          const remoteHrs = remoteData ? _weekTotalHours(remoteData) : hwm;
-          if (typeof _registerConflict === 'function') {
-            _registerConflict({
-              id: 'tsout_' + weekStart + '_' + Date.now(),
-              section: 'Timesheet', icon: '⚠️',
-              description: `Blocked overwrite of week ${weekStart} — this tab has ${local.toFixed(1)}h but cloud has ${remoteHrs.toFixed(1)}h. Refresh to pull cloud, or choose Keep Mine to overwrite.`,
-              displayType: 'rows',
-              localData: deepCopy(weekData),
-              remoteData: remoteData ? deepCopy(remoteData) : null,
-              localMeta: { time: 'This tab (stale?)', rows: [{ code: 'Total', val: local.toFixed(1) + 'h', note: 'about to be written', hi: false }], summary: `${local.toFixed(1)}h vs HWM ${hwm.toFixed(1)}h` },
-              remoteMeta: { time: 'Cloud version (preserved)', rows: [{ code: 'Total', val: remoteHrs.toFixed(1) + 'h', note: 'cloud — kept', hi: true }], summary: `Cloud preserved` },
-            });
-          }
-          if (typeof showConflictBanner === 'function') showConflictBanner();
-          // Throw so the caller (scheduleAutoSave) does not assume success.
-          const err = new Error('OUTBOUND_HWM_BLOCK');
-          err.code = 'OUTBOUND_HWM_BLOCK';
-          throw err;
-        }
-      } catch (e) {
-        if (e && e.code === 'OUTBOUND_HWM_BLOCK') throw e;
-        console.warn('[Rian] outbound HWM check failed:', e);
-      }
+      // v5.6.97: Outbound HWM guard disabled. It was blocking legitimate
+      // saves and creating infinite conflict loops when HWM values were
+      // inflated by the duplicate bug. Auto-dedup handles data protection now.
 
       // IMPORTANT: use the client-side _updatedAt (Date.now()) set at edit time,
       // NOT serverTimestamp(). serverTimestamp() is assigned by Firestore when it
@@ -32054,6 +32012,18 @@ Rules:
     }
 
     async function init() {
+      // v5.6.97: One-time cleanup — wipe all inflated HWM values and stale
+      // conflicts left over from the duplicate bug + regression guard era.
+      try {
+        if (!localStorage.getItem('rian_hwm_reset_v5697')) {
+          Object.keys(localStorage).filter(k => k.startsWith('rian_hwm_')).forEach(k => localStorage.removeItem(k));
+          localStorage.setItem('rian_hwm_reset_v5697', '1');
+          console.log('[Rian] v5.6.97 — wiped all stale HWM values');
+        }
+      } catch (e) { /* ignore */ }
+      // Clear any accumulated conflicts on fresh load
+      if (typeof state !== 'undefined' && state.conflicts) state.conflicts = [];
+
       try { initTheme(); } catch (e) { console.warn('[Rian] Theme blocked by browser:', e); }
 
       if ('serviceWorker' in navigator) {
