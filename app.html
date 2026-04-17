@@ -10911,35 +10911,35 @@
 
     /* Forward: old fades back, new slides in from right */
     .j-vt-left::view-transition-old(j-screen) {
-      animation: jVtFadeBack 0.3s ease both;
+      animation: jVtFadeBack 0.25s ease both;
       z-index: 1;
     }
     .j-vt-left::view-transition-new(j-screen) {
-      animation: jVtSlideIn 0.3s ease both;
+      animation: jVtSlideIn 0.25s ease both;
       z-index: 2;
     }
     /* Back: old slides away right, new fades in underneath */
     .j-vt-right::view-transition-old(j-screen) {
-      animation: jVtSlideAway 0.3s ease both;
+      animation: jVtSlideAway 0.25s ease both;
       z-index: 2;
     }
     .j-vt-right::view-transition-new(j-screen) {
-      animation: jVtFadeIn 0.3s ease both;
+      animation: jVtFadeIn 0.25s ease both;
       z-index: 1;
     }
     @keyframes jVtFadeBack {
-      to { transform: translateX(-25%); opacity: 0; }
+      to { transform: translateX(-60px); opacity: 0; }
     }
     @keyframes jVtSlideIn {
-      from { transform: translateX(100%); }
-      to { transform: translateX(0); }
+      from { transform: translateX(60px); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
     }
     @keyframes jVtSlideAway {
-      from { transform: translateX(0); }
-      to { transform: translateX(100%); }
+      from { transform: translateX(0); opacity: 1; }
+      to { transform: translateX(60px); opacity: 0; }
     }
     @keyframes jVtFadeIn {
-      from { transform: translateX(-25%); opacity: 0; }
+      from { transform: translateX(-60px); opacity: 0; }
       to { transform: translateX(0); opacity: 1; }
     }
 
@@ -15286,7 +15286,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.6.75';
+    const VERSION = '5.6.76';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
