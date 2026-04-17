@@ -15214,7 +15214,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.6.63';
+    const VERSION = '5.6.65';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -22345,6 +22345,7 @@
       const isAllSelected = allIds.length > 0 && allIds.every(id => state.selectedNotes.has(id));
 
 
+      const activeCount = openNotes.length + doneNotes.length;
       const binCount = binNotes.length;
       const notesTab = state.notesTab || 'notes';
       const _ntActive = 'background:var(--bg-segment-active);color:var(--text-primary);box-shadow:0 1px 3px rgba(var(--shadow-rgb),0.12)';
@@ -22355,7 +22356,7 @@
       <button onclick="switchNotesTab('notes')" style="flex:1;padding:7px 4px;border-radius:11px;border:none;font-size:12px;font-weight:700;cursor:pointer;transition:all 0.18s;${notesTab === 'notes' ? _ntActive : _ntInactive}">
         <span style="display:inline-flex;align-items:center;gap:5px">
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg>
-          Active
+          Active${activeCount > 0 ? ` <span style="background:var(--accent);color:#fff;border-radius:99px;font-size:9px;padding:0 5px;min-width:15px;height:15px;display:inline-flex;align-items:center;justify-content:center">${activeCount}</span>` : ''}
         </span>
       </button>
       <button onclick="switchNotesTab('archive')" style="flex:1;padding:7px 4px;border-radius:11px;border:none;font-size:12px;font-weight:700;cursor:pointer;transition:all 0.18s;${notesTab === 'archive' ? _ntActive : _ntInactive}">
@@ -29681,9 +29682,11 @@
       </div>`;
 
       // ── Current Week card (same style as Previous Weeks) ──
-      if (activeWeek) {
-        const [wk, wd] = activeWeek;
-        const cnt = (wd.callouts || []).length;
+      // Show if week entry exists OR if marked on-call/extra in schedule
+      if (activeWeek || isCurrentOnCall) {
+        const wk = curWeekStart;
+        const wd = activeWeek ? activeWeek[1] : null;
+        const cnt = wd ? (wd.callouts || []).length : 0;
         const isExtra = onCall[curWeekStart] === 'extra';
         const ocType = onCall[curWeekStart];
         const badgeBg = isExtra ? '#FEF3C7' : 'var(--accent-light)';
