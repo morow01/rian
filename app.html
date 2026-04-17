@@ -344,6 +344,18 @@
     }
     .weekend-divider.open .wk-chev { transform: rotate(90deg); }
 
+    .wk-collapse {
+      display: grid;
+      grid-template-rows: 0fr;
+      transition: grid-template-rows 0.3s ease;
+    }
+    .wk-collapse-inner {
+      overflow: hidden;
+    }
+    .wk-collapse.open {
+      grid-template-rows: 1fr;
+    }
+
     .day-pills {
       display: flex;
       gap: 5px;
@@ -15253,7 +15265,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.6.67';
+    const VERSION = '5.6.68';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -18737,12 +18749,15 @@
 
         state.weekData.days.forEach((day, di) => {
           if (di === 1 && weekendEmpty) {
-            // Insert divider before Saturday
+            // Insert divider + collapsible wrapper for weekend days
             html += '<div class="weekend-divider' + (weekendOpen ? ' open' : '') + '" onclick="toggleWeekend()">' +
               '<span class="wk-chev">›</span> Weekend</div>';
+            html += '<div class="wk-collapse' + (weekendOpen ? ' open' : '') + '" id="wk-collapse-wrap"><div class="wk-collapse-inner">';
           }
-          if ((di === 1 || di === 2) && weekendEmpty && !weekendOpen) return; // skip hidden weekend
           html += renderDaySection(day, di);
+          if (di === 2 && weekendEmpty) {
+            html += '</div></div>'; // close inner + wk-collapse
+          }
         });
         return html;
       })();
@@ -18878,7 +18893,14 @@
 
     function toggleWeekend() {
       state.weekendOpen = !state.weekendOpen;
-      render();
+      const wrap = document.getElementById('wk-collapse-wrap');
+      const divider = wrap?.previousElementSibling;
+      if (wrap && divider) {
+        wrap.classList.toggle('open', state.weekendOpen);
+        divider.classList.toggle('open', state.weekendOpen);
+      } else {
+        render();
+      }
     }
 
     function toggleDay(di) {
