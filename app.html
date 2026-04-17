@@ -15287,7 +15287,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.6.80';
+    const VERSION = '5.6.81';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -17586,6 +17586,12 @@
           // Ensure the local updatedAt reflects the server time (as a number)
           state.weekData._updatedAt = remoteTs;
 
+          // Strip _draft flag from any activities that leaked to Firestore
+          // before v5.6.63 — remote data is always "saved" by definition.
+          state.weekData.days.forEach(d => {
+            (d.activities || []).forEach(a => { delete a._draft; });
+          });
+
           // Re-inject draft activities that were in progress before the snapshot
           for (const [di, drafts] of Object.entries(_draftsPerDay)) {
             if (state.weekData.days[di]) {
@@ -19616,12 +19622,11 @@
 
     function removeActivity(actId, di) {
       const day = state.weekData.days[di];
-      const act = day.activities.find(a => a.id === actId);
-      // Draft tasks just get removed locally — no sync needed
-      const wasDraft = act && act._draft;
       day.activities = day.activities.filter(a => a.id !== actId);
       state.activitiesExpanded.delete(actId);
-      if (!wasDraft) scheduleAutoSave();
+      // Always sync deletion — draft tasks that leaked to Firestore before
+      // v5.6.63 need to be cleaned up, not just removed locally.
+      scheduleAutoSave();
       render();
     }
 
