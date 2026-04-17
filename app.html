@@ -15291,7 +15291,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.7.4';
+    const VERSION = '5.7.5';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -18295,7 +18295,7 @@
         <div class="text-xs mt-0.5 flex items-center justify-center gap-2" style="color:var(--text-header-sub)">
           ${syncIcons[state.syncStatus] || ''}
           <span title="${syncTitles[state.syncStatus]}">${syncTitles[state.syncStatus]}</span>
-          <span style="color:var(--text-muted);cursor:pointer" class="text-xs" id="ver-label">v${VERSION}</span>
+          <span style="color:var(--text-muted)" class="text-xs">v${VERSION}</span>
         </div>
       </div>
       <button onclick="nextWeek()" class="hdr-nav-btn"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></button>
@@ -18478,7 +18478,7 @@
               </div>
 
               <div class="menu-spacer"></div>
-              <div class="menu-version" onclick="alert('Screen: '+window.innerWidth+'x'+window.innerHeight+' DPR: '+window.devicePixelRatio)" style="cursor:pointer">Rian v${VERSION}<br><span style="font-size:10px;color:var(--accent)">Tap for screen info</span></div>
+              <div class="menu-version">Rian v${VERSION}</div>
             `;
         })()}
         </div>
@@ -19647,9 +19647,6 @@
     }
     document.addEventListener('click', e => {
       if (!e.target.closest('.btn-more') && !e.target.closest('.ctx-menu')) closeAllCtx();
-      if (e.target.id === 'ver-label' || e.target.closest('#ver-label')) {
-        alert('Screen: ' + window.innerWidth + 'x' + window.innerHeight + ' DPR: ' + window.devicePixelRatio);
-      }
     });
 
     document.addEventListener('click', e => {
