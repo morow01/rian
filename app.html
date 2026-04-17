@@ -15291,7 +15291,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.6.95';
+    const VERSION = '5.6.96';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -17533,65 +17533,18 @@
           // EXCEPTION (v5.1.91): if this is the first snapshot for a freshly
           // scaffolded week, local is just the empty scaffold — never push
           // it back, even if its _updatedAt is newer.
-          if (!wasFirstSnap && remoteTs > 0 && localTs > 0 && remoteTs < localTs) {
-            console.warn('[Rian] Skipping stale remote snapshot (remote:', remoteTs, '< local:', localTs, ')');
-            return;
-          }
-
-          // Hours regression guard — catches the case where another device had
-          // a partial/old version and wrote it to Firestore with a fresh timestamp,
-          // making the stale data look newer than local (or local has no cache).
-          // If remote hours are >HWM_THRESHOLD below the best we've ever seen on
-          // this browser, reject and push local data back to restore Firestore.
-          const _remoteHrs = _weekTotalHours(remote);
-          const _hwm = _getHWM(weekStart);
-          // v5.1.91: skip HWM regression rejection on the first snapshot of a
-          // freshly-scaffolded week — local has no real data to compare against.
-          if (!wasFirstSnap && _hwm > HWM_THRESHOLD && _remoteHrs < _hwm - HWM_THRESHOLD) {
-            console.warn('[Rian] Rejecting remote data — hours regression:', _remoteHrs.toFixed(1), '< HWM', _hwm.toFixed(1));
-            _registerConflict({
-              id: 'ts_' + weekStart,
-              section: 'Timesheet', icon: '📅',
-              description: `Week of ${weekStart} — ${_weekTotalHours(state.weekData).toFixed(1)}h locally vs ${_remoteHrs.toFixed(1)}h in cloud.`,
-              displayType: 'rows',
-              localData: deepCopy(state.weekData), remoteData: deepCopy(remote),
-              localMeta: { time: 'This device (preserved)', rows: [{ code: 'Total', val: _weekTotalHours(state.weekData).toFixed(1) + 'h', note: 'local entries', hi: true }], summary: `HWM: ${_hwm.toFixed(1)}h` },
-              remoteMeta: { time: 'Cloud version (rejected)', rows: [{ code: 'Total', val: _remoteHrs.toFixed(1) + 'h', note: 'cloud — regression detected', hi: false }], summary: `${_hwm.toFixed(1) - _remoteHrs.toFixed(1)}h below high-water-mark` },
-            });
-            return;
-          }
-          // Activity-count regression guard — catches the case where remote was
-          // written with empty/partial data and HWM_THRESHOLD didn't fire (e.g.
-          // week has <4h total). If local has more filled activities than remote,
-          // reject remote and push local data back to restore Firestore.
-          const _localActCount = _weekNonEmptyActCount(state.weekData);
-          const _remoteActCount = _weekNonEmptyActCount(remote);
-          // v5.1.91: same — first snapshot of a scaffolded week is always trusted.
-          if (!wasFirstSnap && _localActCount > 0 && _remoteActCount < _localActCount) {
-            console.warn('[Rian] Rejecting remote data — entry regression (local:', _localActCount, 'acts, remote:', _remoteActCount, 'acts)');
-
-            _registerConflict({
-              id: 'ts_' + weekStart,
-              section: 'Timesheet', icon: '📅',
-              description: `Week of ${weekStart} — ${_localActCount} entries on this device, only ${_remoteActCount} in cloud.`,
-              displayType: 'rows',
-              localData: deepCopy(state.weekData),
-              remoteData: deepCopy(remote),
-              localMeta: {
-                time: 'This device (preserved)',
-                rows: (state.weekData.days || []).filter(d => (d.activities || []).some(a => (parseFloat(a.ordinary) || 0) > 0 || (parseFloat(a.overtime) || 0) > 0)).slice(0, 4).map(d => ({ code: (d.activities[0]?.codes || [])[0] || '—', val: (d.activities.reduce((s, a) => s + (parseFloat(a.ordinary) || 0) + (parseFloat(a.overtime) || 0), 0)).toFixed(1) + 'h', note: d.date ? new Date(d.date).toLocaleDateString('en-IE', { weekday: 'short', day: 'numeric', month: 'short' }) : '', hi: true })),
-                summary: `Total: ${_weekTotalHours(state.weekData).toFixed(1)}h · ${_localActCount} entries`
-              },
-              remoteMeta: {
-                time: 'Cloud version (rejected)',
-                rows: (state.weekData.days || []).filter(d => (d.activities || []).some(a => (parseFloat(a.ordinary) || 0) > 0 || (parseFloat(a.overtime) || 0) > 0)).slice(0, 4).map(d => ({ code: '—', val: '0h', note: d.date ? new Date(d.date).toLocaleDateString('en-IE', { weekday: 'short', day: 'numeric', month: 'short' }) : '', hi: false })),
-                summary: `Total: ${_weekTotalHours(remote).toFixed(1)}h · ${_remoteActCount} entries`
-              },
-            });
-            return;
+          // v5.6.96: All three inbound regression guards (stale-timestamp, HWM,
+          // activity-count) have been disabled. They caused cascading sync wars
+          // across devices — each device rejected the other's data, creating
+          // infinite conflicts. The auto-dedup (below) now handles the only real
+          // threat (duplicate activities from the copy-task bug). Firestore's
+          // _updatedAt timestamp comparison is still logged for diagnostics.
+          if (remoteTs > 0 && localTs > 0 && remoteTs < localTs) {
+            console.info('[Rian] Remote snapshot is older than local (remote:', remoteTs, 'local:', localTs, ') — accepting anyway');
           }
 
           // Raise the HWM as we accept this remote data
+          const _remoteHrs = _weekTotalHours(remote);
           _raiseHWM(weekStart, _remoteHrs);
 
           enforceCorrectDates(weekStart, remote);
