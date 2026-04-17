@@ -15287,7 +15287,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.6.82';
+    const VERSION = '5.6.83';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -16291,6 +16291,13 @@
 
           // Prevent context menu on lightbox so right-click doesn't interfere
           _lb.addEventListener('contextmenu', function (e) { e.preventDefault(); });
+
+          // ESC closes lightbox
+          document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape' && _lb && _lb.classList.contains('open')) {
+              window.closeLightbox();
+            }
+          });
         }
         _lbImg.src = src;
         _resetTransform(false);
