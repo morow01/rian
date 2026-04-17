@@ -15286,7 +15286,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.6.70';
+    const VERSION = '5.6.71';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -21465,7 +21465,8 @@
 
     // ── Navigation ──
     function _jTransitionRender(dir) {
-      if (document.startViewTransition) {
+      // Only animate on mobile-width screens — on desktop the slide looks wrong
+      if (document.startViewTransition && window.innerWidth < 600) {
         document.documentElement.classList.remove('j-vt-left', 'j-vt-right');
         document.documentElement.classList.add('j-vt-' + dir);
         // Must call _renderNow() synchronously inside the callback —
