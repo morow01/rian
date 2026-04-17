@@ -15112,6 +15112,165 @@
       .desk-empty-state svg { opacity: 0.4; }
       .desk-empty-state p { font-size: 13px; }
 
+      /* ── Desktop Notes: Three-panel Layout B ── */
+      .dnotes-wrap {
+        display: flex; height: calc(100vh - 110px); overflow: hidden;
+      }
+      .dnotes-sidebar {
+        width: 200px; min-width: 200px; background: var(--bg-card);
+        border-right: 1px solid var(--border); display: flex; flex-direction: column;
+        overflow-y: auto;
+      }
+      .dnotes-sidebar-hdr {
+        padding: 14px 16px 10px; font-size: 11px; font-weight: 800;
+        letter-spacing: 1px; color: var(--text-muted); text-transform: uppercase;
+      }
+      .dnotes-sidebar-btn {
+        display: flex; align-items: center; gap: 10px; padding: 10px 16px;
+        border: none; background: transparent; width: 100%; text-align: left;
+        color: var(--text-secondary); font-size: 13px; font-weight: 500;
+        cursor: pointer; font-family: var(--font-body);
+        border-left: 3px solid transparent; transition: background 0.12s;
+      }
+      .dnotes-sidebar-btn:hover { background: rgba(var(--accent-rgb), 0.04); }
+      .dnotes-sidebar-btn.active {
+        background: linear-gradient(to right, rgba(var(--accent-rgb), 0.10), rgba(var(--accent-rgb), 0.03));
+        border-left-color: var(--accent); color: var(--accent); font-weight: 700;
+      }
+      .dnotes-sidebar-btn .dnotes-count {
+        margin-left: auto; font-size: 11px; color: var(--text-muted);
+      }
+      .dnotes-sidebar-divider {
+        border-top: 1px solid var(--border-subtle); margin: 8px 0;
+      }
+      .dnotes-sidebar-section {
+        padding: 4px 16px; font-size: 10px; font-weight: 800;
+        letter-spacing: 1px; color: var(--text-muted); text-transform: uppercase;
+      }
+      .dnotes-cat-btn {
+        display: flex; align-items: center; gap: 10px; padding: 8px 16px;
+        border: none; background: transparent; width: 100%; text-align: left;
+        color: var(--text-secondary); font-size: 12px; cursor: pointer;
+        font-family: var(--font-body); transition: background 0.12s;
+        border-left: 3px solid transparent;
+      }
+      .dnotes-cat-btn:hover { background: rgba(var(--accent-rgb), 0.04); }
+      .dnotes-cat-btn.active {
+        background: linear-gradient(to right, rgba(var(--accent-rgb), 0.06), transparent);
+        border-left-color: var(--cat-color, var(--accent)); font-weight: 600;
+      }
+      .dnotes-cat-dot {
+        width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+      }
+      .dnotes-new-btn {
+        margin: auto 12px 12px; padding: 10px; border: 1px dashed var(--accent);
+        border-radius: 8px; background: rgba(var(--accent-rgb), 0.06);
+        color: var(--accent); font-weight: 700; font-size: 13px;
+        cursor: pointer; font-family: var(--font-body); text-align: center;
+      }
+      .dnotes-new-btn:hover { background: rgba(var(--accent-rgb), 0.12); }
+
+      /* Notes list panel */
+      .dnotes-list {
+        width: 320px; min-width: 320px; background: var(--bg-card);
+        border-right: 1px solid var(--border); display: flex; flex-direction: column;
+        overflow: hidden;
+      }
+      .dnotes-search-wrap {
+        padding: 10px 14px; position: relative;
+      }
+      .dnotes-search {
+        width: 100%; padding: 8px 12px 8px 32px; border: 1px solid var(--border);
+        border-radius: 8px; font-size: 13px; background: var(--bg-input);
+        outline: none; box-sizing: border-box; font-family: var(--font-body);
+        color: var(--text-primary);
+      }
+      .dnotes-search:focus { border-color: var(--accent); }
+      .dnotes-search-icon {
+        position: absolute; left: 24px; top: 19px; color: var(--text-muted);
+      }
+      .dnotes-list-scroll {
+        flex: 1; overflow-y: auto;
+      }
+      .dnotes-note-row {
+        padding: 12px 14px; border-bottom: 1px solid var(--border-subtle);
+        cursor: pointer; border-left: 3px solid transparent;
+        transition: background 0.12s;
+      }
+      .dnotes-note-row:hover { background: rgba(var(--accent-rgb), 0.04); }
+      .dnotes-note-row.active {
+        background: linear-gradient(to right, rgba(var(--accent-rgb), 0.10), rgba(var(--accent-rgb), 0.03));
+        border-left-color: var(--accent);
+      }
+      .dnotes-note-title {
+        font-size: 13px; font-weight: 700; color: var(--text-primary);
+        overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+      }
+      .dnotes-note-preview {
+        font-size: 12px; color: var(--text-secondary); overflow: hidden;
+        text-overflow: ellipsis; white-space: nowrap; line-height: 1.4; margin-top: 2px;
+      }
+      .dnotes-note-meta {
+        display: flex; align-items: center; gap: 8px; margin-top: 4px; font-size: 11px;
+        color: var(--text-muted);
+      }
+      .dnotes-note-meta .dnotes-cat-badge {
+        font-size: 10px; padding: 1px 6px; border-radius: 6px; font-weight: 600;
+      }
+      .dnotes-note-dot {
+        width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+      }
+      .dnotes-note-head {
+        display: flex; align-items: center; gap: 8px;
+      }
+      .dnotes-note-head .dnotes-note-title { flex: 1; min-width: 0; }
+      .dnotes-note-date { font-size: 11px; color: var(--text-muted); white-space: nowrap; }
+      .dnotes-pin-icon { color: var(--accent); font-size: 10px; }
+
+      /* Editor panel */
+      .dnotes-editor {
+        flex: 1; background: var(--bg-card); display: flex; flex-direction: column;
+        overflow: hidden;
+      }
+      .dnotes-editor-empty {
+        flex: 1; display: flex; align-items: center; justify-content: center;
+        color: var(--text-muted); flex-direction: column; gap: 8px;
+      }
+      .dnotes-editor-empty svg { opacity: 0.4; }
+      .dnotes-editor-empty p { font-size: 14px; }
+      .dnotes-editor-header {
+        padding: 16px 24px; border-bottom: 1px solid var(--border-subtle);
+        display: flex; align-items: center; gap: 12px;
+      }
+      .dnotes-editor-title {
+        font-size: 16px; font-weight: 700; color: var(--text-primary); flex: 1;
+      }
+      .dnotes-editor-body {
+        flex: 1; overflow-y: auto; padding: 20px 24px;
+      }
+      .dnotes-field-label {
+        font-size: 10px; font-weight: 800; letter-spacing: 0.5px;
+        text-transform: uppercase; color: var(--text-muted); margin-bottom: 6px;
+      }
+      .dnotes-field-group { margin-bottom: 16px; }
+      .dnotes-field-input {
+        width: 100%; padding: 10px 14px; border: 1px solid var(--border);
+        border-radius: 12px; font-size: 14px; background: var(--bg-input);
+        color: var(--text-primary); font-family: var(--font-body);
+        box-sizing: border-box; outline: none;
+      }
+      .dnotes-field-input:focus { border-color: var(--accent); }
+      .dnotes-note-content-area {
+        min-height: 200px; padding: 14px; border: 1px solid var(--border);
+        border-radius: 12px; background: var(--bg-input); cursor: pointer;
+        font-size: 14px; color: var(--text-primary); line-height: 1.6;
+      }
+      .dnotes-note-content-area:hover { border-color: var(--accent); }
+      .dnotes-editor-actions {
+        display: flex; gap: 8px; padding: 16px 24px;
+        border-top: 1px solid var(--border-subtle);
+      }
+
       /* Widen TipTap fullscreen editor on desktop */
       #note-fs-modal > .flex.flex-col.w-full { max-width: 1409px !important; }
 
@@ -15579,7 +15738,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.8.6';
+    const VERSION = '5.8.7';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -16235,6 +16394,8 @@
       weekendOpen: false,
       deskSelectedDay: 0,   // desktop: selected day index (0=Fri, 1=Sat, ...)
       deskSelectedAct: null, // desktop: selected activity id
+      deskSelectedNote: null, // desktop notes: selected note id
+      deskNotesCatFilter: '', // desktop notes: sidebar category filter
       micFabHidden: localStorage.getItem('micFabHidden') === '1',  // track which day indices are expanded
       notesOpen: new Map(), // explicit open/closed per actId; default = open if note has content
       selectionMode: false,
@@ -16313,6 +16474,7 @@
     let _loadWeekInProgress = false;
     let db = null;
     let weekUnsubscribe = null;
+    let _lastFirestoreSnapAt = 0; // timestamp of last onSnapshot delivery — used by stale-listener heartbeat
 
     // ── Hours high-water-mark (HWM) guard ──────────────────────────
     // Tracks the maximum total hours ever seen for each week on THIS browser.
@@ -17740,11 +17902,21 @@
         const ref = userDoc(`weeks/${weekStart}`);
         let _snapWriteBackCooldown = 0; // cooldown timestamp: prevents snapshot→write→snapshot loops
         weekUnsubscribe = ref.onSnapshot({ includeMetadataChanges: true }, snap => {
+          _lastFirestoreSnapAt = Date.now(); // heartbeat — track liveness
           // Ignore snapshots that are just echoing our own pending writes
           if (snap.metadata.hasPendingWrites) return;
           // If we recently wrote back from a snapshot, skip for 5s to prevent
           // infinite loop (write→snapshot→write→snapshot…)
           if (Date.now() - _snapWriteBackCooldown < 5000) return;
+          // If we have unsaved local edits (auto-save pending), defer the
+          // snapshot — our pending save will push local state to Firestore
+          // and the resulting echo snapshot will be caught by hasPendingWrites.
+          // Without this guard, the remote snapshot overwrites state.weekData
+          // before the debounce timer fires, silently losing the user's edit.
+          if (state.syncStatus === 'pending') {
+            console.info('[Rian] Snapshot deferred — local save pending');
+            return;
+          }
 
           // First-snapshot gate (v5.1.90 / v5.1.91): capture whether this is
           // the very first snapshot for a freshly-scaffolded week BEFORE
@@ -22645,6 +22817,297 @@
     }
 
     // ---- Notes render ----
+
+    // ── Desktop Notes: three-panel Layout B ──────────────────────────
+    function _renderDesktopNotes() {
+      var notesTab = state.notesTab || 'notes';
+      var cf = state.deskNotesCatFilter || '';
+
+      // Build note lists
+      var openNotes = state.notes.filter(function(n) { return !n.isSection && n.status !== 'done' && !n.deleted && !n.archived; });
+      var doneNotes = state.notes.filter(function(n) { return !n.isSection && n.status === 'done' && !n.deleted && !n.archived; });
+      var archiveNotes = state.notes.filter(function(n) { return !n.isSection && n.archived && !n.deleted; })
+        .sort(function(a, b) { return (b.archivedAt || 0) - (a.archivedAt || 0); });
+      var binNotes = state.notes.filter(function(n) { return !n.isSection && n.deleted; })
+        .sort(function(a, b) { return (b.deletedAt || 0) - (a.deletedAt || 0); });
+
+      var activeCount = openNotes.length + doneNotes.length;
+
+      // Select which list to show based on tab
+      var listNotes;
+      if (notesTab === 'archive') {
+        listNotes = archiveNotes;
+      } else if (notesTab === 'bin') {
+        listNotes = binNotes;
+      } else {
+        // Active tab: combine open + done, apply priority/category filter
+        listNotes = openNotes.concat(doneNotes);
+      }
+
+      // Apply category filter for active tab
+      if (notesTab === 'notes' && cf) {
+        if (cf === 'untagged') {
+          listNotes = listNotes.filter(function(n) { return !n.category; });
+        } else {
+          listNotes = listNotes.filter(function(n) { return (n.category || '') === cf; });
+        }
+      }
+
+      // Apply search
+      var q = (state.notesSearch || '').trim().toLowerCase();
+      if (q) {
+        listNotes = listNotes.filter(function(n) {
+          var hay = [n.description || '', n.location || '', n.noteContent || '', n.category || ''].join(' ').toLowerCase();
+          return hay.includes(q);
+        });
+      }
+
+      // Sort: pinned first, then by updatedAt
+      listNotes.sort(function(a, b) {
+        if (b.pinned && !a.pinned) return 1;
+        if (a.pinned && !b.pinned) return -1;
+        return (b.updatedAt || 0) - (a.updatedAt || 0);
+      });
+
+      // Clamp selected note
+      if (state.deskSelectedNote && !listNotes.find(function(n) { return n.id === state.deskSelectedNote; })) {
+        state.deskSelectedNote = listNotes.length > 0 ? listNotes[0].id : null;
+      }
+      if (!state.deskSelectedNote && listNotes.length > 0) {
+        state.deskSelectedNote = listNotes[0].id;
+      }
+      var selNote = state.deskSelectedNote ? state.notes.find(function(n) { return n.id === state.deskSelectedNote; }) : null;
+
+      // ── Sidebar ──
+      var NAV_ITEMS = [
+        { key: 'notes', label: 'Active', count: activeCount,
+          icon: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>' },
+        { key: 'archive', label: 'Archive', count: archiveNotes.length,
+          icon: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg>' },
+        { key: 'bin', label: 'Bin', count: binNotes.length,
+          icon: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>' }
+      ];
+      var sidebarHtml = '<div class="dnotes-sidebar-hdr">Notes</div>';
+      NAV_ITEMS.forEach(function(item) {
+        var isActive = (notesTab === item.key);
+        sidebarHtml += '<button class="dnotes-sidebar-btn' + (isActive ? ' active' : '') + '" onclick="deskNotesTab(\'' + item.key + '\')">' +
+          item.icon +
+          '<span>' + item.label + '</span>' +
+          '<span class="dnotes-count">' + item.count + '</span>' +
+        '</button>';
+      });
+
+      // Category filters in sidebar (only for active tab)
+      if (notesTab === 'notes') {
+        var cats = getCategories();
+        if (cats.length > 0) {
+          sidebarHtml += '<div class="dnotes-sidebar-divider"></div>';
+          sidebarHtml += '<div class="dnotes-sidebar-section">Tags</div>';
+          cats.forEach(function(cat) {
+            var catCount = state.notes.filter(function(n) { return !n.isSection && n.category === cat.key && !n.deleted; }).length;
+            var isActive = (cf === cat.key);
+            sidebarHtml += '<button class="dnotes-cat-btn' + (isActive ? ' active' : '') + '" style="--cat-color:' + cat.color + '" onclick="deskNotesCatFilter(\'' + cat.key + '\')">' +
+              '<span class="dnotes-cat-dot" style="background:' + cat.color + '"></span>' +
+              '<span>' + esc(cat.label) + '</span>' +
+              '<span class="dnotes-count">' + catCount + '</span>' +
+            '</button>';
+          });
+          // Untagged
+          var untaggedCount = state.notes.filter(function(n) { return !n.isSection && !n.category && !n.deleted && !n.archived; }).length;
+          sidebarHtml += '<button class="dnotes-cat-btn' + (cf === 'untagged' ? ' active' : '') + '" style="--cat-color:var(--text-muted)" onclick="deskNotesCatFilter(\'untagged\')">' +
+            '<span class="dnotes-cat-dot" style="background:var(--text-muted)"></span>' +
+            '<span>Untagged</span>' +
+            '<span class="dnotes-count">' + untaggedCount + '</span>' +
+          '</button>';
+        }
+      }
+
+      // New Note button at bottom of sidebar
+      sidebarHtml += '<div style="flex:1"></div>';
+      sidebarHtml += '<button class="dnotes-new-btn" onclick="deskNotesNew()">+ New Note</button>';
+
+      // ── Notes List ──
+      var listHtml = '<div class="dnotes-search-wrap">' +
+        '<svg class="dnotes-search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>' +
+        '<input class="dnotes-search" type="text" placeholder="Search ' + (notesTab === 'archive' ? 'archive' : notesTab === 'bin' ? 'bin' : 'notes') + '…" value="' + esc(state.notesSearch || '') + '" oninput="notesSearchInput(this.value)">' +
+      '</div>';
+      listHtml += '<div class="dnotes-list-scroll" id="dnotes-list-scroll">';
+      if (listNotes.length === 0) {
+        listHtml += '<div style="padding:40px 20px;text-align:center;color:var(--text-muted);font-size:13px">No ' + notesTab + ' notes</div>';
+      } else {
+        listNotes.forEach(function(n) {
+          var isSel = (n.id === state.deskSelectedNote);
+          var rawDesc = n.description || '';
+          var cleanDesc = rawDesc.includes('<') ? rawDesc.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim() : rawDesc;
+          if (cleanDesc.includes('&')) cleanDesc = decodeEntities(cleanDesc);
+          var title = cleanDesc || 'Untitled';
+          // Preview from noteContent
+          var rawContent = n.noteContent || '';
+          var preview = rawContent.includes('<') ? rawContent.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim() : rawContent;
+          if (preview.length > 100) preview = preview.substring(0, 100) + '…';
+          // Date
+          var dateStr = '';
+          if (n.updatedAt) {
+            var d = new Date(n.updatedAt);
+            var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+            dateStr = d.getDate() + ' ' + months[d.getMonth()];
+          }
+          // Category dot
+          var noteCat = getCategories().find(function(c) { return c.key === (n.category || ''); });
+          var dotHtml = noteCat ? '<span class="dnotes-note-dot" style="background:' + noteCat.color + '"></span>' : '';
+          // Pin icon
+          var pinHtml = n.pinned ? '<span class="dnotes-pin-icon"><svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M5 17h14v-1.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V6h1a2 2 0 0 0 0-4H8a2 2 0 0 0 0 4h1v4.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24Z M12 17 L12 22"/></svg></span>' : '';
+          // Category badge
+          var catBadgeHtml = noteCat ? '<span class="dnotes-cat-badge" style="background:' + noteCat.color + ';color:#fff">' + esc(noteCat.label) + '</span>' : '';
+          // Status indicator
+          var statusDot = '';
+          if (n.status === 'done') statusDot = '<span style="width:7px;height:7px;border-radius:50%;background:#22c55e;flex-shrink:0"></span>';
+          else if (n.priority === 'high') statusDot = '<span style="width:7px;height:7px;border-radius:50%;background:#ef4444;flex-shrink:0"></span>';
+          else if (n.priority === 'medium') statusDot = '<span style="width:7px;height:7px;border-radius:50%;background:#f97316;flex-shrink:0"></span>';
+
+          var escId = n.id.replace(/'/g, "\\'");
+          listHtml += '<div class="dnotes-note-row' + (isSel ? ' active' : '') + '" onclick="deskSelectNote(\'' + escId + '\')">' +
+            '<div class="dnotes-note-head">' +
+              statusDot + pinHtml + dotHtml +
+              '<span class="dnotes-note-title">' + esc(title) + '</span>' +
+              '<span class="dnotes-note-date">' + dateStr + '</span>' +
+            '</div>' +
+            (preview ? '<div class="dnotes-note-preview">' + esc(preview) + '</div>' : '') +
+            '<div class="dnotes-note-meta">' + catBadgeHtml + '</div>' +
+          '</div>';
+        });
+      }
+      listHtml += '</div>';
+
+      // ── Editor Panel ──
+      var editorHtml = '';
+      if (!selNote) {
+        editorHtml = '<div class="dnotes-editor-empty">' +
+          '<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>' +
+          '<p>Select a note to view</p>' +
+        '</div>';
+      } else {
+        var selCat = getCategories().find(function(c) { return c.key === (selNote.category || ''); });
+        var selCatBadge = selCat
+          ? '<span style="display:inline-flex;align-items:center;gap:4px;font-size:11px;padding:2px 8px;border-radius:6px;background:' + selCat.color + ';color:#fff;font-weight:600">' + getCatIconHtml(selCat, 11) + ' ' + esc(selCat.label) + '</span>'
+          : '';
+        var priColors = { high: '#ef4444', medium: '#f97316', low: '#22c55e' };
+        var priLabel = { high: 'High', medium: 'Medium', low: 'Low' };
+        var selPriBadge = priColors[selNote.priority]
+          ? '<span style="font-size:11px;padding:2px 8px;border-radius:6px;background:' + priColors[selNote.priority] + ';color:#fff;font-weight:600">' + priLabel[selNote.priority] + '</span>'
+          : '';
+        var selRawDesc = selNote.description || '';
+        var selCleanDesc = selRawDesc.includes('<') ? selRawDesc.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim() : selRawDesc;
+        var selTitle = selCleanDesc || 'Untitled';
+        var selEscId = selNote.id.replace(/'/g, "\\'");
+
+        // Note content preview (rendered HTML)
+        var contentPreview = selNote.noteContent || '';
+        if (!contentPreview.trim()) {
+          contentPreview = '<span style="color:var(--text-muted);font-style:italic">No content yet. Click to edit.</span>';
+        }
+
+        editorHtml = '<div class="dnotes-editor-header">' +
+          '<div class="dnotes-editor-title">' + esc(selTitle) + '</div>' +
+          '<div style="display:flex;gap:6px;align-items:center">' + selCatBadge + selPriBadge + '</div>' +
+        '</div>' +
+        '<div class="dnotes-editor-body">' +
+          // Description field
+          '<div class="dnotes-field-group">' +
+            '<div class="dnotes-field-label">Description</div>' +
+            '<input class="dnotes-field-input" type="text" value="' + esc(selRawDesc) + '" data-note-id="' + selEscId + '" data-note-field="description" onchange="updateNoteField(this);deskRefreshNotesList()" placeholder="Note title…">' +
+          '</div>' +
+          // Location field
+          '<div class="dnotes-field-group">' +
+            '<div class="dnotes-field-label">Location</div>' +
+            '<input class="dnotes-field-input" type="text" value="' + esc(selNote.location || '') + '" data-note-id="' + selEscId + '" data-note-field="location" onchange="updateNoteField(this)" placeholder="Location…">' +
+          '</div>' +
+          // Content area — opens fullscreen editor on click
+          '<div class="dnotes-field-group">' +
+            '<div class="dnotes-field-label">Content</div>' +
+            '<div class="dnotes-note-content-area" onclick="openFieldNoteFullscreen(\'' + selEscId + '\',\'notes\')">' +
+              contentPreview +
+            '</div>' +
+          '</div>' +
+        '</div>' +
+        // Action buttons
+        '<div class="dnotes-editor-actions">' +
+          '<button class="desk-detail-btn" onclick="openFieldNoteFullscreen(\'' + selEscId + '\',\'notes\')">' +
+            '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Edit Content</button>' +
+          (notesTab === 'notes' ? '<button class="desk-detail-btn" onclick="archiveNote(\'' + selEscId + '\')">' +
+            '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg> Archive</button>' : '') +
+          (notesTab === 'archive' ? '<button class="desk-detail-btn" onclick="unarchiveNote(\'' + selEscId + '\')">' +
+            '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg> Unarchive</button>' : '') +
+          (notesTab === 'bin' ? '<button class="desk-detail-btn" onclick="restoreNote(\'' + selEscId + '\')">' +
+            '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg> Restore</button>' : '') +
+          (notesTab !== 'bin' ? '<button class="desk-detail-btn" style="color:var(--btn-danger-color)" onclick="deleteNote(\'' + selEscId + '\')">' +
+            '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg> Delete</button>' : '') +
+        '</div>';
+      }
+
+      return '<div class="dnotes-wrap">' +
+        '<div class="dnotes-sidebar">' + sidebarHtml + '</div>' +
+        '<div class="dnotes-list">' + listHtml + '</div>' +
+        '<div class="dnotes-editor">' + editorHtml + '</div>' +
+      '</div>';
+    }
+
+    // Desktop Notes helper: select a note
+    function deskSelectNote(id) {
+      state.deskSelectedNote = id;
+      // Re-render just the list + editor panels
+      var listPanel = document.querySelector('.dnotes-list');
+      var editorPanel = document.querySelector('.dnotes-editor');
+      if (listPanel && editorPanel) {
+        // Quick approach: full re-render of the notes view
+        render();
+      } else {
+        render();
+      }
+    }
+
+    // Desktop Notes: switch tab
+    function deskNotesTab(tab) {
+      state.notesTab = tab;
+      state.notesArchiveOpen = (tab === 'archive');
+      state.notesBinOpen = (tab === 'bin');
+      state.deskSelectedNote = null; // reset selection on tab change
+      state.deskNotesCatFilter = ''; // reset category filter on tab change
+      render();
+    }
+
+    // Desktop Notes: filter by category
+    function deskNotesCatFilter(key) {
+      if (state.deskNotesCatFilter === key) {
+        state.deskNotesCatFilter = ''; // toggle off
+      } else {
+        state.deskNotesCatFilter = key;
+      }
+      state.deskSelectedNote = null; // reset selection
+      render();
+    }
+
+    // Desktop Notes: create new note
+    function deskNotesNew() {
+      var note = createNote();
+      if (state.deskNotesCatFilter && state.deskNotesCatFilter !== 'untagged') note.category = state.deskNotesCatFilter;
+      state.notes.unshift(note);
+      state.deskSelectedNote = note.id;
+      state.notesTab = 'notes'; // switch to active tab
+      scheduleNotesSave();
+      render();
+      // Focus description input in editor panel
+      setTimeout(function() {
+        var inp = document.querySelector('.dnotes-field-input[data-note-field="description"]');
+        if (inp) inp.focus();
+      }, 80);
+    }
+
+    // Desktop Notes: refresh list panel after field edit
+    function deskRefreshNotesList() {
+      if (_isDesktop()) render();
+    }
+
     // ---- Notes filter helper ----
     function getFilteredNotes() {
       const f = state.notesFilter;
@@ -22812,6 +23275,9 @@
 
     // ---- Notes render ----
     function renderNotesView() {
+      // Desktop: three-panel layout
+      if (_isDesktop()) return _renderDesktopNotes();
+
       const TRASH_ICON = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>`;
 
       const filtered = getFilteredNotes();
@@ -23815,6 +24281,8 @@
       _notesSearchTimer = setTimeout(() => {
         _notesSearchTimer = null;
         const wasFocused = document.activeElement?.id === 'notes-search-input';
+        const _deskSearchFocused = document.activeElement?.classList?.contains('dnotes-search');
+        const _deskSearchPos = _deskSearchFocused ? document.activeElement.selectionStart : null;
         // Save caret offset for contenteditable restoration
         let caretOffset = null;
         if (wasFocused) {
@@ -23851,6 +24319,13 @@
                 sel2.addRange(range);
               }
             }
+          });
+        }
+        // Desktop search focus restoration
+        if (_deskSearchFocused) {
+          requestAnimationFrame(() => {
+            var dsi = document.querySelector('.dnotes-search');
+            if (dsi) { dsi.focus(); if (_deskSearchPos !== null) dsi.setSelectionRange(_deskSearchPos, _deskSearchPos); }
           });
         }
       }, 120);
@@ -26248,6 +26723,30 @@
 
     document.addEventListener('visibilitychange', () => {
       if (document.visibilityState === 'hidden') flushPendingSaves();
+    });
+
+    // ── Firestore listener heartbeat ──────────────────────────────────
+    // Chrome's WebSocket for Firestore onSnapshot can silently go stale
+    // when a tab is backgrounded. When the user returns, the listener
+    // exists but no snapshots arrive. This forces a network reconnect
+    // if the last snapshot is older than 60s, ensuring fresh data.
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState !== 'visible') return;
+      if (!state.currentUser) return;
+      const staleMs = Date.now() - _lastFirestoreSnapAt;
+      if (_lastFirestoreSnapAt > 0 && staleMs > 60000) {
+        console.info('[Rian] Firestore listener stale (' + Math.round(staleMs / 1000) + 's) — forcing reconnect');
+        const _fs = firebase.firestore();
+        _fs.disableNetwork().then(() => _fs.enableNetwork()).then(() => {
+          // After reconnect, Firestore will deliver a fresh snapshot
+          // which triggers render() via the onSnapshot handler.
+          // But as a safety net, force a render after a short delay
+          // in case the snapshot arrives before the handler re-attaches.
+          setTimeout(() => {
+            if (state.view === 'week') render();
+          }, 1500);
+        }).catch(e => console.warn('[Rian] Heartbeat reconnect failed:', e));
+      }
     });
 
     window.addEventListener('pagehide', () => {
