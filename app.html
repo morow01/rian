@@ -15291,7 +15291,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.7.2';
+    const VERSION = '5.7.3';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -18478,7 +18478,7 @@
               </div>
 
               <div class="menu-spacer"></div>
-              <div class="menu-version">Rian v${VERSION}</div>
+              <div class="menu-version" onclick="alert('Screen: '+window.innerWidth+'x'+window.innerHeight+' DPR: '+window.devicePixelRatio)" style="cursor:pointer">Rian v${VERSION}<br><span style="font-size:10px;color:var(--accent)">Tap for screen info</span></div>
             `;
         })()}
         </div>
@@ -19648,7 +19648,7 @@
     document.addEventListener('click', e => {
       if (!e.target.closest('.btn-more') && !e.target.closest('.ctx-menu')) closeAllCtx();
       if (e.target.id === 'ver-label' || e.target.closest('#ver-label')) {
-        showToast('Screen: ' + window.innerWidth + '\u00d7' + window.innerHeight + ' \u00b7 DPR: ' + window.devicePixelRatio);
+        alert('Screen: ' + window.innerWidth + 'x' + window.innerHeight + ' DPR: ' + window.devicePixelRatio);
       }
     });
 
