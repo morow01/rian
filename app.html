@@ -15291,7 +15291,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.6.89';
+    const VERSION = '5.6.90';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -19846,10 +19846,13 @@
     }
 
     async function executeCopyTask() {
+      if (executeCopyTask._running) return;
+      executeCopyTask._running = true;
+      try {
       const { actId, sourceDi, selectedDates, moveMode } = copyPickerState;
-      if (!selectedDates.size) return;
+      if (!selectedDates.size) { executeCopyTask._running = false; return; }
       const sourceAct = state.weekData.days[sourceDi]?.activities.find(a => a.id === actId);
-      if (!sourceAct) return;
+      if (!sourceAct) { executeCopyTask._running = false; return; }
 
       // Group selected dates by weekStart (Friday-based)
       const datesByWeek = {};
@@ -19933,6 +19936,7 @@
       showToast(moveMode
         ? `Task moved to ${selectedDates.size} day${selectedDates.size !== 1 ? 's' : ''}`
         : `Task copied to ${selectedDates.size} day${selectedDates.size !== 1 ? 's' : ''}`);
+      } finally { executeCopyTask._running = false; }
     }
 
     // ============================================================
