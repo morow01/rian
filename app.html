@@ -15291,7 +15291,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.6.98';
+    const VERSION = '5.6.99';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -19815,6 +19815,7 @@
           const dayIdx = state.weekData.days.findIndex(d => d.date === dateStr);
           if (dayIdx < 0) return;
           const newAct = createActivity();
+          delete newAct._draft; // Copy/move is user-confirmed — save immediately
           newAct.description = sourceAct.description || '';
           newAct.location = sourceAct.location || '';
           newAct.codes = deepCopy(sourceAct.codes || []);
@@ -19847,6 +19848,7 @@
             const dayIdx = weekData.days.findIndex(d => d.date === dateStr);
             if (dayIdx < 0) return;
             const newAct = createActivity();
+            delete newAct._draft; // Copy/move is user-confirmed — save immediately
             newAct.description = sourceAct.description || '';
             newAct.location = sourceAct.location || '';
             newAct.codes = deepCopy(sourceAct.codes || []);
