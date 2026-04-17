@@ -15291,7 +15291,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.6.93';
+    const VERSION = '5.6.94';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -17452,6 +17452,16 @@
             (a.codes && a.codes.length > 0) || (a.notes || '').trim()
           );
         });
+        // Auto-dedup local cache (fixes copy-task multiplication bug)
+        state.weekData.days.forEach(d => {
+          const seen = {};
+          d.activities = (d.activities || []).filter(a => {
+            const key = (a.description || '') + '|' + (a.workCode || '') + '|' + (a.ordinary || 0) + '|' + (a.overtime || 0);
+            if (seen[key]) return false;
+            seen[key] = true;
+            return true;
+          });
+        });
         // Seed the HWM from local cache so we have a reference before Firestore arrives
         if (localIsOwn) _raiseHWM(weekStart, _weekTotalHours(state.weekData));
         autoExpandToday();
@@ -17628,6 +17638,26 @@
           // Push cleaned data back to Firestore to fix permanently
           if (_ghostsRemoved) {
             console.log('[Rian] Stripped ghost tasks locally (not writing back — will save on next edit)');
+          }
+
+          // Auto-dedup: remove duplicate activities with identical content
+          // (same description + workCode + hours). Fixes the copy-task
+          // multiplication bug that leaked duplicates across devices.
+          let _dupsRemoved = false;
+          state.weekData.days.forEach(d => {
+            const seen = {};
+            const before = d.activities.length;
+            d.activities = d.activities.filter(a => {
+              const key = (a.description || '') + '|' + (a.workCode || '') + '|' + (a.ordinary || 0) + '|' + (a.overtime || 0);
+              if (seen[key]) return false;
+              seen[key] = true;
+              return true;
+            });
+            if (d.activities.length < before) _dupsRemoved = true;
+          });
+          if (_dupsRemoved) {
+            console.log('[Rian] Auto-deduped activities — saving clean data');
+            fsSetWeek(weekStart, state.weekData).catch(e => console.warn('[Rian]', e));
           }
 
           // Re-inject draft activities that were in progress before the snapshot
