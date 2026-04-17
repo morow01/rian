@@ -15287,7 +15287,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.6.77';
+    const VERSION = '5.6.78';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -29360,7 +29360,7 @@
       sortedSites.forEach(site => {
         const town = (TOWNS || []).find(t => t.name === site);
         const mapsUrl = (town && town.link)
-          ? (IS_NATIVE ? `google.navigation:q=${encodeURIComponent(town.link)}` : `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(town.link)}`)
+          ? (IS_NATIVE ? `geo:${encodeURIComponent(town.link)}?q=${encodeURIComponent(town.link)}` : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(town.link)}`)
           : `https://www.google.com/maps/search/${encodeURIComponent(site)}`;
         let cells = `<td class="rtn-td-site" title="Navigate to ${esc(site)}"><a href="${mapsUrl}" target="_blank" rel="noopener" class="rtn-site-link">${esc(site)}</a></td>`;
         for (let m = 1; m <= 12; m++) {
