@@ -15287,7 +15287,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.6.78';
+    const VERSION = '5.6.79';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -34459,7 +34459,7 @@ QUESTION: ${query}`;
           if (cellDom) {
             const r = cellDom.getBoundingClientRect();
             cellTrigger.style.top = (r.top + 2) + 'px';
-            cellTrigger.style.left = (r.right - 30) + 'px';
+            cellTrigger.style.left = (r.right + 4) + 'px';
           } else {
             const coords = view.coordsAtPos(from);
             cellTrigger.style.top = (coords.top - 28) + 'px';
