@@ -25989,9 +25989,11 @@
       if (!note) return;
       _fnFsNoteId = noteId;
       history.pushState({ noteFs: true }, '');
-      // Record the note's updatedAt at open time so the sync merge can tell
-      // whether the user actually edited, vs just opened stale cached content
-      window._tiptapNoteOpenTs = note.updatedAt || 0;
+      // Record wall-clock time when editor opens. The stale-editor guard on close
+      // compares n.updatedAt against this. Using Date.now() (not note.updatedAt)
+      // so that local field edits (description, date etc.) which bump updatedAt
+      // via updateNoteField() don't trigger the "updated on another device" warning.
+      window._tiptapNoteOpenTs = Date.now();
       // Reuse the existing fullscreen editor modal
       const titleEl = document.getElementById('note-fs-title');
       const subEl = document.getElementById('note-fs-subtitle');
