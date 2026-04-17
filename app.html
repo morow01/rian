@@ -10895,6 +10895,20 @@
       padding-bottom: 90px;
       background: var(--bg-page);
     }
+    .j-screen.j-slide-left {
+      animation: jSlideLeft 0.25s ease both;
+    }
+    .j-screen.j-slide-right {
+      animation: jSlideRight 0.25s ease both;
+    }
+    @keyframes jSlideLeft {
+      from { opacity: 0; transform: translateX(60px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+    @keyframes jSlideRight {
+      from { opacity: 0; transform: translateX(-60px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
 
     .j-sub-header {
       display: flex;
@@ -15239,7 +15253,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.6.66';
+    const VERSION = '5.6.67';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -21407,7 +21421,9 @@
     }
 
     // ── Navigation ──
+    var _jNavDir = ''; // 'left' | 'right' | ''
     function navJournal(screen, opts) {
+      _jNavDir = 'left';
       state.jScreen = screen; state.jEditMode = false;
       if (opts?.notebookId !== undefined) state.jNotebookId = opts.notebookId;
       if (opts?.sectionId !== undefined) state.jSectionId = opts.sectionId;
@@ -21425,6 +21441,7 @@
       render();
     }
     function navJBack() {
+      _jNavDir = 'right';
       state.jAddMode = null; state.jAddTitle = '';
       state.jEditId = null; state.jRenameTitle = ''; state.jEditMode = false;
       if (state.jScreen === 'pages') {
@@ -23105,9 +23122,16 @@
 
     function renderJournalView() {
       if (state.jSearchMode) return renderJSearch();
-      if (state.jScreen === 'sections') return renderJSections();
-      if (state.jScreen === 'pages') return renderJPages();
-      return renderJNotebooks();
+      var html;
+      if (state.jScreen === 'sections') html = renderJSections();
+      else if (state.jScreen === 'pages') html = renderJPages();
+      else html = renderJNotebooks();
+      // Apply slide animation if navigating
+      if (_jNavDir) {
+        html = html.replace('class="j-screen"', 'class="j-screen j-slide-' + _jNavDir + '"');
+        _jNavDir = '';
+      }
+      return html;
     }
 
     // ---- Notes search ----
