@@ -17496,7 +17496,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.8.89';
+    const VERSION = '5.8.91';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -29436,6 +29436,74 @@
       if (e.key === 'Escape' && notesModalCtx) closeNotesModal();
     });
 
+    // ── Universal ESC: close the topmost open modal/sheet ──
+    function _isModalShown(id) {
+      const el = document.getElementById(id);
+      if (!el) return false;
+      if (el.classList.contains('hidden')) return false;
+      const cs = getComputedStyle(el);
+      if (cs.display === 'none' || cs.visibility === 'hidden') return false;
+      if (el.style.display === 'none') return false;
+      return el.offsetParent !== null || cs.position === 'fixed';
+    }
+    document.addEventListener('keydown', function (e) {
+      if (e.key !== 'Escape') return;
+      // Don't hijack ESC inside contenteditable / inputs that may want it (TipTap link bubble etc.)
+      const ae = document.activeElement;
+      if (ae && (ae.tagName === 'INPUT' || ae.tagName === 'TEXTAREA' || ae.isContentEditable)) {
+        // Allow ESC to blur first; modal handlers can still run on next press.
+        // But still close obvious top-layer modals (battery/note-fs/ai) which manage their own focus.
+      }
+      // Priority order: topmost layer first. First match wins.
+      const stack = [
+        ['battery-modal', () => typeof closeBatteryRecorder === 'function' && closeBatteryRecorder()],
+        ['note-fs-modal', () => typeof closeNoteFullscreen === 'function' && closeNoteFullscreen()],
+        ['ai-fault-modal', () => typeof closeFaultAssistant === 'function' && closeFaultAssistant()],
+        ['email-preview-modal', () => typeof closeEmailPreview === 'function' && closeEmailPreview()],
+        ['backup-modal', () => { const el = document.getElementById('backup-modal'); if (el) el.classList.add('hidden'); }],
+        ['restore-confirm-modal', () => { const el = document.getElementById('restore-confirm-modal'); if (el) el.classList.add('hidden'); }],
+        ['jdocx-overlay', () => typeof closeJDocxImport === 'function' && closeJDocxImport()],
+        ['rian-dialog-overlay', () => typeof _rdnClose === 'function' && _rdnClose(null)],
+        ['code-modal', () => typeof closeCodeModal === 'function' && closeCodeModal()],
+        ['location-modal', () => typeof closeLocationModal === 'function' && closeLocationModal()],
+        ['finder-search-modal', () => typeof closeFinderModal === 'function' && closeFinderModal()],
+        ['snapshot-modal', () => typeof closeSnapshotModal === 'function' && closeSnapshotModal()],
+        ['date-modal', () => typeof closeDateModal === 'function' && closeDateModal()],
+        ['export-modal', () => { const el = document.getElementById('export-modal'); if (el) el.classList.add('hidden'); }],
+        ['import-modal', () => { const el = document.getElementById('import-modal'); if (el) el.classList.add('hidden'); }],
+        ['paste-ticket-modal', () => typeof closePasteTicket === 'function' && closePasteTicket()],
+        ['rtn-picker-modal', () => typeof closeRoutinesSitePicker === 'function' && closeRoutinesSitePicker()],
+        ['rtn-log-modal', () => typeof closeRoutinesLogModal === 'function' && closeRoutinesLogModal()],
+        ['voice-listen-modal', () => { const el = document.getElementById('voice-listen-modal'); if (el) el.style.display = 'none'; }],
+        ['voice-confirm-modal', () => { const el = document.getElementById('voice-confirm-modal'); if (el) el.style.display = 'none'; }],
+        ['note-voice-confirm-modal', () => { const el = document.getElementById('note-voice-confirm-modal'); if (el) el.style.display = 'none'; }],
+        ['copy-picker-modal', () => typeof closeCopyPicker === 'function' && closeCopyPicker()],
+        ['note-confirm-modal', () => typeof closeAddToNotes === 'function' && closeAddToNotes()],
+        ['task-picker-modal', () => typeof closeTaskPicker === 'function' && closeTaskPicker()],
+        ['remind-modal', () => typeof closeReminder === 'function' && closeReminder()],
+        ['confirm-modal', () => typeof closeConfirmModal === 'function' && closeConfirmModal()],
+      ];
+      for (let i = 0; i < stack.length; i++) {
+        if (_isModalShown(stack[i][0])) {
+          e.preventDefault();
+          try { stack[i][1](); } catch (err) { console.warn('[Rian] ESC close failed for', stack[i][0], err); }
+          return;
+        }
+      }
+      // Overlays not using id-based hidden class
+      const ocOv = document.getElementById('oc-schedule-overlay');
+      if (ocOv && ocOv.classList.contains('open')) {
+        e.preventDefault();
+        if (typeof ocCloseSchedule === 'function') ocCloseSchedule();
+        return;
+      }
+      if (state && state.isMenuOpen) {
+        e.preventDefault();
+        if (typeof closeThemeMenu === 'function') closeThemeMenu();
+        return;
+      }
+    });
+
     function confirmCodeSelection() {
       const { dayIndex: di, activityId: actId, selected, voiceMode } = codeModalCtx;
       if (voiceMode) {
@@ -40689,6 +40757,11 @@ The state block is invisible to the user.`;
       if (actId) {
         state.activitiesExpanded.add(actId);
         state.notesOpen.set(actId, true);
+      }
+      // Desktop three-panel: select the day and the activity directly
+      if (_isDesktop()) {
+        state.deskSelectedDay = di;
+        if (actId) state.deskSelectedAct = actId;
       }
       saveUiState();
       render();

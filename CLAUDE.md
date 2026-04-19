@@ -16,7 +16,7 @@ A Progressive Web App for field technicians — timesheets, notes (TipTap rich t
 
 ## Version
 `const VERSION = 'x.y.z'` in `app.html` (~line 13799). Bump on every change. Only location that needs updating (index.html version references are static).
-Current version: **5.8.87**
+Current version: **5.8.91**
 
 **12 themes active**: `claude` (default light), `dark` (slate-based), `champagne`, `champagne-dark`, `ios`, `apple` (macOS), `gray` (Grayscale), `gameboy` (Game Boy), `win31` (Win 3.1), `lcd` (LCD), `spectrum` (ZX Spectrum), `retro` (Retro). Theme picker lives in ☰ menu → Display. Switcher at `setTheme(key)`, registry at `THEME_META`.
 
@@ -268,7 +268,16 @@ CSS: `.dfnd-wrap`, `.dfnd-panel-list`, `.dfnd-panel-detail`, `.dfnd-panel-hdr`, 
 On desktop, Tag Manager opens inside the Notes editor panel (not as a fullscreen modal). Two-column grid layout: Built-in tags (left) + Custom tags (right). "New Tag" button opens a modal popup with blur overlay. Hidden from hamburger menu on desktop (accessible only via Notes sidebar).
 
 ### Desktop Weekly Summary (v5.8.86+)
-Desktop Timesheet days panel uses the exact same Weekly Summary as mobile — reuses all `sum-*` CSS classes. Shows code, description, percentage bars, ORD/OT columns, and Total footer. Collapsible via chevron toggle button, shares `state.showSummary` with mobile (v5.8.87+).
+Desktop Timesheet days panel uses the exact same Weekly Summary as mobile — reuses all `sum-*` CSS classes. Shows code, description, percentage bars, ORD/OT columns, and Total footer. Collapsible via chevron toggle button, shares `state.showSummary` with mobile (v5.8.87+). v5.8.89 adds the `sum-section-hdr` divider ("WEEKLY SUMMARY" between two horizontal lines) above the card to match mobile.
+
+### Desktop Weekend Collapse (v5.8.88+)
+Desktop Timesheet days panel now mirrors mobile's weekend collapse: when both Sat and Sun are empty, they collapse behind a "› WEEKEND" divider. Shares `state.weekendOpen` and `toggleWeekend()` with mobile, so the open/closed state syncs across views. Auto-expands when a weekend day is the currently selected day (`state.deskSelectedDay === 1 || 2`).
+
+### goToFaultDay Desktop Selection (v5.8.90+)
+`goToFaultDay(dateStr, actId)` (used by Routines "Open day" button and AI Fault Assistant) now sets `state.deskSelectedDay` and `state.deskSelectedAct` when on desktop, so the three-panel layout drills into the right day + task instead of just landing on the week. Mobile path (`expandedDays`, `activitiesExpanded`, `notesOpen`) unchanged.
+
+### Universal ESC Handler (v5.8.91+)
+Single global `keydown` listener closes the topmost open modal/sheet on ESC. Walks a priority-ordered stack via `_isModalShown(id)` (checks `.hidden` class, computed display/visibility, inline style, offsetParent). First match wins — calls the modal's specific close function (e.g. `closeBatteryRecorder`, `closeNoteFullscreen`, `closeFaultAssistant`, `closePasteTicket`, etc.), then `oc-schedule-overlay` and `state.isMenuOpen` as final fallbacks. Safe to add new modals to the stack — bug-tolerant via `try/catch` and `typeof === 'function'` guards. Lives near line 29435 next to the older notes-modal-only ESC handler (kept for compatibility).
 
 ### Poll-Based Sync (v5.8.11+)
 Firestore `onSnapshot` WebSocket can silently go stale across browsers. Added 10-second polling fallback:
