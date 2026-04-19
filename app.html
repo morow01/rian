@@ -7548,15 +7548,15 @@
       color: var(--text-warm);
     }
 
-    :is(#note-fs-editor .ProseMirror, .tt-prose) p {
+    :is(#note-fs-editor .ProseMirror, #dj-editor-mount .ProseMirror, .tt-prose) p {
       margin-bottom: 6px;
     }
 
-    :is(#note-fs-editor .ProseMirror, .tt-prose) p:last-child {
+    :is(#note-fs-editor .ProseMirror, #dj-editor-mount .ProseMirror, .tt-prose) p:last-child {
       margin-bottom: 0;
     }
 
-    :is(#note-fs-editor .ProseMirror, .tt-prose) h1 {
+    :is(#note-fs-editor .ProseMirror, #dj-editor-mount .ProseMirror, .tt-prose) h1 {
       font-size: 21px;
       font-weight: 800;
       letter-spacing: -0.03em;
@@ -7568,7 +7568,7 @@
       display: block;
     }
 
-    :is(#note-fs-editor .ProseMirror, .tt-prose) h2 {
+    :is(#note-fs-editor .ProseMirror, #dj-editor-mount .ProseMirror, .tt-prose) h2 {
       font-size: 15px;
       font-weight: 600;
       line-height: 1.3;
@@ -7579,7 +7579,7 @@
       display: inline-block;
     }
 
-    :is(#note-fs-editor .ProseMirror, .tt-prose) h3 {
+    :is(#note-fs-editor .ProseMirror, #dj-editor-mount .ProseMirror, .tt-prose) h3 {
       font-size: 12px;
       font-weight: 600;
       text-transform: uppercase;
@@ -7590,37 +7590,37 @@
       display: block;
     }
 
-    :is(#note-fs-editor .ProseMirror, .tt-prose) hr {
+    :is(#note-fs-editor .ProseMirror, #dj-editor-mount .ProseMirror, .tt-prose) hr {
       border: none;
       border-top: 1px solid var(--prose-hr-color);
       margin: 20px 0;
     }
 
-    :is(#note-fs-editor .ProseMirror, .tt-prose) ul,
-    :is(#note-fs-editor .ProseMirror, .tt-prose) ol {
+    :is(#note-fs-editor .ProseMirror, #dj-editor-mount .ProseMirror, .tt-prose) ul,
+    :is(#note-fs-editor .ProseMirror, #dj-editor-mount .ProseMirror, .tt-prose) ol {
       padding-left: 20px;
       margin-bottom: 6px;
     }
 
-    :is(#note-fs-editor .ProseMirror, .tt-prose) ul {
+    :is(#note-fs-editor .ProseMirror, #dj-editor-mount .ProseMirror, .tt-prose) ul {
       list-style-type: disc;
     }
 
-    :is(#note-fs-editor .ProseMirror, .tt-prose) ol {
+    :is(#note-fs-editor .ProseMirror, #dj-editor-mount .ProseMirror, .tt-prose) ol {
       list-style-type: decimal;
     }
 
-    :is(#note-fs-editor .ProseMirror, .tt-prose) li {
+    :is(#note-fs-editor .ProseMirror, #dj-editor-mount .ProseMirror, .tt-prose) li {
       margin-bottom: 0px;
       line-height: 1.9;
       padding-left: 3px;
     }
 
-    :is(#note-fs-editor .ProseMirror, .tt-prose) li::marker {
+    :is(#note-fs-editor .ProseMirror, #dj-editor-mount .ProseMirror, .tt-prose) li::marker {
       color: var(--text-slate);
     }
 
-    :is(#note-fs-editor .ProseMirror, .tt-prose) blockquote {
+    :is(#note-fs-editor .ProseMirror, #dj-editor-mount .ProseMirror, .tt-prose) blockquote {
       border-left: 2.5px solid var(--prose-blockquote-border);
       padding: 10px 16px;
       background: var(--prose-blockquote-bg);
@@ -7631,7 +7631,7 @@
       margin: 8px 0;
     }
 
-    :is(#note-fs-editor .ProseMirror, .tt-prose) a {
+    :is(#note-fs-editor .ProseMirror, #dj-editor-mount .ProseMirror, .tt-prose) a {
       color: #818cf8;
       text-decoration: underline;
       cursor: pointer;
@@ -8033,7 +8033,7 @@
       color: var(--priority-high);
     }
 
-    :is(#note-fs-editor .ProseMirror, .tt-prose) code {
+    :is(#note-fs-editor .ProseMirror, #dj-editor-mount .ProseMirror, .tt-prose) code {
       font-family: 'DM Mono', monospace;
       font-size: 12px;
       background: var(--prose-code-bg);
@@ -8043,43 +8043,44 @@
       color: var(--prose-code-text);
     }
 
-    :is(#note-fs-editor .ProseMirror, .tt-prose) mark {
+    :is(#note-fs-editor .ProseMirror, #dj-editor-mount .ProseMirror, .tt-prose) mark {
       border-radius: 4px;
       padding: 1px 3px;
     }
 
     /* Muted tinted highlights */
-    :is(#note-fs-editor .ProseMirror, .tt-prose) mark[data-color="#fef08a"] {
+    :is(#note-fs-editor .ProseMirror, #dj-editor-mount .ProseMirror, .tt-prose) mark[data-color="#fef08a"] {
       background-color: #FDF3C0 !important;
       color: #7A5E00;
     }
 
-    :is(#note-fs-editor .ProseMirror, .tt-prose) mark[data-color="#bbf7d0"] {
+    :is(#note-fs-editor .ProseMirror, #dj-editor-mount .ProseMirror, .tt-prose) mark[data-color="#bbf7d0"] {
       background-color: #D6F0C2 !important;
       color: #2B5A09;
     }
 
-    :is(#note-fs-editor .ProseMirror, .tt-prose) mark[data-color="#fecaca"] {
+    :is(#note-fs-editor .ProseMirror, #dj-editor-mount .ProseMirror, .tt-prose) mark[data-color="#fecaca"] {
       background-color: #FDDDD8 !important;
       color: #8F2610;
     }
 
-    :is(#note-fs-editor .ProseMirror, .tt-prose) mark[data-color="#bfdbfe"] {
+    :is(#note-fs-editor .ProseMirror, #dj-editor-mount .ProseMirror, .tt-prose) mark[data-color="#bfdbfe"] {
       background-color: #D0E8FA !important;
       color: #0B3C72;
     }
 
-    :is(#note-fs-editor .ProseMirror, .tt-prose) mark[data-color="#e9d5ff"] {
+    :is(#note-fs-editor .ProseMirror, #dj-editor-mount .ProseMirror, .tt-prose) mark[data-color="#e9d5ff"] {
       background-color: #EDE4FF !important;
       color: #3D2A8A;
     }
 
-    :is(#note-fs-editor .ProseMirror, .tt-prose) mark[data-color="#fed7aa"] {
+    :is(#note-fs-editor .ProseMirror, #dj-editor-mount .ProseMirror, .tt-prose) mark[data-color="#fed7aa"] {
       background-color: #FDEBD0 !important;
       color: #7A3D00;
     }
 
-    #note-fs-editor .ProseMirror p.is-editor-empty:first-child::before {
+    #note-fs-editor .ProseMirror p.is-editor-empty:first-child::before,
+    #dj-editor-mount .ProseMirror p.is-editor-empty:first-child::before {
       content: attr(data-placeholder);
       color: var(--text-muted);
       pointer-events: none;
@@ -8088,7 +8089,7 @@
     }
 
     /* Code block */
-    :is(#note-fs-editor .ProseMirror, .tt-prose) pre {
+    :is(#note-fs-editor .ProseMirror, #dj-editor-mount .ProseMirror, .tt-prose) pre {
       background: var(--prose-code-block-bg);
       color: var(--prose-code-block-text);
       border-radius: 10px;
@@ -8100,7 +8101,7 @@
       margin: 8px 0;
     }
 
-    :is(#note-fs-editor .ProseMirror, .tt-prose) pre code {
+    :is(#note-fs-editor .ProseMirror, #dj-editor-mount .ProseMirror, .tt-prose) pre code {
       background: none;
       border: none;
       padding: 0;
@@ -8109,24 +8110,24 @@
     }
 
     /* Task list */
-    :is(#note-fs-editor .ProseMirror, .tt-prose) ul[data-type="taskList"] {
+    :is(#note-fs-editor .ProseMirror, #dj-editor-mount .ProseMirror, .tt-prose) ul[data-type="taskList"] {
       list-style: none;
       padding-left: 4px;
     }
 
-    :is(#note-fs-editor .ProseMirror, .tt-prose) ul[data-type="taskList"] li {
+    :is(#note-fs-editor .ProseMirror, #dj-editor-mount .ProseMirror, .tt-prose) ul[data-type="taskList"] li {
       display: flex;
       align-items: flex-start;
       gap: 8px;
       margin-bottom: 4px;
     }
 
-    :is(#note-fs-editor .ProseMirror, .tt-prose) ul[data-type="taskList"] li>label {
+    :is(#note-fs-editor .ProseMirror, #dj-editor-mount .ProseMirror, .tt-prose) ul[data-type="taskList"] li>label {
       flex-shrink: 0;
       margin-top: 2px;
     }
 
-    :is(#note-fs-editor .ProseMirror, .tt-prose) ul[data-type="taskList"] li>label input[type="checkbox"] {
+    :is(#note-fs-editor .ProseMirror, #dj-editor-mount .ProseMirror, .tt-prose) ul[data-type="taskList"] li>label input[type="checkbox"] {
       width: 16px;
       height: 16px;
       cursor: pointer;
@@ -8141,7 +8142,7 @@
       transition: background 0.15s, border-color 0.15s;
     }
 
-    :is(#note-fs-editor .ProseMirror, .tt-prose) ul[data-type="taskList"] li>label input[type="checkbox"]:checked {
+    :is(#note-fs-editor .ProseMirror, #dj-editor-mount .ProseMirror, .tt-prose) ul[data-type="taskList"] li>label input[type="checkbox"]:checked {
       background: #0f172a;
       border-color: #0f172a;
       background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpolyline points='2.5,8 6.5,12 13.5,4' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
@@ -8150,11 +8151,11 @@
       background-position: center;
     }
 
-    :is(#note-fs-editor .ProseMirror, .tt-prose) ul[data-type="taskList"] li>div {
+    :is(#note-fs-editor .ProseMirror, #dj-editor-mount .ProseMirror, .tt-prose) ul[data-type="taskList"] li>div {
       flex: 1;
     }
 
-    :is(#note-fs-editor .ProseMirror, .tt-prose) ul[data-type="taskList"] li[data-checked="true"]>div {
+    :is(#note-fs-editor .ProseMirror, #dj-editor-mount .ProseMirror, .tt-prose) ul[data-type="taskList"] li[data-checked="true"]>div {
       text-decoration: line-through;
       color: #b0b0b0;
       opacity: 1;
@@ -8193,7 +8194,7 @@
     /* hide in read-only previews */
 
     /* Tables — shrink-wrap to content by default, expand only if needed */
-    :is(#note-fs-editor .ProseMirror, .tt-prose) table {
+    :is(#note-fs-editor .ProseMirror, #dj-editor-mount .ProseMirror, .tt-prose) table {
       border-collapse: collapse;
       width: auto !important;
       min-width: unset !important;
@@ -8202,8 +8203,8 @@
       font-family: 'DM Sans', sans-serif;
     }
 
-    :is(#note-fs-editor .ProseMirror, .tt-prose) td,
-    :is(#note-fs-editor .ProseMirror, .tt-prose) th {
+    :is(#note-fs-editor .ProseMirror, #dj-editor-mount .ProseMirror, .tt-prose) td,
+    :is(#note-fs-editor .ProseMirror, #dj-editor-mount .ProseMirror, .tt-prose) th {
       min-width: 60px;
       vertical-align: middle;
       position: relative;
@@ -8213,7 +8214,8 @@
     }
 
     /* Column resize handle — always absolute, never in flow */
-    #note-fs-editor .ProseMirror .column-resize-handle {
+    #note-fs-editor .ProseMirror .column-resize-handle,
+    #dj-editor-mount .ProseMirror .column-resize-handle {
       position: absolute !important;
       right: 0;
       top: 0;
@@ -8228,30 +8230,35 @@
     }
 
     #note-fs-editor .ProseMirror td:hover .column-resize-handle,
-    #note-fs-editor .ProseMirror th:hover .column-resize-handle {
+    #note-fs-editor .ProseMirror th:hover .column-resize-handle,
+    #dj-editor-mount .ProseMirror td:hover .column-resize-handle,
+    #dj-editor-mount .ProseMirror th:hover .column-resize-handle {
       opacity: 0.6;
       pointer-events: auto;
       cursor: col-resize;
     }
 
-    #note-fs-editor .ProseMirror.resize-cursor {
+    #note-fs-editor .ProseMirror.resize-cursor,
+    #dj-editor-mount .ProseMirror.resize-cursor {
       cursor: col-resize;
     }
 
     /* Fix: Chrome contenteditable adds a ~6px ghost line-box when any block element
        trails the <p> inside a td/th. The column-resize-handle is always appended last.
        Compensate by subtracting 6px from padding-bottom while the handle is in the cell. */
-    #note-fs-editor .ProseMirror th:has(.column-resize-handle) {
+    #note-fs-editor .ProseMirror th:has(.column-resize-handle),
+    #dj-editor-mount .ProseMirror th:has(.column-resize-handle) {
       padding-bottom: 2px;
       /* 8px normal - 6px ghost */
     }
 
-    #note-fs-editor .ProseMirror td:has(.column-resize-handle) {
+    #note-fs-editor .ProseMirror td:has(.column-resize-handle),
+    #dj-editor-mount .ProseMirror td:has(.column-resize-handle) {
       padding-bottom: 2px;
       /* 8px normal - 6px ghost */
     }
 
-    :is(#note-fs-editor .ProseMirror, .tt-prose) th {
+    :is(#note-fs-editor .ProseMirror, #dj-editor-mount .ProseMirror, .tt-prose) th {
       background: var(--table-header-bg);
       text-align: left;
       font-weight: 600;
@@ -8264,34 +8271,35 @@
       border-right: 1px solid var(--table-border);
     }
 
-    :is(#note-fs-editor .ProseMirror, .tt-prose) th:last-child {
+    :is(#note-fs-editor .ProseMirror, #dj-editor-mount .ProseMirror, .tt-prose) th:last-child {
       border-right: none;
     }
 
-    :is(#note-fs-editor .ProseMirror, .tt-prose) td {
+    :is(#note-fs-editor .ProseMirror, #dj-editor-mount .ProseMirror, .tt-prose) td {
       padding: 6px 6px !important;
       color: var(--text-warm);
       border-bottom: 1px solid var(--table-border-light);
       border-right: 1px solid var(--table-border-light);
     }
 
-    :is(#note-fs-editor .ProseMirror, .tt-prose) td:last-child {
+    :is(#note-fs-editor .ProseMirror, #dj-editor-mount .ProseMirror, .tt-prose) td:last-child {
       border-right: none;
     }
 
 
     /* Kill paragraph margins inside cells — TipTap wraps cell text in <p> */
-    :is(#note-fs-editor .ProseMirror, .tt-prose) td p,
-    :is(#note-fs-editor .ProseMirror, .tt-prose) th p {
+    :is(#note-fs-editor .ProseMirror, #dj-editor-mount .ProseMirror, .tt-prose) td p,
+    :is(#note-fs-editor .ProseMirror, #dj-editor-mount .ProseMirror, .tt-prose) th p {
       margin: 0;
       padding: 0;
     }
 
-    :is(#note-fs-editor .ProseMirror, .tt-prose) tbody tr:hover td {
+    :is(#note-fs-editor .ProseMirror, #dj-editor-mount .ProseMirror, .tt-prose) tbody tr:hover td {
       background: var(--table-row-hover-bg);
     }
 
-    #note-fs-editor .ProseMirror .selectedCell::after {
+    #note-fs-editor .ProseMirror .selectedCell::after,
+    #dj-editor-mount .ProseMirror .selectedCell::after {
       background: rgba(129, 140, 248, 0.15);
       content: '';
       position: absolute;
@@ -8299,7 +8307,7 @@
       pointer-events: none;
     }
 
-    :is(#note-fs-editor .ProseMirror, .tt-prose) .tableWrapper {
+    :is(#note-fs-editor .ProseMirror, #dj-editor-mount .ProseMirror, .tt-prose) .tableWrapper {
       overflow-x: auto;
       display: inline-block;
       max-width: 100%;
@@ -8435,7 +8443,8 @@
     }
 
     /* Images */
-    #note-fs-editor .ProseMirror img {
+    #note-fs-editor .ProseMirror img,
+    #dj-editor-mount .ProseMirror img {
       max-width: 100%;
       border-radius: 8px;
       margin: 6px 0;
@@ -8444,7 +8453,8 @@
 
     /* NodeView images sit inside img-resize-wrap — the 6px margin creates a gap
        between the outline and the image. Zero it out; spacing is handled by the container. */
-    #note-fs-editor .ProseMirror .img-resize-wrap img {
+    #note-fs-editor .ProseMirror .img-resize-wrap img,
+    #dj-editor-mount .ProseMirror .img-resize-wrap img {
       margin: 0;
     }
 
@@ -8474,12 +8484,15 @@
     }
 
     /* Suppress TipTap's default blue overlay/fade on selected image nodes */
-    #note-fs-editor .ProseMirror-selectednode {
+    #note-fs-editor .ProseMirror-selectednode,
+    #dj-editor-mount .ProseMirror-selectednode {
       outline: none !important;
     }
 
     #note-fs-editor .img-resize-wrap.ProseMirror-selectednode,
-    #note-fs-editor .ProseMirror-selectednode .tt-resizable-img {
+    #note-fs-editor .ProseMirror-selectednode .tt-resizable-img,
+    #dj-editor-mount .img-resize-wrap.ProseMirror-selectednode,
+    #dj-editor-mount .ProseMirror-selectednode .tt-resizable-img {
       opacity: 1 !important;
     }
 
@@ -14121,6 +14134,305 @@
       line-height: 1;
     }
 
+    /* Mobile tab bar for Routines */
+    .rtn-tab-bar {
+      display: flex;
+      background: var(--bg-code-group);
+      border-radius: 14px;
+      padding: 3px;
+      gap: 2px;
+      margin: 10px 16px 10px;
+    }
+    .rtn-tab-btn {
+      flex: 1;
+      padding: 7px 4px;
+      text-align: center;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-muted);
+      border: none;
+      background: none;
+      border-radius: 11px;
+      cursor: pointer;
+      font-family: var(--font-body);
+      transition: all 0.18s;
+    }
+    .rtn-tab-btn.active {
+      background: var(--bg-segment-active);
+      color: var(--text-primary);
+      box-shadow: 0 1px 3px rgba(var(--shadow-rgb), 0.12);
+    }
+    .rtn-tab-badge {
+      background: #f59e0b;
+      color: #fff;
+      font-size: 9px;
+      font-weight: 700;
+      padding: 0 5px;
+      min-width: 15px;
+      height: 15px;
+      border-radius: 99px;
+      margin-left: 3px;
+      vertical-align: middle;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .rtn-tab-content { display: none; }
+    .rtn-tab-content.active { display: block; }
+    #rtn-tab-stats, #rtn-tab-due { padding: 0 16px; }
+
+    /* Mobile stats cards */
+    .rtn-mob-stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .rtn-mob-stat {
+      background: var(--bg-card);
+      border-radius: 10px;
+      padding: 12px 8px;
+      text-align: center;
+      border: 1px solid var(--border);
+    }
+    .rtn-mob-stat-val { font-size: 20px; font-weight: 800; }
+    .rtn-mob-stat-lbl { font-size: 10px; color: var(--text-muted); font-weight: 500; margin-top: 2px; }
+
+    .rtn-mob-card {
+      background: var(--bg-card);
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      margin-bottom: 10px;
+      overflow: hidden;
+    }
+    .rtn-mob-card-hdr {
+      padding: 12px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border);
+    }
+    .rtn-mob-badge {
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 5px;
+    }
+
+    /* Mobile month bar (smaller) */
+    .rtn-mob-month-bar {
+      display: flex;
+      gap: 2px;
+      padding: 10px 14px;
+    }
+    .rtn-mob-month-col { flex: 1; text-align: center; }
+    .rtn-mob-month-col-bar { height: 40px; display: flex; align-items: flex-end; justify-content: center; }
+    .rtn-mob-month-col-fill { width: 14px; border-radius: 3px 3px 0 0; background: rgba(34,197,94,0.3); min-height: 2px; }
+    .rtn-mob-month-col-fill.cur { background: rgba(34,197,94,0.5); }
+    .rtn-mob-month-col-label { font-size: 8px; color: var(--text-muted); font-weight: 600; margin-top: 3px; }
+    .rtn-mob-month-col-val { font-size: 9px; font-weight: 700; color: var(--text-secondary); margin-top: 1px; }
+    .rtn-mob-recent-scroll { max-height: 340px; overflow-y: auto; }
+
+    /* Shared alert / recent / month-bar list styles (used by both mobile + desktop) */
+    .rtn-month-bar {
+      display: flex;
+      gap: 2px;
+      padding: 12px 16px;
+    }
+    .rtn-month-col { flex: 1; text-align: center; }
+    .rtn-month-col-bar { height: 60px; display: flex; align-items: flex-end; justify-content: center; }
+    .rtn-month-col-fill { width: 20px; border-radius: 4px 4px 0 0; background: rgba(34,197,94,0.3); min-height: 2px; transition: height 0.3s; }
+    .rtn-month-col-fill.rtn-cur-bar { background: rgba(34,197,94,0.5); }
+    .rtn-month-col-label { font-size: 9px; color: var(--text-muted); font-weight: 600; margin-top: 4px; }
+    .rtn-month-col-val { font-size: 10px; font-weight: 700; color: var(--text-secondary); margin-top: 1px; }
+
+    .rtn-alert-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 11px 16px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .rtn-alert-item:last-child { border-bottom: none; }
+    .rtn-alert-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      background: var(--priority-high, #ef4444);
+    }
+    .rtn-alert-dot.amber { background: #f59e0b; }
+    .rtn-alert-name { font-size: 13px; font-weight: 600; flex: 1; }
+    .rtn-alert-detail { font-size: 11px; color: var(--text-muted); }
+
+    .rtn-recent-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 11px 16px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .rtn-recent-item:last-child { border-bottom: none; }
+    .rtn-recent-badge {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: rgba(34, 197, 94, 0.12);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 700;
+      color: #15803d;
+      flex-shrink: 0;
+    }
+    .rtn-recent-info { flex: 1; }
+    .rtn-recent-name { font-size: 13px; font-weight: 600; }
+    .rtn-recent-date { font-size: 11px; color: var(--text-muted); }
+
+    .rtn-due-scroll { max-height: 280px; overflow-y: auto; }
+
+    /* Hide mobile tab bar on desktop */
+    @media (min-width: 1280px) {
+      .rtn-tab-bar { display: none; }
+    }
+
+    /* ── Routines desktop overrides ── */
+    @media (min-width: 1280px) {
+      .rtn-page {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 0 24px 40px;
+      }
+      .rtn-top-bar {
+        padding: 16px 0;
+        background: transparent;
+        border-bottom: none;
+      }
+      .rtn-year-label {
+        font-size: 20px;
+        font-weight: 800;
+      }
+      .rtn-stats-bar {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+      }
+      .rtn-stat {
+        flex: 1;
+        background: var(--bg-card);
+        border-radius: 12px;
+        padding: 14px 10px;
+        text-align: center;
+        border: 1px solid var(--border);
+      }
+      .rtn-stat-val {
+        font-size: 22px;
+        font-weight: 800;
+      }
+      .rtn-stat-label {
+        font-size: 11px;
+        color: var(--text-muted);
+        font-weight: 500;
+        margin-top: 2px;
+        line-height: 1.2;
+      }
+      /* Dashboard two-column layout */
+      .rtn-dash {
+        display: grid;
+        grid-template-columns: 1fr 340px;
+        gap: 16px;
+        align-items: start;
+      }
+      .rtn-dash-card {
+        background: var(--bg-card);
+        border-radius: 16px;
+        border: 1px solid var(--border);
+        overflow: hidden;
+      }
+      .rtn-dash-card-hdr {
+        padding: 14px 18px;
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--text-primary);
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+      .rtn-dash-badge {
+        font-size: 10px;
+        font-weight: 700;
+        padding: 3px 8px;
+        border-radius: 6px;
+        background: var(--accent-light);
+        color: var(--accent);
+      }
+      .rtn-dash-sidebar {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+      .rtn-recent-card {
+        display: flex;
+        flex-direction: column;
+      }
+      .rtn-recent-scroll {
+        max-height: 340px;
+        overflow-y: auto;
+      }
+      /* Compact grid inside card */
+      .rtn-dash-card .rtn-sticky-hdr { display: none; }
+      .rtn-dash-card .rtn-grid-scroll {
+        overflow: visible;
+      }
+      .rtn-dash-card .rtn-table th {
+        position: sticky;
+        top: 0;
+        background: var(--bg-card-alt);
+        z-index: 2;
+      }
+      .rtn-dash-card .rtn-th-site {
+        position: sticky;
+        left: 0;
+        z-index: 3;
+        background: var(--bg-card-alt);
+        width: 120px;
+        min-width: 120px;
+        max-width: 120px;
+      }
+      .rtn-dash-card .rtn-td-site {
+        background: var(--bg-card);
+        position: sticky;
+        left: 0;
+        z-index: 1;
+        width: 120px;
+        min-width: 120px;
+        max-width: 120px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .rtn-dash-card .rtn-table {
+        width: 100%;
+        table-layout: fixed;
+      }
+      .rtn-dash-card .rtn-cell-btn:hover {
+        background: rgba(var(--accent-rgb), 0.1);
+        transform: scale(1.1);
+      }
+      .rtn-dash-card .rtn-cell-btn.visited:hover {
+        background: rgba(34, 197, 94, 0.22);
+      }
+      .rtn-tr:hover .rtn-td-cell {
+        background: rgba(var(--accent-rgb), 0.02);
+      }
+      .rtn-tr:hover .rtn-td-site {
+        background: var(--bg-card);
+      }
+    }
+
     /* Site picker modal */
     #rtn-picker-modal {
       display: none;
@@ -15419,13 +15731,14 @@
 
       /* ── Panel: Days (left) ── */
       .desk-panel-days {
-        width: 381px;
-        min-width: 381px;
-        border-right: 1px solid var(--border);
+        min-width: 200px;
+        max-width: 500px;
+        border-right: none;
         background: var(--bg-card);
         display: flex;
         flex-direction: column;
         overflow-y: auto;
+        flex-shrink: 0;
       }
 
       .desk-panel-days-hdr {
@@ -15444,7 +15757,7 @@
         align-items: center;
         gap: 18px;
         padding: 14px 16px 14px 15px;
-        min-height: 80px;
+        min-height: 74px;
         cursor: pointer;
         border-bottom: 1px solid var(--border-subtle);
         border-left: 3px solid transparent;
@@ -15578,13 +15891,14 @@
 
       /* ── Panel: Tasks (middle) ── */
       .desk-panel-tasks {
-        width: 381px;
-        min-width: 381px;
-        border-right: 1px solid var(--border);
+        min-width: 200px;
+        max-width: 550px;
+        border-right: none;
         background: var(--bg-card);
         overflow-y: auto;
         display: flex;
         flex-direction: column;
+        flex-shrink: 0;
       }
 
       .desk-panel-tasks-hdr {
@@ -15636,8 +15950,8 @@
 
       .desk-card-wrap {
         margin: 0 -12px;
-        padding: 5px 12px;
-        min-height: 80px;
+        padding: 1px 12px;
+        min-height: 74px;
         border-bottom: 1px solid var(--border-subtle);
         cursor: pointer;
         transition: background 0.12s;
@@ -15843,13 +16157,14 @@
       }
 
       .dnotes-sidebar {
-        width: 200px;
-        min-width: 200px;
+        min-width: 140px;
+        max-width: 300px;
         background: var(--bg-card);
-        border-right: 1px solid var(--border);
+        border-right: none;
         display: flex;
         flex-direction: column;
         overflow-y: auto;
+        flex-shrink: 0;
       }
 
       .dnotes-sidebar-hdr {
@@ -15948,13 +16263,14 @@
 
       /* Notes list panel */
       .dnotes-list {
-        width: 380px;
-        min-width: 380px;
+        min-width: 200px;
+        max-width: 500px;
         background: var(--bg-card);
-        border-right: 1px solid var(--border);
+        border-right: none;
         display: flex;
         flex-direction: column;
         overflow: hidden;
+        flex-shrink: 0;
       }
 
       .dnotes-search-wrap {
@@ -16130,6 +16446,336 @@
       /* Widen TipTap fullscreen editor on desktop */
       #note-fs-modal>.flex.flex-col.w-full {
         max-width: 100% !important;
+      }
+
+      /* ── Desktop Journal: three-panel OneNote-style ── */
+      .dj-wrap {
+        display: flex;
+        height: calc(100vh - 110px);
+        overflow: hidden;
+      }
+      .dj-resize-handle {
+        width: 1px;
+        cursor: col-resize;
+        background: var(--border);
+        flex-shrink: 0;
+        position: relative;
+        z-index: 2;
+      }
+      .dj-resize-handle::before {
+        content: '';
+        position: absolute;
+        top: 0; bottom: 0;
+        left: -3px;
+        width: 7px;
+      }
+      /* Col 1: Notebooks + Sections */
+      .dj-col1 {
+        min-width: 180px;
+        max-width: 340px;
+        background: var(--bg-card);
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        flex-shrink: 0;
+      }
+      .dj-col1-body {
+        flex: 1;
+        overflow-y: auto;
+        padding: 4px 0;
+      }
+      .dj-nb-row {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 8px 12px 4px;
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--text-primary);
+        cursor: pointer;
+        user-select: none;
+      }
+      .dj-nb-row:hover { background: rgba(var(--accent-rgb), 0.03); }
+      .dj-chev {
+        display: flex;
+        transition: transform 0.15s;
+      }
+      .dj-chev.open { transform: rotate(0deg); }
+      .dj-chev.closed { transform: rotate(-90deg); }
+      .dj-sec-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 12px 10px 20px;
+        min-height: 74px;
+        cursor: pointer;
+        border-left: 3px solid transparent;
+        border-bottom: 1px solid var(--border-subtle);
+        transition: background 0.1s;
+      }
+      .dj-sec-row:hover { background: rgba(var(--accent-rgb), 0.04); }
+      .dj-sec-row.active {
+        background: linear-gradient(to right, rgba(var(--accent-rgb), 0.10), rgba(var(--accent-rgb), 0.03));
+        border-left-color: var(--accent);
+      }
+      .dj-sec-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 9px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+      }
+      .dj-sec-info {
+        flex: 1;
+        min-width: 0;
+      }
+      .dj-sec-name {
+        font-size: 15px;
+        font-weight: 500;
+        color: var(--text-primary);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .dj-sec-meta {
+        font-size: 12px;
+        color: var(--text-muted);
+        margin-top: 1px;
+      }
+      .dj-col1-footer {
+        padding: 8px 12px;
+        border-top: 1px solid var(--border);
+      }
+      .dj-add-sec-btn {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        padding: 5px 8px;
+        border: none;
+        background: transparent;
+        color: var(--accent);
+        font-size: 11px;
+        font-weight: 700;
+        cursor: pointer;
+        font-family: var(--font-body);
+        border-radius: 6px;
+        width: 100%;
+      }
+      .dj-add-sec-btn:hover { background: rgba(var(--accent-rgb), 0.08); }
+      /* Col 2: Page list */
+      .dj-col2 {
+        min-width: 180px;
+        max-width: 400px;
+        background: var(--bg-card);
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        flex-shrink: 0;
+      }
+      .dj-col2-header {
+        padding: 8px 10px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        border-bottom: 1px solid var(--border);
+      }
+      .dj-add-page-btn {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        padding: 5px 10px;
+        border: none;
+        background: transparent;
+        color: var(--accent);
+        font-size: 12px;
+        font-weight: 700;
+        cursor: pointer;
+        font-family: var(--font-body);
+        border-radius: 6px;
+      }
+      .dj-add-page-btn:hover { background: rgba(var(--accent-rgb), 0.08); }
+      .dj-col2-body {
+        flex: 1;
+        overflow-y: auto;
+        padding: 0;
+      }
+      .dj-pg-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 10px 10px 20px;
+        min-height: 74px;
+        cursor: pointer;
+        border-left: 3px solid transparent;
+        transition: background 0.1s;
+        position: relative;
+        border-bottom: 1px solid var(--border-subtle);
+      }
+      .dj-pg-row:hover { background: rgba(var(--accent-rgb), 0.04); }
+      .dj-pg-row.active {
+        background: linear-gradient(to right, rgba(var(--accent-rgb), 0.10), rgba(var(--accent-rgb), 0.03));
+        border-left-color: var(--accent);
+      }
+      .dj-pg-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 9px;
+        background: rgba(var(--accent-rgb), 0.08);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        color: var(--accent);
+      }
+      .dj-pg-icon svg { width: 20px; height: 20px; }
+      .dj-pg-info {
+        flex: 1;
+        min-width: 0;
+      }
+      .dj-pg-row .dj-pg-title {
+        font-size: 15px;
+        font-weight: 500;
+        color: var(--text-primary);
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .dj-pg-row.active .dj-pg-title { font-weight: 500; }
+      .dj-pg-meta {
+        font-size: 12px;
+        color: var(--text-muted);
+        margin-top: 2px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .dj-pg-row .dj-pg-more {
+        width: 24px;
+        height: 24px;
+        border: none;
+        background: transparent;
+        color: var(--text-muted);
+        cursor: pointer;
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        flex-shrink: 0;
+        transition: opacity 0.12s;
+      }
+      .dj-pg-row:hover .dj-pg-more,
+      .dj-pg-row .dj-pg-more.open { opacity: 1; }
+      .dj-pg-row .dj-pg-more:hover { background: rgba(var(--accent-rgb), 0.1); }
+      /* Page context menu */
+      .dj-ctx-menu {
+        position: fixed;
+        z-index: 9999;
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        box-shadow: 0 8px 24px rgba(var(--shadow-rgb), 0.18);
+        padding: 4px 0;
+        min-width: 160px;
+      }
+      .dj-ctx-menu button {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        width: 100%;
+        padding: 9px 16px;
+        border: none;
+        background: transparent;
+        color: var(--text-primary);
+        font-size: 13px;
+        font-family: var(--font-body);
+        cursor: pointer;
+        text-align: left;
+      }
+      .dj-ctx-menu button:hover { background: rgba(var(--accent-rgb), 0.06); }
+      .dj-ctx-menu button.danger { color: var(--priority-high); }
+      .dj-ctx-menu .dj-ctx-sep {
+        height: 1px;
+        background: var(--border);
+        margin: 4px 0;
+      }
+      /* Col 3: Editor / content panel */
+      .dj-editor {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        min-width: 0;
+        background: #fff;
+      }
+      [data-theme="dark"] .dj-editor {
+        background: var(--bg-page);
+      }
+      .dj-page-header {
+        padding: 16px 28px 12px;
+        border-bottom: 1px solid var(--border-subtle);
+      }
+      .dj-page-title-input {
+        width: 100%;
+        padding: 0;
+        border: none;
+        font-size: 22px;
+        font-weight: 700;
+        color: var(--text-primary);
+        font-family: var(--font-body);
+        outline: none;
+        background: transparent;
+        margin-bottom: 4px;
+      }
+      .dj-page-meta {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-size: 12px;
+        color: var(--text-muted);
+      }
+      /* Desktop journal TipTap editor area */
+      #dj-editor-mount {
+        flex: 1;
+        overflow-y: auto;
+        padding: 12px 28px 28px;
+      }
+      #dj-editor-mount .ProseMirror {
+        outline: none;
+        min-height: 200px;
+        font-size: 14px;
+        line-height: 1.7;
+        color: var(--text-primary);
+      }
+      /* Desktop journal compact toolbar */
+      .dj-tt-toolbar {
+        display: flex;
+        align-items: center;
+        gap: 1px;
+        padding: 4px 12px;
+        border-bottom: 1px solid var(--border);
+        background: var(--bg-card);
+        flex-wrap: wrap;
+        overflow: hidden;
+      }
+      .dj-tt-toolbar .tt-sep {
+        width: 1px;
+        height: 20px;
+        background: var(--border);
+        margin: 0 2px;
+        flex-shrink: 0;
+      }
+      .dj-empty-editor {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--text-muted);
+        flex-direction: column;
+        gap: 8px;
+        font-size: 14px;
       }
 
       /* Hide bottom mobile nav on desktop */
@@ -16614,7 +17260,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.8.14';
+    const VERSION = '5.8.51';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -17272,6 +17918,10 @@
       deskSelectedAct: null, // desktop: selected activity id
       deskSelectedNote: null, // desktop notes: selected note id
       deskNotesCatFilter: '', // desktop notes: sidebar category filter
+      djExpanded: {},          // desktop journal: tree expand state { nbId: bool }
+      djSelectedSec: null,     // desktop journal: selected section id (col1 → col2)
+      djSelectedPage: null,    // desktop journal: selected page id
+      djTreeSearch: '',        // desktop journal: search query in page list (col2)
       micFabHidden: localStorage.getItem('micFabHidden') === '1',  // track which day indices are expanded
       notesOpen: new Map(), // explicit open/closed per actId; default = open if note has content
       selectionMode: false,
@@ -19631,6 +20281,8 @@
         viewBody = renderWeekView();
       }
 
+      // Detach desktop journal TipTap wrapper before innerHTML wipes the DOM
+      if (_djTiptapWrap && _djTiptapWrap.parentNode) _djTiptapWrap.remove();
       app.innerHTML = renderHeader() + _renderConflictBanner() + viewBody;
       // Hoist .j-fab out of #app to document.body so position:fixed is always
       // relative to the viewport (not any transformed ancestor inside #app).
@@ -19642,6 +20294,8 @@
         document.body.appendChild(_inlineFab);
       }
       attachEvents();
+      // Mount desktop journal TipTap editor after DOM is ready
+      if (state.view === 'journal' && _isDesktop()) _djMountTiptap();
       // Populate tag editor body when in full-screen tags view
       if (state.view === 'tags-full') { _teFormOpen = false; _teEditKey = null; renderTagEditor(); }
       // Re-apply any open ctx menu that was open during a render (e.g. after toggleRemedyFlag)
@@ -20370,7 +21024,7 @@
           '</div>';
       });
 
-      var daysPanel = '<div class="desk-panel-days">' +
+      var daysPanel = '<div class="desk-panel-days" style="width:' + _deskDaysWidth + 'px">' +
         '<div class="desk-panel-days-hdr">Week Days</div>' +
         daysHtml +
         '<div class="desk-panel-summary">' +
@@ -20387,7 +21041,7 @@
         '</div>';
 
       // ── Tasks panel ──
-      var tasksPanel = '<div class="desk-panel-tasks" id="desk-tasks-panel">' +
+      var tasksPanel = '<div class="desk-panel-tasks" id="desk-tasks-panel" style="width:' + _deskTasksWidth + 'px">' +
         _renderDeskTasks(selDi) +
         '</div>';
 
@@ -20396,7 +21050,7 @@
         _renderDeskDetail(selDi, state.deskSelectedAct) +
         '</div>';
 
-      return '<main><div class="desk-three-panel">' + daysPanel + tasksPanel + detailPanel + '</div></main>';
+      return '<main><div class="desk-three-panel">' + daysPanel + '<div class="dj-resize-handle" onmousedown="deskTsResizeStart(event,1)"></div>' + tasksPanel + '<div class="dj-resize-handle" onmousedown="deskTsResizeStart(event,2)"></div>' + detailPanel + '</div></main>';
     }
 
     function _renderDeskTasks(di) {
@@ -23839,12 +24493,9 @@
         return (b.updatedAt || 0) - (a.updatedAt || 0);
       });
 
-      // Clamp selected note
+      // Clamp selected note — only reset if current selection is not in the list; don't auto-pick first
       if (state.deskSelectedNote && !listNotes.find(function (n) { return n.id === state.deskSelectedNote; })) {
-        state.deskSelectedNote = listNotes.length > 0 ? listNotes[0].id : null;
-      }
-      if (!state.deskSelectedNote && listNotes.length > 0) {
-        state.deskSelectedNote = listNotes[0].id;
+        state.deskSelectedNote = null;
       }
       var selNote = state.deskSelectedNote ? state.notes.find(function (n) { return n.id === state.deskSelectedNote; }) : null;
 
@@ -23863,7 +24514,7 @@
           icon: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>'
         }
       ];
-      var sidebarHtml = '<div class="dnotes-sidebar-hdr">Notes</div>';
+      var sidebarHtml = '<div class="desk-panel-days-hdr">Filters</div>';
       NAV_ITEMS.forEach(function (item) {
         var isActive = (notesTab === item.key);
         sidebarHtml += '<button class="dnotes-sidebar-btn' + (isActive ? ' active' : '') + '" onclick="deskNotesTab(\'' + item.key + '\')">' +
@@ -24091,33 +24742,47 @@
       }
 
       return '<div class="dnotes-wrap">' +
-        '<div class="dnotes-sidebar">' + sidebarHtml + '</div>' +
-        '<div class="dnotes-list">' + listHtml + '</div>' +
-        '<div class="dnotes-editor">' + editorHtml + '</div>' +
+        '<div class="dnotes-sidebar" style="width:' + _dnotesSidebarWidth + 'px">' + sidebarHtml + '</div>' +
+        '<div class="dj-resize-handle" onmousedown="deskNotesResizeStart(event,1)"></div>' +
+        '<div class="dnotes-list" style="width:' + _dnotesListWidth + 'px"><div class="desk-panel-days-hdr">Notes</div>' + listHtml + '</div>' +
+        '<div class="dj-resize-handle" onmousedown="deskNotesResizeStart(event,2)"></div>' +
+        '<div class="dnotes-editor"><div class="desk-panel-days-hdr">Details</div>' + editorHtml + '</div>' +
         '</div>';
     }
 
     // Desktop Notes helper: select a note
     function deskSelectNote(id) {
       state.deskSelectedNote = id;
-      // Re-render just the list + editor panels
-      var listPanel = document.querySelector('.dnotes-list');
-      var editorPanel = document.querySelector('.dnotes-editor');
-      if (listPanel && editorPanel) {
-        // Quick approach: full re-render of the notes view
-        render();
-      } else {
-        render();
-      }
+      // Remember selection for current tab
+      var curTab = state.notesTab || 'notes';
+      if (id) _deskNotesTabMemory[curTab] = id;
+      _dnotesSaveNav();
+      render();
     }
 
     // Desktop Notes: switch tab
+    // Per-tab memory: remembers last selected note per tab
+    var _deskNotesTabMemory = {};   // { 'notes': noteId, 'archive': noteId, 'bin': noteId }
+
+    function _dnotesSaveNav() {
+      try {
+        localStorage.setItem('dnotesTab', state.notesTab || 'notes');
+        localStorage.setItem('dnotesSelectedNote', state.deskSelectedNote || '');
+        localStorage.setItem('dnotesTabMemory', JSON.stringify(_deskNotesTabMemory));
+      } catch (e) { }
+      _scheduleNavSave();
+    }
+
     function deskNotesTab(tab) {
+      // Save current selection for the tab we're leaving
+      var prevTab = state.notesTab || 'notes';
+      if (state.deskSelectedNote) _deskNotesTabMemory[prevTab] = state.deskSelectedNote;
       state.notesTab = tab;
       state.notesArchiveOpen = (tab === 'archive');
       state.notesBinOpen = (tab === 'bin');
-      state.deskSelectedNote = null; // reset selection on tab change
+      state.deskSelectedNote = _deskNotesTabMemory[tab] || null; // restore or empty state
       state.deskNotesCatFilter = ''; // reset category filter on tab change
+      _dnotesSaveNav();
       render();
     }
 
@@ -24128,7 +24793,7 @@
       } else {
         state.deskNotesCatFilter = key;
       }
-      state.deskSelectedNote = null; // reset selection
+      state.deskSelectedNote = null; // reset selection — new filter context
       render();
     }
 
@@ -24138,7 +24803,9 @@
       if (state.deskNotesCatFilter && state.deskNotesCatFilter !== 'untagged') note.category = state.deskNotesCatFilter;
       state.notes.unshift(note);
       state.deskSelectedNote = note.id;
+      _deskNotesTabMemory['notes'] = note.id;
       state.notesTab = 'notes'; // switch to active tab
+      _dnotesSaveNav();
       scheduleNotesSave();
       render();
       // Focus description input in editor panel
@@ -25310,7 +25977,631 @@
         + '</div>';
     }
 
+    // ── Desktop Timesheet: resizable column widths ──
+    var _deskDaysWidth = parseInt(localStorage.getItem('deskDaysWidth') || '381', 10);
+    var _deskTasksWidth = parseInt(localStorage.getItem('deskTasksWidth') || '381', 10);
+
+    function deskTsResizeStart(e, which) {
+      e.preventDefault();
+      var handle = e.target;
+      handle.classList.add('dragging');
+      var startX = e.clientX;
+      var startW = which === 1 ? _deskDaysWidth : _deskTasksWidth;
+      var minW = 200;
+      var maxW = which === 1 ? 500 : 550;
+      var selector = which === 1 ? '.desk-panel-days' : '.desk-panel-tasks';
+      var lsKey = which === 1 ? 'deskDaysWidth' : 'deskTasksWidth';
+      function onMove(ev) {
+        var newW = Math.max(minW, Math.min(maxW, startW + (ev.clientX - startX)));
+        if (which === 1) _deskDaysWidth = newW; else _deskTasksWidth = newW;
+        var el = document.querySelector(selector);
+        if (el) el.style.width = newW + 'px';
+      }
+      function onUp() {
+        handle.classList.remove('dragging');
+        document.removeEventListener('mousemove', onMove);
+        document.removeEventListener('mouseup', onUp);
+        try { localStorage.setItem(lsKey, String(which === 1 ? _deskDaysWidth : _deskTasksWidth)); } catch (e) { }
+      }
+      document.addEventListener('mousemove', onMove);
+      document.addEventListener('mouseup', onUp);
+    }
+
+    // ── Desktop Notes: resizable column widths ──
+    var _dnotesSidebarWidth = parseInt(localStorage.getItem('dnotesSidebarWidth') || '200', 10);
+    var _dnotesListWidth = parseInt(localStorage.getItem('dnotesListWidth') || '380', 10);
+
+    function deskNotesResizeStart(e, which) {
+      e.preventDefault();
+      var handle = e.target;
+      handle.classList.add('dragging');
+      var startX = e.clientX;
+      var startW = which === 1 ? _dnotesSidebarWidth : _dnotesListWidth;
+      var minW = which === 1 ? 140 : 200;
+      var maxW = which === 1 ? 300 : 500;
+      var selector = which === 1 ? '.dnotes-sidebar' : '.dnotes-list';
+      var lsKey = which === 1 ? 'dnotesSidebarWidth' : 'dnotesListWidth';
+      function onMove(ev) {
+        var newW = Math.max(minW, Math.min(maxW, startW + (ev.clientX - startX)));
+        if (which === 1) _dnotesSidebarWidth = newW; else _dnotesListWidth = newW;
+        var el = document.querySelector(selector);
+        if (el) el.style.width = newW + 'px';
+      }
+      function onUp() {
+        handle.classList.remove('dragging');
+        document.removeEventListener('mousemove', onMove);
+        document.removeEventListener('mouseup', onUp);
+        try { localStorage.setItem(lsKey, String(which === 1 ? _dnotesSidebarWidth : _dnotesListWidth)); } catch (e) { }
+      }
+      document.addEventListener('mousemove', onMove);
+      document.addEventListener('mouseup', onUp);
+    }
+
+    // ── Desktop Journal: OneNote-style three-column ──
+    var _djCol1Width = parseInt(localStorage.getItem('djCol1Width') || '240', 10);
+    var _djCol2Width = parseInt(localStorage.getItem('djCol2Width') || '260', 10);
+
+    function _renderDesktopJournal() {
+      var allNbs = state.jNotebooks.filter(function (n) { return !n.deleted; })
+        .sort(function (a, b) { return (a.displayOrder || 0) - (b.displayOrder || 0); });
+      var allSecs = state.jSections.filter(function (s) { return !s.deleted; })
+        .sort(function (a, b) { return (a.displayOrder || 0) - (b.displayOrder || 0); });
+      var allPgs = state.jPages.filter(function (p) { return !p.deleted; });
+      var exp = state.djExpanded;
+
+      // Auto-expand first notebook on initial load
+      if (allNbs.length && !Object.keys(exp).length) {
+        exp[allNbs[0].id] = true;
+      }
+
+      // Auto-select first section if none selected
+      if (!state.djSelectedSec && allNbs.length) {
+        for (var i = 0; i < allNbs.length; i++) {
+          if (!exp[allNbs[i].id]) continue;
+          var firstSecs = allSecs.filter(function (s) { return s.notebookId === allNbs[i].id; });
+          if (firstSecs.length) { state.djSelectedSec = firstSecs[0].id; break; }
+        }
+      }
+
+      // SVG icons
+      var chevSvg = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>';
+      var bookSvg = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>';
+      var pageSvg = _jPageIconSvg();
+      var plusSvg = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>';
+      var searchSvg = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>';
+      var moreSvg = '<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="19" r="2"/></svg>';
+
+      // ── Col 1: Notebooks with collapsible sections ──
+      var col1Html = '';
+      allNbs.forEach(function (nb) {
+        var isNbExp = !!exp[nb.id];
+        col1Html += '<div class="dj-nb-row" onclick="djToggle(\'' + nb.id + '\')">'
+          + '<span class="dj-chev ' + (isNbExp ? 'open' : 'closed') + '">' + chevSvg + '</span>'
+          + bookSvg + ' ' + esc(nb.title)
+          + '</div>';
+
+        if (!isNbExp) return;
+
+        allSecs.filter(function (s) { return s.notebookId === nb.id; }).forEach(function (sec) {
+          var isSel = sec.id === state.djSelectedSec;
+          var pgCount = allPgs.filter(function (p) { return p.sectionId === sec.id; }).length;
+          var folderSvg = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="' + sec.color + '" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>';
+          col1Html += '<div class="dj-sec-row' + (isSel ? ' active' : '') + '" onclick="djSelectSec(\'' + sec.id + '\')">'
+            + '<div class="dj-sec-icon" style="background:' + sec.color + '22">' + folderSvg + '</div>'
+            + '<div class="dj-sec-info">'
+            + '<div class="dj-sec-name">' + esc(sec.title) + '</div>'
+            + '<div class="dj-sec-meta">' + pgCount + ' page' + (pgCount === 1 ? '' : 's') + '</div>'
+            + '</div>'
+            + '</div>';
+        });
+      });
+
+      // ── Col 2: Page list for selected section ──
+      var selSec = state.djSelectedSec ? allSecs.find(function (s) { return s.id === state.djSelectedSec; }) : null;
+      var secPages = selSec ? allPgs.filter(function (p) { return p.sectionId === selSec.id; }) : [];
+
+      // Filter pages by search query
+      var djQ = (state.djTreeSearch || '').toLowerCase();
+      if (djQ) {
+        secPages = secPages.filter(function (p) {
+          var hay = ((p.title || '') + ' ' + (p.noteContent || '').replace(/<[^>]*>/g, '')).toLowerCase();
+          return hay.indexOf(djQ) >= 0;
+        });
+      }
+
+      secPages.sort(function (a, b) {
+        if (a.displayOrder != null && b.displayOrder != null) return a.displayOrder - b.displayOrder;
+        return (b.createdAt || 0) - (a.createdAt || 0);
+      });
+
+      var col2Html = '';
+      secPages.forEach(function (pg) {
+        var isSel = pg.id === state.djSelectedPage;
+        var escId = esc(pg.id);
+        var preview = (pg.noteContent || '').replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+        if (preview.length > 60) preview = preview.substring(0, 60) + '\u2026';
+        var dateStr = pg.date ? formatDateShort(pg.date) : '';
+        col2Html += '<div class="dj-pg-row' + (isSel ? ' active' : '') + '" onclick="djSelectPage(\'' + escId + '\')"'
+          + ' oncontextmenu="event.preventDefault();djCtxMenu(event,\'' + escId + '\')">'
+          + '<div class="dj-pg-icon">' + pageSvg + '</div>'
+          + '<div class="dj-pg-info">'
+          + '<div class="dj-pg-title">' + esc(pg.title || 'Untitled') + '</div>'
+          + (dateStr ? '<div class="dj-pg-meta">' + dateStr + '</div>' : '')
+          + '</div>'
+          + '<button class="dj-pg-more" onclick="event.stopPropagation();djCtxMenu(event,\'' + escId + '\')" title="Page actions">' + moreSvg + '</button>'
+          + '</div>';
+      });
+
+      // Clamp selected page — only reset if pages are loaded but selection not found
+      var pg = state.djSelectedPage ? secPages.find(function (p) { return p.id === state.djSelectedPage; }) : null;
+      if (state.djSelectedPage && !pg && secPages.length > 0) {
+        state.djSelectedPage = null;
+      }
+
+      // ── Col 3: Editor panel with inline TipTap ──
+      var editorHtml = '';
+      if (pg) {
+        var pgSec = allSecs.find(function (s) { return s.id === pg.sectionId; });
+        var pgDateTime = pg.date ? formatDateShort(pg.date) : '';
+
+        editorHtml = '<div class="dj-page-header">'
+          + '<input class="dj-page-title-input" value="' + esc(pg.title || '') + '" onchange="djUpdateTitle(this.value)" placeholder="Untitled" />'
+          + '<div class="dj-page-meta">'
+          + (pgDateTime ? '<span>' + pgDateTime + '</span>' : '')
+          + (pgSec ? '<span style="display:flex;align-items:center;gap:4px"><span style="width:6px;height:6px;border-radius:50%;background:' + pgSec.color + '"></span>' + esc(pgSec.title) + '</span>' : '')
+          + '</div>'
+          + '</div>'
+          + _djToolbarHtml()
+          + '<div id="dj-editor-mount" data-page-id="' + esc(pg.id) + '"></div>';
+      } else {
+        editorHtml = '<div class="dj-empty-editor">'
+          + pageSvg + '<p>' + (!selSec ? 'Select a section' : secPages.length ? 'Select a page' : 'No pages in this section') + '</p>'
+          + '</div>';
+      }
+
+      var col2Title = selSec ? esc(selSec.title) : 'Pages';
+
+      return '<div class="dj-wrap">'
+        // Col 1: notebooks + sections
+        + '<div class="dj-col1" style="width:' + _djCol1Width + 'px">'
+        + '<div class="desk-panel-days-hdr">Notebooks</div>'
+        + '<div class="dj-col1-body">' + col1Html + '</div>'
+        + '<div class="dj-col1-footer">'
+        + '<button class="dj-add-sec-btn" onclick="jOpenAdd(\'notebook\')">' + plusSvg + ' Add Notebook</button>'
+        + '</div>'
+        + '</div>'
+        // Resize handle 1
+        + '<div class="dj-resize-handle" onmousedown="djResizeStart(event,1)"></div>'
+        // Col 2: page list
+        + '<div class="dj-col2" style="width:' + _djCol2Width + 'px">'
+        + '<div class="desk-panel-days-hdr">Pages</div>'
+        + '<div class="dj-col2-header">'
+        + '<span style="font-weight:700;font-size:13px;color:var(--text-primary);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + col2Title + '</span>'
+        + _jSyncDot()
+        + '<button class="dj-add-page-btn" onclick="djAddPage(\'' + (selSec ? selSec.id : '') + '\')">' + plusSvg + ' Add Page</button>'
+        + '</div>'
+        + '<div style="padding:6px 10px;position:relative;border-bottom:1px solid var(--border)">'
+        + '<span style="position:absolute;left:20px;top:15px;color:var(--text-muted)">' + searchSvg + '</span>'
+        + '<input placeholder="Search pages\u2026" oninput="djTreeSearch(this.value)" value="' + esc(state.djTreeSearch || '') + '" style="width:100%;padding:7px 10px 7px 30px;border:1px solid var(--border);border-radius:8px;font-size:12px;background:var(--bg-input);outline:none;box-sizing:border-box;font-family:var(--font-body);color:var(--text-primary)" />'
+        + '</div>'
+        + '<div class="dj-col2-body">' + col2Html + '</div>'
+        + '</div>'
+        // Resize handle 2
+        + '<div class="dj-resize-handle" onmousedown="djResizeStart(event,2)"></div>'
+        // Col 3: editor
+        + '<div class="dj-editor" style="position:relative">'
+        + '<div class="desk-panel-days-hdr">Editor</div>'
+        + editorHtml + '</div>'
+        + _jAddSheet()
+        + _jRenameSheet()
+        + _jNbActionSheet()
+        + _jSecActionSheet()
+        + _jPageActionSheet()
+        + _jDatePickSheet()
+        + _jCopyMoveSheet()
+        + _jColorPickSheet()
+        + '</div>';
+    }
+
+    // ── Desktop journal helpers ──
+    function djToggle(id) {
+      state.djExpanded[id] = !state.djExpanded[id];
+      _djSaveNav();
+      render();
+    }
+    // Per-section memory: remembers last selected page per section
+    var _djSecPageMemory = {};   // { secId: pageId }
+
+    // Persist/restore desktop journal nav state
+    // ── Persist nav state (localStorage + Firestore) ──
+    var _navSaveTimer = null;
+
+    function _saveNavToFirestore() {
+      if (!state.currentUser) return;
+      var nav = {
+        djSec: state.djSelectedSec || '',
+        djPage: state.djSelectedPage || '',
+        djExp: state.djExpanded || {},
+        djMem: _djSecPageMemory,
+        dnTab: state.notesTab || 'notes',
+        dnNote: state.deskSelectedNote || '',
+        dnMem: _deskNotesTabMemory
+      };
+      db_fs.doc('users/' + state.currentUser.uid).set({ navState: nav }, { merge: true })
+        .catch(function (e) { console.warn('[Rian] navState save failed:', e); });
+    }
+    function _scheduleNavSave() {
+      clearTimeout(_navSaveTimer);
+      _navSaveTimer = setTimeout(_saveNavToFirestore, 3000); // debounce 3s
+    }
+
+    function _djSaveNav() {
+      try {
+        localStorage.setItem('djSelectedSec', state.djSelectedSec || '');
+        localStorage.setItem('djSelectedPage', state.djSelectedPage || '');
+        localStorage.setItem('djExpanded', JSON.stringify(state.djExpanded || {}));
+        localStorage.setItem('djSecPageMemory', JSON.stringify(_djSecPageMemory));
+      } catch (e) { }
+      _scheduleNavSave();
+    }
+    function _djRestoreNav() {
+      try {
+        var sec = localStorage.getItem('djSelectedSec');
+        var pg = localStorage.getItem('djSelectedPage');
+        var exp = localStorage.getItem('djExpanded');
+        var mem = localStorage.getItem('djSecPageMemory');
+        if (sec) state.djSelectedSec = sec;
+        if (pg) state.djSelectedPage = pg;
+        if (exp) try { state.djExpanded = JSON.parse(exp); } catch (e) { }
+        if (mem) try { _djSecPageMemory = JSON.parse(mem); } catch (e) { }
+      } catch (e) { }
+    }
+
+    function djSelectSec(secId) {
+      // Save current page selection for the section we're leaving
+      var prevSec = state.djSelectedSec;
+      if (prevSec && state.djSelectedPage) _djSecPageMemory[prevSec] = state.djSelectedPage;
+      state.djSelectedSec = secId;
+      state.djSelectedPage = _djSecPageMemory[secId] || null; // restore or empty state
+      state.djTreeSearch = '';
+      _djSaveNav();
+      render();
+    }
+    function djSelectPage(pgId) {
+      djCloseCtx();
+      state.djSelectedPage = pgId;
+      // Remember selection for current section
+      if (state.djSelectedSec && pgId) _djSecPageMemory[state.djSelectedSec] = pgId;
+      _djSaveNav();
+      render();
+    }
+    function djUpdateTitle(val) {
+      var pg = state.jPages.find(function (p) { return p.id === state.djSelectedPage; });
+      if (pg) { pg.title = val; pg.updatedAt = Date.now(); scheduleJSave(); }
+    }
+    function djAddPage(secId) {
+      if (!secId) { jOpenAdd('notebook'); return; }
+      state.jSectionId = secId;
+      jOpenAdd('page');
+    }
+    function djDeletePage(pgId) {
+      djCloseCtx();
+      var pg = state.jPages.find(function (p) { return p.id === pgId; });
+      if (!pg) return;
+      if (!confirm('Delete "' + (pg.title || 'Untitled') + '"?')) return;
+      pg.deleted = true; pg.updatedAt = Date.now();
+      if (state.djSelectedPage === pgId) state.djSelectedPage = null;
+      scheduleJSave(); render();
+    }
+    function djRenamePage(pgId) {
+      djCloseCtx();
+      var pg = state.jPages.find(function (p) { return p.id === pgId; });
+      if (pg) jOpenRename(pgId, pg.title || '');
+    }
+    function djCopyMovePage(pgId) {
+      djCloseCtx();
+      state.jCopyMovePgId = pgId;
+      state.jCopyMoveMode = 'copy';
+      state.jCopyMoveTargetSecId = null;
+      render();
+    }
+    function djChangeDatePage(pgId) {
+      djCloseCtx();
+      var pg = state.jPages.find(function (p) { return p.id === pgId; });
+      if (pg) {
+        state.jDatePickId = pgId;
+        state.jDatePickVal = pg.date || '';
+        render();
+      }
+    }
+    function djTreeSearch(q) {
+      state.djTreeSearch = (q || '').trim();
+      render();
+      requestAnimationFrame(function () {
+        var inp = document.querySelector('.dj-col2 input[placeholder]');
+        if (inp) { inp.focus(); inp.setSelectionRange(inp.value.length, inp.value.length); }
+      });
+    }
+
+    // ── Context menu ──
+    var _djCtxPgId = null;
+    function djCtxMenu(e, pgId) {
+      djCloseCtx();
+      _djCtxPgId = pgId;
+      var renameSvg = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>';
+      var copySvg = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>';
+      var calSvg = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>';
+      var trashSvg = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>';
+      var menu = document.createElement('div');
+      menu.className = 'dj-ctx-menu';
+      menu.id = 'dj-ctx-menu';
+      menu.innerHTML = '<button onclick="djRenamePage(\'' + pgId + '\')">' + renameSvg + ' Rename</button>'
+        + '<button onclick="djCopyMovePage(\'' + pgId + '\')">' + copySvg + ' Copy / Move</button>'
+        + '<button onclick="djChangeDatePage(\'' + pgId + '\')">' + calSvg + ' Change Date</button>'
+        + '<div class="dj-ctx-sep"></div>'
+        + '<button class="danger" onclick="djDeletePage(\'' + pgId + '\')">' + trashSvg + ' Delete</button>';
+
+      document.body.appendChild(menu);
+      var x = e.clientX, y = e.clientY;
+      menu.style.left = Math.min(x, window.innerWidth - 180) + 'px';
+      menu.style.top = Math.min(y, window.innerHeight - 200) + 'px';
+      setTimeout(function () {
+        document.addEventListener('click', _djCtxClose, { once: true });
+        document.addEventListener('contextmenu', _djCtxCloseOnCtx, { once: true });
+      }, 10);
+    }
+    function _djCtxClose() { djCloseCtx(); }
+    function _djCtxCloseOnCtx(e) {
+      var menu = document.getElementById('dj-ctx-menu');
+      if (menu && !menu.contains(e.target)) djCloseCtx();
+    }
+    function djCloseCtx() {
+      _djCtxPgId = null;
+      var m = document.getElementById('dj-ctx-menu');
+      if (m) m.remove();
+    }
+
+    // ── Resize handles (which=1 for col1, which=2 for col2) ──
+    function djResizeStart(e, which) {
+      e.preventDefault();
+      var handle = e.target;
+      handle.classList.add('dragging');
+      var startX = e.clientX;
+      var startW = which === 1 ? _djCol1Width : _djCol2Width;
+      var minW = which === 1 ? 140 : 180;
+      var maxW = which === 1 ? 300 : 400;
+      var selector = which === 1 ? '.dj-col1' : '.dj-col2';
+      var lsKey = which === 1 ? 'djCol1Width' : 'djCol2Width';
+      function onMove(ev) {
+        var newW = Math.max(minW, Math.min(maxW, startW + (ev.clientX - startX)));
+        if (which === 1) _djCol1Width = newW; else _djCol2Width = newW;
+        var el = document.querySelector(selector);
+        if (el) el.style.width = newW + 'px';
+      }
+      function onUp() {
+        handle.classList.remove('dragging');
+        document.removeEventListener('mousemove', onMove);
+        document.removeEventListener('mouseup', onUp);
+        try { localStorage.setItem(lsKey, String(which === 1 ? _djCol1Width : _djCol2Width)); } catch (e) { }
+      }
+      document.addEventListener('mousemove', onMove);
+      document.addEventListener('mouseup', onUp);
+    }
+
+    // ── Desktop Journal inline TipTap editor ──
+    var _djTiptapEditor = null;
+    var _djTiptapWrap = null;   // persistent DOM element
+    var _djTtPageId = null;     // currently loaded page id
+    var _djTtToolbarWired = false;
+
+    function _djToolbarHtml() {
+      // Match the fullscreen TipTap toolbar exactly
+      return '<div class="dj-tt-toolbar">'
+        // Undo / Redo
+        + '<button class="tt-btn" id="dj-tt-undo" title="Undo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 14 4 9 9 4"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg></button>'
+        + '<button class="tt-btn" id="dj-tt-redo" title="Redo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 14 20 9 15 4"/><path d="M4 20v-7a4 4 0 0 1 4-4h12"/></svg></button>'
+        + '<div class="tt-sep"></div>'
+        // Plain text
+        + '<button class="tt-btn" id="dj-tt-para" title="Plain text" style="font-size:12px;font-weight:700">P</button>'
+        // Text formatting
+        + '<button class="tt-btn" id="dj-tt-bold" title="Bold"><b>B</b></button>'
+        + '<button class="tt-btn" id="dj-tt-italic" title="Italic"><i>I</i></button>'
+        + '<button class="tt-btn" id="dj-tt-strike" title="Strikethrough"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"/><path d="M16 6c0-1.66-1.79-3-4-3s-4 1.34-4 3 1.79 3 4 3"/><path d="M8 18c0 1.66 1.79 3 4 3s4-1.34 4-3-1.79-3-4-3"/></svg></button>'
+        + '<div class="tt-sep"></div>'
+        // Headings
+        + '<button class="tt-btn" id="dj-tt-h1" title="Heading 1" style="font-size:11px;font-weight:800;letter-spacing:-0.5px">H1</button>'
+        + '<button class="tt-btn" id="dj-tt-h2" title="Heading 2" style="font-size:11px;font-weight:800;letter-spacing:-0.5px">H2</button>'
+        + '<button class="tt-btn" id="dj-tt-h3" title="Heading 3" style="font-size:11px;font-weight:800;letter-spacing:-0.5px">H3</button>'
+        + '<div class="tt-sep"></div>'
+        // Lists
+        + '<button class="tt-btn" id="dj-tt-ul" title="Bullet List"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="9" y1="6" x2="20" y2="6"/><line x1="9" y1="12" x2="20" y2="12"/><line x1="9" y1="18" x2="20" y2="18"/><circle cx="4" cy="6" r="1.2" fill="currentColor"/><circle cx="4" cy="12" r="1.2" fill="currentColor"/><circle cx="4" cy="18" r="1.2" fill="currentColor"/></svg></button>'
+        + '<button class="tt-btn" id="dj-tt-ol" title="Numbered List"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="10" y1="6" x2="21" y2="6"/><line x1="10" y1="12" x2="21" y2="12"/><line x1="10" y1="18" x2="21" y2="18"/><path d="M4 6h1v4"/><path d="M4 10h2"/><path d="M6 18H4c0-1 2-2 2-3s-1-1.5-2-1"/></svg></button>'
+        + '<button class="tt-btn" id="dj-tt-task" title="Task List"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></button>'
+        + '<div class="tt-sep"></div>'
+        // Block elements
+        + '<button class="tt-btn" id="dj-tt-quote" title="Blockquote"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1zm12 0c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2h.75c0 2.25.25 4-2.75 4v3c0 1 0 1 1 1z"/></svg></button>'
+        + '<button class="tt-btn" id="dj-tt-code" title="Inline code" style="font-family:monospace;font-size:12px">&lt;/&gt;</button>'
+        + '<button class="tt-btn" id="dj-tt-codeblock" title="Code block"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg></button>'
+        + '<button class="tt-btn" id="dj-tt-hr" title="Horizontal divider">\u2014</button>'
+        + '<div class="tt-sep"></div>'
+        // Alignment
+        + '<button class="tt-btn" id="dj-tt-align-left" title="Align left"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="15" y2="12"/><line x1="3" y1="18" x2="18" y2="18"/></svg></button>'
+        + '<button class="tt-btn" id="dj-tt-align-center" title="Align centre"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="6" y1="12" x2="18" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/></svg></button>'
+        + '<button class="tt-btn" id="dj-tt-align-right" title="Align right"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="9" y1="12" x2="21" y2="12"/><line x1="6" y1="18" x2="21" y2="18"/></svg></button>'
+        + '<div class="tt-sep"></div>'
+        // Link, Table, Image
+        + '<button class="tt-btn" id="dj-tt-link" title="Insert / edit link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></button>'
+        + '<button class="tt-btn" id="dj-tt-table" title="Insert table"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/></svg></button>'
+        + '<button class="tt-btn" id="dj-tt-image" title="Insert photo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></button>'
+        + '</div>';
+    }
+
+    function _djUpdateToolbar(editor) {
+      if (!editor) return;
+      var map = {
+        'dj-tt-para': function () { return editor.isActive('paragraph') && !editor.isActive('heading') && !editor.isActive('bulletList') && !editor.isActive('orderedList') && !editor.isActive('taskList') && !editor.isActive('blockquote') && !editor.isActive('codeBlock') && !editor.isActive('bold') && !editor.isActive('italic') && !editor.isActive('strike') && !editor.isActive('code'); },
+        'dj-tt-bold': function () { return editor.isActive('bold'); },
+        'dj-tt-italic': function () { return editor.isActive('italic'); },
+        'dj-tt-strike': function () { return editor.isActive('strike'); },
+        'dj-tt-h1': function () { return editor.isActive('heading', { level: 1 }); },
+        'dj-tt-h2': function () { return editor.isActive('heading', { level: 2 }); },
+        'dj-tt-h3': function () { return editor.isActive('heading', { level: 3 }); },
+        'dj-tt-ul': function () { return editor.isActive('bulletList'); },
+        'dj-tt-ol': function () { return editor.isActive('orderedList'); },
+        'dj-tt-task': function () { return editor.isActive('taskList'); },
+        'dj-tt-quote': function () { return editor.isActive('blockquote'); },
+        'dj-tt-code': function () { return editor.isActive('code'); },
+        'dj-tt-codeblock': function () { return editor.isActive('codeBlock'); },
+        'dj-tt-align-left': function () { return editor.isActive({ textAlign: 'left' }); },
+        'dj-tt-align-center': function () { return editor.isActive({ textAlign: 'center' }); },
+        'dj-tt-align-right': function () { return editor.isActive({ textAlign: 'right' }); },
+        'dj-tt-link': function () { return editor.isActive('link'); },
+      };
+      for (var id in map) {
+        var el = document.getElementById(id);
+        if (el) {
+          if (map[id]()) el.classList.add('tt-active');
+          else el.classList.remove('tt-active');
+        }
+      }
+    }
+
+    function _djWireToolbar() {
+      if (!_djTiptapEditor) return;
+      var ed = _djTiptapEditor;
+      function on(id, fn) {
+        var el = document.getElementById(id);
+        if (el) el.onclick = function (e) { e.preventDefault(); fn(); };
+      }
+      on('dj-tt-undo', function () { ed.chain().focus().undo().run(); });
+      on('dj-tt-redo', function () { ed.chain().focus().redo().run(); });
+      on('dj-tt-para', function () {
+        var c = ed.chain().focus().unsetAllMarks().setParagraph();
+        if (ed.isActive('blockquote')) c = c.lift('blockquote');
+        if (ed.isActive('codeBlock')) c = c.toggleCodeBlock();
+        c.run();
+        if (ed.isActive('taskList')) ed.chain().focus().liftListItem('taskItem').run();
+        else if (ed.isActive('bulletList') || ed.isActive('orderedList'))
+          ed.chain().focus().liftListItem('listItem').run();
+        _djUpdateToolbar(ed);
+      });
+      on('dj-tt-bold', function () { ed.chain().focus().toggleBold().run(); _djUpdateToolbar(ed); });
+      on('dj-tt-italic', function () { ed.chain().focus().toggleItalic().run(); _djUpdateToolbar(ed); });
+      on('dj-tt-strike', function () { ed.chain().focus().toggleStrike().run(); _djUpdateToolbar(ed); });
+      on('dj-tt-h1', function () { ed.chain().focus().toggleHeading({ level: 1 }).run(); _djUpdateToolbar(ed); });
+      on('dj-tt-h2', function () { ed.chain().focus().toggleHeading({ level: 2 }).run(); _djUpdateToolbar(ed); });
+      on('dj-tt-h3', function () { ed.chain().focus().toggleHeading({ level: 3 }).run(); _djUpdateToolbar(ed); });
+      on('dj-tt-ul', function () { ed.chain().focus().toggleBulletList().run(); _djUpdateToolbar(ed); });
+      on('dj-tt-ol', function () { ed.chain().focus().toggleOrderedList().run(); _djUpdateToolbar(ed); });
+      on('dj-tt-task', function () { ed.chain().focus().toggleTaskList().run(); _djUpdateToolbar(ed); });
+      on('dj-tt-quote', function () { ed.chain().focus().toggleBlockquote().run(); _djUpdateToolbar(ed); });
+      on('dj-tt-code', function () { ed.chain().focus().toggleCode().run(); _djUpdateToolbar(ed); });
+      on('dj-tt-codeblock', function () { ed.chain().focus().toggleCodeBlock().run(); _djUpdateToolbar(ed); });
+      on('dj-tt-hr', function () { ed.chain().focus().setHorizontalRule().run(); });
+      on('dj-tt-align-left', function () { ed.chain().focus().setTextAlign('left').run(); _djUpdateToolbar(ed); });
+      on('dj-tt-align-center', function () { ed.chain().focus().setTextAlign('center').run(); _djUpdateToolbar(ed); });
+      on('dj-tt-align-right', function () { ed.chain().focus().setTextAlign('right').run(); _djUpdateToolbar(ed); });
+      on('dj-tt-link', function () {
+        if (ed.isActive('link')) {
+          ed.chain().focus().unsetLink().run();
+        } else {
+          var url = prompt('Enter URL:');
+          if (url) ed.chain().focus().setLink({ href: url }).run();
+        }
+        _djUpdateToolbar(ed);
+      });
+      on('dj-tt-table', function () {
+        ed.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run();
+      });
+      on('dj-tt-image', function () {
+        var url = prompt('Image URL:');
+        if (url) ed.chain().focus().setImage({ src: url }).run();
+      });
+    }
+
+    async function _djMountTiptap() {
+      var mount = document.getElementById('dj-editor-mount');
+      if (!mount) {
+        // Not on desktop journal or no page selected — destroy if exists
+        if (_djTiptapEditor && _djTiptapWrap && _djTiptapWrap.parentNode) {
+          _djTiptapWrap.remove();
+        }
+        _djTtPageId = null;
+        return;
+      }
+
+      var pageId = mount.getAttribute('data-page-id');
+
+      // Create editor instance if needed
+      if (!_djTiptapEditor) {
+        var mods = await _loadTipTapModules();
+        _djTiptapWrap = document.createElement('div');
+        _djTiptapWrap.className = 'dj-tt-editor-wrap';
+
+        _djTiptapEditor = new mods.Editor({
+          element: _djTiptapWrap,
+          extensions: [
+            mods.StarterKit.configure({ history: { depth: 20, newGroupDelay: 300 } }),
+            mods.Underline,
+            mods.TextStyle,
+            mods.Color,
+            mods.Highlight.configure({ multicolor: true }),
+            mods.Placeholder.configure({ placeholder: 'Start typing your note\u2026' }),
+            mods.TextAlign.configure({ types: ['heading', 'paragraph'] }),
+            mods.TaskList,
+            mods.TaskItemWithHandle,
+            mods.Table.configure({ resizable: true }),
+            mods.TableRow,
+            mods.TableHeaderWithBg,
+            mods.TableCellWithBg,
+            mods.Link.configure({ openOnClick: false, HTMLAttributes: { target: '_blank', rel: 'noopener noreferrer nofollow' } }),
+            mods.Subscript,
+            mods.Superscript,
+            mods.Image.configure({ inline: false, allowBase64: true }),
+          ],
+          content: '',
+          onUpdate: function (_ref) {
+            var editor = _ref.editor;
+            if (!_djTtPageId) return;
+            var pg = state.jPages.find(function (p) { return p.id === _djTtPageId; });
+            if (pg) {
+              pg.noteContent = editor.getHTML();
+              pg.updatedAt = Date.now();
+              scheduleJSave();
+            }
+            requestAnimationFrame(function () { _ttStripDefaultTableWidths(); });
+          },
+          onSelectionUpdate: function (_ref) {
+            _djUpdateToolbar(_ref.editor);
+            requestAnimationFrame(function () { _ttStripDefaultTableWidths(); });
+          },
+        });
+      }
+
+      // Mount the persistent wrapper into the render slot
+      mount.appendChild(_djTiptapWrap);
+
+      // Load page content if page changed, or if content arrived after initial empty mount
+      var pg = pageId ? state.jPages.find(function (p) { return p.id === pageId; }) : null;
+      if (_djTtPageId !== pageId) {
+        _djTtPageId = pageId;
+        if (pg) {
+          _djTiptapEditor.commands.setContent(pg.noteContent || '');
+        } else {
+          _djTiptapEditor.commands.setContent('');
+        }
+      } else if (pg && pg.noteContent && _djTiptapEditor.isEmpty) {
+        // Data arrived after editor was mounted empty — load it now
+        _djTiptapEditor.commands.setContent(pg.noteContent);
+      }
+
+      // Wire toolbar buttons (they get recreated each render)
+      _djWireToolbar();
+      _djUpdateToolbar(_djTiptapEditor);
+    }
+
     function renderJournalView() {
+      if (_isDesktop()) return _renderDesktopJournal();
       if (state.jSearchMode) return renderJSearch();
       if (state.jScreen === 'sections') return renderJSections();
       if (state.jScreen === 'pages') return renderJPages();
@@ -31659,28 +32950,193 @@
         rows += `<tr class="rtn-tr">${cells}</tr>`;
       });
 
-      return `
-        <div class="rtn-page">
-          <div class="rtn-top-bar">
-            <div class="rtn-year-nav">
-              <button class="rtn-year-btn" onclick="routinesChangeYear(-1)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
-              <span class="rtn-year-label">${year}</span>
-              <button class="rtn-year-btn" onclick="routinesChangeYear(1)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></button>
-            </div>
-            <div style="display:flex;gap:6px;align-items:center">
-              <button class="rtn-edit-btn" onclick="refreshRoutines()" title="Refresh data" style="padding:7px 10px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg></button>
-              <button class="rtn-edit-btn" onclick="openRoutinesSitePicker()">Edit Sites</button>
-            </div>
-          </div>
-          <!-- Header lives outside the overflow-x wrapper so it can be position:sticky -->
-          <div class="rtn-sticky-hdr" id="rtn-sticky-hdr">
-            <table class="rtn-table"><thead><tr>${headCells}</tr></thead></table>
-          </div>
-          <!-- Body grid scrolls horizontally; JS mirrors its scrollLeft to the header -->
-          <div class="rtn-grid-scroll" id="rtn-grid-scroll">
-            <table class="rtn-table"><tbody>${rows}</tbody></table>
-          </div>
-        </div>`;
+      // ── Shared stats computation (used by both desktop and mobile) ──
+      var visitCount = 0;
+      var totalCells = sortedSites.length * 12;
+      var monthTotals = new Array(12).fill(0);
+      var neverVisited = [];
+      var recentVisits = [];
+
+      sortedSites.forEach(function (site) {
+        var siteVisits = 0;
+        var lastMonth = 0, lastDay = 0;
+        for (var m = 1; m <= 12; m++) {
+          var key = rtnKey(site, year, m);
+          var manualV = r.visits[key];
+          var autoV = state.routinesAutoVisits[key];
+          if (manualV || autoV) {
+            siteVisits++;
+            monthTotals[m - 1]++;
+            var d = manualV ? manualV.day : autoV.day;
+            if (m > lastMonth || (m === lastMonth && d > lastDay)) { lastMonth = m; lastDay = d; }
+          }
+        }
+        visitCount += siteVisits;
+        if (siteVisits === 0) neverVisited.push(site);
+        if (lastMonth > 0) recentVisits.push({ site: site, month: lastMonth, day: lastDay });
+      });
+
+      recentVisits.sort(function (a, b) { return b.month - a.month || b.day - a.day; });
+      var coverage = totalCells > 0 ? Math.round((visitCount / totalCells) * 100) : 0;
+      var maxMonthTotal = Math.max.apply(null, monthTotals.concat([1]));
+
+      // Month bar chart (desktop size)
+      var monthBarHtml = '';
+      for (var mb = 0; mb < 12; mb++) {
+        var mbH = Math.round(monthTotals[mb] / maxMonthTotal * 60);
+        var mbIsCur = (mb + 1) === curMonth && year === curYear;
+        monthBarHtml += '<div class="rtn-month-col"><div class="rtn-month-col-bar"><div class="rtn-month-col-fill' + (mbIsCur ? ' rtn-cur-bar' : '') + '" style="height:' + mbH + 'px"></div></div><div class="rtn-month-col-label">' + MONTHS_SHORT[mb] + '</div><div class="rtn-month-col-val">' + monthTotals[mb] + '</div></div>';
+      }
+
+      // Never visited list
+      var neverHtml = '';
+      if (neverVisited.length === 0) {
+        neverHtml = '<div style="padding:16px;text-align:center;color:var(--text-muted);font-size:12px">All sites visited!</div>';
+      } else {
+        neverVisited.slice(0, 8).forEach(function (s) {
+          neverHtml += '<div class="rtn-alert-item"><span class="rtn-alert-dot"></span><span class="rtn-alert-name">' + esc(s) + '</span><span class="rtn-alert-detail">0 visits</span></div>';
+        });
+        if (neverVisited.length > 8) neverHtml += '<div style="padding:8px 16px;font-size:11px;color:var(--text-muted)">+' + (neverVisited.length - 8) + ' more</div>';
+      }
+
+      // Recent visits list (desktop shows 20, mobile 6)
+      var recentHtml = '';
+      recentVisits.slice(0, _isDesktop() ? 20 : 6).forEach(function (v) {
+        recentHtml += '<div class="rtn-recent-item"><div class="rtn-recent-badge">' + v.day + '</div><div class="rtn-recent-info"><div class="rtn-recent-name">' + esc(v.site) + '</div><div class="rtn-recent-date">' + MONTHS_SHORT[v.month - 1] + ' ' + year + '</div></div></div>';
+      });
+
+      // Due visits — sites not visited in 3+ months (routine cycle is quarterly)
+      var dueVisits = [];
+      sortedSites.forEach(function (site) {
+        var lastVisitMonth = 0, lastVisitDay = 0;
+        for (var m = 1; m <= 12; m++) {
+          var key = rtnKey(site, year, m);
+          if (r.visits[key] || state.routinesAutoVisits[key]) {
+            var d = r.visits[key] ? r.visits[key].day : state.routinesAutoVisits[key].day;
+            if (m > lastVisitMonth || (m === lastVisitMonth && d > lastVisitDay)) { lastVisitMonth = m; lastVisitDay = d; }
+          }
+        }
+        var monthsSince = lastVisitMonth === 0 ? curMonth : (curMonth - lastVisitMonth);
+        if (monthsSince >= 3) {
+          dueVisits.push({ site: site, lastMonth: lastVisitMonth, lastDay: lastVisitDay, monthsSince: monthsSince });
+        }
+      });
+      dueVisits.sort(function (a, b) { return b.monthsSince - a.monthsSince; });
+
+      var dueHtml = '';
+      if (dueVisits.length === 0) {
+        dueHtml = '<div style="padding:16px;text-align:center;color:var(--text-muted);font-size:12px">All sites up to date!</div>';
+      } else {
+        dueVisits.forEach(function (d) {
+          var detail = d.lastMonth === 0 ? 'Never visited' : (d.monthsSince + ' months ago');
+          dueHtml += '<div class="rtn-alert-item"><span class="rtn-alert-dot amber"></span><span class="rtn-alert-name">' + esc(d.site) + '</span><span class="rtn-alert-detail">' + detail + '</span></div>';
+        });
+      }
+
+      // ── Desktop dashboard ──
+      if (_isDesktop()) {
+        // Use single-letter month headers for compact grid
+        let deskHeadCells = '<th class="rtn-th-site">Site</th>';
+        for (let m = 1; m <= 12; m++) {
+          const isCur = (m === curMonth && year === curYear);
+          deskHeadCells += '<th class="rtn-th-month' + (isCur ? ' cur' : '') + '">' + MONTHS_SHORT[m - 1] + '</th>';
+        }
+
+        return '<div class="rtn-page">'
+          + '<div class="rtn-top-bar"><div class="rtn-year-nav">'
+          + '<button class="rtn-year-btn" onclick="routinesChangeYear(-1)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>'
+          + '<span class="rtn-year-label">' + year + '</span>'
+          + '<button class="rtn-year-btn" onclick="routinesChangeYear(1)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></button>'
+          + '</div><div style="display:flex;gap:6px;align-items:center">'
+          + '<button class="rtn-edit-btn" onclick="refreshRoutines()" title="Refresh data" style="padding:7px 10px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg></button>'
+          + '<button class="rtn-edit-btn" onclick="openRoutinesSitePicker()">Edit Sites</button>'
+          + '</div></div>'
+          // Dashboard grid
+          + '<div class="rtn-dash">'
+          // Main grid card
+          + '<div class="rtn-dash-card">'
+          + '<div class="rtn-dash-card-hdr">Routine Visits <span class="rtn-dash-badge">' + sortedSites.length + ' sites &times; 12 months</span></div>'
+          + '<div class="rtn-grid-scroll" id="rtn-grid-scroll"><table class="rtn-table"><thead><tr>' + deskHeadCells + '</tr></thead><tbody>' + rows + '</tbody></table></div>'
+          + '</div>'
+          // Sidebar
+          + '<div class="rtn-dash-sidebar">'
+          // Stats (2×2 grid)
+          + '<div class="rtn-stats-bar">'
+          + '<div class="rtn-stat"><div class="rtn-stat-val" style="color:var(--accent)">' + sortedSites.length + '</div><div class="rtn-stat-label">Sites</div></div>'
+          + '<div class="rtn-stat"><div class="rtn-stat-val" style="color:#15803d">' + visitCount + '</div><div class="rtn-stat-label">Visits</div></div>'
+          + '<div class="rtn-stat"><div class="rtn-stat-val" style="color:#D97706">' + coverage + '%</div><div class="rtn-stat-label">Coverage</div></div>'
+          + '<div class="rtn-stat"><div class="rtn-stat-val" style="color:#8B5CF6">' + MONTHS_SHORT[curMonth - 1] + '</div><div class="rtn-stat-label">Current Month</div></div>'
+          + '</div>'
+          + '<div class="rtn-dash-card"><div class="rtn-dash-card-hdr">Visits per Month</div><div class="rtn-month-bar">' + monthBarHtml + '</div></div>'
+          + '<div class="rtn-dash-card"><div class="rtn-dash-card-hdr">Never Visited <span class="rtn-dash-badge" style="background:rgba(239,68,68,0.1);color:#ef4444">' + neverVisited.length + '</span></div>' + neverHtml + '</div>'
+          + '<div class="rtn-dash-card"><div class="rtn-dash-card-hdr">Due Visits <span class="rtn-dash-badge" style="background:rgba(245,158,11,0.1);color:#f59e0b">' + dueVisits.length + '</span></div><div class="rtn-due-scroll">' + dueHtml + '</div></div>'
+          + '<div class="rtn-dash-card rtn-recent-card"><div class="rtn-dash-card-hdr">Recent Visits <span class="rtn-dash-badge" style="background:rgba(34,197,94,0.1);color:#15803d">Latest</span></div><div class="rtn-recent-scroll">' + recentHtml + '</div></div>'
+          + '</div>'
+          + '</div></div>';
+      }
+
+      // ── Mobile layout with tab switcher ──
+      // Build mobile month bar
+      var mobMonthBarHtml = '';
+      for (var mm = 0; mm < 12; mm++) {
+        var mh = Math.round(monthTotals[mm] / maxMonthTotal * 40);
+        var mIsCur = (mm + 1) === curMonth && year === curYear;
+        mobMonthBarHtml += '<div class="rtn-mob-month-col"><div class="rtn-mob-month-col-bar"><div class="rtn-mob-month-col-fill' + (mIsCur ? ' cur' : '') + '" style="height:' + mh + 'px"></div></div><div class="rtn-mob-month-col-label">' + MONTHS_SHORT[mm] + '</div><div class="rtn-mob-month-col-val">' + monthTotals[mm] + '</div></div>';
+      }
+
+      // Mobile recent visits (show all)
+      var mobRecentHtml = '';
+      recentVisits.slice(0, 20).forEach(function (v) {
+        mobRecentHtml += '<div class="rtn-recent-item"><div class="rtn-recent-badge">' + v.day + '</div><div class="rtn-recent-info"><div class="rtn-recent-name">' + esc(v.site) + '</div><div class="rtn-recent-date">' + MONTHS_SHORT[v.month - 1] + ' ' + year + '</div></div></div>';
+      });
+
+      // Mobile due + never (reuse existing dueHtml/neverHtml)
+
+      return '<div class="rtn-page">'
+        + '<div class="rtn-top-bar"><div class="rtn-year-nav">'
+        + '<button class="rtn-year-btn" onclick="routinesChangeYear(-1)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>'
+        + '<span class="rtn-year-label">' + year + '</span>'
+        + '<button class="rtn-year-btn" onclick="routinesChangeYear(1)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></button>'
+        + '</div><div style="display:flex;gap:6px;align-items:center">'
+        + '<button class="rtn-edit-btn" onclick="refreshRoutines()" title="Refresh data" style="padding:7px 10px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg></button>'
+        + '<button class="rtn-edit-btn" onclick="openRoutinesSitePicker()">Edit Sites</button>'
+        + '</div></div>'
+        // Tab bar
+        + '<div class="rtn-tab-bar">'
+        + '<button class="rtn-tab-btn active" onclick="rtnMobTab(\'grid\',this)">Grid</button>'
+        + '<button class="rtn-tab-btn" onclick="rtnMobTab(\'stats\',this)">Stats</button>'
+        + '<button class="rtn-tab-btn" onclick="rtnMobTab(\'due\',this)">Due <span class="rtn-tab-badge">' + dueVisits.length + '</span></button>'
+        + '</div>'
+        // Tab: Grid
+        + '<div class="rtn-tab-content active" id="rtn-tab-grid">'
+        + '<div class="rtn-sticky-hdr" id="rtn-sticky-hdr"><table class="rtn-table"><thead><tr>' + headCells + '</tr></thead></table></div>'
+        + '<div class="rtn-grid-scroll" id="rtn-grid-scroll"><table class="rtn-table"><tbody>' + rows + '</tbody></table></div>'
+        + '</div>'
+        // Tab: Stats
+        + '<div class="rtn-tab-content" id="rtn-tab-stats">'
+        + '<div class="rtn-mob-stats">'
+        + '<div class="rtn-mob-stat"><div class="rtn-mob-stat-val" style="color:var(--accent)">' + sortedSites.length + '</div><div class="rtn-mob-stat-lbl">Sites</div></div>'
+        + '<div class="rtn-mob-stat"><div class="rtn-mob-stat-val" style="color:#15803d">' + visitCount + '</div><div class="rtn-mob-stat-lbl">Visits</div></div>'
+        + '<div class="rtn-mob-stat"><div class="rtn-mob-stat-val" style="color:#D97706">' + coverage + '%</div><div class="rtn-mob-stat-lbl">Coverage</div></div>'
+        + '<div class="rtn-mob-stat"><div class="rtn-mob-stat-val" style="color:#8B5CF6">' + MONTHS_SHORT[curMonth - 1] + '</div><div class="rtn-mob-stat-lbl">Current Month</div></div>'
+        + '</div>'
+        + '<div class="rtn-mob-card"><div class="rtn-mob-card-hdr">Visits per Month</div><div class="rtn-mob-month-bar">' + mobMonthBarHtml + '</div></div>'
+        + '<div class="rtn-mob-card"><div class="rtn-mob-card-hdr">Recent Visits <span class="rtn-mob-badge" style="background:rgba(34,197,94,0.1);color:#15803d">Latest</span></div><div class="rtn-mob-recent-scroll">' + mobRecentHtml + '</div></div>'
+        + '</div>'
+        // Tab: Due
+        + '<div class="rtn-tab-content" id="rtn-tab-due">'
+        + '<div class="rtn-mob-card"><div class="rtn-mob-card-hdr">Due Visits <span class="rtn-mob-badge" style="background:rgba(245,158,11,0.1);color:#f59e0b">' + dueVisits.length + '</span></div>' + dueHtml + '</div>'
+        + '<div class="rtn-mob-card"><div class="rtn-mob-card-hdr">Never Visited <span class="rtn-mob-badge" style="background:rgba(239,68,68,0.1);color:#ef4444">' + neverVisited.length + '</span></div>' + neverHtml + '</div>'
+        + '</div>'
+        + '</div>';
+    }
+
+    function rtnMobTab(id, btn) {
+      document.querySelectorAll('.rtn-tab-content').forEach(function (t) { t.classList.remove('active'); });
+      document.querySelectorAll('.rtn-tab-btn').forEach(function (b) { b.classList.remove('active'); });
+      var el = document.getElementById('rtn-tab-' + id);
+      if (el) el.classList.add('active');
+      btn.classList.add('active');
     }
 
     function initRtnStickyHeader() {
@@ -34320,6 +35776,14 @@ Rules:
           const ljScreen = localStorage.getItem('jScreen'); if (ljScreen) state.jScreen = ljScreen;
           const ljNbId = localStorage.getItem('jNotebookId'); if (ljNbId) state.jNotebookId = ljNbId;
           const ljSecId = localStorage.getItem('jSectionId'); if (ljSecId) state.jSectionId = ljSecId;
+          // Restore desktop journal nav state
+          _djRestoreNav();
+        }
+        // Restore desktop notes nav state
+        if (lastView === 'notes') {
+          const lnTab = localStorage.getItem('dnotesTab'); if (lnTab) { state.notesTab = lnTab; state.notesArchiveOpen = (lnTab === 'archive'); state.notesBinOpen = (lnTab === 'bin'); }
+          const lnNote = localStorage.getItem('dnotesSelectedNote'); if (lnNote) state.deskSelectedNote = lnNote;
+          const lnMem = localStorage.getItem('dnotesTabMemory'); if (lnMem) try { _deskNotesTabMemory = JSON.parse(lnMem); } catch (e) { }
         }
       } catch (e) { console.warn('[Rian] LocalStorage blocked:', e); }
 
@@ -34405,6 +35869,17 @@ Rules:
               if (prof.photoURL && !user.photoURL) {
                 user._rian_photoURL = prof.photoURL;
                 localStorage.setItem('rian_user_photo', prof.photoURL);
+              }
+              // Restore nav state from Firestore (cross-browser)
+              if (prof.navState) {
+                const ns = prof.navState;
+                if (ns.djSec && !state.djSelectedSec) state.djSelectedSec = ns.djSec;
+                if (ns.djPage && !state.djSelectedPage) state.djSelectedPage = ns.djPage;
+                if (ns.djExp && !Object.keys(state.djExpanded || {}).length) state.djExpanded = ns.djExp;
+                if (ns.djMem) try { Object.assign(_djSecPageMemory, ns.djMem); } catch (e) { }
+                if (ns.dnTab && !localStorage.getItem('dnotesTab')) { state.notesTab = ns.dnTab; state.notesArchiveOpen = (ns.dnTab === 'archive'); state.notesBinOpen = (ns.dnTab === 'bin'); }
+                if (ns.dnNote && !state.deskSelectedNote) state.deskSelectedNote = ns.dnNote;
+                if (ns.dnMem) try { Object.assign(_deskNotesTabMemory, ns.dnMem); } catch (e) { }
               }
               console.log('[Rian] Profile patched from Firestore:', prof.email || user.email);
             }
@@ -37340,7 +38815,7 @@ QUESTION: ${query}`;
     // 100px × N cols even when no colwidths are stored.  Tables where the user
     // has dragged a column (col elements get width) are left alone.
     function _ttStripDefaultTableWidths() {
-      var tables = document.querySelectorAll('#note-fs-editor .ProseMirror table');
+      var tables = document.querySelectorAll('#note-fs-editor .ProseMirror table, #dj-editor-mount .ProseMirror table');
       for (var i = 0; i < tables.length; i++) {
         var t = tables[i];
         if (!t.style.minWidth || t.style.minWidth === '0px') continue;

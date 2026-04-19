@@ -16,7 +16,7 @@ A Progressive Web App for field technicians — timesheets, notes (TipTap rich t
 
 ## Version
 `const VERSION = 'x.y.z'` in `app.html` (~line 13799). Bump on every change. Only location that needs updating (index.html version references are static).
-Current version: **5.8.13**
+Current version: **5.8.51**
 
 **Two themes active**: `claude` (default light) and `dark` (slate-based). Theme picker lives in ☰ menu → Display. Switcher at `setTheme(key)`, registry at `THEME_META`.
 
@@ -31,7 +31,8 @@ Current version: **5.8.13**
 - `color-scheme: dark` applied to `input[type="date/time/datetime-local"]` for visible calendar icon
 
 **Segmented control pattern** (`--bg-code-group` container + `--bg-segment-active` active pill):
-- Used in Notes tab bar (Active | Archive | Bin) and Finder tab bar (Exchanges | Cabinets)
+- Used in Notes tab bar (Active | Archive | Bin), Finder tab bar (Exchanges | Cabinets), and Routines mobile tab bar (Grid | Stats | Due)
+- Container: `border-radius: 14px`, `padding: 3px`, `gap: 2px`. Buttons: `border-radius: 11px`, `padding: 7px 4px`, `font-size: 12px`, `font-weight: 700`
 - Previously `--bg-card` was used for active pill — caused invisible pill in dark mode since both were `#1e293b`
 
 **Border standard** (enforced v5.6.40): ALL borders and outlines throughout the app are `1px`. There are zero `1.5px` borders remaining. Do not introduce `1.5px` for new elements.
@@ -195,6 +196,22 @@ Top tab nav bar replaces bottom mobile nav. `desk-tab-nav` with horizontal butto
 
 `renderCardView()` intercept: `if (_isDesktop()) return _renderDesktopTimesheetView();`
 `renderNotesView()` intercept: `if (_isDesktop()) return _renderDesktopNotes();`
+
+### Routines — Desktop Dashboard (v5.8.36+)
+Two-column grid: main table card (left, flex) + sidebar (right, 340px). Sidebar contains stats (2×2 grid), Visits per Month bar chart, Never Visited list, Due Visits list (sites not visited in 3+ months), and Recent Visits (scrollable, max 340px).
+
+CSS: `.rtn-dash` (grid container), `.rtn-dash-card`, `.rtn-dash-sidebar`, `.rtn-stats-bar`, `.rtn-recent-card`, `.rtn-recent-scroll`, `.rtn-due-scroll`
+
+### Routines — Mobile Tab Switcher (v5.8.44+)
+Mobile view uses a segmented tab bar (Grid | Stats | Due) matching the Notes tab bar pattern exactly. Grid tab shows the site×month table edge-to-edge (no horizontal padding). Stats and Due tabs have `16px` side padding.
+
+Shared stats variables (`monthTotals`, `visitCount`, `coverage`, `neverVisited`, `recentVisits`, `dueVisits`, `dueHtml`, `neverHtml`, `recentHtml`, `maxMonthTotal`, `monthBarHtml`) are computed BEFORE the `if (_isDesktop())` check so both desktop and mobile paths can access them.
+
+Key function: `rtnMobTab(id, btn)` — switches active tab content.
+
+CSS: `.rtn-tab-bar`, `.rtn-tab-btn`, `.rtn-tab-badge`, `.rtn-tab-content`, `.rtn-mob-stats`, `.rtn-mob-stat`, `.rtn-mob-card`, `.rtn-mob-month-bar`, `.rtn-mob-recent-scroll`
+
+Shared list styles (used by both desktop sidebar and mobile tabs): `.rtn-alert-item`, `.rtn-alert-dot`, `.rtn-alert-name`, `.rtn-alert-detail`, `.rtn-recent-item`, `.rtn-recent-badge`, `.rtn-recent-info`, `.rtn-recent-name`, `.rtn-recent-date`, `.rtn-month-bar`, `.rtn-month-col` — defined globally, NOT inside a media query.
 
 ### Poll-Based Sync (v5.8.11+)
 Firestore `onSnapshot` WebSocket can silently go stale across browsers. Added 10-second polling fallback:
