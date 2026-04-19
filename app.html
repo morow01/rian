@@ -17456,7 +17456,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.8.79';
+    const VERSION = '5.8.80';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -28577,27 +28577,7 @@
       var isEx = state.exchangeTab === 'exchanges';
       var items = isEx ? state.exchanges : state.cabinets;
 
-      // Filter items
-      var q = _dfndSearch.toLowerCase();
-      var filtered = [];
       var sel = isEx ? state.selectedExchange : state.selectedCabinet;
-      if (isEx) {
-        filtered = q ? items.filter(function(t) {
-          return t.name.toLowerCase().indexOf(q) === 0 || t.code.toLowerCase().indexOf(q) === 0;
-        }).slice(0, 50) : items.slice(0, 50);
-      } else {
-        filtered = q ? items.filter(function(c) {
-          return c.mdf.toLowerCase().indexOf(q) === 0 || c.ccp.toLowerCase().indexOf(q) === 0 || String(c.ipid).indexOf(q) === 0;
-        }).slice(0, 50) : items.slice(0, 50);
-      }
-      // Ensure selected item is always in the list (put it first if not already present)
-      if (sel && !q) {
-        var selId = isEx ? sel.code : sel.ipid;
-        var inList = filtered.some(function(it) { return (isEx ? it.code : it.ipid) === selId; });
-        if (!inList) {
-          filtered = [sel].concat(filtered.slice(0, 49));
-        }
-      }
 
       // ── Left panel: tabs + search + results list ──
       var listHtml = '<div class="dfnd-panel-hdr">Finder</div>';
@@ -28618,29 +28598,8 @@
         '<input id="dfnd-search-input" value="' + esc(_dfndSearch) + '" oninput="dfndSearch(this.value)" placeholder="' + (isEx ? 'Search exchanges...' : 'Search cabinets...') + '">' +
         '</div></div>';
 
-      // Results list
-      listHtml += '<div style="flex:1;overflow:auto">';
-      if (!filtered.length) {
-        listHtml += '<div style="text-align:center;padding:32px 14px;color:var(--text-muted);font-size:13px">' + (q ? 'No results found' : 'No data loaded') + '</div>';
-      } else {
-        for (var i = 0; i < filtered.length; i++) {
-          var item = filtered[i];
-          var isSelected = sel && (isEx ? sel.code === item.code : sel.ipid === item.ipid);
-          var itemId = isEx ? item.code : item.ipid;
-          var itemName = isEx ? item.name : (item.mdf + ' - ' + item.ccp);
-          var itemSub = isEx ? ('Code: ' + item.code) : ('IPID: ' + item.ipid);
-          listHtml += '<div class="dfnd-item' + (isSelected ? ' dfnd-selected' : '') + '" onclick="dfndSelect(\'' + esc(itemId) + '\')">' +
-            '<div style="display:flex;align-items:center;gap:8px">' +
-            '<div style="width:28px;height:28px;border-radius:8px;background:' + (isSelected ? 'rgba(var(--accent-rgb),0.12)' : 'var(--bg-input)') + ';display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:' + (isSelected ? 'var(--accent)' : 'var(--text-muted)') + '">' + esc(isEx ? item.code : item.mdf) + '</div>' +
-            '<div style="flex:1;min-width:0">' +
-            '<div style="font-size:14px;font-weight:600;color:var(--text-primary)">' + esc(itemName) + '</div>' +
-            '<div style="font-size:12px;color:var(--text-muted);margin-top:1px">' + esc(itemSub) + '</div>' +
-            '</div>' +
-            '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--border)" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>' +
-            '</div></div>';
-        }
-      }
-      listHtml += '</div>';
+      // Results list — rendered via helper so dfndSearch() can update in-place
+      listHtml += '<div id="dfnd-results" style="flex:1;overflow:auto">' + _dfndBuildListHtml() + '</div>';
 
       // ── Right panel: detail ──
       var detailHtml = '<div class="dfnd-panel-hdr">Details</div>';
@@ -28719,6 +28678,66 @@
         '</div>';
     }
 
+    function _dfndBuildListHtml() {
+      var isEx = state.exchangeTab === 'exchanges';
+      var items = isEx ? state.exchanges : state.cabinets;
+      var sel = isEx ? state.selectedExchange : state.selectedCabinet;
+      var q = (_dfndSearch || '').trim().toLowerCase();
+      var html = '';
+
+      // When search is empty: show only the selected item (if any) + prompt
+      if (!q) {
+        if (sel) {
+          // Show selected item pinned at top
+          var itemId = isEx ? sel.code : sel.ipid;
+          var itemName = isEx ? sel.name : (sel.mdf + ' - ' + sel.ccp);
+          var itemSub = isEx ? ('Code: ' + sel.code) : ('IPID: ' + sel.ipid);
+          html += '<div class="dfnd-item dfnd-selected" onclick="dfndSelect(\'' + esc(itemId) + '\')">' +
+            '<div style="display:flex;align-items:center;gap:8px">' +
+            '<div style="width:28px;height:28px;border-radius:8px;background:rgba(var(--accent-rgb),0.12);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:var(--accent)">' + esc(isEx ? sel.code : sel.mdf) + '</div>' +
+            '<div style="flex:1;min-width:0">' +
+            '<div style="font-size:14px;font-weight:600;color:var(--text-primary)">' + esc(itemName) + '</div>' +
+            '<div style="font-size:12px;color:var(--text-muted);margin-top:1px">' + esc(itemSub) + '</div>' +
+            '</div>' +
+            '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--border)" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>' +
+            '</div></div>';
+        }
+        html += '<div style="text-align:center;padding:32px 14px;color:var(--text-muted);font-size:13px">' +
+          '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="1.5" style="margin:0 auto 8px"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>' +
+          '<div>Type to search ' + (isEx ? 'exchanges' : 'cabinets') + '</div></div>';
+        return html;
+      }
+
+      // Filter items by query
+      var filtered = isEx ? getFilteredExchanges(q) : getFilteredCabinets(q);
+      if (!filtered.length) {
+        return '<div style="text-align:center;padding:32px 14px;color:var(--text-muted);font-size:13px">No results found</div>';
+      }
+
+      // Show up to 50 filtered results
+      var limit = Math.min(filtered.length, 50);
+      for (var i = 0; i < limit; i++) {
+        var item = filtered[i];
+        var isSelected = sel && (isEx ? sel.code === item.code : sel.ipid === item.ipid);
+        var itemId = isEx ? item.code : item.ipid;
+        var itemName = isEx ? item.name : (item.mdf + ' - ' + item.ccp);
+        var itemSub = isEx ? ('Code: ' + item.code) : ('IPID: ' + item.ipid);
+        html += '<div class="dfnd-item' + (isSelected ? ' dfnd-selected' : '') + '" onclick="dfndSelect(\'' + esc(itemId) + '\')">' +
+          '<div style="display:flex;align-items:center;gap:8px">' +
+          '<div style="width:28px;height:28px;border-radius:8px;background:' + (isSelected ? 'rgba(var(--accent-rgb),0.12)' : 'var(--bg-input)') + ';display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:' + (isSelected ? 'var(--accent)' : 'var(--text-muted)') + '">' + esc(isEx ? item.code : item.mdf) + '</div>' +
+          '<div style="flex:1;min-width:0">' +
+          '<div style="font-size:14px;font-weight:600;color:var(--text-primary)">' + esc(itemName) + '</div>' +
+          '<div style="font-size:12px;color:var(--text-muted);margin-top:1px">' + esc(itemSub) + '</div>' +
+          '</div>' +
+          '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--border)" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>' +
+          '</div></div>';
+      }
+      if (filtered.length > 50) {
+        html += '<div style="text-align:center;padding:12px;color:var(--text-muted);font-size:12px">' + (filtered.length - 50) + ' more — refine your search</div>';
+      }
+      return html;
+    }
+
     function dfndSetTab(tab) {
       state.exchangeTab = tab === 'cabinets' ? 'cabinets' : 'exchanges';
       state.selectedExchange = null;
@@ -28732,7 +28751,8 @@
 
     function dfndSearch(val) {
       _dfndSearch = val;
-      render();
+      var el = document.getElementById('dfnd-results');
+      if (el) el.innerHTML = _dfndBuildListHtml();
     }
 
     function dfndSelect(id) {
