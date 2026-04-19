@@ -17008,13 +17008,9 @@
       }
       .dfnd-detail-grid {
         display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 24px;
-      }
-      .dfnd-fields-3col {
-        display: grid;
-        grid-template-columns: 1fr 1fr 1fr;
-        gap: 12px;
+        grid-template-columns: 1fr 1.2fr;
+        gap: 20px;
+        align-items: start;
       }
     }
   </style>
@@ -17460,7 +17456,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.8.77';
+    const VERSION = '5.8.78';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -28648,39 +28644,33 @@
 
         detailHtml += '<div style="padding:20px 28px">';
 
-        // Header row with name + map side by side
-        detailHtml += '<div class="dfnd-detail-grid" style="margin-bottom:20px">';
-        // Left: name + tabs
-        detailHtml += '<div>' +
-          '<div style="font-size:24px;font-weight:700;color:var(--text-primary)">' + esc(itemName) + '</div>' +
-          '<div style="font-size:14px;color:var(--text-muted);margin-top:4px">' + esc(itemSub) + '</div>';
-        // Tabs
-        detailHtml += '<div style="display:flex;gap:4px;margin-top:16px;flex-wrap:wrap">';
+        // Name + subtitle
+        detailHtml += '<div style="margin-bottom:16px">' +
+          '<div style="font-size:22px;font-weight:700;color:var(--text-primary)">' + esc(itemName) + '</div>' +
+          '<div style="font-size:13px;color:var(--text-muted);margin-top:2px">' + esc(itemSub) + '</div>' +
+          '</div>';
+
+        // Tabs — single row, scrollable
+        detailHtml += '<div style="display:flex;gap:4px;margin-bottom:20px;overflow-x:auto;scrollbar-width:none;flex-wrap:nowrap">';
         var tabs = ['location', 'details', 'address', 'security', 'power', 'emergency', 'additional'];
         for (var ti = 0; ti < tabs.length; ti++) {
           var tab = tabs[ti];
           var isActive = state.exchangeDetailTab === tab;
-          detailHtml += '<button onclick="dfndSetDetailTab(\'' + tab + '\')" class="detail-tab' + (isActive ? ' active' : '') + '">' +
+          detailHtml += '<button onclick="dfndSetDetailTab(\'' + tab + '\')" class="detail-tab' + (isActive ? ' active' : '') + '" style="flex-shrink:0">' +
             tab.charAt(0).toUpperCase() + tab.slice(1) + '</button>';
         }
-        detailHtml += '</div></div>';
-
-        // Right: map
-        detailHtml += '<div id="map-view" style="min-height:240px">' +
-          '<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--text-muted);padding:16px;text-align:center">Loading Google Maps...</div>' +
-          '</div>';
         detailHtml += '</div>';
 
-        // Fields in a 3-column grid
+        // Content depends on tab
         if (state.exchangeDetailTab === 'location') {
-          detailHtml += '<div class="dfnd-fields-3col">' +
-            '<div class="info-box"><div class="info-label">Site Code</div><div class="info-value">' + esc(sel.code || sel.mdf + sel.ccp) + '</div></div>' +
-            '<div class="info-box"><div class="info-label">Coordinates</div><div class="info-value">' + esc(coords) + '</div></div>' +
-            '<div class="info-box"><div class="info-label">MPRN Number</div><div class="info-value">' + esc(sel.mprn || '—') + '</div></div>' +
-            '</div>';
-
+          // Two-column: fields left, map right
+          detailHtml += '<div class="dfnd-detail-grid">';
+          detailHtml += '<div style="display:flex;flex-direction:column;gap:12px">';
+          detailHtml += '<div class="info-box"><div class="info-label">Site Code</div><div class="info-value">' + esc(sel.code || sel.mdf + sel.ccp) + '</div></div>' +
+            '<div class="info-box"><div class="info-label">Location Coordinates</div><div class="info-value">' + esc(coords) + '</div></div>' +
+            '<div class="info-box"><div class="info-label">MPRN Number</div><div class="info-value">' + esc(sel.mprn || '—') + '</div></div>';
           // Action buttons
-          detailHtml += '<div style="display:flex;gap:10px;margin-top:16px;max-width:400px">' +
+          detailHtml += '<div style="display:flex;gap:10px;margin-top:4px">' +
             '<a href="https://www.google.com/maps/search/?api=1&query=' + esc(coords) + '" target="_blank" rel="noopener noreferrer" ' +
             'style="flex:1;padding:12px 16px;border-radius:12px;border:none;background:var(--accent);color:#fff;font-size:14px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;text-decoration:none">' +
             '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg> Open Map</a>' +
@@ -28688,8 +28678,14 @@
             'style="flex:1;padding:12px 16px;border-radius:12px;border:none;background:#34a853;color:#fff;font-size:14px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;text-decoration:none">' +
             '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg> Navigate</a>' +
             '</div>';
+          detailHtml += '</div>';
+          // Map
+          detailHtml += '<div id="map-view" style="min-height:300px">' +
+            '<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--text-muted);padding:16px;text-align:center">Loading Google Maps...</div>' +
+            '</div>';
+          detailHtml += '</div>'; // close dfnd-detail-grid
         } else {
-          // Non-location tabs: render fields
+          // Non-location tabs: 3-column field grid, no map
           var fields = {
             details: { 'Site Name': sel.name || '—', 'Code': sel.code || '—', 'Type': isEx ? 'Exchange' : 'Cabinet', 'Status': 'Active' },
             address: { 'Street': '—', 'Town': sel.locality || '—', 'County': '—', 'Eircode': '—' },
@@ -28699,14 +28695,13 @@
             additional: { 'Notes': '—', 'Attachments': 'None' }
           };
           var data = fields[state.exchangeDetailTab] || {};
-          detailHtml += '<div class="dfnd-fields-3col">';
+          detailHtml += '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">';
           Object.entries(data).forEach(function(pair) {
             detailHtml += '<div class="info-box"><div class="info-label">' + pair[0] + '</div><div class="info-value">' + esc(pair[1]) + '</div></div>';
           });
           detailHtml += '</div>';
         }
-
-        detailHtml += '</div>';
+        detailHtml += '</div>'; // close padding wrapper
       } else {
         detailHtml += '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--text-muted);font-size:14px">Select an exchange to view details</div>';
       }
