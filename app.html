@@ -16448,6 +16448,19 @@
         max-width: 1409px !important;
       }
 
+      /* ── Desktop Tag Manager: two-column layout ── */
+      .desk-tag-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+      }
+      .desk-tag-col {
+        background: var(--bg-card);
+        border-radius: 16px;
+        padding: 16px 18px;
+        box-shadow: 0 1px 4px rgba(var(--shadow-rgb), 0.07);
+      }
+
       /* ── Desktop Journal: three-panel OneNote-style ── */
       .dj-wrap {
         display: flex;
@@ -17351,7 +17364,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.8.72';
+    const VERSION = '5.8.73';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -24781,7 +24794,7 @@
       var editorHtml = '';
       if (state.deskTagManagerOpen) {
         editorHtml = '<div style="padding:0 24px 24px;overflow:auto;height:calc(100% - 48px)">' +
-          '<div id="tag-editor-body" style="max-width:480px;margin:0 auto;background:var(--bg-card);border-radius:16px;padding:16px 18px;box-shadow:0 1px 4px rgba(var(--shadow-rgb),0.07);margin-top:8px"></div>' +
+          '<div id="tag-editor-body" class="desk-tag-editor-body" style="margin-top:8px"></div>' +
           '</div>';
       } else if (!selNote) {
         editorHtml = '<div class="dnotes-editor-empty">' +
@@ -27924,6 +27937,7 @@
       const customs = (state.customCategories || []);
       const disabled = state.disabledCats || [];
       let html = '';
+      const _deskTags = _isDesktop() && state.deskTagManagerOpen;
 
       const mkToggle = (key, checked) =>
         `<label class="te-toggle">
@@ -27931,7 +27945,8 @@
           <span class="te-toggle-track"></span>
         </label>`;
 
-      // Built-in tags - single column
+      // Built-in tags
+      if (_deskTags) html += '<div class="desk-tag-grid"><div class="desk-tag-col">';
       html += `<div class="te-section-label">Built-in Tags</div>`;
       DEFAULT_NOTE_CATEGORIES.forEach(c => {
         const enabled = !disabled.includes(c.key);
@@ -27940,14 +27955,14 @@
           <span class="note-cat-badge" style="background:${c.color}">${getCatIconHtml(c, 11)} ${esc(c.label)}</span>
         </div>`;
       });
+      if (_deskTags) html += '</div><div class="desk-tag-col">';
 
-      // Custom tags - one pill per row
+      // Custom tags
+      html += `<div class="te-section-label">Custom Tags</div>`;
       if (customs.length) {
-        html += `<div class="te-section-label">Custom Tags</div>`;
         customs.forEach(c => {
           const enabled = !disabled.includes(c.key);
           if (_teEditKey === c.key) {
-            // Inline edit form
             html += `<div class="te-edit-form">${_teTagFormHtml('teEdit', '' + _teEditColor, '' + _teEditIconKey, 'teApplyEdit()', 'teCancelEdit()', 'Save Changes', 'Tag name…')}</div>`;
           } else {
             html += `<div class="te-pill-row${enabled ? '' : ' te-disabled'}">
@@ -27979,6 +27994,7 @@
         }
         html += `</div>`;
       }
+      if (_deskTags) html += '</div></div>';
 
       body.innerHTML = html;
 
