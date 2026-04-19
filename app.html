@@ -17351,7 +17351,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.8.67';
+    const VERSION = '5.8.68';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -33654,11 +33654,12 @@
               '<div class="task-num">' + globalIdx + '</div>' +
               '<div style="flex:1;min-width:0">' +
               '<div style="font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + (fault ? esc(fault.substring(0, 60)) : '<span style="opacity:0.4;font-style:italic">No description</span>') + '</div>' +
-              '<div style="font-size:12px;color:var(--text-muted);display:flex;gap:8px;align-items:center;margin-top:2px">' +
-              '<span style="display:flex;align-items:center;gap:2px">' + (site ? pinSvg + esc(site) : '<span style="opacity:0.4">No site</span>') + '</span>' +
+              '<div style="font-size:12px;color:var(--text-muted);display:flex;align-items:center;margin-top:2px">' +
+              '<span style="display:flex;align-items:center;gap:2px;flex:1;min-width:0">' + (site ? pinSvg + esc(site) : '<span style="opacity:0.4">No site</span>') + '</span>' +
+              '<span style="display:flex;align-items:center;gap:4px;margin-left:auto">' +
               (ticket ? '<span class="pill-hrs" style="font-family:var(--font-mono)">' + esc(ticket) + '</span>' : '') +
-              (timeStr ? '<span style="display:flex;align-items:center;gap:2px">' + clockSvg + esc(timeStr) + '</span>' : '') +
-              '</div></div></div>';
+              (timeStr ? '<span class="pill-hrs" style="background:var(--bg-code-group)">' + clockSvg + esc(timeStr) + '</span>' : '') +
+              '</span></div></div></div>';
           });
         });
 
