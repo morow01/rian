@@ -17351,7 +17351,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.8.64';
+    const VERSION = '5.8.65';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -33549,7 +33549,7 @@
       var selWeek = state.dcoSelectedWeek;
 
       // ── Panel 1: Weeks ──
-      var weeksHtml = '<div class="dco-panel-weeks">';
+      var weeksHtml = '<div class="dco-panel-weeks" style="width:' + _dcoWeeksWidth + 'px">';
       // Header with schedule button
       weeksHtml += '<div style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-bottom:1px solid var(--border)">' +
         '<span style="font-size:13px;font-weight:700">Callouts</span>' +
@@ -33574,12 +33574,12 @@
         var cls = 'dco-week-row' + (isSel ? ' dco-selected' : '') + (isCurrent ? ' dco-current' : '');
         var badgeBg = isExtra ? '#FEF3C7' : 'var(--accent-light)';
         var badgeColor = isExtra ? '#F59E0B' : 'var(--accent)';
-        var extraBadge = isExtra ? ' <span style="padding:2px 5px;border-radius:4px;font-size:8px;font-weight:700;background:#FEF3C7;color:#F59E0B">EXTRA</span>' : '';
+        var extraBadge = isExtra ? ' <span style="padding:2px 6px;border-radius:4px;font-size:9px;font-weight:700;background:#FEF3C7;color:#F59E0B">EXTRA</span>' : '';
         return '<div class="' + cls + '" onclick="dcoSelectWeek(\'' + wk + '\')">' +
           '<div class="task-num" style="background:' + badgeBg + ';color:' + badgeColor + '">' + cnt + '</div>' +
           '<div style="flex:1;min-width:0">' +
-          '<div style="font-size:12px;font-weight:600">' + formatWeekRange(wk) + extraBadge + '</div>' +
-          '<div style="font-size:10px;color:' + (isCurrent ? 'var(--priority-low, #22c55e)' : 'var(--text-muted)') + ';font-weight:' + (isCurrent ? '600' : '400') + ';margin-top:1px">' +
+          '<div style="font-size:14px;font-weight:600">' + formatWeekRange(wk) + extraBadge + '</div>' +
+          '<div style="font-size:13px;color:' + (isCurrent ? 'var(--priority-low, #22c55e)' : 'var(--text-muted)') + ';font-weight:' + (isCurrent ? '600' : '400') + ';margin-top:2px">' +
           (isCurrent ? 'Current week' : cnt + ' incident' + (cnt !== 1 ? 's' : '')) + '</div>' +
           '</div></div>';
       }
@@ -33601,7 +33601,7 @@
       weeksHtml += '</div>';
 
       // ── Panel 2: Callouts for selected week ──
-      var calloutsHtml = '<div class="dco-panel-callouts">';
+      var calloutsHtml = '<div class="dco-panel-callouts" style="width:' + _dcoCalloutsWidth + 'px">';
       if (selWeek) {
         var wd = weeks[selWeek] || {};
         var allCo = wd.callouts || [];
@@ -33752,7 +33752,37 @@
       detailHtml += '</div>';
 
       // Wrap in three-panel + schedule overlay
-      return '<main><div class="dco-wrap">' + weeksHtml + calloutsHtml + detailHtml + '</div></main>' + renderOcScheduleOverlay();
+      return '<main><div class="dco-wrap">' + weeksHtml + '<div class="dj-resize-handle" onmousedown="dcoResizeStart(event,1)"></div>' + calloutsHtml + '<div class="dj-resize-handle" onmousedown="dcoResizeStart(event,2)"></div>' + detailHtml + '</div></main>' + renderOcScheduleOverlay();
+    }
+
+    // ── Desktop Callouts: resizable column widths ──
+    var _dcoWeeksWidth = parseInt(localStorage.getItem('dcoWeeksWidth') || '280', 10);
+    var _dcoCalloutsWidth = parseInt(localStorage.getItem('dcoCalloutsWidth') || '360', 10);
+
+    function dcoResizeStart(e, which) {
+      e.preventDefault();
+      var handle = e.target;
+      handle.classList.add('dragging');
+      var startX = e.clientX;
+      var startW = which === 1 ? _dcoWeeksWidth : _dcoCalloutsWidth;
+      var minW = which === 1 ? 220 : 260;
+      var maxW = which === 1 ? 420 : 520;
+      var selector = which === 1 ? '.dco-panel-weeks' : '.dco-panel-callouts';
+      var lsKey = which === 1 ? 'dcoWeeksWidth' : 'dcoCalloutsWidth';
+      function onMove(ev) {
+        var newW = Math.max(minW, Math.min(maxW, startW + (ev.clientX - startX)));
+        if (which === 1) _dcoWeeksWidth = newW; else _dcoCalloutsWidth = newW;
+        var el = document.querySelector(selector);
+        if (el) el.style.width = newW + 'px';
+      }
+      function onUp() {
+        handle.classList.remove('dragging');
+        document.removeEventListener('mousemove', onMove);
+        document.removeEventListener('mouseup', onUp);
+        try { localStorage.setItem(lsKey, String(which === 1 ? _dcoWeeksWidth : _dcoCalloutsWidth)); } catch (e) { }
+      }
+      document.addEventListener('mousemove', onMove);
+      document.addEventListener('mouseup', onUp);
     }
 
     function dcoSelectWeek(wk) {
