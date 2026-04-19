@@ -10611,10 +10611,35 @@
       margin-top: 8px;
     }
 
-    .te-add-form.te-open {
-      border: 1px solid var(--accent);
-      padding: 14px;
+    .te-modal-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 9998;
+      background: rgba(var(--shadow-rgb), 0.4);
+      backdrop-filter: blur(3px);
+      -webkit-backdrop-filter: blur(3px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      animation: fadeIn 0.15s ease;
+    }
+
+    .te-modal-card {
       background: var(--bg-card);
+      border-radius: 16px;
+      width: 100%;
+      max-width: 400px;
+      padding: 20px;
+      box-shadow: 0 8px 32px rgba(var(--shadow-rgb), 0.2);
+      animation: fadeIn 0.15s ease;
+    }
+
+    .te-modal-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 14px;
     }
 
     .te-add-btn {
@@ -17365,7 +17390,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.8.74';
+    const VERSION = '5.8.75';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -27982,28 +28007,20 @@
         });
       }
 
-      // Add new tag form
+      // Add new tag button (form is now a modal)
       if (_teEditKey === null) {
-        html += `<div class="te-add-form${_teFormOpen ? ' te-open' : ''}" id="te-add-form">`;
-        if (!_teFormOpen) {
-          html += `<button class="te-add-btn" onclick="teOpenForm()">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-            Add New Tag
-          </button>`;
-        } else {
-          html += _teTagFormHtml('te', '' + _teColor, '' + _teIconKey, 'teSaveTag()', 'teCloseForm()', 'Create Tag', 'e.g. Safety Check');
-        }
+        html += `<div class="te-add-form" id="te-add-form">`;
+        html += `<button class="te-add-btn" onclick="teOpenForm()">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Add New Tag
+        </button>`;
         html += `</div>`;
       }
       if (_deskTags) html += '</div></div>';
 
       body.innerHTML = html;
 
-      // Restore input value + focus for add form
-      if (_teFormOpen) {
-        const inp = document.getElementById('teNameInput');
-        if (inp) inp.focus();
-      }
+      // Add form is now a modal — no inline restore needed
       // Restore edit form value + focus
       if (_teEditKey) {
         const cat = (state.customCategories || []).find(c => c.key === _teEditKey);
@@ -28012,12 +28029,51 @@
       }
     }
 
-    // ── Add form actions ──
-    function teOpenForm() { _teEditKey = null; _teFormOpen = true; renderTagEditor(); }
-    function teCloseForm() { _teFormOpen = false; renderTagEditor(); }
+    // ── Add form actions (modal) ──
+    function teOpenForm() {
+      _teEditKey = null;
+      _teFormOpen = true;
+      // Remove any existing modal
+      var existing = document.getElementById('te-add-modal');
+      if (existing) existing.remove();
+      // Build modal
+      var overlay = document.createElement('div');
+      overlay.id = 'te-add-modal';
+      overlay.className = 'te-modal-overlay';
+      overlay.onclick = function(e) { if (e.target === overlay) teCloseForm(); };
+      var card = document.createElement('div');
+      card.className = 'te-modal-card';
+      card.innerHTML = '<div class="te-modal-title">Create New Tag</div>' +
+        _teTagFormHtml('te', '' + _teColor, '' + _teIconKey, 'teSaveTag()', 'teCloseForm()', 'Create Tag', 'e.g. Safety Check');
+      overlay.appendChild(card);
+      document.body.appendChild(overlay);
+      setTimeout(function() {
+        var inp = document.getElementById('teNameInput');
+        if (inp) inp.focus();
+      }, 50);
+    }
+    function teCloseForm() {
+      _teFormOpen = false;
+      var m = document.getElementById('te-add-modal');
+      if (m) m.remove();
+    }
 
+    function _teRefreshModal() {
+      var modal = document.getElementById('te-add-modal');
+      if (!modal) return;
+      var v = document.getElementById('teNameInput')?.textContent || '';
+      var card = modal.querySelector('.te-modal-card');
+      if (card) {
+        card.innerHTML = '<div class="te-modal-title">Create New Tag</div>' +
+          _teTagFormHtml('te', '' + _teColor, '' + _teIconKey, 'teSaveTag()', 'teCloseForm()', 'Create Tag', 'e.g. Safety Check');
+        var inp = document.getElementById('teNameInput');
+        if (inp) { inp.textContent = v; inp.focus(); }
+        teUpdatePreview();
+      }
+    }
     function tePickColor(c) {
       _teColor = c;
+      if (document.getElementById('te-add-modal')) { _teRefreshModal(); return; }
       const v = document.getElementById('teNameInput')?.textContent || '';
       renderTagEditor();
       const inp = document.getElementById('teNameInput');
@@ -28026,6 +28082,7 @@
     }
     function tePickIcon(k) {
       _teIconKey = _teIconKey === k ? '' : k;
+      if (document.getElementById('te-add-modal')) { _teRefreshModal(); return; }
       const v = document.getElementById('teNameInput')?.textContent || '';
       renderTagEditor();
       const inp = document.getElementById('teNameInput');
@@ -28048,7 +28105,8 @@
       state.customCategories = state.customCategories || [];
       state.customCategories.push({ key, label: name, color: _teColor, iconKey: _teIconKey, isDefault: false });
       await saveCustomCategories();
-      _teFormOpen = false; _teColor = CAT_COLORS[0]; _teIconKey = '';
+      _teColor = CAT_COLORS[0]; _teIconKey = '';
+      teCloseForm();
       renderTagEditor();
       showToast('✓ Tag "' + name + '" created');
     }
