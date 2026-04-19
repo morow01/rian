@@ -17351,7 +17351,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.8.65';
+    const VERSION = '5.8.66';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -33637,7 +33637,11 @@
           var dayName = getDayNameFromDate(dateStr);
           var dayNum = d.getDate();
           var monthShort = d.toLocaleDateString('en-IE', { month: 'short' });
-          calloutsHtml += '<div style="padding:8px 14px 4px;font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px">' + dayName + ' ' + dayNum + ' ' + monthShort + '</div>';
+          var items = byDate[dateStr];
+          calloutsHtml += '<div style="display:flex;align-items:center;gap:8px;padding:10px 14px 6px">' +
+            '<span style="font-size:12px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px">' + dayName + ' ' + dayNum + ' ' + monthShort + '</span>' +
+            '<span style="font-size:11px;color:var(--text-muted);font-weight:100">' + items.length + ' callout' + (items.length !== 1 ? 's' : '') + '</span>' +
+            '</div>';
 
           byDate[dateStr].forEach(function(co) {
             globalIdx++;
@@ -33649,10 +33653,10 @@
             calloutsHtml += '<div class="dco-co-row' + (isSel ? ' dco-co-selected' : '') + '" onclick="dcoSelectCo(\'' + co.id + '\')">' +
               '<div class="task-num">' + globalIdx + '</div>' +
               '<div style="flex:1;min-width:0">' +
-              '<div style="font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + (fault ? esc(fault.substring(0, 60)) : '<span style="opacity:0.4;font-style:italic">No description</span>') + '</div>' +
-              '<div style="font-size:11px;color:var(--text-muted);display:flex;gap:8px;align-items:center;margin-top:2px">' +
+              '<div style="font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + (fault ? esc(fault.substring(0, 60)) : '<span style="opacity:0.4;font-style:italic">No description</span>') + '</div>' +
+              '<div style="font-size:12px;color:var(--text-muted);display:flex;gap:8px;align-items:center;margin-top:2px">' +
               '<span style="display:flex;align-items:center;gap:2px">' + (site ? pinSvg + esc(site) : '<span style="opacity:0.4">No site</span>') + '</span>' +
-              (ticket ? '<span style="font-family:var(--font-mono);font-size:10px;background:var(--bg-code-group);padding:1px 5px;border-radius:4px">' + esc(ticket) + '</span>' : '') +
+              (ticket ? '<span style="font-family:var(--font-mono);font-size:11px;background:var(--bg-code-group);padding:1px 5px;border-radius:4px">' + esc(ticket) + '</span>' : '') +
               (timeStr ? '<span style="display:flex;align-items:center;gap:2px">' + clockSvg + esc(timeStr) + '</span>' : '') +
               '</div></div></div>';
           });
