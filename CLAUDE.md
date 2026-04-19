@@ -16,9 +16,9 @@ A Progressive Web App for field technicians — timesheets, notes (TipTap rich t
 
 ## Version
 `const VERSION = 'x.y.z'` in `app.html` (~line 13799). Bump on every change. Only location that needs updating (index.html version references are static).
-Current version: **5.8.64**
+Current version: **5.8.87**
 
-**Two themes active**: `claude` (default light) and `dark` (slate-based). Theme picker lives in ☰ menu → Display. Switcher at `setTheme(key)`, registry at `THEME_META`.
+**12 themes active**: `claude` (default light), `dark` (slate-based), `champagne`, `champagne-dark`, `ios`, `apple` (macOS), `gray` (Grayscale), `gameboy` (Game Boy), `win31` (Win 3.1), `lcd` (LCD), `spectrum` (ZX Spectrum), `retro` (Retro). Theme picker lives in ☰ menu → Display. Switcher at `setTheme(key)`, registry at `THEME_META`.
 
 **Variable system**: `:root` defines all structural tokens; `[data-theme="dark"]` overrides them. Includes RGB triples (`--accent-rgb`, `--priority-high-rgb`, `--priority-low-rgb`, `--priority-medium-rgb`, `--amber-rgb`, `--shadow-rgb`, `--shadow-brand-rgb`) so any opacity tint becomes themable via `rgba(var(--X-rgb), opacity)`.
 
@@ -148,7 +148,11 @@ Notebooks state keys: `jNotebooks`, `jSections`, `jPages`, `jEditId`, `jRenameTi
 ## CSS Variables
 `--accent: #2D6BE4`, `--bg-card`, `--bg-card-alt`, `--bg-input: #F4F7FA`, `--border`, `--text-primary`, `--text-secondary`, `--text-muted`, `--font-mono` (DM Mono).
 
-**Theme state**: Both `claude` and `dark` themes are fully working. `initTheme()` reads localStorage and applies the saved theme on load. Theme picker in ☰ → Display.
+**Theme state**: All 12 themes are fully working. `initTheme()` reads localStorage and applies the saved theme on load. Theme picker in ☰ → Display. Each theme defines a `[data-theme="name"]` block with full CSS variable overrides. `setTheme(t)` sets `data-theme` on `document.documentElement`.
+
+**Theme-aware TipTap tables (v5.8.84+):** Non-default themes strip inline `background-color` from table cells inside ProseMirror editors with `!important`, replacing with `var(--table-header-bg)` for `<th>` and `transparent` for `<td>`. This prevents hardcoded white/gray backgrounds from clashing with themed UIs.
+
+**Journal editor background (v5.8.85+):** `.dj-editor` uses `var(--bg-card)` — previously was hardcoded `#fff` with only a dark theme override, causing white editor backgrounds on all non-dark themed views.
 
 ## Notes Section — UX decisions
 - **Tab bar** uses a pill/segmented control (not underline tabs): `Active | Archive 3 | Bin 22`
@@ -162,11 +166,11 @@ Notebooks state keys: `jNotebooks`, `jSections`, `jPages`, `jEditId`, `jRenameTi
 Desktop layout activates at `min-width: 1280px` via `_isDesktop()`. Mobile layout unchanged below that breakpoint.
 
 ### Timesheet — Three-Panel Layout
-- **Left panel (260px)**: Day selector with date, day name, hours summary, task count badge
+- **Left panel (260px)**: Day selector with date, day name, hours summary, task count badge. Collapsible Weekly Summary at bottom (v5.8.86+) — reuses all mobile `sum-*` CSS classes with percentage bars, ORD/OT columns, Total footer, and chevron toggle.
 - **Middle panel (381px)**: Task list for selected day with Add Task button (top if empty, bottom if tasks exist)
 - **Detail panel (flex)**: Full task editing — description, notes (TipTap inline), location, work codes, hours, action buttons
 
-Key functions: `_renderDeskDays()`, `_renderDeskTasks(di)`, `_renderDeskDetail(di, actId)`, `deskSelectDay(di)`, `deskSelectAct(id)`, `deskAddTask(di)`
+Key functions: `_renderDesktopTimesheetView()`, `_renderDeskTasks(di)`, `_renderDeskDetail(di, actId)`, `deskSelectDay(di)`, `deskSelectAct(id)`, `deskAddTask(di)`
 
 State: `deskSelectedDay` (day index), `deskSelectedAct` (activity ID)
 
@@ -196,6 +200,10 @@ Top tab nav bar replaces bottom mobile nav. `desk-tab-nav` with horizontal butto
 
 `renderCardView()` intercept: `if (_isDesktop()) return _renderDesktopTimesheetView();`
 `renderNotesView()` intercept: `if (_isDesktop()) return _renderDesktopNotes();`
+`renderExchangesView()` intercept: `if (_isDesktop()) return _renderDesktopFinder();`
+`renderCalloutsView()` intercept: `if (_isDesktop()) return _renderDesktopCallouts();`
+`renderRoutinesView()` uses `if (_isDesktop())` inside the function to branch layout.
+Journal (`renderJournal()`) uses `if (_isDesktop())` inside the function.
 
 ### Routines — Desktop Dashboard (v5.8.36+)
 Two-column grid: main table card (left, flex) + sidebar (right, 340px). Sidebar contains stats (2×2 grid), Visits per Month bar chart, Never Visited list, Due Visits list (sites not visited in 3+ months), and Recent Visits (scrollable, max 340px).
@@ -236,6 +244,32 @@ CSS: `.dco-wrap`, `.dco-panel-weeks`, `.dco-panel-callouts`, `.dco-panel-detail`
 
 `pasteTicketCreate()` sets `state.dcoSelectedWeek` and `state.dcoSelectedCo` on desktop so pasted callouts appear in the detail panel immediately.
 
+### Finder — Desktop Two-Panel Layout (v5.8.77+)
+Two-panel layout: search list (left, 320px) + wide detail (right, flex).
+
+- **Left panel (320px)**: "FINDER" header, Exchanges/Cabinets segmented tab bar, search input, results list with 40px badges (matching Timesheet day badge style using `var(--date-badge-bg)`)
+- **Right panel (flex)**: "DETAILS" header, exchange name + subtitle, 7 detail tabs (Location, Details, Address, Security, Power, Emergency, Additional), content area. Location tab: two-column grid (fields left + Google Map right). Other tabs: 3-column field grid.
+
+**Search behavior (v5.8.80+):** `dfndSearch()` updates `#dfnd-results` innerHTML in-place via `_dfndBuildListHtml()` helper — does NOT call `render()`. This preserves search input focus. When search is empty: shows only the selected item (if any) + "Type to search..." prompt. No browse list on initial load.
+
+**List panel height (v5.8.81+):** `.dfnd-wrap` has `height: calc(100vh - 90px)` with `overflow: hidden`. The `#dfnd-results` div has `flex:1;overflow:auto` with a thin accent-colored scrollbar.
+
+Key functions: `_renderDesktopFinder()`, `_dfndBuildListHtml()`, `dfndSetTab(tab)`, `dfndSearch(val)`, `dfndSelect(id)`, `dfndSetDetailTab(tab)`
+
+State: `selectedExchange`, `selectedCabinet`, `exchangeTab`, `exchangeDetailTab`
+
+Module-level: `_dfndSearch` (search text, not in state to avoid render cycles)
+
+CSS: `.dfnd-wrap`, `.dfnd-panel-list`, `.dfnd-panel-detail`, `.dfnd-panel-hdr`, `.dfnd-search-wrap`, `.dfnd-item`, `.dfnd-selected`, `.dfnd-badge`, `.dfnd-detail-grid`
+
+`renderExchangesView()` intercept: `if (_isDesktop()) return _renderDesktopFinder();`
+
+### Desktop Tag Manager (v5.8.69+)
+On desktop, Tag Manager opens inside the Notes editor panel (not as a fullscreen modal). Two-column grid layout: Built-in tags (left) + Custom tags (right). "New Tag" button opens a modal popup with blur overlay. Hidden from hamburger menu on desktop (accessible only via Notes sidebar).
+
+### Desktop Weekly Summary (v5.8.86+)
+Desktop Timesheet days panel uses the exact same Weekly Summary as mobile — reuses all `sum-*` CSS classes. Shows code, description, percentage bars, ORD/OT columns, and Total footer. Collapsible via chevron toggle button, shares `state.showSummary` with mobile (v5.8.87+).
+
 ### Poll-Based Sync (v5.8.11+)
 Firestore `onSnapshot` WebSocket can silently go stale across browsers. Added 10-second polling fallback:
 
@@ -253,8 +287,8 @@ Firestore `onSnapshot` WebSocket can silently go stale across browsers. Added 10
 ### Firestore IndexedDB Cache Corruption
 `?cleanup=1` URL parameter nukes Firestore's local IndexedDB caches (built into app since v5.1.79). Use when sync behaves inconsistently — `get({source:'server'})` can return cached data from corrupted IndexedDB even when claiming server source. Ad blockers (uBlock Origin Lite) can also interfere with Firestore network requests.
 
-## Planned: Additional Themes
-Rob wants to add Gameboy, Win 3.1, B&W, iOS themes. Dark theme is done. To add more: copy `[data-theme="dark"]` block, rename, change variable values, register in `THEME_META`.
+## Themes — All Done
+All planned themes are implemented: claude, dark, champagne, champagne-dark, ios, apple, gray, gameboy, win31, lcd, spectrum, retro. To add more: copy an existing `[data-theme="..."]` block, rename, change variable values, register in `THEME_META`.
 
 ## About Rob (the developer)
 - Field technician who built Rian for his own use
