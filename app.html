@@ -16453,6 +16453,7 @@
         display: grid;
         grid-template-columns: 1fr 1fr;
         gap: 16px;
+        align-items: start;
       }
       .desk-tag-col {
         background: var(--bg-card);
@@ -17364,7 +17365,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.8.73';
+    const VERSION = '5.8.74';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
