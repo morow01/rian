@@ -16443,9 +16443,9 @@
 
       /* editor actions now inline in body — no fixed footer */
 
-      /* Widen TipTap fullscreen editor on desktop */
+      /* Constrain TipTap fullscreen editor to app width on desktop */
       #note-fs-modal>.flex.flex-col.w-full {
-        max-width: 100% !important;
+        max-width: 1409px !important;
       }
 
       /* ── Desktop Journal: three-panel OneNote-style ── */
@@ -17351,7 +17351,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.8.69';
+    const VERSION = '5.8.70';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
