@@ -16946,6 +16946,76 @@
         padding-bottom: 14px;
         border-bottom: 1px solid var(--border);
       }
+
+      /* ── Desktop Finder: Two-panel (List | Detail) ── */
+      .dfnd-wrap {
+        display: flex;
+        min-height: calc(100vh - 180px);
+        border-top: 1px solid var(--border);
+      }
+      .dfnd-panel-list {
+        width: 320px;
+        background: var(--bg-card);
+        border-right: 1px solid var(--border);
+        display: flex;
+        flex-direction: column;
+        overflow-y: auto;
+        flex-shrink: 0;
+      }
+      .dfnd-panel-detail {
+        flex: 1;
+        background: var(--bg-card);
+        overflow-y: auto;
+      }
+      .dfnd-panel-hdr {
+        padding: 10px 14px 8px;
+        font-size: 10px;
+        font-weight: 800;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        border-bottom: 1px solid var(--border);
+        line-height: 1.4;
+      }
+      .dfnd-search-wrap {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: var(--bg-input);
+        border-radius: 10px;
+        padding: 8px 12px;
+        border: 1px solid var(--border);
+      }
+      .dfnd-search-wrap input {
+        border: none;
+        background: transparent;
+        outline: none;
+        font-size: 13px;
+        flex: 1;
+        color: var(--text-primary);
+      }
+      .dfnd-item {
+        padding: 12px 14px;
+        cursor: pointer;
+        border-bottom: 1px solid var(--border);
+        transition: background 0.15s;
+        border-left: 3px solid transparent;
+      }
+      .dfnd-item:hover { background: rgba(var(--accent-rgb), 0.04); }
+      .dfnd-item.dfnd-selected {
+        background: linear-gradient(to right, rgba(var(--accent-rgb), 0.10), rgba(var(--accent-rgb), 0.03));
+        border-left: 3px solid var(--accent);
+      }
+      .dfnd-detail-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 24px;
+      }
+      .dfnd-fields-3col {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 12px;
+      }
     }
   </style>
 </head>
@@ -17390,7 +17460,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.8.76';
+    const VERSION = '5.8.77';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -28504,7 +28574,187 @@
     }
 
     // ---- Exchange Finder View ----
+    // ── Desktop Finder: Two-panel (Search list | Wide detail) ──
+    var _dfndSearch = '';
+
+    function _renderDesktopFinder() {
+      var isEx = state.exchangeTab === 'exchanges';
+      var items = isEx ? state.exchanges : state.cabinets;
+
+      // Filter items
+      var q = _dfndSearch.toLowerCase();
+      var filtered = [];
+      if (isEx) {
+        filtered = q ? items.filter(function(t) {
+          return t.name.toLowerCase().indexOf(q) === 0 || t.code.toLowerCase().indexOf(q) === 0;
+        }).slice(0, 50) : items.slice(0, 50);
+      } else {
+        filtered = q ? items.filter(function(c) {
+          return c.mdf.toLowerCase().indexOf(q) === 0 || c.ccp.toLowerCase().indexOf(q) === 0 || String(c.ipid).indexOf(q) === 0;
+        }).slice(0, 50) : items.slice(0, 50);
+      }
+
+      var sel = isEx ? state.selectedExchange : state.selectedCabinet;
+
+      // ── Left panel: tabs + search + results list ──
+      var listHtml = '<div class="dfnd-panel-hdr">Finder</div>';
+      // Tabs
+      listHtml += '<div style="display:flex;margin:10px 10px 0;background:var(--bg-code-group);border-radius:14px;padding:3px;gap:2px">' +
+        '<button onclick="dfndSetTab(\'exchanges\')" style="flex:1;padding:7px 4px;border-radius:11px;border:none;font-size:12px;font-weight:700;cursor:pointer;text-transform:capitalize;' +
+        (isEx ? 'background:var(--bg-segment-active);color:var(--text-primary);box-shadow:0 1px 3px rgba(var(--shadow-rgb),0.12)' : 'background:transparent;color:var(--text-muted)') + '">' +
+        '<span style="display:inline-flex;align-items:center;gap:4px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"></path><circle cx="12" cy="10" r="3"></circle></svg> Exchanges</span></button>' +
+        '<button onclick="dfndSetTab(\'cabinets\')" style="flex:1;padding:7px 4px;border-radius:11px;border:none;font-size:12px;font-weight:700;cursor:pointer;text-transform:capitalize;' +
+        (!isEx ? 'background:var(--bg-segment-active);color:var(--text-primary);box-shadow:0 1px 3px rgba(var(--shadow-rgb),0.12)' : 'background:transparent;color:var(--text-muted)') + '">' +
+        '<span style="display:inline-flex;align-items:center;gap:4px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="8" x="2" y="2" rx="2" ry="2"></rect><rect width="20" height="8" x="2" y="14" rx="2" ry="2"></rect><line x1="6" x2="6.01" y1="6" y2="6"></line><line x1="6" x2="6.01" y1="18" y2="18"></line></svg> Cabinets</span></button>' +
+        '</div>';
+
+      // Search
+      listHtml += '<div style="padding:10px 12px">' +
+        '<div class="dfnd-search-wrap">' +
+        '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>' +
+        '<input id="dfnd-search-input" value="' + esc(_dfndSearch) + '" oninput="dfndSearch(this.value)" placeholder="' + (isEx ? 'Search exchanges...' : 'Search cabinets...') + '">' +
+        '</div></div>';
+
+      // Results list
+      listHtml += '<div style="flex:1;overflow:auto">';
+      if (!filtered.length) {
+        listHtml += '<div style="text-align:center;padding:32px 14px;color:var(--text-muted);font-size:13px">' + (q ? 'No results found' : 'No data loaded') + '</div>';
+      } else {
+        for (var i = 0; i < filtered.length; i++) {
+          var item = filtered[i];
+          var isSelected = sel && (isEx ? sel.code === item.code : sel.ipid === item.ipid);
+          var itemId = isEx ? item.code : item.ipid;
+          var itemName = isEx ? item.name : (item.mdf + ' - ' + item.ccp);
+          var itemSub = isEx ? ('Code: ' + item.code) : ('IPID: ' + item.ipid);
+          listHtml += '<div class="dfnd-item' + (isSelected ? ' dfnd-selected' : '') + '" onclick="dfndSelect(\'' + esc(itemId) + '\')">' +
+            '<div style="display:flex;align-items:center;gap:8px">' +
+            '<div style="width:28px;height:28px;border-radius:8px;background:' + (isSelected ? 'rgba(var(--accent-rgb),0.12)' : 'var(--bg-input)') + ';display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:' + (isSelected ? 'var(--accent)' : 'var(--text-muted)') + '">' + esc(isEx ? item.code : item.mdf) + '</div>' +
+            '<div style="flex:1;min-width:0">' +
+            '<div style="font-size:14px;font-weight:600;color:var(--text-primary)">' + esc(itemName) + '</div>' +
+            '<div style="font-size:12px;color:var(--text-muted);margin-top:1px">' + esc(itemSub) + '</div>' +
+            '</div>' +
+            '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--border)" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>' +
+            '</div></div>';
+        }
+      }
+      listHtml += '</div>';
+
+      // ── Right panel: detail ──
+      var detailHtml = '<div class="dfnd-panel-hdr">Details</div>';
+      if (sel) {
+        var itemName = isEx ? sel.name : ('Cabinet ' + sel.mdf + ' ' + sel.ccp);
+        var itemSub = isEx ? ('Exchange Code: ' + sel.code) : ('IPID: ' + sel.ipid);
+        var coords = sel.link || '0,0';
+
+        detailHtml += '<div style="padding:20px 28px">';
+
+        // Header row with name + map side by side
+        detailHtml += '<div class="dfnd-detail-grid" style="margin-bottom:20px">';
+        // Left: name + tabs
+        detailHtml += '<div>' +
+          '<div style="font-size:24px;font-weight:700;color:var(--text-primary)">' + esc(itemName) + '</div>' +
+          '<div style="font-size:14px;color:var(--text-muted);margin-top:4px">' + esc(itemSub) + '</div>';
+        // Tabs
+        detailHtml += '<div style="display:flex;gap:4px;margin-top:16px;flex-wrap:wrap">';
+        var tabs = ['location', 'details', 'address', 'security', 'power', 'emergency', 'additional'];
+        for (var ti = 0; ti < tabs.length; ti++) {
+          var tab = tabs[ti];
+          var isActive = state.exchangeDetailTab === tab;
+          detailHtml += '<button onclick="dfndSetDetailTab(\'' + tab + '\')" class="detail-tab' + (isActive ? ' active' : '') + '">' +
+            tab.charAt(0).toUpperCase() + tab.slice(1) + '</button>';
+        }
+        detailHtml += '</div></div>';
+
+        // Right: map
+        detailHtml += '<div id="map-view" style="min-height:240px">' +
+          '<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--text-muted);padding:16px;text-align:center">Loading Google Maps...</div>' +
+          '</div>';
+        detailHtml += '</div>';
+
+        // Fields in a 3-column grid
+        if (state.exchangeDetailTab === 'location') {
+          detailHtml += '<div class="dfnd-fields-3col">' +
+            '<div class="info-box"><div class="info-label">Site Code</div><div class="info-value">' + esc(sel.code || sel.mdf + sel.ccp) + '</div></div>' +
+            '<div class="info-box"><div class="info-label">Coordinates</div><div class="info-value">' + esc(coords) + '</div></div>' +
+            '<div class="info-box"><div class="info-label">MPRN Number</div><div class="info-value">' + esc(sel.mprn || '—') + '</div></div>' +
+            '</div>';
+
+          // Action buttons
+          detailHtml += '<div style="display:flex;gap:10px;margin-top:16px;max-width:400px">' +
+            '<a href="https://www.google.com/maps/search/?api=1&query=' + esc(coords) + '" target="_blank" rel="noopener noreferrer" ' +
+            'style="flex:1;padding:12px 16px;border-radius:12px;border:none;background:var(--accent);color:#fff;font-size:14px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;text-decoration:none">' +
+            '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg> Open Map</a>' +
+            '<a href="' + (IS_NATIVE ? 'google.navigation:q=' + esc(coords) : 'https://www.google.com/maps/dir/?api=1&destination=' + esc(coords)) + '" target="_blank" rel="noopener noreferrer" ' +
+            'style="flex:1;padding:12px 16px;border-radius:12px;border:none;background:#34a853;color:#fff;font-size:14px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;text-decoration:none">' +
+            '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg> Navigate</a>' +
+            '</div>';
+        } else {
+          // Non-location tabs: render fields
+          var fields = {
+            details: { 'Site Name': sel.name || '—', 'Code': sel.code || '—', 'Type': isEx ? 'Exchange' : 'Cabinet', 'Status': 'Active' },
+            address: { 'Street': '—', 'Town': sel.locality || '—', 'County': '—', 'Eircode': '—' },
+            security: { 'Access': '—', 'Code': '—', 'Provider': '—' },
+            power: { 'Factor': '—', 'Vendor': '—', 'Circuit ID': '—' },
+            emergency: { 'Fire': '—', 'Police': '—', 'Contact': '—' },
+            additional: { 'Notes': '—', 'Attachments': 'None' }
+          };
+          var data = fields[state.exchangeDetailTab] || {};
+          detailHtml += '<div class="dfnd-fields-3col">';
+          Object.entries(data).forEach(function(pair) {
+            detailHtml += '<div class="info-box"><div class="info-label">' + pair[0] + '</div><div class="info-value">' + esc(pair[1]) + '</div></div>';
+          });
+          detailHtml += '</div>';
+        }
+
+        detailHtml += '</div>';
+      } else {
+        detailHtml += '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--text-muted);font-size:14px">Select an exchange to view details</div>';
+      }
+
+      return '<div class="dfnd-wrap">' +
+        '<div class="dfnd-panel-list">' + listHtml + '</div>' +
+        '<div class="dfnd-panel-detail">' + detailHtml + '</div>' +
+        '</div>';
+    }
+
+    function dfndSetTab(tab) {
+      state.exchangeTab = tab === 'cabinets' ? 'cabinets' : 'exchanges';
+      state.selectedExchange = null;
+      state.selectedCabinet = null;
+      _dfndSearch = '';
+      if (tab === 'cabinets' && !state.cabinets.length) {
+        loadCabinets().then(function() { render(); });
+      }
+      render();
+    }
+
+    function dfndSearch(val) {
+      _dfndSearch = val;
+      render();
+    }
+
+    function dfndSelect(id) {
+      var isEx = state.exchangeTab === 'exchanges';
+      if (isEx) {
+        state.selectedExchange = state.exchanges.find(function(e) { return e.code === id; }) || null;
+        state.selectedCabinet = null;
+      } else {
+        state.selectedCabinet = state.cabinets.find(function(c) { return c.ipid == id; }) || null;
+        state.selectedExchange = null;
+      }
+      state.exchangeDetailTab = 'location';
+      render();
+      setTimeout(initMap, 100);
+    }
+
+    function dfndSetDetailTab(tab) {
+      state.exchangeDetailTab = tab;
+      render();
+      if (tab === 'location') setTimeout(initMap, 100);
+    }
+
     function renderExchangesView() {
+      if (_isDesktop()) return _renderDesktopFinder();
       const isEx = state.exchangeTab === 'exchanges';
       const selectedItem = isEx ? state.selectedExchange : state.selectedCabinet;
       const searchVal = selectedItem
