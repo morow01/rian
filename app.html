@@ -16885,7 +16885,17 @@
         border-left: 3px solid var(--accent);
       }
       .dco-week-row.dco-current { border-left: 3px solid var(--accent); }
-      .dco-panel-callouts .activity-card.dco-co-selected {
+      .dco-co-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 11px 14px;
+        border-bottom: 1px solid var(--border);
+        cursor: pointer;
+        transition: background 0.15s;
+      }
+      .dco-co-row:hover { background: rgba(var(--accent-rgb), 0.04); }
+      .dco-co-row.dco-co-selected {
         background: linear-gradient(to right, rgba(var(--accent-rgb), 0.10), rgba(var(--accent-rgb), 0.03));
         border-left: 3px solid var(--accent);
       }
@@ -17341,7 +17351,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.8.66';
+    const VERSION = '5.8.65';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -33619,40 +33629,32 @@
         var sortedDates = Object.keys(byDate).sort();
 
         var globalIdx = 0;
-        var pinSvg = '<svg width="13" height="13" viewBox="0 0 24 24" fill="#e8453c" style="display:inline-block;vertical-align:-2px;margin-right:2px;flex-shrink:0"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 010-5 2.5 2.5 0 010 5z"/></svg>';
-        var clockSvg = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline-block;vertical-align:-1px;margin-right:2px;flex-shrink:0"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>';
+        var pinSvg = '<svg width="12" height="12" viewBox="0 0 24 24" fill="#e8453c"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 010-5 2.5 2.5 0 010 5z"/></svg>';
+        var clockSvg = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>';
 
         sortedDates.forEach(function(dateStr) {
           var d = strToDate(dateStr);
           var dayName = getDayNameFromDate(dateStr);
           var dayNum = d.getDate();
           var monthShort = d.toLocaleDateString('en-IE', { month: 'short' });
-          var items = byDate[dateStr];
-          calloutsHtml += '<div style="display:flex;align-items:center;gap:8px;padding:10px 14px 6px">' +
-            '<span style="font-size:12px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px">' + dayName + ' ' + dayNum + ' ' + monthShort + '</span>' +
-            '<span style="font-size:11px;color:var(--text-muted);font-weight:100">' + items.length + ' callout' + (items.length !== 1 ? 's' : '') + '</span>' +
-            '</div>';
+          calloutsHtml += '<div style="padding:8px 14px 4px;font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px">' + dayName + ' ' + dayNum + ' ' + monthShort + '</div>';
 
-          items.forEach(function(co) {
+          byDate[dateStr].forEach(function(co) {
             globalIdx++;
             var isSel = co.id === state.dcoSelectedCo;
             var fault = co.fault || '';
             var site = co.site || '';
             var ticket = co.ticket || '';
             var timeStr = co.engineerOnSite || '';
-            calloutsHtml += '<div class="activity-card co-card' + (isSel ? ' dco-co-selected' : '') + '" style="margin:0 10px 8px;cursor:pointer" onclick="dcoSelectCo(\'' + co.id + '\')">' +
-              '<div class="flex items-center gap-3 px-3.5 py-3">' +
+            calloutsHtml += '<div class="dco-co-row' + (isSel ? ' dco-co-selected' : '') + '" onclick="dcoSelectCo(\'' + co.id + '\')">' +
               '<div class="task-num">' + globalIdx + '</div>' +
-              '<div class="flex-1 min-w-0 act-meta">' +
-              '<div class="act-desc-txt">' + (fault ? esc(fault.substring(0, 80)) + (fault.length > 80 ? '…' : '') : '<span style="opacity:0.4;font-weight:400;font-style:italic">No description</span>') + '</div>' +
-              '<div class="act-row2">' +
-              '<div class="act-loc-txt">' + (site ? pinSvg + esc(site) : '<span style="opacity:0.4">No site</span>') + '</div>' +
-              '<div class="act-pill-row">' +
-              (ticket ? '<span class="pill-hrs" style="font-family:var(--font-mono)">' + esc(ticket) + '</span>' : '') +
-              (timeStr ? '<span class="pill-hrs" style="background:var(--bg-code-group)">' + clockSvg + esc(timeStr) + '</span>' : '') +
-              '</div></div></div>' +
-              '<span class="chevron" style="font-size:14px;color:var(--text-muted);flex-shrink:0">›</span>' +
-              '</div></div>';
+              '<div style="flex:1;min-width:0">' +
+              '<div style="font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + (fault ? esc(fault.substring(0, 60)) : '<span style="opacity:0.4;font-style:italic">No description</span>') + '</div>' +
+              '<div style="font-size:11px;color:var(--text-muted);display:flex;gap:8px;align-items:center;margin-top:2px">' +
+              '<span style="display:flex;align-items:center;gap:2px">' + (site ? pinSvg + esc(site) : '<span style="opacity:0.4">No site</span>') + '</span>' +
+              (ticket ? '<span style="font-family:var(--font-mono);font-size:10px;background:var(--bg-code-group);padding:1px 5px;border-radius:4px">' + esc(ticket) + '</span>' : '') +
+              (timeStr ? '<span style="display:flex;align-items:center;gap:2px">' + clockSvg + esc(timeStr) + '</span>' : '') +
+              '</div></div></div>';
           });
         });
 
