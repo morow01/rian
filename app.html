@@ -16950,8 +16950,9 @@
       /* ── Desktop Finder: Two-panel (List | Detail) ── */
       .dfnd-wrap {
         display: flex;
-        min-height: calc(100vh - 180px);
+        height: calc(100vh - 90px);
         border-top: 1px solid var(--border);
+        overflow: hidden;
       }
       .dfnd-panel-list {
         width: 320px;
@@ -16959,8 +16960,8 @@
         border-right: 1px solid var(--border);
         display: flex;
         flex-direction: column;
-        overflow-y: auto;
         flex-shrink: 0;
+        overflow: hidden;
       }
       .dfnd-panel-detail {
         flex: 1;
@@ -17011,6 +17012,20 @@
         grid-template-columns: 1fr 1.2fr;
         gap: 20px;
         align-items: start;
+      }
+      #dfnd-results {
+        overflow-y: auto;
+        scrollbar-width: thin;
+        scrollbar-color: rgba(var(--accent-rgb), 0.25) transparent;
+      }
+      #dfnd-results::-webkit-scrollbar { width: 6px; }
+      #dfnd-results::-webkit-scrollbar-track { background: transparent; }
+      #dfnd-results::-webkit-scrollbar-thumb {
+        background: rgba(var(--accent-rgb), 0.25);
+        border-radius: 3px;
+      }
+      #dfnd-results::-webkit-scrollbar-thumb:hover {
+        background: rgba(var(--accent-rgb), 0.4);
       }
     }
   </style>
@@ -17456,7 +17471,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.8.80';
+    const VERSION = '5.8.81';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
