@@ -17456,7 +17456,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.8.78';
+    const VERSION = '5.8.79';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -28580,6 +28580,7 @@
       // Filter items
       var q = _dfndSearch.toLowerCase();
       var filtered = [];
+      var sel = isEx ? state.selectedExchange : state.selectedCabinet;
       if (isEx) {
         filtered = q ? items.filter(function(t) {
           return t.name.toLowerCase().indexOf(q) === 0 || t.code.toLowerCase().indexOf(q) === 0;
@@ -28589,8 +28590,14 @@
           return c.mdf.toLowerCase().indexOf(q) === 0 || c.ccp.toLowerCase().indexOf(q) === 0 || String(c.ipid).indexOf(q) === 0;
         }).slice(0, 50) : items.slice(0, 50);
       }
-
-      var sel = isEx ? state.selectedExchange : state.selectedCabinet;
+      // Ensure selected item is always in the list (put it first if not already present)
+      if (sel && !q) {
+        var selId = isEx ? sel.code : sel.ipid;
+        var inList = filtered.some(function(it) { return (isEx ? it.code : it.ipid) === selId; });
+        if (!inList) {
+          filtered = [sel].concat(filtered.slice(0, 49));
+        }
+      }
 
       // ── Left panel: tabs + search + results list ──
       var listHtml = '<div class="dfnd-panel-hdr">Finder</div>';
@@ -28737,9 +28744,15 @@
         state.selectedCabinet = state.cabinets.find(function(c) { return c.ipid == id; }) || null;
         state.selectedExchange = null;
       }
+      _dfndSearch = '';
       state.exchangeDetailTab = 'location';
       render();
       setTimeout(initMap, 100);
+      // Scroll selected item into view in the list
+      setTimeout(function() {
+        var sel = document.querySelector('.dfnd-item.dfnd-selected');
+        if (sel) sel.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+      }, 50);
     }
 
     function dfndSetDetailTab(tab) {
