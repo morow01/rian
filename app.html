@@ -17007,6 +17007,23 @@
         background: linear-gradient(to right, rgba(var(--accent-rgb), 0.10), rgba(var(--accent-rgb), 0.03));
         border-left: 3px solid var(--accent);
       }
+      .dfnd-badge {
+        width: 40px;
+        height: 40px;
+        min-width: 40px;
+        border-radius: 10px;
+        background: var(--date-badge-bg);
+        color: var(--date-badge-color);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 11px;
+        font-weight: 700;
+      }
+      .dfnd-selected .dfnd-badge {
+        background: rgba(var(--accent-rgb), 0.12);
+        color: var(--accent);
+      }
       .dfnd-detail-grid {
         display: grid;
         grid-template-columns: 1fr 1.2fr;
@@ -17471,7 +17488,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.8.81';
+    const VERSION = '5.8.82';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -28708,8 +28725,8 @@
           var itemName = isEx ? sel.name : (sel.mdf + ' - ' + sel.ccp);
           var itemSub = isEx ? ('Code: ' + sel.code) : ('IPID: ' + sel.ipid);
           html += '<div class="dfnd-item dfnd-selected" onclick="dfndSelect(\'' + esc(itemId) + '\')">' +
-            '<div style="display:flex;align-items:center;gap:8px">' +
-            '<div style="width:28px;height:28px;border-radius:8px;background:rgba(var(--accent-rgb),0.12);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:var(--accent)">' + esc(isEx ? sel.code : sel.mdf) + '</div>' +
+            '<div style="display:flex;align-items:center;gap:10px">' +
+            '<div class="dfnd-badge">' + esc(isEx ? sel.code : sel.mdf) + '</div>' +
             '<div style="flex:1;min-width:0">' +
             '<div style="font-size:14px;font-weight:600;color:var(--text-primary)">' + esc(itemName) + '</div>' +
             '<div style="font-size:12px;color:var(--text-muted);margin-top:1px">' + esc(itemSub) + '</div>' +
@@ -28738,8 +28755,8 @@
         var itemName = isEx ? item.name : (item.mdf + ' - ' + item.ccp);
         var itemSub = isEx ? ('Code: ' + item.code) : ('IPID: ' + item.ipid);
         html += '<div class="dfnd-item' + (isSelected ? ' dfnd-selected' : '') + '" onclick="dfndSelect(\'' + esc(itemId) + '\')">' +
-          '<div style="display:flex;align-items:center;gap:8px">' +
-          '<div style="width:28px;height:28px;border-radius:8px;background:' + (isSelected ? 'rgba(var(--accent-rgb),0.12)' : 'var(--bg-input)') + ';display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:' + (isSelected ? 'var(--accent)' : 'var(--text-muted)') + '">' + esc(isEx ? item.code : item.mdf) + '</div>' +
+          '<div style="display:flex;align-items:center;gap:10px">' +
+          '<div class="dfnd-badge">' + esc(isEx ? item.code : item.mdf) + '</div>' +
           '<div style="flex:1;min-width:0">' +
           '<div style="font-size:14px;font-weight:600;color:var(--text-primary)">' + esc(itemName) + '</div>' +
           '<div style="font-size:12px;color:var(--text-muted);margin-top:1px">' + esc(itemSub) + '</div>' +
