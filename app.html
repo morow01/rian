@@ -16816,6 +16816,97 @@
       .desk-tab-nav button:hover:not(.active) {
         color: var(--text-secondary);
       }
+
+      /* ── Desktop Callouts: Three-panel ── */
+      .dco-wrap {
+        display: flex;
+        min-height: calc(100vh - 180px);
+        border-top: 1px solid var(--border);
+      }
+      .dco-panel-weeks {
+        width: 280px;
+        background: var(--bg-card);
+        border-right: 1px solid var(--border);
+        display: flex;
+        flex-direction: column;
+        overflow-y: auto;
+        flex-shrink: 0;
+      }
+      .dco-panel-callouts {
+        width: 360px;
+        background: var(--bg-card);
+        border-right: 1px solid var(--border);
+        display: flex;
+        flex-direction: column;
+        overflow-y: auto;
+        flex-shrink: 0;
+      }
+      .dco-panel-detail {
+        flex: 1;
+        background: var(--bg-card);
+        overflow-y: auto;
+      }
+      .dco-panel-hdr {
+        padding: 10px 14px 8px;
+        font-size: 10px;
+        font-weight: 800;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        border-bottom: 1px solid var(--border);
+        line-height: 1.4;
+      }
+      .dco-stats {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        border-bottom: 1px solid var(--border);
+      }
+      .dco-stat {
+        text-align: center;
+        padding: 10px 8px;
+        border-bottom: 1px solid var(--border);
+      }
+      .dco-stat:nth-child(odd) { border-right: 1px solid var(--border); }
+      .dco-stat:nth-child(n+3) { border-bottom: none; }
+      .dco-stat-val { font-size: 20px; font-weight: 800; line-height: 1.2; }
+      .dco-stat-label { font-size: 9px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; margin-top: 2px; }
+      .dco-week-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 11px 14px;
+        border-bottom: 1px solid var(--border);
+        cursor: pointer;
+        transition: background 0.15s;
+      }
+      .dco-week-row:hover { background: rgba(var(--accent-rgb), 0.04); }
+      .dco-week-row.dco-selected {
+        background: linear-gradient(to right, rgba(var(--accent-rgb), 0.10), rgba(var(--accent-rgb), 0.03));
+        border-left: 3px solid var(--accent);
+      }
+      .dco-week-row.dco-current { border-left: 3px solid var(--accent); }
+      .dco-co-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 11px 14px;
+        border-bottom: 1px solid var(--border);
+        cursor: pointer;
+        transition: background 0.15s;
+      }
+      .dco-co-row:hover { background: rgba(var(--accent-rgb), 0.04); }
+      .dco-co-row.dco-co-selected {
+        background: linear-gradient(to right, rgba(var(--accent-rgb), 0.10), rgba(var(--accent-rgb), 0.03));
+        border-left: 3px solid var(--accent);
+      }
+      .dco-detail-hdr {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 16px;
+        padding-bottom: 14px;
+        border-bottom: 1px solid var(--border);
+      }
     }
   </style>
 </head>
@@ -17260,7 +17351,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.8.51';
+    const VERSION = '5.8.64';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -17918,6 +18009,8 @@
       deskSelectedAct: null, // desktop: selected activity id
       deskSelectedNote: null, // desktop notes: selected note id
       deskNotesCatFilter: '', // desktop notes: sidebar category filter
+      dcoSelectedWeek: null,   // desktop callouts: selected week key
+      dcoSelectedCo: null,     // desktop callouts: selected callout id
       djExpanded: {},          // desktop journal: tree expand state { nbId: bool }
       djSelectedSec: null,     // desktop journal: selected section id (col1 → col2)
       djSelectedPage: null,    // desktop journal: selected page id
@@ -20686,9 +20779,18 @@
               msg: `<strong>${day.dayName}</strong>: An activity with ${ord}h has <strong>no description</strong>.`, actId: act.id
             });
           }
+
+          // 6. Has hours but no location
+          if ((ord > 0 || ot > 0) && !act.location) {
+            const desc = act.description ? `"${act.description}"` : 'an activity';
+            issues.push({
+              severity: 'warn', icon: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>`, dayIdx: di,
+              msg: `<strong>${day.dayName}</strong>: ${desc} has hours but <strong>no location</strong>.`, actId: act.id
+            });
+          }
         });
 
-        // ── 6. Unusually high day total ───────────────────────
+        // ── 7. Unusually high day total ───────────────────────
         if (!isWE) {
           const dayOrd = acts.reduce((s, a) => s + (parseFloat(a.ordinary) || 0), 0);
           const dayOT = acts.reduce((s, a) => s + (parseFloat(a.overtime) || 0), 0);
@@ -20735,6 +20837,10 @@
     }
 
     function gotoAnomalyDay(di) {
+      if (_isDesktop()) {
+        deskSelectDay(di);
+        return;
+      }
       // Expand the day and scroll to it
       state.expandedDays.add(di);
       render();
@@ -20745,6 +20851,12 @@
     }
 
     async function gotoRemedyTask(di, actId) {
+      if (_isDesktop()) {
+        state.deskSelectedDay = di;
+        state.deskSelectedAct = actId;
+        render();
+        return;
+      }
       // Delegate to the canonical async navigator so the task card fully expands
       const day = state.weekData?.days[di];
       if (!day) return;
@@ -21050,7 +21162,10 @@
         _renderDeskDetail(selDi, state.deskSelectedAct) +
         '</div>';
 
-      return '<main><div class="desk-three-panel">' + daysPanel + '<div class="dj-resize-handle" onmousedown="deskTsResizeStart(event,1)"></div>' + tasksPanel + '<div class="dj-resize-handle" onmousedown="deskTsResizeStart(event,2)"></div>' + detailPanel + '</div></main>';
+      var anomalyHtml = renderAnomalyBanner(state.weekData);
+      var bannerHtml = anomalyHtml ? '<div style="padding:10px 16px 0;background:var(--bg-card);border-bottom:1px solid var(--border)">' + anomalyHtml + '</div>' : '';
+
+      return '<main>' + bannerHtml + '<div class="desk-three-panel">' + daysPanel + '<div class="dj-resize-handle" onmousedown="deskTsResizeStart(event,1)"></div>' + tasksPanel + '<div class="dj-resize-handle" onmousedown="deskTsResizeStart(event,2)"></div>' + detailPanel + '</div></main>';
     }
 
     function _renderDeskTasks(di) {
@@ -21076,15 +21191,17 @@
           var isSel = (act.id === state.deskSelectedAct);
           var isMissingCode = (ord > 0 || ot > 0) && act.codes.length === 0;
           var isMissingHours = act.codes.length > 0 && ord === 0 && ot === 0;
+          var isMissingLocation = (ord > 0 || ot > 0) && !act.location;
+          var hasIssue = isMissingCode || isMissingHours || isMissingLocation;
 
           var cls = 'desk-task-card' +
             (isSel ? ' desk-task-selected' : '') +
-            (isMissingCode || isMissingHours ? ' desk-task-invalid' : '') +
-            (act.remedyPending && !(isMissingCode || isMissingHours) ? ' desk-task-remedy' : '');
+            (hasIssue ? ' desk-task-invalid' : '') +
+            (act.remedyPending && !hasIssue ? ' desk-task-remedy' : '');
 
           var wrapCls = 'desk-card-wrap' + (isSel ? ' desk-sel-wrap' : '') +
-            (isMissingCode || isMissingHours ? ' desk-wrap-invalid' : '') +
-            (act.remedyPending && !(isMissingCode || isMissingHours) ? ' desk-wrap-remedy' : '');
+            (hasIssue ? ' desk-wrap-invalid' : '') +
+            (act.remedyPending && !hasIssue ? ' desk-wrap-remedy' : '');
           cards += '<div class="' + wrapCls + '">';
           cards += '<div class="' + cls + '" onclick="deskSelectAct(\'' + act.id + '\')">' +
             '<div class="flex items-center gap-3">' +
@@ -21471,7 +21588,8 @@
           const ot = parseFloat(act.overtime) || 0;
           const isMissingCode = (ord > 0 || ot > 0) && act.codes.length === 0;
           const isMissingHours = act.codes.length > 0 && ord === 0 && ot === 0;
-          if (isMissingCode || isMissingHours) {
+          const isMissingLocation = (ord > 0 || ot > 0) && !act.location;
+          if (isMissingCode || isMissingHours || isMissingLocation) {
             card.style.borderColor = 'var(--btn-danger-color)';
             card.style.boxShadow = '0 0 8px rgba(232, 69, 60, 0.2)';
           }
@@ -21756,11 +21874,12 @@
       const overtime = parseFloat(act.overtime) || 0;
       const isMissingCode = (ordinary > 0 || overtime > 0) && act.codes.length === 0;
       const isMissingHours = act.codes.length > 0 && ordinary === 0 && overtime === 0;
-      const isInvalid = isMissingCode || isMissingHours;
+      const isMissingLocation = (ordinary > 0 || overtime > 0) && !act.location;
+      const isInvalid = isMissingCode || isMissingHours || isMissingLocation;
       // Hours with no code → red immediately
       // Code with no hours → red only on collapse (grace period while entering hours)
-      // Hours with no code → red always; Code with no hours → red only when collapsed (grace period)
-      const showRedBorder = isMissingCode || (isMissingHours && !isExpanded);
+      // Missing location → red only when collapsed (grace period while filling in)
+      const showRedBorder = isMissingCode || (isMissingHours && !isExpanded) || (isMissingLocation && !isExpanded);
       const numTasks = act.codes.length || 1;
       const hrsPerTask = ordinary > 0 ? Math.round(ordinary / numTasks) : '—';
       const otPerTask = overtime > 0 ? Math.round(overtime / numTasks) : '—';
@@ -33385,12 +33504,339 @@
 
     function renderCalloutsView() {
       if (!state.callouts) return `<div class="co-page" style="text-align:center;padding:60px 24px"><div style="font-size:16px;font-weight:600;color:var(--text-primary)">Loading…</div></div>`;
+      if (_isDesktop()) return _renderDesktopCallouts();
       let out = '';
       if (state.calloutsView === 'list') out = renderCalloutsList();
       else if (state.calloutsView === 'week') out = renderCalloutsWeek();
       // Append the schedule overlay (always in DOM, toggled via CSS class)
       out += renderOcScheduleOverlay();
       return out;
+    }
+
+    // ── Desktop Callouts: Three-panel (Weeks → Callouts → Detail) ──
+    function _renderDesktopCallouts() {
+      var onCall = state.callouts.onCall || {};
+      var weeks = state.callouts.weeks || {};
+      var curWeekStart = dateToStr(getCurrentFriday());
+
+      // ── Stats ──
+      var totalOnCall = 0, totalExtra = 0, totalIncidents = 0, pastOnCallCount = 0;
+      Object.entries(onCall).forEach(function(e) {
+        if (e[1] === 'oncall') totalOnCall++;
+        if (e[1] === 'extra') totalExtra++;
+        var wd = weeks[e[0]];
+        totalIncidents += wd ? (wd.callouts || []).length : 0;
+        if (_ocIsPast(e[0])) pastOnCallCount++;
+      });
+      var avgPerWeek = pastOnCallCount > 0 ? (totalIncidents / pastOnCallCount).toFixed(1) : '–';
+
+      // ── Build sorted week list ──
+      // Show weeks that have actual callouts, OR are past on-call/extra weeks (not future)
+      var allWeekKeys = new Set();
+      Object.keys(weeks).forEach(function(k) {
+        if ((weeks[k].callouts || []).length > 0) allWeekKeys.add(k);
+      });
+      Object.keys(onCall).forEach(function(k) {
+        if (k === curWeekStart || _ocIsPast(k)) allWeekKeys.add(k);
+      });
+      var sortedWeeks = Array.from(allWeekKeys).sort().reverse();
+      var hasCurrent = allWeekKeys.has(curWeekStart);
+
+      // Auto-select current week if none selected
+      if (!state.dcoSelectedWeek || !allWeekKeys.has(state.dcoSelectedWeek)) {
+        state.dcoSelectedWeek = hasCurrent ? curWeekStart : (sortedWeeks[0] || null);
+      }
+      var selWeek = state.dcoSelectedWeek;
+
+      // ── Panel 1: Weeks ──
+      var weeksHtml = '<div class="dco-panel-weeks">';
+      // Header with schedule button
+      weeksHtml += '<div style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-bottom:1px solid var(--border)">' +
+        '<span style="font-size:13px;font-weight:700">Callouts</span>' +
+        '<button onclick="ocOpenSchedule()" style="display:flex;align-items:center;gap:5px;padding:5px 10px;background:var(--accent);color:#fff;border:none;border-radius:8px;font-size:11px;font-weight:700;cursor:pointer;font-family:var(--font-body)">' +
+        '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>' +
+        'Schedule</button></div>';
+
+      // Stats 2x2 grid
+      weeksHtml += '<div class="dco-stats">' +
+        '<div class="dco-stat"><div class="dco-stat-val" style="color:var(--accent)">' + (totalOnCall + totalExtra) + '</div><div class="dco-stat-label">On-Call Weeks</div></div>' +
+        '<div class="dco-stat"><div class="dco-stat-val" style="color:#F59E0B">' + totalExtra + '</div><div class="dco-stat-label">Extra Shifts</div></div>' +
+        '<div class="dco-stat"><div class="dco-stat-val" style="color:var(--priority-high, #ef4444)">' + totalIncidents + '</div><div class="dco-stat-label">Total Incidents</div></div>' +
+        '<div class="dco-stat"><div class="dco-stat-val" style="color:#8B5CF6">' + avgPerWeek + '</div><div class="dco-stat-label">Avg / Week</div></div>' +
+        '</div>';
+
+      // Week rows — render current week first, then previous (newest-first)
+      function _dcoWeekRow(wk, isCurrent, isSel) {
+        var wd = weeks[wk];
+        var cnt = wd ? (wd.callouts || []).length : 0;
+        var ocType = onCall[wk];
+        var isExtra = ocType === 'extra';
+        var cls = 'dco-week-row' + (isSel ? ' dco-selected' : '') + (isCurrent ? ' dco-current' : '');
+        var badgeBg = isExtra ? '#FEF3C7' : 'var(--accent-light)';
+        var badgeColor = isExtra ? '#F59E0B' : 'var(--accent)';
+        var extraBadge = isExtra ? ' <span style="padding:2px 5px;border-radius:4px;font-size:8px;font-weight:700;background:#FEF3C7;color:#F59E0B">EXTRA</span>' : '';
+        return '<div class="' + cls + '" onclick="dcoSelectWeek(\'' + wk + '\')">' +
+          '<div class="task-num" style="background:' + badgeBg + ';color:' + badgeColor + '">' + cnt + '</div>' +
+          '<div style="flex:1;min-width:0">' +
+          '<div style="font-size:12px;font-weight:600">' + formatWeekRange(wk) + extraBadge + '</div>' +
+          '<div style="font-size:10px;color:' + (isCurrent ? 'var(--priority-low, #22c55e)' : 'var(--text-muted)') + ';font-weight:' + (isCurrent ? '600' : '400') + ';margin-top:1px">' +
+          (isCurrent ? 'Current week' : cnt + ' incident' + (cnt !== 1 ? 's' : '')) + '</div>' +
+          '</div></div>';
+      }
+
+      // Current week always first
+      if (hasCurrent) {
+        weeksHtml += '<div class="dco-panel-hdr">Current</div>';
+        weeksHtml += _dcoWeekRow(curWeekStart, true, curWeekStart === selWeek);
+      }
+
+      // Previous weeks — everything except current, newest first
+      var pastWeeks = sortedWeeks.filter(function(wk) { return wk !== curWeekStart; });
+      if (pastWeeks.length > 0) {
+        weeksHtml += '<div class="dco-panel-hdr">Previous</div>';
+        pastWeeks.forEach(function(wk) {
+          weeksHtml += _dcoWeekRow(wk, false, wk === selWeek);
+        });
+      }
+      weeksHtml += '</div>';
+
+      // ── Panel 2: Callouts for selected week ──
+      var calloutsHtml = '<div class="dco-panel-callouts">';
+      if (selWeek) {
+        var wd = weeks[selWeek] || {};
+        var allCo = wd.callouts || [];
+
+        calloutsHtml += '<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--border)">' +
+          '<div>' +
+          '<div style="font-size:13px;font-weight:700">' + formatWeekRange(selWeek) + '</div>' +
+          '<div style="font-size:11px;color:var(--text-muted)">' + allCo.length + ' callout' + (allCo.length !== 1 ? 's' : '') + '</div>' +
+          '</div>' +
+          '<button onclick="openPasteTicket()" style="display:flex;align-items:center;gap:4px;padding:5px 10px;background:var(--bg-card);color:var(--accent);border:1px solid var(--accent);border-radius:8px;font-size:11px;font-weight:600;cursor:pointer;font-family:var(--font-body)">' +
+          '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="4" rx="1"/><rect x="4" y="4" width="16" height="18" rx="2"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="8" y1="16" x2="12" y2="16"/></svg>' +
+          'Paste Fault</button></div>';
+
+        // Auto-select first callout if none selected
+        if (!state.dcoSelectedCo || !allCo.find(function(c) { return c.id === state.dcoSelectedCo; })) {
+          state.dcoSelectedCo = allCo.length > 0 ? allCo[0].id : null;
+        }
+
+        // Group by date
+        var byDate = {};
+        allCo.forEach(function(co) {
+          if (!byDate[co.date]) byDate[co.date] = [];
+          byDate[co.date].push(co);
+        });
+        var sortedDates = Object.keys(byDate).sort();
+
+        var globalIdx = 0;
+        var pinSvg = '<svg width="12" height="12" viewBox="0 0 24 24" fill="#e8453c"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 010-5 2.5 2.5 0 010 5z"/></svg>';
+        var clockSvg = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>';
+
+        sortedDates.forEach(function(dateStr) {
+          var d = strToDate(dateStr);
+          var dayName = getDayNameFromDate(dateStr);
+          var dayNum = d.getDate();
+          var monthShort = d.toLocaleDateString('en-IE', { month: 'short' });
+          calloutsHtml += '<div style="padding:8px 14px 4px;font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px">' + dayName + ' ' + dayNum + ' ' + monthShort + '</div>';
+
+          byDate[dateStr].forEach(function(co) {
+            globalIdx++;
+            var isSel = co.id === state.dcoSelectedCo;
+            var fault = co.fault || '';
+            var site = co.site || '';
+            var ticket = co.ticket || '';
+            var timeStr = co.engineerOnSite || '';
+            calloutsHtml += '<div class="dco-co-row' + (isSel ? ' dco-co-selected' : '') + '" onclick="dcoSelectCo(\'' + co.id + '\')">' +
+              '<div class="task-num">' + globalIdx + '</div>' +
+              '<div style="flex:1;min-width:0">' +
+              '<div style="font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + (fault ? esc(fault.substring(0, 60)) : '<span style="opacity:0.4;font-style:italic">No description</span>') + '</div>' +
+              '<div style="font-size:11px;color:var(--text-muted);display:flex;gap:8px;align-items:center;margin-top:2px">' +
+              '<span style="display:flex;align-items:center;gap:2px">' + (site ? pinSvg + esc(site) : '<span style="opacity:0.4">No site</span>') + '</span>' +
+              (ticket ? '<span style="font-family:var(--font-mono);font-size:10px;background:var(--bg-code-group);padding:1px 5px;border-radius:4px">' + esc(ticket) + '</span>' : '') +
+              (timeStr ? '<span style="display:flex;align-items:center;gap:2px">' + clockSvg + esc(timeStr) + '</span>' : '') +
+              '</div></div></div>';
+          });
+        });
+
+        if (allCo.length === 0) {
+          calloutsHtml += '<div style="text-align:center;padding:40px 16px">' +
+            '<div style="font-size:40px;margin-bottom:10px">📋</div>' +
+            '<div style="font-size:14px;font-weight:600;color:var(--text-primary);margin-bottom:4px">No callouts this week</div>' +
+            '<div style="font-size:12px;color:var(--text-muted)">Tap "+ Add Callout" to log an incident.</div></div>';
+        }
+
+        // Add callout button
+        calloutsHtml += '<button onclick="dcoAddCallout()" style="margin:8px 14px;width:calc(100% - 28px);display:flex;align-items:center;justify-content:center;gap:6px;padding:10px;border-radius:10px;border:1px dashed var(--border);background:var(--bg-card);font-size:13px;font-weight:700;color:var(--accent);cursor:pointer;font-family:var(--font-body)">' +
+          '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>' +
+          'Add Callout</button>';
+      } else {
+        calloutsHtml += '<div style="text-align:center;padding:40px 16px;color:var(--text-muted)">Select a week</div>';
+      }
+      calloutsHtml += '</div>';
+
+      // ── Panel 3: Detail for selected callout ──
+      var detailHtml = '<div class="dco-panel-detail">';
+      var selCo = null;
+      if (selWeek && state.dcoSelectedCo) {
+        var wdSel = weeks[selWeek] || {};
+        selCo = (wdSel.callouts || []).find(function(c) { return c.id === state.dcoSelectedCo; });
+      }
+      if (selCo) {
+        var coIdx = (weeks[selWeek].callouts || []).indexOf(selCo) + 1;
+
+        detailHtml += '<div class="desk-panel-days-hdr">Callout Details</div>';
+        detailHtml += '<div class="desk-detail-body">';
+
+        // Header — matches Timesheet desk-detail-header
+        detailHtml += '<div class="desk-detail-header">' +
+          '<div class="task-num" style="background:var(--accent);color:#fff">' + coIdx + '</div>' +
+          '<div class="flex-1 min-w-0 act-meta">' +
+          '<div class="act-desc-txt">' + (selCo.fault ? esc(selCo.fault) : '<span style="opacity:0.4;font-weight:400;font-style:italic">No description</span>') + '</div>' +
+          '<div class="act-row2"><div class="act-loc-txt">' +
+          (selCo.site ? '<svg width="13" height="13" viewBox="0 0 24 24" fill="#e8453c" style="display:inline-block;vertical-align:-2px;margin-right:2px;"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 010-5 2.5 2.5 0 010 5z"/></svg>' + esc(selCo.site) : '<span style="opacity:0.4">No location</span>') +
+          '</div>' +
+          (selCo.ticket ? '<div class="act-pill-row"><span style="font-family:var(--font-mono);font-size:11px;color:var(--text-muted)">' + esc(selCo.ticket) + '</span></div>' : '') +
+          '</div></div></div>';
+
+        // Detail fields — uses Timesheet desk-detail-form / desk-field-group classes
+        detailHtml += '<div class="desk-detail-form">';
+
+        detailHtml += '<div class="desk-field-group"><span class="act-field-label">Date</span>' +
+          '<input type="date" class="act-input" id="dco-date" value="' + (selCo.date || '') + '" onchange="dcoUpdateField(\'date\',this.value)" style="cursor:pointer"></div>';
+
+        detailHtml += '<div class="desk-field-group"><span class="act-field-label">Ticket Number</span>' +
+          '<textarea class="act-textarea" rows="1" id="dco-ticket" style="resize:none;overflow:hidden;font-family:var(--font-mono)" placeholder="e.g. R23482335" ' +
+          'oninput="this.value=this.value.replace(/\\n/g,\'\');dcoUpdateField(\'ticket\',this.value.trim())" ' +
+          'onkeydown="if(event.key===\'Enter\')event.preventDefault()" ' +
+          'autocomplete="off" data-lpignore="true" data-form-type="other" data-1p-ignore="true">' + esc(selCo.ticket || '') + '</textarea></div>';
+
+        detailHtml += '<div class="desk-field-group"><span class="act-field-label">Location</span>' +
+          '<div class="location-wrap"><input type="text" class="act-input" id="dco-site" readonly ' +
+          'value="' + esc(selCo.site || '') + '" placeholder="Tap to select location" ' +
+          'style="cursor:pointer;user-select:none" ' +
+          'autocomplete="new-password" data-lpignore="true" data-form-type="other" data-1p-ignore="true" ' +
+          'onclick="_coSiteCallback = function(name) { document.getElementById(\'dco-site\').value = name; dcoUpdateField(\'site\', name); }; openLocationModal();"></div></div>';
+
+        detailHtml += '<div class="desk-field-group"><span class="act-field-label">Fault Description</span>' +
+          '<textarea class="act-textarea" rows="2" id="dco-fault" placeholder="e.g. EXTERNAL ALARM: AC MAINS FAIL" ' +
+          'oninput="autoGrow(this);dcoUpdateField(\'fault\',this.value.trim())" ' +
+          'autocomplete="off" data-lpignore="true" data-form-type="other" data-1p-ignore="true">' + esc(selCo.fault || '') + '</textarea></div>';
+
+        detailHtml += '<div class="desk-field-group"><span class="act-field-label">Notes</span>' +
+          renderNoteInline(selCo.notes || '', "dcoOpenNoteFs()", 'data-co-notes-inline') + '</div>' +
+          '<textarea class="act-notes-area" id="co-notes-ta" style="display:none">' + esc(selCo.notes || '') + '</textarea>';
+
+        detailHtml += '<div class="desk-field-group"><span class="act-field-label">Engineer On Site</span>' +
+          '<input type="time" class="act-input" id="dco-time" value="' + (selCo.engineerOnSite || '') + '" onchange="dcoUpdateField(\'engineerOnSite\',this.value)"></div>';
+
+        detailHtml += selCo._draft
+          ? '<div class="desk-detail-actions">' +
+          '<button class="desk-detail-btn" style="background:var(--accent);color:#fff;border-color:var(--accent)" onclick="dcoSaveDraft()">' +
+          '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Save</button>' +
+          '<button class="desk-detail-btn danger" onclick="dcoDiscardDraft()">' +
+          '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> Discard</button>' +
+          '</div>'
+          : '<div class="desk-detail-actions">' +
+          '<button class="desk-detail-btn danger" style="margin-left:auto" onclick="dcoDeleteCallout()">' +
+          '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>' +
+          ' Delete</button>' +
+          '</div>';
+
+        detailHtml += '</div></div>';
+      } else {
+        detailHtml += '<div class="desk-panel-days-hdr">Callout Details</div>' +
+          '<div class="desk-empty-state" style="height:100%">' +
+          '<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>' +
+          '<p>Select a callout to view details</p></div>';
+      }
+      detailHtml += '</div>';
+
+      // Wrap in three-panel + schedule overlay
+      return '<main><div class="dco-wrap">' + weeksHtml + calloutsHtml + detailHtml + '</div></main>' + renderOcScheduleOverlay();
+    }
+
+    function dcoSelectWeek(wk) {
+      state.dcoSelectedWeek = wk;
+      state.dcoSelectedCo = null;
+      // Also set mobile state so schedule overlay works
+      state.calloutsSelectedWeek = wk;
+      state.calloutsView = 'week';
+      render();
+    }
+
+    function dcoSelectCo(coId) {
+      state.dcoSelectedCo = coId;
+      render();
+    }
+
+    function dcoAddCallout() {
+      var wk = state.dcoSelectedWeek;
+      if (!wk) return;
+      if (!state.callouts.weeks[wk]) state.callouts.weeks[wk] = { callouts: [] };
+      var wd = state.callouts.weeks[wk];
+      if (!wd.callouts) wd.callouts = [];
+      var newCo = {
+        id: 'co_' + Date.now() + '_' + Math.random().toString(36).substring(2, 6),
+        date: wk,
+        site: '',
+        fault: '',
+        ticket: '',
+        engineerOnSite: '',
+        notes: '',
+        _draft: true
+      };
+      wd.callouts.push(newCo);
+      state.dcoSelectedCo = newCo.id;
+      render();
+    }
+
+    function dcoUpdateField(field, value) {
+      if (!state.dcoSelectedWeek || !state.dcoSelectedCo) return;
+      var wd = state.callouts.weeks[state.dcoSelectedWeek];
+      if (!wd) return;
+      var co = (wd.callouts || []).find(function(c) { return c.id === state.dcoSelectedCo; });
+      if (!co) return;
+      co[field] = value;
+      if (!co._draft) _coScheduleSave();
+    }
+
+    function dcoDeleteCallout() {
+      if (!state.dcoSelectedWeek || !state.dcoSelectedCo) return;
+      var wd = state.callouts.weeks[state.dcoSelectedWeek];
+      if (!wd || !wd.callouts) return;
+      wd.callouts = wd.callouts.filter(function(c) { return c.id !== state.dcoSelectedCo; });
+      state.dcoSelectedCo = null;
+      _coScheduleSave();
+      render();
+    }
+
+    function dcoSaveDraft() {
+      if (!state.dcoSelectedWeek || !state.dcoSelectedCo) return;
+      var wd = state.callouts.weeks[state.dcoSelectedWeek];
+      if (!wd) return;
+      var co = (wd.callouts || []).find(function(c) { return c.id === state.dcoSelectedCo; });
+      if (!co) return;
+      delete co._draft;
+      _coScheduleSave();
+      render();
+      showToast('Callout saved');
+    }
+
+    function dcoDiscardDraft() {
+      if (!state.dcoSelectedWeek || !state.dcoSelectedCo) return;
+      var wd = state.callouts.weeks[state.dcoSelectedWeek];
+      if (!wd || !wd.callouts) return;
+      wd.callouts = wd.callouts.filter(function(c) { return c.id !== state.dcoSelectedCo; });
+      state.dcoSelectedCo = null;
+      render();
+      showToast('Draft discarded');
+    }
+
+    function dcoOpenNoteFs() {
+      if (!state.dcoSelectedCo) return;
+      state.calloutsSelectedWeek = state.dcoSelectedWeek;
+      state.calloutsExpandedId = state.dcoSelectedCo;
+      openCoNoteFullscreen();
     }
 
     function renderOcScheduleOverlay() {
@@ -34549,14 +34995,21 @@
       state.calloutsExpandedId = id;
       state.calloutsEditId = id;
       state.calloutsNotesOpen = false;
+      // Desktop: select the new callout in detail panel
+      if (_isDesktop()) {
+        state.dcoSelectedWeek = weekStart;
+        state.dcoSelectedCo = id;
+      }
       render();
       showToast('Callout created from ticket');
 
-      // Scroll to new card
-      setTimeout(() => {
-        const card = document.querySelector(`[data-co-id="${id}"]`);
-        if (card) card.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }, 200);
+      // Scroll to new card (mobile only)
+      if (!_isDesktop()) {
+        setTimeout(() => {
+          const card = document.querySelector(`[data-co-id="${id}"]`);
+          if (card) card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 200);
+      }
     }
 
     // ============================================================

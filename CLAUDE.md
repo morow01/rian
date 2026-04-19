@@ -16,7 +16,7 @@ A Progressive Web App for field technicians — timesheets, notes (TipTap rich t
 
 ## Version
 `const VERSION = 'x.y.z'` in `app.html` (~line 13799). Bump on every change. Only location that needs updating (index.html version references are static).
-Current version: **5.8.51**
+Current version: **5.8.64**
 
 **Two themes active**: `claude` (default light) and `dark` (slate-based). Theme picker lives in ☰ menu → Display. Switcher at `setTheme(key)`, registry at `THEME_META`.
 
@@ -212,6 +212,29 @@ Key function: `rtnMobTab(id, btn)` — switches active tab content.
 CSS: `.rtn-tab-bar`, `.rtn-tab-btn`, `.rtn-tab-badge`, `.rtn-tab-content`, `.rtn-mob-stats`, `.rtn-mob-stat`, `.rtn-mob-card`, `.rtn-mob-month-bar`, `.rtn-mob-recent-scroll`
 
 Shared list styles (used by both desktop sidebar and mobile tabs): `.rtn-alert-item`, `.rtn-alert-dot`, `.rtn-alert-name`, `.rtn-alert-detail`, `.rtn-recent-item`, `.rtn-recent-badge`, `.rtn-recent-info`, `.rtn-recent-name`, `.rtn-recent-date`, `.rtn-month-bar`, `.rtn-month-col` — defined globally, NOT inside a media query.
+
+### Callouts — Desktop Three-Panel Layout (v5.8.52+)
+Three-panel layout (Weeks → Callouts → Detail) matching Timesheet pattern. Accessed via ☰ menu → Callouts (not in the top desktop tab nav).
+
+- **Left panel (280px)**: Stats 2×2 grid (On-Call Weeks, Extra Shifts, Total Incidents, Avg/Week), "Schedule" button, Current/Previous week rows
+- **Middle panel (360px)**: Callouts list grouped by date, "Paste Fault" button, "+ Add Callout" dashed button
+- **Detail panel (flex)**: "CALLOUT DETAILS" header, callout header (blue badge + fault + location/ticket), form fields (Date, Ticket Number, Location, Fault Description, Notes, Engineer On Site), action buttons
+
+Detail panel reuses Timesheet CSS classes: `desk-detail-body`, `desk-detail-header`, `desk-detail-form`, `desk-field-group`, `desk-detail-actions`, `desk-detail-btn`.
+
+**Draft system (v5.8.64+):** `dcoAddCallout()` sets `_draft: true`. Draft callouts show Save/Discard buttons (matching Timesheet draft pattern). `dcoUpdateField()` skips `_coScheduleSave()` for drafts. `saveCallouts()` strips `_draft` entries before writing to Firestore. `dcoSaveDraft()` removes draft flag and saves. `dcoDiscardDraft()` removes the callout entirely.
+
+Week list filtering: only shows weeks with actual callouts OR past/current on-call weeks (not future scheduled). Uses `_ocIsPast(k)` filter. Current week always rendered first under "Current" header.
+
+Key functions: `_renderDesktopCallouts()`, `dcoSelectWeek(wk)`, `dcoSelectCo(coId)`, `dcoAddCallout()`, `dcoUpdateField(field, value)`, `dcoDeleteCallout()`, `dcoSaveDraft()`, `dcoDiscardDraft()`, `dcoOpenNoteFs()`
+
+State: `dcoSelectedWeek`, `dcoSelectedCo`
+
+CSS: `.dco-wrap`, `.dco-panel-weeks`, `.dco-panel-callouts`, `.dco-panel-detail`, `.dco-stats`, `.dco-stat`, `.dco-week-row`, `.dco-co-row`, `.dco-detail-hdr`
+
+`renderCalloutsView()` intercept: `if (_isDesktop()) return _renderDesktopCallouts();`
+
+`pasteTicketCreate()` sets `state.dcoSelectedWeek` and `state.dcoSelectedCo` on desktop so pasted callouts appear in the detail panel immediately.
 
 ### Poll-Based Sync (v5.8.11+)
 Firestore `onSnapshot` WebSocket can silently go stale across browsers. Added 10-second polling fallback:
