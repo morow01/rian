@@ -17496,7 +17496,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.8.91';
+    const VERSION = '5.8.92';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -22537,11 +22537,26 @@
     async function executeCopyTask() {
       if (executeCopyTask._running) return;
       executeCopyTask._running = true;
+      // Disable the copy button immediately so a stray double-tap can't re-fire mid-async
+      try {
+        var _btn = document.querySelector('#copy-picker-modal .btn-copy');
+        if (_btn) { _btn.disabled = true; _btn.style.opacity = '0.6'; _btn.innerHTML = 'Copying…'; }
+      } catch (_e) { }
       try {
         const { actId, sourceDi, selectedDates, moveMode } = copyPickerState;
         if (!selectedDates.size) { executeCopyTask._running = false; return; }
+        // Hard safety cap — no legitimate copy needs more than 31 days at once.
+        // If selectedDates somehow exceeds this (state corruption, rogue code path),
+        // abort before we can explode into a 73-task mess.
+        if (selectedDates.size > 31) {
+          executeCopyTask._running = false;
+          showToast('Copy cancelled — too many dates selected (' + selectedDates.size + ')');
+          return;
+        }
         const sourceAct = state.weekData.days[sourceDi]?.activities.find(a => a.id === actId);
         if (!sourceAct) { executeCopyTask._running = false; return; }
+        const _expectedPushes = selectedDates.size;
+        let _actualPushes = 0;
 
         // Group selected dates by weekStart (Friday-based)
         const datesByWeek = {};
@@ -22573,6 +22588,7 @@
             newAct.otPerTask = sourceAct.otPerTask || '';
             newAct.notes = sourceAct.notes || '';
             state.weekData.days[dayIdx].activities.push(newAct);
+            _actualPushes++;
           });
           delete datesByWeek[state.weekStart];
           scheduleAutoSave();
@@ -22606,6 +22622,7 @@
               newAct.otPerTask = sourceAct.otPerTask || '';
               newAct.notes = sourceAct.notes || '';
               weekData.days[dayIdx].activities.push(newAct);
+              _actualPushes++;
             });
 
             weekData._updatedAt = Date.now();
@@ -22624,9 +22641,16 @@
 
         closeCopyPicker();
         render();
-        showToast(moveMode
-          ? `Task moved to ${selectedDates.size} day${selectedDates.size !== 1 ? 's' : ''}`
-          : `Task copied to ${selectedDates.size} day${selectedDates.size !== 1 ? 's' : ''}`);
+        // Sanity check — if actual pushes differ from expected, surface it loudly.
+        // Expected = selected dates × 1 activity each. If it's higher, something looped.
+        if (_actualPushes !== _expectedPushes) {
+          console.warn('[Rian] Copy-task push count mismatch: expected ' + _expectedPushes + ', actual ' + _actualPushes);
+          showToast('Copy finished with ' + _actualPushes + ' of ' + _expectedPushes + ' expected — check for duplicates');
+        } else {
+          showToast(moveMode
+            ? `Task moved to ${_actualPushes} day${_actualPushes !== 1 ? 's' : ''}`
+            : `Task copied to ${_actualPushes} day${_actualPushes !== 1 ? 's' : ''}`);
+        }
       } finally { executeCopyTask._running = false; }
     }
 
