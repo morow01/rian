@@ -16,7 +16,7 @@ A Progressive Web App for field technicians — timesheets, notes (TipTap rich t
 
 ## Version
 `const VERSION = 'x.y.z'` in `app.html` (~line 13799). Bump on every change. Only location that needs updating (index.html version references are static).
-Current version: **5.8.91**
+Current version: **5.9.11**
 
 **12 themes active**: `claude` (default light), `dark` (slate-based), `champagne`, `champagne-dark`, `ios`, `apple` (macOS), `gray` (Grayscale), `gameboy` (Game Boy), `win31` (Win 3.1), `lcd` (LCD), `spectrum` (ZX Spectrum), `retro` (Retro). Theme picker lives in ☰ menu → Display. Switcher at `setTheme(key)`, registry at `THEME_META`.
 
@@ -189,11 +189,17 @@ Draft notes show Save + Discard buttons instead of the regular action bar.
 
 Content preview: `dnotes-note-content-area` with inner `.dnotes-content-scroll` div. Native scrollbar hidden; uses same custom round-dot `note-inline-thumb` indicator as mobile via `_updateInlineNoteThumb()`.
 
-Key functions: `_renderDesktopNotes()`, `deskSelectNote(id)`, `deskNotesTab(tab)`, `deskNotesCatFilter(key)`, `deskNotesNew()`, `deskRefreshNotesList()`
+**Tag selector in list column (v5.9.6+):** Tag badge sits in the meta row of each note row (not the detail panel). Clicking it opens/closes a tag pill menu directly. No tag → shows `note-ghost-pill` placeholder (`+ Add tag`), hidden when note is not selected (`.dnotes-ghost-visible` class added when `isSel`). Tag menu renders as `position: absolute` overlay (`.dnotes-tag-menu`) on `.dnotes-note-row` (which has `position: relative`) so it overlays rows below without pushing them down. "Edit Tags" button hidden on desktop (`!_isDesktop()` guard in `buildNoteCatMenuHtml`) — use Tag Manager in sidebar instead. Tag menu padding applied to `.dnotes-tag-menu .ncm-pills` (`12px 14px 8px`) and `.dnotes-tag-menu .ncm-action-row` (`margin: 0 10px 10px`).
+
+**Journal rename guard (v5.9.2+):** `loadJournal()` onSnapshot handlers check `!state.jEditId` before calling `render()` — prevents the rename bottom sheet from being destroyed while the user is typing.
+
+**TipTap table block display (v5.9.3+):** `.tableWrapper` uses `display: block; width: fit-content` instead of `display: inline-block` so headings/text do not flow alongside tables.
+
+Key functions: `_renderDesktopNotes()`, `deskSelectNote(id)`, `deskNotesTab(tab)`, `deskNotesCatFilter(key)`, `deskNotesNew()`, `deskRefreshNotesList()`, `toggleNoteCatDD(noteId)`, `buildNoteCatMenuHtml(noteId, catKey)`
 
 State: `deskSelectedNote`, `deskNotesCatFilter`
 
-CSS: `.dnotes-wrap`, `.dnotes-sidebar`, `.dnotes-list`, `.dnotes-editor`, `.dnotes-note-row`
+CSS: `.dnotes-wrap`, `.dnotes-sidebar`, `.dnotes-list`, `.dnotes-editor`, `.dnotes-note-row`, `.dnotes-tag-menu`, `.dnotes-ghost-visible`
 
 ### Desktop Navigation
 Top tab nav bar replaces bottom mobile nav. `desk-tab-nav` with horizontal buttons. Mobile bottom-nav hidden via `display: none !important` at 1280px+.

@@ -16414,7 +16414,14 @@
         top: 100%;
         z-index: 20;
         margin-top: 2px;
-        padding: 6px !important;
+        padding: 0 !important;
+      }
+      .dnotes-tag-menu .ncm-pills {
+        padding: 12px 14px 8px !important;
+      }
+      .dnotes-tag-menu .ncm-action-row {
+        margin: 0 10px 10px !important;
+        border-radius: 8px;
       }
 
       /* Editor panel */
@@ -17563,7 +17570,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.9.9';
+    const VERSION = '5.9.11';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
