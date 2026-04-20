@@ -17496,7 +17496,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.8.97';
+    const VERSION = '5.8.98';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -19560,7 +19560,10 @@
 
           act.codes.forEach(code => {
             const key = code.c;
-            if (!map[key]) map[key] = { code: code.c, description: code.d, ordinary: 0, overtime: 0, sorting: 0 };
+            if (!map[key]) {
+              const desc = code.d || (WORK_CODES.find(w => w.c === code.c) || {}).d || code.c;
+              map[key] = { code: code.c, description: desc, ordinary: 0, overtime: 0, sorting: 0 };
+            }
             if (n === 1) {
               map[key].ordinary += ordinary;
               map[key].overtime += overtime;
@@ -20278,8 +20281,9 @@
       const cpStyle = `cursor:pointer;border-bottom:1px dotted #93c5fd;color:inherit;display:inline;padding:1px 2px;border-radius:3px;transition:background 0.15s;`;
 
       function cpSpan(val, extraStyle) {
-        const v = val.replace(/'/g, "\\'");
-        return `<span style="${cpStyle}${extraStyle || ''}" onclick="cpv('${v}')" title="Tap to copy">${esc(val)}</span>`;
+        const safe = val || '';
+        const v = safe.replace(/'/g, "\\'");
+        return `<span style="${cpStyle}${extraStyle || ''}" onclick="cpv('${v}')" title="Tap to copy">${esc(safe)}</span>`;
       }
 
       // Summary table rows
