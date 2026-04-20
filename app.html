@@ -17496,7 +17496,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.8.98';
+    const VERSION = '5.8.99';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -36928,10 +36928,35 @@ Rules:
       auth_fb.onAuthStateChanged(async user => {
         console.log('[Rian Debug] onAuthStateChanged fired. User:', user ? user.uid : 'null');
 
+        // Immediately update currentUser so the app can render — before any awaits.
+        // This ensures the login screen is replaced right away on sign-in.
+        state.currentUser = user;
+
+        if (!user) {
+          localStorage.removeItem('rian_last_uid');
+          // Signed out — tear down listeners and show login
+          if (weekUnsubscribe) { weekUnsubscribe(); weekUnsubscribe = null; }
+          if (notesUnsubscribe) { notesUnsubscribe(); notesUnsubscribe = null; }
+          if (remindersUnsubscribe) { remindersUnsubscribe(); remindersUnsubscribe = null; }
+          if (calloutsUnsubscribe) { calloutsUnsubscribe(); calloutsUnsubscribe = null; }
+          renderLogin();
+          return;
+        }
+
+        // Save uid + display info immediately (pre-patch values — good enough for render)
+        localStorage.setItem('rian_last_uid', user.uid);
+        if (user.displayName) localStorage.setItem('rian_user_name', user.displayName);
+        if (user.email) localStorage.setItem('rian_user_email', user.email);
+        if (user.photoURL) localStorage.setItem('rian_user_photo', user.photoURL);
+
+        // If the login screen is still showing, replace it immediately with a loading state
+        // so the user isn't left staring at the sign-in button while data loads.
+        if (document.getElementById('login-error-msg')) render();
+
         // Firebase can restore a cached session with null email/displayName/photoURL.
         // Read the Firestore user profile (written on every real sign-in) to patch
         // the stale user object so the rest of the app always sees a full profile.
-        if (user && (!user.email || !user.photoURL)) {
+        if (!user.email || !user.photoURL) {
           try {
             const profSnap = await Promise.race([
               db_fs.doc(`users/${user.uid}`).get(),
@@ -36961,28 +36986,13 @@ Rules:
           } catch (e) {
             console.warn('[Rian] Firestore profile fetch failed/timed out:', e.message);
           }
-        }
-
-        state.currentUser = user;
-        if (user) {
-          localStorage.setItem('rian_last_uid', user.uid);
+          // Update localStorage with patched values
           const _name = user.displayName || user._rian_displayName;
           const _email = user.email || user._rian_email;
-          const _photo = user.photoURL;
+          const _photo = user.photoURL || user._rian_photoURL;
           if (_name) localStorage.setItem('rian_user_name', _name);
           if (_email) localStorage.setItem('rian_user_email', _email);
           if (_photo) localStorage.setItem('rian_user_photo', _photo);
-        } else {
-          localStorage.removeItem('rian_last_uid');
-        }
-        if (!user) {
-          // Signed out — tear down listeners and show login
-          if (weekUnsubscribe) { weekUnsubscribe(); weekUnsubscribe = null; }
-          if (notesUnsubscribe) { notesUnsubscribe(); notesUnsubscribe = null; }
-          if (remindersUnsubscribe) { remindersUnsubscribe(); remindersUnsubscribe = null; }
-          if (calloutsUnsubscribe) { calloutsUnsubscribe(); calloutsUnsubscribe = null; }
-          renderLogin();
-          return;
         }
 
         // Store user profile in Firestore so admin can identify users by name
