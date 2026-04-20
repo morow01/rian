@@ -17496,7 +17496,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.8.94';
+    const VERSION = '5.8.95';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -19797,14 +19797,18 @@
           // EXCEPTION (v5.1.91): if this is the first snapshot for a freshly
           // scaffolded week, local is just the empty scaffold — never push
           // it back, even if its _updatedAt is newer.
-          // v5.6.96: All three inbound regression guards (stale-timestamp, HWM,
-          // activity-count) have been disabled. They caused cascading sync wars
-          // across devices — each device rejected the other's data, creating
-          // infinite conflicts. The auto-dedup (below) now handles the only real
-          // threat (duplicate activities from the copy-task bug). Firestore's
-          // _updatedAt timestamp comparison is still logged for diagnostics.
+          // Stale snapshot guard (v5.8.95): if remote is more than 10s older than
+          // local state, reject it — something (old session, cached write) pushed
+          // stale data and we must not let it overwrite newer local edits.
+          // NO write-back here (the old write-back guard caused sync wars by
+          // triggering snapshot→write→snapshot loops). The next user edit will
+          // push correct local state via scheduleAutoSave naturally.
+          if (remoteTs > 0 && localTs > 0 && remoteTs < localTs - 10000) {
+            console.warn('[Rian] Stale snapshot rejected — remote:', new Date(remoteTs).toLocaleTimeString(), '/ local:', new Date(localTs).toLocaleTimeString(), '/ delta:', Math.round((localTs - remoteTs) / 1000) + 's');
+            return;
+          }
           if (remoteTs > 0 && localTs > 0 && remoteTs < localTs) {
-            console.info('[Rian] Remote snapshot is older than local (remote:', remoteTs, 'local:', localTs, ') — accepting anyway');
+            console.info('[Rian] Remote snapshot slightly older than local (' + Math.round((localTs - remoteTs) / 1000) + 's) — accepting (within tolerance)');
           }
 
           // Raise the HWM as we accept this remote data
