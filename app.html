@@ -16394,6 +16394,16 @@
       /* Note rows reuse mobile classes: note-row-top, note-dot, note-row-title,
          note-row-meta, note-meta-item, note-meta-icon, note-pin-btn, note-cat-badge */
 
+      .dnotes-row-tag-picker {
+        margin-top: 10px;
+      }
+
+      .dnotes-row-tag-picker .note-cat-trigger {
+        background: var(--bg-input);
+        font-size: 12px;
+        padding: 5px 10px;
+      }
+
       /* Editor panel */
       .dnotes-editor {
         flex: 1;
@@ -17540,7 +17550,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.9.3';
+    const VERSION = '5.9.4';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -25039,10 +25049,11 @@
             '</div>' +
             (metaHtml ? '<div class="note-row-meta">' + metaHtml + '</div>' : '') +
             '<div class="note-row-meta" style="margin-top:4px;align-items:center">' +
-            pinHtml + catBadgeHtml +
+            pinHtml + (isSel ? '' : catBadgeHtml) +
             '<span style="flex:1"></span>' +
             dueHtml +
             '</div>' +
+            (isSel ? '<div class="dnotes-row-tag-picker" onclick="event.stopPropagation()">' + renderNoteCatDropdown(n.id, n.category || '') + '</div>' : '') +
             '</div>';
         });
       }
@@ -25096,11 +25107,6 @@
           '<div class="dnotes-field-group">' +
           '<div class="dnotes-field-label">Description</div>' +
           '<input class="dnotes-field-input" type="text" value="' + esc(selRawDesc) + '" data-note-id="' + selEscId + '" data-note-field="description" onchange="updateNoteField(this);deskRefreshNotesList()" placeholder="Note title…">' +
-          '</div>' +
-          // Category
-          '<div class="dnotes-field-group">' +
-          '<div class="dnotes-field-label">Tag</div>' +
-          renderNoteCatDropdown(selNote.id, selNote.category || '') +
           '</div>' +
           // Notes (content) — rendered inline, same as mobile
           '<div class="dnotes-field-group">' +
