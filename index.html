@@ -298,11 +298,84 @@
     .footer{background:var(--navy);color:rgba(255,255,255,0.4);text-align:center;padding:40px 24px;font-size:13px;}
     .footer strong{color:#fff;}
 
+    /* ── DESKTOP MOCKUP (laptop frame + three-panel) ── */
+    .laptop{
+      width:100%;max-width:560px;background:#1a1a2e;border-radius:14px 14px 4px 4px;
+      padding:10px 10px 8px;box-shadow:0 24px 64px rgba(0,0,0,0.22),0 0 0 1px rgba(255,255,255,0.06);
+      margin:0 auto;
+    }
+    .laptop-screen{background:var(--page);border-radius:8px;overflow:hidden;min-height:280px;}
+    .laptop-base{
+      height:8px;background:linear-gradient(to bottom,#1a1a2e 0%,#0b0b16 100%);
+      margin:6px -22px 0;border-radius:0 0 8px 8px;position:relative;
+    }
+    .laptop-base::after{
+      content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);
+      width:80px;height:3px;background:#000;border-radius:0 0 6px 6px;
+    }
+    .desk-topbar{background:var(--navy);padding:8px 12px;display:flex;align-items:center;gap:10px;}
+    .desk-brand{font-size:11px;font-weight:800;color:#fff;letter-spacing:0.02em;}
+    .desk-tabs{display:flex;gap:3px;flex:1;}
+    .desk-tab{font-size:8px;font-weight:700;padding:4px 8px;border-radius:5px;color:rgba(255,255,255,0.45);}
+    .desk-tab.active{color:#fff;background:rgba(45,107,228,0.25);}
+    .desk-panels{display:grid;grid-template-columns:90px 150px 1fr;gap:0;min-height:240px;}
+    .desk-panel{background:var(--card);border-right:1px solid var(--border);padding:6px;overflow:hidden;}
+    .desk-panel:last-child{border-right:none;}
+    .desk-panel-hdr{
+      font-size:6px;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;
+      color:var(--faint);padding:3px 4px 6px;border-bottom:1px solid var(--border);margin-bottom:5px;
+    }
+    .desk-day-row{
+      padding:5px 6px;border-radius:5px;margin-bottom:3px;font-size:7.5px;color:var(--text);
+      border-left:3px solid transparent;
+    }
+    .desk-day-row.sel{background:rgba(45,107,228,0.08);border-left-color:var(--accent);}
+    .desk-day-row .d-name{font-weight:700;}
+    .desk-day-row .d-date{color:var(--faint);font-size:6.5px;margin-top:1px;}
+    .desk-day-row .d-hrs{font-family:'DM Mono',monospace;color:var(--accent);font-size:6.5px;margin-top:1px;font-weight:700;}
+    .desk-task-row{
+      background:var(--page);border-radius:5px;padding:5px 6px;margin-bottom:3px;
+      font-size:7px;border-left:3px solid transparent;
+    }
+    .desk-task-row.sel{background:rgba(45,107,228,0.08);border-left-color:var(--accent);}
+    .desk-task-row .t-desc{font-weight:600;color:var(--text);}
+    .desk-task-row .t-meta{display:flex;gap:4px;align-items:center;margin-top:2px;}
+    .desk-task-row .t-code{font-family:'DM Mono',monospace;background:var(--accent-light);color:var(--accent);padding:0.5px 3px;border-radius:2px;font-size:6px;}
+    .desk-task-row .t-hrs{font-family:'DM Mono',monospace;color:var(--accent);font-size:6.5px;font-weight:700;margin-left:auto;}
+    .desk-detail-field{margin-bottom:7px;}
+    .desk-detail-lbl{font-size:6px;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;color:var(--faint);margin-bottom:3px;}
+    .desk-detail-val{background:var(--page);border:1px solid var(--border);border-radius:5px;padding:5px 7px;font-size:7px;color:var(--text);}
+    .desk-add-dashed{
+      border:1.5px dashed var(--border);border-radius:5px;padding:6px;text-align:center;
+      font-size:7px;color:var(--faint);font-weight:600;margin-top:4px;
+    }
+
+    /* ── THEMES GRID ── */
+    .themes-grid{
+      display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:14px;
+      max-width:900px;margin:40px auto 0;
+    }
+    .theme-card{
+      background:var(--card);border:1px solid var(--border);border-radius:12px;
+      padding:12px;text-align:center;
+    }
+    .theme-preview{
+      height:70px;border-radius:8px;margin-bottom:10px;overflow:hidden;position:relative;
+      display:flex;flex-direction:column;
+    }
+    .theme-preview-hdr{height:16px;}
+    .theme-preview-body{flex:1;display:flex;padding:6px;gap:3px;}
+    .theme-preview-card{flex:1;border-radius:4px;display:flex;align-items:center;justify-content:center;}
+    .theme-preview-dot{width:6px;height:6px;border-radius:50%;}
+    .theme-name{font-size:13px;font-weight:700;color:var(--text);}
+    .theme-sub{font-size:10px;color:var(--muted);margin-top:2px;}
+
     /* ── RESPONSIVE ── */
     @media(max-width:768px){
       .feature-inner{grid-template-columns:1fr;gap:40px;}
       .feature-section:nth-child(odd) .feature-inner{direction:ltr;}
       .phone.secondary{display:none;}
+      .desk-panels{grid-template-columns:70px 120px 1fr;}
     }
     @media(max-width:600px){
       .site-nav{padding:0 16px;}
@@ -328,6 +401,8 @@
     <a href="#finder" class="nav-link">Finder</a>
     <a href="#routines" class="nav-link">Routines</a>
     <a href="#callout" class="nav-link">Callout</a>
+    <a href="#desktop" class="nav-link">Desktop</a>
+    <a href="#themes" class="nav-link">Themes</a>
   </div>
   <a href="./app.html" target="_blank" rel="noopener" class="nav-cta">
     <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
@@ -337,16 +412,16 @@
 
 <!-- ════ HERO ════ -->
 <section class="hero">
-  <div class="hero-badge">Mobile First · Field Ready · Cloud Synced</div>
+  <div class="hero-badge">Mobile · Desktop · Android · Cloud Synced</div>
   <h1>Your whole job<br><span>in one pocket</span></h1>
-  <p>Timesheets, field notes, journal, site finder, routines, and on-call tracking — all in one fast app built for technicians on the tools.</p>
+  <p>Timesheets, field notes, journal, site finder, routines, and on-call tracking — all in one fast app built for technicians on the tools. Now with a full desktop layout, 12 themes, voice-to-table capture, and AI assistance.</p>
   <div class="hero-cta">
     <a href="./app.html" target="_blank" rel="noopener" class="btn-launch">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
       Launch App
     </a>
   </div>
-  <p style="margin-top:10px;font-size:11px;color:rgba(255,255,255,0.25);letter-spacing:0.05em;">v5.4.4</p>
+  <p style="margin-top:10px;font-size:11px;color:rgba(255,255,255,0.25);letter-spacing:0.05em;">v5.8.92</p>
 </section>
 
 <!-- ════ SECTION 1 — TIMESHEET ════ -->
@@ -375,7 +450,11 @@
         </li>
         <li>
           <div class="icon" style="background:rgba(45,107,228,0.1);color:#2D6BE4;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/></svg></div>
-          <div><strong>Cloud backup</strong><span>Your timesheet data is automatically backed up to the cloud — switch devices without losing a thing.</span></div>
+          <div><strong>Cloud backup &amp; snapshots</strong><span>Auto-saved to Firestore with snapshot history — restore any point in time from Cloud Backups.</span></div>
+        </li>
+        <li>
+          <div class="icon purple"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></div>
+          <div><strong>Desktop three-panel layout</strong><span>On screens wider than 1280px, the timesheet opens into Days → Tasks → Detail panels with a built-in Weekly Summary sidebar.</span></div>
         </li>
       </ul>
     </div>
@@ -387,7 +466,7 @@
           <div class="app-header">
             <div class="app-header-row">
               <div class="app-nav-btn"><svg width="5" height="8" viewBox="0 0 5 8"><polygon points="5,0 0,4 5,8" fill="rgba(255,255,255,0.5)"/></svg></div>
-              <div><div class="app-week">10 – 14 Mar 2026</div><div class="app-week-sub">Synced · v5.4.4</div></div>
+              <div><div class="app-week">10 – 14 Mar 2026</div><div class="app-week-sub">Synced · v5.8.92</div></div>
               <div class="app-nav-btn"><svg width="5" height="8" viewBox="0 0 5 8"><polygon points="0,0 5,4 0,8" fill="rgba(255,255,255,0.5)"/></svg></div>
             </div>
           </div>
@@ -473,8 +552,17 @@
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
           </div>
           <div>
-            <strong>Search &amp; bulk actions</strong>
-            <span>Full-text search across all notes. Long-press to select multiples — mark done or delete in one go.</span>
+            <strong>Search, bulk actions &amp; custom tags</strong>
+            <span>Full-text search across all notes. Long-press to select multiples — mark done or delete in one go. Create your own tags with the Tag Manager.</span>
+          </div>
+        </li>
+        <li>
+          <div class="icon" style="background:rgba(45,107,228,0.1);color:#2D6BE4;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+          </div>
+          <div>
+            <strong>Desktop editor panel</strong>
+            <span>On desktop, notes open with a sidebar (Active · Archive · Bin · Tags), a scrollable list, and a full editor pane — just like the mobile view but roomier.</span>
           </div>
         </li>
       </ul>
@@ -709,6 +797,15 @@
             <span>Assign colours to sections so you can tell areas apart at a glance. Copy or move pages between sections easily.</span>
           </div>
         </li>
+        <li>
+          <div class="icon red">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0"/><line x1="12" y1="19" x2="12" y2="22"/></svg>
+          </div>
+          <div>
+            <strong>Voice-to-table recorder</strong>
+            <span>Tap the battery icon and dictate readings like "24 cells, cell 1 is 12.4 volts…" — the AI walks you through each value and inserts a formatted table straight into your page.</span>
+          </div>
+        </li>
       </ul>
     </div>
 
@@ -780,6 +877,10 @@
           <div class="icon green"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="8" rx="2"/><rect x="2" y="14" width="20" height="8" rx="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg></div>
           <div><strong>Full site details</strong><span>Security info, power supply, emergency contacts — everything in one place.</span></div>
         </li>
+        <li>
+          <div class="icon purple"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/></svg></div>
+          <div><strong>Desktop map view</strong><span>Two-panel desktop layout — results list on the left, full details and embedded Google Map on the right.</span></div>
+        </li>
       </ul>
     </div>
     <div class="phones">
@@ -849,6 +950,14 @@
         <li>
           <div class="icon" style="background:rgba(45,107,228,0.1);color:#2D6BE4;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></div>
           <div><strong>Manual log override</strong><span>Visit done but not on the timesheet? Log it manually against any month with a tap.</span></div>
+        </li>
+        <li>
+          <div class="icon purple"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
+          <div><strong>Stats, Due &amp; Never Visited</strong><span>Mobile tab switcher (Grid · Stats · Due) shows visits per month, coverage, sites never visited, and sites overdue by 3+ months. Tap Open Day to jump straight to the timesheet entry.</span></div>
+        </li>
+        <li>
+          <div class="icon green"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/></svg></div>
+          <div><strong>Desktop dashboard</strong><span>On desktop, Routines opens as a full dashboard — stats grid, monthly bar chart, Due Visits, Never Visited, and Recent Visits list, all side-by-side.</span></div>
         </li>
       </ul>
     </div>
@@ -958,6 +1067,14 @@
           <div class="icon green"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></div>
           <div><strong>Included in weekly export</strong><span>When you email your weekly timesheet, callout entries for that week are automatically included — no extra steps.</span></div>
         </li>
+        <li>
+          <div class="icon orange"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/></svg></div>
+          <div><strong>Paste Ticket</strong><span>Paste a fault ticket straight from Remedy — site, fault, and date are parsed automatically and a new callout is created for you.</span></div>
+        </li>
+        <li>
+          <div class="icon" style="background:rgba(45,107,228,0.1);color:#2D6BE4;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/></svg></div>
+          <div><strong>Desktop three-panel</strong><span>Weeks → Callouts → Detail layout on desktop, with stats panel and draft Save/Discard buttons for every new entry.</span></div>
+        </li>
       </ul>
     </div>
     <div class="phones">
@@ -1018,11 +1135,281 @@
   </div>
 </section>
 
+<!-- ════ SECTION 07 — DESKTOP MODE ★ NEW ★ ════ -->
+<section class="feature-section" id="desktop">
+  <div class="feature-inner">
+    <div class="feature-text">
+      <div class="section-number">07 — Desktop Mode <span class="updated-badge">New</span></div>
+      <h2>A full desktop layout, not just a big phone</h2>
+      <p class="lead">When the screen is wide enough, Rian switches to a purpose-built desktop layout with dedicated panels for navigation, lists, and detail editing. No cramped phone UI stretched across a monitor.</p>
+      <ul class="feature-list">
+        <li>
+          <div class="icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="18" rx="1"/><rect x="14" y="3" width="7" height="9" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></div>
+          <div><strong>Three-panel timesheet</strong><span>Days · Tasks · Detail — select a day on the left, a task in the middle, and edit description, hours, and work codes on the right.</span></div>
+        </li>
+        <li>
+          <div class="icon purple"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></div>
+          <div><strong>Weekly Summary sidebar</strong><span>Collapsible summary with percentage bars and ORD/OT columns — always visible while you log hours. Weekend days auto-collapse when empty.</span></div>
+        </li>
+        <li>
+          <div class="icon orange"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M4 12h10M4 17h7"/></svg></div>
+          <div><strong>Every view reimagined</strong><span>Notes, Callouts, Finder and Routines each get their own desktop layout — sidebar navigation, wide editors, and live Google Maps in Finder.</span></div>
+        </li>
+        <li>
+          <div class="icon green"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></div>
+          <div><strong>Synced with mobile</strong><span>Same data, same state — collapse a section on desktop and it's collapsed on your phone too. Universal ESC key closes whichever modal is open.</span></div>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Desktop laptop mockup -->
+    <div>
+      <div class="laptop">
+        <div class="laptop-screen">
+          <div class="desk-topbar">
+            <div class="desk-brand">Rian</div>
+            <div class="desk-tabs">
+              <div class="desk-tab active">Timesheet</div>
+              <div class="desk-tab">Notes</div>
+              <div class="desk-tab">Journal</div>
+              <div class="desk-tab">Finder</div>
+              <div class="desk-tab">Routines</div>
+            </div>
+          </div>
+          <div class="desk-panels">
+            <!-- Days panel -->
+            <div class="desk-panel">
+              <div class="desk-panel-hdr">Days</div>
+              <div class="desk-day-row"><div class="d-name">Mon</div><div class="d-date">17 Apr</div><div class="d-hrs">8h</div></div>
+              <div class="desk-day-row"><div class="d-name">Tue</div><div class="d-date">18 Apr</div><div class="d-hrs">9h</div></div>
+              <div class="desk-day-row sel"><div class="d-name">Wed</div><div class="d-date">19 Apr</div><div class="d-hrs">8h +2</div></div>
+              <div class="desk-day-row"><div class="d-name">Thu</div><div class="d-date">20 Apr</div><div class="d-hrs">8h</div></div>
+              <div class="desk-day-row"><div class="d-name">Fri</div><div class="d-date">21 Apr</div><div class="d-hrs">8h</div></div>
+            </div>
+            <!-- Tasks panel -->
+            <div class="desk-panel">
+              <div class="desk-panel-hdr">Tasks · Wed</div>
+              <div class="desk-task-row sel">
+                <div class="t-desc">Cabinet install — Collins Ln</div>
+                <div class="t-meta"><span class="t-code">INST</span><span class="t-hrs">4h</span></div>
+              </div>
+              <div class="desk-task-row">
+                <div class="t-desc">Battery test — RSU Kilbeggan</div>
+                <div class="t-meta"><span class="t-code">BATT</span><span class="t-hrs">4h</span></div>
+              </div>
+              <div class="desk-task-row">
+                <div class="t-desc">Fault response — Mountmellick</div>
+                <div class="t-meta"><span class="t-code">FAULT</span><span class="t-hrs" style="color:var(--ot)">2h OT</span></div>
+              </div>
+              <div class="desk-add-dashed">+ Add Task</div>
+            </div>
+            <!-- Detail panel -->
+            <div class="desk-panel">
+              <div class="desk-panel-hdr">Detail</div>
+              <div class="desk-detail-field">
+                <div class="desk-detail-lbl">Description</div>
+                <div class="desk-detail-val">Cabinet install — Collins Ln</div>
+              </div>
+              <div class="desk-detail-field">
+                <div class="desk-detail-lbl">Location</div>
+                <div class="desk-detail-val">Collins Lane, Tullamore</div>
+              </div>
+              <div class="desk-detail-field">
+                <div class="desk-detail-lbl">Work Code</div>
+                <div class="desk-detail-val" style="display:flex;gap:4px;"><span style="font-family:'DM Mono',monospace;background:var(--accent-light);color:var(--accent);padding:1px 5px;border-radius:3px;font-size:6.5px;font-weight:700;">INST-CAB</span></div>
+              </div>
+              <div class="desk-detail-field">
+                <div class="desk-detail-lbl">Hours</div>
+                <div style="display:flex;gap:6px;">
+                  <div class="desk-detail-val" style="flex:1;font-family:'DM Mono',monospace;text-align:center;">4.0</div>
+                  <div class="desk-detail-val" style="flex:1;font-family:'DM Mono',monospace;text-align:center;color:var(--ot);">—</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="laptop-base"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════ SECTION 08 — THEMES ★ NEW ★ ════ -->
+<section class="feature-section" id="themes">
+  <div class="feature-inner" style="grid-template-columns:1fr;text-align:center;">
+    <div class="feature-text" style="max-width:720px;margin:0 auto;">
+      <div class="section-number" style="justify-content:center;">08 — Themes <span class="updated-badge">New</span></div>
+      <h2>12 themes, one switch</h2>
+      <p class="lead">Pick the look that suits your day. From clean professional themes to retro pixel fun — every theme recolours the whole app, including cards, buttons, inputs, and TipTap tables.</p>
+    </div>
+
+    <div class="themes-grid">
+      <!-- Claude (default) -->
+      <div class="theme-card">
+        <div class="theme-preview" style="background:#E8EEF5;">
+          <div class="theme-preview-hdr" style="background:#0F1C2E;"></div>
+          <div class="theme-preview-body">
+            <div class="theme-preview-card" style="background:#fff;"><div class="theme-preview-dot" style="background:#2D6BE4;"></div></div>
+            <div class="theme-preview-card" style="background:#fff;"><div class="theme-preview-dot" style="background:#F5A623;"></div></div>
+          </div>
+        </div>
+        <div class="theme-name">Claude</div>
+        <div class="theme-sub">Clean default</div>
+      </div>
+
+      <!-- Dark -->
+      <div class="theme-card">
+        <div class="theme-preview" style="background:#0f1624;">
+          <div class="theme-preview-hdr" style="background:#090e1c;"></div>
+          <div class="theme-preview-body">
+            <div class="theme-preview-card" style="background:#1e293b;"><div class="theme-preview-dot" style="background:#4d94ff;"></div></div>
+            <div class="theme-preview-card" style="background:#273449;"><div class="theme-preview-dot" style="background:#4d94ff;"></div></div>
+          </div>
+        </div>
+        <div class="theme-name">Dark</div>
+        <div class="theme-sub">Slate-based</div>
+      </div>
+
+      <!-- Champagne -->
+      <div class="theme-card">
+        <div class="theme-preview" style="background:#f5efe0;">
+          <div class="theme-preview-hdr" style="background:#3a2e1a;"></div>
+          <div class="theme-preview-body">
+            <div class="theme-preview-card" style="background:#fffaec;"><div class="theme-preview-dot" style="background:#b08d57;"></div></div>
+            <div class="theme-preview-card" style="background:#fffaec;"><div class="theme-preview-dot" style="background:#c19a5a;"></div></div>
+          </div>
+        </div>
+        <div class="theme-name">Champagne</div>
+        <div class="theme-sub">Warm cream</div>
+      </div>
+
+      <!-- iOS -->
+      <div class="theme-card">
+        <div class="theme-preview" style="background:#f2f2f7;">
+          <div class="theme-preview-hdr" style="background:#fff;"></div>
+          <div class="theme-preview-body">
+            <div class="theme-preview-card" style="background:#fff;"><div class="theme-preview-dot" style="background:#007aff;"></div></div>
+            <div class="theme-preview-card" style="background:#fff;"><div class="theme-preview-dot" style="background:#34c759;"></div></div>
+          </div>
+        </div>
+        <div class="theme-name">iOS</div>
+        <div class="theme-sub">Apple blue</div>
+      </div>
+
+      <!-- Apple -->
+      <div class="theme-card">
+        <div class="theme-preview" style="background:#1d1d1f;">
+          <div class="theme-preview-hdr" style="background:#2c2c2e;"></div>
+          <div class="theme-preview-body">
+            <div class="theme-preview-card" style="background:#3a3a3c;"><div class="theme-preview-dot" style="background:#0a84ff;"></div></div>
+            <div class="theme-preview-card" style="background:#48484a;"><div class="theme-preview-dot" style="background:#ff9f0a;"></div></div>
+          </div>
+        </div>
+        <div class="theme-name">Apple</div>
+        <div class="theme-sub">macOS dark</div>
+      </div>
+
+      <!-- Gray -->
+      <div class="theme-card">
+        <div class="theme-preview" style="background:#e5e5e5;">
+          <div class="theme-preview-hdr" style="background:#1f1f1f;"></div>
+          <div class="theme-preview-body">
+            <div class="theme-preview-card" style="background:#f5f5f5;"><div class="theme-preview-dot" style="background:#404040;"></div></div>
+            <div class="theme-preview-card" style="background:#f5f5f5;"><div class="theme-preview-dot" style="background:#737373;"></div></div>
+          </div>
+        </div>
+        <div class="theme-name">Grayscale</div>
+        <div class="theme-sub">Monochrome</div>
+      </div>
+
+      <!-- Game Boy -->
+      <div class="theme-card">
+        <div class="theme-preview" style="background:#9bbc0f;">
+          <div class="theme-preview-hdr" style="background:#0f380f;"></div>
+          <div class="theme-preview-body">
+            <div class="theme-preview-card" style="background:#8bac0f;"><div class="theme-preview-dot" style="background:#0f380f;"></div></div>
+            <div class="theme-preview-card" style="background:#8bac0f;"><div class="theme-preview-dot" style="background:#306230;"></div></div>
+          </div>
+        </div>
+        <div class="theme-name">Game Boy</div>
+        <div class="theme-sub">DMG green</div>
+      </div>
+
+      <!-- Win 3.1 -->
+      <div class="theme-card">
+        <div class="theme-preview" style="background:#008080;">
+          <div class="theme-preview-hdr" style="background:#c0c0c0;"></div>
+          <div class="theme-preview-body">
+            <div class="theme-preview-card" style="background:#c0c0c0;"><div class="theme-preview-dot" style="background:#000080;"></div></div>
+            <div class="theme-preview-card" style="background:#c0c0c0;"><div class="theme-preview-dot" style="background:#000;"></div></div>
+          </div>
+        </div>
+        <div class="theme-name">Windows 3.1</div>
+        <div class="theme-sub">Pure nostalgia</div>
+      </div>
+
+      <!-- LCD -->
+      <div class="theme-card">
+        <div class="theme-preview" style="background:#b5c58f;">
+          <div class="theme-preview-hdr" style="background:#2f3a1c;"></div>
+          <div class="theme-preview-body">
+            <div class="theme-preview-card" style="background:#a3b378;"><div class="theme-preview-dot" style="background:#2f3a1c;"></div></div>
+            <div class="theme-preview-card" style="background:#a3b378;"><div class="theme-preview-dot" style="background:#2f3a1c;"></div></div>
+          </div>
+        </div>
+        <div class="theme-name">LCD</div>
+        <div class="theme-sub">Calculator green</div>
+      </div>
+
+      <!-- Spectrum -->
+      <div class="theme-card">
+        <div class="theme-preview" style="background:#000;">
+          <div class="theme-preview-hdr" style="background:#d7d7d7;"></div>
+          <div class="theme-preview-body">
+            <div class="theme-preview-card" style="background:#000;"><div class="theme-preview-dot" style="background:#ffff00;"></div></div>
+            <div class="theme-preview-card" style="background:#000;"><div class="theme-preview-dot" style="background:#ff00ff;"></div></div>
+          </div>
+        </div>
+        <div class="theme-name">Spectrum</div>
+        <div class="theme-sub">ZX retro</div>
+      </div>
+
+      <!-- Retro -->
+      <div class="theme-card">
+        <div class="theme-preview" style="background:#f4e9d8;">
+          <div class="theme-preview-hdr" style="background:#4a3a22;"></div>
+          <div class="theme-preview-body">
+            <div class="theme-preview-card" style="background:#fff5e1;"><div class="theme-preview-dot" style="background:#d2691e;"></div></div>
+            <div class="theme-preview-card" style="background:#fff5e1;"><div class="theme-preview-dot" style="background:#8b4513;"></div></div>
+          </div>
+        </div>
+        <div class="theme-name">Retro</div>
+        <div class="theme-sub">Warm vintage</div>
+      </div>
+
+      <!-- Champagne Dark -->
+      <div class="theme-card">
+        <div class="theme-preview" style="background:#2a2214;">
+          <div class="theme-preview-hdr" style="background:#1a1510;"></div>
+          <div class="theme-preview-body">
+            <div class="theme-preview-card" style="background:#3a3020;"><div class="theme-preview-dot" style="background:#d4a574;"></div></div>
+            <div class="theme-preview-card" style="background:#3a3020;"><div class="theme-preview-dot" style="background:#c19a5a;"></div></div>
+          </div>
+        </div>
+        <div class="theme-name">Champagne Dark</div>
+        <div class="theme-sub">Warm dark</div>
+      </div>
+    </div>
+
+    <p style="margin-top:32px;font-size:14px;color:var(--muted);">Switch themes anytime from <strong>☰ menu → Display</strong>.</p>
+  </div>
+</section>
+
 <!-- ════ FOOTER ════ -->
 <footer class="footer">
   <p><strong>Rian</strong> · Built for field technicians</p>
-  <p style="margin-top:6px">Data cached locally · Syncs to cloud · Mobile first</p>
-  <p style="margin-top:6px;font-size:11px;opacity:0.45">v5.4.4</p>
+  <p style="margin-top:6px">Mobile · Desktop · Android · Offline-capable · Cloud synced</p>
+  <p style="margin-top:6px;font-size:11px;opacity:0.45">v5.8.92</p>
   <div style="margin-top:24px">
     <a href="./app.html" target="_blank" rel="noopener" class="btn-launch" style="font-size:14px;padding:11px 24px;">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
