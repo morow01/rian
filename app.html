@@ -16417,10 +16417,12 @@
         padding: 0 !important;
       }
       .dnotes-tag-menu .ncm-pills {
-        padding: 12px 14px 8px !important;
+        padding: 18px 20px 14px !important;
+        gap: 8px !important;
       }
       .dnotes-tag-menu .ncm-action-row {
-        margin: 0 10px 10px !important;
+        margin: 4px 14px 14px !important;
+        padding: 12px 16px !important;
         border-radius: 8px;
       }
 
@@ -16709,17 +16711,22 @@
         display: flex;
         align-items: center;
         gap: 5px;
-        padding: 5px 10px;
+        padding: 5px 8px;
         border: none;
         background: transparent;
         color: var(--accent);
-        font-size: 12px;
-        font-weight: 700;
+        font-size: 11px;
+        font-weight: 600;
         cursor: pointer;
         font-family: var(--font-body);
         border-radius: 6px;
+        width: 100%;
       }
       .dj-add-page-btn:hover { background: rgba(var(--accent-rgb), 0.08); }
+      .dj-col2-footer {
+        padding: 8px 12px;
+        border-top: 1px solid var(--border);
+      }
       .dj-col2-body {
         flex: 1;
         overflow-y: auto;
@@ -17570,7 +17577,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.9.11';
+    const VERSION = '5.9.14';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -26658,13 +26665,15 @@
         + '<div class="dj-col2-header">'
         + '<span style="font-weight:700;font-size:13px;color:var(--text-primary);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + col2Title + '</span>'
         + _jSyncDot()
-        + '<button class="dj-add-page-btn" onclick="djAddPage(\'' + (selSec ? selSec.id : '') + '\')">' + plusSvg + ' Add Page</button>'
         + '</div>'
         + '<div style="padding:6px 10px;position:relative;border-bottom:1px solid var(--border)">'
         + '<span style="position:absolute;left:20px;top:15px;color:var(--text-muted)">' + searchSvg + '</span>'
         + '<input placeholder="Search pages\u2026" oninput="djTreeSearch(this.value)" value="' + esc(state.djTreeSearch || '') + '" style="width:100%;padding:7px 10px 7px 30px;border:1px solid var(--border);border-radius:8px;font-size:12px;background:var(--bg-input);outline:none;box-sizing:border-box;font-family:var(--font-body);color:var(--text-primary)" />'
         + '</div>'
         + '<div class="dj-col2-body">' + col2Html + '</div>'
+        + (selSec ? ('<div class="dj-col2-footer">'
+          + '<button class="dj-add-page-btn" onclick="djAddPage(\'' + selSec.id + '\')">' + plusSvg + ' Add Page</button>'
+          + '</div>') : '')
         + '</div>'
         // Resize handle 2
         + '<div class="dj-resize-handle" onmousedown="djResizeStart(event,2)"></div>'
@@ -32729,16 +32738,16 @@
       const uid = state.currentUser.uid;
       // Fetch all counts from Firestore (fall back to IndexedDB/state)
       let weekCount = 0, noteCount = 0, remCount = 0, coFaultCount = 0, coScheduleCount = 0, rtnCount = 0;
-      let tagCount = 0, notebookCount = 0;
+      let tagCount = 0, pageCount = 0;
       try {
-        const [weeksSnap, notesDoc, remDoc, coDoc, rtnDoc, catsDoc, jnDoc] = await Promise.all([
+        const [weeksSnap, notesDoc, remDoc, coDoc, rtnDoc, catsDoc, jpDoc] = await Promise.all([
           db_fs.collection(`users/${uid}/weeks`).get().catch(() => null),
           userDoc('data/notes')?.get().catch(() => null),
           userDoc('data/reminders')?.get().catch(() => null),
           userDoc('data/callouts')?.get().catch(() => null),
           userDoc('data/routines')?.get({ source: 'server' }).catch(() => null),
           userDoc('data/categories')?.get().catch(() => null),
-          userDoc('data/jNotebooks')?.get().catch(() => null)
+          userDoc('data/jPages')?.get().catch(() => null)
         ]);
         weekCount = weeksSnap?.size || 0;
         noteCount = notesDoc?.exists ? (notesDoc.data()?.notes?.length || 0) : 0;
@@ -32750,7 +32759,7 @@
         }
         if (rtnDoc?.exists) rtnCount = rtnDoc.data()?.selectedSites?.length || 0;
         if (catsDoc?.exists) tagCount = catsDoc.data()?.categories?.length || 0;
-        if (jnDoc?.exists) notebookCount = jnDoc.data()?.notebooks?.length || 0;
+        if (jpDoc?.exists) pageCount = jpDoc.data()?.pages?.length || 0;
       } catch (e) { /* offline — use in-memory state */ }
       if (!noteCount) noteCount = state.notes?.length || 0;
       if (!remCount) remCount = remindersData?.length || 0;
@@ -32760,7 +32769,7 @@
         coScheduleCount = Object.keys(state.callouts.onCall).length;
       if (!rtnCount) rtnCount = state.routines?.selectedSites?.length || 0;
       if (!tagCount) tagCount = state.customCategories?.length || 0;
-      if (!notebookCount) notebookCount = state.jNotebooks?.length || 0;
+      if (!pageCount) pageCount = state.jPages?.length || 0;
       const settingsCount = ['geminiKey', 'geminiModel', 'theme', 'headerExpanded',
         'rian_ai_scope', 'rian_ai_recent', 'exchangeTab', 'deviceName'].filter(k => localStorage.getItem(k) !== null).length;
       const list = document.getElementById('exp-list');
@@ -32768,7 +32777,7 @@
         _eiCheckboxRow('exp-weeks', _eiIcons.timesheet, 'Timesheet', weekCount ? weekCount + ' weeks' : '', true, false) +
         _eiCheckboxRow('exp-notes', _eiIcons.notes, 'Field Notes', noteCount ? noteCount + ' notes' : '', true, false) +
         _eiCheckboxRow('exp-tags', _eiIcons.notes, 'Note Tags', tagCount ? tagCount + ' tags' : '', true, false) +
-        _eiCheckboxRow('exp-notebooks', _eiIcons.notes, 'Notebooks', notebookCount ? notebookCount + ' notebooks' : '', true, false) +
+        _eiCheckboxRow('exp-notebooks', _eiIcons.notes, 'Journal', pageCount ? pageCount + ' pages' : '', true, false) +
         _eiCheckboxRow('exp-reminders', _eiIcons.reminders, 'Reminders', remCount ? remCount + ' reminders' : '', true, false) +
         _eiCheckboxRow('exp-co-faults', _eiIcons.callouts, 'Callouts (Faults)', coFaultCount ? coFaultCount + ' incidents' : '', true, false) +
         _eiCheckboxRow('exp-co-schedule', _eiIcons.routines, 'Callouts (On-Call Schedule)', coScheduleCount ? coScheduleCount + ' weeks' : '', true, false) +
@@ -33282,7 +33291,8 @@
       const hasTags = data.categories?.categories?.length > 0;
       const tagCount = hasTags ? data.categories.categories.length + ' tags' : '';
       const hasNotebooks = data.jNotebooks?.notebooks?.length > 0;
-      const notebookCount = hasNotebooks ? data.jNotebooks.notebooks.length + ' notebooks' : '';
+      const jPageCount = data.jPages?.pages?.length || 0;
+      const notebookCount = hasNotebooks ? (jPageCount ? jPageCount + ' pages' : data.jNotebooks.notebooks.length + ' notebooks') : '';
       const hasReminders = data.reminders?.reminders?.length > 0;
       const remCount = hasReminders ? data.reminders.reminders.length + ' reminders' : '';
       const hasCoFaults = data.callouts?.weeks && Object.keys(data.callouts.weeks).length > 0;
@@ -33298,7 +33308,7 @@
         _eiCheckboxRow('imp-weeks', _eiIcons.timesheet, 'Timesheet', hasWeeks ? weekCount : 'Not in file', hasWeeks, !hasWeeks) +
         _eiCheckboxRow('imp-notes', _eiIcons.notes, 'Field Notes', hasNotes ? noteCount : 'Not in file', hasNotes, !hasNotes) +
         _eiCheckboxRow('imp-tags', _eiIcons.notes, 'Note Tags', hasTags ? tagCount : 'Not in file', hasTags, !hasTags) +
-        _eiCheckboxRow('imp-notebooks', _eiIcons.notes, 'Notebooks', hasNotebooks ? notebookCount : 'Not in file', hasNotebooks, !hasNotebooks) +
+        _eiCheckboxRow('imp-notebooks', _eiIcons.notes, 'Journal', hasNotebooks ? notebookCount : 'Not in file', hasNotebooks, !hasNotebooks) +
         _eiCheckboxRow('imp-reminders', _eiIcons.reminders, 'Reminders', hasReminders ? remCount : 'Not in file', hasReminders, !hasReminders) +
         _eiCheckboxRow('imp-co-faults', _eiIcons.callouts, 'Callouts (Faults)', hasCoFaults ? coFaultTotal + ' incidents' : 'Not in file', hasCoFaults, !hasCoFaults) +
         _eiCheckboxRow('imp-co-schedule', _eiIcons.routines, 'Callouts (On-Call Schedule)', hasCoSchedule ? coScheduleTotal + ' weeks' : 'Not in file', hasCoSchedule, !hasCoSchedule) +
