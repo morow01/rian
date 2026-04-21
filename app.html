@@ -17950,7 +17950,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.9.21';
+    const VERSION = '5.9.22';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -27021,23 +27021,6 @@
 
       var col2Title = selSec ? esc(selSec.title) : 'Pages';
 
-      // Breadcrumb for col 2 context bar
-      var selNb = selSec ? allNbs.find(function (n) { return n.id === selSec.notebookId; }) : null;
-      var ctxBarHtml = '<div class="dj-ctx-bar">';
-      if (selNb && selSec) {
-        ctxBarHtml += '<span class="dj-ctx-crumb" title="' + esc(selNb.title) + '">' + esc(selNb.title) + '</span>'
-          + '<span class="dj-ctx-sep">›</span>'
-          + '<span class="dj-ctx-crumb active" title="' + esc(selSec.title) + '">' + esc(selSec.title) + '</span>'
-          + '<span class="dj-ctx-spacer"></span>'
-          + _jSyncDot()
-          + '<button class="dj-ctx-new-btn" onclick="djAddPage(\'' + selSec.id + '\')">' + plusSvg + ' New Page</button>';
-      } else {
-        ctxBarHtml += '<span class="dj-ctx-crumb active">Pages</span>'
-          + '<span class="dj-ctx-spacer"></span>'
-          + _jSyncDot();
-      }
-      ctxBarHtml += '</div>';
-
       return '<div class="dj-wrap">'
         // Col 1: notebooks + sections
         + '<div class="dj-col1" style="width:' + _djCol1Width + 'px">'
@@ -27048,7 +27031,10 @@
         + '<div class="dj-resize-handle" onmousedown="djResizeStart(event,1)"></div>'
         // Col 2: page list
         + '<div class="dj-col2" style="width:' + _djCol2Width + 'px">'
-        + ctxBarHtml
+        + '<div class="desk-panel-days-hdr dj-hdr-with-btn"><span>' + col2Title + '</span>'
+        + _jSyncDot()
+        + (selSec ? '<button class="dj-hdr-add-btn" onclick="djAddPage(\'' + selSec.id + '\')" title="New page">+</button>' : '')
+        + '</div>'
         + '<div style="padding:6px 10px;position:relative;border-bottom:1px solid var(--border)">'
         + '<span style="position:absolute;left:20px;top:15px;color:var(--text-muted)">' + searchSvg + '</span>'
         + '<input placeholder="Search pages\u2026" oninput="djTreeSearch(this.value)" value="' + esc(state.djTreeSearch || '') + '" style="width:100%;padding:7px 10px 7px 30px;border:1px solid var(--border);border-radius:8px;font-size:12px;background:var(--bg-input);outline:none;box-sizing:border-box;font-family:var(--font-body);color:var(--text-primary)" />'
