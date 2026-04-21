@@ -17991,7 +17991,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.9.27';
+    const VERSION = '5.9.28';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -27118,6 +27118,7 @@
     // ── Desktop journal helpers ──
     function djToggle(id) {
       state.djExpanded[id] = !state.djExpanded[id];
+      state.djActiveNb = id; // track last clicked notebook for Add Section context
       _djSaveNav();
       render();
     }
@@ -27157,12 +27158,13 @@
       if (type === 'notebook') {
         jOpenAdd('notebook');
       } else {
-        // Find active notebook (selected section's nb, or first expanded)
         var exp = state.djExpanded || {};
         var allNbs = state.jNotebooks.filter(function(n){ return !n.deleted; });
         var allSecs = state.jSections.filter(function(s){ return !s.deleted; });
         var selSec = state.djSelectedSec ? allSecs.find(function(s){ return s.id === state.djSelectedSec; }) : null;
-        var activeNb = selSec ? allNbs.find(function(n){ return n.id === selSec.notebookId; }) : null;
+        // Priority: last clicked notebook > selected section's notebook > first expanded
+        var activeNb = state.djActiveNb ? allNbs.find(function(n){ return n.id === state.djActiveNb; }) : null;
+        if (!activeNb) activeNb = selSec ? allNbs.find(function(n){ return n.id === selSec.notebookId; }) : null;
         if (!activeNb) activeNb = allNbs.find(function(n){ return !!exp[n.id]; }) || null;
         if (activeNb) djAddSection(activeNb.id);
       }
