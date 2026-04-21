@@ -18000,7 +18000,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.9.32';
+    const VERSION = '5.9.33';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -26975,10 +26975,10 @@
       allNbs.forEach(function (nb) {
         var isNbExp = !!exp[nb.id];
         var isNbActive = state.djActiveNb === nb.id && !state.djSelectedSec;
-        col1Html += '<div class="dj-nb-row' + (isNbActive ? ' active' : '') + '" onclick="djToggle(\'' + nb.id + '\')">'
+        col1Html += '<div class="dj-nb-row' + (isNbActive ? ' active' : '') + '" onclick="djToggle(\'' + nb.id + '\')" oncontextmenu="event.preventDefault();djCtxMenu(event,\'nb\',\'' + nb.id + '\')">'
           + '<span class="dj-chev ' + (isNbExp ? 'open' : 'closed') + '">' + chevSvg + '</span>'
           + bookSvg + ' <span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + esc(nb.title) + '</span>'
-          + '<button class="dj-row-more" onclick="event.stopPropagation();jOpenNbAction(\'' + nb.id + '\')" title="Notebook options">' + moreSvg + '</button>'
+          + '<button class="dj-row-more" onclick="event.stopPropagation();djCtxMenu(event,\'nb\',\'' + nb.id + '\')" title="Notebook options">' + moreSvg + '</button>'
           + '</div>';
 
         if (!isNbExp) return;
@@ -26987,13 +26987,13 @@
           var isSel = sec.id === state.djSelectedSec;
           var pgCount = allPgs.filter(function (p) { return p.sectionId === sec.id; }).length;
           var folderSvg = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="' + sec.color + '" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>';
-          col1Html += '<div class="dj-sec-row' + (isSel ? ' active' : '') + '" onclick="djSelectSec(\'' + sec.id + '\')">'
+          col1Html += '<div class="dj-sec-row' + (isSel ? ' active' : '') + '" onclick="djSelectSec(\'' + sec.id + '\')" oncontextmenu="event.preventDefault();djCtxMenu(event,\'sec\',\'' + sec.id + '\')">'
             + '<div class="dj-sec-icon" style="background:' + sec.color + '22">' + folderSvg + '</div>'
             + '<div class="dj-sec-info">'
             + '<div class="dj-sec-name">' + esc(sec.title) + '</div>'
             + '<div class="dj-sec-meta">' + pgCount + ' page' + (pgCount === 1 ? '' : 's') + '</div>'
             + '</div>'
-            + '<button class="dj-row-more" onclick="event.stopPropagation();jOpenSecAction(\'' + sec.id + '\')" title="Section options">' + moreSvg + '</button>'
+            + '<button class="dj-row-more" onclick="event.stopPropagation();djCtxMenu(event,\'sec\',\'' + sec.id + '\')" title="Section options">' + moreSvg + '</button>'
             + '</div>';
         });
       });
@@ -27024,13 +27024,13 @@
         if (preview.length > 60) preview = preview.substring(0, 60) + '\u2026';
         var dateStr = pg.date ? formatDateShort(pg.date) : '';
         col2Html += '<div class="dj-pg-row' + (isSel ? ' active' : '') + '" onclick="djSelectPage(\'' + escId + '\')"'
-          + ' oncontextmenu="event.preventDefault();djCtxMenu(event,\'' + escId + '\')">'
+          + ' oncontextmenu="event.preventDefault();djCtxMenu(event,\'page\',\'' + escId + '\')">'
           + '<div class="dj-pg-icon">' + pageSvg + '</div>'
           + '<div class="dj-pg-info">'
           + '<div class="dj-pg-title">' + esc(pg.title || 'Untitled') + '</div>'
           + (dateStr ? '<div class="dj-pg-meta">' + dateStr + '</div>' : '')
           + '</div>'
-          + '<button class="dj-pg-more" onclick="event.stopPropagation();djCtxMenu(event,\'' + escId + '\')" title="Page actions">' + moreSvg + '</button>'
+          + '<button class="dj-pg-more" onclick="event.stopPropagation();djCtxMenu(event,\'page\',\'' + escId + '\')" title="Page actions">' + moreSvg + '</button>'
           + '</div>';
       });
 
@@ -27299,26 +27299,40 @@
 
     // ── Context menu ──
     var _djCtxPgId = null;
-    function djCtxMenu(e, pgId) {
+    function djCtxMenu(e, type, id) {
+      e.stopPropagation();
       djCloseCtx();
-      _djCtxPgId = pgId;
       var renameSvg = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>';
       var copySvg = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>';
       var calSvg = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>';
+      var colourSvg = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 011.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/></svg>';
       var trashSvg = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>';
+      var items = '';
+      if (type === 'page') {
+        _djCtxPgId = id;
+        items = '<button onclick="djRenamePage(\'' + id + '\')">' + renameSvg + ' Rename</button>'
+          + '<button onclick="djCopyMovePage(\'' + id + '\')">' + copySvg + ' Copy / Move</button>'
+          + '<button onclick="djChangeDatePage(\'' + id + '\')">' + calSvg + ' Change Date</button>'
+          + '<div class="dj-ctx-sep"></div>'
+          + '<button class="danger" onclick="djDeletePage(\'' + id + '\')">' + trashSvg + ' Delete</button>';
+      } else if (type === 'sec') {
+        items = '<button onclick="djRenameSec(\'' + id + '\')">' + renameSvg + ' Rename</button>'
+          + '<button onclick="djChangeColourSec(\'' + id + '\')">' + colourSvg + ' Change Colour\u2026</button>'
+          + '<div class="dj-ctx-sep"></div>'
+          + '<button class="danger" onclick="djDeleteSec(\'' + id + '\')">' + trashSvg + ' Delete</button>';
+      } else if (type === 'nb') {
+        items = '<button onclick="djRenameNb(\'' + id + '\')">' + renameSvg + ' Rename</button>'
+          + '<div class="dj-ctx-sep"></div>'
+          + '<button class="danger" onclick="djDeleteNb(\'' + id + '\')">' + trashSvg + ' Delete</button>';
+      }
       var menu = document.createElement('div');
       menu.className = 'dj-ctx-menu';
       menu.id = 'dj-ctx-menu';
-      menu.innerHTML = '<button onclick="djRenamePage(\'' + pgId + '\')">' + renameSvg + ' Rename</button>'
-        + '<button onclick="djCopyMovePage(\'' + pgId + '\')">' + copySvg + ' Copy / Move</button>'
-        + '<button onclick="djChangeDatePage(\'' + pgId + '\')">' + calSvg + ' Change Date</button>'
-        + '<div class="dj-ctx-sep"></div>'
-        + '<button class="danger" onclick="djDeletePage(\'' + pgId + '\')">' + trashSvg + ' Delete</button>';
-
+      menu.innerHTML = items;
       document.body.appendChild(menu);
       var x = e.clientX, y = e.clientY;
-      menu.style.left = Math.min(x, window.innerWidth - 180) + 'px';
-      menu.style.top = Math.min(y, window.innerHeight - 200) + 'px';
+      menu.style.left = Math.min(x, window.innerWidth - 200) + 'px';
+      menu.style.top = Math.min(y, window.innerHeight - menu.offsetHeight - 8) + 'px';
       setTimeout(function () {
         document.addEventListener('click', _djCtxClose, { once: true });
         document.addEventListener('contextmenu', _djCtxCloseOnCtx, { once: true });
@@ -27333,6 +27347,28 @@
       _djCtxPgId = null;
       var m = document.getElementById('dj-ctx-menu');
       if (m) m.remove();
+    }
+    function djRenameSec(secId) {
+      djCloseCtx();
+      var sec = state.jSections.find(function(s){ return s.id === secId; });
+      if (sec) jOpenRename(secId, sec.title || '');
+    }
+    function djChangeColourSec(secId) {
+      djCloseCtx();
+      jOpenColorPick(secId);
+    }
+    function djDeleteSec(secId) {
+      djCloseCtx();
+      jDeleteSection(secId);
+    }
+    function djRenameNb(nbId) {
+      djCloseCtx();
+      var nb = state.jNotebooks.find(function(n){ return n.id === nbId; });
+      if (nb) jOpenRename(nbId, nb.title || '');
+    }
+    function djDeleteNb(nbId) {
+      djCloseCtx();
+      jDeleteNotebook(nbId);
     }
 
     // ── Resize handles (which=1 for col1, which=2 for col2) ──
