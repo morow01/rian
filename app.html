@@ -17950,7 +17950,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.9.23';
+    const VERSION = '5.9.24';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -25570,7 +25570,7 @@
       return '<div class="dnotes-wrap">' +
         '<div class="dnotes-sidebar" style="width:' + _dnotesSidebarWidth + 'px">' + sidebarHtml + '</div>' +
         '<div class="dj-resize-handle" onmousedown="deskNotesResizeStart(event,1)"></div>' +
-        '<div class="dnotes-list" style="width:' + _dnotesListWidth + 'px"><div class="desk-panel-days-hdr dj-hdr-with-btn"><span>Notes</span>' + (notesTab === 'active' ? '<button class="dj-hdr-add-btn" onclick="deskNotesNew()" title="New note">+</button>' : '') + '</div>' + listHtml + '</div>' +
+        '<div class="dnotes-list" style="width:' + _dnotesListWidth + 'px"><div class="desk-panel-days-hdr dj-hdr-with-btn"><span>Notes</span>' + (notesTab === 'notes' ? '<button class="dj-hdr-add-btn" onclick="deskNotesNew()" title="New note">+</button>' : '') + '</div>' + listHtml + '</div>' +
         '<div class="dj-resize-handle" onmousedown="deskNotesResizeStart(event,2)"></div>' +
         '<div class="dnotes-editor"><div class="desk-panel-days-hdr" style="' + (state.deskTagManagerOpen ? 'display:flex;align-items:center;gap:10px' : '') + '">' + (state.deskTagManagerOpen ? '<button onclick="deskCloseTagManager()" style="background:none;border:none;cursor:pointer;color:var(--text-muted);padding:0;display:flex;align-items:center"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg><span style="font-weight:700">Notes Tag Manager</span>' : 'Details') + '</div>' + editorHtml + '</div>' +
         '</div>';
