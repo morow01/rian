@@ -17991,7 +17991,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.9.28';
+    const VERSION = '5.9.29';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -27053,8 +27053,9 @@
 
       var col2Title = selSec ? esc(selSec.title) : 'Pages';
 
-      // Find the active notebook for dropdown context (selected section's notebook, or first expanded)
-      var activeNb = selSec ? allNbs.find(function(n){ return n.id === selSec.notebookId; }) : null;
+      // Find the active notebook for dropdown context (djActiveNb first, then selected section's, then first expanded)
+      var activeNb = state.djActiveNb ? allNbs.find(function(n){ return n.id === state.djActiveNb; }) : null;
+      if (!activeNb) activeNb = selSec ? allNbs.find(function(n){ return n.id === selSec.notebookId; }) : null;
       if (!activeNb) activeNb = allNbs.find(function(n){ return !!exp[n.id]; }) || null;
       var secSubtitle = activeNb ? 'to ' + activeNb.title : '';
       var secDisabled = !activeNb;
