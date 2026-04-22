@@ -351,7 +351,25 @@
     }
 
     /* ── SAMSUNG PHONE MOCKUP ── */
-    .samsung-wrap{display:flex;justify-content:center;align-items:flex-start;}
+    /* ── PHONE CAROUSEL ── */
+    .samsung-col{display:flex;flex-direction:column;align-items:center;gap:16px;}
+    .samsung-wrap{
+      display:flex;
+      overflow-x:auto;
+      scroll-snap-type:x mandatory;
+      -webkit-overflow-scrolling:touch;
+      scrollbar-width:none;
+      width:250px;
+    }
+    .samsung-wrap::-webkit-scrollbar{display:none;}
+    .samsung-slide{
+      width:250px;
+      flex-shrink:0;
+      scroll-snap-align:start;
+      display:flex;
+      justify-content:center;
+      padding:12px 20px 20px;
+    }
     .samsung-frame{
       width:210px;flex-shrink:0;
       background:linear-gradient(145deg,#2a2a2a,#111);
@@ -387,44 +405,21 @@
     .samsung-screen img{width:100%;display:block;object-fit:cover;object-position:top;height:100%;}
 
     /* ── CAROUSEL DOTS ── */
-    .samsung-dots{display:none;justify-content:center;gap:7px;margin-top:14px;}
+    .samsung-dots{display:none;justify-content:center;gap:7px;}
     .samsung-dot{width:7px;height:7px;border-radius:50%;background:var(--border);transition:background 0.2s,transform 0.2s;}
     .samsung-dot.active{background:var(--accent);transform:scale(1.25);}
 
-    /* ── CAROUSEL + single-column grid: both kick in at same breakpoint ── */
+    /* ── SINGLE-COLUMN GRID ── */
     @media(max-width:1100px){
       .feature-inner{grid-template-columns:1fr;gap:36px;}
       .feature-section:nth-child(odd) .feature-inner{direction:ltr;}
-      .samsung-wrap{
-        width:100%;
-        min-width:0;
-        overflow-x:auto;
-        scroll-snap-type:x mandatory;
-        -webkit-overflow-scrolling:touch;
-        scrollbar-width:none;
-        justify-content:flex-start;
-        gap:0;
-        padding:8px 0;
-      }
-      .samsung-wrap::-webkit-scrollbar{display:none;}
-      .samsung-slide{
-        width:100%;
-        flex-shrink:0;
-        scroll-snap-align:start;
-        display:flex;
-        justify-content:center;
-        padding:16px 20px 32px;
-      }
-      .samsung-frame{
-        margin-top:0!important;
-        box-shadow:0 8px 28px rgba(0,0,0,0.28),0 0 0 1px rgba(255,255,255,0.07);
-      }
-      .samsung-dots{display:flex;}
     }
 
     /* ── RESPONSIVE ── */
     @media(max-width:768px){
       .feature-section{padding:56px 20px;}
+      .samsung-wrap{width:100%;}
+      .samsung-slide{width:100%;}
       .phone.secondary{display:none;}
       .desk-panels{grid-template-columns:70px 120px 1fr;}
       .laptop{max-width:100%;}
@@ -513,12 +508,14 @@
         </li>
       </ul>
     </div>
-    <div class="samsung-wrap">
-      <div class="samsung-slide">
-        <div class="samsung-frame">
-          <div class="samsung-screen">
-            <div class="samsung-camera"></div>
-            <img src="images/01 TimeSheet.png" alt="Timesheet view">
+    <div class="samsung-col">
+      <div class="samsung-wrap">
+        <div class="samsung-slide">
+          <div class="samsung-frame">
+            <div class="samsung-screen">
+              <div class="samsung-camera"></div>
+              <img src="images/01 TimeSheet.png" alt="Timesheet view">
+            </div>
           </div>
         </div>
       </div>
@@ -594,29 +591,26 @@
     </div>
 
     <!-- Samsung mockups -->
-    <div class="samsung-wrap" style="gap:20px;align-items:flex-start;">
-
-      <!-- Phone 1 -->
-      <div class="samsung-slide">
-        <div class="samsung-frame">
-          <div class="samsung-screen">
-            <div class="samsung-camera"></div>
-            <img src="images/02 Notes.png" alt="Notes list view">
+    <div class="samsung-col">
+      <div class="samsung-wrap">
+        <div class="samsung-slide">
+          <div class="samsung-frame">
+            <div class="samsung-screen">
+              <div class="samsung-camera"></div>
+              <img src="images/02 Notes.png" alt="Notes list view">
+            </div>
+          </div>
+        </div>
+        <div class="samsung-slide">
+          <div class="samsung-frame">
+            <div class="samsung-screen">
+              <div class="samsung-camera"></div>
+              <img src="images/03 Notes.png" alt="Notes detail view">
+            </div>
           </div>
         </div>
       </div>
-
-      <!-- Phone 2 (offset) -->
-      <div class="samsung-slide">
-        <div class="samsung-frame" style="margin-top:32px;">
-          <div class="samsung-screen">
-            <div class="samsung-camera"></div>
-            <img src="images/03 Notes.png" alt="Notes detail view">
-          </div>
-        </div>
-      </div>
-
-    </div><!-- /samsung-wrap -->
+    </div>
 
     <!-- OLD Phone mockups (hidden) -->
     <div class="phones" style="display:none;">
@@ -861,20 +855,22 @@
     </div>
 
     <!-- Samsung mockups -->
-    <div class="samsung-wrap" style="gap:20px;align-items:flex-start;">
-      <div class="samsung-slide">
-        <div class="samsung-frame">
-          <div class="samsung-screen">
-            <div class="samsung-camera"></div>
-            <img src="images/04. Journal.png" alt="Journal notebooks view">
+    <div class="samsung-col">
+      <div class="samsung-wrap">
+        <div class="samsung-slide">
+          <div class="samsung-frame">
+            <div class="samsung-screen">
+              <div class="samsung-camera"></div>
+              <img src="images/04. Journal.png" alt="Journal notebooks view">
+            </div>
           </div>
         </div>
-      </div>
-      <div class="samsung-slide">
-        <div class="samsung-frame" style="margin-top:32px;">
-          <div class="samsung-screen">
-            <div class="samsung-camera"></div>
-            <img src="images/05. Journal.png" alt="Journal page view">
+        <div class="samsung-slide">
+          <div class="samsung-frame">
+            <div class="samsung-screen">
+              <div class="samsung-camera"></div>
+              <img src="images/05. Journal.png" alt="Journal page view">
+            </div>
           </div>
         </div>
       </div>
@@ -913,12 +909,14 @@
         </li>
       </ul>
     </div>
-    <div class="samsung-wrap">
-      <div class="samsung-slide">
-        <div class="samsung-frame">
-          <div class="samsung-screen">
-            <div class="samsung-camera"></div>
-            <img src="images/06. Finder.png" alt="Finder view">
+    <div class="samsung-col">
+      <div class="samsung-wrap">
+        <div class="samsung-slide">
+          <div class="samsung-frame">
+            <div class="samsung-screen">
+              <div class="samsung-camera"></div>
+              <img src="images/06. Finder.png" alt="Finder view">
+            </div>
           </div>
         </div>
       </div>
@@ -960,20 +958,22 @@
         </li>
       </ul>
     </div>
-    <div class="samsung-wrap" style="gap:20px;align-items:flex-start;">
-      <div class="samsung-slide">
-        <div class="samsung-frame">
-          <div class="samsung-screen">
-            <div class="samsung-camera"></div>
-            <img src="images/07. Routines.png" alt="Routines grid view">
+    <div class="samsung-col">
+      <div class="samsung-wrap">
+        <div class="samsung-slide">
+          <div class="samsung-frame">
+            <div class="samsung-screen">
+              <div class="samsung-camera"></div>
+              <img src="images/07. Routines.png" alt="Routines grid view">
+            </div>
           </div>
         </div>
-      </div>
-      <div class="samsung-slide">
-        <div class="samsung-frame" style="margin-top:32px;">
-          <div class="samsung-screen">
-            <div class="samsung-camera"></div>
-            <img src="images/08. Routines.png" alt="Routines stats view">
+        <div class="samsung-slide">
+          <div class="samsung-frame">
+            <div class="samsung-screen">
+              <div class="samsung-camera"></div>
+              <img src="images/08. Routines.png" alt="Routines stats view">
+            </div>
           </div>
         </div>
       </div>
@@ -1015,20 +1015,22 @@
         </li>
       </ul>
     </div>
-    <div class="samsung-wrap" style="gap:20px;align-items:flex-start;">
-      <div class="samsung-slide">
-        <div class="samsung-frame">
-          <div class="samsung-screen">
-            <div class="samsung-camera"></div>
-            <img src="images/09. OnCall.png" alt="On-call callout view">
+    <div class="samsung-col">
+      <div class="samsung-wrap">
+        <div class="samsung-slide">
+          <div class="samsung-frame">
+            <div class="samsung-screen">
+              <div class="samsung-camera"></div>
+              <img src="images/09. OnCall.png" alt="On-call callout view">
+            </div>
           </div>
         </div>
-      </div>
-      <div class="samsung-slide">
-        <div class="samsung-frame" style="margin-top:32px;">
-          <div class="samsung-screen">
-            <div class="samsung-camera"></div>
-            <img src="images/10. OnCall.png" alt="On-call incident detail">
+        <div class="samsung-slide">
+          <div class="samsung-frame">
+            <div class="samsung-screen">
+              <div class="samsung-camera"></div>
+              <img src="images/10. OnCall.png" alt="On-call incident detail">
+            </div>
           </div>
         </div>
       </div>
@@ -1090,20 +1092,17 @@
 </footer>
 
 <script>
-// Swipeable carousel dots for two-phone sections
-document.querySelectorAll('.samsung-wrap').forEach(function(wrap){
-  var frames = wrap.querySelectorAll('.samsung-slide');
-  if(frames.length < 2) return;
-
-  // Wrap carousel + dots in a column container so they stay in the same grid cell
-  var col = document.createElement('div');
-  col.style.cssText = 'display:flex;flex-direction:column;align-items:center;';
-  wrap.parentNode.insertBefore(col, wrap);
-  col.appendChild(wrap);
+// Carousel dots for two-phone sections
+document.querySelectorAll('.samsung-col').forEach(function(col){
+  var wrap = col.querySelector('.samsung-wrap');
+  if(!wrap) return;
+  var slides = wrap.querySelectorAll('.samsung-slide');
+  if(slides.length < 2) return;
 
   var dotsEl = document.createElement('div');
   dotsEl.className = 'samsung-dots';
-  frames.forEach(function(_,i){
+  dotsEl.style.display = 'flex';
+  slides.forEach(function(_,i){
     var d = document.createElement('div');
     d.className = 'samsung-dot' + (i === 0 ? ' active' : '');
     dotsEl.appendChild(d);
@@ -1113,13 +1112,13 @@ document.querySelectorAll('.samsung-wrap').forEach(function(wrap){
   var obs = new IntersectionObserver(function(entries){
     entries.forEach(function(e){
       if(!e.isIntersecting) return;
-      var idx = Array.from(frames).indexOf(e.target);
+      var idx = Array.from(slides).indexOf(e.target);
       dotsEl.querySelectorAll('.samsung-dot').forEach(function(d,i){
         d.classList.toggle('active', i === idx);
       });
     });
   }, {root: wrap, threshold: 0.6});
-  frames.forEach(function(f){ obs.observe(f); });
+  slides.forEach(function(f){ obs.observe(f); });
 });
 </script>
 </body>
