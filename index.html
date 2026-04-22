@@ -386,6 +386,11 @@
     }
     .samsung-screen img{width:100%;display:block;object-fit:cover;object-position:top;height:100%;}
 
+    /* ── CAROUSEL DOTS ── */
+    .samsung-dots{display:none;justify-content:center;gap:7px;margin-top:14px;}
+    .samsung-dot{width:7px;height:7px;border-radius:50%;background:var(--border);transition:background 0.2s,transform 0.2s;}
+    .samsung-dot.active{background:var(--accent);transform:scale(1.25);}
+
     /* ── RESPONSIVE ── */
     @media(max-width:768px){
       .feature-section{padding:56px 20px;}
@@ -393,10 +398,24 @@
       .feature-section:nth-child(odd) .feature-inner{direction:ltr;}
       .phone.secondary{display:none;}
       .desk-panels{grid-template-columns:70px 120px 1fr;}
-      /* Hide second phone in two-phone layouts */
-      .samsung-wrap .samsung-frame+.samsung-frame{display:none;}
-      /* Centre single phone */
-      .samsung-wrap{justify-content:center;}
+      /* Carousel on mobile */
+      .samsung-wrap{
+        overflow-x:auto;
+        scroll-snap-type:x mandatory;
+        -webkit-overflow-scrolling:touch;
+        scrollbar-width:none;
+        justify-content:flex-start;
+        gap:16px;
+        padding:8px 20px;
+        margin:0 -20px;
+      }
+      .samsung-wrap::-webkit-scrollbar{display:none;}
+      .samsung-frame{
+        scroll-snap-align:center;
+        flex-shrink:0;
+        margin-top:0!important;
+      }
+      .samsung-dots{display:flex;}
       /* Laptop fits column width */
       .laptop{max-width:100%;}
       .laptop-base{margin:6px -10px 0;}
@@ -1040,5 +1059,30 @@
   <p style="margin-top:24px;font-size:12px;opacity:0.5"><a href="privacy.html" style="color:inherit;text-decoration:underline;">Privacy Policy</a></p>
 </footer>
 
+<script>
+// Swipeable carousel dots for two-phone sections
+document.querySelectorAll('.samsung-wrap').forEach(function(wrap){
+  var frames = wrap.querySelectorAll('.samsung-frame');
+  if(frames.length < 2) return;
+  var dotsEl = document.createElement('div');
+  dotsEl.className = 'samsung-dots';
+  frames.forEach(function(_,i){
+    var d = document.createElement('div');
+    d.className = 'samsung-dot' + (i === 0 ? ' active' : '');
+    dotsEl.appendChild(d);
+  });
+  wrap.parentNode.insertBefore(dotsEl, wrap.nextSibling);
+  var obs = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(!e.isIntersecting) return;
+      var idx = Array.from(frames).indexOf(e.target);
+      dotsEl.querySelectorAll('.samsung-dot').forEach(function(d,i){
+        d.classList.toggle('active', i === idx);
+      });
+    });
+  }, {root: wrap, threshold: 0.6});
+  frames.forEach(function(f){ obs.observe(f); });
+});
+</script>
 </body>
 </html>
