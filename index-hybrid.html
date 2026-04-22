@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Rian — Field Technician App</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="./fonts.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=block" rel="stylesheet">
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    html{scroll-behavior:smooth;}
+    :root{
+      --navy:#0F1C2E; --navy-2:#162438; --navy-3:#1E3050;
+      --accent:#2D6BE4; --accent-ink:#1B4FB8; --accent-tint:#EBF1FD;
+      --ot:#F5A623; --ot-tint:#FEF1DC;
+      --paper:#F4F6FA; --page:#E8EEF5; --card:#FFFFFF;
+      --border:#D4E0EC; --border-soft:#E5ECF4;
+      --text:#0F1C2E; --text-2:#2B3E58; --muted:#4A6580; --faint:#8BA5BE;
+      --green:#16A34A; --green-tint:#E6F6EB; --red:#E8453C;
+    }
+    html,body{background:var(--paper);color:var(--text);font-family:'DM Sans',system-ui,sans-serif;line-height:1.55;-webkit-font-smoothing:antialiased;}
+    a{color:inherit;}
+    ::selection{background:var(--accent);color:#fff;}
+    /* Chunky display headings — Arial Black renders consistently on Windows/Mac and is fat by design */
+    .hero h1, .sec-title, .tile h3, .cta-box h2 {
+      font-family:'Arial Black','Helvetica Neue',Arial,sans-serif !important;
+      font-weight:900 !important;
+    }
+
+    .wrap{max-width:1200px;margin:0 auto;padding:0 28px;}
+
+    /* ── NAV ─────────────────────────────────────── */
+    .nav{
+      position:sticky;top:0;z-index:40;
+      background:rgba(15,28,46,0.94);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+      border-bottom:1px solid rgba(255,255,255,0.06);
+    }
+    .nav-inner{display:flex;align-items:center;gap:18px;height:60px;}
+    .nav-brand{display:flex;align-items:center;gap:10px;color:#fff;text-decoration:none;flex-shrink:0;}
+    .brand-mark{
+      width:30px;height:30px;border-radius:9px;
+      background:linear-gradient(140deg,#2D6BE4 0%,#4F8BFF 70%,#7B9DFF 100%);
+      box-shadow:inset 0 0 0 1px rgba(255,255,255,0.2),0 2px 8px rgba(45,107,228,0.35);
+      display:flex;align-items:center;justify-content:center;
+      font-weight:800;font-size:13px;color:#fff;letter-spacing:-0.02em;
+    }
+    .brand-name{font-weight:800;font-size:15.5px;letter-spacing:-0.01em;}
+    .brand-ver{
+      font-family:'DM Mono',monospace;font-size:10.5px;font-weight:500;
+      color:rgba(255,255,255,0.4);padding:2px 6px;border-radius:5px;
+      background:rgba(255,255,255,0.05);margin-left:2px;
+    }
+    .nav-links{display:flex;align-items:center;gap:2px;margin-left:12px;flex:1;}
+    .nav-link{
+      padding:7px 12px;border-radius:7px;font-size:13px;font-weight:500;
+      color:rgba(255,255,255,0.55);text-decoration:none;transition:color .15s,background .15s;
+    }
+    .nav-link:hover{color:#fff;background:rgba(255,255,255,0.05);}
+    .nav-cta{
+      display:inline-flex;align-items:center;gap:7px;
+      background:#fff;color:var(--navy);
+      font-size:13px;font-weight:700;padding:8px 16px;border-radius:9px;
+      text-decoration:none;transition:transform .1s,background .15s;
+    }
+    .nav-cta:hover{transform:translateY(-1px);}
+    .nav-cta svg{color:var(--accent);}
+
+    /* ── HERO ────────────────────────────────────── */
+    .hero{
+      position:relative;overflow:hidden;background:var(--navy);color:#fff;
+      padding:88px 0 72px;isolation:isolate;
+    }
+    .hero::before{
+      content:"";position:absolute;inset:-20% -10% auto -10%;height:70%;z-index:-1;
+      background:
+        radial-gradient(ellipse 60% 50% at 70% 20%,rgba(45,107,228,0.30) 0%,transparent 60%),
+        radial-gradient(ellipse 50% 40% at 25% 10%,rgba(124,115,230,0.12) 0%,transparent 55%);
+      pointer-events:none;
+    }
+    .hero::after{
+      content:"";position:absolute;inset:0;z-index:-1;opacity:0.5;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.025) 1px,transparent 1px),
+        linear-gradient(90deg,rgba(255,255,255,0.025) 1px,transparent 1px);
+      background-size:64px 64px;
+      mask-image:radial-gradient(ellipse 80% 80% at 50% 30%,#000 30%,transparent 80%);
+      -webkit-mask-image:radial-gradient(ellipse 80% 80% at 50% 30%,#000 30%,transparent 80%);
+    }
+    .hero-inner{position:relative;display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:56px;align-items:center;}
+    .hero-eyebrow{
+      display:inline-flex;align-items:center;gap:8px;
+      font-size:11.5px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;
+      color:rgba(255,255,255,0.75);
+      padding:6px 12px;border-radius:20px;
+      background:rgba(45,107,228,0.14);border:1px solid rgba(45,107,228,0.35);
+      margin-bottom:22px;
+    }
+    .hero-eyebrow .dot{
+      width:6px;height:6px;border-radius:50%;background:#7EB3FF;
+    }
+    .hero h1{
+      font-size:clamp(44px,5.4vw,72px);font-weight:800;letter-spacing:-0.035em;
+      line-height:1.02;margin-bottom:22px;
+    }
+    .hero h1 em{
+      font-style:normal;
+      background:linear-gradient(90deg,#7EB3FF 0%,#A9C7FF 100%);
+      -webkit-background-clip:text;background-clip:text;color:transparent;
+    }
+    .hero p.lead{
+      font-size:17px;color:rgba(255,255,255,0.65);max-width:540px;
+      margin-bottom:32px;line-height:1.55;
+    }
+    .hero-cta-row{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:40px;}
+    .btn-primary{
+      display:inline-flex;align-items:center;gap:8px;
+      background:var(--accent);color:#fff;
+      font-family:inherit;font-size:15px;font-weight:700;
+      padding:13px 22px;border-radius:11px;text-decoration:none;border:none;cursor:pointer;
+      box-shadow:0 1px 0 rgba(255,255,255,0.15) inset,0 8px 24px rgba(45,107,228,0.35);
+      transition:transform .12s,box-shadow .12s;
+    }
+    .btn-primary:hover{transform:translateY(-1px);box-shadow:0 1px 0 rgba(255,255,255,0.2) inset,0 10px 28px rgba(45,107,228,0.45);}
+    .btn-ghost{
+      display:inline-flex;align-items:center;gap:8px;
+      color:rgba(255,255,255,0.8);font-size:14px;font-weight:600;
+      padding:12px 18px;border-radius:11px;text-decoration:none;
+      border:1px solid rgba(255,255,255,0.12);background:rgba(255,255,255,0.03);
+      transition:background .15s;
+    }
+    .btn-ghost:hover{background:rgba(255,255,255,0.08);}
+
+    .hero-specs{
+      display:flex;flex-wrap:wrap;gap:24px 28px;
+      padding-top:28px;border-top:1px solid rgba(255,255,255,0.08);
+      max-width:540px;
+    }
+    .hero-spec{display:flex;align-items:center;gap:9px;color:rgba(255,255,255,0.55);font-size:13px;font-weight:500;}
+    .hero-spec svg{color:#7EB3FF;flex-shrink:0;}
+
+    /* Hero phone */
+    .hero-phone-wrap{position:relative;display:flex;justify-content:center;align-items:center;}
+    .hero-phone{
+      position:relative;width:260px;
+      border-radius:40px;padding:6px;
+      background:linear-gradient(140deg,#1A1F2A 0%,#0A0D14 50%,#1A1F2A 100%);
+      box-shadow:
+        0 0 0 1.5px rgba(255,255,255,0.06),
+        inset 0 1px 0 rgba(255,255,255,0.08),
+        0 40px 80px -20px rgba(0,0,0,0.6),
+        0 20px 40px -10px rgba(45,107,228,0.25);
+      transform:rotate(-2deg);
+    }
+    .hero-phone::before{
+      content:"";position:absolute;top:16px;left:50%;transform:translateX(-50%);
+      width:9px;height:9px;border-radius:50%;background:#000;
+      box-shadow:inset 0 0 0 1.5px #0A0D14, inset 0 0 2px rgba(60,80,120,0.4);
+      z-index:3;
+    }
+    .hero-phone::after{
+      content:"";position:absolute;right:-2px;top:100px;width:3px;height:48px;
+      border-radius:2px;
+      background:linear-gradient(180deg,#1A1F2A 0%,#0A0D14 20%,#0A0D14 34%,#1A1F2A 38%,#0A0D14 56%,#0A0D14 100%);
+    }
+    .hero-phone-screen{
+      position:relative;
+      border-radius:34px;overflow:hidden;background:#000;
+      aspect-ratio:1080/2316;
+    }
+    .hero-phone-screen img{width:100%;height:100%;display:block;object-fit:cover;object-position:top;}
+
+    /* ── SPEC STRIP ──────────────────────────────── */
+    .strip{
+      background:var(--navy);color:rgba(255,255,255,0.8);
+      border-top:1px solid rgba(255,255,255,0.05);
+      border-bottom:1px solid rgba(255,255,255,0.05);
+      padding:18px 0;overflow:hidden;
+    }
+    .strip-inner{display:flex;align-items:center;justify-content:space-between;gap:32px;flex-wrap:wrap;}
+    .strip-item{display:flex;align-items:center;gap:10px;font-size:13px;font-weight:600;color:rgba(255,255,255,0.65);}
+    .strip-item svg{color:var(--accent);flex-shrink:0;}
+
+    /* ── SECTION SCAFFOLD ────────────────────────── */
+    .sec{padding:120px 0;position:relative;}
+    .sec-label{
+      display:inline-flex;align-items:center;gap:8px;
+      font-size:11.5px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;
+      color:var(--accent);margin-bottom:14px;
+    }
+    .sec-label .num{
+      font-family:'DM Mono',monospace;color:var(--faint);
+      padding-right:10px;border-right:1px solid var(--border);
+    }
+    .sec-title{
+      font-size:clamp(32px,4vw,48px);font-weight:800;letter-spacing:-0.03em;
+      line-height:1.05;color:var(--text);margin-bottom:16px;max-width:620px;
+      text-wrap:balance;
+    }
+    .sec-lead{font-size:17px;color:var(--muted);max-width:560px;line-height:1.6;}
+
+    /* ── FLAGSHIP FEATURE ───────────────────────── */
+    .flagship{position:relative;}
+    .flagship .flag-inner{
+      display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+      gap:80px;align-items:start;
+    }
+    .flagship.reverse .flag-inner{direction:rtl;}
+    .flagship.reverse .flag-inner>*{direction:ltr;}
+    .flag-phone-slot{position:sticky;top:100px;display:flex;justify-content:center;align-items:flex-start;gap:20px;}
+    .flag-phone{
+      position:relative;width:280px;flex-shrink:0;
+      border-radius:40px;padding:6px;
+      background:linear-gradient(140deg,#1A1F2A 0%,#0A0D14 50%,#1A1F2A 100%);
+      box-shadow:
+        inset 0 0 0 1px rgba(255,255,255,0.06),
+        0 0 0 1.5px rgba(15,28,46,0.08),
+        0 40px 80px -20px rgba(15,28,46,0.28),
+        0 20px 40px -10px rgba(15,28,46,0.12);
+    }
+    .flag-phone.secondary{width:230px;margin-top:48px;transform:rotate(3deg);}
+    .flag-phone::before{
+      content:"";position:absolute;top:16px;left:50%;transform:translateX(-50%);
+      width:9px;height:9px;border-radius:50%;
+      background:#000;
+      box-shadow:inset 0 0 0 1.5px #0A0D14, inset 0 0 2px rgba(60,80,120,0.4);
+      z-index:3;
+    }
+    .flag-phone::after{
+      content:"";position:absolute;right:-2px;top:110px;width:3px;height:50px;
+      border-radius:2px;
+      background:linear-gradient(180deg,#1A1F2A 0%,#0A0D14 18%,#0A0D14 32%,#1A1F2A 36%,#0A0D14 54%,#0A0D14 100%);
+    }
+    .flag-phone-screen{
+      position:relative;
+      border-radius:34px;overflow:hidden;background:#000;
+      aspect-ratio:1080/2316;
+    }
+    .flag-phone-screen img{width:100%;height:100%;display:block;object-fit:cover;object-position:top;}
+
+    .cap-list{display:flex;flex-direction:column;gap:4px;}
+    .cap{
+      display:grid;grid-template-columns:44px 1fr;gap:16px;
+      padding:22px 4px;border-top:1px solid var(--border-soft);
+    }
+    .cap:first-child{border-top:none;padding-top:8px;}
+    .cap-ico{
+      width:40px;height:40px;border-radius:10px;
+      background:var(--accent-tint);color:var(--accent);
+      display:flex;align-items:center;justify-content:center;flex-shrink:0;
+      border:1px solid rgba(45,107,228,0.15);
+    }
+    .cap-ico.amber{background:var(--ot-tint);color:#B5760E;border-color:rgba(245,166,35,0.25);}
+    .cap-ico.green{background:var(--green-tint);color:var(--green);border-color:rgba(22,163,74,0.2);}
+    .cap-ico.navy{background:var(--navy);color:#fff;border-color:var(--navy);}
+    .cap-ico.ghost{background:var(--paper);color:var(--text-2);border-color:var(--border);}
+    .cap h3{font-size:16.5px;font-weight:700;letter-spacing:-0.015em;margin-bottom:4px;}
+    .cap p{font-size:14.5px;color:var(--muted);line-height:1.55;}
+    .cap kbd{
+      font-family:'DM Mono',monospace;font-size:11.5px;font-weight:500;
+      padding:1.5px 6px;border-radius:5px;background:var(--accent-tint);color:var(--accent-ink);
+      border:1px solid rgba(45,107,228,0.2);
+    }
+
+    /* numeric flourish */
+    .flag-stat{
+      display:inline-flex;align-items:baseline;gap:6px;
+      margin-top:6px;padding:8px 12px;border-radius:10px;
+      background:var(--paper);border:1px solid var(--border-soft);
+      font-family:'DM Mono',monospace;
+    }
+    .flag-stat big{font-size:28px;font-weight:700;letter-spacing:-0.03em;color:var(--text);}
+    .flag-stat small{font-size:11px;color:var(--muted);font-weight:500;text-transform:uppercase;letter-spacing:0.08em;font-family:'DM Sans',sans-serif;}
+
+    /* ── BENTO ────────────────────────────────────── */
+    .bento-head{display:flex;align-items:flex-end;justify-content:space-between;gap:28px;margin-bottom:40px;flex-wrap:wrap;}
+    .bento{
+      display:grid;grid-template-columns:repeat(6,1fr);gap:20px;
+    }
+    .tile{
+      background:var(--card);border:1px solid var(--border-soft);
+      border-radius:22px;padding:28px;position:relative;overflow:hidden;
+      display:flex;flex-direction:column;
+      transition:transform .2s,box-shadow .2s,border-color .2s;
+    }
+    .tile:hover{transform:translateY(-2px);box-shadow:0 18px 50px -20px rgba(15,28,46,0.15);border-color:var(--border);}
+    .tile-head{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
+    .tile-num{
+      font-family:'DM Mono',monospace;font-size:12px;font-weight:500;
+      color:var(--faint);letter-spacing:0.06em;
+    }
+    .tile-tag{
+      font-size:10.5px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;
+      padding:3px 8px;border-radius:6px;background:var(--green-tint);color:var(--green);
+    }
+    .tile h3{font-size:22px;font-weight:800;letter-spacing:-0.02em;line-height:1.12;margin-bottom:8px;}
+    .tile p.tile-lead{font-size:14px;color:var(--muted);line-height:1.55;margin-bottom:18px;}
+    .tile-bullets{list-style:none;display:flex;flex-direction:column;gap:10px;margin-top:auto;}
+    .tile-bullets li{display:flex;gap:9px;align-items:flex-start;font-size:13px;color:var(--text-2);line-height:1.45;}
+    .tile-bullets li svg{color:var(--accent);flex-shrink:0;margin-top:3px;}
+    .tile-visual{
+      margin:0 -28px 22px;padding:24px 28px;
+      background:linear-gradient(180deg,var(--paper) 0%,var(--page) 100%);
+      display:flex;align-items:center;justify-content:center;gap:16px;
+      min-height:280px;
+    }
+
+    .tile.t-wide{grid-column:span 4;}
+    .tile.t-half{grid-column:span 3;}
+    .tile.t-third{grid-column:span 2;}
+    .tile.t-full{grid-column:span 6;}
+
+    /* Tile mini phones (screenshots in phone frames inside bento tiles) */
+    .mini-phone{
+      position:relative;width:140px;flex-shrink:0;
+      border-radius:22px;padding:4px;
+      background:linear-gradient(140deg,#1A1F2A 0%,#0A0D14 50%,#1A1F2A 100%);
+      box-shadow:
+        inset 0 0 0 1px rgba(255,255,255,0.06),
+        0 20px 40px -12px rgba(15,28,46,0.25);
+    }
+    .mini-phone::before{
+      content:"";position:absolute;top:9px;left:50%;transform:translateX(-50%);
+      width:6px;height:6px;border-radius:50%;background:#000;
+      box-shadow:inset 0 0 0 1px #0A0D14;z-index:3;
+    }
+    .mini-phone-screen{
+      border-radius:19px;overflow:hidden;background:#000;
+      aspect-ratio:1080/2316;
+    }
+    .mini-phone-screen img{width:100%;height:100%;display:block;object-fit:cover;object-position:top;}
+    .mini-phone.angle-l{transform:rotate(-3deg);}
+    .mini-phone.angle-r{transform:rotate(3deg);margin-top:16px;}
+
+    .tile.t-full .tile-visual{min-height:340px;}
+    .tile.t-full .mini-phone{width:170px;}
+
+    /* ── DESKTOP SECTION ────────────────────────── */
+    .desktop-sec{background:var(--navy);color:#fff;padding:120px 0;overflow:hidden;}
+    .desktop-sec .sec-label{color:#7EB3FF;}
+    .desktop-sec .sec-label .num{border-right-color:rgba(255,255,255,0.15);color:rgba(255,255,255,0.4);}
+    .desktop-sec .sec-title{color:#fff;}
+    .desktop-sec .sec-lead{color:rgba(255,255,255,0.6);}
+    .desktop-sec-inner{display:grid;grid-template-columns:minmax(0,0.9fr) minmax(0,1.3fr);gap:64px;align-items:center;}
+    .desktop-caps{display:flex;flex-direction:column;gap:4px;margin-top:32px;}
+    .desktop-caps .cap{border-top-color:rgba(255,255,255,0.08);padding:20px 4px;}
+    .desktop-caps .cap h3{color:#fff;}
+    .desktop-caps .cap p{color:rgba(255,255,255,0.55);}
+    .desktop-caps .cap-ico{background:rgba(45,107,228,0.18);color:#7EB3FF;border-color:rgba(45,107,228,0.3);}
+    .desktop-caps .cap-ico.amber{background:rgba(245,166,35,0.14);color:#FFD06B;border-color:rgba(245,166,35,0.25);}
+    .desktop-caps .cap-ico.green{background:rgba(22,163,74,0.14);color:#86EFAC;border-color:rgba(22,163,74,0.2);}
+
+    /* Laptop mock (real screenshot inside) */
+    .laptop{
+      position:relative;background:#141F33;border-radius:14px 14px 6px 6px;
+      padding:12px 12px 10px;box-shadow:0 40px 80px -20px rgba(0,0,0,0.6),0 0 0 1px rgba(255,255,255,0.05);
+    }
+    .laptop-screen{background:var(--page);border-radius:8px;overflow:hidden;}
+    .laptop-screen img{width:100%;display:block;}
+    .laptop-base{
+      height:10px;background:linear-gradient(to bottom,#141F33,#0a0f1a);
+      margin:8px -32px 0;border-radius:0 0 10px 10px;position:relative;
+    }
+    .laptop-base::after{
+      content:"";position:absolute;top:0;left:50%;transform:translateX(-50%);
+      width:120px;height:4px;background:#000;border-radius:0 0 8px 8px;
+    }
+
+    /* ── CTA FOOTER ─────────────────────────────── */
+    .cta-final{padding:100px 0;background:var(--paper);}
+    .cta-box{
+      background:var(--navy);color:#fff;border-radius:24px;padding:56px 48px;
+      text-align:center;position:relative;overflow:hidden;
+      box-shadow:0 40px 80px -20px rgba(15,28,46,0.3);
+    }
+    .cta-box::before{
+      content:"";position:absolute;inset:0;opacity:0.35;
+      background:radial-gradient(ellipse 60% 50% at 50% 0%,rgba(45,107,228,0.4) 0%,transparent 65%);
+      pointer-events:none;
+    }
+    .cta-box h2{font-size:clamp(32px,4vw,52px);font-weight:800;letter-spacing:-0.03em;line-height:1.05;margin-bottom:14px;position:relative;}
+    .cta-box p{font-size:16px;color:rgba(255,255,255,0.65);max-width:520px;margin:0 auto 28px;position:relative;}
+    .cta-box .btn-primary{position:relative;}
+
+    /* Footer */
+    .footer{background:var(--navy);color:rgba(255,255,255,0.5);padding:40px 0 52px;border-top:1px solid rgba(255,255,255,0.06);}
+    .foot-inner{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:20px;}
+    .foot-brand{display:flex;align-items:center;gap:10px;color:#fff;font-weight:800;font-size:15px;}
+    .foot-links{display:flex;gap:24px;font-size:13px;}
+    .foot-links a{color:rgba(255,255,255,0.5);text-decoration:none;}
+    .foot-links a:hover{color:#fff;}
+    .foot-ver{font-family:'DM Mono',monospace;font-size:11px;color:rgba(255,255,255,0.3);}
+
+    /* Responsive */
+    @media(max-width:960px){
+      .hero-inner,.flagship .flag-inner,.desktop-sec-inner{grid-template-columns:1fr;gap:48px;}
+      .flagship.reverse .flag-inner{direction:ltr;}
+      .flag-phone-slot{position:static;}
+      .tile.t-wide,.tile.t-half,.tile.t-third,.tile.t-full{grid-column:span 6;}
+      .bento{gap:16px;}
+      .sec{padding:80px 0;}
+      .cta-box{padding:40px 24px;}
+      .flag-phone.secondary{display:none;}
+    }
+    @media(max-width:600px){
+      .nav-links{display:none;}
+      .hero{padding:64px 0 48px;}
+      .wrap{padding:0 18px;}
+      .tile-visual{flex-direction:column;gap:12px;}
+      .flag-phone{width:240px;}
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════ NAV ═══════════ -->
+<nav class="nav">
+  <div class="wrap nav-inner">
+    <a href="#" class="nav-brand">
+      <div class="brand-mark">R</div>
+      <span class="brand-name">Rian</span>
+      <span class="brand-ver">v5.9.40</span>
+    </a>
+    <div class="nav-links">
+      <a href="#timesheet" class="nav-link">Timesheet</a>
+      <a href="#notes" class="nav-link">Notes</a>
+      <a href="#journal" class="nav-link">Journal</a>
+      <a href="#more" class="nav-link">Finder &amp; more</a>
+      <a href="#desktop" class="nav-link">Desktop</a>
+    </div>
+    <a href="./app.html" target="_blank" rel="noopener" class="nav-cta">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+      Launch App
+    </a>
+  </div>
+</nav>
+
+<!-- ═══════════ HERO ═══════════ -->
+<section class="hero">
+  <div class="wrap hero-inner">
+    <div>
+      <div class="hero-eyebrow"><span class="dot"></span>Field technician app</div>
+      <h1>Your whole job,<br><em>in one pocket.</em></h1>
+      <p class="lead">A single app for the things you already track in a week. Hours against work codes, site notes, routine visits, on-call shifts. Mobile-first, with a full desktop layout when you need a bigger screen.</p>
+      <div class="hero-cta-row">
+        <a href="./app.html" target="_blank" rel="noopener" class="btn-primary">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          Launch App
+        </a>
+        <a href="#timesheet" class="btn-ghost">
+          See features
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </a>
+      </div>
+      <div class="hero-specs">
+        <span class="hero-spec"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/></svg> Firestore cloud sync</span>
+        <span class="hero-spec"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg> Offline capable</span>
+        <span class="hero-spec"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0"/><line x1="12" y1="19" x2="12" y2="22"/></svg> Voice &amp; AI capture</span>
+        <span class="hero-spec"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/></svg> Mobile &amp; desktop</span>
+      </div>
+    </div>
+
+    <div class="hero-phone-wrap">
+      <div class="hero-phone">
+        <div class="hero-phone-screen">
+          <img src="./images/01 TimeSheet.png" alt="Rian timesheet — week view">
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ SPEC STRIP ═══════════ -->
+<div class="strip">
+  <div class="wrap strip-inner">
+    <div class="strip-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> One app for hours, notes and on-call</div>
+    <div class="strip-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg> ORD and OT tracked separately</div>
+    <div class="strip-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 4h16v16H4zM4 9h16"/></svg> Weekly email export</div>
+    <div class="strip-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0zM8 12l3 3 5-6"/></svg> Cloud backups, snapshot history</div>
+  </div>
+</div>
+
+<!-- ═══════════ FLAGSHIP 01 — TIMESHEET ═══════════ -->
+<section class="sec flagship" id="timesheet">
+  <div class="wrap flag-inner">
+    <div>
+      <div class="sec-label"><span class="num">01</span><span>Timesheet</span></div>
+      <h2 class="sec-title">Log hours against codes, day by day.</h2>
+      <p class="sec-lead">Tap a day, add a task, pick a work code, enter ordinary and overtime hours. The app totals your week, highlights overtime, and exports a formatted summary by email.</p>
+      <div class="flag-stat">
+        <big>39h</big><small>ordinary</small>
+        <big style="color:var(--ot);margin-left:14px">+3</big><small>overtime · this week</small>
+      </div>
+
+      <div class="cap-list" style="margin-top:28px">
+        <div class="cap">
+          <div class="cap-ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></div>
+          <div><h3>Week at a glance</h3><p>All seven days in one scroll, with task counts and hours inline. Tap a day to expand and add tasks.</p></div>
+        </div>
+        <div class="cap">
+          <div class="cap-ico amber"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></div>
+          <div><h3>Ordinary and overtime, separately</h3><p>Each task has ORD and OT fields. The weekly summary totals both by work code.</p></div>
+        </div>
+        <div class="cap">
+          <div class="cap-ico ghost"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M4 12h10M4 17h7"/></svg></div>
+          <div><h3>Searchable work codes</h3><p>Type to search codes like <kbd>KLE</kbd> or <kbd>MXY0002A10</kbd>. Bundles insert several related codes in one go.</p></div>
+        </div>
+        <div class="cap">
+          <div class="cap-ico green"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></div>
+          <div><h3>Weekly email export</h3><p>Formatted summary with ORD/OT breakdown, codes and descriptions, sent from the app.</p></div>
+        </div>
+        <div class="cap">
+          <div class="cap-ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/></svg></div>
+          <div><h3>Snapshot history</h3><p>Every save backs up to Firestore. Restore any week from Cloud Backups in the menu.</p></div>
+        </div>
+        <div class="cap">
+          <div class="cap-ico ghost"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/></svg></div>
+          <div><h3>Desktop three-panel layout</h3><p>On wide screens the timesheet opens into Days · Tasks · Detail with a Weekly Summary sidebar.</p></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="flag-phone-slot">
+      <div class="flag-phone">
+        <div class="flag-phone-screen">
+          <img src="./images/01 TimeSheet.png" alt="Rian — timesheet week view">
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ FLAGSHIP 02 — NOTES ═══════════ -->
+<section class="sec flagship reverse" id="notes" style="background:#fff;">
+  <div class="wrap flag-inner">
+    <div>
+      <div class="sec-label"><span class="num">02</span><span>Notes</span></div>
+      <h2 class="sec-title">Notes for everything that isn't a timesheet entry.</h2>
+      <p class="sec-lead">Faults, meetings, follow-ups, parts on order. Each note has a category, a priority and an optional reminder with a push notification.</p>
+
+      <div class="cap-list" style="margin-top:28px">
+        <div class="cap">
+          <div class="cap-ico navy"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/></svg></div>
+          <div><h3>Six built-in categories</h3><p>Job, Fault, Follow-up, Meeting, Personal, Idea. Each with its own colour and icon. Add custom tags via the Tag Manager.</p></div>
+        </div>
+        <div class="cap">
+          <div class="cap-ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg></div>
+          <div><h3>Filter by category and priority</h3><p>Combine filters to narrow the list. Active filters show as dismissible pills above the notes.</p></div>
+        </div>
+        <div class="cap">
+          <div class="cap-ico amber"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg></div>
+          <div><h3>Reminders with push notifications</h3><p>Set a date and time on any note. The notification fires when it's due, even if the app is closed.</p></div>
+        </div>
+        <div class="cap">
+          <div class="cap-ico ghost"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0014 0"/></svg></div>
+          <div><h3>Dictation, search, bulk actions</h3><p>Tap the mic to dictate. Full-text search across all notes. Long-press to multi-select and mark done or delete in one pass.</p></div>
+        </div>
+        <div class="cap">
+          <div class="cap-ico green"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg></div>
+          <div><h3>Desktop list grouping</h3><p>On desktop the notes list groups into Overdue, Pinned and Open bands. Convert to Task and Add to Calendar actions sit in the action bar.</p></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="flag-phone-slot">
+      <div class="flag-phone">
+        <div class="flag-phone-screen">
+          <img src="./images/02 Notes.png" alt="Rian — notes list">
+        </div>
+      </div>
+      <div class="flag-phone secondary">
+        <div class="flag-phone-screen">
+          <img src="./images/03 Notes.png" alt="Rian — note detail">
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ FLAGSHIP 03 — JOURNAL ═══════════ -->
+<section class="sec flagship" id="journal">
+  <div class="wrap flag-inner">
+    <div>
+      <div class="sec-label"><span class="num">03</span><span>Journal <span class="tile-tag" style="margin-left:6px">New</span></span></div>
+      <h2 class="sec-title">Your digital field notebook.</h2>
+      <p class="sec-lead">Organise site visits, voltage readings and fault reports into notebooks, sections and pages — structured the way you think, with rich text editing powered by TipTap.</p>
+
+      <div class="cap-list" style="margin-top:28px">
+        <div class="cap">
+          <div class="cap-ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg></div>
+          <div><h3>Notebooks → Sections → Pages</h3><p>Three-level hierarchy mirrors how you organise work — one notebook per project, sections for areas, pages for individual visits.</p></div>
+        </div>
+        <div class="cap">
+          <div class="cap-ico ghost"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></div>
+          <div><h3>Full rich text editor</h3><p>Headings, bold, lists, tables, images, code blocks — a full TipTap editor so your field notes look professional.</p></div>
+        </div>
+        <div class="cap">
+          <div class="cap-ico amber"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0014 0"/></svg></div>
+          <div><h3>Voice-to-table recorder</h3><p>Say "24 cells, cell 1 is 12.4 volts" — the AI walks through each value and inserts a formatted table straight into your page.</p></div>
+        </div>
+        <div class="cap">
+          <div class="cap-ico green"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></div>
+          <div><h3>Firestore cloud sync</h3><p>Every page syncs in real time. Start a note on your phone, finish it on your tablet — always up to date.</p></div>
+        </div>
+        <div class="cap">
+          <div class="cap-ico ghost"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg></div>
+          <div><h3>Desktop context menus</h3><p>Right-click any notebook, section or page to rename, recolour, change date, copy or move — no digging through menus.</p></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="flag-phone-slot">
+      <div class="flag-phone">
+        <div class="flag-phone-screen">
+          <img src="./images/04. Journal.png" alt="Rian — journal notebooks">
+        </div>
+      </div>
+      <div class="flag-phone secondary">
+        <div class="flag-phone-screen">
+          <img src="./images/05. Journal.png" alt="Rian — journal page view">
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ BENTO — FINDER, ROUTINES, CALLOUT ═══════════ -->
+<section class="sec" id="more" style="padding-top:100px">
+  <div class="wrap">
+    <div class="bento-head">
+      <div>
+        <div class="sec-label"><span class="num">04–06</span><span>The rest of the week</span></div>
+        <h2 class="sec-title">Finder, Routines &amp; Callout.</h2>
+      </div>
+    </div>
+
+    <div class="bento">
+
+      <!-- FINDER -->
+      <div class="tile t-half">
+        <div class="tile-head">
+          <span class="tile-num">04</span>
+          <span style="font-weight:700;letter-spacing:-0.01em">Finder</span>
+        </div>
+        <div class="tile-visual">
+          <div class="mini-phone">
+            <div class="mini-phone-screen"><img src="./images/06. Finder.png" alt="Finder exchange detail"></div>
+          </div>
+        </div>
+        <h3>Search every exchange and cabinet.</h3>
+        <p class="tile-lead">Address, coordinates, power supply, security, emergency contacts. Separate tabs for exchanges and cabinets. Live Google Map on desktop.</p>
+      </div>
+
+      <!-- ROUTINES -->
+      <div class="tile t-half">
+        <div class="tile-head">
+          <span class="tile-num">05</span>
+          <span style="font-weight:700;letter-spacing:-0.01em">Routines</span>
+        </div>
+        <div class="tile-visual">
+          <div class="mini-phone">
+            <div class="mini-phone-screen"><img src="./images/07. Routines.png" alt="Routines grid"></div>
+          </div>
+        </div>
+        <h3>A year of routine visits in one grid.</h3>
+        <p class="tile-lead">Sites as rows, months as columns. Visits logged in your timesheet are auto-detected and flagged with an <kbd style="font-family:'DM Mono',monospace;font-size:10px;padding:1px 5px;background:var(--green-tint);color:var(--green);border-radius:4px">AUTO</kbd> badge. Stats, Due and Never-Visited tabs on mobile; a full dashboard on desktop.</p>
+      </div>
+
+      <!-- CALLOUT -->
+      <div class="tile t-full">
+        <div class="tile-head">
+          <span class="tile-num">06</span>
+          <span style="font-weight:700;letter-spacing:-0.01em">Callout</span>
+        </div>
+        <div class="tile-visual">
+          <div class="mini-phone angle-l">
+            <div class="mini-phone-screen"><img src="./images/09. OnCall.png" alt="Callouts week view"></div>
+          </div>
+          <div class="mini-phone angle-r">
+            <div class="mini-phone-screen"><img src="./images/10. OnCall.png" alt="Callout incident detail"></div>
+          </div>
+        </div>
+        <h3>On-call weeks and incidents, together.</h3>
+        <p class="tile-lead">Mark which weeks you're on-call or doing extra shifts. Log each fault against its week: time, site, description, actions taken. Paste a Remedy ticket and it parses the site, fault and date automatically. Callouts roll into the weekly email export.</p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ DESKTOP ═══════════ -->
+<section class="desktop-sec" id="desktop">
+  <div class="wrap desktop-sec-inner">
+    <div>
+      <div class="sec-label"><span class="num">07</span><span>Desktop mode</span></div>
+      <h2 class="sec-title">A dedicated desktop layout.</h2>
+      <p class="sec-lead">When the screen is 1280&nbsp;px or wider, Rian switches to purpose-built multi-panel views (navigation, list, detail) sharing data and state with the mobile app.</p>
+
+      <div class="cap-list desktop-caps">
+        <div class="cap">
+          <div class="cap-ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="18" rx="1"/><rect x="14" y="3" width="7" height="9" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></div>
+          <div><h3>Three-panel timesheet</h3><p>Days, Tasks and Detail side by side. Keyboard-driven.</p></div>
+        </div>
+        <div class="cap">
+          <div class="cap-ico amber"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></div>
+          <div><h3>Weekly summary sidebar</h3><p>Percentage bars and ORD/OT columns. Weekend days auto-collapse when empty.</p></div>
+        </div>
+        <div class="cap">
+          <div class="cap-ico green"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M4 12h10M4 17h7"/></svg></div>
+          <div><h3>Every view reimagined</h3><p>Notes, Callouts, Finder and Routines each have a desktop layout with wider editors and live Google Maps where useful.</p></div>
+        </div>
+        <div class="cap">
+          <div class="cap-ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg></div>
+          <div><h3>Shared state with mobile</h3><p>Collapse a section on the laptop, it's collapsed on the phone. Universal ESC closes whichever modal is open.</p></div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="laptop">
+        <div class="laptop-screen">
+          <img src="./images/11. Desktop Mode.png" alt="Rian desktop three-panel layout">
+        </div>
+        <div class="laptop-base"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ CTA ═══════════ -->
+<section class="cta-final">
+  <div class="wrap">
+    <div class="cta-box">
+      <h2>Launch the app.</h2>
+      <p>Opens in a browser or installs as a PWA. Sign in with Google to sync across devices.</p>
+      <a href="./app.html" target="_blank" rel="noopener" class="btn-primary" style="font-size:15px;padding:13px 24px;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+        Launch Rian
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ FOOTER ═══════════ -->
+<footer class="footer">
+  <div class="wrap foot-inner">
+    <div class="foot-brand">
+      <div class="brand-mark" style="width:26px;height:26px;font-size:11px">R</div>
+      Rian &middot; Built for field technicians
+    </div>
+    <div class="foot-links">
+      <a href="privacy.html">Privacy</a>
+      <a href="./app.html" target="_blank" rel="noopener">Launch App</a>
+    </div>
+    <div class="foot-ver">v5.9.40 · Mobile · Desktop · Offline</div>
+  </div>
+</footer>
+
+</body>
+</html>
