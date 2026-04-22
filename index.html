@@ -391,8 +391,10 @@
     .samsung-dot{width:7px;height:7px;border-radius:50%;background:var(--border);transition:background 0.2s,transform 0.2s;}
     .samsung-dot.active{background:var(--accent);transform:scale(1.25);}
 
-    /* ── CAROUSEL: kicks in whenever two phones would overflow ── */
+    /* ── CAROUSEL + single-column grid: both kick in at same breakpoint ── */
     @media(max-width:1100px){
+      .feature-inner{grid-template-columns:1fr;gap:36px;}
+      .feature-section:nth-child(odd) .feature-inner{direction:ltr;}
       .samsung-wrap{
         width:100%;
         min-width:0;
@@ -423,11 +425,8 @@
     /* ── RESPONSIVE ── */
     @media(max-width:768px){
       .feature-section{padding:56px 20px;}
-      .feature-inner{grid-template-columns:1fr;gap:36px;}
-      .feature-section:nth-child(odd) .feature-inner{direction:ltr;}
       .phone.secondary{display:none;}
       .desk-panels{grid-template-columns:70px 120px 1fr;}
-      /* Laptop fits column width */
       .laptop{max-width:100%;}
       .laptop-base{margin:6px -10px 0;}
     }
