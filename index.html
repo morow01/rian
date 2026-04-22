@@ -400,14 +400,15 @@
       .desk-panels{grid-template-columns:70px 120px 1fr;}
       /* Carousel on mobile */
       .samsung-wrap{
+        width:100%;
+        min-width:0;
         overflow-x:auto;
         scroll-snap-type:x mandatory;
         -webkit-overflow-scrolling:touch;
         scrollbar-width:none;
         justify-content:flex-start;
-        gap:16px;
-        padding:8px 20px;
-        margin:0 -20px;
+        gap:20px;
+        padding:8px 0;
       }
       .samsung-wrap::-webkit-scrollbar{display:none;}
       .samsung-frame{
