@@ -359,11 +359,42 @@ All planned themes are implemented: claude, dark, champagne, champagne-dark, ios
 - Currently uses OneNote for field notes (site visits with voltage readings, ticket tables, photos) — long-term goal is to replace OneNote with Rian's TipTap-based notes
 - Device: Samsung SM-S918B
 
+## Landing Page (index.html)
+
+The production landing page at `https://morow01.github.io/rian/` is a separate static file — not part of `app.html`. Edit `index.html` directly; it has its own self-contained CSS and JS.
+
+### Screenshot Phone Frames (2026-04-22)
+Real app screenshots displayed in Samsung Android phone frame mockups (`.samsung-frame`). Images live in `images/` folder:
+- `01 TimeSheet.png`, `02 Notes.png`, `03 Notes.png`, `04. Journal.png`, `05. Journal.png`, `06. Finder.png`, `07. Routines.png`, `08. Routines.png`, `09. OnCall.png`, `10. OnCall.png`, `11. Desktop Mode.png`
+
+### Carousel Pattern
+Each phone section uses `.samsung-col > .samsung-wrap > .samsung-slide(s)` structure:
+- `.samsung-col`: flex column, centers carousel + nav row
+- `.samsung-wrap`: `overflow-x: auto; scroll-snap-type: x mandatory; width: 290px` — fixed width so carousel is always active (not media-query gated)
+- `.samsung-slide`: `width: 290px; padding: 20px 40px 52px` — padding must accommodate shadow (`0 10px 28px` = 38px clearance needed; 52px bottom covers it)
+- Sections with 1 image: just one slide, no nav added
+- Sections with 2 images: JS adds `‹ dots ›` nav row inside `.samsung-col`
+
+### Carousel JS
+`document.querySelectorAll('.samsung-col')` — for each col with 2+ slides, injects a `.samsung-nav` div (prev button + `.samsung-dots` + next button). Prev/next click `wrap.scrollTo({left: idx * wrap.offsetWidth, behavior:'smooth'})`. Dots sync via `wrap.addEventListener('scroll', ...)`. Dots are also clickable. Touch swipe works natively via scroll-snap.
+
+**Why not mouse drag**: `scroll-snap-type: mandatory` fights against programmatic `scrollLeft` changes on Chrome — browser snaps back during drag, making it feel broken. Arrow buttons are reliable on desktop.
+
+### Responsive Layout
+- `> 900px`: 2-column grid (`1fr 1fr`), phone carousel in right column
+- `≤ 900px`: single-column grid, carousel centred below text (290px fixed)
+- `≤ 600px`: carousel goes full-width (`width: 100%` on wrap + slide)
+- Odd-numbered sections use `direction: rtl` on `.feature-inner` to flip photo/text order; reset to `ltr` at ≤ 900px
+
+### Shadow Clipping Rule
+`overflow-x: auto` clips `box-shadow` of children. Keep `.samsung-slide` padding ≥ shadow extent on all sides. Current shadow: `0 10px 28px` → needs ≥ 38px bottom clearance, ≥ 28px sides. Current padding: `20px 40px 52px` — do not reduce without adjusting the shadow first.
+
 ## Testing
 - Served locally at `http://localhost:3000/app` for dev
 - No test framework — manual testing in browser
 - After changes, always hard-reload (Ctrl+Shift+R) to bypass service worker cache
 - PWA live at: `https://morow01.github.io/rian/app.html`
+- Landing page live at: `https://morow01.github.io/rian/`
 
 ---
 
