@@ -18080,7 +18080,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.9.49';
+    const VERSION = '5.9.50';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -27635,6 +27635,7 @@
     // ── Desktop Journal inline TipTap editor ──
     var _djTiptapEditor = null;
     var _djTiptapWrap = null;   // persistent DOM element
+    var _ResizableImage = null; // shared across Notes + Journal editors
     var _djTtPageId = null;     // currently loaded page id
     var _djTtToolbarWired = false;
 
@@ -27786,6 +27787,8 @@
       // Create editor instance if needed
       if (!_djTiptapEditor) {
         var mods = await _loadTipTapModules();
+        // Ensure ResizableImage is built (Notes editor builds it; pre-init it silently if journal opens first)
+        if (!_ResizableImage) await _ensureTipTap();
         _djTiptapWrap = document.createElement('div');
         _djTiptapWrap.className = 'dj-tt-editor-wrap';
 
@@ -27808,7 +27811,7 @@
             mods.Link.configure({ openOnClick: false, HTMLAttributes: { target: '_blank', rel: 'noopener noreferrer nofollow' } }),
             mods.Subscript,
             mods.Superscript,
-            mods.Image.configure({ inline: false, allowBase64: true }),
+            (_ResizableImage || mods.Image).configure({ inline: false, allowBase64: true }),
           ],
           content: '',
           onUpdate: function (_ref) {
@@ -39382,6 +39385,7 @@ QUESTION: ${query}`;
           };
         },
       });
+      _ResizableImage = ResizableImage; // cache for Journal editor
 
       _tiptapEditor = new Editor({
         element: document.getElementById('note-fs-editor'),
