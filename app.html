@@ -18000,7 +18000,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.9.40';
+    const VERSION = '5.9.41';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -35353,7 +35353,7 @@
       const allPastKeys = new Set();
       // Only show weeks that are on-call/extra, or have actual fault entries
       pastWeeks.forEach(([wk]) => { if (onCall[wk] || (state.callouts.weeks?.[wk]?.callouts?.length > 0)) allPastKeys.add(wk); });
-      Object.keys(onCall).forEach(wk => { if (_ocIsPast(wk)) allPastKeys.add(wk); });
+      Object.keys(onCall).forEach(wk => { if (wk !== curWeekStart && _ocIsPast(wk)) allPastKeys.add(wk); });
       const sortedPast = Array.from(allPastKeys).sort().reverse();
 
       if (sortedPast.length > 0) {
