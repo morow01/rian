@@ -1832,6 +1832,32 @@
       transition: opacity 0.1s ease;
     }
 
+    .note-resize-handle {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: ns-resize;
+      z-index: 4;
+      touch-action: none;
+    }
+    .note-resize-handle::before {
+      content: '';
+      width: 28px;
+      height: 3px;
+      border-radius: 2px;
+      background: rgba(var(--shadow-rgb), 0.18);
+      transition: background 0.15s;
+    }
+    .note-resize-handle:hover::before,
+    .note-resize-handle:active::before {
+      background: rgba(var(--accent-rgb), 0.45);
+    }
+
     .note-inline-preview:hover,
     .note-inline-preview:active {
       border-color: var(--accent);
@@ -18000,7 +18026,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.9.41';
+    const VERSION = '5.9.42';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -20142,6 +20168,7 @@
       return `<div class="note-inline-preview" onclick="event.stopPropagation();${onclickAttr}" ${dataAttr}>
         <div class="note-inline-scroll tt-prose" onscroll="_updateInlineNoteThumb(this)">${html}</div>
         <div class="note-inline-thumb"></div>
+        <div class="note-resize-handle" onpointerdown="_noteResizeStart(event,this)" onclick="event.stopPropagation()"></div>
       </div>`;
     }
 
@@ -20174,6 +20201,25 @@
           _updateInlineNoteThumb(s);
         }
       });
+    }
+
+    // Drag-to-resize handler for .note-resize-handle — works with mouse and touch
+    function _noteResizeStart(e, handle) {
+      e.stopPropagation();
+      e.preventDefault();
+      handle.setPointerCapture(e.pointerId);
+      const preview = handle.closest('.note-inline-preview');
+      const scroll = preview.querySelector('.note-inline-scroll');
+      const startY = e.clientY;
+      const startH = preview.offsetHeight;
+      function onMove(ev) {
+        const newH = Math.min(600, Math.max(60, startH + ev.clientY - startY));
+        preview.style.maxHeight = newH + 'px';
+        scroll.style.maxHeight = (newH - 16) + 'px';
+        _updateInlineNoteThumb(scroll);
+      }
+      handle.addEventListener('pointermove', onMove);
+      handle.addEventListener('pointerup', () => handle.removeEventListener('pointermove', onMove), { once: true });
     }
 
     async function loadWeek(weekStart) {
