@@ -8,7 +8,7 @@
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
   <style>
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-    html{scroll-behavior:smooth;}
+    html{scroll-behavior:smooth;overflow-x:hidden;}
     :root{
       --navy:#0F1C2E;--navy2:#162438;--accent:#2D6BE4;--accent-light:#EBF1FD;
       --page:#E8EEF5;--card:#FFFFFF;--border:#D4E0EC;--text:#0F1C2E;
@@ -430,8 +430,8 @@
       .laptop-base{margin:6px -10px 0;}
     }
     @media(max-width:600px){
-      .samsung-wrap{width:100%;}
-      .samsung-slide{width:100%;}
+      .samsung-wrap{width:100%;overflow-x:hidden;}
+      .samsung-slide{width:100%;padding:20px 12px 52px;}
       .feature-section{padding:44px 16px;}
       .site-nav{padding:0 16px;}
       .nav-links{display:none;}
