@@ -7857,6 +7857,55 @@
       color: var(--text-muted);
     }
 
+    #tt-case-wrap {
+      position: relative;
+    }
+    #tt-case-btn {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      background: #e0e7ff;
+      color: #4338ca;
+      border: none;
+      border-radius: 20px;
+      padding: 7px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      white-space: nowrap;
+    }
+    #tt-case-dd {
+      display: none;
+      position: absolute;
+      bottom: calc(100% + 6px);
+      left: 0;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      box-shadow: 0 4px 20px rgba(var(--shadow-rgb), 0.18);
+      overflow: hidden;
+      min-width: 148px;
+      z-index: 10002;
+    }
+    #tt-case-dd.open { display: block; }
+    #tt-case-dd button {
+      display: block;
+      width: 100%;
+      text-align: left;
+      padding: 9px 14px;
+      border: none;
+      background: none;
+      font-size: 13px;
+      color: var(--text-primary);
+      cursor: pointer;
+      font-family: var(--font-body);
+    }
+    #tt-case-dd button:hover,
+    #tt-case-dd button:active {
+      background: var(--bg-card-alt);
+    }
+
     #tt-link-bubble {
       /* position/display/z-index set inline by _ttUpdateLinkBubble */
       align-items: center;
@@ -18031,7 +18080,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.9.45';
+    const VERSION = '5.9.46';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -40365,6 +40414,47 @@ QUESTION: ${query}`;
       if (bubble) bubble.style.display = 'none';
     }
 
+    // ── Case Converter ──
+    function _ttToggleCaseDD(e) {
+      e.stopPropagation();
+      const dd = document.getElementById('tt-case-dd');
+      if (!dd) return;
+      const opening = !dd.classList.contains('open');
+      dd.classList.toggle('open', opening);
+      if (opening) {
+        setTimeout(() => document.addEventListener('click', _ttCaseDDOutside), 0);
+      }
+    }
+    function _ttCaseDDOutside(e) {
+      const wrap = document.getElementById('tt-case-wrap');
+      if (wrap && !wrap.contains(e.target)) {
+        const dd = document.getElementById('tt-case-dd');
+        if (dd) dd.classList.remove('open');
+        document.removeEventListener('click', _ttCaseDDOutside);
+      }
+    }
+    function _ttApplyCase(mode) {
+      const dd = document.getElementById('tt-case-dd');
+      if (dd) dd.classList.remove('open');
+      document.removeEventListener('click', _ttCaseDDOutside);
+      const editor = _tiptapEditor;
+      if (!editor) return;
+      const { from, to } = editor.state.selection;
+      if (from === to) { showToast('Select some text first'); return; }
+      const text = editor.state.doc.textBetween(from, to, ' ');
+      const converted = _ttConvertCase(text, mode);
+      editor.chain().focus().insertContentAt({ from, to }, converted).run();
+    }
+    function _ttConvertCase(text, mode) {
+      switch (mode) {
+        case 'upper': return text.toUpperCase();
+        case 'lower': return text.toLowerCase();
+        case 'title': return text.replace(/\S+/g, w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase());
+        case 'sentence': return text.toLowerCase().replace(/(^\s*\w|[.!?]\s+\w)/g, c => c.toUpperCase());
+      }
+      return text;
+    }
+
     // ── Selection action bar (sticky bottom, shows when text is selected) ──
     // Save selection here so it's captured BEFORE any blur can wipe it
     let _ttAiSavedSel = null;
@@ -42690,6 +42780,15 @@ The state block is invisible to the user.`;
           </svg>
           AI Rephrase
         </button>
+        <div id="tt-case-wrap">
+          <button id="tt-case-btn" onclick="_ttToggleCaseDD(event)">Aa</button>
+          <div id="tt-case-dd">
+            <button onclick="_ttApplyCase('upper')">UPPERCASE</button>
+            <button onclick="_ttApplyCase('lower')">lowercase</button>
+            <button onclick="_ttApplyCase('title')">Title Case</button>
+            <button onclick="_ttApplyCase('sentence')">Sentence case</button>
+          </div>
+        </div>
         <span id="tt-sel-bar-hint" style="font-size:12px;color:var(--text-muted);margin-left:4px;">tap to expand</span>
       </div>
       <!-- AI rephrase preview panel (hidden until AI returns a suggestion) -->
