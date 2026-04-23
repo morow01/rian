@@ -14,7 +14,7 @@
       --page:#E8EEF5;--card:#FFFFFF;--border:#D4E0EC;--text:#0F1C2E;
       --muted:#4A6580;--faint:#8BA5BE;--ot:#F5A623;--green:#16a34a;--red:#ef4444;
     }
-    body{font-family:'DM Sans',sans-serif;background:var(--page);color:var(--text);line-height:1.6;}
+    body{font-family:'DM Sans',sans-serif;background:var(--page);color:var(--text);line-height:1.6;overflow-x:hidden;}
 
 
     /* ── STICKY NAVBAR ── */
@@ -360,10 +360,12 @@
       -webkit-overflow-scrolling:touch;
       scrollbar-width:none;
       width:290px;
+      max-width:100%;
     }
     .samsung-wrap::-webkit-scrollbar{display:none;}
     .samsung-slide{
       width:290px;
+      max-width:100%;
       flex-shrink:0;
       scroll-snap-align:start;
       display:flex;
