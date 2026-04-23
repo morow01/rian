@@ -8,7 +8,7 @@
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
   <style>
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-    html{scroll-behavior:smooth;overflow-x:hidden;}
+    html{scroll-behavior:smooth;}
     :root{
       --navy:#0F1C2E;--navy2:#162438;--accent:#2D6BE4;--accent-light:#EBF1FD;
       --page:#E8EEF5;--card:#FFFFFF;--border:#D4E0EC;--text:#0F1C2E;
@@ -73,7 +73,7 @@
     }
 
     /* ── SECTION LAYOUT ── */
-    .feature-section{padding:80px 24px;}
+    .feature-section{padding:80px 24px;overflow:hidden;}
     .feature-section:nth-child(even){background:#fff;}
     .feature-inner{
       max-width:1080px;margin:0 auto;display:grid;
@@ -430,7 +430,7 @@
       .laptop-base{margin:6px -10px 0;}
     }
     @media(max-width:600px){
-      .samsung-wrap{width:100%;overflow-x:hidden;}
+      .samsung-wrap{width:100%;}
       .samsung-slide{width:100%;padding:20px 12px 52px;}
       .feature-section{padding:44px 16px;}
       .site-nav{padding:0 16px;}
