@@ -23069,9 +23069,12 @@
       scheduleAutoSave();
 
       // If the task modal is open for this activity, update just the input in-place
-      // instead of a full render() which would close the modal
+      // instead of a full render() which would close the modal.
+      // Scope to #task-modal-overlay — the hidden .activity-detail in the card
+      // has the same data-step-val and querySelector would find that one first.
       if (_taskModalState && _taskModalState.actId === actId) {
-        const inp = document.querySelector(`[data-step-val="${actId}-${field}"]`);
+        const modalEl = document.getElementById('task-modal-overlay');
+        const inp = modalEl ? modalEl.querySelector(`[data-step-val="${actId}-${field}"]`) : null;
         if (inp) inp.value = val;
         // Also refresh card pill
         const pill = document.querySelector(`[data-row-hrs="${actId}"]`);
