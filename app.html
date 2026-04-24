@@ -18183,7 +18183,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.9.51-exp';
+    const VERSION = '5.9.52-exp';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -21481,6 +21481,16 @@
                     </span>
                   </button>
                   ${(() => {
+                    const isModal = getTaskStyle() === 'modal';
+                    return `<button class="menu-row" onclick="setTaskStyle(getTaskStyle()==='modal'?'expand':'modal')">
+                    <span class="menu-row-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></span>
+                    <span class="menu-row-body"><span class="menu-row-label">Card style</span><span class="menu-row-sub">${isModal ? 'Fullscreen modal' : 'Expand in place'}</span></span>
+                    <span style="width:36px;height:20px;border-radius:10px;background:${isModal ? 'var(--accent)' : 'var(--border-strong)'};position:relative;transition:background 0.2s;flex-shrink:0;display:inline-block;">
+                      <span style="position:absolute;top:2px;left:${isModal ? '18px' : '2px'};width:16px;height:16px;border-radius:50%;background:#fff;transition:left 0.2s;box-shadow:0 1px 4px rgba(var(--shadow-rgb),0.18);display:block;"></span>
+                    </span>
+                  </button>`;
+                  })()}
+                  ${(() => {
               const cur = getSavedTheme();
               const keys = Object.keys(THEME_META);
               return `
@@ -23147,7 +23157,7 @@
       const remedyStyle = act.remedyPending && !showRedBorder ? 'border-color:#7c3aed; box-shadow: 0 0 0 3px rgba(124,58,237,0.13)' : '';
       return `
       <div class="activity-card${act.remedyPending ? ' remedy-flagged' : ''}" data-act-id="${act.id}" style="${showRedBorder ? 'border-color:var(--btn-danger-color); box-shadow: 0 0 8px rgba(232, 69, 60, 0.2)' : remedyStyle}">
-        <div class="flex items-center gap-3 px-3.5 py-3 cursor-pointer" onclick="openTaskModal('${act.id}',${di})">
+        <div class="flex items-center gap-3 px-3.5 py-3 cursor-pointer" onclick="getTaskStyle()==='modal'?openTaskModal('${act.id}',${di}):toggleActivityDetails('${act.id}')">
           <div class="task-num">${actIndex + 1}</div>
           <div class="flex-1 min-w-0 act-meta">
             <div class="act-desc-txt" data-row-desc="${act.id}">${esc(act.description) || '<span style="opacity:0.4;font-weight:400;font-style:italic">No description</span>'}</div>
@@ -28838,7 +28848,9 @@
 
     function notePressClick(e, id) {
       if (_notePressLocked) { _notePressLocked = false; return; }
-      if (state.selectionMode) { toggleNoteSelection(id); } else { openNoteModal(id); }
+      if (state.selectionMode) { toggleNoteSelection(id); }
+      else if (getTaskStyle() === 'modal') { openNoteModal(id); }
+      else { toggleNote(id); }
     }
 
     function toggleSelectionMode() {
@@ -31405,6 +31417,15 @@
       // Re-render so the menu reflects the new selection
       if (typeof render === 'function') render();
       showToast('Theme: ' + THEME_META[t].label);
+    }
+
+    function getTaskStyle() {
+      try { return localStorage.getItem('rian_task_style') || 'expand'; } catch { return 'expand'; }
+    }
+    function setTaskStyle(s) {
+      try { localStorage.setItem('rian_task_style', s); } catch { }
+      render();
+      showToast(s === 'modal' ? 'Card style: Fullscreen' : 'Card style: Expand in place');
     }
 
     function toggleThemeMenu(e) {
@@ -36718,7 +36739,9 @@
 
     function coPressClick(e, id) {
       if (_coPressLocked) { _coPressLocked = false; return; }
-      if (state.coSelectionMode) { coToggleSelection(id); } else { openCoModal(id); }
+      if (state.coSelectionMode) { coToggleSelection(id); }
+      else if (getTaskStyle() === 'modal') { openCoModal(id); }
+      else { coToggleCard(id); }
     }
 
     // ── Callout fullscreen modal ──
