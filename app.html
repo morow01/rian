@@ -1208,7 +1208,7 @@
     .copy-picker-overlay {
       position: fixed;
       inset: 0;
-      z-index: 60;
+      z-index: 10010;
       background: rgba(var(--shadow-rgb), 0.4);
       backdrop-filter: blur(3px);
       -webkit-backdrop-filter: blur(3px);
@@ -17726,7 +17726,7 @@
   <div id="app" class="mx-auto" style="max-width:690px"></div>
 
   <!-- ===== CODE SEARCH MODAL ===== -->
-  <div id="code-modal" class="hidden fixed inset-0 flex flex-col" style="z-index:600">
+  <div id="code-modal" class="hidden fixed inset-0 flex flex-col" style="z-index:10010">
     <div id="code-modal-inner" class="flex flex-col flex-1 overflow-hidden">
       <div style="background:var(--bg-header)" class="text-white px-4 py-3 flex items-center gap-3 safe-top">
         <button onclick="closeCodeModal()" class="text-white p-1 text-xl leading-none">✕</button>
@@ -17750,7 +17750,7 @@
 
   <!-- ===== LOCATION SEARCH MODAL ===== -->
   <div id="location-modal" class="hidden fixed inset-0 flex flex-col"
-    style="background:rgba(var(--shadow-rgb), 0.45);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);z-index:10000">
+    style="background:rgba(var(--shadow-rgb), 0.45);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);z-index:10010">
     <div id="location-modal-inner" class="flex flex-col flex-1 overflow-hidden" style="background:var(--bg-modal)">
       <div style="background:var(--bg-header)" class="text-white px-4 py-3 flex items-center gap-3 safe-top">
         <button onclick="closeLocationModal()" class="text-white p-1 text-xl leading-none">✕</button>
