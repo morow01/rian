@@ -1635,6 +1635,88 @@
       overflow: visible;
     }
 
+    /* ── Task fullscreen modal (experiment/fullscreen-task-modal) ── */
+    #task-modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 10005;
+      background: rgba(0,0,0,0.45);
+      align-items: flex-end;
+      justify-content: center;
+    }
+    .task-modal-sheet {
+      background: var(--bg-card);
+      border-radius: 20px 20px 0 0;
+      width: 100%;
+      max-width: 640px;
+      max-height: 92dvh;
+      display: flex;
+      flex-direction: column;
+      animation: ttAiSlideUp 0.22s ease;
+    }
+    .task-modal-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 16px 12px;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .task-modal-num {
+      min-width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      background: var(--accent-light, #eff6ff);
+      color: var(--accent);
+      font-size: 13px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .task-modal-title {
+      flex: 1;
+      min-width: 0;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-primary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .task-modal-close {
+      width: 32px;
+      height: 32px;
+      border: none;
+      background: var(--bg-card-alt);
+      border-radius: 50%;
+      font-size: 18px;
+      line-height: 1;
+      color: var(--text-muted);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .task-modal-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      -webkit-overflow-scrolling: touch;
+    }
+    .task-modal-actions {
+      display: flex;
+      gap: 8px;
+      padding: 12px 16px 16px;
+      border-top: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+
     /* Notes panel inside activity-detail */
     .notes-panel {
       border: 1px solid var(--border);
@@ -18080,7 +18162,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.9.51';
+    const VERSION = '5.9.51-exp';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -22691,32 +22773,155 @@
       return true;
     }
 
+    // ── Task fullscreen modal (experiment/fullscreen-task-modal) ──
+    var _taskModalState = null; // { actId, di } — module-level so render() doesn't clear it
+
+    function openTaskModal(actId, di) {
+      _taskModalState = { actId, di };
+      _showTaskModal();
+    }
+
+    function closeTaskModal() {
+      _taskModalState = null;
+      const ov = document.getElementById('task-modal-overlay');
+      if (ov) ov.style.display = 'none';
+      document.body.style.overflow = '';
+      render(); // refresh card summaries
+    }
+
+    function _showTaskModal() {
+      if (!_taskModalState) return;
+      const { actId, di } = _taskModalState;
+      const act = state.weekData.days[di]?.activities.find(a => a.id === actId);
+      if (!act) { closeTaskModal(); return; }
+
+      let ov = document.getElementById('task-modal-overlay');
+      if (!ov) {
+        ov = document.createElement('div');
+        ov.id = 'task-modal-overlay';
+        document.body.appendChild(ov);
+      }
+      ov.innerHTML = _renderTaskModalHtml(act, di);
+      ov.style.display = 'flex';
+      document.body.style.overflow = 'hidden';
+
+      requestAnimationFrame(() => {
+        ov.querySelectorAll('textarea').forEach(autoGrow);
+        _initInlineNoteThumbs();
+      });
+    }
+
+    function _renderTaskModalHtml(act, di) {
+      const ordinary = parseFloat(act.ordinary) || 0;
+      const overtime = parseFloat(act.overtime) || 0;
+      const isMissingCode = (ordinary > 0 || overtime > 0) && act.codes.length === 0;
+      const isMissingHours = act.codes.length > 0 && ordinary === 0 && overtime === 0;
+      const escId = act.id.replace(/'/g, "\\'");
+
+      const codesHtml = act.codes.length === 0
+        ? `<span style="color:var(--text-muted);font-size:13px;display:flex;align-items:center;gap:6px"><svg width="12" height="12" viewBox="0 0 10 10" fill="none"><path d="M5 1v8M1 5h8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>Add work codes</span>`
+        : act.codes.map(c => `<div class="act-code-chip"><span>${c.d}</span><span class="act-code-mono">${c.c}</span></div>`).join('');
+
+      const actionsHtml = act._draft
+        ? `<button onclick="saveTaskDraft('${escId}',${di});closeTaskModal()" class="act-action-btn act-action-note" style="flex:1">
+             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Save
+           </button>
+           <button onclick="discardTaskDraft('${escId}',${di});closeTaskModal()" class="act-action-btn act-action-delete">
+             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> Discard
+           </button>`
+        : `<button onclick="showConfirm('Delete task?','${escAttr(act.description||'Unnamed')}',()=>{removeActivity('${escId}',${di});closeTaskModal()})" class="act-action-btn act-action-delete" style="flex:1">
+             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg> Delete
+           </button>
+           <button onclick="closeAllCtx();openCopyPicker('${escId}',${di},false)" class="act-action-btn act-action-note">
+             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copy
+           </button>
+           <button onclick="closeAllCtx();openCopyPicker('${escId}',${di},true)" class="act-action-btn act-action-note">
+             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg> Move
+           </button>`;
+
+      return `<div class="task-modal-sheet" onclick="event.stopPropagation()">
+        <div class="task-modal-header">
+          <div class="task-modal-num">${di + 1}</div>
+          <div class="task-modal-title">${esc(act.description) || '<span style="opacity:0.45;font-style:italic">No description</span>'}</div>
+          <button class="task-modal-close" onclick="closeTaskModal()">×</button>
+        </div>
+        <div class="task-modal-body">
+          <form autocomplete="off" onsubmit="return false" style="margin:0;padding:0;border:0;display:contents">
+            <div class="flex flex-col gap-1.5">
+              <span class="act-field-label">Description</span>
+              <textarea placeholder="Description of work" rows="1" class="act-textarea"
+                autocomplete="off" data-lpignore="true" data-form-type="other" data-1p-ignore="true"
+                data-field="description" data-act="${act.id}" data-day="${di}"
+                oninput="updateField(this);autoGrow(this);_taskModalRefreshTitle(this.value)">${esc(act.description)}</textarea>
+            </div>
+            <div class="flex flex-col gap-1.5">
+              <span class="act-field-label">Notes</span>
+              ${renderNoteInline(act.notes, `openNoteFullscreen('${escId}',${di})`, `data-notes-inline="${act.id}"`)}
+            </div>
+            <textarea class="act-notes-area" style="display:none" data-field="notes" data-act="${act.id}" data-day="${di}">${esc(act.notes||'')}</textarea>
+            <div class="flex flex-col gap-1.5">
+              <span class="act-field-label">Location</span>
+              <div class="act-input" role="button" tabindex="0" style="cursor:pointer;user-select:none;min-height:1.6em;${act.location?'':'color:var(--text-muted)'}"
+                data-field="location" data-act="${act.id}" data-day="${di}"
+                onclick="openLocationModal(${di},'${escId}')">${act.location?esc(act.location):'Town name or code…'}</div>
+            </div>
+            <div class="flex flex-col gap-1.5">
+              <div style="display:flex;align-items:center;justify-content:space-between">
+                <span class="act-field-label">Work Codes</span>
+                <button id="suggest-btn-${act.id}" class="act-suggest-btn" onclick="suggestCodes('${escId}',${di})">
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8V4H8"/><rect x="4" y="8" width="16" height="12" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></svg>
+                  Suggest
+                </button>
+              </div>
+              <div class="act-codes-wrap" data-act-codes="${act.id}" onclick="openCodeModal(${di},'${escId}')" style="cursor:pointer;min-height:42px">${codesHtml}</div>
+              <div id="suggest-wrap-${act.id}"></div>
+              ${isMissingCode?`<div class="act-missing-warn">Missing work code</div>`:''}
+              ${isMissingHours?`<div class="act-missing-warn">Missing hours</div>`:''}
+            </div>
+            <div class="flex gap-3">
+              <div class="hrs-box flex-1">
+                <div class="act-field-label" style="margin-bottom:8px">Ordinary HRS</div>
+                <div class="hrs-stepper flex items-center justify-between">
+                  <button onclick="event.stopPropagation();stepHrs('${escId}',${di},'ordinary',-1)">−</button>
+                  <input type="tel" class="val" data-step-val="${act.id}-ordinary" value="${ordinary}" inputmode="decimal" pattern="[0-9.]*" autocomplete="off" onclick="event.stopPropagation()" onchange="event.stopPropagation();setHrs('${escId}',${di},'ordinary',this.value)" onkeydown="if(event.key==='Enter'){this.blur()}">
+                  <button onclick="event.stopPropagation();stepHrs('${escId}',${di},'ordinary',1)">+</button>
+                </div>
+              </div>
+              <div class="hrs-box ot-box flex-1">
+                <div class="act-field-label act-field-label-ot" style="margin-bottom:8px">Overtime HRS</div>
+                <div class="hrs-stepper flex items-center justify-between">
+                  <button onclick="event.stopPropagation();stepHrs('${escId}',${di},'overtime',-1)">−</button>
+                  <input type="tel" class="val" data-step-val="${act.id}-overtime" value="${overtime}" inputmode="decimal" pattern="[0-9.]*" autocomplete="off" onclick="event.stopPropagation()" onchange="event.stopPropagation();setHrs('${escId}',${di},'overtime',this.value)" onkeydown="if(event.key==='Enter'){this.blur()}">
+                  <button onclick="event.stopPropagation();stepHrs('${escId}',${di},'overtime',1)">+</button>
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+        <div class="task-modal-actions">${actionsHtml}</div>
+      </div>`;
+    }
+
+    // Update the modal header title live as the user types in the description
+    function _taskModalRefreshTitle(val) {
+      const t = document.querySelector('#task-modal-overlay .task-modal-title');
+      if (t) t.innerHTML = val ? esc(val) : '<span style="opacity:0.45;font-style:italic">No description</span>';
+    }
+
     function renderActivity(act, di, actIndex) {
-      const isExpanded = state.activitiesExpanded.has(act.id);
       const ordinary = parseFloat(act.ordinary) || 0;
       const overtime = parseFloat(act.overtime) || 0;
       const isMissingCode = (ordinary > 0 || overtime > 0) && act.codes.length === 0;
       const isMissingHours = act.codes.length > 0 && ordinary === 0 && overtime === 0;
       const isMissingLocation = (ordinary > 0 || overtime > 0) && !act.location;
-      const isInvalid = isMissingCode || isMissingHours || isMissingLocation;
-      // Hours with no code → red immediately
-      // Code with no hours → red only on collapse (grace period while entering hours)
-      // Missing location → red only when collapsed (grace period while filling in)
-      const showRedBorder = isMissingCode || (isMissingHours && !isExpanded) || (isMissingLocation && !isExpanded);
-      const numTasks = act.codes.length || 1;
-      const hrsPerTask = ordinary > 0 ? Math.round(ordinary / numTasks) : '—';
-      const otPerTask = overtime > 0 ? Math.round(overtime / numTasks) : '—';
-      const notesOpen = state.notesOpen.has(act.id) ? state.notesOpen.get(act.id) : !!act.notes;
-
+      const showRedBorder = isMissingCode || isMissingHours || isMissingLocation;
       const remedyStyle = act.remedyPending && !showRedBorder ? 'border-color:#7c3aed; box-shadow: 0 0 0 3px rgba(124,58,237,0.13)' : '';
       return `
-      <div class="activity-card ${isExpanded ? 'expanded' : ''}${act.remedyPending ? ' remedy-flagged' : ''}" data-act-id="${act.id}" style="${showRedBorder ? 'border-color:var(--btn-danger-color); box-shadow: 0 0 8px rgba(232, 69, 60, 0.2)' : remedyStyle}">
-        <div class="flex items-center gap-3 px-3.5 py-3 cursor-pointer" onclick="toggleActivityDetails('${act.id}')">
+      <div class="activity-card${act.remedyPending ? ' remedy-flagged' : ''}" data-act-id="${act.id}" style="${showRedBorder ? 'border-color:var(--btn-danger-color); box-shadow: 0 0 8px rgba(232, 69, 60, 0.2)' : remedyStyle}">
+        <div class="flex items-center gap-3 px-3.5 py-3 cursor-pointer" onclick="openTaskModal('${act.id}',${di})">
           <div class="task-num">${actIndex + 1}</div>
           <div class="flex-1 min-w-0 act-meta">
-            <!-- Line 1: description, full width -->
             <div class="act-desc-txt" data-row-desc="${act.id}">${esc(act.description) || '<span style="opacity:0.4;font-weight:400;font-style:italic">No description</span>'}</div>
-            <!-- Line 2: location left, hour pills right -->
             <div class="act-row2">
               <div class="act-loc-txt" data-row-loc="${act.id}">
                 ${act.location ? `<svg width="13" height="13" viewBox="0 0 24 24" fill="#e8453c" style="display:inline-block;vertical-align:-2px;margin-right:2px;"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 010-5 2.5 2.5 0 010 5z"/></svg>${esc(act.location)}` : '<span style="opacity:0.4">No location</span>'}
@@ -22729,9 +22934,9 @@
             </div>
           </div>
           
-          <span class="chevron" style="font-size:14px;color:var(--text-muted);transform:${isExpanded ? 'rotate(90deg)' : 'rotate(0deg)'};transition:transform 0.2s;flex-shrink:0;">›</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;color:var(--text-muted)"><polyline points="9 18 15 12 9 6"/></svg>
         </div>
-        <div class="activity-detail ${isExpanded ? 'open' : ''}" style="${isExpanded ? '' : 'display:none'}">
+        <div class="activity-detail" style="display:none">
           <form autocomplete="off" onsubmit="return false" style="margin:0;padding:0;border:0">
           <div class="act-detail-inner">
             <div class="flex flex-col gap-1.5">
@@ -22862,7 +23067,20 @@
       act[field] = val;
 
       scheduleAutoSave();
-      render(); // Guaranteed UI sync
+
+      // If the task modal is open for this activity, update just the input in-place
+      // instead of a full render() which would close the modal
+      if (_taskModalState && _taskModalState.actId === actId) {
+        const inp = document.querySelector(`[data-step-val="${actId}-${field}"]`);
+        if (inp) inp.value = val;
+        // Also refresh card pill
+        const pill = document.querySelector(`[data-row-hrs="${actId}"]`);
+        if (pill && field === 'ordinary') { pill.textContent = val + 'h'; pill.style.display = val > 0 ? '' : 'none'; }
+        const pillOt = document.querySelector(`[data-row-ot="${actId}"]`);
+        if (pillOt && field === 'overtime') { pillOt.textContent = '+' + val + ' OT'; pillOt.style.display = val > 0 ? '' : 'none'; }
+      } else {
+        render(); // Guaranteed UI sync
+      }
     }
 
     function setHrs(actId, di, field, rawVal) {
@@ -42271,6 +42489,9 @@ The state block is invisible to the user.`;
   <!-- ===== NOTE FULLSCREEN MODAL ===== -->
   <!-- DOCX → Notebooks import overlay -->
   <!-- DOCX → Notebooks import overlay -->
+  <!-- Task fullscreen modal (experiment/fullscreen-task-modal) -->
+  <div id="task-modal-overlay" onclick="if(event.target===this)closeTaskModal()"></div>
+
   <div id="jdocx-overlay" class="jdocx-overlay" style="display:none"
     onclick="if(event.target===this)closeJDocxImport()">
     <div class="jdocx-sheet">
