@@ -18189,7 +18189,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.9.90';
+    const VERSION = '5.9.91';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -19829,10 +19829,11 @@
       const isPending = act.remedyPending;
       const remedyPillHtml = `<span class="pill-remedy"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7" stroke-width="3"/></svg> Remedy</span>`;
 
-      // Update all matching contexts (expanded card + modal) without re-rendering
+      // Update all matching contexts (expanded card + modal + desktop panel) without re-rendering
       [
         document.querySelector(`.activity-card[data-act-id="${actId}"]`),
         document.querySelector('#task-modal-overlay .task-modal-sheet'),
+        document.getElementById('desk-detail-panel'),
       ].forEach(root => {
         if (!root) return;
 
@@ -22360,17 +22361,16 @@
           '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> Discard</button>' +
           '</div>'
           : '<div class="desk-detail-actions">' +
-          '<button class="desk-detail-btn" onclick="openCopyPicker(\'' + escId + '\',' + di + ',false)">' +
-          '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg> Copy</button>' +
-          '<button class="desk-detail-btn" onclick="openCopyPicker(\'' + escId + '\',' + di + ',true)">' +
-          '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg> Move</button>' +
-          '<button class="desk-detail-btn" onclick="openAddToNotes(\'' + escId + '\',' + di + ')">' +
-          '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg> Add to Notes</button>' +
-          '<button class="desk-detail-btn" onclick="toggleRemedyFlag(' + di + ',\'' + escId + '\')" style="' + (act.remedyPending ? 'color:#7c3aed;border-color:#7c3aed' : '') + '">' +
-          '<svg width="14" height="14" viewBox="0 0 24 24" fill="' + (act.remedyPending ? '#7c3aed' : 'none') + '" stroke="' + (act.remedyPending ? '#7c3aed' : 'currentColor') + '" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7" stroke-width="3"/></svg> ' +
-          (act.remedyPending ? 'Remedy \u2713' : 'Remedy') + '</button>' +
-          '<button class="desk-detail-btn danger" style="margin-left:auto" onclick="showConfirm(\'Delete task?\',\'' + escDesc + '\',function(){removeActivity(\'' + escId + '\',' + di + ')})">' +
-          '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg> Delete</button>' +
+          '<button class="task-modal-text-btn" onclick="openCopyPicker(\'' + escId + '\',' + di + ',false)">' +
+          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copy</button>' +
+          '<button class="task-modal-text-btn" onclick="openAddToNotes(\'' + escId + '\',' + di + ')">' +
+          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg> Notes</button>' +
+          '<button class="task-modal-text-btn' + (act.remedyPending ? ' active' : '') + '" onclick="toggleRemedyFlag(' + di + ',\'' + escId + '\')">' +
+          '<svg viewBox="0 0 24 24" fill="' + (act.remedyPending ? '#7c3aed' : 'none') + '" stroke="' + (act.remedyPending ? '#7c3aed' : 'currentColor') + '" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7" stroke-width="3"/></svg> ' +
+          (act.remedyPending ? 'Remedy ✓' : 'Remedy') + '</button>' +
+          '<div style="width:1px;background:var(--border);align-self:stretch;margin:0 2px;flex-shrink:0"></div>' +
+          '<button class="act-action-btn act-action-delete" style="flex:none;padding:0 14px" onclick="showConfirm(\'Delete task?\',\'' + escDesc + '\',function(){removeActivity(\'' + escId + '\',' + di + ')})">' +
+          '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button>' +
           '</div>') +
 
         '</div>' +
