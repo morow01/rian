@@ -18188,7 +18188,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.9.58';
+    const VERSION = '5.9.59';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -23431,10 +23431,14 @@
     function addActivity(di) {
       const newAct = createActivity();
       state.weekData.days[di].activities.push(newAct);
-      state.activitiesExpanded.add(newAct.id); // Auto-expand new activities
-      state.expandedDays.add(di); // Auto-expand the entire day so user sees the new activity
-      // Don't sync yet — task is in draft mode until user taps Save
-      render();
+      state.expandedDays.add(di);
+      if (getTaskStyle() === 'modal') {
+        render();
+        openTaskModal(newAct.id, di);
+      } else {
+        state.activitiesExpanded.add(newAct.id);
+        render();
+      }
     }
 
     function saveTaskDraft(actId, di) {
@@ -28972,18 +28976,20 @@
 
     function addNote() {
       const note = createNote();
-      // Pre-assign active category filter so new note appears in current view
       if (state.notesCategoryFilter) note.category = state.notesCategoryFilter;
       state.notes.unshift(note);
-      state.expandedNotes.add(note.id);
       state.notesFilter = 'all';
-      // Don't sync yet — note is in draft mode until user taps Save
-      render();
-      // focus description textarea
-      setTimeout(() => {
-        const ta = document.querySelector(`textarea[data-note-id="${note.id}"]`);
-        if (ta) ta.focus();
-      }, 80);
+      if (getTaskStyle() === 'modal') {
+        render();
+        openNoteModal(note.id);
+      } else {
+        state.expandedNotes.add(note.id);
+        render();
+        setTimeout(() => {
+          const ta = document.querySelector(`textarea[data-note-id="${note.id}"]`);
+          if (ta) ta.focus();
+        }, 80);
+      }
     }
 
     function saveNoteDraft(noteId) {
@@ -35815,6 +35821,7 @@
       wd.callouts.push(newCo);
       state.dcoSelectedCo = newCo.id;
       render();
+      if (getTaskStyle() === 'modal') openCoModal(newCo.id);
     }
 
     function dcoUpdateField(field, value) {
