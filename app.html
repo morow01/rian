@@ -18172,7 +18172,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.9.67';
+    const VERSION = '5.9.68';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -22907,7 +22907,20 @@
            </button>
            <button onclick="closeAllCtx();openCopyPicker('${escId}',${di},true)" class="act-action-btn act-action-note">
              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg> Move
-           </button>`;
+           </button>
+           <div class="ctx-wrap">
+             <button class="btn-more" id="act-more-modal" onclick="toggleActMenu('modal')">···</button>
+             <div class="ctx-menu" id="act-ctx-modal">
+               <button class="ctx-item ctx-green" onclick="closeAllCtx();openAddToNotes('${escId}',${di})">
+                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+                 Add to Notes
+               </button>
+               <button class="ctx-item ctx-purple" onclick="closeAllCtx();toggleRemedyFlag(${di},'${escId}')">
+                 <svg viewBox="0 0 24 24" fill="none" stroke="${act.remedyPending ? '#7c3aed' : 'currentColor'}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7" stroke-width="3"/></svg>
+                 ${act.remedyPending ? 'Remedy logged ✓' : 'Log Remedy ticket'}
+               </button>
+             </div>
+           </div>`;
 
       return `<div class="task-modal-sheet" onclick="event.stopPropagation()">
         <div class="task-modal-drag-handle"></div>
@@ -23077,8 +23090,8 @@
              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg> Delete
            </button>
            <div class="ctx-wrap">
-             <button class="btn-more" id="note-more-${note.id}" onclick="toggleNoteMenu('${escId}')">···</button>
-             <div class="ctx-menu" id="note-ctx-${note.id}">
+             <button class="btn-more" id="note-more-modal" onclick="toggleNoteMenu('modal')">···</button>
+             <div class="ctx-menu" id="note-ctx-modal">
                <button class="ctx-item" onclick="closeAllCtx();openNoteToTask('${escId}')">
                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/><line x1="12" y1="12" x2="12" y2="16"/><line x1="10" y1="14" x2="14" y2="14"/></svg>
                  Convert to Task
