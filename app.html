@@ -1704,9 +1704,8 @@
       margin-left: -8px;
       transition: background 0.15s;
     }
-    .task-modal-close:active {
-      background: rgba(var(--shadow-rgb), 0.08);
-    }
+    .task-modal-close:hover  { background: rgba(var(--shadow-rgb), 0.06); }
+    .task-modal-close:active { background: rgba(var(--shadow-rgb), 0.12); }
     /* ── Standard modal close button ── */
     .modal-close-x {
       width: 36px;
@@ -1723,9 +1722,8 @@
       flex-shrink: 0;
       transition: background 0.15s;
     }
-    .modal-close-x:active {
-      background: rgba(var(--shadow-rgb), 0.08);
-    }
+    .modal-close-x:hover  { background: rgba(var(--shadow-rgb), 0.06); }
+    .modal-close-x:active { background: rgba(var(--shadow-rgb), 0.12); }
     .modal-close-x.on-dark {
       color: rgba(255, 255, 255, 0.75);
     }
@@ -10270,9 +10268,9 @@
     }
 
     .bulk-btn.done {
-      background: var(--priority-low-bg);
-      color: var(--priority-low-dark);
-      border: 1px solid var(--priority-low-border);
+      background: var(--accent);
+      color: #fff;
+      border: none;
     }
 
     .bulk-btn:disabled {
@@ -12979,13 +12977,14 @@
       position: relative;
     }
 
-    .note-btn-done {
+    /* note-btn-done replaced by .btn-primary */
+    .btn-primary {
       flex: 1;
       padding: 11px;
       border-radius: 12px;
-      background: var(--priority-low-bg);
-      color: var(--priority-low-dark, #34a853);
-      border: 1px solid var(--priority-low-border, #d4edda);
+      background: var(--accent);
+      color: #fff;
+      border: none;
       font-size: 13px;
       font-weight: 700;
       font-family: inherit;
@@ -12994,17 +12993,11 @@
       align-items: center;
       justify-content: center;
       gap: 6px;
-      transition: all 0.15s;
+      transition: opacity 0.15s;
     }
-
-    .note-btn-done:active {
-      transform: scale(0.98);
-    }
-
-    .note-btn-done svg {
-      width: 16px;
-      height: 16px;
-    }
+    .btn-primary:hover  { opacity: 0.88; }
+    .btn-primary:active { opacity: 0.75; }
+    .btn-primary svg    { width: 16px; height: 16px; }
 
     .note-btn-delete {
       flex: 1;
@@ -13840,9 +13833,8 @@
       flex-shrink: 0;
       transition: background 0.15s;
     }
-    .back-btn:active {
-      background: rgba(var(--shadow-rgb), 0.08);
-    }
+    .back-btn:hover  { background: rgba(var(--shadow-rgb), 0.06); }
+    .back-btn:active { background: rgba(var(--shadow-rgb), 0.12); }
 
     .detail-tabs {
       display: flex;
@@ -14888,7 +14880,7 @@
     /* .rtn-picker-close-btn uses .modal-close-x.on-dark */
 
     .rtn-picker-done-btn {
-      background: #F5A623;
+      background: var(--accent);
       color: #fff;
       border: none;
       border-radius: 20px;
@@ -14896,7 +14888,10 @@
       font-weight: 700;
       font-size: 13px;
       cursor: pointer;
+      transition: opacity 0.15s;
     }
+    .rtn-picker-done-btn:hover  { opacity: 0.88; }
+    .rtn-picker-done-btn:active { opacity: 0.75; }
 
     .rtn-picker-search-wrap {
       padding: 12px 14px;
@@ -18179,7 +18174,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.9.65';
+    const VERSION = '5.9.66';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -23069,13 +23064,13 @@
         `<button class="note-pri-dot pd-${p}${note.priority === p ? ' pd-active' : ''}" onclick="setNotePriority('${escId}','${p}')" title="${p[0].toUpperCase() + p.slice(1)}"></button>`
       ).join('');
       const actionsHtml = note._draft
-        ? `<button class="note-btn-done" onclick="saveNoteDraft('${escId}');closeNoteModal()">
+        ? `<button class="btn-primary" onclick="saveNoteDraft('${escId}');closeNoteModal()">
              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Save
            </button>
            <button class="note-btn-delete" onclick="discardNoteDraft('${escId}');closeNoteModal()">
              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> Discard
            </button>`
-        : `<button class="note-btn-done" onclick="markNoteDone('${escId}');closeNoteModal()">
+        : `<button class="btn-primary" onclick="markNoteDone('${escId}');closeNoteModal()">
              ${note.status === 'done'
                ? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6"/><path d="M10 14L21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg> Reopen`
                : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Mark Done`}
@@ -26740,13 +26735,13 @@
             </div>
             <div class="note-bottom-actions">
               ${note._draft ? `
-              <button class="note-btn-done" onclick="saveNoteDraft('${note.id}')">
+              <button class="btn-primary" onclick="saveNoteDraft('${note.id}')">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Save
               </button>
               <button class="note-btn-delete" onclick="discardNoteDraft('${note.id}')">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> Discard
               </button>` : `
-              <button class="note-btn-done" onclick="markNoteDone('${note.id}')">
+              <button class="btn-primary" onclick="markNoteDone('${note.id}')">
                 ${note.status === 'done'
             ? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6"/><path d="M10 14L21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg> Reopen`
             : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Mark Done`}
@@ -36264,7 +36259,7 @@
           </div>
           <div class="note-bottom-actions">
             ${isNew || co._draft ? `
-            <button class="note-btn-done" onclick="event.stopPropagation(); coSaveDraft()">
+            <button class="btn-primary" onclick="event.stopPropagation(); coSaveDraft()">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Save
             </button>
             <button class="note-btn-delete" onclick="event.stopPropagation(); coDelete()">
@@ -36876,7 +36871,7 @@
       const fault = co.fault || '';
       const isDraft = !!co._draft;
       const actionsHtml = isDraft
-        ? `<button class="note-btn-done" onclick="coSaveDraft();closeCoModal()">
+        ? `<button class="btn-primary" onclick="coSaveDraft();closeCoModal()">
              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Save
            </button>
            <button class="note-btn-delete" onclick="coDelete();closeCoModal()">
