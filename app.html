@@ -1657,7 +1657,7 @@
     }
     /* On wide screens: size to content, centre vertically like a dialog */
     @media (min-width: 691px) {
-      #task-modal-overlay { align-items: center; }
+      #task-modal-overlay, #note-modal-overlay, #co-modal-overlay { align-items: center; }
       .task-modal-sheet {
         height: auto;
         max-height: 92dvh;
@@ -18188,7 +18188,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.9.59';
+    const VERSION = '5.9.60';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
