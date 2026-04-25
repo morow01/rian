@@ -972,7 +972,7 @@
     .note-confirm-overlay {
       position: fixed;
       inset: 0;
-      z-index: 60;
+      z-index: 10010;
       background: rgba(var(--shadow-rgb), 0.4);
       backdrop-filter: blur(3px);
       -webkit-backdrop-filter: blur(3px);
@@ -18172,7 +18172,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.9.73';
+    const VERSION = '5.9.74';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
