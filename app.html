@@ -1767,6 +1767,25 @@
       border-top: 1px solid var(--border);
       flex-shrink: 0;
     }
+    .task-modal-text-btn {
+      flex: 1;
+      padding: 10px 8px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: var(--bg-card-alt);
+      color: var(--text-secondary);
+      font-size: 13px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: border-color 0.15s, color 0.15s;
+    }
+    .task-modal-text-btn:hover  { border-color: var(--accent); color: var(--accent); }
+    .task-modal-text-btn:active { opacity: 0.75; }
+    .task-modal-text-btn.active { color: #7c3aed; border-color: #c4b5fd; background: #f5f3ff; }
 
     /* Notes panel inside activity-detail */
     .notes-panel {
@@ -18172,7 +18191,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.9.79';
+    const VERSION = '5.9.80';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -22899,13 +22918,13 @@
            <button onclick="discardTaskDraft('${escId}',${di});closeTaskModal()" class="act-action-btn act-action-delete">
              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> Discard
            </button>`
-        : `<button onclick="toggleRemedyFlag(${di},'${escId}')" class="act-action-btn act-action-note" style="${act.remedyPending ? 'color:#7c3aed;border-color:#c4b5fd;background:#f5f3ff' : ''}">
+        : `<button onclick="toggleRemedyFlag(${di},'${escId}')" class="task-modal-text-btn${act.remedyPending ? ' active' : ''}">
              ${act.remedyPending ? 'Remedy ✓' : 'Remedy'}
            </button>
-           <button onclick="openCopyPicker('${escId}',${di},false)" class="act-action-btn act-action-note">
+           <button onclick="openCopyPicker('${escId}',${di},false)" class="task-modal-text-btn">
              Copy
            </button>
-           <button onclick="openAddToNotes('${escId}',${di})" class="act-action-btn act-action-note">
+           <button onclick="openAddToNotes('${escId}',${di})" class="task-modal-text-btn">
              Add to Notes
            </button>
            <div style="width:1px;background:var(--border);align-self:stretch;margin:0 2px;flex-shrink:0"></div>
