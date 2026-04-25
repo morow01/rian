@@ -18172,7 +18172,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.9.75';
+    const VERSION = '5.9.76';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -22923,9 +22923,8 @@
           <div class="task-modal-title">${esc(act.description) || '<span style="opacity:0.45;font-style:italic">No description</span>'}</div>
           <span class="task-modal-saved" id="task-modal-saved">Saved</span>
         </div>
-        ${(act.codes.length || ordinary || overtime || act.remedyPending) ? `
+        ${(ordinary || overtime || act.remedyPending) ? `
         <div style="display:flex;flex-wrap:wrap;align-items:center;gap:6px;padding:8px 16px;border-bottom:1px solid var(--border);background:var(--bg-card-alt)">
-          ${act.codes.map(c => `<div class="act-code-chip" style="pointer-events:none"><span>${c.d}</span><span class="act-code-mono">${c.c}</span></div>`).join('')}
           ${ordinary > 0 ? `<span style="font-size:11px;font-weight:700;padding:3px 8px;border-radius:8px;background:var(--bg-page);color:var(--text-secondary)">ORD ${ordinary}h</span>` : ''}
           ${overtime > 0 ? `<span style="font-size:11px;font-weight:700;padding:3px 8px;border-radius:8px;background:#fef3c7;color:#92400e">OT ${overtime}h</span>` : ''}
           ${act.remedyPending ? `<span style="font-size:11px;font-weight:700;padding:3px 8px;border-radius:8px;background:#f5f3ff;color:#7c3aed">Remedy</span>` : ''}
