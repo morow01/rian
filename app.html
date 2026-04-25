@@ -18181,7 +18181,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.9.53';
+    const VERSION = '5.9.54';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -21489,6 +21489,19 @@
                   </button>`;
                   })()}
                   ${(() => {
+                    const lp = getLayoutPref();
+                    const isForceMobile = lp === 'mobile';
+                    const autoDesk = window.innerWidth >= 1280;
+                    const sub = isForceMobile ? 'Forced mobile' : (autoDesk ? 'Auto — Desktop' : 'Auto — Mobile');
+                    return `<button class="menu-row" onclick="setLayoutPref(getLayoutPref()==='mobile'?'auto':'mobile')">
+                    <span class="menu-row-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg></span>
+                    <span class="menu-row-body"><span class="menu-row-label">Force mobile layout</span><span class="menu-row-sub">${sub}</span></span>
+                    <span style="width:36px;height:20px;border-radius:10px;background:${isForceMobile ? 'var(--accent)' : 'var(--border-strong)'};position:relative;transition:background 0.2s;flex-shrink:0;display:inline-block;">
+                      <span style="position:absolute;top:2px;left:${isForceMobile ? '18px' : '2px'};width:16px;height:16px;border-radius:50%;background:#fff;transition:left 0.2s;box-shadow:0 1px 4px rgba(var(--shadow-rgb),0.18);display:block;"></span>
+                    </span>
+                  </button>`;
+                  })()}
+                  ${(() => {
               const cur = getSavedTheme();
               const keys = Object.keys(THEME_META);
               return `
@@ -21821,7 +21834,11 @@
       </div>`;
     }
 
-    function _isDesktop() { return window.innerWidth >= 1280; }
+    function _isDesktop() {
+      const pref = getLayoutPref();
+      if (pref === 'mobile') return false;
+      return window.innerWidth >= 1280;
+    }
 
     function renderWeekView() {
       if (!state.weekData) return `<div class="p-8 text-center" style="color:var(--text-muted)">Loading…</div>`;
@@ -31423,6 +31440,14 @@
       // Re-render so the menu reflects the new selection
       if (typeof render === 'function') render();
       showToast('Theme: ' + THEME_META[t].label);
+    }
+
+    function getLayoutPref() {
+      try { return localStorage.getItem('rian_layout') || 'auto'; } catch { return 'auto'; }
+    }
+    function setLayoutPref(v) {
+      try { localStorage.setItem('rian_layout', v); } catch { }
+      render();
     }
 
     function getTaskStyle() {
