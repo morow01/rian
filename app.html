@@ -18189,7 +18189,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.9.89';
+    const VERSION = '5.9.90';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -23243,8 +23243,9 @@
       const isMissingLocation = (ordinary > 0 || overtime > 0) && !act.location;
       const showRedBorder = isMissingCode || isMissingHours || isMissingLocation;
       const remedyStyle = act.remedyPending && !showRedBorder ? 'border-color:#7c3aed; box-shadow: 0 0 0 3px rgba(124,58,237,0.13)' : '';
+      const isActExpanded = state.activitiesExpanded.has(act.id);
       return `
-      <div class="activity-card${act.remedyPending ? ' remedy-flagged' : ''}" data-act-id="${act.id}" style="${showRedBorder ? 'border-color:var(--btn-danger-color); box-shadow: 0 0 8px rgba(232, 69, 60, 0.2)' : remedyStyle}">
+      <div class="activity-card${act.remedyPending ? ' remedy-flagged' : ''}${isActExpanded ? ' expanded' : ''}" data-act-id="${act.id}" style="${showRedBorder ? 'border-color:var(--btn-danger-color); box-shadow: 0 0 8px rgba(232, 69, 60, 0.2)' : remedyStyle}">
         <div class="flex items-center gap-3 px-3.5 py-3 cursor-pointer" onclick="getTaskStyle()==='modal'?openTaskModal('${act.id}',${di}):toggleActivityDetails('${act.id}')">
           <div class="task-num">${actIndex + 1}</div>
           <div class="flex-1 min-w-0 act-meta">
@@ -23261,9 +23262,9 @@
             </div>
           </div>
           
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;color:var(--text-muted)"><polyline points="9 18 15 12 9 6"/></svg>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;color:var(--text-muted);${isActExpanded ? 'transform:rotate(90deg)' : ''}"><polyline points="9 18 15 12 9 6"/></svg>
         </div>
-        <div class="activity-detail" style="display:none">
+        <div class="activity-detail${isActExpanded ? ' open' : ''}" style="${isActExpanded ? '' : 'display:none'}">
           <form autocomplete="off" onsubmit="return false" style="margin:0;padding:0;border:0">
           <div class="act-detail-inner">
             <div class="flex flex-col gap-1.5">
