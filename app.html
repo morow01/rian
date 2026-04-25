@@ -18182,7 +18182,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.9.62';
+    const VERSION = '5.9.63';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -30867,6 +30867,9 @@
       }
       // Priority order: topmost layer first. First match wins.
       const stack = [
+        ['task-modal-overlay', () => typeof closeTaskModal === 'function' && closeTaskModal()],
+        ['note-modal-overlay', () => typeof closeNoteModal === 'function' && closeNoteModal()],
+        ['co-modal-overlay',   () => typeof closeCoModal   === 'function' && closeCoModal()],
         ['battery-modal', () => typeof closeBatteryRecorder === 'function' && closeBatteryRecorder()],
         ['note-fs-modal', () => typeof closeNoteFullscreen === 'function' && closeNoteFullscreen()],
         ['ai-fault-modal', () => typeof closeFaultAssistant === 'function' && closeFaultAssistant()],
