@@ -18172,7 +18172,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.9.71';
+    const VERSION = '5.9.72';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -22899,17 +22899,14 @@
            <button onclick="discardTaskDraft('${escId}',${di});closeTaskModal()" class="act-action-btn act-action-delete">
              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> Discard
            </button>`
-        : `<button onclick="closeAllCtx();openCopyPicker('${escId}',${di},false)" class="act-action-btn act-action-note" title="Copy to…">
-             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        : `<button onclick="toggleRemedyFlag(${di},'${escId}')" class="act-action-btn act-action-note" title="${act.remedyPending ? 'Remedy logged' : 'Log Remedy ticket'}" style="${act.remedyPending ? 'color:#7c3aed;border-color:#c4b5fd;background:#f5f3ff' : ''}">
+             <svg width="16" height="16" viewBox="0 0 24 24" fill="${act.remedyPending ? '#7c3aed' : 'none'}" stroke="${act.remedyPending ? '#7c3aed' : 'currentColor'}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7" stroke-width="3"/></svg>
            </button>
-           <button onclick="closeAllCtx();openCopyPicker('${escId}',${di},true)" class="act-action-btn act-action-note" title="Move to…">
-             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
+           <button onclick="openCopyPicker('${escId}',${di},false)" class="act-action-btn act-action-note" title="Copy / Move">
+             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
            </button>
            <button onclick="openAddToNotes('${escId}',${di})" class="act-action-btn act-action-note" title="Add to Notes">
              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
-           </button>
-           <button onclick="toggleRemedyFlag(${di},'${escId}')" class="act-action-btn act-action-note" title="${act.remedyPending ? 'Remedy logged' : 'Log Remedy ticket'}" style="${act.remedyPending ? 'color:#7c3aed;border-color:#c4b5fd;background:#f5f3ff' : ''}">
-             <svg width="16" height="16" viewBox="0 0 24 24" fill="${act.remedyPending ? '#7c3aed' : 'none'}" stroke="${act.remedyPending ? '#7c3aed' : 'currentColor'}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7" stroke-width="3"/></svg>
            </button>
            <div style="width:1px;background:var(--border);align-self:stretch;margin:0 2px;flex-shrink:0"></div>
            <button onclick="showConfirm('Delete task?','${escAttr(act.description||'Unnamed')}',()=>{removeActivity('${escId}',${di});closeTaskModal()})" class="act-action-btn act-action-delete" style="flex:none;padding:0 14px" title="Delete">
@@ -23541,6 +23538,11 @@
       renderCopyPicker(true);
     }
 
+    function setCopyPickerMode(isMove) {
+      copyPickerState.moveMode = isMove;
+      renderCopyPicker(true);
+    }
+
     function closeCopyPicker() {
       document.getElementById('copy-picker-modal').classList.add('hidden');
       document.getElementById('copy-picker-modal').innerHTML = '';
@@ -23629,8 +23631,12 @@
       modal.innerHTML = `<div class="copy-picker-overlay" onclick="if(event.target===this)closeCopyPicker()">
         <div class="copy-picker-sheet">
           <div class="copy-picker-handle"></div>
-          <div class="copy-picker-title">${verb} "${esc(descLabel)}" to…</div>
-          <div class="copy-picker-sub">${moveMode ? 'Task will be moved — removed from this day and added to selected day(s).' : 'Select one or more days. All fields including note will be copied.'}</div>
+          <div class="copy-picker-title">"${esc(descLabel)}"</div>
+          <div style="display:flex;gap:0;margin:4px 16px 0;background:var(--bg-code-group);border-radius:14px;padding:3px">
+            <button onclick="setCopyPickerMode(false)" style="flex:1;padding:7px;border-radius:11px;border:none;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;transition:background 0.15s;background:${!moveMode?'var(--bg-segment-active)':'none'};color:${!moveMode?'var(--text-primary)':'var(--text-muted)'}">Copy</button>
+            <button onclick="setCopyPickerMode(true)"  style="flex:1;padding:7px;border-radius:11px;border:none;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;transition:background 0.15s;background:${moveMode?'var(--bg-segment-active)':'none'};color:${moveMode?'var(--text-primary)':'var(--text-muted)'}">Move</button>
+          </div>
+          <div class="copy-picker-sub" id="cp-sub">${moveMode ? 'Task will be moved — removed from this day and added to selected day(s).' : 'Select one or more days. All fields including note will be copied.'}</div>
           <div class="copy-picker-weeknav">
             <button onclick="copyPickerNavWeek(-1)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
             <div><span class="copy-picker-weeknav-label">${weekLabel}</span>${isCurrent ? '<span class="copy-picker-weeknav-badge">current</span>' : ''}</div>
