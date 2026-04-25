@@ -18189,7 +18189,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '5.9.86';
+    const VERSION = '5.9.87';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -19824,7 +19824,52 @@
       if (!act) return;
       act.remedyPending = !act.remedyPending;
       scheduleAutoSave();
-      render();
+
+      const isPending = act.remedyPending;
+      const remedyPillHtml = `<span class="pill-remedy"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7" stroke-width="3"/></svg> Remedy</span>`;
+
+      // Update all matching contexts (expanded card + modal) without re-rendering
+      [
+        document.querySelector(`.activity-card[data-act-id="${actId}"]`),
+        document.querySelector('#task-modal-overlay .task-modal-sheet'),
+      ].forEach(root => {
+        if (!root) return;
+
+        // Card-level class + border (only on the activity-card element)
+        const card = root.classList.contains('activity-card') ? root : null;
+        if (card) {
+          card.classList.toggle('remedy-flagged', isPending);
+          const ordinary = parseFloat(act.ordinary) || 0;
+          const overtime = parseFloat(act.overtime) || 0;
+          const missingCode = (ordinary > 0 || overtime > 0) && act.codes.length === 0;
+          const missingHrs  = act.codes.length > 0 && ordinary === 0 && overtime === 0;
+          const missingLoc  = (ordinary > 0 || overtime > 0) && !act.location;
+          if (!missingCode && !missingHrs && !missingLoc) {
+            card.style.borderColor = isPending ? '#7c3aed' : '';
+            card.style.boxShadow   = isPending ? '0 0 0 3px rgba(124,58,237,0.13)' : '';
+          }
+        }
+
+        // Remedy pill in the compact header row
+        const pillRow = root.querySelector('.act-pill-row');
+        if (pillRow) {
+          const existing = pillRow.querySelector('.pill-remedy');
+          if (isPending && !existing) pillRow.insertAdjacentHTML('beforeend', remedyPillHtml);
+          else if (!isPending && existing) existing.remove();
+        }
+
+        // Remedy action button
+        const remedyBtn = [...root.querySelectorAll('.task-modal-text-btn')]
+          .find(b => b.textContent.trim().startsWith('Remedy'));
+        if (remedyBtn) {
+          remedyBtn.classList.toggle('active', isPending);
+          const svg = remedyBtn.querySelector('svg');
+          if (svg) {
+            svg.setAttribute('fill',   isPending ? '#7c3aed' : 'none');
+            svg.setAttribute('stroke', isPending ? '#7c3aed' : 'currentColor');
+          }
+        }
+      });
     }
 
     function createNote() {
