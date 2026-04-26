@@ -15154,6 +15154,39 @@
       }
     }
 
+    /* ── Desktop 1280px+: On-Call Schedule as centered modal dialog ── */
+    @media (min-width: 1280px) {
+      /* Overlay becomes a full-screen dim backdrop */
+      .oc-overlay {
+        inset: 0;
+        width: auto;
+        left: 0;
+        background: rgba(0, 0, 0, 0.4);
+        border: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        transform: none;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.18s ease;
+      }
+      .oc-overlay.open {
+        transform: none;
+        opacity: 1;
+        pointer-events: auto;
+      }
+      /* The padding wrapper div becomes the scrollable dialog */
+      .oc-overlay > div:first-child {
+        width: 500px;
+        max-width: calc(100vw - 40px);
+        max-height: calc(100vh - 80px);
+        overflow-y: auto;
+        border-radius: 18px;
+      }
+    }
+
     .oc-overlay-header {
       display: flex;
       align-items: center;
@@ -18210,7 +18243,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '6.0.0';
+    const VERSION = '6.0.1';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -36081,10 +36114,10 @@
       const extraStr = yearExtra > 0 ? ` · <span style="color:#F59E0B;font-weight:600">${yearExtra} extra</span>` : '';
       const subtitleStr = yearOnCall === 0 && yearExtra === 0 ? 'No weeks scheduled' : `${weeksStr}${extraStr}`;
 
-      let html = `<div class="oc-overlay${state.coScheduleOpen ? ' open' : ''}" id="oc-schedule-overlay">`;
+      let html = `<div class="oc-overlay${state.coScheduleOpen ? ' open' : ''}" id="oc-schedule-overlay" onclick="if(event.target===this)ocCloseSchedule()">`;
 
-      // Outer padding wrapper
-      html += `<div style="padding:14px 14px 4px">`;
+      // Outer padding wrapper (on desktop becomes the scrollable dialog card)
+      html += `<div style="padding:14px 14px 4px" onclick="event.stopPropagation()">`;
 
       // White card — contains everything
       html += `<div style="background:var(--bg-card);border-radius:18px;overflow:hidden;box-shadow:0 2px 8px rgba(var(--shadow-rgb),0.08);border:1px solid var(--border)">`;
