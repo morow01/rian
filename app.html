@@ -17761,7 +17761,33 @@
         border-right: 1px solid var(--border);
         display: flex;
         flex-direction: column;
+        overflow: hidden;
+        flex-shrink: 0;
+      }
+
+      .dco-weeks-scroll {
+        flex: 1;
         overflow-y: auto;
+        min-height: 0;
+      }
+
+      .dco-schedule-strip {
+        flex-shrink: 0;
+        padding: 10px 14px;
+        border-top: 1px solid var(--border);
+        background: var(--bg-input);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 12px;
+        color: var(--text-secondary);
+      }
+
+      .dco-schedule-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #22c55e;
         flex-shrink: 0;
       }
 
@@ -17778,15 +17804,92 @@
       .dco-panel-detail {
         flex: 1;
         background: var(--bg-card);
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        min-width: 0;
+      }
+
+      .dco-detail-head {
+        flex-shrink: 0;
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        padding: 14px 16px;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .dco-detail-title {
+        font-size: 16px;
+        font-weight: 700;
+        line-height: 1.35;
+        color: var(--text-primary);
+        margin-bottom: 8px;
+      }
+
+      .dco-meta-pills {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 5px;
+      }
+
+      .dco-meta-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 3px 8px;
+        border-radius: 6px;
+        background: var(--bg-input);
+        border: 1px solid var(--border);
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--text-secondary);
+        white-space: nowrap;
+      }
+
+      .dco-meta-pill.dco-pill-ticket {
+        font-family: var(--font-mono);
+        background: var(--accent-light);
+        border-color: rgba(var(--accent-rgb), 0.25);
+        color: var(--accent);
+      }
+
+      .dco-detail-scroll {
+        flex: 1;
         overflow-y: auto;
+        min-height: 0;
       }
 
-      .dco-panel-detail .desk-detail-body {
-        padding: 16px 16px 20px;
+      .dco-detail-form-2col {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 14px 16px;
+        padding: 16px;
       }
 
-      .dco-panel-detail .desk-detail-form {
-        max-width: none;
+      .dco-detail-form-2col .desk-field-group { min-width: 0; }
+
+      .dco-detail-form-2col .desk-field-group.wide { grid-column: 1 / -1; }
+
+      .dco-detail-form-2col .act-textarea,
+      .dco-detail-form-2col .act-input {
+        background: var(--bg-input);
+        border-color: var(--border-input);
+        color: var(--text-input);
+      }
+
+      .dco-detail-form-2col .act-textarea:focus,
+      .dco-detail-form-2col .act-input:focus { border-color: var(--accent); }
+
+      .dco-detail-footer {
+        flex-shrink: 0;
+        padding: 12px 16px;
+        border-top: 1px solid var(--border);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+        background: var(--bg-card);
       }
 
       /* Unified tint button for callout panel headers */
@@ -18516,7 +18619,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '6.0.15';
+    const VERSION = '6.0.16';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -36082,6 +36185,7 @@
       }
 
       // Current week always first
+      weeksHtml += '<div class="dco-weeks-scroll">';
       if (hasCurrent) {
         weeksHtml += '<div class="dco-panel-hdr">Current</div>';
         weeksHtml += _dcoWeekRow(curWeekStart, true, curWeekStart === selWeek);
@@ -36095,6 +36199,16 @@
           weeksHtml += _dcoWeekRow(wk, false, wk === selWeek);
         });
       }
+      weeksHtml += '</div>';
+
+      // Schedule strip pinned to bottom
+      var scheduleTotal = totalOnCall + totalExtra;
+      weeksHtml += '<div class="dco-schedule-strip">' +
+        '<span class="dco-schedule-dot"></span>' +
+        '<span><strong>' + scheduleTotal + ' on-call week' + (scheduleTotal !== 1 ? 's' : '') + '</strong>' +
+        (totalExtra > 0 ? ' &middot; <span style="color:#F59E0B;font-weight:700">' + totalExtra + ' extra</span>' : '') +
+        '</span></div>';
+
       weeksHtml += '</div>';
 
       // ── Panel 2: Callouts for selected week ──
@@ -36182,26 +36296,30 @@
       }
       if (selCo) {
         var coIdx = (weeks[selWeek].callouts || []).indexOf(selCo) + 1;
+        var pinSvgSm = '<svg width="12" height="12" viewBox="0 0 24 24" fill="#e8453c" style="vertical-align:-1px;margin-right:3px"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 010-5 2.5 2.5 0 010 5z"/></svg>';
+        var clockSvgSm = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-1px;margin-right:3px"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>';
 
         detailHtml += '<div class="desk-panel-days-hdr">Callout Details</div>';
-        detailHtml += '<div class="desk-detail-body">';
 
-        // Header — matches Timesheet desk-detail-header
-        detailHtml += '<div class="desk-detail-header">' +
-          '<div class="task-num" style="background:var(--accent);color:#fff">' + coIdx + '</div>' +
-          '<div class="flex-1 min-w-0 act-meta">' +
-          '<div class="act-desc-txt">' + (selCo.fault ? esc(selCo.fault) : '<span style="opacity:0.4;font-weight:400;font-style:italic">No description</span>') + '</div>' +
-          '<div class="act-row2"><div class="act-loc-txt">' +
-          (selCo.site ? '<svg width="13" height="13" viewBox="0 0 24 24" fill="#e8453c" style="display:inline-block;vertical-align:-2px;margin-right:2px;"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 010-5 2.5 2.5 0 010 5z"/></svg>' + esc(selCo.site) : '<span style="opacity:0.4">No location</span>') +
-          '</div>' +
-          (selCo.ticket ? '<div class="act-pill-row"><span style="font-family:var(--font-mono);font-size:11px;color:var(--text-muted)">' + esc(selCo.ticket) + '</span></div>' : '') +
+        // Rich header: numbered badge + title + meta pills
+        detailHtml += '<div class="dco-detail-head">' +
+          '<div class="task-num" style="background:var(--accent);color:#fff;flex-shrink:0">' + coIdx + '</div>' +
+          '<div style="flex:1;min-width:0">' +
+          '<div class="dco-detail-title">' + (selCo.fault ? esc(selCo.fault) : '<span style="opacity:0.4;font-style:italic">No description</span>') + '</div>' +
+          '<div class="dco-meta-pills">' +
+          (selCo.site ? '<span class="dco-meta-pill">' + pinSvgSm + esc(selCo.site) + '</span>' : '') +
+          (selCo.ticket ? '<span class="dco-meta-pill dco-pill-ticket">' + esc(selCo.ticket) + '</span>' : '') +
+          (selCo.engineerOnSite ? '<span class="dco-meta-pill">' + clockSvgSm + esc(selCo.engineerOnSite) + '</span>' : '') +
           '</div></div></div>';
 
-        // Detail fields — uses Timesheet desk-detail-form / desk-field-group classes
-        detailHtml += '<div class="desk-detail-form">';
+        // 2-column scrollable form
+        detailHtml += '<div class="dco-detail-scroll"><div class="dco-detail-form-2col">';
 
         detailHtml += '<div class="desk-field-group"><span class="act-field-label">Date</span>' +
           '<input type="date" class="act-input" id="dco-date" value="' + (selCo.date || '') + '" onchange="dcoUpdateField(\'date\',this.value)" style="cursor:pointer"></div>';
+
+        detailHtml += '<div class="desk-field-group"><span class="act-field-label">Engineer On Site</span>' +
+          '<input type="time" class="act-input" id="dco-time" value="' + (selCo.engineerOnSite || '') + '" onchange="dcoUpdateField(\'engineerOnSite\',this.value)"></div>';
 
         detailHtml += '<div class="desk-field-group"><span class="act-field-label">Ticket Number</span>' +
           '<textarea class="act-textarea" rows="1" id="dco-ticket" style="resize:none;overflow:hidden;font-family:var(--font-mono)" placeholder="e.g. R23482335" ' +
@@ -36211,37 +36329,36 @@
 
         detailHtml += '<div class="desk-field-group"><span class="act-field-label">Location</span>' +
           '<div class="location-wrap"><input type="text" class="act-input" id="dco-site" readonly ' +
-          'value="' + esc(selCo.site || '') + '" placeholder="Tap to select location" ' +
+          'value="' + esc(selCo.site || '') + '" placeholder="Select location" ' +
           'style="cursor:pointer;user-select:none" ' +
           'autocomplete="new-password" data-lpignore="true" data-form-type="other" data-1p-ignore="true" ' +
           'onclick="_coSiteCallback = function(name) { document.getElementById(\'dco-site\').value = name; dcoUpdateField(\'site\', name); }; openLocationModal();"></div></div>';
 
-        detailHtml += '<div class="desk-field-group"><span class="act-field-label">Fault Description</span>' +
+        detailHtml += '<div class="desk-field-group wide"><span class="act-field-label">Fault Description</span>' +
           '<textarea class="act-textarea" rows="2" id="dco-fault" placeholder="e.g. EXTERNAL ALARM: AC MAINS FAIL" ' +
           'oninput="autoGrow(this);dcoUpdateField(\'fault\',this.value.trim())" ' +
           'autocomplete="off" data-lpignore="true" data-form-type="other" data-1p-ignore="true">' + esc(selCo.fault || '') + '</textarea></div>';
 
-        detailHtml += '<div class="desk-field-group"><span class="act-field-label">Notes</span>' +
+        detailHtml += '<div class="desk-field-group wide"><span class="act-field-label">Notes</span>' +
           renderNoteInline(selCo.notes || '', "dcoOpenNoteFs()", 'data-co-notes-inline') + '</div>' +
           '<textarea class="act-notes-area" id="co-notes-ta" style="display:none">' + esc(selCo.notes || '') + '</textarea>';
 
-        detailHtml += '<div class="desk-field-group"><span class="act-field-label">Engineer On Site</span>' +
-          '<input type="time" class="act-input" id="dco-time" value="' + (selCo.engineerOnSite || '') + '" onchange="dcoUpdateField(\'engineerOnSite\',this.value)"></div>';
+        detailHtml += '</div></div>';
+
+        // Pinned footer
+        var trashSvg = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>';
+        var saveSvg = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+        var xSvg = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
 
         detailHtml += selCo._draft
-          ? '<div class="desk-detail-actions">' +
-          '<button class="desk-detail-btn" style="background:var(--accent);color:#fff;border-color:var(--accent)" onclick="dcoSaveDraft()">' +
-          '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Save</button>' +
-          '<button class="desk-detail-btn danger" onclick="dcoDiscardDraft()">' +
-          '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> Discard</button>' +
-          '</div>'
-          : '<div class="desk-detail-actions">' +
-          '<button class="desk-detail-btn danger" style="margin-left:auto" onclick="dcoDeleteCallout()">' +
-          '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>' +
-          ' Delete</button>' +
-          '</div>';
-
-        detailHtml += '</div></div>';
+          ? '<div class="dco-detail-footer">' +
+            '<button class="desk-detail-btn danger" onclick="dcoDiscardDraft()">' + xSvg + ' Discard</button>' +
+            '<button class="desk-detail-btn" style="background:var(--accent);color:#fff;border-color:var(--accent)" onclick="dcoSaveDraft()">' + saveSvg + ' Save</button>' +
+            '</div>'
+          : '<div class="dco-detail-footer">' +
+            '<button class="desk-detail-btn danger" onclick="dcoDeleteCallout()">' + trashSvg + ' Delete</button>' +
+            '<div></div>' +
+            '</div>';
       } else {
         detailHtml += '<div class="desk-panel-days-hdr">Callout Details</div>' +
           '<div class="desk-empty-state" style="height:100%">' +
