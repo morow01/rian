@@ -18243,7 +18243,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '6.0.3';
+    const VERSION = '6.0.4';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -36181,8 +36181,8 @@
         });
         html += `</div></div>`;
       });
+      html += `<div style="padding:10px 24px 14px;border-top:1px dashed var(--border);font-size:12px;color:var(--text-muted);font-style:italic;text-align:center">Tap = on-call · Long-press = extra shift</div>`;
       html += `</div>`; // close white card
-      html += `<div style="margin-top:10px;margin-bottom:8px;font-size:12px;color:var(--text-muted);font-style:italic;text-align:center">Tap = on-call · Long-press = extra shift</div>`;
       html += `</div>`; // close padding wrapper
 
       html += `</div>`; // close overlay
