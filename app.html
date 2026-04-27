@@ -18142,30 +18142,37 @@
     .hist-desk-sb-dot { width:7px; height:7px; border-radius:50%; background:currentColor; flex-shrink:0; opacity:0.7; }
     .hist-desk-sb-jump { margin:10px 12px 16px; display:flex; align-items:center; justify-content:center; gap:7px; height:38px; border-radius:10px; background:var(--accent); color:#fff; font-size:13px; font-weight:700; border:none; cursor:pointer; font-family:var(--font-body); width:calc(100% - 24px); }
     .hist-desk-main { flex:1; display:flex; flex-direction:column; overflow:hidden; min-width:0; }
+    .hist-desk-head { min-height:74px; background:var(--bg-card); border-bottom:1px solid var(--border); display:flex; align-items:center; gap:18px; padding:0 22px; flex-shrink:0; }
+    .hist-desk-head h1 { margin:0; font-size:18px; line-height:1.15; font-weight:800; color:var(--text-primary); }
+    .hist-desk-head p { margin:4px 0 0; font-size:12px; color:var(--text-muted); }
+    .hist-desk-head-meta { margin-left:auto; display:flex; align-items:center; gap:18px; color:var(--text-muted); font-size:12px; font-weight:600; white-space:nowrap; }
+    .hist-desk-head-meta span { display:inline-flex; align-items:center; gap:6px; }
+    .hist-desk-head-meta span + span::before { content:''; width:1px; height:16px; background:var(--border); margin-right:12px; }
     .hist-desk-table-wrap { flex:1; overflow-y:auto; }
     .hist-desk-table { width:100%; border-collapse:collapse; }
-    .hist-desk-table thead th { position:sticky; top:0; z-index:2; background:#f8fafc; border-bottom:1px solid var(--border); padding:8px 16px; text-align:left; font-size:10px; font-weight:800; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.08em; white-space:nowrap; }
+    .hist-desk-table thead th { position:sticky; top:0; z-index:2; background:var(--bg-card-alt); border-bottom:1px solid var(--border); padding:8px 16px; text-align:left; font-size:10px; font-weight:800; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.08em; white-space:nowrap; }
     .hist-desk-table thead th:first-child { padding-left:20px; }
     .hist-desk-table thead th.r { text-align:right; }
     .hist-desk-table thead th.c { text-align:center; }
     .hist-desk-table tbody tr { border-bottom:1px solid var(--border); cursor:pointer; transition:background 0.1s; }
-    .hist-desk-table tbody tr:hover { background:#f8fafc; }
-    .hist-desk-table tbody tr.hdt-current { border-left:4px solid var(--accent); }
-    .hist-desk-table tbody tr.hdt-current td:first-child { padding-left:16px; }
-    .hist-desk-table tbody tr.hdt-oncall { background:#fffbeb; }
-    .hist-desk-table tbody tr.hdt-oncall:hover { background:#fef3c7; }
+    .hist-desk-table tbody tr:hover { background:var(--bg-card-alt); }
+    .hist-desk-table tbody tr.hdt-current td { background:rgba(var(--accent-rgb),0.08); }
+    .hist-desk-table tbody tr.hdt-current td:first-child { box-shadow:inset 4px 0 0 var(--accent); }
     .hist-desk-table tbody tr.hdt-future { opacity:0.65; }
     .hist-desk-table tbody td { padding:10px 16px; vertical-align:middle; }
     .hist-desk-table tbody td:first-child { padding-left:20px; }
-    .hist-desk-table tbody tr.hdt-sec td { padding:6px 20px 4px; background:var(--bg-page); border-bottom:none; cursor:default; }
+    .hist-desk-table tbody tr.hdt-sec td { padding:6px 20px 4px; background:var(--bg-page); border-top:1px solid var(--border); border-bottom:1px solid var(--border); cursor:default; }
     .hist-desk-table tbody tr.hdt-sec:hover { background:var(--bg-page); }
     .hdt-sec-lbl { font-size:10px; font-weight:800; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.1em; }
     .hdt-range { font-size:13px; font-weight:700; color:var(--text-primary); white-space:nowrap; }
+    .hdt-sub { margin-top:3px; color:var(--text-muted); font-size:11px; font-weight:600; }
     .hdt-range.dim { color:var(--text-secondary); font-weight:600; }
     .hdt-h { font-size:14px; font-weight:800; text-align:right; }
     .hdt-ot { font-size:12px; font-weight:700; color:#F59E0B; text-align:right; }
     .hdt-n { font-size:12px; font-weight:600; color:var(--text-secondary); text-align:center; }
     .hdt-muted { opacity:0.35; }
+    .hdt-status { display:flex; align-items:center; gap:6px; }
+    .hdt-status::before { content:''; width:4px; height:26px; border-radius:99px; background:rgba(var(--amber-rgb),0.85); }
     .hdt-arrow { width:28px; height:28px; border-radius:7px; border:1px solid var(--border); background:var(--bg-input); color:var(--text-secondary); display:flex; align-items:center; justify-content:center; margin-left:auto; }
   }
   </style>
@@ -18638,7 +18645,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '6.0.25';
+    const VERSION = '6.0.26';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -32003,23 +32010,27 @@
         var tasks = wData ? wData.taskCount : 0;
         var sites = wData ? wData.siteCount : 0;
         var fn = isFuture ? 'histGoToWeek' : 'histGoToWeek';
-        var trClass = 'hdt-' + (isFuture?'future':isCurrent?'current':(isOnCall||isExtra)?'oncall':'');
+        var trClass = isFuture ? 'hdt-future' : (isCurrent ? 'hdt-current' : '');
 
         var onCallCell = '';
-        if (isOnCall)  onCallCell = '<span class="hist-badge amber">On-Call</span>';
-        else if (isExtra) onCallCell = '<span class="hist-badge amber">Extra</span>';
+        if (isOnCall)  onCallCell = '<span class="hdt-status"><span class="hist-badge amber">On-Call</span></span>';
+        else if (isExtra) onCallCell = '<span class="hdt-status"><span class="hist-badge amber">Extra</span></span>';
 
         var coCell = coCount > 0 ? '<span class="hist-badge red">' + phoneSvg + ' ' + coCount + '</span>' : '';
+        var total = ord + ot;
         var ordCell = isFuture ? '<span class="hdt-muted">—</span>' : '<span style="color:' + (ord>0?'var(--accent)':'var(--text-muted)') + '">' + (ord>0?ord+'h':'0h') + '</span>';
         var otCell  = ot > 0 ? '<span style="color:#F59E0B;font-weight:700">' + ot + 'h</span>' : '<span class="hdt-muted">—</span>';
+        var totalCell = isFuture ? '<span class="hdt-muted">—</span>' : '<span style="color:' + (total>0?'var(--text-primary)':'var(--text-muted)') + '">' + (total>0?total+'h':'0h') + '</span>';
         var taskCell = isFuture ? '<span class="hdt-muted">—</span>' : (tasks > 0 ? tasks : '<span class="hdt-muted">0</span>');
         var siteCell = isFuture ? '<span class="hdt-muted">—</span>' : (sites > 0 ? sites : '<span class="hdt-muted">0</span>');
         var addCell  = isFuture ? '<span class="hist-badge" style="border:1px dashed var(--border);background:transparent;color:var(--text-muted);font-size:11px">+ Add tasks</span>' : '';
+        var subText = isFuture ? 'Ready for planning' : (isCurrent ? 'Current week' : (tasks > 0 || sites > 0 ? tasks + ' task' + (tasks === 1 ? '' : 's') + ' · ' + sites + ' site' + (sites === 1 ? '' : 's') : 'No recorded work'));
 
         return '<tr class="' + trClass + '" onclick="histGoToWeek(\'' + ws + '\')">' +
-          '<td><div class="hdt-range' + (isFuture?' dim':'') + '">' + esc(formatWeekRange(ws)) + '</div></td>' +
+          '<td><div class="hdt-range' + (isFuture?' dim':'') + '">' + esc(formatWeekRange(ws)) + '</div><div class="hdt-sub">' + esc(subText) + '</div></td>' +
           '<td style="text-align:right"><div class="hdt-h">' + ordCell + '</div></td>' +
           '<td style="text-align:right"><div class="hdt-ot">' + otCell + '</div></td>' +
+          '<td style="text-align:right"><div class="hdt-h">' + totalCell + '</div></td>' +
           '<td style="text-align:center"><div class="hdt-n">' + taskCell + '</div></td>' +
           '<td style="text-align:center"><div class="hdt-n">' + siteCell + '</div></td>' +
           '<td>' + onCallCell + '</td>' +
@@ -32029,7 +32040,7 @@
       }
 
       var secRow = function(label, color) {
-        return '<tr class="hdt-sec"><td colspan="8"><span class="hdt-sec-lbl"' + (color?' style="color:'+color+'"':'') + '>' + label + '</span></td></tr>';
+        return '<tr class="hdt-sec"><td colspan="9"><span class="hdt-sec-lbl"' + (color?' style="color:'+color+'"':'') + '>' + label + '</span></td></tr>';
       };
 
       var tableBody = '';
@@ -32041,23 +32052,33 @@
         tableBody += secRow('History');
       }
       if (isLoading) {
-        tableBody += '<tr><td colspan="8" style="text-align:center;padding:40px;color:var(--text-muted);font-size:13px">Loading…</td></tr>';
+        tableBody += '<tr><td colspan="9" style="text-align:center;padding:40px;color:var(--text-muted);font-size:13px">Loading…</td></tr>';
       } else if (pastWeeks.length === 0) {
-        tableBody += '<tr><td colspan="8" style="text-align:center;padding:40px;color:var(--text-muted);font-size:13px">No weeks found</td></tr>';
+        tableBody += '<tr><td colspan="9" style="text-align:center;padding:40px;color:var(--text-muted);font-size:13px">No weeks found</td></tr>';
       } else {
         pastWeeks.forEach(function(w){ tableBody += tableRow(w.weekStart,'past'); });
       }
 
+      var filterLabel = ({ all:'Showing all weeks', oncall:'Showing on-call weeks', ot:'Showing weeks with OT', callouts:'Showing weeks with callouts' })[filter] || 'Showing all weeks';
+      var avgLabel = workedWeeks.length > 0 ? 'Avg ' + avgHrs + 'h / worked week' : 'No worked weeks yet';
       var mainHtml = '<div class="hist-desk-main">' +
+        '<div class="hist-desk-head">' +
+        '<button class="hist-icon-btn" onclick="setView(\'' + (state.prevView||'week') + '\')" title="Back">' +
+        '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>' +
+        '</button>' +
+        '<div><h1>Week History</h1><p>Review past work, jump forward, or add tasks to upcoming weeks</p></div>' +
+        '<div class="hist-desk-head-meta"><span>' + filterLabel + '</span><span>' + avgLabel + '</span></div>' +
+        '</div>' +
         '<div class="hist-desk-table-wrap">' +
         '<table class="hist-desk-table">' +
         '<thead><tr>' +
-        '<th style="width:190px">Week</th>' +
+        '<th style="width:230px">Week</th>' +
         '<th class="r" style="width:70px">Ord</th>' +
         '<th class="r" style="width:60px">OT</th>' +
+        '<th class="r" style="width:75px">Total</th>' +
         '<th class="c" style="width:65px">Tasks</th>' +
         '<th class="c" style="width:65px">Sites</th>' +
-        '<th style="width:110px">On-call</th>' +
+        '<th style="width:120px">Status</th>' +
         '<th style="width:120px">Callouts</th>' +
         '<th style="width:40px"></th>' +
         '</tr></thead>' +
@@ -32085,12 +32106,6 @@
       }
 
       return '<main>' +
-        '<div style="display:flex;align-items:center;gap:10px;padding:10px 14px 8px;background:var(--bg-card);border-bottom:1px solid var(--border)">' +
-        '<button class="hist-icon-btn" onclick="setView(\'' + (state.prevView||'week') + '\')">' +
-        '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>' +
-        '</button>' +
-        '<div style="flex:1"><div style="font-size:15px;font-weight:800">Week History</div><div style="font-size:11px;color:var(--text-muted)">Click any row to open that week</div></div>' +
-        '</div>' +
         '<div class="hist-desk-wrap">' + sidebarHtml + mainHtml + '</div>' +
         jumpHtml +
         '</main>';
