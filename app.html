@@ -18165,9 +18165,10 @@
     .hist-desk-table thead th:first-child { padding-left:20px; }
     .hist-desk-table thead th.r { text-align:right; }
     .hist-desk-table thead th.c { text-align:center; }
-    .hdt-col-resize { position:absolute; top:0; right:-3px; width:7px; height:100%; cursor:col-resize; z-index:4; }
-    .hdt-col-resize::after { content:''; position:absolute; top:7px; bottom:7px; left:3px; width:1px; background:transparent; }
-    .hdt-col-resize:hover::after { background:rgba(var(--accent-rgb),0.55); }
+    .hdt-col-resize { position:absolute; top:0; right:0; width:14px; height:100%; cursor:col-resize; z-index:5; }
+    .hdt-col-resize::after { content:''; position:absolute; top:7px; bottom:7px; right:0; width:1px; background:var(--border); }
+    .hdt-col-resize:hover::after,
+    .hdt-col-resize.dragging::after { background:rgba(var(--accent-rgb),0.65); width:2px; }
     .hist-desk-table tbody tr { border-bottom:1px solid var(--border); cursor:pointer; transition:background 0.1s; }
     .hist-desk-table tbody tr:hover { background:var(--bg-card-alt); }
     .hist-desk-table tbody tr.hdt-current td { background:rgba(var(--accent-rgb),0.08); }
@@ -18673,7 +18674,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '6.0.30';
+    const VERSION = '6.0.31';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -32369,21 +32370,24 @@
       e.preventDefault();
       e.stopPropagation();
       var widths = _histColWidths();
+      var handle = e.target;
+      handle.classList.add('dragging');
       var startX = e.clientX;
       var startW = widths[idx] || 80;
       var min = idx === 0 ? 150 : 52;
       var max = idx === 0 ? 420 : 220;
       function onMove(ev) {
         widths[idx] = Math.max(min, Math.min(max, startW + ev.clientX - startX));
-        try { localStorage.setItem('rian_hist_col_widths', JSON.stringify(widths)); } catch(e) {}
         var table = document.querySelector('.hist-desk-table');
         if (table && table.children[0] && table.children[0].children[idx]) {
           table.children[0].children[idx].style.width = widths[idx] + 'px';
         }
       }
       function onUp() {
+        handle.classList.remove('dragging');
         document.removeEventListener('mousemove', onMove);
         document.removeEventListener('mouseup', onUp);
+        try { localStorage.setItem('rian_hist_col_widths', JSON.stringify(widths)); } catch(e) {}
       }
       document.addEventListener('mousemove', onMove);
       document.addEventListener('mouseup', onUp);
