@@ -18156,19 +18156,14 @@
     .hist-desk-scope { height:40px; display:flex; align-items:center; gap:2px; padding:3px; border:1px solid var(--border); border-radius:10px; background:var(--bg-input); flex-shrink:0; }
     .hist-desk-scope button { height:32px; padding:0 12px; border:none; border-radius:8px; background:transparent; color:var(--text-secondary); font-size:12px; font-weight:800; cursor:pointer; font-family:var(--font-body); }
     .hist-desk-scope button.active { background:var(--bg-card); color:var(--accent); box-shadow:0 1px 2px rgba(var(--shadow-rgb),0.08); }
-    .hist-desk-content { flex:1; min-height:0; display:grid; grid-template-columns:minmax(520px,1fr) 360px; overflow:hidden; }
+    .hist-desk-content { flex:1; min-height:0; display:flex; overflow:hidden; }
     .hist-desk-content.no-search { display:block; }
-    .hist-desk-table-wrap { flex:1; overflow:auto; }
-    .hist-desk-table { width:100%; min-width:860px; border-collapse:collapse; table-layout:fixed; }
+    .hist-desk-table-wrap { flex:1; min-width:520px; overflow:auto; }
+    .hist-desk-table { width:100%; min-width:860px; border-collapse:collapse; }
     .hist-desk-table thead th { position:sticky; top:0; z-index:2; background:var(--bg-card-alt); border-bottom:1px solid var(--border); padding:8px 16px; text-align:left; font-size:10px; font-weight:800; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.08em; white-space:nowrap; }
-    .hist-desk-table thead th.hdt-resizable { position:sticky; }
     .hist-desk-table thead th:first-child { padding-left:20px; }
     .hist-desk-table thead th.r { text-align:right; }
     .hist-desk-table thead th.c { text-align:center; }
-    .hdt-col-resize { position:absolute; top:0; right:0; width:14px; height:100%; cursor:col-resize; z-index:5; }
-    .hdt-col-resize::after { content:''; position:absolute; top:7px; bottom:7px; right:0; width:1px; background:var(--border); }
-    .hdt-col-resize:hover::after,
-    .hdt-col-resize.dragging::after { background:rgba(var(--accent-rgb),0.65); width:2px; }
     .hist-desk-table tbody tr { border-bottom:1px solid var(--border); cursor:pointer; transition:background 0.1s; }
     .hist-desk-table tbody tr:hover { background:var(--bg-card-alt); }
     .hist-desk-table tbody tr.hdt-current td { background:rgba(var(--accent-rgb),0.08); }
@@ -18188,7 +18183,7 @@
     .hdt-muted { opacity:0.35; }
     .hdt-status { display:flex; align-items:center; gap:6px; }
     .hdt-arrow { width:28px; height:28px; border-radius:7px; border:1px solid var(--border); background:var(--bg-input); color:var(--text-secondary); display:flex; align-items:center; justify-content:center; margin-left:auto; }
-    .hist-results-panel { background:var(--bg-card); border-left:1px solid var(--border); overflow:auto; }
+    .hist-results-panel { background:var(--bg-card); border-left:1px solid var(--border); overflow:auto; flex-shrink:0; }
     .hist-results-head { position:sticky; top:0; z-index:2; background:var(--bg-card); border-bottom:1px solid var(--border); padding:14px 16px 12px; }
     .hist-results-title { font-size:13px; font-weight:800; color:var(--text-primary); }
     .hist-results-sub { margin-top:3px; font-size:11px; color:var(--text-muted); font-weight:600; }
@@ -18674,7 +18669,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '6.0.31';
+    const VERSION = '6.0.32';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -32094,31 +32089,13 @@
       return ({ all: 'All', tasks: 'Tasks', callouts: 'Callouts' })[scope || 'all'] || 'All';
     }
 
-    function _histColWidths() {
-      var defaults = [230, 70, 60, 75, 65, 65, 120, 120, 40];
-      try {
-        var saved = JSON.parse(localStorage.getItem('rian_hist_col_widths') || 'null');
-        if (Array.isArray(saved) && saved.length === defaults.length) {
-          return saved.map(function(w, i) {
-            var min = i === 0 ? 150 : (i === 8 ? 40 : 52);
-            var max = i === 0 ? 420 : 220;
-            return Math.max(min, Math.min(max, parseInt(w) || defaults[i]));
-          });
-        }
-      } catch(e) {}
-      return defaults;
-    }
-
-    function _histColgroupHtml() {
-      return '<colgroup>' + _histColWidths().map(function(w) { return '<col style="width:' + w + 'px">'; }).join('') + '</colgroup>';
-    }
-
-    function _histTh(label, cls, idx) {
-      return '<th class="hdt-resizable ' + (cls || '') + '">' + label + '<span class="hdt-col-resize" onmousedown="histResizeColStart(event,' + idx + ')" title="Resize column"></span></th>';
+    function _histResultsWidth() {
+      var w = parseInt(localStorage.getItem('rian_hist_results_width') || '360', 10);
+      return Math.max(280, Math.min(560, w || 360));
     }
 
     function _histBuildResultsHtml(results, q) {
-      var html = '<aside class="hist-results-panel">' +
+      var html = '<aside class="hist-results-panel" style="width:' + _histResultsWidth() + 'px">' +
         '<div class="hist-results-head"><div class="hist-results-title">Search Results</div>' +
         '<div class="hist-results-sub">' + results.length + ' match' + (results.length === 1 ? '' : 'es') + ' for <strong>' + esc(q) + '</strong></div></div>';
       if (!results.length) {
@@ -32307,21 +32284,20 @@
         '<div class="hist-desk-content' + (searchQ ? '' : ' no-search') + '">' +
         '<div class="hist-desk-table-wrap">' +
         '<table class="hist-desk-table">' +
-        _histColgroupHtml() +
         '<thead><tr>' +
-        _histTh('Week', '', 0) +
-        _histTh('Ord', 'r', 1) +
-        _histTh('OT', 'r', 2) +
-        _histTh('Total', 'r', 3) +
-        _histTh('Tasks', 'c', 4) +
-        _histTh('Sites', 'c', 5) +
-        _histTh('Status', '', 6) +
-        _histTh('Callouts', '', 7) +
+        '<th style="width:230px">Week</th>' +
+        '<th class="r" style="width:70px">Ord</th>' +
+        '<th class="r" style="width:60px">OT</th>' +
+        '<th class="r" style="width:75px">Total</th>' +
+        '<th class="c" style="width:65px">Tasks</th>' +
+        '<th class="c" style="width:65px">Sites</th>' +
+        '<th style="width:120px">Status</th>' +
+        '<th style="width:120px">Callouts</th>' +
         '<th></th>' +
         '</tr></thead>' +
         '<tbody>' + tableBody + '</tbody>' +
         '</table>' +
-        '</div>' + resultsHtml + '</div></div>';
+        '</div>' + (searchQ ? '<div class="dj-resize-handle dj-rh-invis" onmousedown="histResultsResizeStart(event)"></div>' : '') + resultsHtml + '</div></div>';
 
       // Jump modal
       var jumpHtml = '';
@@ -32366,28 +32342,23 @@
       render();
     }
     function histGoToWeek(ws) { loadWeek(ws); setView('week'); }
-    function histResizeColStart(e, idx) {
+    function histResultsResizeStart(e) {
       e.preventDefault();
-      e.stopPropagation();
-      var widths = _histColWidths();
       var handle = e.target;
       handle.classList.add('dragging');
       var startX = e.clientX;
-      var startW = widths[idx] || 80;
-      var min = idx === 0 ? 150 : 52;
-      var max = idx === 0 ? 420 : 220;
+      var startW = _histResultsWidth();
       function onMove(ev) {
-        widths[idx] = Math.max(min, Math.min(max, startW + ev.clientX - startX));
-        var table = document.querySelector('.hist-desk-table');
-        if (table && table.children[0] && table.children[0].children[idx]) {
-          table.children[0].children[idx].style.width = widths[idx] + 'px';
-        }
+        var newW = Math.max(280, Math.min(560, startW - (ev.clientX - startX)));
+        var el = document.querySelector('.hist-results-panel');
+        if (el) el.style.width = newW + 'px';
       }
       function onUp() {
         handle.classList.remove('dragging');
         document.removeEventListener('mousemove', onMove);
         document.removeEventListener('mouseup', onUp);
-        try { localStorage.setItem('rian_hist_col_widths', JSON.stringify(widths)); } catch(e) {}
+        var el = document.querySelector('.hist-results-panel');
+        if (el) try { localStorage.setItem('rian_hist_results_width', String(parseInt(el.style.width) || _histResultsWidth())); } catch(e) {}
       }
       document.addEventListener('mousemove', onMove);
       document.addEventListener('mouseup', onUp);
