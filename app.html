@@ -19719,7 +19719,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '6.0.60';
+    const VERSION = '6.0.61';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -22923,22 +22923,13 @@
       };
       const syncTitles = { idle: '', pending: 'Unsaved changes', syncing: 'Syncing…', synced: 'Synced', error: 'Sync failed – tap to retry' };
 
-      // Compute summary totals for header metric tiles
-      const _hdrSummary = state.weekData ? calcSummary(state.weekData) : [];
-      const _hdrOrd = Math.round(_hdrSummary.reduce((s, r) => s + r.ordinary, 0));
-      const _hdrOT = Math.round(_hdrSummary.reduce((s, r) => s + r.overtime, 0));
-      const _hdrTasks = state.weekData ? state.weekData.days.reduce((s, d) =>
-        s + d.activities.filter(a => a.description || a.codes.length || parseFloat(a.ordinary) > 0 || parseFloat(a.overtime) > 0).length, 0) : 0;
-      const _hdrChevron = `<svg class="hdr-week-chevron${state.headerExpanded ? ' open' : ''}" width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 4l4 4-4 4" stroke="rgba(255,255,255,0.85)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
-
       return `
   <header class="shadow-lg" style="background:var(--bg-header);color:var(--text-header)">
     <div class="flex items-center px-4 py-3 gap-2">
       <button onclick="prevWeek()" class="hdr-nav-btn"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
       <div class="flex-1 text-center">
-        <div onclick="toggleHeader()" style="cursor:pointer;display:inline-flex;align-items:center;gap:5px;padding:2px 6px;border-radius:6px;transition:background 0.2s;" onmousedown="this.style.background='rgba(255,255,255,0.08)'" onmouseup="this.style.background='transparent'" onmouseleave="this.style.background='transparent'">
+        <div onclick="setView('history')" style="cursor:pointer;display:inline-flex;align-items:center;gap:5px;padding:2px 6px;border-radius:6px;transition:background 0.2s;" onmousedown="this.style.background='rgba(255,255,255,0.08)'" onmouseup="this.style.background='transparent'" onmouseleave="this.style.background='transparent'">
           <span class="font-bold text-base leading-tight">${state.weekStart ? formatWeekRange(state.weekStart) : '—'}</span>
-          ${_hdrChevron}
         </div>
         <div class="text-xs mt-0.5 flex items-center justify-center gap-2" style="color:var(--text-header-sub)">
           ${syncIcons[state.syncStatus] || ''}
@@ -23153,20 +23144,6 @@
             `;
         })()}
         </div>
-      </div>
-    </div>
-    <div class="hdr-metrics${state.headerExpanded ? ' open' : ''}">
-      <div class="hdr-metric-tile">
-        <div class="hdr-metric-val">${_hdrOrd}</div>
-        <div class="hdr-metric-lbl">Ord hrs</div>
-      </div>
-      <div class="hdr-metric-tile">
-        <div class="hdr-metric-val ot">${_hdrOT}</div>
-        <div class="hdr-metric-lbl">Overtime</div>
-      </div>
-      <div class="hdr-metric-tile">
-        <div class="hdr-metric-val">${_hdrTasks}</div>
-        <div class="hdr-metric-lbl">Tasks</div>
       </div>
     </div>
     <div class="flex" style="background:var(--bg-header-tab);">
@@ -26544,16 +26521,6 @@
       const otEl = document.querySelector('[data-sum-ot]');
       if (ordEl) { ordEl.textContent = Math.round(totalOrd) + 'h'; ordEl.style.display = totalOrd > 0 ? '' : 'none'; }
       if (otEl) { otEl.textContent = '+' + Math.round(totalOT) + ' OT'; otEl.style.display = totalOT > 0 ? '' : 'none'; }
-    }
-
-    function toggleHeader() {
-      state.headerExpanded = !state.headerExpanded;
-      localStorage.setItem('rian_headerExpanded', state.headerExpanded);
-      // Update DOM directly without full re-render for smoothness
-      const tiles = document.querySelector('.hdr-metrics');
-      const chev = document.querySelector('.hdr-week-chevron');
-      if (tiles) tiles.classList.toggle('open', state.headerExpanded);
-      if (chev) chev.classList.toggle('open', state.headerExpanded);
     }
 
     function toggleSummary() {
