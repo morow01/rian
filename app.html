@@ -18148,6 +18148,18 @@
     .hist-desk-head-meta { margin-left:auto; display:flex; align-items:center; gap:18px; color:var(--text-muted); font-size:12px; font-weight:600; white-space:nowrap; }
     .hist-desk-head-meta span { display:inline-flex; align-items:center; gap:6px; }
     .hist-desk-head-meta span + span::before { content:''; width:1px; height:16px; background:var(--border); margin-right:12px; }
+    .hist-desk-head-wrap { background:var(--bg-card); border-bottom:1px solid var(--border); padding:14px 22px; flex-shrink:0; }
+    .hist-desk-head-wrap .hist-desk-head { min-height:auto; border-bottom:none; padding:0; }
+    .hist-desk-search-row { margin-top:14px; display:flex; align-items:center; gap:10px; }
+    .hist-desk-search { flex:1; height:40px; border:1px solid var(--border); border-radius:10px; background:var(--bg-input); display:flex; align-items:center; gap:9px; padding:0 12px; color:var(--text-muted); }
+    .hist-desk-search input { flex:1; min-width:0; border:none; outline:none; background:transparent; color:var(--text-primary); font-size:14px; font-weight:600; font-family:var(--font-body); }
+    .hist-desk-search-clear { width:24px; height:24px; border:none; border-radius:7px; background:transparent; color:var(--text-muted); display:flex; align-items:center; justify-content:center; cursor:pointer; }
+    .hist-desk-search-clear:hover { background:var(--bg-card); color:var(--text-secondary); }
+    .hist-desk-scope { height:40px; display:flex; align-items:center; gap:2px; padding:3px; border:1px solid var(--border); border-radius:10px; background:var(--bg-input); flex-shrink:0; }
+    .hist-desk-scope button { height:32px; padding:0 12px; border:none; border-radius:8px; background:transparent; color:var(--text-secondary); font-size:12px; font-weight:800; cursor:pointer; font-family:var(--font-body); }
+    .hist-desk-scope button.active { background:var(--bg-card); color:var(--accent); box-shadow:0 1px 2px rgba(var(--shadow-rgb),0.08); }
+    .hist-desk-content { flex:1; min-height:0; display:grid; grid-template-columns:minmax(520px,1fr) 360px; overflow:hidden; }
+    .hist-desk-content.no-search { display:block; }
     .hist-desk-table-wrap { flex:1; overflow-y:auto; }
     .hist-desk-table { width:100%; border-collapse:collapse; }
     .hist-desk-table thead th { position:sticky; top:0; z-index:2; background:var(--bg-card-alt); border-bottom:1px solid var(--border); padding:8px 16px; text-align:left; font-size:10px; font-weight:800; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.08em; white-space:nowrap; }
@@ -18174,6 +18186,22 @@
     .hdt-status { display:flex; align-items:center; gap:6px; }
     .hdt-status::before { content:''; width:4px; height:26px; border-radius:99px; background:rgba(var(--amber-rgb),0.85); }
     .hdt-arrow { width:28px; height:28px; border-radius:7px; border:1px solid var(--border); background:var(--bg-input); color:var(--text-secondary); display:flex; align-items:center; justify-content:center; margin-left:auto; }
+    .hist-results-panel { background:var(--bg-card); border-left:1px solid var(--border); overflow:auto; }
+    .hist-results-head { position:sticky; top:0; z-index:2; background:var(--bg-card); border-bottom:1px solid var(--border); padding:14px 16px 12px; }
+    .hist-results-title { font-size:13px; font-weight:800; color:var(--text-primary); }
+    .hist-results-sub { margin-top:3px; font-size:11px; color:var(--text-muted); font-weight:600; }
+    .hist-results-hint { padding:12px 16px; color:var(--text-muted); font-size:12px; line-height:1.4; }
+    .hist-result-group { padding:8px 16px 6px; background:var(--bg-page); border-top:1px solid var(--border); border-bottom:1px solid var(--border); color:var(--text-muted); font-size:10px; font-weight:800; letter-spacing:0.08em; text-transform:uppercase; }
+    .hist-result { padding:12px 16px; border-bottom:1px solid var(--border); }
+    .hist-result-top { display:flex; align-items:center; gap:8px; min-width:0; }
+    .hist-result-kind { width:28px; height:28px; border-radius:8px; display:flex; align-items:center; justify-content:center; background:rgba(var(--accent-rgb),0.10); color:var(--accent); font-size:12px; font-weight:800; flex-shrink:0; }
+    .hist-result-kind.callout { background:rgba(var(--priority-high-rgb),0.10); color:var(--priority-high); }
+    .hist-result-title { min-width:0; font-size:13px; font-weight:800; color:var(--text-primary); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .hist-result-meta { margin-top:2px; font-size:11px; color:var(--text-muted); font-weight:600; }
+    .hist-result-snippet { margin:8px 0 0 36px; font-size:12px; line-height:1.35; color:var(--text-secondary); }
+    .hist-result-btn { margin:10px 0 0 36px; height:28px; border:1px solid var(--border); border-radius:7px; background:var(--bg-input); color:var(--text-secondary); padding:0 10px; font-size:12px; font-weight:800; cursor:pointer; font-family:var(--font-body); }
+    .hist-result-btn:hover { color:var(--accent); border-color:rgba(var(--accent-rgb),0.3); }
+    .hist-mark { padding:0 2px; border-radius:4px; background:rgba(var(--amber-rgb),0.26); color:inherit; }
   }
   </style>
 </head>
@@ -18645,7 +18673,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '6.0.26';
+    const VERSION = '6.0.27';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -31758,15 +31786,26 @@
         const data = doc.data();
         let totalOrd = 0, totalOT = 0, taskCount = 0;
         const sites = new Set();
-        (data.days || []).forEach(function(day) {
+        const tasks = [];
+        (data.days || []).forEach(function(day, di) {
           (day.activities || []).filter(function(a) { return !a._draft; }).forEach(function(act) {
             totalOrd += parseFloat(act.ordinary || 0);
             totalOT  += parseFloat(act.overtime || 0);
             taskCount++;
             if (act.location) sites.add(act.location);
+            tasks.push({
+              id: act.id || '',
+              dayIdx: di,
+              date: day.date || '',
+              dayName: day.dayName || '',
+              description: act.description || '',
+              location: act.location || '',
+              notes: act.notes || '',
+              codes: act.codes || []
+            });
           });
         });
-        results.push({ weekStart: weekStart, totalOrd: totalOrd, totalOT: totalOT, taskCount: taskCount, siteCount: sites.size });
+        results.push({ weekStart: weekStart, totalOrd: totalOrd, totalOT: totalOT, taskCount: taskCount, siteCount: sites.size, tasks: tasks });
       });
       return results.sort(function(a, b) { return b.weekStart.localeCompare(a.weekStart); });
     }
@@ -31938,6 +31977,131 @@
       render();
     }
 
+    function _histSearchTokens(q) {
+      return String(q || '').toLowerCase().trim().split(/\s+/).filter(Boolean);
+    }
+
+    function _histSearchMatch(hay, tokens) {
+      hay = String(hay || '').toLowerCase();
+      return tokens.every(function(t) { return hay.indexOf(t) !== -1; });
+    }
+
+    function _histHighlight(text, q) {
+      var out = esc(text || '');
+      var tokens = _histSearchTokens(q).filter(function(t) { return t.length > 1; });
+      tokens.forEach(function(t) {
+        var re = new RegExp('(' + t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'ig');
+        out = out.replace(re, '<span class="hist-mark">$1</span>');
+      });
+      return out;
+    }
+
+    function _histSnippet(text, q) {
+      var clean = stripHtml(text || '').replace(/\s+/g, ' ').trim();
+      if (!clean) return '';
+      var low = clean.toLowerCase();
+      var tok = _histSearchTokens(q)[0] || '';
+      var idx = tok ? low.indexOf(tok) : -1;
+      if (idx < 0) return clean.length > 118 ? clean.slice(0, 115) + '...' : clean;
+      var start = Math.max(0, idx - 42);
+      var end = Math.min(clean.length, idx + tok.length + 72);
+      return (start > 0 ? '...' : '') + clean.slice(start, end) + (end < clean.length ? '...' : '');
+    }
+
+    function _histBuildSearchResults(q, scope, weeks, coWeeks) {
+      var tokens = _histSearchTokens(q);
+      if (!tokens.length) return [];
+      scope = scope || 'all';
+      var results = [];
+
+      if (scope === 'all' || scope === 'tasks') {
+        weeks.forEach(function(w) {
+          (w.tasks || []).forEach(function(t) {
+            var codeText = (t.codes || []).map(function(c) { return [c.c, c.d, c.a].filter(Boolean).join(' '); }).join(' ');
+            var hay = [t.description, t.location, stripHtml(t.notes), codeText, t.date, t.dayName].join(' ');
+            if (!_histSearchMatch(hay, tokens)) return;
+            var title = stripHtml(t.description || '').replace(/\s+/g, ' ').trim() || 'Untitled task';
+            var snippet = _histSnippet(t.notes || codeText || t.location || title, q);
+            results.push({
+              type: 'task',
+              weekStart: w.weekStart,
+              date: t.date || w.weekStart,
+              dayIdx: t.dayIdx,
+              id: t.id,
+              title: title,
+              meta: 'Task' + (t.location ? ' · ' + t.location : '') + (t.date ? ' · ' + formatDateShort(t.date) : ''),
+              snippet: snippet
+            });
+          });
+        });
+      }
+
+      if (scope === 'all' || scope === 'callouts') {
+        Object.entries(coWeeks || {}).forEach(function(entry) {
+          var wk = entry[0];
+          var wd = entry[1] || {};
+          (wd.callouts || []).forEach(function(co) {
+            var hay = [co.fault, co.site, co.location, co.ticket, co.notes, co.engineerOnSite, co.date].join(' ');
+            if (!_histSearchMatch(hay, tokens)) return;
+            var title = stripHtml(co.fault || co.site || co.location || co.ticket || '').replace(/\s+/g, ' ').trim() || 'Callout';
+            results.push({
+              type: 'callout',
+              weekStart: wk,
+              date: co.date || wk,
+              id: co.id,
+              title: title,
+              meta: 'Callout' + (co.ticket ? ' · ' + co.ticket : '') + ((co.site || co.location) ? ' · ' + (co.site || co.location) : ''),
+              snippet: _histSnippet(co.notes || co.fault || co.site || co.location || '', q)
+            });
+          });
+        });
+      }
+
+      return results.sort(function(a, b) {
+        var d = String(b.date || '').localeCompare(String(a.date || ''));
+        if (d) return d;
+        return String(b.weekStart || '').localeCompare(String(a.weekStart || ''));
+      });
+    }
+
+    function _histResultMatchesForWeek(results, weekStart) {
+      return results.filter(function(r) { return r.weekStart === weekStart; }).length;
+    }
+
+    function _histScopeLabel(scope) {
+      return ({ all: 'All', tasks: 'Tasks', callouts: 'Callouts' })[scope || 'all'] || 'All';
+    }
+
+    function _histBuildResultsHtml(results, q) {
+      var html = '<aside class="hist-results-panel">' +
+        '<div class="hist-results-head"><div class="hist-results-title">Search Results</div>' +
+        '<div class="hist-results-sub">' + results.length + ' match' + (results.length === 1 ? '' : 'es') + ' for <strong>' + esc(q) + '</strong></div></div>';
+      if (!results.length) {
+        return html + '<div class="hist-results-hint">No matching tasks or callouts found.</div></aside>';
+      }
+      html += '<div class="hist-results-hint">Select a result to open the matching task or callout.</div>';
+      var lastWeek = null;
+      results.forEach(function(r) {
+        if (r.weekStart !== lastWeek) {
+          html += '<div class="hist-result-group">' + esc(formatWeekRange(r.weekStart)) + '</div>';
+          lastWeek = r.weekStart;
+        }
+        var kind = r.type === 'callout' ? 'callout' : 'task';
+        var icon = r.type === 'callout' ? '☎' : 'T';
+        var action = r.type === 'callout' ? 'Open callout' : 'Open task';
+        html += '<div class="hist-result">' +
+          '<div class="hist-result-top">' +
+          '<div class="hist-result-kind ' + kind + '">' + icon + '</div>' +
+          '<div style="min-width:0;flex:1"><div class="hist-result-title">' + _histHighlight(r.title, q) + '</div>' +
+          '<div class="hist-result-meta">' + esc(r.meta) + '</div></div>' +
+          '</div>' +
+          (r.snippet ? '<div class="hist-result-snippet">' + _histHighlight(r.snippet, q) + '</div>' : '') +
+          '<button class="hist-result-btn" onclick="histOpenSearchResult(\'' + r.type + '\',\'' + r.weekStart + '\',\'' + String(r.id || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'") + '\',' + (r.dayIdx != null ? r.dayIdx : 'null') + ')">' + action + '</button>' +
+          '</div>';
+      });
+      return html + '</aside>';
+    }
+
     function _renderDesktopHistory() {
       var onCall       = (state.callouts && state.callouts.onCall) || {};
       var coWeeks      = (state.callouts && state.callouts.weeks)  || {};
@@ -31946,6 +32110,8 @@
       var isLoading    = state.historyWeeks === 'loading';
       var curWeekStart = dateToStr(getCurrentFriday());
       var curYear      = new Date().getFullYear();
+      var searchQ      = (state.historySearch || '').trim();
+      var searchScope  = state.historySearchScope || 'all';
 
       // Auto-select most recent past week if none selected
       if (!state.histSelectedWeek) {
@@ -31962,6 +32128,9 @@
       var avgHrs  = workedWeeks.length > 0 ? (curYearWeeks.reduce(function(s,w){return s+w.totalOrd;},0)/workedWeeks.length).toFixed(1) : '–';
       var yearOnCall  = Object.entries(onCall).filter(function(e){ return e[0].startsWith(String(curYear)) && (e[1]==='oncall'||e[1]==='extra'); }).length;
       var yearCallouts = Object.entries(coWeeks).filter(function(e){ return e[0].startsWith(String(curYear)); }).reduce(function(s,e){ return s+((e[1].callouts||[]).length); }, 0);
+      var searchResults = searchQ ? _histBuildSearchResults(searchQ, searchScope, weeks, coWeeks) : [];
+      var matchWeeks = {};
+      searchResults.forEach(function(r) { matchWeeks[r.weekStart] = true; });
 
       var phoneSvg = '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.13 13.9 19.79 19.79 0 0 1 1.06 5.27 2 2 0 0 1 3 3h3a2 2 0 0 1 2 1.72c.127.96.362 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>';
       var chevSvg  = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>';
@@ -31997,6 +32166,7 @@
       if (filter === 'oncall')   pastWeeks = pastWeeks.filter(function(w){ return !!onCall[w.weekStart]; });
       if (filter === 'ot')       pastWeeks = pastWeeks.filter(function(w){ return w.totalOT > 0; });
       if (filter === 'callouts') pastWeeks = pastWeeks.filter(function(w){ return ((coWeeks[w.weekStart]&&coWeeks[w.weekStart].callouts)||[]).length > 0; });
+      if (searchQ) pastWeeks = pastWeeks.filter(function(w){ return !!matchWeeks[w.weekStart]; });
 
       function tableRow(ws, type) {
         var isFuture  = type === 'future';
@@ -32009,6 +32179,7 @@
         var ot   = wData ? Math.round(wData.totalOT)  : 0;
         var tasks = wData ? wData.taskCount : 0;
         var sites = wData ? wData.siteCount : 0;
+        var matches = searchQ ? _histResultMatchesForWeek(searchResults, ws) : 0;
         var fn = isFuture ? 'histGoToWeek' : 'histGoToWeek';
         var trClass = isFuture ? 'hdt-future' : (isCurrent ? 'hdt-current' : '');
 
@@ -32025,6 +32196,7 @@
         var siteCell = isFuture ? '<span class="hdt-muted">—</span>' : (sites > 0 ? sites : '<span class="hdt-muted">0</span>');
         var addCell  = isFuture ? '<span class="hist-badge" style="border:1px dashed var(--border);background:transparent;color:var(--text-muted);font-size:11px">+ Add tasks</span>' : '';
         var subText = isFuture ? 'Ready for planning' : (isCurrent ? 'Current week' : (tasks > 0 || sites > 0 ? tasks + ' task' + (tasks === 1 ? '' : 's') + ' · ' + sites + ' site' + (sites === 1 ? '' : 's') : 'No recorded work'));
+        if (matches > 0) subText += ' · ' + matches + ' match' + (matches === 1 ? '' : 'es');
 
         return '<tr class="' + trClass + '" onclick="histGoToWeek(\'' + ws + '\')">' +
           '<td><div class="hdt-range' + (isFuture?' dim':'') + '">' + esc(formatWeekRange(ws)) + '</div><div class="hdt-sub">' + esc(subText) + '</div></td>' +
@@ -32044,31 +32216,50 @@
       };
 
       var tableBody = '';
-      if (filter === 'all') {
+      if (filter === 'all' && !searchQ) {
         tableBody += secRow('Upcoming');
         futureWeeks.forEach(function(ws){ tableBody += tableRow(ws,'future'); });
         tableBody += secRow('● This Week','#22c55e');
         tableBody += tableRow(curWeekStart,'current');
         tableBody += secRow('History');
+      } else if (searchQ) {
+        tableBody += secRow('Matching Weeks');
+        if (matchWeeks[curWeekStart]) tableBody += tableRow(curWeekStart,'current');
       }
       if (isLoading) {
         tableBody += '<tr><td colspan="9" style="text-align:center;padding:40px;color:var(--text-muted);font-size:13px">Loading…</td></tr>';
-      } else if (pastWeeks.length === 0) {
-        tableBody += '<tr><td colspan="9" style="text-align:center;padding:40px;color:var(--text-muted);font-size:13px">No weeks found</td></tr>';
+      } else if ((searchQ && searchResults.length === 0) || (!searchQ && pastWeeks.length === 0)) {
+        tableBody += '<tr><td colspan="9" style="text-align:center;padding:40px;color:var(--text-muted);font-size:13px">' + (searchQ ? 'No matching tasks or callouts' : 'No weeks found') + '</td></tr>';
       } else {
         pastWeeks.forEach(function(w){ tableBody += tableRow(w.weekStart,'past'); });
       }
 
       var filterLabel = ({ all:'Showing all weeks', oncall:'Showing on-call weeks', ot:'Showing weeks with OT', callouts:'Showing weeks with callouts' })[filter] || 'Showing all weeks';
       var avgLabel = workedWeeks.length > 0 ? 'Avg ' + avgHrs + 'h / worked week' : 'No worked weeks yet';
+      var searchMeta = searchQ ? searchResults.length + ' search result' + (searchResults.length === 1 ? '' : 's') : filterLabel;
+      var scopeButtons = [['all','All'],['tasks','Tasks'],['callouts','Callouts']].map(function(s) {
+        return '<button class="' + (searchScope === s[0] ? 'active' : '') + '" onclick="historySearchScope(\'' + s[0] + '\')">' + s[1] + '</button>';
+      }).join('');
+      var resultsHtml = searchQ ? _histBuildResultsHtml(searchResults, searchQ) : '';
       var mainHtml = '<div class="hist-desk-main">' +
+        '<div class="hist-desk-head-wrap">' +
         '<div class="hist-desk-head">' +
         '<button class="hist-icon-btn" onclick="setView(\'' + (state.prevView||'week') + '\')" title="Back">' +
         '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>' +
         '</button>' +
-        '<div><h1>Week History</h1><p>Review past work, jump forward, or add tasks to upcoming weeks</p></div>' +
-        '<div class="hist-desk-head-meta"><span>' + filterLabel + '</span><span>' + avgLabel + '</span></div>' +
+        '<div><h1>Week History</h1><p>Search saved tasks and callouts, or jump to any week</p></div>' +
+        '<div class="hist-desk-head-meta"><span>' + searchMeta + '</span><span>' + avgLabel + '</span></div>' +
         '</div>' +
+        '<div class="hist-desk-search-row">' +
+        '<div class="hist-desk-search">' +
+        '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>' +
+        '<input type="search" placeholder="Search tasks and callouts..." value="' + escAttr(searchQ) + '" oninput="historySearchInput(this.value)">' +
+        (searchQ ? '<button class="hist-desk-search-clear" onclick="historySearchInput(\'\')" title="Clear search">×</button>' : '') +
+        '</div>' +
+        '<div class="hist-desk-scope">' + scopeButtons + '</div>' +
+        '</div>' +
+        '</div>' +
+        '<div class="hist-desk-content' + (searchQ ? '' : ' no-search') + '">' +
         '<div class="hist-desk-table-wrap">' +
         '<table class="hist-desk-table">' +
         '<thead><tr>' +
@@ -32084,7 +32275,7 @@
         '</tr></thead>' +
         '<tbody>' + tableBody + '</tbody>' +
         '</table>' +
-        '</div></div>';
+        '</div>' + resultsHtml + '</div></div>';
 
       // Jump modal
       var jumpHtml = '';
@@ -32112,7 +32303,43 @@
     }
 
     function historyFilter(key) { state.historyFilter = key; render(); }
+    function historySearchInput(value) {
+      state.historySearch = value || '';
+      render();
+      requestAnimationFrame(function() {
+        var el = document.querySelector('.hist-desk-search input');
+        if (el) {
+          el.focus({ preventScroll: true });
+          var len = el.value.length;
+          try { el.setSelectionRange(len, len); } catch(e) {}
+        }
+      });
+    }
+    function historySearchScope(scope) {
+      state.historySearchScope = scope || 'all';
+      render();
+    }
     function histGoToWeek(ws) { loadWeek(ws); setView('week'); }
+    async function histOpenSearchResult(type, weekStart, id, dayIdx) {
+      if (type === 'callout') {
+        await setView('callouts');
+        state.dcoSelectedWeek = weekStart;
+        state.calloutsSelectedWeek = weekStart;
+        state.calloutsView = 'week';
+        state.dcoSelectedCo = id || null;
+        render();
+        return;
+      }
+      if (type === 'task') {
+        if (typeof dayIdx === 'number' && !isNaN(dayIdx)) state.deskSelectedDay = dayIdx;
+        if (id) {
+          state.deskSelectedAct = id;
+          state.activitiesExpanded.add(id);
+        }
+        await loadWeek(weekStart);
+        await setView('week');
+      }
+    }
     function histOpenJump() { state.historyJumpOpen = true; render(); }
     function histCloseJump() { state.historyJumpOpen = false; render(); }
     function histSetQuick(idx, ws) { state.historyJumpQuick = idx; state.historyJumpDate = ws; render(); }
