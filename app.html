@@ -18158,12 +18158,16 @@
     .hist-desk-scope button.active { background:var(--bg-card); color:var(--accent); box-shadow:0 1px 2px rgba(var(--shadow-rgb),0.08); }
     .hist-desk-content { flex:1; min-height:0; display:grid; grid-template-columns:minmax(520px,1fr) 360px; overflow:hidden; }
     .hist-desk-content.no-search { display:block; }
-    .hist-desk-table-wrap { flex:1; overflow-y:auto; }
-    .hist-desk-table { width:100%; border-collapse:collapse; }
+    .hist-desk-table-wrap { flex:1; overflow:auto; }
+    .hist-desk-table { width:100%; min-width:860px; border-collapse:collapse; table-layout:fixed; }
     .hist-desk-table thead th { position:sticky; top:0; z-index:2; background:var(--bg-card-alt); border-bottom:1px solid var(--border); padding:8px 16px; text-align:left; font-size:10px; font-weight:800; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.08em; white-space:nowrap; }
+    .hist-desk-table thead th.hdt-resizable { position:sticky; }
     .hist-desk-table thead th:first-child { padding-left:20px; }
     .hist-desk-table thead th.r { text-align:right; }
     .hist-desk-table thead th.c { text-align:center; }
+    .hdt-col-resize { position:absolute; top:0; right:-3px; width:7px; height:100%; cursor:col-resize; z-index:4; }
+    .hdt-col-resize::after { content:''; position:absolute; top:7px; bottom:7px; left:3px; width:1px; background:transparent; }
+    .hdt-col-resize:hover::after { background:rgba(var(--accent-rgb),0.55); }
     .hist-desk-table tbody tr { border-bottom:1px solid var(--border); cursor:pointer; transition:background 0.1s; }
     .hist-desk-table tbody tr:hover { background:var(--bg-card-alt); }
     .hist-desk-table tbody tr.hdt-current td { background:rgba(var(--accent-rgb),0.08); }
@@ -18182,7 +18186,6 @@
     .hdt-n { font-size:12px; font-weight:600; color:var(--text-secondary); text-align:center; }
     .hdt-muted { opacity:0.35; }
     .hdt-status { display:flex; align-items:center; gap:6px; }
-    .hdt-status::before { content:''; width:4px; height:26px; border-radius:99px; background:rgba(var(--amber-rgb),0.85); }
     .hdt-arrow { width:28px; height:28px; border-radius:7px; border:1px solid var(--border); background:var(--bg-input); color:var(--text-secondary); display:flex; align-items:center; justify-content:center; margin-left:auto; }
     .hist-results-panel { background:var(--bg-card); border-left:1px solid var(--border); overflow:auto; }
     .hist-results-head { position:sticky; top:0; z-index:2; background:var(--bg-card); border-bottom:1px solid var(--border); padding:14px 16px 12px; }
@@ -18670,7 +18673,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '6.0.29';
+    const VERSION = '6.0.30';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -32090,6 +32093,29 @@
       return ({ all: 'All', tasks: 'Tasks', callouts: 'Callouts' })[scope || 'all'] || 'All';
     }
 
+    function _histColWidths() {
+      var defaults = [230, 70, 60, 75, 65, 65, 120, 120, 40];
+      try {
+        var saved = JSON.parse(localStorage.getItem('rian_hist_col_widths') || 'null');
+        if (Array.isArray(saved) && saved.length === defaults.length) {
+          return saved.map(function(w, i) {
+            var min = i === 0 ? 150 : (i === 8 ? 40 : 52);
+            var max = i === 0 ? 420 : 220;
+            return Math.max(min, Math.min(max, parseInt(w) || defaults[i]));
+          });
+        }
+      } catch(e) {}
+      return defaults;
+    }
+
+    function _histColgroupHtml() {
+      return '<colgroup>' + _histColWidths().map(function(w) { return '<col style="width:' + w + 'px">'; }).join('') + '</colgroup>';
+    }
+
+    function _histTh(label, cls, idx) {
+      return '<th class="hdt-resizable ' + (cls || '') + '">' + label + '<span class="hdt-col-resize" onmousedown="histResizeColStart(event,' + idx + ')" title="Resize column"></span></th>';
+    }
+
     function _histBuildResultsHtml(results, q) {
       var html = '<aside class="hist-results-panel">' +
         '<div class="hist-results-head"><div class="hist-results-title">Search Results</div>' +
@@ -32280,16 +32306,17 @@
         '<div class="hist-desk-content' + (searchQ ? '' : ' no-search') + '">' +
         '<div class="hist-desk-table-wrap">' +
         '<table class="hist-desk-table">' +
+        _histColgroupHtml() +
         '<thead><tr>' +
-        '<th style="width:230px">Week</th>' +
-        '<th class="r" style="width:70px">Ord</th>' +
-        '<th class="r" style="width:60px">OT</th>' +
-        '<th class="r" style="width:75px">Total</th>' +
-        '<th class="c" style="width:65px">Tasks</th>' +
-        '<th class="c" style="width:65px">Sites</th>' +
-        '<th style="width:120px">Status</th>' +
-        '<th style="width:120px">Callouts</th>' +
-        '<th style="width:40px"></th>' +
+        _histTh('Week', '', 0) +
+        _histTh('Ord', 'r', 1) +
+        _histTh('OT', 'r', 2) +
+        _histTh('Total', 'r', 3) +
+        _histTh('Tasks', 'c', 4) +
+        _histTh('Sites', 'c', 5) +
+        _histTh('Status', '', 6) +
+        _histTh('Callouts', '', 7) +
+        '<th></th>' +
         '</tr></thead>' +
         '<tbody>' + tableBody + '</tbody>' +
         '</table>' +
@@ -32338,6 +32365,29 @@
       render();
     }
     function histGoToWeek(ws) { loadWeek(ws); setView('week'); }
+    function histResizeColStart(e, idx) {
+      e.preventDefault();
+      e.stopPropagation();
+      var widths = _histColWidths();
+      var startX = e.clientX;
+      var startW = widths[idx] || 80;
+      var min = idx === 0 ? 150 : 52;
+      var max = idx === 0 ? 420 : 220;
+      function onMove(ev) {
+        widths[idx] = Math.max(min, Math.min(max, startW + ev.clientX - startX));
+        try { localStorage.setItem('rian_hist_col_widths', JSON.stringify(widths)); } catch(e) {}
+        var table = document.querySelector('.hist-desk-table');
+        if (table && table.children[0] && table.children[0].children[idx]) {
+          table.children[0].children[idx].style.width = widths[idx] + 'px';
+        }
+      }
+      function onUp() {
+        document.removeEventListener('mousemove', onMove);
+        document.removeEventListener('mouseup', onUp);
+      }
+      document.addEventListener('mousemove', onMove);
+      document.addEventListener('mouseup', onUp);
+    }
     async function histOpenSearchResult(type, weekStart, id, dayIdx) {
       if (type === 'callout') {
         await setView('callouts');
