@@ -19719,7 +19719,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '6.0.59';
+    const VERSION = '6.0.60';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -33298,7 +33298,6 @@
         '<div class="hist-desk-sb-stat"><div class="hist-desk-sb-stat-val" style="color:#F59E0B">' + yearOnCall + '</div><div class="hist-desk-sb-stat-lbl">On-call wks</div></div>' +
         '<div class="hist-desk-sb-stat"><div class="hist-desk-sb-stat-val" style="color:#8B5CF6">' + yearCallouts + '</div><div class="hist-desk-sb-stat-lbl">Callouts</div></div>' +
         '</div>' +
-        '<div style="height:1px;background:var(--border);margin:0 12px 10px"></div>' +
         '<div class="hist-desk-sidebar-hdr">Filter</div>' +
         '<div style="padding:0 4px 10px">' +
         [['all', 'All weeks'], ['oncall', 'On-call only'], ['ot', 'With OT'], ['callouts', 'With callouts']].map(function (c) {
