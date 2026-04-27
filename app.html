@@ -18132,10 +18132,12 @@
     .hist-desk-wrap { display:flex; height:calc(100vh - 110px); border-top:1px solid var(--border); overflow:hidden; }
     .hist-desk-sidebar { width:260px; background:var(--bg-card); border-right:1px solid var(--border); display:flex; flex-direction:column; overflow-y:auto; flex-shrink:0; }
     .hist-desk-sidebar-hdr { font-size:10px; font-weight:800; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.1em; padding:14px 16px 6px; }
-    .hist-desk-sb-stats { display:grid; grid-template-columns:1fr 1fr; gap:8px; padding:0 12px 14px; }
-    .hist-desk-sb-stat { background:var(--bg-input); border-radius:10px; padding:10px 10px 8px; }
-    .hist-desk-sb-stat-val { font-size:18px; font-weight:800; line-height:1; }
-    .hist-desk-sb-stat-lbl { font-size:10px; color:var(--text-muted); margin-top:4px; font-weight:600; }
+    .hist-desk-sb-stats { display:grid; grid-template-columns:1fr 1fr; border-top:1px solid var(--border); border-bottom:1px solid var(--border); }
+    .hist-desk-sb-stat { text-align:center; padding:12px 8px 10px; border-bottom:1px solid var(--border); }
+    .hist-desk-sb-stat:nth-child(odd) { border-right:1px solid var(--border); }
+    .hist-desk-sb-stat:nth-child(n+3) { border-bottom:none; }
+    .hist-desk-sb-stat-val { font-size:20px; font-weight:800; line-height:1.2; }
+    .hist-desk-sb-stat-lbl { font-size:9px; color:var(--text-muted); margin-top:2px; font-weight:600; text-transform:uppercase; }
     .hist-desk-sb-filter { display:flex; align-items:center; gap:8px; padding:8px 12px; border:none; background:transparent; font-family:var(--font-body); font-size:13px; font-weight:600; color:var(--text-secondary); cursor:pointer; width:100%; text-align:left; border-radius:8px; }
     .hist-desk-sb-filter:hover { background:var(--bg-input); }
     .hist-desk-sb-filter.active { background:var(--accent-light); color:var(--accent); font-weight:700; }
@@ -18669,7 +18671,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '6.0.34';
+    const VERSION = '6.0.35';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
