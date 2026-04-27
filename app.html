@@ -18669,7 +18669,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '6.0.32';
+    const VERSION = '6.0.33';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -32094,6 +32094,11 @@
       return Math.max(280, Math.min(560, w || 360));
     }
 
+    function _histSidebarWidth() {
+      var w = parseInt(localStorage.getItem('rian_hist_sidebar_width') || '260', 10);
+      return Math.max(210, Math.min(380, w || 260));
+    }
+
     function _histBuildResultsHtml(results, q) {
       var html = '<aside class="hist-results-panel" style="width:' + _histResultsWidth() + 'px">' +
         '<div class="hist-results-head"><div class="hist-results-title">Search Results</div>' +
@@ -32160,7 +32165,7 @@
 
       // ── Sidebar ──
       var dotColors = { all:'var(--accent)', oncall:'#F59E0B', ot:'#F59E0B', callouts:'#ef4444' };
-      var sidebarHtml = '<div class="hist-desk-sidebar">' +
+      var sidebarHtml = '<div class="hist-desk-sidebar" style="width:' + _histSidebarWidth() + 'px">' +
         '<div class="hist-desk-sidebar-hdr">' + curYear + ' so far</div>' +
         '<div class="hist-desk-sb-stats">' +
           '<div class="hist-desk-sb-stat"><div class="hist-desk-sb-stat-val" style="color:var(--accent)">' + (isLoading?'…':curYearWeeks.length) + '</div><div class="hist-desk-sb-stat-lbl">Weeks worked</div></div>' +
@@ -32319,7 +32324,7 @@
       }
 
       return '<main>' +
-        '<div class="hist-desk-wrap">' + sidebarHtml + mainHtml + '</div>' +
+        '<div class="hist-desk-wrap">' + sidebarHtml + '<div class="dj-resize-handle dj-rh-invis" onmousedown="histSidebarResizeStart(event)"></div>' + mainHtml + '</div>' +
         jumpHtml +
         '</main>';
     }
@@ -32359,6 +32364,27 @@
         document.removeEventListener('mouseup', onUp);
         var el = document.querySelector('.hist-results-panel');
         if (el) try { localStorage.setItem('rian_hist_results_width', String(parseInt(el.style.width) || _histResultsWidth())); } catch(e) {}
+      }
+      document.addEventListener('mousemove', onMove);
+      document.addEventListener('mouseup', onUp);
+    }
+    function histSidebarResizeStart(e) {
+      e.preventDefault();
+      var handle = e.target;
+      handle.classList.add('dragging');
+      var startX = e.clientX;
+      var startW = _histSidebarWidth();
+      function onMove(ev) {
+        var newW = Math.max(210, Math.min(380, startW + (ev.clientX - startX)));
+        var el = document.querySelector('.hist-desk-sidebar');
+        if (el) el.style.width = newW + 'px';
+      }
+      function onUp() {
+        handle.classList.remove('dragging');
+        document.removeEventListener('mousemove', onMove);
+        document.removeEventListener('mouseup', onUp);
+        var el = document.querySelector('.hist-desk-sidebar');
+        if (el) try { localStorage.setItem('rian_hist_sidebar_width', String(parseInt(el.style.width) || _histSidebarWidth())); } catch(e) {}
       }
       document.addEventListener('mousemove', onMove);
       document.addEventListener('mouseup', onUp);
