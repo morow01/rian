@@ -1,5 +1,7 @@
 # Theme Migration Plan — v5.6.x series
 
+> Historical note: this plan is complete. Current app version is **6.0.36**; all planned themes are active in `app.html`. Keep this file as migration history only, not as current implementation status.
+
 Started **v5.6.0**. Goal: enable multiple user-selectable themes (dark, Gameboy, Win 3.1, B&W, iOS, etc.) by migrating hardcoded colors to CSS variables and restoring a theme switcher.
 
 ## Why this is needed

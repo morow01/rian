@@ -1,7 +1,7 @@
 # Rian — Project Context for Claude
 
 ## What is Rian
-A Progressive Web App for field technicians — timesheets, notes (TipTap rich text), site finder, routines, callouts/on-call scheduling, and AI assistant. Single-file architecture (`app.html`, ~26,000 lines) with Firestore sync, IndexedDB offline cache, and Google Apps Script backend.
+A Progressive Web App for field technicians — timesheets, notes (TipTap rich text), site finder, routines, callouts/on-call scheduling, and AI assistant. Single-file architecture (`app.html`, ~32,000 lines) with Firestore sync, IndexedDB offline cache, and Google Apps Script backend.
 
 ## Key Files
 - `app.html` — the entire app (HTML + CSS + JS, inline). This is the only file you'll edit 99% of the time.
@@ -15,8 +15,8 @@ A Progressive Web App for field technicians — timesheets, notes (TipTap rich t
 - `scripts/build-www.js` — copies app files into `android/app/src/main/assets/public/`
 
 ## Version
-`const VERSION = 'x.y.z'` in `app.html` (~line 13799). Bump on every change. Only location that needs updating (index.html version references are static).
-Current version: **5.9.39**
+`const VERSION = 'x.y.z'` in `app.html` (~line 18699). Bump on every change. Only location that needs updating (index.html version references are static).
+Current version: **6.0.36**
 
 **12 themes active**: `claude` (default light), `dark` (slate-based), `champagne`, `champagne-dark`, `ios`, `apple` (macOS), `gray` (Grayscale), `gameboy` (Game Boy), `win31` (Win 3.1), `lcd` (LCD), `spectrum` (ZX Spectrum), `retro` (Retro). Theme picker lives in ☰ menu → Display. Switcher at `setTheme(key)`, registry at `THEME_META`.
 
@@ -330,6 +330,38 @@ Desktop Notes action bar (Active tab only) now includes two extra action buttons
 - **Add to Calendar** — calls `addNoteToCalendar(noteId)` (existing function)
 
 Both buttons only shown when `notesTab === 'notes'` (Active tab). Same guard as the existing Archive/Delete buttons.
+
+### Week History Redesign + Search (v6.0.26-v6.0.36)
+Week History has both desktop and mobile implementations in `renderHistoryView()` with a desktop branch to `_renderDesktopHistory()`.
+
+Key functions:
+- `_loadAllWeeks()` now collects `tasks` per week, including `id`, `dayIdx`, `date`, `dayName`, `description`, `location`, `notes`, and `codes`.
+- `_histBuildSearchResults(q, scope, weeks, coWeeks)` searches saved tasks and callouts only. Scope values: `all`, `tasks`, `callouts`.
+- `_histHighlight()`, `_histSnippet()`, `_histSearchScore()` handle highlighting, snippets, and ranking. Highlight uses `.hist-mark` with no padding so matched text does not cause temporary letter spacing/gaps.
+- `_histBuildResultsHtml()` renders desktop search results in the right panel.
+- `_histBuildMobileResultsHtml()` renders mobile search results as grouped cards by week.
+- `histOpenSearchResult(type, weekStart, id, dayIdx)` opens a task in Timesheet or a callout in Callouts. Task rows/cards themselves are clickable; no separate "Open task" button.
+
+Desktop history notes:
+- Desktop layout is a resizable three-column-ish view: left filter/stats sidebar, table, optional search results panel.
+- Sidebar width persists in `localStorage` key `rian_hist_sidebar_width`; resize entry point `histSidebarResizeStart(event)`.
+- Search results panel width persists in `localStorage` key `rian_hist_results_width`; resize entry point `histResultsResizeStart(event)`.
+- Table-column resizing was removed; resizing is between sidebar/table/results panels.
+- Desktop sidebar stats use the Callouts-style 2x2 bordered stat grid.
+- The old vertical marker beside the On-Call/Extra pill was removed.
+- Header summary text is informational, not a button. "Jump to Week" copy was changed to "Select Week".
+
+Mobile history notes:
+- Mobile now has a search card at the top with scope segmented control: All / Tasks / Callouts.
+- When search is empty, mobile shows the 2x2 Callouts-style stats block, filter chips, upcoming/current/history rows.
+- When search has text, mobile hides the week list and shows grouped search results by week. Results are clickable and open the matching task/callout.
+- Mobile stats CSS classes are shared with the old history stats names (`.hist-stats`, `.hist-stat-card`) but restyled to the bordered 2x2 pattern.
+- Mobile search CSS classes: `.hist-mobile-search-card`, `.hist-mobile-search`, `.hist-mobile-scope`, `.hist-mobile-results-card`, `.hist-mobile-result*`.
+
+Mockups used during review live in untracked `mockups/`:
+- `mockups/week-history-desktop-review.html`
+- `mockups/week-history-search-review.html`
+- `mockups/week-history-mobile-search-review.html`
 
 ### Poll-Based Sync (v5.8.11+)
 Firestore `onSnapshot` WebSocket can silently go stale across browsers. Added 10-second polling fallback:
