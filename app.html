@@ -18070,11 +18070,20 @@
   .hist-hdr p  { font-size:12px; color:var(--text-muted); margin:2px 0 0; }
   .hist-icon-btn { width:34px; height:34px; border-radius:9px; border:1px solid var(--border); background:var(--bg-input); color:var(--text-secondary); display:flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0; }
   .hist-body { flex:1; padding:12px 12px 40px; }
-  .hist-stats { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:14px; }
-  .hist-stat-card { background:var(--bg-card); border:1px solid var(--border); border-radius:12px; padding:12px; box-shadow:0 1px 4px rgba(var(--shadow-rgb),0.06); }
-  .hist-stat-card.wide { grid-column:1/-1; }
+  .hist-mobile-search-card { background:var(--bg-card); border:1px solid var(--border); border-radius:14px; padding:10px; margin-bottom:12px; box-shadow:0 1px 4px rgba(var(--shadow-rgb),0.06); }
+  .hist-mobile-search { min-height:42px; border:1px solid var(--border); border-radius:11px; background:var(--bg-input); display:flex; align-items:center; gap:9px; padding:0 11px; color:var(--text-muted); }
+  .hist-mobile-search input { flex:1; min-width:0; border:0; outline:0; background:transparent; color:var(--text-primary); font-size:15px; font-weight:700; font-family:var(--font-body); -webkit-appearance:none; appearance:none; }
+  .hist-mobile-search-clear { width:28px; height:28px; border:0; border-radius:8px; background:transparent; color:var(--text-muted); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+  .hist-mobile-scope { margin-top:9px; display:grid; grid-template-columns:repeat(3,1fr); gap:2px; padding:3px; border:1px solid var(--border); border-radius:11px; background:var(--bg-input); }
+  .hist-mobile-scope button { height:32px; border:0; border-radius:8px; background:transparent; color:var(--text-secondary); font-size:12px; font-weight:800; font-family:var(--font-body); }
+  .hist-mobile-scope button.active { background:var(--bg-card); color:var(--accent); box-shadow:0 1px 2px rgba(var(--shadow-rgb),0.08); }
+  .hist-stats { display:grid; grid-template-columns:1fr 1fr; background:var(--bg-card); border:1px solid var(--border); border-radius:14px; overflow:hidden; margin-bottom:14px; box-shadow:0 1px 4px rgba(var(--shadow-rgb),0.06); }
+  .hist-stat-card { min-height:74px; background:var(--bg-card); padding:12px; border-bottom:1px solid var(--border); }
+  .hist-stat-card:nth-child(odd) { border-right:1px solid var(--border); }
+  .hist-stat-card:nth-child(n+3) { border-bottom:0; }
+  .hist-stat-card.wide { grid-column:auto; }
   .hist-stat-label { font-size:10px; font-weight:800; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.08em; }
-  .hist-stat-val { font-size:22px; font-weight:800; color:var(--text-primary); line-height:1; margin-top:6px; }
+  .hist-stat-val { font-size:22px; font-weight:800; color:var(--accent); line-height:1; margin-top:6px; }
   .hist-stat-note { font-size:11px; color:var(--text-muted); margin-top:5px; }
   .hist-chips { display:flex; gap:6px; overflow-x:auto; padding-bottom:12px; scrollbar-width:none; }
   .hist-chips::-webkit-scrollbar { display:none; }
@@ -18108,6 +18117,22 @@
   .hist-tag { display:inline-flex; align-items:center; height:16px; padding:0 5px; border-radius:4px; font-size:9px; font-weight:800; letter-spacing:0.05em; text-transform:uppercase; }
   .hist-tag.blue  { background:var(--accent-light); color:var(--accent); }
   .hist-tag.amber { background:#fff8ec; color:#F59E0B; }
+  .hist-mobile-results-card { background:var(--bg-card); border:1px solid var(--border); border-radius:14px; overflow:hidden; box-shadow:0 1px 4px rgba(var(--shadow-rgb),0.06); }
+  .hist-mobile-results-head { padding:13px 14px 11px; border-bottom:1px solid var(--border); }
+  .hist-mobile-results-title { font-size:14px; font-weight:800; color:var(--text-primary); }
+  .hist-mobile-results-sub { margin-top:3px; font-size:12px; color:var(--text-muted); font-weight:600; }
+  .hist-mobile-result-group { padding:8px 14px 6px; background:var(--bg-page); border-top:1px solid var(--border); border-bottom:1px solid var(--border); color:var(--text-muted); font-size:10px; font-weight:800; letter-spacing:0.08em; text-transform:uppercase; }
+  .hist-mobile-result-group:first-of-type { border-top:0; }
+  .hist-mobile-result { display:flex; gap:11px; padding:13px 14px; border-bottom:1px solid var(--border); cursor:pointer; }
+  .hist-mobile-result:last-child { border-bottom:0; }
+  .hist-mobile-kind { width:34px; height:34px; border-radius:10px; display:flex; align-items:center; justify-content:center; background:rgba(var(--accent-rgb),0.10); color:var(--accent); font-size:12px; font-weight:800; flex-shrink:0; }
+  .hist-mobile-kind.callout { background:rgba(var(--priority-high-rgb),0.10); color:var(--priority-high); }
+  .hist-mobile-result-main { flex:1; min-width:0; }
+  .hist-mobile-result-title { font-size:14px; font-weight:800; color:var(--text-primary); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .hist-mobile-result-meta { margin-top:3px; font-size:11px; color:var(--text-muted); font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .hist-mobile-result-snippet { margin-top:8px; color:var(--text-secondary); font-size:12px; line-height:1.35; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+  .hist-mobile-empty { padding:28px 18px; color:var(--text-muted); text-align:center; font-size:13px; line-height:1.45; }
+  .hist-mark { padding:0; border-radius:3px; background:rgba(var(--amber-rgb),0.26); color:inherit; }
   .hist-jump-overlay { position:fixed; inset:0; z-index:200; background:rgba(0,0,0,0.35); display:flex; align-items:flex-end; justify-content:center; padding:12px; }
   .hist-jump-sheet { width:min(100%,480px); background:var(--bg-card); border-radius:20px 20px 16px 16px; padding:16px; box-shadow:0 16px 48px rgba(0,0,0,0.18); }
   .hist-jump-handle { width:38px; height:4px; border-radius:2px; background:var(--border); margin:0 auto 14px; }
@@ -18671,7 +18696,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '6.0.35';
+    const VERSION = '6.0.36';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -31822,6 +31847,8 @@
       const isLoading = state.historyWeeks === 'loading';
       const curWeekStart = dateToStr(getCurrentFriday()); // always actual current week
       const curYear = new Date().getFullYear();
+      const searchQ = (state.historySearch || '').trim();
+      const searchScope = state.historySearchScope || 'all';
 
       // Future weeks — next 3 after current
       const futureWeeks = [
@@ -31838,6 +31865,7 @@
       const avgHrs  = workedWeeks.length > 0 ? (curYearWeeks.reduce(function(s,w){return s+w.totalOrd;},0) / workedWeeks.length).toFixed(1) : '–';
       const yearOnCall  = Object.entries(onCall).filter(function(e) { return e[0].startsWith(String(curYear)) && (e[1]==='oncall'||e[1]==='extra'); }).length;
       const yearCallouts = Object.entries(coWeeks).filter(function(e){ return e[0].startsWith(String(curYear)); }).reduce(function(s,e){ return s + ((e[1].callouts||[]).length); }, 0);
+      const searchResults = searchQ ? _histBuildSearchResults(searchQ, searchScope, weeks, coWeeks) : [];
 
       // SVGs
       var calSvg   = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>';
@@ -31910,13 +31938,26 @@
         pastWeeks.forEach(function(w){ listHtml += weekRow(w.weekStart, 'past'); });
       }
 
+      // Search
+      var scopeButtons = [['all','All'],['tasks','Tasks'],['callouts','Callouts']].map(function(s) {
+        return '<button class="' + (searchScope === s[0] ? 'active' : '') + '" onclick="historySearchScope(\'' + s[0] + '\')">' + s[1] + '</button>';
+      }).join('');
+      var clearBtn = searchQ ? '<button class="hist-mobile-search-clear" onclick="historySearchInput(\'\')" aria-label="Clear search">' +
+        '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>' : '';
+      var searchHtml = '<div class="hist-mobile-search-card">' +
+        '<div class="hist-mobile-search">' +
+        '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>' +
+        '<input type="search" placeholder="Search tasks and callouts..." value="' + escAttr(searchQ) + '" oninput="historySearchInput(this.value)">' +
+        clearBtn +
+        '</div>' +
+        '<div class="hist-mobile-scope">' + scopeButtons + '</div>' +
+        '</div>';
+
       // Stats
       var statsHtml = '<div class="hist-stats">' +
-        '<div class="hist-stat-card wide"><div class="hist-stat-label">' + curYear + ' so far</div>' +
-        '<div class="hist-stat-val">' + (isLoading ? '…' : curYearWeeks.length) + ' weeks</div>' +
-        '<div class="hist-stat-note">' + (isLoading ? 'Loading…' : yearOrd + 'h ordinary' + (yearOT > 0 ? ' · ' + yearOT + 'h OT' : '')) + '</div></div>' +
-        '<div class="hist-stat-card"><div class="hist-stat-label">On-call / Extra</div><div class="hist-stat-val">' + yearOnCall + '</div><div class="hist-stat-note">weeks</div></div>' +
-        '<div class="hist-stat-card"><div class="hist-stat-label">Avg / week</div><div class="hist-stat-val">' + (isLoading ? '…' : avgHrs) + 'h</div><div class="hist-stat-note">worked weeks only</div></div>' +
+        '<div class="hist-stat-card"><div class="hist-stat-label">' + curYear + ' so far</div><div class="hist-stat-val">' + (isLoading ? '…' : curYearWeeks.length) + '</div><div class="hist-stat-note">Weeks worked</div></div>' +
+        '<div class="hist-stat-card"><div class="hist-stat-label">Ordinary hrs</div><div class="hist-stat-val">' + (isLoading ? '…' : yearOrd) + 'h</div><div class="hist-stat-note">' + (yearOT > 0 ? yearOT + 'h OT' : 'No OT') + '</div></div>' +
+        '<div class="hist-stat-card"><div class="hist-stat-label">On-call wks</div><div class="hist-stat-val">' + yearOnCall + '</div><div class="hist-stat-note">On-call / extra</div></div>' +
         '<div class="hist-stat-card"><div class="hist-stat-label">Callouts</div><div class="hist-stat-val">' + yearCallouts + '</div><div class="hist-stat-note">incidents</div></div>' +
         '</div>';
 
@@ -31962,10 +32003,10 @@
         '<button class="hist-icon-btn" onclick="setView(\'' + (state.prevView || 'week') + '\')">' +
         '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>' +
         '</button>' +
-        '<div style="flex:1;min-width:0"><h2>Week History</h2><p>Select a week · review past work</p></div>' +
+        '<div style="flex:1;min-width:0"><h2>Week History</h2><p>' + (searchQ ? (searchResults.length + ' result' + (searchResults.length === 1 ? '' : 's') + ' for ' + esc(searchQ)) : 'Search saved tasks and callouts') + '</p></div>' +
         '<button class="hist-icon-btn" onclick="histOpenJump()" title="Select week">' + calSvg + '</button>' +
         '</div>' +
-        '<div class="hist-body">' + statsHtml + chipsHtml + listHtml + '</div>' +
+        '<div class="hist-body">' + searchHtml + (searchQ ? _histBuildMobileResultsHtml(searchResults, searchQ) : (statsHtml + chipsHtml + listHtml)) + '</div>' +
         jumpHtml +
         '</div>';
     }
@@ -32130,6 +32171,38 @@
           '</div>';
       });
       return html + '</aside>';
+    }
+
+    function _histBuildMobileResultsHtml(results, q) {
+      var html = '<div class="hist-mobile-results-card">' +
+        '<div class="hist-mobile-results-head">' +
+        '<div class="hist-mobile-results-title">Search Results</div>' +
+        '<div class="hist-mobile-results-sub">' + results.length + ' match' + (results.length === 1 ? '' : 'es') + ' for <strong>' + esc(q) + '</strong></div>' +
+        '</div>';
+      if (!results.length) {
+        return html + '<div class="hist-mobile-empty">No matching tasks or callouts found.</div></div>';
+      }
+      var lastWeek = null;
+      results.forEach(function(r) {
+        if (r.weekStart !== lastWeek) {
+          html += '<div class="hist-mobile-result-group">' + esc(formatWeekRange(r.weekStart)) + '</div>';
+          lastWeek = r.weekStart;
+        }
+        var kind = r.type === 'callout' ? 'callout' : 'task';
+        var icon = r.type === 'callout'
+          ? '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>'
+          : 'T';
+        var openCall = 'histOpenSearchResult(\'' + r.type + '\',\'' + r.weekStart + '\',\'' + String(r.id || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'") + '\',' + (r.dayIdx != null ? r.dayIdx : 'null') + ')';
+        html += '<div class="hist-mobile-result" onclick="' + openCall + '">' +
+          '<div class="hist-mobile-kind ' + kind + '">' + icon + '</div>' +
+          '<div class="hist-mobile-result-main">' +
+          '<div class="hist-mobile-result-title">' + _histHighlight(r.title, q) + '</div>' +
+          '<div class="hist-mobile-result-meta">' + _histHighlight(r.meta, q) + '</div>' +
+          (r.snippet ? '<div class="hist-mobile-result-snippet">' + _histHighlight(r.snippet, q) + '</div>' : '') +
+          '</div>' +
+          '</div>';
+      });
+      return html + '</div>';
     }
 
     function _renderDesktopHistory() {
@@ -32336,7 +32409,7 @@
       state.historySearch = value || '';
       render();
       requestAnimationFrame(function() {
-        var el = document.querySelector('.hist-desk-search input');
+        var el = document.querySelector('.hist-desk-search input') || document.querySelector('.hist-mobile-search input');
         if (el) {
           el.focus({ preventScroll: true });
           var len = el.value.length;
