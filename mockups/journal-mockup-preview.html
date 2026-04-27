@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Journal Desktop Mockup — Layout B</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f0f2f5; }
+button { font-family: inherit; }
+input { font-family: inherit; }
+</style>
+</head>
+<body>
+<div id="root" style="padding: 16px 20px; min-height: 100vh;"></div>
+<script>
+// Sample data matching Rian's journal model
+const notebooks = [
+  { id: "nb1", title: "Field Notes", color: "#2D6BE4" },
+  { id: "nb2", title: "Training Log", color: "#7c3aed" },
+  { id: "nb3", title: "Site Audits", color: "#059669" },
+];
+const sections = [
+  { id: "s1", notebookId: "nb1", title: "Tullamore Area", color: "#2D6BE4" },
+  { id: "s2", notebookId: "nb1", title: "Portlaoise Area", color: "#f97316" },
+  { id: "s3", notebookId: "nb1", title: "Birr Area", color: "#059669" },
+  { id: "s4", notebookId: "nb2", title: "GDPR", color: "#7c3aed" },
+  { id: "s5", notebookId: "nb2", title: "Health & Safety", color: "#ef4444" },
+  { id: "s6", notebookId: "nb3", title: "Cabinet Inspections", color: "#059669" },
+  { id: "s7", notebookId: "nb3", title: "Exchange Visits", color: "#2D6BE4" },
+];
+const pages = [
+  { id: "p1", sectionId: "s1", title: "Ballinagar (BXGA)", date: "2026-03-31", noteContent: "<p>Cabinet inspection complete. All cards seated properly.</p><p>Voltage readings normal — 48.2V DC.</p><p>Fan unit replaced (noisy bearing).</p>" },
+  { id: "p2", sectionId: "s1", title: "Mucklagh (MUKA)", date: "2026-03-18", noteContent: "<p>Routine maintenance. Cleaned filters.</p><p>Battery string 1: 24 cells, all above 2.1V</p>" },
+  { id: "p3", sectionId: "s1", title: "Clara (CCRB)", date: "2026-04-02", noteContent: "<p>RSU site visit. Power alarm investigation.</p><p>Found tripped breaker on rectifier 2. Reset and monitored for 30 mins — stable.</p>" },
+  { id: "p4", sectionId: "s1", title: "Kilbeggan (KBNB)", date: "2026-04-01", noteContent: "<p>New UPS installation check. Commissioning docs signed.</p>" },
+  { id: "p5", sectionId: "s2", title: "Mountmellick (MMKA)", date: "2026-01-14", noteContent: "<p>Generator battery test — all 24 cells passed.</p>" },
+  { id: "p6", sectionId: "s2", title: "Portarlington (PANA)", date: "2026-02-23", noteContent: "<p>Fibre splice work. 12-core ribbon completed.</p>" },
+  { id: "p7", sectionId: "s3", title: "Birr Exchange", date: "2026-03-10", noteContent: "<p>Full rack audit. 3 unused patch leads removed.</p>" },
+  { id: "p8", sectionId: "s4", title: "GDPR Course Notes", date: "2026-03-25", noteContent: "<p><strong>Key points:</strong></p><ul><li>Data retention: 6 years max</li><li>Right to erasure applies to field notes</li><li>Photos of customer equipment — get consent</li></ul>" },
+  { id: "p9", sectionId: "s5", title: "Working at Heights", date: "2026-02-10", noteContent: "<p>Refresher course completed. Certificate valid until Feb 2028.</p>" },
+  { id: "p10", sectionId: "s6", title: "Geashill (GHLB)", date: "2026-03-16", noteContent: "<p>Cabinet door seal needs replacement. Logged ticket #4521.</p>" },
+];
+
+const formatDate = (d) => {
+  if (!d) return "";
+  const dt = new Date(d + "T00:00:00");
+  const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  return dt.getDate() + " " + months[dt.getMonth()] + " '" + String(dt.getFullYear()).slice(2);
+};
+const stripHtml = (h) => h.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
+const esc = (s) => (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+
+// State
+let expanded = { nb1: true, nb2: false, nb3: false, s1: true, s2: false, s3: false, s4: false, s5: false, s6: false, s7: false };
+let selPage = "p1";
+
+function toggle(id) { expanded[id] = !expanded[id]; render(); }
+function selectPage(id) { selPage = id; render(); }
+
+// SVG icons
+const bookIcon = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>';
+const chevDown = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>';
+const chevRight = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"/></svg>';
+const pageIcon = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>';
+const searchIcon = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>';
+const plusIcon = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>';
+const folderIcon = (color) => '<svg width="14" height="14" viewBox="0 0 24 24" fill="'+color+'" stroke="'+color+'" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="opacity:0.8"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>';
+const calIcon = '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>';
+
+function render() {
+  const pg = pages.find(p => p.id === selPage);
+
+  // Build tree sidebar
+  let treeHtml = '';
+  notebooks.forEach(nb => {
+    const isExp = expanded[nb.id];
+    const secCount = sections.filter(s => s.notebookId === nb.id).length;
+    const chevHtml = '<span style="transition:transform 0.15s;transform:rotate('+(isExp?'0':'-90')+'deg);display:flex">'+chevDown+'</span>';
+    treeHtml += '<button onclick="toggle(\''+nb.id+'\')" style="display:flex;align-items:center;gap:6px;padding:8px 10px;border:none;background:transparent;width:100%;text-align:left;font-size:13px;font-weight:700;color:#1e293b;cursor:pointer;font-family:inherit;border-radius:6px">' +
+      chevHtml + bookIcon + esc(nb.title) +
+      '<span style="margin-left:auto;font-size:10px;color:#94a3b8;font-weight:500">'+secCount+'</span>' +
+    '</button>';
+
+    if (isExp) {
+      sections.filter(s => s.notebookId === nb.id).forEach(sec => {
+        const secExp = expanded[sec.id];
+        const pgCount = pages.filter(p => p.sectionId === sec.id).length;
+        const secChev = '<span style="transition:transform 0.15s;transform:rotate('+(secExp?'0':'-90')+'deg);display:flex">'+chevDown+'</span>';
+        treeHtml += '<div style="padding-left:16px">' +
+          '<button onclick="toggle(\''+sec.id+'\')" style="display:flex;align-items:center;gap:6px;padding:6px 10px;border:none;background:transparent;width:100%;text-align:left;font-size:12px;font-weight:600;color:#475569;cursor:pointer;font-family:inherit;border-radius:6px">' +
+            secChev + folderIcon(sec.color) + esc(sec.title) +
+            '<span style="margin-left:auto;font-size:10px;color:#94a3b8;font-weight:400">'+pgCount+'</span>' +
+          '</button>';
+
+        if (secExp) {
+          pages.filter(p => p.sectionId === sec.id).forEach(p => {
+            const isSel = p.id === selPage;
+            treeHtml += '<button onclick="selectPage(\''+p.id+'\')" style="display:flex;align-items:center;gap:6px;padding:5px 10px 5px 28px;border:none;background:'+(isSel?'rgba(45,107,228,0.08)':'transparent')+';width:100%;text-align:left;font-size:12px;color:'+(isSel?'#2D6BE4':'#64748b')+';font-weight:'+(isSel?'600':'400')+';cursor:pointer;font-family:inherit;border-radius:6px;border-left:'+(isSel?'2px solid #2D6BE4':'2px solid transparent')+'">' +
+              pageIcon + ' ' + esc(p.title) +
+            '</button>';
+          });
+        }
+        treeHtml += '</div>';
+      });
+    }
+  });
+
+  // Build editor
+  let editorHtml = '';
+  if (pg) {
+    const sec = sections.find(s => s.id === pg.sectionId);
+    const nb = sec ? notebooks.find(n => n.id === sec.notebookId) : null;
+    const breadcrumb = esc(nb?.title||'') + ' <span style="color:#cbd5e1;margin:0 2px">' + chevRight + '</span> ' + esc(sec?.title||'');
+
+    editorHtml = '<div style="padding:14px 28px;border-bottom:1px solid #f1f5f9;display:flex;align-items:center;gap:12px">' +
+      '<span style="font-size:11px;color:#94a3b8;display:flex;align-items:center;gap:4px">' + breadcrumb + '</span>' +
+      '<span style="flex:1"></span>' +
+      '<span style="font-size:12px;color:#94a3b8">' + formatDate(pg.date) + '</span>' +
+    '</div>' +
+    '<div style="flex:1;overflow-y:auto;padding:24px 28px;max-width:800px;width:100%">' +
+      '<input value="'+esc(pg.title)+'" style="width:100%;padding:0;border:none;font-size:22px;font-weight:700;color:#1e293b;font-family:inherit;outline:none;background:transparent;margin-bottom:20px" />' +
+      '<div style="min-height:200px;padding:16px;border:1px solid #dfe3ea;border-radius:12px;background:#f4f7fa;cursor:pointer;font-size:14px;color:#1e293b;line-height:1.7">' + pg.noteContent + '</div>' +
+      '<div style="margin-top:20px;display:flex;gap:12px;align-items:center">' +
+        '<div>' +
+          '<div style="font-size:10px;font-weight:800;letter-spacing:0.5px;text-transform:uppercase;color:#94a3b8;margin-bottom:6px">Date</div>' +
+          '<input type="date" value="'+pg.date+'" style="padding:8px 12px;border:1px solid #dfe3ea;border-radius:10px;font-size:13px;background:#f4f7fa;color:#1e293b;font-family:inherit;outline:none" />' +
+        '</div>' +
+      '</div>' +
+      '<div style="display:flex;gap:8px;padding-top:20px;margin-top:20px;border-top:1px solid #f1f5f9;align-items:center">' +
+        '<button style="padding:8px 16px;border-radius:10px;border:1px solid #dfe3ea;background:#fff;color:#64748b;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">Copy / Move</button>' +
+        '<span style="flex:1"></span>' +
+        '<button style="padding:8px 16px;border-radius:10px;border:1px solid #fecaca;background:#fef2f2;color:#dc2626;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">Delete</button>' +
+      '</div>' +
+    '</div>';
+  } else {
+    editorHtml = '<div style="flex:1;display:flex;align-items:center;justify-content:center;color:#94a3b8;flex-direction:column;gap:8px">' +
+      pageIcon + '<p style="font-size:14px">Select a page to view</p>' +
+    '</div>';
+  }
+
+  document.getElementById('root').innerHTML =
+    '<div style="display:flex;align-items:center;gap:16px;margin-bottom:16px">' +
+      '<h2 style="margin:0;font-size:18px;font-weight:700;color:#1e293b">Journal Desktop — Layout B (Tree Nav)</h2>' +
+    '</div>' +
+    '<div style="font-size:12px;color:#64748b;margin-bottom:12px;line-height:1.5">' +
+      'Two-panel with collapsible tree: All hierarchy visible in one sidebar (notebook → section → page). Editor gets full width — better for content-heavy pages.' +
+    '</div>' +
+    '<div style="display:flex;height:calc(100vh - 120px);border:1px solid #dfe3ea;border-radius:12px;overflow:hidden;background:#fff">' +
+      '<div style="width:280px;min-width:280px;border-right:1px solid #dfe3ea;display:flex;flex-direction:column;background:#f8fafc">' +
+        '<div style="padding:12px 16px;display:flex;align-items:center;gap:8px;border-bottom:1px solid #e2e8f0">' +
+          '<div style="font-size:13px;font-weight:700;color:#1e293b;flex:1">Field Journal</div>' +
+          '<button style="width:28px;height:28px;border-radius:6px;border:1px solid #dfe3ea;background:#fff;color:#2D6BE4;cursor:pointer;display:flex;align-items:center;justify-content:center">'+plusIcon+'</button>' +
+        '</div>' +
+        '<div style="padding:8px;position:relative">' +
+          '<span style="position:absolute;left:18px;top:17px;color:#94a3b8">'+searchIcon+'</span>' +
+          '<input placeholder="Search…" style="width:100%;padding:7px 10px 7px 30px;border:1px solid #dfe3ea;border-radius:8px;font-size:12px;background:#fff;outline:none;box-sizing:border-box;font-family:inherit;color:#1e293b" />' +
+        '</div>' +
+        '<div style="flex:1;overflow-y:auto;padding:0 4px">' + treeHtml + '</div>' +
+      '</div>' +
+      '<div style="flex:1;display:flex;flex-direction:column;overflow:hidden">' + editorHtml + '</div>' +
+    '</div>';
+}
+
+render();
+</script>
+</body>
+</html>

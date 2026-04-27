@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Selected Task Card Options</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #EDF1F7; padding: 30px; }
+  h2 { font-size: 13px; font-weight: 800; color: #8896A8; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 12px; }
+  .options { display: flex; gap: 30px; flex-wrap: wrap; }
+  .option { width: 340px; }
+  .option-label { font-size: 11px; font-weight: 700; color: #2D6BE4; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 10px; padding: 4px 8px; background: rgba(45,107,228,0.08); border-radius: 6px; display: inline-block; }
+
+  .card {
+    background: #fff;
+    border: 1px solid #E2E8F0;
+    border-radius: 12px;
+    padding: 12px 14px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(45,80,160,0.06);
+    position: relative;
+    transition: all 0.15s;
+  }
+  .card-inner { display: flex; align-items: center; gap: 12px; }
+  .task-num {
+    width: 30px; height: 30px; border-radius: 8px;
+    background: #D8DEE8; color: #6B7A8D;
+    font-size: 13px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .meta { flex: 1; min-width: 0; }
+  .title { font-size: 14px; font-weight: 700; color: #1a2332; }
+  .row2 { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 3px; }
+  .loc { font-size: 13px; color: #8896A8; }
+  .loc svg { display: inline-block; vertical-align: -2px; margin-right: 2px; }
+  .pill { padding: 2px 7px; border-radius: 8px; font-size: 11px; font-weight: 500; background: rgba(45,107,228,0.08); color: #2D6BE4; }
+
+  /* ── Option A: Left accent bar ── */
+  .card.sel-a {
+    border-left: 3px solid #2D6BE4;
+    background: rgba(45,107,228,0.03);
+  }
+
+  /* ── Option B: Filled accent background ── */
+  .card.sel-b {
+    background: rgba(45,107,228,0.06);
+    border-color: rgba(45,107,228,0.15);
+  }
+  .card.sel-b .task-num {
+    background: #2D6BE4;
+    color: #fff;
+  }
+
+  /* ── Option C: Left bar + accent num ── */
+  .card.sel-c {
+    border-left: 3px solid #2D6BE4;
+    background: #fff;
+  }
+  .card.sel-c .task-num {
+    background: #2D6BE4;
+    color: #fff;
+  }
+
+  /* ── Option D: Bottom accent + subtle bg ── */
+  .card.sel-d {
+    background: rgba(45,107,228,0.04);
+    border-bottom: 2px solid #2D6BE4;
+  }
+  .card.sel-d .task-num {
+    background: #2D6BE4;
+    color: #fff;
+  }
+
+  .current-label { font-size: 10px; color: #e8453c; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin-top: -4px; margin-bottom: 6px; }
+</style>
+</head>
+<body>
+
+<h2>Selected Task Card — Options</h2>
+<div class="options">
+
+  <!-- Current -->
+  <div class="option">
+    <div class="option-label">Current (blue outline)</div>
+    <div class="card" style="border-color:#2D6BE4; box-shadow: 0 0 0 2px rgba(45,107,228,0.15);">
+      <div class="card-inner">
+        <div class="task-num">1</div>
+        <div class="meta">
+          <div class="title">GDPR Course</div>
+          <div class="row2">
+            <div class="loc"><span style="opacity:0.4">No location</span></div>
+            <div class="pill">2h</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-inner">
+        <div class="task-num">2</div>
+        <div class="meta">
+          <div class="title">Admin</div>
+          <div class="row2">
+            <div class="loc"><svg width="13" height="13" viewBox="0 0 24 24" fill="#e8453c"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 010-5 2.5 2.5 0 010 5z"/></svg>Naas (NAS)</div>
+            <div class="pill">3h</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Option A: Left accent bar -->
+  <div class="option">
+    <div class="option-label">A — Left accent bar</div>
+    <div class="card sel-a">
+      <div class="card-inner">
+        <div class="task-num">1</div>
+        <div class="meta">
+          <div class="title">GDPR Course</div>
+          <div class="row2">
+            <div class="loc"><span style="opacity:0.4">No location</span></div>
+            <div class="pill">2h</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-inner">
+        <div class="task-num">2</div>
+        <div class="meta">
+          <div class="title">Admin</div>
+          <div class="row2">
+            <div class="loc"><svg width="13" height="13" viewBox="0 0 24 24" fill="#e8453c"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 010-5 2.5 2.5 0 010 5z"/></svg>Naas (NAS)</div>
+            <div class="pill">3h</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Option B: Filled background + accent num -->
+  <div class="option">
+    <div class="option-label">B — Filled bg + accent number</div>
+    <div class="card sel-b">
+      <div class="card-inner">
+        <div class="task-num">1</div>
+        <div class="meta">
+          <div class="title">GDPR Course</div>
+          <div class="row2">
+            <div class="loc"><span style="opacity:0.4">No location</span></div>
+            <div class="pill">2h</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-inner">
+        <div class="task-num">2</div>
+        <div class="meta">
+          <div class="title">Admin</div>
+          <div class="row2">
+            <div class="loc"><svg width="13" height="13" viewBox="0 0 24 24" fill="#e8453c"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 010-5 2.5 2.5 0 010 5z"/></svg>Naas (NAS)</div>
+            <div class="pill">3h</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Option C: Left bar + accent num -->
+  <div class="option">
+    <div class="option-label">C — Left bar + accent number</div>
+    <div class="card sel-c">
+      <div class="card-inner">
+        <div class="task-num">1</div>
+        <div class="meta">
+          <div class="title">GDPR Course</div>
+          <div class="row2">
+            <div class="loc"><span style="opacity:0.4">No location</span></div>
+            <div class="pill">2h</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-inner">
+        <div class="task-num">2</div>
+        <div class="meta">
+          <div class="title">Admin</div>
+          <div class="row2">
+            <div class="loc"><svg width="13" height="13" viewBox="0 0 24 24" fill="#e8453c"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 010-5 2.5 2.5 0 010 5z"/></svg>Naas (NAS)</div>
+            <div class="pill">3h</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Option D: Bottom accent + subtle bg -->
+  <div class="option">
+    <div class="option-label">D — Bottom accent + filled bg</div>
+    <div class="card sel-d">
+      <div class="card-inner">
+        <div class="task-num">1</div>
+        <div class="meta">
+          <div class="title">GDPR Course</div>
+          <div class="row2">
+            <div class="loc"><span style="opacity:0.4">No location</span></div>
+            <div class="pill">2h</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-inner">
+        <div class="task-num">2</div>
+        <div class="meta">
+          <div class="title">Admin</div>
+          <div class="row2">
+            <div class="loc"><svg width="13" height="13" viewBox="0 0 24 24" fill="#e8453c"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 010-5 2.5 2.5 0 010 5z"/></svg>Naas (NAS)</div>
+            <div class="pill">3h</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

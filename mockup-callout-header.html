@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Callout Header Mockup</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f0f2f5; padding: 32px; color: #1a1a2e; }
+  h2 { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.12em; color: #888; margin-bottom: 12px; margin-top: 32px; }
+  h2:first-child { margin-top: 0; }
+  .label { font-size: 11px; color: #aaa; margin-bottom: 6px; font-style: italic; }
+
+  /* Shared panel chrome */
+  .three-panel {
+    display: flex;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+    background: #f8fafc;
+    height: 240px;
+  }
+  .panel { display: flex; flex-direction: column; background: #fff; }
+  .panel-1 { width: 200px; border-right: 1px solid #e2e8f0; }
+  .panel-2 { width: 220px; border-right: 1px solid #e2e8f0; }
+  .panel-3 { flex: 1; }
+
+  .panel-body { padding: 12px 14px; flex: 1; }
+  .fake-row { height: 10px; background: #f1f5f9; border-radius: 4px; margin-bottom: 8px; }
+  .fake-row.short { width: 60%; }
+  .fake-row.full { width: 100%; }
+  .fake-row.med { width: 80%; }
+  .fake-stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: #e2e8f0; border-bottom: 1px solid #e2e8f0; }
+  .fake-stat { background: #fff; text-align: center; padding: 8px 4px; }
+  .fake-stat-val { font-size: 18px; font-weight: 800; color: #2D6BE4; line-height: 1; }
+  .fake-stat-val.amber { color: #F59E0B; }
+  .fake-stat-val.red { color: #ef4444; }
+  .fake-stat-val.purple { color: #8B5CF6; }
+  .fake-stat-label { font-size: 9px; color: #94a3b8; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; margin-top: 2px; }
+  .fake-field { margin-bottom: 10px; }
+  .fake-field-label { font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; color: #94a3b8; margin-bottom: 3px; }
+  .fake-field-input { height: 28px; border: 1px solid #e2e8f0; border-radius: 8px; background: #f8fafc; }
+
+  /* ── CURRENT ── */
+  .hdr-current-1 {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 12px 14px; border-bottom: 1px solid #e2e8f0;
+  }
+  .hdr-current-1 .title { font-size: 13px; font-weight: 700; }
+  .btn-filled { display: flex; align-items: center; gap: 4px; padding: 5px 10px; background: #2D6BE4; color: #fff; border: none; border-radius: 8px; font-size: 11px; font-weight: 700; cursor: pointer; }
+  .hdr-current-2 {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 14px; border-bottom: 1px solid #e2e8f0;
+  }
+  .hdr-current-2 .title { font-size: 13px; font-weight: 700; line-height: 1.3; }
+  .hdr-current-2 .sub { font-size: 11px; color: #94a3b8; }
+  .btn-outlined { display: flex; align-items: center; gap: 4px; padding: 5px 10px; background: #fff; color: #2D6BE4; border: 1px solid #2D6BE4; border-radius: 8px; font-size: 11px; font-weight: 600; cursor: pointer; }
+  .hdr-current-3 {
+    height: 40px; padding: 0 14px; display: flex; align-items: center;
+    font-size: 10px; font-weight: 800; color: #94a3b8; text-transform: uppercase;
+    letter-spacing: 0.1em; border-bottom: 1px solid #e2e8f0;
+  }
+
+  /* ── OPTION A — Unified desk-panel-days-hdr + subtle tint buttons ── */
+  .hdr-unified {
+    height: 40px; padding: 0 14px; display: flex; align-items: center;
+    justify-content: space-between;
+    font-size: 10px; font-weight: 800; color: #94a3b8; text-transform: uppercase;
+    letter-spacing: 0.1em; border-bottom: 1px solid #e2e8f0; flex-shrink: 0;
+  }
+  .hdr-unified .badge { font-size: 10px; font-weight: 700; background: #EEF3FF; color: #2D6BE4; border-radius: 4px; padding: 1px 5px; text-transform: none; letter-spacing: 0; }
+  .btn-tint { display: flex; align-items: center; gap: 4px; padding: 4px 8px; background: #EEF3FF; color: #2D6BE4; border: none; border-radius: 6px; font-size: 10px; font-weight: 700; cursor: pointer; font-family: inherit; }
+
+  /* ── OPTION B — Unified header + both filled ── */
+  .btn-filled-sm { display: flex; align-items: center; gap: 4px; padding: 4px 8px; background: #2D6BE4; color: #fff; border: none; border-radius: 6px; font-size: 10px; font-weight: 700; cursor: pointer; font-family: inherit; }
+  .btn-filled-sm.paste { background: #6366f1; }
+
+  /* ── OPTION C — Unified header + icon-only buttons ── */
+  .btn-icon { width: 26px; height: 26px; border-radius: 6px; background: #EEF3FF; color: #2D6BE4; border: none; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+
+  .section-divider { margin: 40px 0 0; border: none; border-top: 2px dashed #e2e8f0; }
+  .callout-row { display: flex; align-items: center; gap: 8px; padding: 9px 14px; border-bottom: 1px solid #f1f5f9; }
+  .callout-num { width: 22px; height: 22px; border-radius: 6px; background: #EEF3FF; color: #2D6BE4; font-size: 11px; font-weight: 800; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .callout-info { flex: 1; min-width: 0; }
+  .callout-title { font-size: 12px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .callout-sub { font-size: 10px; color: #94a3b8; margin-top: 1px; }
+  .week-row { display: flex; align-items: center; gap: 8px; padding: 9px 14px; border-bottom: 1px solid #f1f5f9; }
+  .week-badge { width: 22px; height: 22px; border-radius: 6px; background: #EEF3FF; color: #2D6BE4; font-size: 11px; font-weight: 800; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .week-info { flex: 1; }
+  .week-title { font-size: 12px; font-weight: 600; }
+  .week-sub { font-size: 10px; color: #94a3b8; margin-top: 1px; }
+  .section-sub-hdr { font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; color: #cbd5e1; padding: 6px 14px 4px; }
+</style>
+</head>
+<body>
+
+<h2>Current — inconsistent</h2>
+<p class="label">Panel 1: 13px bold title + filled button (taller) · Panel 2: two-line content (tallest) · Panel 3: 40px small-caps (shorter)</p>
+<div class="three-panel">
+  <!-- Panel 1 -->
+  <div class="panel panel-1">
+    <div class="hdr-current-1">
+      <span class="title">Callouts</span>
+      <button class="btn-filled">📅 Schedule</button>
+    </div>
+    <div class="fake-stat-grid">
+      <div class="fake-stat"><div class="fake-stat-val">17</div><div class="fake-stat-label">On-Call Wks</div></div>
+      <div class="fake-stat"><div class="fake-stat-val amber">3</div><div class="fake-stat-label">Extra Shifts</div></div>
+      <div class="fake-stat"><div class="fake-stat-val red">4</div><div class="fake-stat-label">Total Incidents</div></div>
+      <div class="fake-stat"><div class="fake-stat-val purple">0.7</div><div class="fake-stat-label">Avg / Week</div></div>
+    </div>
+    <div class="section-sub-hdr">Previous</div>
+    <div class="week-row"><div class="week-badge">2</div><div class="week-info"><div class="week-title">17 Apr – 23 Apr</div><div class="week-sub">2 incidents</div></div></div>
+    <div class="week-row"><div class="week-badge">2</div><div class="week-info"><div class="week-title">20 Mar – 26 Mar</div><div class="week-sub">2 incidents</div></div></div>
+  </div>
+  <!-- Panel 2 -->
+  <div class="panel panel-2">
+    <div class="hdr-current-2">
+      <div><div class="title">17 Apr – 23 Apr</div><div class="sub">2 callouts</div></div>
+      <button class="btn-outlined">⊞ Paste Fault</button>
+    </div>
+    <div class="callout-row"><div class="callout-num">1</div><div class="callout-info"><div class="callout-title">Communicationsproblem – Lost…</div><div class="callout-sub">📍 Castledermot · R24719225</div></div></div>
+    <div class="callout-row"><div class="callout-num">2</div><div class="callout-info"><div class="callout-title">EXTERNAL ALARM: HIGH TEMP…</div><div class="callout-sub">📍 Kilmeage · R24731281</div></div></div>
+  </div>
+  <!-- Panel 3 -->
+  <div class="panel panel-3">
+    <div class="hdr-current-3">Callout Details</div>
+    <div class="panel-body">
+      <div class="fake-field"><div class="fake-field-label">Date</div><div class="fake-field-input"></div></div>
+      <div class="fake-field"><div class="fake-field-label">Ticket Number</div><div class="fake-field-input"></div></div>
+      <div class="fake-field"><div class="fake-field-label">Location</div><div class="fake-field-input"></div></div>
+      <div class="fake-field"><div class="fake-field-label">Fault Description</div><div class="fake-field-input"></div></div>
+    </div>
+  </div>
+</div>
+
+<hr class="section-divider">
+
+<h2 style="margin-top:40px">Option A — Unified 40px headers + subtle tint buttons (recommended)</h2>
+<p class="label">All three panels use identical desk-panel-days-hdr height · Both buttons same tint style · Date range stays readable · Count as inline badge</p>
+<div class="three-panel">
+  <div class="panel panel-1">
+    <div class="hdr-unified">
+      <span>Callouts</span>
+      <button class="btn-tint">📅 Schedule</button>
+    </div>
+    <div class="fake-stat-grid">
+      <div class="fake-stat"><div class="fake-stat-val">17</div><div class="fake-stat-label">On-Call Wks</div></div>
+      <div class="fake-stat"><div class="fake-stat-val amber">3</div><div class="fake-stat-label">Extra Shifts</div></div>
+      <div class="fake-stat"><div class="fake-stat-val red">4</div><div class="fake-stat-label">Total Incidents</div></div>
+      <div class="fake-stat"><div class="fake-stat-val purple">0.7</div><div class="fake-stat-label">Avg / Week</div></div>
+    </div>
+    <div class="section-sub-hdr">Previous</div>
+    <div class="week-row"><div class="week-badge">2</div><div class="week-info"><div class="week-title">17 Apr – 23 Apr</div><div class="week-sub">2 incidents</div></div></div>
+    <div class="week-row"><div class="week-badge">2</div><div class="week-info"><div class="week-title">20 Mar – 26 Mar</div><div class="week-sub">2 incidents</div></div></div>
+  </div>
+  <div class="panel panel-2">
+    <div class="hdr-unified">
+      <span>17 Apr – 23 Apr <span class="badge">2</span></span>
+      <button class="btn-tint">⊞ Paste Fault</button>
+    </div>
+    <div class="callout-row"><div class="callout-num">1</div><div class="callout-info"><div class="callout-title">Communicationsproblem – Lost…</div><div class="callout-sub">📍 Castledermot · R24719225</div></div></div>
+    <div class="callout-row"><div class="callout-num">2</div><div class="callout-info"><div class="callout-title">EXTERNAL ALARM: HIGH TEMP…</div><div class="callout-sub">📍 Kilmeage · R24731281</div></div></div>
+  </div>
+  <div class="panel panel-3">
+    <div class="hdr-unified">Callout Details</div>
+    <div class="panel-body">
+      <div class="fake-field"><div class="fake-field-label">Date</div><div class="fake-field-input"></div></div>
+      <div class="fake-field"><div class="fake-field-label">Ticket Number</div><div class="fake-field-input"></div></div>
+      <div class="fake-field"><div class="fake-field-label">Location</div><div class="fake-field-input"></div></div>
+      <div class="fake-field"><div class="fake-field-label">Fault Description</div><div class="fake-field-input"></div></div>
+    </div>
+  </div>
+</div>
+
+<hr class="section-divider">
+
+<h2 style="margin-top:40px">Option B — Unified 40px headers + both filled (strong)</h2>
+<p class="label">Filled buttons are more visible at a glance · Schedule = blue accent · Paste Fault = indigo (different but same weight)</p>
+<div class="three-panel">
+  <div class="panel panel-1">
+    <div class="hdr-unified">
+      <span>Callouts</span>
+      <button class="btn-filled-sm">📅 Schedule</button>
+    </div>
+    <div class="fake-stat-grid">
+      <div class="fake-stat"><div class="fake-stat-val">17</div><div class="fake-stat-label">On-Call Wks</div></div>
+      <div class="fake-stat"><div class="fake-stat-val amber">3</div><div class="fake-stat-label">Extra Shifts</div></div>
+      <div class="fake-stat"><div class="fake-stat-val red">4</div><div class="fake-stat-label">Total Incidents</div></div>
+      <div class="fake-stat"><div class="fake-stat-val purple">0.7</div><div class="fake-stat-label">Avg / Week</div></div>
+    </div>
+    <div class="section-sub-hdr">Previous</div>
+    <div class="week-row"><div class="week-badge">2</div><div class="week-info"><div class="week-title">17 Apr – 23 Apr</div><div class="week-sub">2 incidents</div></div></div>
+    <div class="week-row"><div class="week-badge">2</div><div class="week-info"><div class="week-title">20 Mar – 26 Mar</div><div class="week-sub">2 incidents</div></div></div>
+  </div>
+  <div class="panel panel-2">
+    <div class="hdr-unified">
+      <span>17 Apr – 23 Apr <span class="badge">2</span></span>
+      <button class="btn-filled-sm paste">⊞ Paste Fault</button>
+    </div>
+    <div class="callout-row"><div class="callout-num">1</div><div class="callout-info"><div class="callout-title">Communicationsproblem – Lost…</div><div class="callout-sub">📍 Castledermot · R24719225</div></div></div>
+    <div class="callout-row"><div class="callout-num">2</div><div class="callout-info"><div class="callout-title">EXTERNAL ALARM: HIGH TEMP…</div><div class="callout-sub">📍 Kilmeage · R24731281</div></div></div>
+  </div>
+  <div class="panel panel-3">
+    <div class="hdr-unified">Callout Details</div>
+    <div class="panel-body">
+      <div class="fake-field"><div class="fake-field-label">Date</div><div class="fake-field-input"></div></div>
+      <div class="fake-field"><div class="fake-field-label">Ticket Number</div><div class="fake-field-input"></div></div>
+      <div class="fake-field"><div class="fake-field-label">Location</div><div class="fake-field-input"></div></div>
+      <div class="fake-field"><div class="fake-field-label">Fault Description</div><div class="fake-field-input"></div></div>
+    </div>
+  </div>
+</div>
+
+<p style="margin-top:40px;font-size:11px;color:#aaa;text-align:center">Open in browser · Pick A or B (or mix) and I'll implement it</p>
+</body>
+</html>

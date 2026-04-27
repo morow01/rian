@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Deploy Codes
+Comment=Convert codes.xlsx and push to GitHub
+Exec=bash -c 'cd "/home/morow/Claude - Cowork/timesheet-pwa" && bash deploy-codes.sh; echo "Press Enter to close..."; read'
+Icon=utilities-terminal
+Terminal=true
+Categories=Utility;

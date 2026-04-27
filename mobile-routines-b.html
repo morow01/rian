@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mobile B — Cards Below Table</title>
+<style>
+  :root {
+    --bg-page: #F0F4F8; --bg-card: #fff; --bg-card-alt: #F4F7FA;
+    --bg-header: #0f1624; --border: #E2E8F0; --border-subtle: #F1F5F9;
+    --accent: #2D6BE4; --accent-rgb: 45,107,228; --accent-light: rgba(45,107,228,0.08);
+    --text-primary: #1E293B; --text-secondary: #475569; --text-muted: #94A3B8;
+    --font-body: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family: var(--font-body); background: var(--bg-page); color: var(--text-primary); max-width:430px; margin:0 auto; }
+
+  .top-nav { display:flex; justify-content:center; gap:24px; padding:10px 0; background:var(--bg-header); }
+  .top-nav button { background:none; border:none; color:#64748b; font-size:11px; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; cursor:pointer; padding:6px 8px; font-family:var(--font-body); }
+  .top-nav button.active { color:#4d94ff; }
+
+  .page { padding:0 12px 24px; }
+  .top-bar { display:flex; align-items:center; justify-content:space-between; padding:12px 0; }
+  .year-nav { display:flex; align-items:center; gap:8px; }
+  .year-btn { background:none; border:none; color:var(--accent); cursor:pointer; font-size:16px; font-weight:700; }
+  .year-label { font-size:17px; font-weight:700; }
+  .edit-btn { background:var(--accent-light); color:var(--accent); border:none; border-radius:8px; padding:6px 12px; font-size:12px; font-weight:700; cursor:pointer; font-family:var(--font-body); }
+
+  /* Grid table */
+  .grid-wrap { overflow-x:auto; -webkit-overflow-scrolling:touch; }
+  table { border-collapse:collapse; }
+  th { padding:7px 2px; font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; border-bottom:1px solid var(--border); text-align:center; background:var(--bg-page); position:sticky; top:0; z-index:2; }
+  th.th-site { text-align:left; padding-left:14px; min-width:110px; position:sticky; left:0; z-index:3; background:var(--bg-page); }
+  th.cur { color:var(--accent); }
+  td { text-align:center; padding:3px 2px; border-bottom:1px solid var(--border-subtle); height:40px; vertical-align:middle; }
+  td.td-site { text-align:left; padding-left:14px; font-size:13px; font-weight:600; background:var(--bg-page); position:sticky; left:0; z-index:1; white-space:nowrap; }
+  td.cur-col { background:rgba(45,107,228,0.04); }
+  .cell { width:42px; height:38px; border-radius:10px; border:none; cursor:pointer; display:inline-flex; flex-direction:column; align-items:center; justify-content:center; background:rgba(45,107,228,0.03); font-family:var(--font-body); }
+  .cell.v { background:rgba(34,197,94,0.12); }
+  .cell .dot { width:6px; height:6px; border-radius:50%; background:var(--text-muted); opacity:0.25; }
+  .cell .day { font-size:13px; font-weight:800; color:#15803d; line-height:1; }
+  .cell .auto { font-size:7px; font-weight:800; color:#15803d; opacity:0.7; }
+
+  /* Divider */
+  .divider { height:1px; background:var(--border); margin:16px 0; }
+
+  /* Stats strip — horizontal scroll */
+  .stats-strip { display:flex; gap:8px; overflow-x:auto; padding:4px 0 8px; -webkit-overflow-scrolling:touch; }
+  .stats-strip::-webkit-scrollbar { display:none; }
+  .stat-pill { flex-shrink:0; background:var(--bg-card); border-radius:10px; padding:10px 16px; text-align:center; border:1px solid var(--border); min-width:80px; }
+  .stat-pill-val { font-size:18px; font-weight:800; }
+  .stat-pill-lbl { font-size:10px; color:var(--text-muted); font-weight:500; margin-top:1px; }
+
+  /* Cards below */
+  .card { background:var(--bg-card); border-radius:12px; border:1px solid var(--border); margin-bottom:10px; overflow:hidden; }
+  .card-hdr { padding:12px 14px; font-size:13px; font-weight:700; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid var(--border); }
+  .badge { font-size:10px; font-weight:700; padding:2px 7px; border-radius:5px; }
+
+  .alert-item { display:flex; align-items:center; gap:10px; padding:10px 14px; border-bottom:1px solid var(--border-subtle); }
+  .alert-item:last-child { border-bottom:none; }
+  .alert-dot { width:7px; height:7px; border-radius:50%; flex-shrink:0; }
+  .alert-dot.red { background:#ef4444; }
+  .alert-dot.amber { background:#f59e0b; }
+  .alert-name { font-size:13px; font-weight:600; flex:1; }
+  .alert-detail { font-size:11px; color:var(--text-muted); }
+
+  .recent-item { display:flex; align-items:center; gap:10px; padding:10px 14px; border-bottom:1px solid var(--border-subtle); }
+  .recent-item:last-child { border-bottom:none; }
+  .recent-badge { width:28px; height:28px; border-radius:7px; background:rgba(34,197,94,0.12); display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; color:#15803d; flex-shrink:0; }
+  .recent-name { font-size:13px; font-weight:600; }
+  .recent-date { font-size:11px; color:var(--text-muted); }
+
+  .month-bar { display:flex; gap:2px; padding:10px 14px; }
+  .month-col { flex:1; text-align:center; }
+  .month-col-bar { height:40px; display:flex; align-items:flex-end; justify-content:center; }
+  .month-col-fill { width:14px; border-radius:3px 3px 0 0; background:rgba(34,197,94,0.3); min-height:2px; }
+  .month-col-fill.cur { background:rgba(34,197,94,0.5); }
+  .month-col-label { font-size:8px; color:var(--text-muted); font-weight:600; margin-top:3px; }
+  .month-col-val { font-size:9px; font-weight:700; color:var(--text-secondary); margin-top:1px; }
+</style>
+</head>
+<body>
+<div class="top-nav">
+  <button>Timesheet</button><button>Notes</button><button>Journal</button>
+  <button class="active">Routines</button><button>Finder</button>
+</div>
+<div class="page">
+  <div class="top-bar">
+    <div class="year-nav">
+      <button class="year-btn">&lsaquo;</button>
+      <span class="year-label">2026</span>
+      <button class="year-btn">&rsaquo;</button>
+    </div>
+    <button class="edit-btn">Edit Sites</button>
+  </div>
+
+  <!-- Grid table FIRST -->
+  <div class="grid-wrap">
+    <table>
+      <thead><tr>
+        <th class="th-site">Site</th>
+        <th>Jan</th><th>Feb</th><th>Mar</th><th class="cur">Apr</th>
+        <th>May</th><th>Jun</th><th>Jul</th><th>Aug</th><th>Sep</th><th>Oct</th><th>Nov</th><th>Dec</th>
+      </tr></thead>
+      <tbody id="grid-body"></tbody>
+    </table>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- Stats strip -->
+  <div class="stats-strip">
+    <div class="stat-pill"><div class="stat-pill-val" style="color:#2D6BE4">30</div><div class="stat-pill-lbl">Sites</div></div>
+    <div class="stat-pill"><div class="stat-pill-val" style="color:#15803d">37</div><div class="stat-pill-lbl">Visits</div></div>
+    <div class="stat-pill"><div class="stat-pill-val" style="color:#D97706">10%</div><div class="stat-pill-lbl">Coverage</div></div>
+    <div class="stat-pill"><div class="stat-pill-val" style="color:#8B5CF6">Apr</div><div class="stat-pill-lbl">Current Month</div></div>
+  </div>
+
+  <!-- Monthly chart -->
+  <div class="card">
+    <div class="card-hdr">Visits per Month</div>
+    <div class="month-bar" id="month-bar"></div>
+  </div>
+
+  <!-- Due Visits -->
+  <div class="card">
+    <div class="card-hdr">Due Visits <span class="badge" style="background:rgba(245,158,11,0.1);color:#f59e0b" id="due-count">0</span></div>
+    <div id="due-list"></div>
+  </div>
+
+  <!-- Never Visited -->
+  <div class="card">
+    <div class="card-hdr">Never Visited <span class="badge" style="background:rgba(239,68,68,0.1);color:#ef4444" id="never-count">0</span></div>
+    <div id="never-list"></div>
+  </div>
+
+  <!-- Recent Visits -->
+  <div class="card">
+    <div class="card-hdr">Recent Visits <span class="badge" style="background:rgba(34,197,94,0.1);color:#15803d">Latest</span></div>
+    <div id="recent-list"></div>
+  </div>
+</div>
+
+<script>
+const sites=["Ballinagar","Ballinakill","Ballycumber","Ballydaly","Clara","Clonaslee","Clonygowan","Collins Lane","Daingean","Dunmurry Hill","Five Alley","Geashill","Gracefield","Horseleap","Kilbeggan","Kilcormac","Kildare","Killeigh","Killenard","Kinnity","Leabeg","Mount Bolus","Mountmellick","Mucklagh","Pollagh","Portarlington","Rahan","Rosenallis","Tullamore","Walsh Island"];
+const auto={"Horseleap__1":12,"Mountmellick__1":14,"Walsh Island__1":18,"Dunmurry Hill__2":3,"Kilbeggan__2":5,"Kildare__2":9,"Ballinakill__2":11,"Tullamore__2":14,"Portarlington__2":20,"Clonaslee__2":24,"Daingean__3":2,"Portarlington__3":4,"Kilcormac__3":31,"Tullamore__3":8,"Five Alley__3":11,"Kinnity__3":11,"Ballinakill__3":12,"Rahan__3":18,"Geashill__3":30,"Killeigh__3":18,"Mount Bolus__3":18,"Mountmellick__3":19,"Mucklagh__3":20,"Ballinagar__3":30,"Gracefield__4":1,"Kilbeggan__4":1,"Ballydaly__4":2,"Clara__4":2,"Clonygowan__4":8,"Killenard__4":8,"Rosenallis__4":9,"Ballycumber__4":13,"Horseleap__4":13,"Kildare__4":16,"Pollagh__4":10,"Collins Lane__4":20};
+const manual={"Clara__1":15};
+const mn=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const curMonth=4;
+const gb=document.getElementById('grid-body');
+let totals=new Array(12).fill(0), nv=[], rv=[], dv=[];
+sites.forEach(s=>{
+  let v=0,lm=0,ld=0;
+  let cells='<td class="td-site">'+s+'</td>';
+  for(let m=1;m<=12;m++){const mk=s+'__'+m,d=manual[mk]||auto[mk],isA=!manual[mk]&&!!auto[mk];if(d){v++;totals[m-1]++;if(m>lm||(m===lm&&d>ld)){lm=m;ld=d;}}let inner=d?'<span class="day">'+d+'</span>'+(isA?'<span class="auto">AUTO</span>':''):'<span class="dot"></span>';cells+='<td'+(m===4?' class="cur-col"':'')+'><button class="cell'+(d?' v':'')+'">' +inner+'</button></td>';}
+  gb.innerHTML+='<tr>'+cells+'</tr>';
+  if(v===0) nv.push(s);
+  if(lm>0) rv.push({site:s,month:lm,day:ld});
+  const ms=lm===0?curMonth:(curMonth-lm);if(ms>=3) dv.push({site:s,lastMonth:lm,ms:ms});
+});
+const mb=document.getElementById('month-bar'),mx=Math.max(...totals,1);
+mn.forEach((n,i)=>{const h=Math.round(totals[i]/mx*40);mb.innerHTML+='<div class="month-col"><div class="month-col-bar"><div class="month-col-fill'+(i===3?' cur':'')+'" style="height:'+h+'px"></div></div><div class="month-col-label">'+n+'</div><div class="month-col-val">'+totals[i]+'</div></div>';});
+const nl=document.getElementById('never-list');document.getElementById('never-count').textContent=nv.length;
+if(!nv.length) nl.innerHTML='<div style="padding:14px;text-align:center;color:var(--text-muted);font-size:12px">All sites visited!</div>';
+else nv.forEach(s=>{nl.innerHTML+='<div class="alert-item"><span class="alert-dot red"></span><span class="alert-name">'+s+'</span><span class="alert-detail">0 visits</span></div>';});
+dv.sort((a,b)=>b.ms-a.ms);const dl=document.getElementById('due-list');document.getElementById('due-count').textContent=dv.length;
+if(!dv.length) dl.innerHTML='<div style="padding:14px;text-align:center;color:var(--text-muted);font-size:12px">All up to date!</div>';
+else dv.forEach(d=>{dl.innerHTML+='<div class="alert-item"><span class="alert-dot amber"></span><span class="alert-name">'+d.site+'</span><span class="alert-detail">'+(d.lastMonth===0?'Never':d.ms+' months ago')+'</span></div>';});
+rv.sort((a,b)=>b.month-a.month||b.day-a.day);const rl=document.getElementById('recent-list');
+rv.slice(0,8).forEach(v=>{rl.innerHTML+='<div class="recent-item"><div class="recent-badge">'+v.day+'</div><div><div class="recent-name">'+v.site+'</div><div class="recent-date">'+mn[v.month-1]+' 2026</div></div></div>';});
+</script>
+</body>
+</html>

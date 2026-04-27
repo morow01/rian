@@ -1,0 +1,505 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Material Task Actions Mockup</title>
+<style>
+  :root {
+    --bg: #eef3f8;
+    --surface: #ffffff;
+    --surface-container: #f4f7fb;
+    --surface-container-high: #ebf1f7;
+    --outline: #cfddea;
+    --outline-variant: #dce6f0;
+    --text: #101928;
+    --muted: #7890aa;
+    --primary: #2563d8;
+    --primary-container: #e8f0ff;
+    --on-primary-container: #173b88;
+    --success: #157a3b;
+    --success-container: #e7f7ec;
+    --warning: #c46a00;
+    --warning-container: #fff5e8;
+    --danger: #c92f2f;
+    --danger-container: #fdeceb;
+    --shadow: 0 18px 48px rgba(36, 57, 86, 0.18);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    display: grid;
+    place-items: center;
+    padding: 28px 16px;
+    background:
+      radial-gradient(circle at 20% 12%, rgba(37, 99, 216, 0.14), transparent 28%),
+      linear-gradient(135deg, #f8fbff, var(--bg));
+    color: var(--text);
+    font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .stage {
+    width: min(100%, 920px);
+    display: grid;
+    grid-template-columns: minmax(320px, 390px) minmax(260px, 1fr);
+    gap: 28px;
+    align-items: center;
+  }
+
+  .phone {
+    width: 100%;
+    height: min(860px, calc(100vh - 56px));
+    min-height: 760px;
+    overflow: hidden;
+    border: 1px solid rgba(114, 139, 166, 0.3);
+    border-radius: 28px;
+    background: var(--surface);
+    box-shadow: var(--shadow);
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+  }
+
+  .top-app-bar {
+    min-height: 88px;
+    display: grid;
+    grid-template-columns: 48px 46px 1fr;
+    gap: 10px;
+    align-items: center;
+    padding: 18px 20px 14px;
+    border-bottom: 1px solid var(--outline-variant);
+  }
+
+  .icon-button {
+    width: 44px;
+    height: 44px;
+    border: 0;
+    border-radius: 22px;
+    background: transparent;
+    color: #7190b1;
+    display: inline-grid;
+    place-items: center;
+    cursor: pointer;
+  }
+
+  .icon-button:hover { background: var(--surface-container-high); }
+
+  .day-chip {
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    display: grid;
+    place-items: center;
+    color: var(--primary);
+    background: var(--primary-container);
+    font-weight: 800;
+  }
+
+  h1 {
+    margin: 0;
+    font-size: 21px;
+    line-height: 1.2;
+    letter-spacing: 0;
+  }
+
+  main {
+    overflow: auto;
+    padding: 26px 20px 20px;
+  }
+
+  .field + .field { margin-top: 22px; }
+
+  .label {
+    margin: 0 0 10px;
+    color: #86a0bd;
+    font-size: 14px;
+    line-height: 1;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    font-weight: 800;
+  }
+
+  .input-box {
+    min-height: 64px;
+    border: 1px solid var(--outline);
+    border-radius: 16px;
+    background: #f9fbfe;
+    padding: 17px 18px;
+    font-size: 20px;
+    line-height: 1.3;
+    display: flex;
+    align-items: center;
+  }
+
+  .notes {
+    min-height: 88px;
+    align-items: flex-start;
+    color: #3d4754;
+  }
+
+  .field-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 10px;
+  }
+
+  .assist-chip {
+    min-height: 32px;
+    border: 1px solid #c9a7ff;
+    border-radius: 16px;
+    background: #fbf8ff;
+    color: #8a45e6;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 0 12px;
+    font-size: 14px;
+    font-weight: 800;
+  }
+
+  .code-box {
+    border: 1px solid var(--outline);
+    border-radius: 16px;
+    background: #f9fbfe;
+    padding: 14px 18px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .code-pill {
+    min-height: 42px;
+    border-radius: 18px;
+    background: #e8eef6;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 16px;
+    font-size: 17px;
+    font-weight: 650;
+  }
+
+  .code-pill small {
+    color: #8ea3bd;
+    font-size: 13px;
+    font-weight: 850;
+    letter-spacing: 0;
+  }
+
+  .hours-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-top: 32px;
+  }
+
+  .stepper {
+    margin-top: 12px;
+    min-height: 62px;
+    border: 1px solid #e1e5ea;
+    border-radius: 14px;
+    background: #f5f5f3;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    align-items: center;
+    text-align: center;
+    font-size: 21px;
+    font-weight: 800;
+  }
+
+  .stepper.warning {
+    border-color: #ffbd55;
+    color: var(--warning);
+    background: var(--warning-container);
+  }
+
+  .stepper button {
+    height: 100%;
+    border: 0;
+    background: transparent;
+    color: #808080;
+    font-size: 24px;
+    cursor: pointer;
+  }
+
+  .bottom-actions {
+    position: relative;
+    min-height: 92px;
+    padding: 12px 20px calc(12px + env(safe-area-inset-bottom));
+    display: grid;
+    grid-template-columns: 1fr 1fr 56px;
+    gap: 12px;
+    align-items: center;
+    border-top: 1px solid var(--outline-variant);
+    background: rgba(255, 255, 255, 0.96);
+    backdrop-filter: blur(14px);
+  }
+
+  .action-button {
+    height: 56px;
+    border: 1px solid #9ee4b4;
+    border-radius: 16px;
+    background: var(--success-container);
+    color: var(--success);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    font-size: 18px;
+    font-weight: 800;
+    cursor: pointer;
+  }
+
+  .action-button.tonal {
+    border-color: #c2d8ff;
+    background: var(--primary-container);
+    color: var(--on-primary-container);
+  }
+
+  .overflow-anchor {
+    width: 56px;
+    height: 56px;
+    border: 1px solid var(--outline);
+    border-radius: 16px;
+    background: var(--surface-container);
+    color: #6f8aa6;
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+  }
+
+  .menu {
+    position: absolute;
+    right: 20px;
+    bottom: 80px;
+    width: 230px;
+    padding: 8px 0;
+    border: 1px solid var(--outline-variant);
+    border-radius: 12px;
+    background: var(--surface);
+    box-shadow: 0 12px 32px rgba(16, 25, 40, 0.18);
+  }
+
+  .menu-item {
+    height: 48px;
+    padding: 0 16px;
+    display: grid;
+    grid-template-columns: 24px 1fr;
+    gap: 12px;
+    align-items: center;
+    color: #334155;
+    font-size: 15px;
+    font-weight: 650;
+  }
+
+  .menu-divider {
+    height: 1px;
+    margin: 8px 0;
+    background: var(--outline-variant);
+  }
+
+  .menu-item.danger {
+    color: var(--danger);
+  }
+
+  .notes-panel {
+    padding: 4px 0;
+  }
+
+  .notes-panel h2 {
+    margin: 0 0 14px;
+    font-size: clamp(26px, 5vw, 44px);
+    line-height: 1.05;
+    letter-spacing: 0;
+  }
+
+  .notes-panel p {
+    max-width: 50ch;
+    margin: 0 0 18px;
+    color: #52677e;
+    font-size: 17px;
+    line-height: 1.55;
+  }
+
+  .rule-list {
+    display: grid;
+    gap: 12px;
+    margin-top: 26px;
+  }
+
+  .rule {
+    padding: 16px 18px;
+    border: 1px solid var(--outline-variant);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.72);
+  }
+
+  .rule strong {
+    display: block;
+    margin-bottom: 4px;
+    color: #223248;
+    font-size: 15px;
+  }
+
+  .rule span {
+    color: #60748a;
+    font-size: 14px;
+    line-height: 1.45;
+  }
+
+  svg {
+    width: 22px;
+    height: 22px;
+    stroke: currentColor;
+    stroke-width: 2.2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    fill: none;
+    flex: 0 0 auto;
+  }
+
+  @media (max-width: 760px) {
+    body {
+      display: block;
+      padding: 0;
+      background: var(--surface);
+    }
+
+    .stage {
+      width: 100%;
+      display: block;
+    }
+
+    .phone {
+      height: 100vh;
+      min-height: 720px;
+      border: 0;
+      border-radius: 0;
+      box-shadow: none;
+    }
+
+    .notes-panel {
+      display: none;
+    }
+  }
+</style>
+</head>
+<body>
+  <div class="stage">
+    <section class="phone" aria-label="Task editor mockup">
+      <header class="top-app-bar">
+        <button class="icon-button" aria-label="Back">
+          <svg viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg>
+        </button>
+        <div class="day-chip">1</div>
+        <h1>Test job 23</h1>
+      </header>
+
+      <main>
+        <section class="field">
+          <p class="label">Description</p>
+          <div class="input-box">Test job 23</div>
+        </section>
+
+        <section class="field">
+          <p class="label">Notes</p>
+          <div class="input-box notes">Test note</div>
+        </section>
+
+        <section class="field">
+          <p class="label">Location</p>
+          <div class="input-box">Sallins (SLS)</div>
+        </section>
+
+        <section class="field">
+          <div class="field-header">
+            <p class="label">Work codes</p>
+            <button class="assist-chip">
+              <svg viewBox="0 0 24 24"><path d="M6 8h12v10H6z"/><path d="M9 8V6h6v2"/><path d="M9 12h.01"/><path d="M15 12h.01"/><path d="M12 15h.01"/></svg>
+              Suggest
+            </button>
+          </div>
+          <div class="code-box">
+            <span class="code-pill">Routine Power RSU <small>MXY0005A10</small></span>
+            <span class="code-pill">Routine DSL <small>MCY0003A10</small></span>
+            <span class="code-pill">Routine SDH <small>MTX0005A10</small></span>
+          </div>
+        </section>
+
+        <section class="hours-grid">
+          <div>
+            <p class="label">Ordinary hrs</p>
+            <div class="stepper">
+              <button aria-label="Decrease ordinary hours">-</button>
+              <span>4</span>
+              <button aria-label="Increase ordinary hours">+</button>
+            </div>
+          </div>
+          <div>
+            <p class="label" style="color:#f59e0b;">Overtime hrs</p>
+            <div class="stepper warning">
+              <button aria-label="Decrease overtime hours">-</button>
+              <span>0</span>
+              <button aria-label="Increase overtime hours">+</button>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <footer class="bottom-actions" aria-label="Task actions">
+        <button class="action-button">
+          <svg viewBox="0 0 24 24"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          Copy
+        </button>
+        <button class="action-button tonal">
+          <svg viewBox="0 0 24 24"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg>
+          Move
+        </button>
+        <button class="overflow-anchor" aria-label="More actions" aria-haspopup="menu">
+          <svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/></svg>
+        </button>
+
+        <div class="menu" role="menu" aria-label="More task actions">
+          <div class="menu-item" role="menuitem">
+            <svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+            Rename task
+          </div>
+          <div class="menu-item" role="menuitem">
+            <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/><path d="M12 15V3"/></svg>
+            Export details
+          </div>
+          <div class="menu-divider"></div>
+          <div class="menu-item danger" role="menuitem">
+            <svg viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v5"/><path d="M14 11v5"/></svg>
+            Delete task
+          </div>
+        </div>
+      </footer>
+    </section>
+
+    <aside class="notes-panel">
+      <h2>Material-style action order</h2>
+      <p>This version keeps common safe actions visible, moves secondary utilities into the overflow menu, and treats delete as destructive without making it compete with everyday actions.</p>
+      <div class="rule-list">
+        <div class="rule">
+          <strong>Visible actions are frequent and safe</strong>
+          <span>Copy and Move stay in the bottom bar because they are direct task-management actions.</span>
+        </div>
+        <div class="rule">
+          <strong>Overflow owns the extras</strong>
+          <span>Additional actions live behind the three-dot button, which matches Material's app bar and menu pattern.</span>
+        </div>
+        <div class="rule">
+          <strong>Destructive action is last</strong>
+          <span>Delete is separated by a divider and appears at the end of the overflow menu with error color.</span>
+        </div>
+      </div>
+    </aside>
+  </div>
+</body>
+</html>

@@ -1,0 +1,9 @@
+I want to build a small one page site explaining all the features with screenshots from the app explaining all the features.
+
+I created folder for that:
+/home/morow/Claude - Cowork/timesheet-pwa/web/ag/
+
+Can you make a nice modern looking web page?
+
+
+I want to build a small one page site explaining all the features with screenshots from the app explaining all the features. THe screenshot should be from mobile version of the app as this is mobile first. I want to explain all 3 features what they do. TIME SHEET NOTES and FINDER. Will you be able to capture mobile version screenshots from the app?

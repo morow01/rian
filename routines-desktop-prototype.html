@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Routines Desktop Prototype</title>
+<style>
+  :root {
+    --bg-page: #F8FAFC;
+    --bg-header: #fff;
+    --bg-card: #fff;
+    --bg-card-alt: #F4F7FA;
+    --bg-input: #F4F7FA;
+    --border: #E2E8F0;
+    --border-subtle: #F1F5F9;
+    --accent: #2D6BE4;
+    --accent-rgb: 45, 107, 228;
+    --accent-light: rgba(45, 107, 228, 0.08);
+    --text-primary: #1E293B;
+    --text-secondary: #475569;
+    --text-muted: #94A3B8;
+    --shadow-rgb: 0, 0, 0;
+    --priority-high: #ef4444;
+    --font-body: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: var(--font-body);
+    background: var(--bg-page);
+    color: var(--text-primary);
+    min-height: 100vh;
+  }
+
+  /* ── Top nav (simulated) ── */
+  .top-nav {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    padding: 12px 0;
+    background: var(--bg-header);
+    border-bottom: 1px solid var(--border);
+  }
+  .top-nav button {
+    background: none; border: none; color: var(--text-muted);
+    font-size: 12px; font-weight: 700; letter-spacing: 0.08em;
+    text-transform: uppercase; cursor: pointer; padding: 6px 12px;
+    font-family: var(--font-body);
+  }
+  .top-nav button.active { color: var(--accent); }
+
+  /* ── Column header (reuse desk-panel-days-hdr style) ── */
+  .col-hdr {
+    padding: 10px 14px 8px;
+    font-size: 10px;
+    font-weight: 800;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    border-bottom: 1px solid var(--border);
+    line-height: 1.4;
+  }
+
+  /* ── Routines page ── */
+  .rtn-page {
+    padding: 0 0 24px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .rtn-top-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 24px;
+    background: var(--bg-card);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .rtn-year-nav {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .rtn-year-btn {
+    background: none; border: none; padding: 6px 10px;
+    border-radius: 8px; color: var(--accent); cursor: pointer;
+    font-size: 18px; font-weight: 700; line-height: 1;
+  }
+  .rtn-year-btn:hover { background: var(--accent-light); }
+  .rtn-year-label {
+    font-size: 18px; font-weight: 700; color: var(--text-primary);
+    min-width: 50px; text-align: center;
+  }
+
+  .rtn-actions { display: flex; gap: 8px; align-items: center; }
+  .rtn-edit-btn {
+    background: var(--accent-light); color: var(--accent); border: none;
+    border-radius: 10px; padding: 8px 16px; font-size: 13px;
+    font-weight: 700; cursor: pointer; font-family: var(--font-body);
+  }
+  .rtn-edit-btn:hover { background: rgba(var(--accent-rgb), 0.15); }
+
+  /* ── Stats bar — matching .oc-stat card style ── */
+  .rtn-stats {
+    display: flex;
+    gap: 8px;
+    padding: 16px 24px;
+    background: var(--bg-page);
+  }
+  .rtn-stat {
+    flex: 1;
+    background: var(--bg-card);
+    border-radius: 10px;
+    padding: 12px 8px;
+    text-align: center;
+    border: 1px solid var(--border);
+  }
+  .rtn-stat-val {
+    font-size: 20px;
+    font-weight: 800;
+  }
+  .rtn-stat-label {
+    font-size: 11px;
+    color: var(--text-muted);
+    font-weight: 500;
+    margin-top: 2px;
+    line-height: 1.2;
+  }
+
+  /* ── Table ── */
+  .rtn-table-wrap {
+    overflow-x: auto;
+    padding: 0;
+  }
+
+  table.rtn-table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+  }
+
+  .rtn-th-site {
+    text-align: left;
+    padding: 12px 16px;
+    font-size: 10px;
+    font-weight: 800;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    left: 0;
+    background: var(--bg-page);
+    z-index: 2;
+    width: 160px;
+    min-width: 160px;
+  }
+
+  .rtn-th-month {
+    text-align: center;
+    padding: 12px 4px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-muted);
+    border-bottom: 1px solid var(--border);
+    width: calc((100% - 160px) / 12);
+  }
+  .rtn-th-month.cur {
+    color: var(--accent);
+    font-weight: 800;
+  }
+
+  .rtn-td-site {
+    padding: 0 16px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary);
+    white-space: nowrap;
+    border-bottom: 1px solid var(--border-subtle);
+    position: sticky;
+    left: 0;
+    background: var(--bg-page);
+    z-index: 1;
+    height: 52px;
+  }
+  .rtn-td-site a {
+    color: var(--text-primary);
+    text-decoration: none;
+  }
+  .rtn-td-site a:hover {
+    color: var(--accent);
+  }
+  .rtn-td-site .map-pin {
+    color: var(--priority-high);
+    font-size: 11px;
+    margin-left: 4px;
+  }
+
+  .rtn-td-cell {
+    text-align: center;
+    padding: 4px;
+    border-bottom: 1px solid var(--border-subtle);
+    height: 52px;
+    vertical-align: middle;
+  }
+  .rtn-td-cell.cur-col {
+    background: rgba(var(--accent-rgb), 0.04);
+  }
+
+  tr:hover .rtn-td-site,
+  tr:hover .rtn-td-cell {
+    background: rgba(var(--accent-rgb), 0.03);
+  }
+  tr:hover .rtn-td-site {
+    background: linear-gradient(to right, rgba(var(--accent-rgb), 0.06), rgba(var(--accent-rgb), 0.03));
+  }
+
+  /* ── Cell buttons ── */
+  .rtn-cell-btn {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1px;
+    background: rgba(var(--accent-rgb), 0.03);
+    transition: all 0.12s;
+    position: relative;
+  }
+  .rtn-cell-btn:hover {
+    background: rgba(var(--accent-rgb), 0.1);
+    transform: scale(1.08);
+  }
+
+  .rtn-cell-btn .rtn-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--text-muted);
+    opacity: 0.25;
+  }
+
+  .rtn-cell-btn.visited {
+    background: rgba(34, 197, 94, 0.12);
+  }
+  .rtn-cell-btn.visited:hover {
+    background: rgba(34, 197, 94, 0.22);
+  }
+  .rtn-cell-btn.visited .rtn-dot { display: none; }
+
+  .rtn-day-num {
+    font-size: 14px;
+    font-weight: 700;
+    color: #15803d;
+    line-height: 1;
+  }
+  .rtn-auto-badge {
+    font-size: 7px;
+    font-weight: 800;
+    color: #15803d;
+    letter-spacing: 0.04em;
+    line-height: 1;
+    opacity: 0.7;
+  }
+</style>
+</head>
+<body>
+
+<!-- Simulated top nav -->
+<div class="top-nav">
+  <button>Timesheet</button>
+  <button>Notes</button>
+  <button>Journal</button>
+  <button class="active">Routines</button>
+  <button>Finder</button>
+</div>
+
+<div class="rtn-page">
+  <!-- Top bar -->
+  <div class="rtn-top-bar">
+    <div class="rtn-year-nav">
+      <button class="rtn-year-btn">&lsaquo;</button>
+      <span class="rtn-year-label">2026</span>
+      <button class="rtn-year-btn">&rsaquo;</button>
+    </div>
+    <div class="rtn-actions">
+      <button class="rtn-edit-btn">&#x21bb; Refresh</button>
+      <button class="rtn-edit-btn">Edit Sites</button>
+    </div>
+  </div>
+
+  <!-- Stats — matching .oc-stat card style from Callouts -->
+  <div class="rtn-stats">
+    <div class="rtn-stat">
+      <div class="rtn-stat-val" style="color:var(--accent)">30</div>
+      <div class="rtn-stat-label">Sites</div>
+    </div>
+    <div class="rtn-stat">
+      <div class="rtn-stat-val" style="color:#15803d">39</div>
+      <div class="rtn-stat-label">Visits</div>
+    </div>
+    <div class="rtn-stat">
+      <div class="rtn-stat-val" style="color:#D97706">11%</div>
+      <div class="rtn-stat-label">Coverage</div>
+    </div>
+    <div class="rtn-stat">
+      <div class="rtn-stat-val" style="color:#8B5CF6">Apr</div>
+      <div class="rtn-stat-label">Current Month</div>
+    </div>
+  </div>
+
+  <!-- Table -->
+  <div class="rtn-table-wrap">
+    <table class="rtn-table">
+      <thead>
+        <tr>
+          <th class="rtn-th-site">Site</th>
+          <th class="rtn-th-month">Jan</th>
+          <th class="rtn-th-month">Feb</th>
+          <th class="rtn-th-month">Mar</th>
+          <th class="rtn-th-month cur">Apr</th>
+          <th class="rtn-th-month">May</th>
+          <th class="rtn-th-month">Jun</th>
+          <th class="rtn-th-month">Jul</th>
+          <th class="rtn-th-month">Aug</th>
+          <th class="rtn-th-month">Sep</th>
+          <th class="rtn-th-month">Oct</th>
+          <th class="rtn-th-month">Nov</th>
+          <th class="rtn-th-month">Dec</th>
+        </tr>
+      </thead>
+      <tbody id="rtn-body"></tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+const sites = ["Ballinagar","Ballinakill","Ballycumber","Ballydaly","Clara","Clonaslee","Clonygowan","Collins Lane","Daingean","Dunmurry Hill","Five Alley","Geashill","Gracefield","Horseleap","Kilbeggan","Kilcormac","Kildare","Killeigh","Killenard","Kinnity","Leabeg","Mount Bolus","Mountmellick","Mucklagh","Pollagh","Portarlington","Rahan","Rosenallis","Tullamore","Walsh Island"];
+
+const visits = { "Clara__2026__1": { day: 15 } };
+
+const autoVisits = {
+  "Horseleap__2026__1": {day:12}, "Mountmellick__2026__1": {day:14}, "Walsh Island__2026__1": {day:18},
+  "Dunmurry Hill__2026__2": {day:3}, "Kilbeggan__2026__2": {day:5}, "Kildare__2026__2": {day:9},
+  "Ballinakill__2026__2": {day:11}, "Tullamore__2026__2": {day:14}, "Portarlington__2026__2": {day:20},
+  "Clonaslee__2026__2": {day:24},
+  "Daingean__2026__3": {day:2}, "Portarlington__2026__3": {day:4}, "Kilcormac__2026__3": {day:31},
+  "Tullamore__2026__3": {day:8}, "Five Alley__2026__3": {day:11}, "Kinnity__2026__3": {day:11},
+  "Ballinakill__2026__3": {day:12}, "Rahan__2026__3": {day:18}, "Geashill__2026__3": {day:30},
+  "Killeigh__2026__3": {day:18}, "Mount Bolus__2026__3": {day:18}, "Mountmellick__2026__3": {day:19},
+  "Mucklagh__2026__3": {day:20}, "Ballinagar__2026__3": {day:30}, "Gracefield__2026__4": {day:1},
+  "Kilbeggan__2026__4": {day:1}, "Ballydaly__2026__4": {day:2}, "Clara__2026__4": {day:2},
+  "Clonygowan__2026__4": {day:8}, "Killenard__2026__4": {day:8}, "Rosenallis__2026__4": {day:9},
+  "Ballycumber__2026__4": {day:13}, "Horseleap__2026__4": {day:13}, "Kildare__2026__4": {day:16},
+  "Pollagh__2026__4": {day:10}, "Collins Lane__2026__4": {day:20}
+};
+
+const tbody = document.getElementById('rtn-body');
+sites.forEach(site => {
+  let cells = `<td class="rtn-td-site"><a href="#">${site}</a> <span class="map-pin">📍</span></td>`;
+  for (let m = 1; m <= 12; m++) {
+    const isCur = m === 4;
+    const key = site + '__2026__' + m;
+    const manual = visits[key];
+    const auto = autoVisits[key];
+    const visited = manual || auto;
+    const isAuto = !manual && !!auto;
+    const day = visited ? (manual || auto).day : null;
+
+    let inner = '';
+    if (visited) {
+      inner = `<span class="rtn-day-num">${day}</span>` + (isAuto ? `<span class="rtn-auto-badge">AUTO</span>` : '');
+    } else {
+      inner = `<span class="rtn-dot"></span>`;
+    }
+
+    cells += `<td class="rtn-td-cell${isCur ? ' cur-col' : ''}"><button class="rtn-cell-btn${visited ? ' visited' : ''}">${inner}</button></td>`;
+  }
+  tbody.innerHTML += `<tr>${cells}</tr>`;
+});
+</script>
+</body>
+</html>

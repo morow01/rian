@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Day Card Mockup</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: #eef1f6;
+    padding: 16px;
+    max-width: 480px;
+    margin: 0 auto;
+  }
+
+  .demo-label {
+    font-size: 10px;
+    color: #94a3b8;
+    text-align: center;
+    margin-bottom: 14px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  /* ── Day Card ── */
+  .day-card {
+    background: #ffffff;
+    border-radius: 14px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.07), 0 4px 12px rgba(0,0,0,0.05);
+    overflow: hidden;
+    margin-bottom: 12px;
+  }
+
+  /* ── Day Header ── */
+  .day-header {
+    display: flex;
+    align-items: center;
+    padding: 8px 12px 8px 8px;
+    gap: 10px;
+    cursor: pointer;
+  }
+
+  /* ── Date Badge ── */
+  .date-badge {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    min-width: 48px;
+    border-radius: 10px;
+    background: #1e2d4a;
+    color: #fff;
+    transition: background 0.2s;
+  }
+
+  /* ACTIVE state — only the badge changes colour */
+  .day-card.active .date-badge {
+    background: #F5A623;
+  }
+
+  /* TODAY state — example blue variant */
+  .day-card.today .date-badge {
+    background: #1d4ed8;
+  }
+
+  .date-badge .dow {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    opacity: 0.75;
+    line-height: 1;
+    margin-bottom: 3px;
+  }
+
+  .date-badge .dom {
+    font-size: 20px;
+    font-weight: 800;
+    line-height: 1;
+  }
+
+  /* ── Day Info (middle) ── */
+  .day-info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .day-name {
+    font-size: 15px;
+    font-weight: 700;
+    color: #0f172a;
+    margin-bottom: 5px;
+  }
+
+  .day-pills {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    flex-wrap: wrap;
+  }
+
+  .pill {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 20px;
+  }
+
+  .pill-tasks {
+    color: #64748b;
+    font-size: 10.5px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    padding: 0;
+  }
+
+  .pill-blue {
+    background: #dbeafe;
+    color: #1d4ed8;
+  }
+
+  .pill-amber {
+    background: #fef3c7;
+    color: #b45309;
+  }
+
+  /* ── Red warning dot (unchanged from real app) ── */
+  .dot-flash {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #ef4444;
+    flex-shrink: 0;
+    animation: pulse 1.4s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50%       { opacity: 0.45; transform: scale(0.85); }
+  }
+
+  /* ── Chevron ── */
+  .chevron-wrap {
+    flex-shrink: 0;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #cbd5e1;
+    transition: transform 0.25s cubic-bezier(0.4,0,0.2,1);
+  }
+
+  .day-card.expanded .chevron-wrap {
+    transform: rotate(90deg);
+  }
+
+  /* ── Tasks area (unchanged internals) ── */
+  .day-activities {
+    display: none;
+    padding: 0 10px 10px;
+    border-top: 1px solid #f1f5f9;
+  }
+
+  .day-card.expanded .day-activities {
+    display: block;
+  }
+
+  /* existing activity card style — not touching */
+  .activity-card {
+    background: #f8fafc;
+    border-radius: 10px;
+    padding: 10px 12px;
+    margin-top: 8px;
+    border: 1px solid #e2e8f0;
+  }
+
+  .act-top {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .act-code {
+    font-size: 11px;
+    font-weight: 700;
+    color: #fff;
+    background: #1e2d4a;
+    border-radius: 5px;
+    padding: 2px 7px;
+  }
+
+  .act-desc {
+    font-size: 13px;
+    font-weight: 600;
+    color: #0f172a;
+    flex: 1;
+  }
+
+  .act-hrs {
+    font-size: 12px;
+    font-weight: 700;
+    color: #1d4ed8;
+    background: #dbeafe;
+    border-radius: 5px;
+    padding: 2px 7px;
+  }
+
+  .act-hrs.ot { background: #fef3c7; color: #b45309; }
+
+  .act-note {
+    font-size: 12px;
+    color: #64748b;
+    margin-top: 5px;
+    line-height: 1.5;
+  }
+
+  /* add task button */
+  .add-task-btn {
+    margin: 8px 0 4px;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 11px;
+    border-radius: 10px;
+    border: 1.5px dashed #cbd5e1;
+    background: transparent;
+    font-size: 13px;
+    font-weight: 700;
+    color: #F5A623;
+    cursor: pointer;
+  }
+
+  /* ── Section label ── */
+  h3 {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #94a3b8;
+    margin: 20px 0 8px;
+  }
+  h3:first-of-type { margin-top: 0; }
+</style>
+</head>
+<body>
+
+<p class="demo-label">Day Card Mockup — Header only changes</p>
+
+<!-- ── INACTIVE DAY ── -->
+<h3>Inactive day</h3>
+<div class="day-card" onclick="this.classList.toggle('expanded')">
+  <div class="day-header">
+    <div class="date-badge">
+      <span class="dow">SAT</span>
+      <span class="dom">14</span>
+    </div>
+    <div class="day-info">
+      <div class="day-name">Saturday</div>
+      <div class="day-pills">
+        <span class="pill pill-tasks">2 tasks</span>
+        <span class="pill pill-blue">8h</span>
+        <span class="pill pill-amber">+2 OT</span>
+      </div>
+    </div>
+    <div class="chevron-wrap">
+      <svg width="8" height="13" viewBox="0 0 8 14" fill="none">
+        <path d="M1.5 1.5L6.5 7L1.5 12.5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+  </div>
+  <div class="day-activities">
+    <div class="activity-card">
+      <div class="act-top">
+        <span class="act-code">DUN</span>
+        <span class="act-desc">New installation</span>
+        <span class="act-hrs">4h</span>
+      </div>
+    </div>
+    <div class="activity-card">
+      <div class="act-top">
+        <span class="act-code">CLO</span>
+        <span class="act-desc">Cabinet audit</span>
+        <span class="act-hrs ot">+2 OT</span>
+      </div>
+      <div class="act-note">Checked all ports and updated labelling.</div>
+    </div>
+    <button class="add-task-btn">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Add Task
+    </button>
+  </div>
+</div>
+
+<!-- ── ACTIVE DAY (with warning dot) ── -->
+<h3>Active / current day — with warning dot</h3>
+<div class="day-card active expanded" onclick="this.classList.toggle('expanded')">
+  <div class="day-header">
+    <div class="date-badge">
+      <span class="dow">FRI</span>
+      <span class="dom">13</span>
+    </div>
+    <div class="day-info">
+      <div class="day-name">Friday</div>
+      <div class="day-pills">
+        <span class="pill pill-tasks">5 tasks</span>
+        <span class="pill pill-blue">12h</span>
+        <span class="pill pill-amber">+5 OT</span>
+        <span class="dot-flash" title="Missing work code"></span>
+      </div>
+    </div>
+    <div class="chevron-wrap">
+      <svg width="8" height="13" viewBox="0 0 8 14" fill="none">
+        <path d="M1.5 1.5L6.5 7L1.5 12.5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+  </div>
+  <div class="day-activities">
+    <div class="activity-card">
+      <div class="act-top">
+        <span class="act-code">BRN</span>
+        <span class="act-desc">Fault repair – fibre splice</span>
+        <span class="act-hrs">4h</span>
+      </div>
+      <div class="act-note">Replaced damaged splice tray at DP.</div>
+    </div>
+    <div class="activity-card">
+      <div class="act-top">
+        <span class="act-code">DUN</span>
+        <span class="act-desc">New installation</span>
+        <span class="act-hrs">3h</span>
+      </div>
+    </div>
+    <div class="activity-card">
+      <div class="act-top">
+        <span class="act-code">CLO</span>
+        <span class="act-desc">Cabinet audit</span>
+        <span class="act-hrs ot">+5 OT</span>
+      </div>
+    </div>
+    <button class="add-task-btn">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Add Task
+    </button>
+  </div>
+</div>
+
+</body>
+</html>

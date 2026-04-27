@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Callouts Desktop Mockups</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f0f2f5; color: #1a1a2e; }
+
+  /* ── Mockup switcher ── */
+  .switcher { display: flex; justify-content: center; gap: 8px; padding: 16px; background: #090e1c; }
+  .switcher button { padding: 10px 24px; border: 1px solid #334155; border-radius: 10px; background: transparent; color: #94a3b8; font-size: 14px; font-weight: 700; cursor: pointer; transition: all 0.2s; }
+  .switcher button.active { background: #2D6BE4; color: #fff; border-color: #2D6BE4; }
+  .switcher button:hover:not(.active) { background: #1e293b; color: #fff; }
+
+  .mockup { display: none; }
+  .mockup.active { display: block; }
+
+  .mock-label { text-align: center; padding: 10px; font-size: 12px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 1px; background: #e2e8f0; }
+
+  /* ── Shared tokens (matching Rian light theme) ── */
+  :root {
+    --accent: #2D6BE4;
+    --accent-light: rgba(45,107,228,0.1);
+    --bg-card: #ffffff;
+    --bg-page: #f0f2f5;
+    --bg-input: #F4F7FA;
+    --bg-code-group: #F0F2F5;
+    --border: #E2E8F0;
+    --text-primary: #1a1a2e;
+    --text-secondary: #475569;
+    --text-muted: #94a3b8;
+    --font-mono: 'DM Mono', monospace;
+    --priority-high: #ef4444;
+    --priority-low: #22c55e;
+    --shadow-rgb: 0,0,0;
+  }
+
+  /* ── Top nav bar (shared) ── */
+  .top-nav { display: flex; align-items: center; background: #0f1624; padding: 0 24px; height: 48px; border-bottom: 1px solid #1e293b; }
+  .top-nav .tab { padding: 12px 20px; font-size: 13px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; cursor: pointer; border-bottom: 3px solid transparent; }
+  .top-nav .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+  /* ── Shared styles ── */
+  .panel-hdr { padding: 10px 14px 8px; font-size: 10px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; border-bottom: 1px solid var(--border); line-height: 1.4; }
+
+  .stat-box { text-align: center; padding: 12px 8px; }
+  .stat-val { font-size: 22px; font-weight: 800; line-height: 1.2; }
+  .stat-label { font-size: 10px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; margin-top: 2px; }
+
+  .week-row { display: flex; align-items: center; gap: 10px; padding: 11px 14px; border-bottom: 1px solid var(--border); cursor: pointer; transition: background 0.15s; }
+  .week-row:hover { background: rgba(45,107,228,0.04); }
+  .week-row.selected { background: linear-gradient(to right, rgba(45,107,228,0.10), rgba(45,107,228,0.03)); border-left: 3px solid var(--accent); }
+  .week-row.current { border-left: 3px solid var(--accent); }
+
+  .task-num { width: 28px; height: 28px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 800; flex-shrink: 0; background: var(--accent-light); color: var(--accent); }
+  .task-num.red { background: rgba(239,68,68,0.1); color: #ef4444; }
+  .task-num.amber { background: #FEF3C7; color: #F59E0B; }
+
+  .callout-row { display: flex; align-items: center; gap: 10px; padding: 11px 14px; border-bottom: 1px solid var(--border); cursor: pointer; transition: background 0.15s; }
+  .callout-row:hover { background: rgba(45,107,228,0.04); }
+  .callout-row.selected { background: linear-gradient(to right, rgba(45,107,228,0.10), rgba(45,107,228,0.03)); border-left: 3px solid var(--accent); }
+
+  .co-title { font-size: 13px; font-weight: 600; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .co-meta { font-size: 11px; color: var(--text-muted); display: flex; gap: 8px; align-items: center; margin-top: 2px; }
+  .co-site { display: flex; align-items: center; gap: 2px; }
+
+  .pill { display: inline-flex; align-items: center; padding: 2px 7px; border-radius: 6px; font-size: 11px; font-weight: 600; }
+  .pill-blue { background: var(--accent-light); color: var(--accent); }
+  .pill-green { background: rgba(34,197,94,0.1); color: #22c55e; }
+  .pill-amber { background: #FEF3C7; color: #F59E0B; }
+  .pill-mono { font-family: var(--font-mono); background: var(--bg-code-group); color: var(--text-secondary); font-size: 10px; }
+
+  .field-label { font-size: 10px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; }
+  .field-input { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 12px; font-size: 14px; background: var(--bg-input); color: var(--text-primary); font-family: inherit; }
+  .field-input::placeholder { color: var(--text-muted); }
+
+  .btn-primary { display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; border-radius: 8px; border: 1px solid var(--accent); background: var(--bg-card); color: var(--accent); font-size: 13px; font-weight: 600; cursor: pointer; }
+  .btn-accent { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .btn-danger { background: rgba(239,68,68,0.08); color: #ef4444; border: 1px solid rgba(239,68,68,0.3); }
+
+  .day-label { font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; padding: 10px 14px 4px; }
+
+  .add-btn { display: flex; align-items: center; justify-content: center; gap: 6px; padding: 10px; border-radius: 10px; border: 1px dashed var(--border); background: var(--bg-card); font-size: 13px; font-weight: 700; color: var(--accent); cursor: pointer; margin: 8px 14px; }
+
+  .schedule-btn { display: flex; align-items: center; gap: 6px; padding: 7px 12px; background: var(--accent); color: #fff; border: none; border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer; }
+
+  /* ── OPTION A: Two-panel ── */
+  .two-panel { display: flex; min-height: calc(100vh - 120px); border-top: 1px solid var(--border); }
+  .two-panel .panel-left { width: 340px; background: var(--bg-card); border-right: 1px solid var(--border); display: flex; flex-direction: column; overflow-y: auto; flex-shrink: 0; }
+  .two-panel .panel-right { flex: 1; background: var(--bg-card); overflow-y: auto; }
+
+  .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); border-bottom: 1px solid var(--border); }
+  .stats-row .stat-box { border-right: 1px solid var(--border); }
+  .stats-row .stat-box:last-child { border-right: none; }
+
+  /* ── OPTION B: Three-panel ── */
+  .three-panel { display: flex; min-height: calc(100vh - 120px); border-top: 1px solid var(--border); }
+  .three-panel .panel-weeks { width: 280px; background: var(--bg-card); border-right: 1px solid var(--border); display: flex; flex-direction: column; overflow-y: auto; flex-shrink: 0; }
+  .three-panel .panel-callouts { width: 360px; background: var(--bg-card); border-right: 1px solid var(--border); display: flex; flex-direction: column; overflow-y: auto; flex-shrink: 0; }
+  .three-panel .panel-detail { flex: 1; background: var(--bg-card); overflow-y: auto; }
+
+  /* ── OPTION C: Dashboard ── */
+  .dashboard { min-height: calc(100vh - 120px); border-top: 1px solid var(--border); background: var(--bg-card); }
+  .dash-header { display: flex; align-items: center; justify-content: space-between; padding: 16px 24px; border-bottom: 1px solid var(--border); }
+  .dash-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; padding: 16px 24px; border-bottom: 1px solid var(--border); }
+  .dash-stat-card { background: var(--bg-input); border-radius: 12px; padding: 14px 16px; text-align: center; }
+  .dash-table-wrap { padding: 0 24px 24px; }
+  .dash-table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+  .dash-table th { text-align: left; font-size: 10px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; padding: 10px 12px; border-bottom: 1px solid var(--border); }
+  .dash-table td { padding: 12px; border-bottom: 1px solid var(--border); font-size: 13px; color: var(--text-primary); vertical-align: middle; }
+  .dash-table tr:hover { background: rgba(45,107,228,0.03); }
+  .dash-table .day-group td { background: var(--bg-input); font-weight: 700; font-size: 11px; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.5px; padding: 8px 12px; }
+
+  /* Pin SVG inline */
+  .pin-icon { display: inline-block; vertical-align: -2px; margin-right: 2px; width: 13px; height: 13px; }
+</style>
+</head>
+<body>
+
+<!-- Mockup switcher -->
+<div class="switcher">
+  <button class="active" onclick="showMock('a')">Option A — Two-Panel</button>
+  <button onclick="showMock('b')">Option B — Three-Panel</button>
+  <button onclick="showMock('c')">Option C — Dashboard Table</button>
+</div>
+
+<!-- ════════════════════════════════════════════ -->
+<!-- OPTION A: Two-Panel                         -->
+<!-- ════════════════════════════════════════════ -->
+<div class="mockup active" id="mock-a">
+  <div class="mock-label">Option A — Week list + Callout detail (like Notes desktop)</div>
+  <div class="top-nav">
+    <div class="tab">Timesheet</div>
+    <div class="tab">Notes</div>
+    <div class="tab">Journal</div>
+    <div class="tab active">Callouts</div>
+    <div class="tab">Finder</div>
+    <div class="tab">Routines</div>
+  </div>
+
+  <div class="two-panel">
+    <!-- Left: Week list + stats -->
+    <div class="panel-left">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-bottom:1px solid var(--border)">
+        <span style="font-size:15px;font-weight:700;">Callouts</span>
+        <button class="schedule-btn" onclick="">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          Schedule
+        </button>
+      </div>
+
+      <div class="stats-row">
+        <div class="stat-box"><div class="stat-val" style="color:var(--accent)">18</div><div class="stat-label">On-Call<br>Weeks</div></div>
+        <div class="stat-box"><div class="stat-val" style="color:#F59E0B">3</div><div class="stat-label">Extra<br>Shifts</div></div>
+        <div class="stat-box"><div class="stat-val" style="color:var(--priority-high)">42</div><div class="stat-label">Total<br>Incidents</div></div>
+        <div class="stat-box"><div class="stat-val" style="color:#8B5CF6">2.3</div><div class="stat-label">Avg /<br>Week</div></div>
+      </div>
+
+      <div class="panel-hdr">Current Week</div>
+      <div class="week-row selected current">
+        <div class="task-num">3</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:13px;font-weight:600">17 Apr – 23 Apr</div>
+          <div style="font-size:11px;color:var(--text-muted);margin-top:1px">3 incidents · <span style="color:var(--priority-low);font-weight:600">Current week</span></div>
+        </div>
+        <span style="color:var(--text-muted)">›</span>
+      </div>
+
+      <div class="panel-hdr">Previous Weeks</div>
+      <div class="week-row">
+        <div class="task-num">5</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:13px;font-weight:600">10 Apr – 16 Apr</div>
+          <div style="font-size:11px;color:var(--text-muted);margin-top:1px">5 incidents</div>
+        </div>
+        <span style="color:var(--text-muted)">›</span>
+      </div>
+      <div class="week-row">
+        <div class="task-num amber">2</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:13px;font-weight:600">3 Apr – 9 Apr <span class="pill pill-amber" style="margin-left:4px;font-size:9px">EXTRA SHIFT</span></div>
+          <div style="font-size:11px;color:var(--text-muted);margin-top:1px">2 incidents</div>
+        </div>
+        <span style="color:var(--text-muted)">›</span>
+      </div>
+      <div class="week-row">
+        <div class="task-num">0</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:13px;font-weight:600">13 Mar – 19 Mar</div>
+          <div style="font-size:11px;color:var(--text-muted);margin-top:1px">0 incidents</div>
+        </div>
+        <span style="color:var(--text-muted)">›</span>
+      </div>
+      <div class="week-row">
+        <div class="task-num">1</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:13px;font-weight:600">6 Mar – 12 Mar</div>
+          <div style="font-size:11px;color:var(--text-muted);margin-top:1px">1 incident</div>
+        </div>
+        <span style="color:var(--text-muted)">›</span>
+      </div>
+    </div>
+
+    <!-- Right: Selected week's callouts with inline detail -->
+    <div class="panel-right">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--border)">
+        <div>
+          <div style="font-size:15px;font-weight:700">17 Apr – 23 Apr</div>
+          <div style="font-size:12px;color:var(--text-muted)">3 callouts · <span style="color:var(--priority-low);font-weight:600">Current week</span></div>
+        </div>
+        <button class="btn-primary">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="4" rx="1"/><rect x="4" y="4" width="16" height="18" rx="2"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="8" y1="16" x2="12" y2="16"/></svg>
+          Paste Fault
+        </button>
+      </div>
+
+      <div style="padding:8px 16px">
+        <div class="day-label">Friday 17 Apr</div>
+
+        <!-- Callout 1 — expanded style showing all fields -->
+        <div style="background:var(--bg-card);border:1px solid var(--accent);border-radius:14px;margin:6px 0 10px;overflow:hidden">
+          <div style="display:flex;align-items:flex-start;gap:12px;padding:14px 16px;border-bottom:1px solid var(--border)">
+            <div class="task-num">1</div>
+            <div style="flex:1;min-width:0">
+              <div style="font-size:14px;font-weight:600">EXTERNAL ALARM: AC MAINS FAIL</div>
+              <div class="co-meta" style="margin-top:4px">
+                <span class="co-site">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="#e8453c"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 010-5 2.5 2.5 0 010 5z"/></svg>
+                  Collins Lane (NAS)
+                </span>
+                <span class="pill pill-mono">R23482335</span>
+                <span style="display:flex;align-items:center;gap:2px">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                  02:30
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Detail fields -->
+          <div style="padding:14px 16px;display:grid;grid-template-columns:1fr 1fr;gap:14px">
+            <div>
+              <div class="field-label">Date</div>
+              <input type="date" class="field-input" value="2026-04-17">
+            </div>
+            <div>
+              <div class="field-label">Ticket Number</div>
+              <input class="field-input" value="R23482335" style="font-family:var(--font-mono)">
+            </div>
+            <div>
+              <div class="field-label">Location</div>
+              <input class="field-input" value="Collins Lane (NAS)" readonly style="cursor:pointer">
+            </div>
+            <div>
+              <div class="field-label">Engineer On Site</div>
+              <input type="time" class="field-input" value="02:30">
+            </div>
+            <div style="grid-column:1/-1">
+              <div class="field-label">Fault Description</div>
+              <textarea class="field-input" rows="2" style="resize:vertical">EXTERNAL ALARM: AC MAINS FAIL</textarea>
+            </div>
+            <div style="grid-column:1/-1">
+              <div class="field-label">Notes</div>
+              <div class="field-input" style="min-height:60px;color:var(--text-muted);font-size:13px;cursor:pointer">+ Add a note…</div>
+            </div>
+            <div style="grid-column:1/-1;display:flex;gap:8px;justify-content:flex-end">
+              <button class="btn-danger" style="border-radius:10px;padding:10px 20px">Delete</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="day-label">Saturday 18 Apr</div>
+
+        <!-- Callout 2 — collapsed -->
+        <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:14px;margin:6px 0 8px;padding:11px 14px;display:flex;align-items:center;gap:10px;cursor:pointer">
+          <div class="task-num">2</div>
+          <div style="flex:1;min-width:0">
+            <div class="co-title">BATTERY DISCONNECT</div>
+            <div class="co-meta">
+              <span class="co-site">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="#e8453c"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 010-5 2.5 2.5 0 010 5z"/></svg>
+                Maynooth (MYN)
+              </span>
+              <span class="pill pill-mono">R23491002</span>
+              <span style="display:flex;align-items:center;gap:2px">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                14:15
+              </span>
+            </div>
+          </div>
+          <span style="color:var(--text-muted)">›</span>
+        </div>
+
+        <!-- Callout 3 — collapsed -->
+        <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:14px;margin:6px 0 8px;padding:11px 14px;display:flex;align-items:center;gap:10px;cursor:pointer">
+          <div class="task-num">3</div>
+          <div style="flex:1;min-width:0">
+            <div class="co-title">DOOR ALARM — CABINET OPEN</div>
+            <div class="co-meta">
+              <span class="co-site">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="#e8453c"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 010-5 2.5 2.5 0 010 5z"/></svg>
+                Celbridge (CEB)
+              </span>
+              <span class="pill pill-mono">R23491887</span>
+            </div>
+          </div>
+          <span style="color:var(--text-muted)">›</span>
+        </div>
+
+        <div class="add-btn">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Add Callout
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════ -->
+<!-- OPTION B: Three-Panel                       -->
+<!-- ════════════════════════════════════════════ -->
+<div class="mockup" id="mock-b">
+  <div class="mock-label">Option B — Weeks → Callouts → Detail (like Timesheet desktop)</div>
+  <div class="top-nav">
+    <div class="tab">Timesheet</div>
+    <div class="tab">Notes</div>
+    <div class="tab">Journal</div>
+    <div class="tab active">Callouts</div>
+    <div class="tab">Finder</div>
+    <div class="tab">Routines</div>
+  </div>
+
+  <div class="three-panel">
+    <!-- Panel 1: Weeks -->
+    <div class="panel-weeks">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-bottom:1px solid var(--border)">
+        <span style="font-size:13px;font-weight:700;">On-Call Weeks</span>
+        <button class="schedule-btn" style="padding:5px 10px;font-size:11px">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          Schedule
+        </button>
+      </div>
+
+      <div class="panel-hdr">Current</div>
+      <div class="week-row selected current">
+        <div class="task-num">3</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:12px;font-weight:600">17 Apr – 23 Apr</div>
+          <div style="font-size:10px;color:var(--priority-low);font-weight:600;margin-top:1px">Current week</div>
+        </div>
+      </div>
+
+      <div class="panel-hdr">Previous</div>
+      <div class="week-row">
+        <div class="task-num">5</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:12px;font-weight:600">10 Apr – 16 Apr</div>
+          <div style="font-size:10px;color:var(--text-muted);margin-top:1px">5 incidents</div>
+        </div>
+      </div>
+      <div class="week-row">
+        <div class="task-num amber">2</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:12px;font-weight:600">3 Apr – 9 Apr</div>
+          <div style="font-size:10px;color:#F59E0B;font-weight:600;margin-top:1px">Extra shift</div>
+        </div>
+      </div>
+      <div class="week-row">
+        <div class="task-num">0</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:12px;font-weight:600">13 Mar – 19 Mar</div>
+          <div style="font-size:10px;color:var(--text-muted);margin-top:1px">0 incidents</div>
+        </div>
+      </div>
+      <div class="week-row">
+        <div class="task-num">1</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:12px;font-weight:600">6 Mar – 12 Mar</div>
+          <div style="font-size:10px;color:var(--text-muted);margin-top:1px">1 incident</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Panel 2: Callouts list -->
+    <div class="panel-callouts">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--border)">
+        <div>
+          <div style="font-size:13px;font-weight:700">17 Apr – 23 Apr</div>
+          <div style="font-size:11px;color:var(--text-muted)">3 callouts</div>
+        </div>
+        <button class="btn-primary" style="font-size:11px;padding:5px 10px">Paste Fault</button>
+      </div>
+
+      <div class="day-label">Friday 17 Apr</div>
+      <div class="callout-row selected">
+        <div class="task-num">1</div>
+        <div style="flex:1;min-width:0">
+          <div class="co-title">EXTERNAL ALARM: AC MAINS FAIL</div>
+          <div class="co-meta">
+            <span class="co-site">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="#e8453c"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 010-5 2.5 2.5 0 010 5z"/></svg>
+              Collins Lane
+            </span>
+            <span class="pill pill-mono">R23482335</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="day-label">Saturday 18 Apr</div>
+      <div class="callout-row">
+        <div class="task-num">2</div>
+        <div style="flex:1;min-width:0">
+          <div class="co-title">BATTERY DISCONNECT</div>
+          <div class="co-meta">
+            <span class="co-site">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="#e8453c"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 010-5 2.5 2.5 0 010 5z"/></svg>
+              Maynooth
+            </span>
+            <span class="pill pill-mono">R23491002</span>
+          </div>
+        </div>
+      </div>
+      <div class="callout-row">
+        <div class="task-num">3</div>
+        <div style="flex:1;min-width:0">
+          <div class="co-title">DOOR ALARM — CABINET OPEN</div>
+          <div class="co-meta">
+            <span class="co-site">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="#e8453c"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 010-5 2.5 2.5 0 010 5z"/></svg>
+              Celbridge
+            </span>
+            <span class="pill pill-mono">R23491887</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="add-btn">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Add Callout
+      </div>
+    </div>
+
+    <!-- Panel 3: Detail -->
+    <div class="panel-detail">
+      <div style="display:flex;align-items:center;gap:10px;padding:14px 20px;border-bottom:1px solid var(--border)">
+        <div class="task-num" style="width:32px;height:32px;font-size:14px">1</div>
+        <div style="flex:1">
+          <div style="font-size:15px;font-weight:700">EXTERNAL ALARM: AC MAINS FAIL</div>
+          <div style="font-size:12px;color:var(--text-muted);margin-top:2px">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="#e8453c" style="vertical-align:-2px"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 010-5 2.5 2.5 0 010 5z"/></svg>
+            Collins Lane (NAS) · <span style="font-family:var(--font-mono)">R23482335</span> · 02:30
+          </div>
+        </div>
+      </div>
+
+      <div style="padding:20px;display:flex;flex-direction:column;gap:16px;max-width:600px">
+        <div>
+          <div class="field-label">Date</div>
+          <input type="date" class="field-input" value="2026-04-17">
+        </div>
+        <div>
+          <div class="field-label">Ticket Number</div>
+          <input class="field-input" value="R23482335" style="font-family:var(--font-mono)">
+        </div>
+        <div>
+          <div class="field-label">Location</div>
+          <input class="field-input" value="Collins Lane (NAS)" readonly style="cursor:pointer">
+        </div>
+        <div>
+          <div class="field-label">Fault Description</div>
+          <textarea class="field-input" rows="2" style="resize:vertical">EXTERNAL ALARM: AC MAINS FAIL</textarea>
+        </div>
+        <div>
+          <div class="field-label">Notes</div>
+          <div class="field-input" style="min-height:80px;color:var(--text-muted);font-size:13px;cursor:pointer">+ Add a note…</div>
+        </div>
+        <div>
+          <div class="field-label">Engineer On Site</div>
+          <input type="time" class="field-input" value="02:30">
+        </div>
+        <div style="display:flex;gap:8px;padding-top:8px">
+          <button class="btn-danger" style="border-radius:10px;padding:10px 20px;flex:1">Delete</button>
+          <button style="border-radius:10px;padding:10px 20px;flex:0;background:none;border:1px solid var(--border);color:var(--text-muted);font-size:13px;font-weight:600;cursor:pointer;min-width:44px">•••</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════ -->
+<!-- OPTION C: Dashboard + Table                 -->
+<!-- ════════════════════════════════════════════ -->
+<div class="mockup" id="mock-c">
+  <div class="mock-label">Option C — Dashboard with table view (admin/spreadsheet feel)</div>
+  <div class="top-nav">
+    <div class="tab">Timesheet</div>
+    <div class="tab">Notes</div>
+    <div class="tab">Journal</div>
+    <div class="tab active">Callouts</div>
+    <div class="tab">Finder</div>
+    <div class="tab">Routines</div>
+  </div>
+
+  <div class="dashboard">
+    <div class="dash-header">
+      <div style="display:flex;align-items:center;gap:12px">
+        <span style="font-size:17px;font-weight:700">Callouts</span>
+        <div style="display:flex;gap:4px">
+          <button style="padding:6px 12px;border:1px solid var(--border);border-radius:8px;background:var(--bg-card);font-size:12px;font-weight:600;color:var(--text-muted);cursor:pointer">‹</button>
+          <span style="padding:6px 14px;border:1px solid var(--accent);border-radius:8px;background:var(--accent-light);font-size:13px;font-weight:700;color:var(--accent)">17 Apr – 23 Apr</span>
+          <button style="padding:6px 12px;border:1px solid var(--border);border-radius:8px;background:var(--bg-card);font-size:12px;font-weight:600;color:var(--text-muted);cursor:pointer">›</button>
+        </div>
+        <span class="pill pill-green" style="font-size:11px;padding:3px 8px">Current Week</span>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button class="btn-primary">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="4" rx="1"/><rect x="4" y="4" width="16" height="18" rx="2"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="8" y1="16" x2="12" y2="16"/></svg>
+          Paste Fault
+        </button>
+        <button class="schedule-btn">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          Schedule
+        </button>
+      </div>
+    </div>
+
+    <div class="dash-stats">
+      <div class="dash-stat-card">
+        <div class="stat-val" style="color:var(--accent)">18</div>
+        <div class="stat-label">On-Call Weeks</div>
+      </div>
+      <div class="dash-stat-card">
+        <div class="stat-val" style="color:#F59E0B">3</div>
+        <div class="stat-label">Extra Shifts</div>
+      </div>
+      <div class="dash-stat-card">
+        <div class="stat-val" style="color:var(--priority-high)">42</div>
+        <div class="stat-label">Total Incidents</div>
+      </div>
+      <div class="dash-stat-card">
+        <div class="stat-val" style="color:#8B5CF6">2.3</div>
+        <div class="stat-label">Avg / Week</div>
+      </div>
+    </div>
+
+    <div class="dash-table-wrap">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0">
+        <span style="font-size:14px;font-weight:700">3 Callouts this week</span>
+        <div class="add-btn" style="margin:0;padding:7px 14px;width:auto;display:inline-flex">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Add Callout
+        </div>
+      </div>
+
+      <table class="dash-table">
+        <thead>
+          <tr>
+            <th style="width:30px">#</th>
+            <th>Fault</th>
+            <th>Site</th>
+            <th>Ticket</th>
+            <th>Time</th>
+            <th>Date</th>
+            <th style="width:50px"></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="day-group"><td colspan="7">Friday 17 Apr — 1 callout</td></tr>
+          <tr style="background:rgba(45,107,228,0.04)">
+            <td><div class="task-num" style="width:24px;height:24px;font-size:11px">1</div></td>
+            <td style="font-weight:600">EXTERNAL ALARM: AC MAINS FAIL</td>
+            <td>
+              <span style="display:flex;align-items:center;gap:2px">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="#e8453c"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 010-5 2.5 2.5 0 010 5z"/></svg>
+                Collins Lane (NAS)
+              </span>
+            </td>
+            <td><span class="pill pill-mono">R23482335</span></td>
+            <td>02:30</td>
+            <td>17 Apr</td>
+            <td><button style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:16px">•••</button></td>
+          </tr>
+
+          <tr class="day-group"><td colspan="7">Saturday 18 Apr — 2 callouts</td></tr>
+          <tr>
+            <td><div class="task-num" style="width:24px;height:24px;font-size:11px">2</div></td>
+            <td style="font-weight:600">BATTERY DISCONNECT</td>
+            <td>
+              <span style="display:flex;align-items:center;gap:2px">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="#e8453c"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 010-5 2.5 2.5 0 010 5z"/></svg>
+                Maynooth (MYN)
+              </span>
+            </td>
+            <td><span class="pill pill-mono">R23491002</span></td>
+            <td>14:15</td>
+            <td>18 Apr</td>
+            <td><button style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:16px">•••</button></td>
+          </tr>
+          <tr>
+            <td><div class="task-num" style="width:24px;height:24px;font-size:11px">3</div></td>
+            <td style="font-weight:600">DOOR ALARM — CABINET OPEN</td>
+            <td>
+              <span style="display:flex;align-items:center;gap:2px">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="#e8453c"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 010-5 2.5 2.5 0 010 5z"/></svg>
+                Celbridge (CEB)
+              </span>
+            </td>
+            <td><span class="pill pill-mono">R23491887</span></td>
+            <td>—</td>
+            <td>18 Apr</td>
+            <td><button style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:16px">•••</button></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+  function showMock(id) {
+    document.querySelectorAll('.mockup').forEach(m => m.classList.remove('active'));
+    document.querySelectorAll('.switcher button').forEach(b => b.classList.remove('active'));
+    document.getElementById('mock-' + id).classList.add('active');
+    document.querySelectorAll('.switcher button').forEach(b => {
+      if (b.textContent.toLowerCase().includes('option ' + id)) b.classList.add('active');
+    });
+  }
+</script>
+</body>
+</html>

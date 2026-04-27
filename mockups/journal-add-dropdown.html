@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Journal + Dropdown — Mockup</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #e8edf3; color: #1e293b; padding: 32px; }
+
+  h1 { font-size: 16px; font-weight: 800; color: #1e293b; margin-bottom: 6px; }
+  .subtitle { font-size: 13px; color: #64748b; margin-bottom: 32px; }
+
+  .row { display: flex; gap: 40px; flex-wrap: wrap; align-items: flex-start; }
+
+  .card {
+    background: #fff; border-radius: 14px; overflow: visible;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.09); border: 1px solid #e2e8f0;
+    width: 260px; flex-shrink: 0;
+  }
+  .card-label {
+    font-size: 10px; font-weight: 800; text-transform: uppercase;
+    letter-spacing: 0.07em; color: #64748b; margin-bottom: 10px;
+  }
+  .verdict {
+    margin-top: 12px; font-size: 12px; color: #475569; line-height: 1.5;
+    padding: 10px 12px; background: #f8fafc; border-radius: 8px;
+    border-left: 3px solid #2D6BE4; width: 260px;
+  }
+  .verdict strong { color: #1e293b; }
+  .rec { border-left-color: #22c55e; }
+
+  /* ── Shared header ── */
+  .panel-hdr {
+    height: 40px; padding: 0 14px;
+    display: flex; align-items: center; justify-content: space-between;
+    border-bottom: 1px solid #e2e8f0;
+    font-size: 10px; font-weight: 800; letter-spacing: 0.1em;
+    text-transform: uppercase; color: #94a3b8;
+    position: relative;
+  }
+
+  /* ── + button ── */
+  .add-btn {
+    width: 24px; height: 24px; border-radius: 50%;
+    border: 1px solid #e2e8f0; background: #f1f5f9;
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    color: #334155; font-size: 16px; font-weight: 300; line-height: 1;
+    flex-shrink: 0; transition: all 0.12s; position: relative;
+  }
+  .add-btn:hover, .add-btn.open { background: #2D6BE4; border-color: #2D6BE4; color: #fff; }
+
+  /* ── Section rows ── */
+  .sec-list { padding: 6px 0; }
+  .sec-row {
+    display: flex; align-items: center; gap: 8px;
+    padding: 7px 14px; cursor: pointer; transition: background 0.1s;
+  }
+  .sec-row:hover { background: #f8fafc; }
+  .sec-row.active { background: #eff6ff; }
+  .sec-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .sec-name { font-size: 13px; color: #475569; }
+  .sec-row.active .sec-name { color: #2D6BE4; font-weight: 600; }
+  .sec-count { font-size: 11px; color: #94a3b8; margin-left: auto; }
+
+  /* ── Old inline button ── */
+  .add-sec-inline {
+    display: flex; align-items: center; gap: 5px;
+    padding: 6px 14px 10px; color: #94a3b8; font-size: 12px;
+    font-weight: 600; cursor: pointer; transition: color 0.12s;
+  }
+  .add-sec-inline:hover { color: #2D6BE4; }
+  .add-sec-inline svg { flex-shrink: 0; }
+
+  /* ══ OPTION A: Simple dropdown ══ */
+  .dropdown-a {
+    position: absolute; top: calc(100% + 6px); right: 10px;
+    background: #fff; border: 1px solid #e2e8f0; border-radius: 10px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.12); min-width: 180px;
+    z-index: 100; overflow: hidden; display: none;
+  }
+  .dropdown-a.open { display: block; }
+  .dd-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 14px; cursor: pointer; font-size: 13px;
+    font-weight: 600; color: #1e293b; transition: background 0.1s;
+    border: none; background: transparent; width: 100%;
+    font-family: inherit; text-align: left;
+  }
+  .dd-item:hover { background: #f8fafc; }
+  .dd-item.disabled { color: #94a3b8; cursor: not-allowed; }
+  .dd-item.disabled:hover { background: transparent; }
+  .dd-icon {
+    width: 28px; height: 28px; border-radius: 7px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; font-size: 14px;
+  }
+  .dd-item-body { display: flex; flex-direction: column; gap: 1px; }
+  .dd-item-sub { font-size: 11px; font-weight: 400; color: #94a3b8; }
+  .dd-sep { height: 1px; background: #f1f5f9; margin: 2px 0; }
+
+  /* ══ OPTION B: Rich dropdown with context ══ */
+  .dropdown-b {
+    position: absolute; top: calc(100% + 6px); right: 10px;
+    background: #fff; border: 1px solid #e2e8f0; border-radius: 12px;
+    box-shadow: 0 8px 28px rgba(0,0,0,0.13); width: 220px;
+    z-index: 100; display: none;
+  }
+  .dropdown-b.open { display: block; }
+  .dd-b-hdr {
+    padding: 10px 14px 8px; font-size: 10px; font-weight: 800;
+    letter-spacing: 0.07em; text-transform: uppercase; color: #94a3b8;
+    border-bottom: 1px solid #f1f5f9;
+  }
+  .dd-b-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 14px; cursor: pointer; font-size: 13px;
+    font-weight: 600; color: #1e293b; transition: background 0.1s;
+    border: none; background: transparent; width: 100%;
+    font-family: inherit; text-align: left;
+  }
+  .dd-b-item:hover { background: #f8fafc; }
+  .dd-b-item:last-child { border-radius: 0 0 12px 12px; }
+  .dd-b-ctx {
+    padding: 8px 14px; font-size: 11px; color: #94a3b8;
+    background: #fafafa; border-radius: 0 0 12px 12px;
+    border-top: 1px solid #f1f5f9;
+    display: flex; align-items: center; gap: 6px;
+  }
+
+  /* ══ OPTION C: Split header ══ */
+  .split-hdr {
+    height: 40px; padding: 0 14px;
+    display: flex; align-items: center;
+    border-bottom: 1px solid #e2e8f0;
+    font-size: 10px; font-weight: 800; letter-spacing: 0.1em;
+    text-transform: uppercase; color: #94a3b8;
+    gap: 6px;
+  }
+  .split-hdr span { flex: 1; }
+  .add-btn-sm {
+    height: 22px; border-radius: 6px;
+    border: 1px solid #e2e8f0; background: #f1f5f9;
+    cursor: pointer; display: flex; align-items: center;
+    justify-content: center; gap: 4px;
+    color: #475569; font-size: 11px; font-weight: 700;
+    padding: 0 8px; white-space: nowrap; transition: all 0.12s;
+    font-family: inherit;
+  }
+  .add-btn-sm:hover { background: #2D6BE4; border-color: #2D6BE4; color: #fff; }
+
+  /* ══ Current state (for comparison) ══ */
+  .nb-hdr-row {
+    display: flex; align-items: center;
+    padding: 5px 10px 4px 14px;
+    font-size: 11px; font-weight: 800; letter-spacing: 0.06em;
+    text-transform: uppercase; color: #94a3b8; margin-top: 4px;
+  }
+  .nb-title { flex: 1; }
+</style>
+</head>
+<body>
+
+<h1>Journal — Add Notebook / Section: Options</h1>
+<p class="subtitle">Click the + buttons to see the dropdowns in action</p>
+
+<div class="row">
+
+  <!-- ── CURRENT (for reference) ── -->
+  <div>
+    <div class="card-label">Current (problem)</div>
+    <div class="card">
+      <div class="panel-hdr">
+        Notebooks
+        <button class="add-btn" title="Add notebook">+</button>
+      </div>
+      <div class="nb-hdr-row"><span class="nb-title">📓 Field Work 3</span></div>
+      <div class="sec-list">
+        <div class="sec-row"><div class="sec-dot" style="background:#4d94ff"></div><span class="sec-name">January 2026</span><span class="sec-count">1</span></div>
+        <div class="sec-row active"><div class="sec-dot" style="background:#fb923c"></div><span class="sec-name">March 2026</span><span class="sec-count">2</span></div>
+        <div class="sec-row"><div class="sec-dot" style="background:#f87171"></div><span class="sec-name">April 2026</span><span class="sec-count">5</span></div>
+        <div class="sec-row"><div class="sec-dot" style="background:#f59e0b"></div><span class="sec-name">October 2025</span><span class="sec-count">2</span></div>
+        <!-- This is the problem — buried at the bottom -->
+        <div class="add-sec-inline">
+          <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Add Section
+        </div>
+      </div>
+    </div>
+    <div class="verdict">Problem: <strong>"+ Add Section"</strong> buried at the bottom — invisible when section list is long.</div>
+  </div>
+
+  <!-- ── OPTION A: Single + with dropdown ── -->
+  <div>
+    <div class="card-label">Option A — Single + dropdown</div>
+    <div class="card" style="overflow:visible">
+      <div class="panel-hdr" id="hdr-a">
+        Notebooks
+        <button class="add-btn" id="btn-a" onclick="toggleA()" title="Add…">+</button>
+        <!-- Dropdown -->
+        <div class="dropdown-a" id="dd-a">
+          <button class="dd-item" onclick="closeA()">
+            <div class="dd-icon" style="background:#eff6ff">📓</div>
+            <div class="dd-item-body">
+              <span>Add Notebook</span>
+            </div>
+          </button>
+          <div class="dd-sep"></div>
+          <button class="dd-item" onclick="closeA()">
+            <div class="dd-icon" style="background:#fff7ed">
+              <svg width="14" height="14" fill="none" stroke="#fb923c" stroke-width="2" viewBox="0 0 24 24"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+            </div>
+            <div class="dd-item-body">
+              <span>Add Section</span>
+              <span class="dd-item-sub">to Field Work 3</span>
+            </div>
+          </button>
+        </div>
+      </div>
+      <div class="nb-hdr-row"><span class="nb-title">📓 Field Work 3</span></div>
+      <div class="sec-list">
+        <div class="sec-row"><div class="sec-dot" style="background:#4d94ff"></div><span class="sec-name">January 2026</span><span class="sec-count">1</span></div>
+        <div class="sec-row active"><div class="sec-dot" style="background:#fb923c"></div><span class="sec-name">March 2026</span><span class="sec-count">2</span></div>
+        <div class="sec-row"><div class="sec-dot" style="background:#f87171"></div><span class="sec-name">April 2026</span><span class="sec-count">5</span></div>
+        <div class="sec-row"><div class="sec-dot" style="background:#f59e0b"></div><span class="sec-name">October 2025</span><span class="sec-count">2</span></div>
+      </div>
+    </div>
+    <div class="verdict rec">
+      <strong>Recommended.</strong> Single + opens a 2-item menu. "Add Section" shows "to Field Work 3" as subtitle — zero ambiguity. No inline button, no scroll issue. Clean header.
+    </div>
+  </div>
+
+  <!-- ── OPTION B: Richer dropdown with context ── -->
+  <div>
+    <div class="card-label">Option B — Rich dropdown</div>
+    <div class="card" style="overflow:visible">
+      <div class="panel-hdr" id="hdr-b">
+        Notebooks
+        <button class="add-btn" id="btn-b" onclick="toggleB()" title="Add…">+</button>
+        <div class="dropdown-b" id="dd-b">
+          <div class="dd-b-hdr">Add to journal</div>
+          <button class="dd-b-item" onclick="closeB()">
+            <div class="dd-icon" style="background:#eff6ff;font-size:16px">📓</div>
+            <div class="dd-item-body">
+              <span>New Notebook</span>
+              <span class="dd-item-sub">Top-level collection</span>
+            </div>
+          </button>
+          <button class="dd-b-item" onclick="closeB()">
+            <div class="dd-icon" style="background:#fff7ed">
+              <svg width="14" height="14" fill="none" stroke="#fb923c" stroke-width="2" viewBox="0 0 24 24"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+            </div>
+            <div class="dd-item-body">
+              <span>New Section</span>
+              <span class="dd-item-sub">Inside Field Work 3</span>
+            </div>
+          </button>
+          <div class="dd-b-ctx">
+            <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            Selected: Field Work 3
+          </div>
+        </div>
+      </div>
+      <div class="nb-hdr-row"><span class="nb-title">📓 Field Work 3</span></div>
+      <div class="sec-list">
+        <div class="sec-row"><div class="sec-dot" style="background:#4d94ff"></div><span class="sec-name">January 2026</span><span class="sec-count">1</span></div>
+        <div class="sec-row active"><div class="sec-dot" style="background:#fb923c"></div><span class="sec-name">March 2026</span><span class="sec-count">2</span></div>
+        <div class="sec-row"><div class="sec-dot" style="background:#f87171"></div><span class="sec-name">April 2026</span><span class="sec-count">5</span></div>
+        <div class="sec-row"><div class="sec-dot" style="background:#f59e0b"></div><span class="sec-name">October 2025</span><span class="sec-count">2</span></div>
+      </div>
+    </div>
+    <div class="verdict">
+      More descriptive — subtitles explain each action. Footer shows which notebook is active. Slightly heavier visually.
+    </div>
+  </div>
+
+  <!-- ── OPTION C: Two separate pill buttons ── -->
+  <div>
+    <div class="card-label">Option C — Two buttons in header</div>
+    <div class="card">
+      <div class="split-hdr">
+        <span>Notebooks</span>
+        <button class="add-btn-sm">
+          <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Notebook
+        </button>
+        <button class="add-btn-sm">
+          <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Section
+        </button>
+      </div>
+      <div class="nb-hdr-row"><span class="nb-title">📓 Field Work 3</span></div>
+      <div class="sec-list">
+        <div class="sec-row"><div class="sec-dot" style="background:#4d94ff"></div><span class="sec-name">January 2026</span><span class="sec-count">1</span></div>
+        <div class="sec-row active"><div class="sec-dot" style="background:#fb923c"></div><span class="sec-name">March 2026</span><span class="sec-count">2</span></div>
+        <div class="sec-row"><div class="sec-dot" style="background:#f87171"></div><span class="sec-name">April 2026</span><span class="sec-count">5</span></div>
+        <div class="sec-row"><div class="sec-dot" style="background:#f59e0b"></div><span class="sec-name">October 2025</span><span class="sec-count">2</span></div>
+      </div>
+    </div>
+    <div class="verdict">
+      No dropdown needed — direct action. But header gets cramped with two buttons. Less clean, especially on narrow panels.
+    </div>
+  </div>
+
+</div>
+
+<script>
+  function toggleA() {
+    const dd = document.getElementById('dd-a');
+    const btn = document.getElementById('btn-a');
+    const open = dd.classList.toggle('open');
+    btn.classList.toggle('open', open);
+    if (open) document.addEventListener('click', outsideA);
+  }
+  function closeA() {
+    document.getElementById('dd-a').classList.remove('open');
+    document.getElementById('btn-a').classList.remove('open');
+    document.removeEventListener('click', outsideA);
+  }
+  function outsideA(e) {
+    if (!document.getElementById('hdr-a').contains(e.target)) closeA();
+  }
+
+  function toggleB() {
+    const dd = document.getElementById('dd-b');
+    const btn = document.getElementById('btn-b');
+    const open = dd.classList.toggle('open');
+    btn.classList.toggle('open', open);
+    if (open) document.addEventListener('click', outsideB);
+  }
+  function closeB() {
+    document.getElementById('dd-b').classList.remove('open');
+    document.getElementById('btn-b').classList.remove('open');
+    document.removeEventListener('click', outsideB);
+  }
+  function outsideB(e) {
+    if (!document.getElementById('hdr-b').contains(e.target)) closeB();
+  }
+</script>
+</body>
+</html>

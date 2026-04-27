@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Notes Nav Mockup</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #0a0f1a;
+    font-family: 'DM Sans', system-ui, sans-serif;
+    color: #e2e8f0;
+    display: flex;
+    gap: 32px;
+    padding: 32px 24px;
+    justify-content: center;
+    flex-wrap: wrap;
+    min-height: 100vh;
+    align-items: flex-start;
+  }
+
+  /* ── Phone wrapper ── */
+  .phone-col { display: flex; flex-direction: column; align-items: center; gap: 14px; }
+
+  .phone-label {
+    font-size: 10px; font-weight: 800; letter-spacing: 0.12em;
+    text-transform: uppercase; color: #64748b; text-align: center;
+  }
+  .phone-label.current { color: #ef4444; }
+  .phone-label.opt-a   { color: #3b82f6; }
+  .phone-label.opt-b   { color: #10b981; }
+  .phone-desc { font-size: 10px; color: #4a5568; text-align: center; line-height: 1.4; max-width: 240px; }
+
+  .phone {
+    width: 300px;
+    background: #0f1624;
+    border-radius: 26px;
+    border: 1.5px solid #253347;
+    overflow: hidden;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+  }
+
+  /* Demo controls — OUTSIDE the phone */
+  .demo-controls {
+    display: flex; gap: 6px; justify-content: center;
+  }
+  .demo-btn {
+    padding: 5px 12px; border-radius: 99px; font-size: 10px; font-weight: 700;
+    cursor: pointer; border: 1px solid #253347; background: #1e293b; color: #4a5568;
+    transition: all 0.15s; text-transform: uppercase; letter-spacing: 0.05em;
+  }
+  .demo-btn.on { background: #334155; border-color: #4d94ff; color: #4d94ff; }
+  .demo-label { font-size: 9px; color: #334155; text-align: center; letter-spacing: 0.08em; text-transform: uppercase; }
+
+  /* ── App chrome ── */
+  .app-header { background: #090e1c; padding: 10px 0 0; }
+  .header-title { text-align: center; font-size: 14px; font-weight: 700; color: #fff; padding: 4px 0 4px; }
+  .header-sync  { text-align: center; font-size: 10px; color: #4d94ff; padding-bottom: 8px; }
+
+  .top-nav { display: flex; border-top: 1px solid #1a2538; }
+  .top-nav button {
+    flex: 1; padding: 9px 0; font-size: 9px; font-weight: 700;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    background: none; border: none; color: #4a5568; cursor: default;
+    border-bottom: 2.5px solid transparent;
+  }
+  .top-nav button.active { color: #F5A623; border-bottom-color: #F5A623; }
+
+  /* ── Sub-tabs ── */
+  .sub-tab-bar { display: flex; border-bottom: 1.5px solid #253347; margin: 0 14px; }
+  .sub-tab {
+    flex: 1; padding: 9px 0 7px; text-align: center;
+    font-size: 12px; font-weight: 600; color: #4a5568; cursor: pointer;
+    border-bottom: 2.5px solid transparent;
+    display: flex; align-items: center; justify-content: center; gap: 4px;
+    transition: all 0.15s; user-select: none;
+  }
+  .sub-tab.active { color: #e2e8f0; border-bottom-color: #4d94ff; }
+  .badge {
+    font-size: 9px; font-weight: 700; background: #ef4444; color: #fff;
+    border-radius: 99px; padding: 0 4px; min-width: 15px; height: 15px;
+    display: inline-flex; align-items: center; justify-content: center;
+  }
+  .badge.amber { background: #f59e0b; }
+
+  /* ── Back strip (option B) ── */
+  .back-strip {
+    display: flex; align-items: center; gap: 6px;
+    padding: 9px 16px 2px; font-size: 11px; font-weight: 700;
+    color: #4d94ff; cursor: pointer; user-select: none;
+  }
+  .section-title {
+    font-size: 13px; font-weight: 700; color: #e2e8f0;
+    padding: 2px 16px 7px; display: flex; align-items: center; gap: 6px;
+  }
+
+  /* ── Content ── */
+  .content { padding: 10px 12px; min-height: 280px; }
+
+  .search-row { display: flex; gap: 7px; align-items: center; margin-bottom: 9px; }
+  .search-box {
+    flex: 1; background: #171f2d; border-radius: 11px;
+    padding: 9px 11px; font-size: 11px; color: #4a5568;
+    display: flex; align-items: center; gap: 7px; border: 1px solid #253347;
+  }
+  .icon-action-btn {
+    background: #171f2d; border: 1px solid #253347; border-radius: 11px;
+    padding: 8px 9px; display: flex; align-items: center; gap: 4px;
+    font-size: 10px; font-weight: 700; color: #64748b; cursor: pointer; white-space: nowrap;
+  }
+
+  .add-note { background: transparent; border: 1.5px dashed #253347; border-radius: 12px; padding: 10px; text-align: center; font-size: 11px; color: #4a5568; margin-bottom: 8px; cursor: pointer; }
+  .note-card { background: #1e293b; border-radius: 12px; padding: 10px 12px; margin-bottom: 7px; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  .ncb { flex: 1; min-width: 0; }
+  .nct { font-size: 12px; font-weight: 600; color: #e2e8f0; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .ncm { font-size: 10px; color: #4a5568; }
+  .nca { display: flex; gap: 5px; }
+  .ib  { width: 27px; height: 27px; border-radius: 7px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+  .ib.r { background: rgba(16,185,129,0.12); color: #10b981; }
+  .ib.d { background: rgba(239,68,68,0.12);  color: #ef4444; }
+
+  svg { display: block; flex-shrink: 0; }
+</style>
+</head>
+<body>
+
+<!-- ══════════════ CURRENT ══════════════ -->
+<div class="phone-col">
+  <div class="phone-label current">Current — broken</div>
+  <div class="phone-desc">"Notes" appears at 3 levels simultaneously</div>
+
+  <div class="demo-label">Simulate view →</div>
+  <div class="demo-controls" id="cur-demo">
+    <button class="demo-btn on" onclick="setState('cur','notes',this)">Notes</button>
+    <button class="demo-btn"   onclick="setState('cur','archive',this)">Archive</button>
+    <button class="demo-btn"   onclick="setState('cur','bin',this)">Bin</button>
+  </div>
+
+  <div class="phone">
+    <div class="app-header">
+      <div class="header-title">10 Apr – 16 Apr</div>
+      <div class="header-sync">✓ Synced</div>
+      <div class="top-nav">
+        <button>Sheet</button>
+        <button class="active">Notes</button>
+        <button>Journal</button>
+        <button>Finder</button>
+      </div>
+    </div>
+    <div class="sub-tab-bar" id="cur-tabs"></div>
+    <div class="content" id="cur-content"></div>
+  </div>
+</div>
+
+
+<!-- ══════════════ OPTION A ══════════════ -->
+<div class="phone-col">
+  <div class="phone-label opt-a">Option A — rename tab</div>
+  <div class="phone-desc">Sub-tab renamed "Active" — no duplicate, same layout</div>
+
+  <div class="demo-label">Simulate view →</div>
+  <div class="demo-controls" id="a-demo">
+    <button class="demo-btn on" onclick="setState('a','notes',this)">Notes</button>
+    <button class="demo-btn"   onclick="setState('a','archive',this)">Archive</button>
+    <button class="demo-btn"   onclick="setState('a','bin',this)">Bin</button>
+  </div>
+
+  <div class="phone">
+    <div class="app-header">
+      <div class="header-title">10 Apr – 16 Apr</div>
+      <div class="header-sync">✓ Synced</div>
+      <div class="top-nav">
+        <button>Sheet</button>
+        <button class="active">Notes</button>
+        <button>Journal</button>
+        <button>Finder</button>
+      </div>
+    </div>
+    <div class="sub-tab-bar" id="a-tabs"></div>
+    <div class="content" id="a-content"></div>
+  </div>
+</div>
+
+
+<!-- ══════════════ OPTION B ══════════════ -->
+<div class="phone-col">
+  <div class="phone-label opt-b">Option B — no sub-tabs</div>
+  <div class="phone-desc">Archive &amp; Bin as icon buttons; back strip when inside</div>
+
+  <div class="demo-label">Simulate view →</div>
+  <div class="demo-controls" id="b-demo">
+    <button class="demo-btn on" onclick="setState('b','notes',this)">Notes</button>
+    <button class="demo-btn"   onclick="setState('b','archive',this)">Archive</button>
+    <button class="demo-btn"   onclick="setState('b','bin',this)">Bin</button>
+  </div>
+
+  <div class="phone">
+    <div class="app-header">
+      <div class="header-title">10 Apr – 16 Apr</div>
+      <div class="header-sync">✓ Synced</div>
+      <div class="top-nav">
+        <button>Sheet</button>
+        <button class="active">Notes</button>
+        <button>Journal</button>
+        <button>Finder</button>
+      </div>
+    </div>
+    <div id="b-header"></div>
+    <div class="content" id="b-content"></div>
+  </div>
+</div>
+
+
+<script>
+  /* ── SVGs ── */
+  const chevR = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>`;
+  const chevL = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>`;
+  const srch  = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>`;
+  const rst   = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>`;
+  const del   = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>`;
+  const arc   = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg>`;
+  const bin   = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg>`;
+
+  /* ── Content ── */
+  const noteCards = () => `
+    <div class="add-note">+ Add Note</div>
+    <div class="note-card"><div class="ncb"><div class="nct">Get 2 VCM from Aidan…</div><div class="ncm">Crumlin · ⚠ Overdue</div></div>${chevR}</div>
+    <div class="note-card"><div class="ncb"><div class="nct">Virgin Media</div><div class="ncm">Mon 13. Apr '26</div></div>${chevR}</div>
+    <div class="note-card"><div class="ncb"><div class="nct">Rian Features</div><div class="ncm">Sallins · Sun 29. Mar '26</div></div>${chevR}</div>`;
+
+  const archCards = () => [
+    ['Sen email to Gareth — rectifiers','Mucklagh · Archived 14d ago'],
+    ['Get VCM card (23.3) from Aidan','Archived 14d ago'],
+    ['The battery needs replacing','Mucklagh · Archived 14d ago'],
+  ].map(([t,m]) => `<div class="note-card"><div class="ncb"><div class="nct">${t}</div><div class="ncm">${m}</div></div><div class="nca"><div class="ib r">${rst}</div><div class="ib d">${del}</div></div></div>`).join('');
+
+  const binCards = () => [
+    ['Untitled note','Deleted 3h ago'],
+    ['Untitled note','Deleted 1d ago'],
+    ['Cycle Superstore','Deleted 3d ago'],
+    ['Ballinagar (BXGA) — cabinet','Deleted 5d ago'],
+    ['Working On Batteries','Nangor Rd · Deleted 17d ago'],
+  ].map(([t,m]) => `<div class="note-card"><div class="ncb"><div class="nct">${t}</div><div class="ncm">${m}</div></div><div class="nca"><div class="ib r">${rst}</div><div class="ib d">${del}</div></div></div>`).join('');
+
+  const sb = ph => `<div class="search-box">${srch} Search ${ph}…</div>`;
+
+  /* ── State ── */
+  const states = { cur: 'notes', a: 'notes', b: 'notes' };
+
+  function getDemoBtns(p) {
+    return document.getElementById(p + '-demo').querySelectorAll('.demo-btn');
+  }
+  function setState(p, tab, btn) {
+    states[p] = tab;
+    getDemoBtns(p).forEach(b => b.classList.remove('on'));
+    btn.classList.add('on');
+    render(p);
+  }
+
+  /* ── Render ── */
+  function render(p) {
+    const tab = states[p];
+    if (p === 'cur') renderCur(tab);
+    else if (p === 'a') renderA(tab);
+    else renderB(tab);
+  }
+
+  function renderCur(tab) {
+    document.getElementById('cur-tabs').innerHTML = `
+      <div class="sub-tab ${tab==='notes'?'active':''}">Notes</div>
+      <div class="sub-tab ${tab==='archive'?'active':''}">Archive <span class="badge amber">3</span></div>
+      <div class="sub-tab ${tab==='bin'?'active':''}">Bin <span class="badge">22</span></div>`;
+    document.getElementById('cur-content').innerHTML =
+      tab === 'notes'   ? sb('notes')   + noteCards() :
+      tab === 'archive' ? sb('archive') + archCards() :
+                          sb('bin')     + binCards();
+  }
+
+  function renderA(tab) {
+    document.getElementById('a-tabs').innerHTML = `
+      <div class="sub-tab ${tab==='notes'?'active':''}">Active</div>
+      <div class="sub-tab ${tab==='archive'?'active':''}">Archive <span class="badge amber">3</span></div>
+      <div class="sub-tab ${tab==='bin'?'active':''}">Bin <span class="badge">22</span></div>`;
+    document.getElementById('a-content').innerHTML =
+      tab === 'notes'   ? sb('notes')   + noteCards() :
+      tab === 'archive' ? sb('archive') + archCards() :
+                          sb('bin')     + binCards();
+  }
+
+  function renderB(tab) {
+    const header  = document.getElementById('b-header');
+    const content = document.getElementById('b-content');
+    if (tab === 'notes') {
+      header.innerHTML = '';
+      content.innerHTML = `
+        <div class="search-row">
+          ${sb('notes')}
+          <div class="icon-action-btn" onclick="setState('b','archive',getDemoBtns('b')[1])">${arc}<span class="badge amber">3</span></div>
+          <div class="icon-action-btn" onclick="setState('b','bin',    getDemoBtns('b')[2])">${bin}<span class="badge">22</span></div>
+        </div>` + noteCards();
+    } else {
+      const label = tab === 'archive' ? 'Archive' : 'Bin';
+      const ico   = tab === 'archive' ? arc : bin;
+      header.innerHTML = `
+        <div class="back-strip" onclick="setState('b','notes',getDemoBtns('b')[0])">${chevL} Back to Notes</div>
+        <div class="section-title">${ico} ${label}</div>`;
+      content.innerHTML = sb(label.toLowerCase()) + (tab === 'archive' ? archCards() : binCards());
+    }
+  }
+
+  render('cur'); render('a'); render('b');
+</script>
+</body>
+</html>

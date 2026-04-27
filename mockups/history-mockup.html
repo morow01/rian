@@ -1,0 +1,411 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rian — Weekly History Mockup</title>
+<style>
+  :root {
+    --bg-page:    #eef2f7;
+    --bg-card:    #ffffff;
+    --bg-input:   #f4f7fa;
+    --border:     #d4e0ec;
+    --border-sub: #eaeff5;
+    --accent:     #2d6be4;
+    --accent-lt:  #edf4ff;
+    --text-pri:   #0f1c2e;
+    --text-sec:   #3d5068;
+    --text-mut:   #7a97b4;
+    --ot:         #f59e0b;
+    --ot-lt:      #fff8ec;
+    --red:        #ef4444;
+    --red-lt:     #fff1f1;
+    --mono:       "SF Mono", "Fira Mono", Consolas, monospace;
+    --shadow:     0 2px 12px rgba(15,28,46,0.07);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg-page);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    color: var(--text-pri);
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+    padding: 24px 16px 60px;
+  }
+
+  .page-hdr {
+    max-width: 540px;
+    margin: 0 auto 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .page-hdr-icon {
+    width: 38px; height: 38px;
+    border-radius: 10px;
+    background: var(--accent);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .page-hdr-icon svg { stroke: #fff; }
+  .page-hdr h1 { font-size: 20px; font-weight: 800; }
+  .page-hdr-sub { font-size: 12px; color: var(--text-mut); margin-top: 1px; }
+
+  .filter-row {
+    max-width: 540px;
+    margin: 0 auto 18px;
+    display: flex;
+    gap: 7px;
+    overflow-x: auto;
+    padding-bottom: 2px;
+  }
+  .chip {
+    height: 30px; padding: 0 12px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--bg-card);
+    font-size: 12px; font-weight: 600;
+    color: var(--text-sec);
+    cursor: pointer;
+    white-space: nowrap; flex-shrink: 0;
+  }
+  .chip.active {
+    background: var(--accent-lt);
+    border-color: rgba(45,107,228,0.3);
+    color: var(--accent);
+  }
+
+  .year-label {
+    max-width: 540px;
+    margin: 0 auto 10px;
+    font-size: 11px; font-weight: 800;
+    color: var(--text-mut);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+
+  .week-card {
+    max-width: 540px;
+    margin: 0 auto 10px;
+    background: var(--bg-card);
+    border-radius: 14px;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    cursor: pointer;
+    transition: box-shadow 0.15s, transform 0.1s;
+    user-select: none;
+  }
+  .week-card:hover { box-shadow: 0 4px 20px rgba(15,28,46,0.13); }
+  .week-card:active { transform: scale(0.99); box-shadow: var(--shadow); }
+
+  .week-card-top {
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .week-icon {
+    width: 40px; height: 40px;
+    border-radius: 10px;
+    background: var(--bg-input);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    color: var(--text-mut);
+  }
+  .week-icon svg { width: 18px; height: 18px; }
+
+  .week-meta { flex: 1; min-width: 0; }
+  .week-range {
+    font-size: 15px; font-weight: 700;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .week-sub {
+    font-size: 11px; color: var(--text-mut);
+    margin-top: 3px;
+    display: flex; align-items: center; gap: 6px;
+  }
+
+  .week-badges { display: flex; gap: 6px; flex-shrink: 0; align-items: center; }
+
+  .badge-hrs {
+    height: 28px; padding: 0 11px;
+    border-radius: 8px;
+    background: var(--accent-lt);
+    color: var(--accent);
+    font-size: 14px; font-weight: 800;
+    display: flex; align-items: center;
+  }
+  .badge-ot {
+    height: 28px; padding: 0 10px;
+    border-radius: 8px;
+    background: var(--ot-lt);
+    color: var(--ot);
+    font-size: 12px; font-weight: 700;
+    display: flex; align-items: center;
+  }
+  .badge-callout {
+    height: 28px; padding: 0 10px;
+    border-radius: 8px;
+    background: var(--red-lt);
+    color: var(--red);
+    font-size: 12px; font-weight: 700;
+    display: flex; align-items: center; gap: 4px;
+  }
+  .badge-zero {
+    height: 28px; padding: 0 11px;
+    border-radius: 8px;
+    background: var(--bg-input);
+    color: var(--text-mut);
+    font-size: 13px; font-weight: 700;
+    display: flex; align-items: center;
+  }
+
+  .week-stats {
+    padding: 0 16px 14px;
+    display: flex;
+    gap: 16px;
+    border-top: 1px solid var(--border-sub);
+    padding-top: 10px;
+  }
+  .stat-item {
+    display: flex; align-items: center; gap: 5px;
+    font-size: 12px; color: var(--text-mut);
+  }
+  .stat-item svg { width: 13px; height: 13px; flex-shrink: 0; }
+  .stat-item strong { color: var(--text-sec); font-weight: 700; }
+
+  .badge-oncall {
+    display: inline-block;
+    height: 18px; padding: 0 6px;
+    border-radius: 4px;
+    background: var(--accent-lt);
+    color: var(--accent);
+    font-size: 10px; font-weight: 700;
+    letter-spacing: 0.05em;
+    line-height: 18px;
+  }
+  .badge-extra {
+    display: inline-block;
+    height: 18px; padding: 0 6px;
+    border-radius: 4px;
+    background: var(--ot-lt);
+    color: var(--ot);
+    font-size: 10px; font-weight: 700;
+    letter-spacing: 0.05em;
+    line-height: 18px;
+  }
+
+  .week-card.empty .week-icon { opacity: 0.45; }
+  .week-card.empty .week-range { color: var(--text-sec); }
+
+  /* Chevron hint */
+  .chevron {
+    color: var(--text-mut);
+    flex-shrink: 0;
+    margin-left: 2px;
+  }
+
+  .section-gap { max-width: 540px; margin: 20px auto 10px; }
+
+  /* Toast */
+  #toast {
+    position: fixed;
+    bottom: 28px; left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--text-pri);
+    color: #fff;
+    border-radius: 10px;
+    padding: 10px 18px;
+    font-size: 13px; font-weight: 600;
+    white-space: nowrap;
+    opacity: 0;
+    transition: opacity 0.2s, transform 0.2s;
+    pointer-events: none;
+    z-index: 999;
+    display: flex; align-items: center; gap: 8px;
+  }
+  #toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+  #toast svg { stroke: #4ade80; }
+</style>
+</head>
+<body>
+
+<div class="page-hdr">
+  <div class="page-hdr-icon">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+    </svg>
+  </div>
+  <div>
+    <h1>History</h1>
+    <div class="page-hdr-sub">Previous weeks · hours · tasks · callouts</div>
+  </div>
+</div>
+
+<div class="filter-row">
+  <button class="chip active">All</button>
+  <button class="chip">On-call only</button>
+  <button class="chip">With OT</button>
+  <button class="chip">With callouts</button>
+  <button class="chip">2025</button>
+</div>
+
+<div class="year-label">2026</div>
+
+<!-- Week with callout -->
+<div class="week-card" onclick="goToWeek('17 Apr – 23 Apr', '2026-04-17')">
+  <div class="week-card-top">
+    <div class="week-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+    </div>
+    <div class="week-meta">
+      <div class="week-range">17 Apr – 23 Apr</div>
+      <div class="week-sub">Week 17 &nbsp;<span class="badge-oncall">ON-CALL</span></div>
+    </div>
+    <div class="week-badges">
+      <div class="badge-hrs">30h</div>
+      <div class="badge-ot">+1 OT</div>
+      <div class="badge-callout">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.13 13.9 19.79 19.79 0 0 1 1.06 5.27 2 2 0 0 1 3 3h3a2 2 0 0 1 2 1.72c.127.96.362 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+        2
+      </div>
+    </div>
+    <svg class="chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+  </div>
+  <div class="week-stats">
+    <div class="stat-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="9" y="3" width="13" height="13" rx="2"/><path d="M5 7H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-1"/></svg>
+      <strong>8</strong>&nbsp;tasks
+    </div>
+    <div class="stat-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+      <strong>4</strong>&nbsp;sites
+    </div>
+  </div>
+</div>
+
+<!-- Normal week -->
+<div class="week-card" onclick="goToWeek('10 Apr – 16 Apr', '2026-04-10')">
+  <div class="week-card-top">
+    <div class="week-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+    </div>
+    <div class="week-meta">
+      <div class="week-range">10 Apr – 16 Apr</div>
+      <div class="week-sub">Week 16</div>
+    </div>
+    <div class="week-badges">
+      <div class="badge-hrs">28h</div>
+    </div>
+    <svg class="chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+  </div>
+  <div class="week-stats">
+    <div class="stat-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="9" y="3" width="13" height="13" rx="2"/><path d="M5 7H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-1"/></svg>
+      <strong>7</strong>&nbsp;tasks
+    </div>
+    <div class="stat-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+      <strong>5</strong>&nbsp;sites
+    </div>
+  </div>
+</div>
+
+<!-- Empty week -->
+<div class="week-card empty" onclick="goToWeek('3 Apr – 9 Apr', '2026-04-03')">
+  <div class="week-card-top">
+    <div class="week-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+    </div>
+    <div class="week-meta">
+      <div class="week-range">3 Apr – 9 Apr</div>
+      <div class="week-sub">Week 15 · Annual leave</div>
+    </div>
+    <div class="week-badges">
+      <div class="badge-zero">0h</div>
+    </div>
+    <svg class="chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+  </div>
+</div>
+
+<!-- Extra shift week -->
+<div class="week-card" onclick="goToWeek('27 Mar – 2 Apr', '2026-03-27')">
+  <div class="week-card-top">
+    <div class="week-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+    </div>
+    <div class="week-meta">
+      <div class="week-range">27 Mar – 2 Apr</div>
+      <div class="week-sub">Week 14 &nbsp;<span class="badge-extra">EXTRA</span></div>
+    </div>
+    <div class="week-badges">
+      <div class="badge-hrs">32h</div>
+      <div class="badge-ot">+3 OT</div>
+    </div>
+    <svg class="chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+  </div>
+  <div class="week-stats">
+    <div class="stat-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="9" y="3" width="13" height="13" rx="2"/><path d="M5 7H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-1"/></svg>
+      <strong>9</strong>&nbsp;tasks
+    </div>
+    <div class="stat-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+      <strong>6</strong>&nbsp;sites
+    </div>
+  </div>
+</div>
+
+<div class="section-gap">
+  <div class="year-label">2025</div>
+</div>
+
+<div class="week-card" onclick="goToWeek('26 Dec – 1 Jan', '2025-12-26')">
+  <div class="week-card-top">
+    <div class="week-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+    </div>
+    <div class="week-meta">
+      <div class="week-range">26 Dec – 1 Jan</div>
+      <div class="week-sub">Week 52</div>
+    </div>
+    <div class="week-badges">
+      <div class="badge-hrs">24h</div>
+    </div>
+    <svg class="chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+  </div>
+  <div class="week-stats">
+    <div class="stat-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="9" y="3" width="13" height="13" rx="2"/><path d="M5 7H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-1"/></svg>
+      <strong>5</strong>&nbsp;tasks
+    </div>
+  </div>
+</div>
+
+<!-- Toast notification -->
+<div id="toast">
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+  <span id="toast-text">Opening week in Timesheet…</span>
+</div>
+
+<script>
+  let toastTimer;
+  function goToWeek(label, dateStr) {
+    const toast = document.getElementById('toast');
+    document.getElementById('toast-text').textContent = 'Opening ' + label + ' in Timesheet…';
+    toast.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toast.classList.remove('show'), 2200);
+    // In the real app: loadWeek(dateStr) + setView('week')
+  }
+</script>
+
+</body>
+</html>

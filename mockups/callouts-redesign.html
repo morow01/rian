@@ -1,0 +1,823 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rian Callouts Redesign Mockup</title>
+<style>
+  :root {
+    --page: #e8eef5;
+    --surface: #ffffff;
+    --surface-2: #f6f9fc;
+    --line: #d6e1ee;
+    --line-soft: #e7eef6;
+    --text: #0f1c2e;
+    --muted: #5f738d;
+    --faint: #8ba2bd;
+    --navy: #0f1c2e;
+    --navy-2: #162438;
+    --blue: #2d6be4;
+    --blue-soft: #edf4ff;
+    --green: #0f8a4b;
+    --green-soft: #e9f8ef;
+    --amber: #c67600;
+    --amber-soft: #fff5e4;
+    --red: #d83434;
+    --red-soft: #fff0ef;
+    --violet: #7c3aed;
+    --violet-soft: #f2ecff;
+    --shadow: 0 14px 38px rgba(24, 42, 64, 0.12);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--page);
+    color: var(--text);
+    font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  button, input, textarea {
+    font: inherit;
+  }
+
+  .app {
+    width: min(100%, 1440px);
+    min-height: 100vh;
+    margin: 0 auto;
+    background: var(--surface);
+    box-shadow: var(--shadow);
+    display: grid;
+    grid-template-rows: auto auto 1fr;
+  }
+
+  .topbar {
+    height: 64px;
+    background: var(--navy);
+    color: #fff;
+    display: grid;
+    grid-template-columns: 56px 1fr 56px 56px;
+    align-items: center;
+    padding: 0 16px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+
+  .icon-btn {
+    width: 36px;
+    height: 36px;
+    border: 0;
+    border-radius: 8px;
+    background: rgba(255,255,255,0.08);
+    color: currentColor;
+    display: inline-grid;
+    place-items: center;
+    cursor: pointer;
+  }
+
+  .icon-btn:hover { background: rgba(255,255,255,0.14); }
+
+  .week-title {
+    text-align: center;
+    line-height: 1.1;
+    font-weight: 700;
+    font-size: 18px;
+  }
+
+  .sync {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 4px;
+    color: #bdd1e8;
+    font-size: 12px;
+    font-weight: 500;
+  }
+
+  .sync::before {
+    content: "";
+    width: 7px;
+    height: 12px;
+    border-right: 2px solid #35d07f;
+    border-bottom: 2px solid #35d07f;
+    transform: rotate(45deg) translateY(-1px);
+  }
+
+  .tabs {
+    height: 42px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    background: var(--navy-2);
+    color: #93a9c2;
+  }
+
+  .tab {
+    border: 0;
+    background: transparent;
+    color: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+  }
+
+  .tab.active {
+    color: #fff;
+    border-bottom-color: #f6a400;
+  }
+
+  .workspace {
+    min-height: 0;
+    display: grid;
+    grid-template-columns: 280px 360px 1fr;
+    background: var(--surface);
+  }
+
+  .panel {
+    min-width: 0;
+    min-height: 0;
+    border-right: 1px solid var(--line);
+    display: flex;
+    flex-direction: column;
+  }
+
+  .panel:last-child { border-right: 0; }
+
+  .panel-head {
+    min-height: 58px;
+    padding: 12px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    border-bottom: 1px solid var(--line-soft);
+  }
+
+  .title-block {
+    min-width: 0;
+  }
+
+  .eyebrow {
+    color: #88a0bc;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.11em;
+    text-transform: uppercase;
+  }
+
+  .panel-title {
+    margin-top: 2px;
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 1.2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .primary-btn,
+  .tonal-btn,
+  .danger-btn {
+    height: 36px;
+    border-radius: 8px;
+    padding: 0 13px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+
+  .primary-btn {
+    color: #fff;
+    background: var(--blue);
+    border: 1px solid var(--blue);
+  }
+
+  .tonal-btn {
+    color: #184fba;
+    background: var(--blue-soft);
+    border: 1px solid #bcd4ff;
+  }
+
+  .danger-btn {
+    color: var(--red);
+    background: var(--red-soft);
+    border: 1px solid #ffc9c4;
+  }
+
+  .summary-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    border-bottom: 1px solid var(--line-soft);
+  }
+
+  .metric {
+    padding: 16px 14px;
+    border-right: 1px solid var(--line-soft);
+    border-bottom: 1px solid var(--line-soft);
+  }
+
+  .metric:nth-child(2n) { border-right: 0; }
+  .metric:nth-last-child(-n + 2) { border-bottom: 0; }
+
+  .metric strong {
+    display: block;
+    font-size: 23px;
+    line-height: 1;
+    color: var(--blue);
+  }
+
+  .metric small {
+    display: block;
+    margin-top: 7px;
+    color: #859bb6;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .metric.amber strong { color: #f59e0b; }
+  .metric.red strong { color: var(--red); }
+  .metric.violet strong { color: var(--violet); }
+
+  .section-label {
+    padding: 13px 14px 8px;
+    color: #8aa1bb;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .week-list,
+  .incident-list {
+    overflow: auto;
+  }
+
+  .week-row {
+    border: 0;
+    width: 100%;
+    min-height: 70px;
+    background: transparent;
+    color: var(--text);
+    display: grid;
+    grid-template-columns: 38px 1fr auto;
+    gap: 11px;
+    align-items: center;
+    padding: 12px 14px;
+    border-left: 3px solid transparent;
+    border-bottom: 1px solid var(--line-soft);
+    text-align: left;
+    cursor: pointer;
+  }
+
+  .week-row.active {
+    background: linear-gradient(90deg, rgba(45,107,228,0.12), rgba(45,107,228,0.03));
+    border-left-color: var(--blue);
+  }
+
+  .num {
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    background: #edf3ff;
+    color: var(--blue);
+    display: grid;
+    place-items: center;
+    font-weight: 700;
+    font-size: 13px;
+  }
+
+  .row-main {
+    min-width: 0;
+  }
+
+  .row-title {
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1.25;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .row-sub {
+    margin-top: 3px;
+    color: #7890aa;
+    font-size: 12px;
+    font-weight: 500;
+  }
+
+  .badge {
+    height: 24px;
+    border-radius: 8px;
+    padding: 0 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--amber);
+    background: var(--amber-soft);
+    font-size: 12px;
+    font-weight: 700;
+  }
+
+  .filter-bar {
+    display: flex;
+    gap: 8px;
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--line-soft);
+    background: var(--surface-2);
+  }
+
+  .filter-chip {
+    min-height: 30px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: #fff;
+    color: #49617c;
+    padding: 0 10px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  .filter-chip.active {
+    border-color: #bcd4ff;
+    background: var(--blue-soft);
+    color: #184fba;
+  }
+
+  .incident-card {
+    width: 100%;
+    border: 0;
+    background: transparent;
+    color: var(--text);
+    display: grid;
+    grid-template-columns: 38px 1fr auto;
+    gap: 11px;
+    align-items: start;
+    padding: 13px 14px;
+    border-left: 3px solid transparent;
+    border-bottom: 1px solid var(--line-soft);
+    text-align: left;
+    cursor: pointer;
+  }
+
+  .incident-card.active {
+    border-left-color: var(--blue);
+    background: #f8fbff;
+  }
+
+  .ticket-stack {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 6px;
+  }
+
+  .ticket {
+    color: #2764d8;
+    background: var(--blue-soft);
+    border-radius: 8px;
+    padding: 4px 7px;
+    font-family: "SFMono-Regular", Consolas, monospace;
+    font-size: 11px;
+    font-weight: 700;
+  }
+
+  .time {
+    color: #3f6eaa;
+    font-size: 12px;
+    font-weight: 700;
+  }
+
+  .details {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .details-head {
+    min-height: 126px;
+    padding: 20px 22px 16px;
+    border-bottom: 1px solid var(--line-soft);
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 14px;
+    align-items: start;
+  }
+
+  .details-head .num {
+    width: 36px;
+    height: 36px;
+    background: var(--blue);
+    color: #fff;
+  }
+
+  .detail-title {
+    margin: 0;
+    font-size: 19px;
+    line-height: 1.25;
+    letter-spacing: 0;
+    font-weight: 700;
+  }
+
+  .meta-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 10px;
+  }
+
+  .meta-pill {
+    min-height: 28px;
+    border-radius: 8px;
+    background: var(--surface-2);
+    border: 1px solid var(--line-soft);
+    color: #526b88;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0 9px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  .meta-pill.ticket-meta {
+    color: #225ac7;
+    background: var(--blue-soft);
+    border-color: #c8dcff;
+    font-family: "SFMono-Regular", Consolas, monospace;
+  }
+
+  .detail-actions {
+    display: flex;
+    gap: 8px;
+  }
+
+  .form {
+    padding: 20px 22px 18px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 17px 18px;
+    align-content: start;
+  }
+
+  .field {
+    min-width: 0;
+  }
+
+  .field.wide {
+    grid-column: 1 / -1;
+  }
+
+  label {
+    display: block;
+    margin-bottom: 7px;
+    color: #8aa1bb;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .control {
+    width: 100%;
+    min-height: 44px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: #f9fbfe;
+    color: var(--text);
+    padding: 11px 13px;
+    outline: none;
+    font-size: 14px;
+  }
+
+  textarea.control {
+    resize: vertical;
+    min-height: 86px;
+    line-height: 1.45;
+  }
+
+  .footer-actions {
+    margin-top: auto;
+    padding: 16px 22px;
+    border-top: 1px solid var(--line-soft);
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    background: #fff;
+  }
+
+  .schedule-strip {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 11px 14px;
+    border-top: 1px solid var(--line-soft);
+    background: var(--surface-2);
+  }
+
+  .schedule-strip strong {
+    font-size: 13px;
+  }
+
+  .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--green);
+  }
+
+  svg {
+    width: 17px;
+    height: 17px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2.2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  @media (max-width: 920px) {
+    .app {
+      min-height: 100vh;
+      box-shadow: none;
+    }
+
+    .workspace {
+      display: block;
+      overflow: auto;
+    }
+
+    .panel {
+      border-right: 0;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .summary-panel {
+      display: block;
+    }
+
+    .summary-grid {
+      grid-template-columns: repeat(4, 1fr);
+    }
+
+    .metric {
+      border-bottom: 0;
+    }
+
+    .week-list {
+      display: flex;
+      overflow-x: auto;
+      border-bottom: 1px solid var(--line-soft);
+    }
+
+    .week-row {
+      min-width: 190px;
+      border-bottom: 0;
+    }
+
+    .details-head {
+      grid-template-columns: auto 1fr;
+    }
+
+    .detail-actions {
+      grid-column: 1 / -1;
+      justify-content: flex-end;
+    }
+  }
+
+  @media (max-width: 620px) {
+    .topbar {
+      grid-template-columns: 44px 1fr 44px 44px;
+      padding: 0 10px;
+    }
+
+    .summary-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .details-head,
+    .form,
+    .footer-actions {
+      padding-left: 14px;
+      padding-right: 14px;
+    }
+
+    .form {
+      grid-template-columns: 1fr;
+    }
+
+    .field.wide {
+      grid-column: auto;
+    }
+
+    .footer-actions {
+      flex-direction: column-reverse;
+    }
+
+    .footer-actions button {
+      width: 100%;
+    }
+  }
+</style>
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <button class="icon-btn" aria-label="Previous week">
+        <svg viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg>
+      </button>
+      <div class="week-title">
+        24 Apr - 30 Apr
+        <div class="sync">Synced&nbsp; v6.0.6</div>
+      </div>
+      <button class="icon-btn" aria-label="Next week">
+        <svg viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg>
+      </button>
+      <button class="icon-btn" aria-label="Menu">
+        <svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+      </button>
+    </header>
+
+    <nav class="tabs" aria-label="Main views">
+      <button class="tab">Timesheet</button>
+      <button class="tab">Notes</button>
+      <button class="tab">Journal</button>
+      <button class="tab active">Callouts</button>
+    </nav>
+
+    <main class="workspace">
+      <section class="panel summary-panel" aria-label="Callout periods">
+        <div class="panel-head">
+          <div class="title-block">
+            <div class="eyebrow">Callouts</div>
+            <div class="panel-title">On-call record</div>
+          </div>
+          <button class="tonal-btn">
+            <svg viewBox="0 0 24 24"><path d="M8 2v4M16 2v4M3 10h18"/><rect x="3" y="4" width="18" height="18" rx="2"/></svg>
+            Schedule
+          </button>
+        </div>
+
+        <div class="summary-grid">
+          <div class="metric"><strong>13</strong><small>On-call weeks</small></div>
+          <div class="metric amber"><strong>4</strong><small>Extra shifts</small></div>
+          <div class="metric red"><strong>1</strong><small>Total incidents</small></div>
+          <div class="metric violet"><strong>1.0</strong><small>Avg / week</small></div>
+        </div>
+
+        <div class="section-label">Previous</div>
+        <div class="week-list">
+          <button class="week-row active">
+            <span class="num">1</span>
+            <span class="row-main">
+              <span class="row-title">17 Apr - 23 Apr</span>
+              <span class="row-sub">1 incident</span>
+            </span>
+            <span class="badge">+1</span>
+          </button>
+          <button class="week-row">
+            <span class="num">2</span>
+            <span class="row-main">
+              <span class="row-title">10 Apr - 16 Apr</span>
+              <span class="row-sub">2 incidents</span>
+            </span>
+            <span class="badge">+2</span>
+          </button>
+          <button class="week-row">
+            <span class="num">3</span>
+            <span class="row-main">
+              <span class="row-title">20 Feb - 26 Feb</span>
+              <span class="row-sub">0 incidents</span>
+            </span>
+          </button>
+        </div>
+
+        <div class="schedule-strip">
+          <span class="dot"></span>
+          <strong>9 scheduled weeks</strong>
+          <span class="row-sub">4 extra shifts</span>
+        </div>
+      </section>
+
+      <section class="panel" aria-label="Callout list">
+        <div class="panel-head">
+          <div class="title-block">
+            <div class="eyebrow">Selected week</div>
+            <div class="panel-title">17 Apr - 23 Apr</div>
+          </div>
+          <button class="tonal-btn">
+            <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+            Add
+          </button>
+        </div>
+
+        <div class="filter-bar">
+          <button class="filter-chip active">All</button>
+          <button class="filter-chip">Open</button>
+          <button class="filter-chip">Tickets</button>
+          <button class="filter-chip">Sites</button>
+        </div>
+
+        <div class="incident-list">
+          <button class="incident-card active">
+            <span class="num">1</span>
+            <span class="row-main">
+              <span class="row-title">AC mains failure - site on battery. ESB notified.</span>
+              <span class="row-sub">Glasserchoo (GCO)</span>
+            </span>
+            <span class="ticket-stack">
+              <span class="ticket">R12345678</span>
+              <span class="time">04:16</span>
+            </span>
+          </button>
+
+          <button class="incident-card">
+            <span class="num">2</span>
+            <span class="row-main">
+              <span class="row-title">Transmission alarm cleared after reset</span>
+              <span class="row-sub">Kildare (KLE)</span>
+            </span>
+            <span class="ticket-stack">
+              <span class="ticket">R12345810</span>
+              <span class="time">22:45</span>
+            </span>
+          </button>
+        </div>
+      </section>
+
+      <section class="details" aria-label="Callout details">
+        <div class="details-head">
+          <span class="num">1</span>
+          <div>
+            <div class="eyebrow">Callout details</div>
+            <h1 class="detail-title">AC mains failure - site on battery. ESB notified.</h1>
+            <div class="meta-row">
+              <span class="meta-pill">Glasserchoo (GCO)</span>
+              <span class="meta-pill ticket-meta">R12345678</span>
+              <span class="meta-pill">Engineer on site 04:16</span>
+            </div>
+          </div>
+          <div class="detail-actions">
+            <button class="tonal-btn">
+              <svg viewBox="0 0 24 24"><path d="M4 4h16v16H4z"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>
+              Notes
+            </button>
+            <button class="primary-btn">
+              <svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>
+              Save
+            </button>
+          </div>
+        </div>
+
+        <form class="form">
+          <div class="field">
+            <label for="date">Date</label>
+            <input class="control" id="date" placeholder="dd/mm/yyyy">
+          </div>
+          <div class="field">
+            <label for="time">Engineer on site</label>
+            <input class="control" id="time" value="04:16">
+          </div>
+          <div class="field">
+            <label for="ticket">Ticket number</label>
+            <input class="control" id="ticket" value="R12345678">
+          </div>
+          <div class="field">
+            <label for="location">Location</label>
+            <input class="control" id="location" value="Glasserchoo (GCO)">
+          </div>
+          <div class="field wide">
+            <label for="fault">Fault description</label>
+            <textarea class="control" id="fault">AC mains failure - site on battery. ESB notified.</textarea>
+          </div>
+          <div class="field wide">
+            <label for="notes">Notes</label>
+            <textarea class="control" id="notes">ESB restored supply 02:15. Site confirmed normal.</textarea>
+          </div>
+        </form>
+
+        <div class="footer-actions">
+          <button class="danger-btn">
+            <svg viewBox="0 0 24 24"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6M10 11v5M14 11v5"/></svg>
+            Delete
+          </button>
+          <button class="primary-btn">
+            <svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>
+            Save changes
+          </button>
+        </div>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

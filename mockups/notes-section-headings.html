@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Notes Section Headings — Options</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f0f2f5; color: #1e293b; }
+
+  .page-title { text-align: center; padding: 28px 0 6px; font-size: 22px; font-weight: 700; }
+  .page-sub { text-align: center; font-size: 13px; color: #64748b; margin-bottom: 28px; }
+
+  .options-row { display: flex; gap: 20px; justify-content: center; padding: 0 20px 40px; flex-wrap: wrap; align-items: flex-start; }
+
+  /* ── Panel shell ── */
+  .panel {
+    background: #fff; border-radius: 16px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.09);
+    width: 300px; overflow: hidden; flex-shrink: 0;
+  }
+  .panel-label {
+    background: #1e293b; color: #fff;
+    padding: 10px 14px; font-size: 11px; font-weight: 700;
+    letter-spacing: 0.06em; text-transform: uppercase;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .panel-label span { background: #4d94ff; color:#fff; border-radius:6px; padding: 2px 8px; font-size:11px; letter-spacing:0; text-transform:none; font-weight:600; }
+
+  /* ── Shared note row ── */
+  .note-row {
+    padding: 10px 14px; border-bottom: 1px solid #f1f5f9;
+    cursor: pointer; transition: background 0.1s;
+  }
+  .note-row:hover { background: #f8fafc; }
+  .note-row.active { background: linear-gradient(to right, rgba(45,107,228,0.08), rgba(45,107,228,0.02)); }
+  .note-top { display: flex; align-items: center; gap: 8px; }
+  .dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+  .dot-high { background: #ef4444; }
+  .dot-med { background: #f97316; }
+  .dot-low { background: #22c55e; }
+  .note-title { font-size: 13px; font-weight: 600; color: #1e293b; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .note-meta { display: flex; align-items: center; gap: 8px; margin-top: 4px; padding-left: 17px; font-size: 11px; color: #94a3b8; }
+  .note-tag { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 20px; font-size: 11px; font-weight: 600; color: #fff; }
+  .note-due { color: #ef4444; font-size: 11px; font-weight: 600; margin-left: auto; display: flex; align-items: center; gap: 3px; }
+  .note-due-ok { color: #64748b; font-size: 11px; display: flex; align-items: center; gap: 3px; margin-left: auto; }
+
+  /* ── Search bar ── */
+  .search-bar {
+    display: flex; align-items: center; gap: 8px;
+    margin: 10px 12px; padding: 7px 12px;
+    background: #f4f7fa; border-radius: 10px;
+    font-size: 13px; color: #94a3b8;
+  }
+
+  /* ════ OPTION A: Divider line ════ */
+  .optA-hdr {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 11px; font-weight: 800; color: #94a3b8;
+    text-transform: uppercase; letter-spacing: 0.06em;
+    padding: 18px 14px 6px;
+    border-top: 1px solid #e2e8f0;
+    margin-top: 2px;
+  }
+  .optA-hdr:first-of-type { border-top: none; margin-top: 0; padding-top: 10px; }
+  .optA-hdr.overdue { color: #ef4444; border-top-color: #fecaca; }
+  .optA-hdr.pinned { border-top-color: #e2e8f0; }
+
+  /* ════ OPTION B: Background band ════ */
+  .optB-hdr {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 11px; font-weight: 800; color: #64748b;
+    text-transform: uppercase; letter-spacing: 0.06em;
+    padding: 7px 14px;
+    background: #f4f7fa;
+    border-top: 1px solid #e9edf2;
+    border-bottom: 1px solid #e9edf2;
+    margin-top: 4px;
+  }
+  .optB-hdr:first-of-type { margin-top: 0; border-top: none; }
+  .optB-hdr.overdue { background: #fff5f5; color: #ef4444; border-color: #fecaca; }
+  .optB-hdr.pinned { background: #f4f7fa; }
+
+  /* ════ OPTION C: Pill/chip ════ */
+  .optC-hdr {
+    padding: 12px 14px 4px;
+    margin-top: 2px;
+  }
+  .optC-hdr:first-of-type { padding-top: 8px; }
+  .optC-chip {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 3px 10px 3px 8px; border-radius: 20px;
+    font-size: 11px; font-weight: 700;
+  }
+  .optC-chip.overdue { background: rgba(239,68,68,0.10); color: #ef4444; border: 1px solid rgba(239,68,68,0.25); }
+  .optC-chip.pinned { background: rgba(100,116,139,0.08); color: #475569; border: 1px solid rgba(100,116,139,0.2); }
+  .optC-chip.open { background: rgba(45,107,228,0.08); color: #2D6BE4; border: 1px solid rgba(45,107,228,0.2); }
+
+  /* ════ OPTION D: Left accent bar ════ */
+  .optD-hdr {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 11px; font-weight: 800; color: #64748b;
+    text-transform: uppercase; letter-spacing: 0.06em;
+    padding: 16px 14px 6px 14px;
+    position: relative;
+  }
+  .optD-hdr::before {
+    content: '';
+    position: absolute; left: 0; top: 50%; transform: translateY(-50%);
+    width: 3px; height: 14px; border-radius: 2px;
+    background: #cbd5e1;
+    margin-top: 5px;
+  }
+  .optD-hdr.overdue { color: #ef4444; }
+  .optD-hdr.overdue::before { background: #ef4444; }
+  .optD-hdr.pinned::before { background: #f59e0b; }
+  .optD-hdr.open::before { background: #2D6BE4; }
+
+  /* Pros/cons */
+  .desc { padding: 12px 14px 14px; background: #f8fafc; border-top: 1px solid #f1f5f9; }
+  .desc-pro { font-size: 12px; font-weight: 700; color: #475569; margin-bottom: 3px; }
+  .desc-text { font-size: 12px; color: #64748b; line-height: 1.6; }
+  .desc-con { font-size: 12px; font-weight: 700; color: #475569; margin: 7px 0 3px; }
+</style>
+</head>
+<body>
+
+<div class="page-title">Notes Section Headings — Desktop</div>
+<div class="page-sub">Four options for making Overdue / Pinned / Open stand out</div>
+
+<div class="options-row">
+
+  <!-- ══ OPTION A: Divider line ══ -->
+  <div class="panel">
+    <div class="panel-label">Option A — Divider Line <span>Clean</span></div>
+    <div class="search-bar">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      Search notes…
+    </div>
+
+    <div class="optA-hdr overdue" style="border-top:none;padding-top:8px">
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      Overdue (2)
+    </div>
+    <div class="note-row">
+      <div class="note-top"><div class="dot dot-med"></div><div class="note-title">Virgin Media</div></div>
+      <div class="note-meta"><span>Mon 13. Apr '26</span><span class="note-due"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> Overdue 3d</span></div>
+    </div>
+    <div class="note-row">
+      <div class="note-top"><div class="dot dot-med"></div><div class="note-title">Get 2 VCM from Aidan…</div></div>
+      <div class="note-meta"><span>Wed 25. Mar '26</span><span class="note-due"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> Overdue 14d</span></div>
+    </div>
+
+    <div class="optA-hdr pinned">
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" stroke="none"><line x1="12" y1="17" x2="12" y2="22" stroke="currentColor" stroke-width="2"/><path d="M5 17h14v-1.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V6h1a2 2 0 0 0 0-4H8a2 2 0 0 0 0 4h1v4.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24Z"/></svg>
+      Pinned
+    </div>
+    <div class="note-row active">
+      <div class="note-top"><div class="dot dot-low"></div><div class="note-title">Rian Features</div></div>
+      <div class="note-meta"><span>Sallins</span><span>Sun 29. Mar '26</span><span class="note-due-ok">Due in 3d</span></div>
+    </div>
+    <div class="note-row">
+      <div class="note-top"><div class="dot dot-high"></div><div class="note-title">Monday Task 20.4</div></div>
+      <div class="note-meta"><span>Mon 20. Apr '26</span></div>
+    </div>
+
+    <div class="optA-hdr">Open</div>
+    <div class="note-row">
+      <div class="note-top"><div class="dot dot-med"></div><div class="note-title">Battery test</div></div>
+      <div class="note-meta"><span>Naas</span><span>Tue 14. Apr '26</span></div>
+    </div>
+    <div class="note-row">
+      <div class="note-top"><div class="dot dot-low"></div><div class="note-title">Rian TipTap Styles</div></div>
+      <div class="note-meta"><span>Wed 25. Mar '26</span><span class="note-tag" style="background:#22c55e">Personal</span></div>
+    </div>
+    <div class="note-row">
+      <div class="note-top"><div class="dot dot-med"></div><div class="note-title">Test Note — Styles</div></div>
+      <div class="note-meta"><span>Santry</span><span>Thu 2. Apr '26</span></div>
+    </div>
+    <div class="desc">
+      <div class="desc-pro">✓ Pros</div>
+      <div class="desc-text">Clean, minimal. Standard pattern (Gmail, Notion). Groups are clear without adding visual noise. Overdue line is red-tinted.</div>
+      <div class="desc-con">⚠ Cons</div>
+      <div class="desc-text">Subtle — may still feel similar to current.</div>
+    </div>
+  </div>
+
+  <!-- ══ OPTION B: Background band ══ -->
+  <div class="panel">
+    <div class="panel-label">Option B — Background Band</div>
+    <div class="search-bar">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      Search notes…
+    </div>
+
+    <div class="optB-hdr overdue" style="border-top:none">
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      Overdue (2)
+    </div>
+    <div class="note-row">
+      <div class="note-top"><div class="dot dot-med"></div><div class="note-title">Virgin Media</div></div>
+      <div class="note-meta"><span>Mon 13. Apr '26</span><span class="note-due"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> Overdue 3d</span></div>
+    </div>
+    <div class="note-row">
+      <div class="note-top"><div class="dot dot-med"></div><div class="note-title">Get 2 VCM from Aidan…</div></div>
+      <div class="note-meta"><span>Wed 25. Mar '26</span><span class="note-due"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> Overdue 14d</span></div>
+    </div>
+
+    <div class="optB-hdr pinned">
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" stroke="none"><line x1="12" y1="17" x2="12" y2="22" stroke="currentColor" stroke-width="2"/><path d="M5 17h14v-1.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V6h1a2 2 0 0 0 0-4H8a2 2 0 0 0 0 4h1v4.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24Z"/></svg>
+      Pinned
+    </div>
+    <div class="note-row active">
+      <div class="note-top"><div class="dot dot-low"></div><div class="note-title">Rian Features</div></div>
+      <div class="note-meta"><span>Sallins</span><span>Sun 29. Mar '26</span><span class="note-due-ok">Due in 3d</span></div>
+    </div>
+    <div class="note-row">
+      <div class="note-top"><div class="dot dot-high"></div><div class="note-title">Monday Task 20.4</div></div>
+      <div class="note-meta"><span>Mon 20. Apr '26</span></div>
+    </div>
+
+    <div class="optB-hdr">Open</div>
+    <div class="note-row">
+      <div class="note-top"><div class="dot dot-med"></div><div class="note-title">Battery test</div></div>
+      <div class="note-meta"><span>Naas</span><span>Tue 14. Apr '26</span></div>
+    </div>
+    <div class="note-row">
+      <div class="note-top"><div class="dot dot-low"></div><div class="note-title">Rian TipTap Styles</div></div>
+      <div class="note-meta"><span>Wed 25. Mar '26</span><span class="note-tag" style="background:#22c55e">Personal</span></div>
+    </div>
+    <div class="note-row">
+      <div class="note-top"><div class="dot dot-med"></div><div class="note-title">Test Note — Styles</div></div>
+      <div class="note-meta"><span>Santry</span><span>Thu 2. Apr '26</span></div>
+    </div>
+    <div class="desc">
+      <div class="desc-pro">✓ Pros</div>
+      <div class="desc-text">Strongest visual separation. Full-width band makes the boundary unmissable. Overdue band is red-tinted.</div>
+      <div class="desc-con">⚠ Cons</div>
+      <div class="desc-text">More "heavy" — takes more vertical space, can feel busy with many groups.</div>
+    </div>
+  </div>
+
+  <!-- ══ OPTION C: Pill chip ══ -->
+  <div class="panel">
+    <div class="panel-label">Option C — Pill / Chip</div>
+    <div class="search-bar">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      Search notes…
+    </div>
+
+    <div class="optC-hdr" style="padding-top:8px">
+      <div class="optC-chip overdue">
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        Overdue (2)
+      </div>
+    </div>
+    <div class="note-row">
+      <div class="note-top"><div class="dot dot-med"></div><div class="note-title">Virgin Media</div></div>
+      <div class="note-meta"><span>Mon 13. Apr '26</span><span class="note-due"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> Overdue 3d</span></div>
+    </div>
+    <div class="note-row">
+      <div class="note-top"><div class="dot dot-med"></div><div class="note-title">Get 2 VCM from Aidan…</div></div>
+      <div class="note-meta"><span>Wed 25. Mar '26</span><span class="note-due"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> Overdue 14d</span></div>
+    </div>
+
+    <div class="optC-hdr">
+      <div class="optC-chip pinned">
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor" stroke="none"><line x1="12" y1="17" x2="12" y2="22" stroke="currentColor" stroke-width="2"/><path d="M5 17h14v-1.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V6h1a2 2 0 0 0 0-4H8a2 2 0 0 0 0 4h1v4.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24Z"/></svg>
+        Pinned
+      </div>
+    </div>
+    <div class="note-row active">
+      <div class="note-top"><div class="dot dot-low"></div><div class="note-title">Rian Features</div></div>
+      <div class="note-meta"><span>Sallins</span><span>Sun 29. Mar '26</span><span class="note-due-ok">Due in 3d</span></div>
+    </div>
+    <div class="note-row">
+      <div class="note-top"><div class="dot dot-high"></div><div class="note-title">Monday Task 20.4</div></div>
+      <div class="note-meta"><span>Mon 20. Apr '26</span></div>
+    </div>
+
+    <div class="optC-hdr">
+      <div class="optC-chip open">Open</div>
+    </div>
+    <div class="note-row">
+      <div class="note-top"><div class="dot dot-med"></div><div class="note-title">Battery test</div></div>
+      <div class="note-meta"><span>Naas</span><span>Tue 14. Apr '26</span></div>
+    </div>
+    <div class="note-row">
+      <div class="note-top"><div class="dot dot-low"></div><div class="note-title">Rian TipTap Styles</div></div>
+      <div class="note-meta"><span>Wed 25. Mar '26</span><span class="note-tag" style="background:#22c55e">Personal</span></div>
+    </div>
+    <div class="note-row">
+      <div class="note-top"><div class="dot dot-med"></div><div class="note-title">Test Note — Styles</div></div>
+      <div class="note-meta"><span>Santry</span><span>Thu 2. Apr '26</span></div>
+    </div>
+    <div class="desc">
+      <div class="desc-pro">✓ Pros</div>
+      <div class="desc-text">Modern, colourful. Each group has its own colour identity. Compact — doesn't add much height.</div>
+      <div class="desc-con">⚠ Cons</div>
+      <div class="desc-text">More colours competing with note priority dots and tags.</div>
+    </div>
+  </div>
+
+  <!-- ══ OPTION D: Left accent bar ══ -->
+  <div class="panel">
+    <div class="panel-label">Option D — Left Accent Bar</div>
+    <div class="search-bar">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      Search notes…
+    </div>
+
+    <div class="optD-hdr overdue" style="padding-top:10px">
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      Overdue (2)
+    </div>
+    <div class="note-row">
+      <div class="note-top"><div class="dot dot-med"></div><div class="note-title">Virgin Media</div></div>
+      <div class="note-meta"><span>Mon 13. Apr '26</span><span class="note-due"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> Overdue 3d</span></div>
+    </div>
+    <div class="note-row">
+      <div class="note-top"><div class="dot dot-med"></div><div class="note-title">Get 2 VCM from Aidan…</div></div>
+      <div class="note-meta"><span>Wed 25. Mar '26</span><span class="note-due"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> Overdue 14d</span></div>
+    </div>
+
+    <div class="optD-hdr pinned">
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" stroke="none"><line x1="12" y1="17" x2="12" y2="22" stroke="currentColor" stroke-width="2"/><path d="M5 17h14v-1.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V6h1a2 2 0 0 0 0-4H8a2 2 0 0 0 0 4h1v4.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24Z"/></svg>
+      Pinned
+    </div>
+    <div class="note-row active">
+      <div class="note-top"><div class="dot dot-low"></div><div class="note-title">Rian Features</div></div>
+      <div class="note-meta"><span>Sallins</span><span>Sun 29. Mar '26</span><span class="note-due-ok">Due in 3d</span></div>
+    </div>
+    <div class="note-row">
+      <div class="note-top"><div class="dot dot-high"></div><div class="note-title">Monday Task 20.4</div></div>
+      <div class="note-meta"><span>Mon 20. Apr '26</span></div>
+    </div>
+
+    <div class="optD-hdr open">Open</div>
+    <div class="note-row">
+      <div class="note-top"><div class="dot dot-med"></div><div class="note-title">Battery test</div></div>
+      <div class="note-meta"><span>Naas</span><span>Tue 14. Apr '26</span></div>
+    </div>
+    <div class="note-row">
+      <div class="note-top"><div class="dot dot-low"></div><div class="note-title">Rian TipTap Styles</div></div>
+      <div class="note-meta"><span>Wed 25. Mar '26</span><span class="note-tag" style="background:#22c55e">Personal</span></div>
+    </div>
+    <div class="note-row">
+      <div class="note-top"><div class="dot dot-med"></div><div class="note-title">Test Note — Styles</div></div>
+      <div class="note-meta"><span>Santry</span><span>Thu 2. Apr '26</span></div>
+    </div>
+    <div class="desc">
+      <div class="desc-pro">✓ Pros</div>
+      <div class="desc-text">Distinctive left accent bar colour-codes each group. Clean, doesn't add background clutter. Colour per group feels intentional.</div>
+      <div class="desc-con">⚠ Cons</div>
+      <div class="desc-text">Left bar may compete with the active-note selection bar (also uses a left border).</div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

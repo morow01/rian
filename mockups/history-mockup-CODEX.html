@@ -1,0 +1,1090 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rian - Week History and Jump Mockup CODEX</title>
+<style>
+  :root {
+    --page: #eef3f8;
+    --surface: #ffffff;
+    --soft: #f5f8fc;
+    --line: #d6e2ee;
+    --line-soft: #e9eff6;
+    --text: #102033;
+    --muted: #7189a5;
+    --blue: #2f6fe4;
+    --blue-soft: #edf4ff;
+    --orange: #f59e0b;
+    --orange-soft: #fff6e7;
+    --red: #ef4444;
+    --red-soft: #fff0f0;
+    --green: #15965b;
+    --green-soft: #edf9f2;
+    --shadow: 0 3px 14px rgba(17, 36, 61, .07);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background: var(--page);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  button, input { font: inherit; }
+
+  .header {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    background: rgba(255,255,255,.96);
+    border-bottom: 1px solid var(--line);
+    padding: 12px 12px 10px;
+    backdrop-filter: blur(12px);
+  }
+
+  .header-row {
+    width: min(100%, 560px);
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .back-btn,
+  .icon-btn {
+    width: 36px;
+    height: 36px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: var(--soft);
+    color: #405977;
+    display: grid;
+    place-items: center;
+    flex: 0 0 auto;
+    cursor: pointer;
+  }
+
+  .header-title {
+    min-width: 0;
+    flex: 1;
+  }
+
+  h1 {
+    margin: 0;
+    font-size: 18px;
+    line-height: 1.15;
+    font-weight: 700;
+    letter-spacing: 0;
+  }
+
+  .header-sub {
+    margin-top: 2px;
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 500;
+  }
+
+  .shell {
+    width: min(100%, 560px);
+    margin: 0 auto;
+    padding: 12px 12px 44px;
+  }
+
+  .summary {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 9px;
+    margin-bottom: 12px;
+  }
+
+  .content-grid {
+    display: block;
+  }
+
+  .side-panel {
+    display: contents;
+  }
+
+  .week-panel {
+    display: block;
+  }
+
+  .summary-card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 13px;
+    padding: 12px;
+    box-shadow: 0 2px 10px rgba(17,36,61,.05);
+  }
+
+  .summary-card.wide {
+    grid-column: 1 / -1;
+    background: linear-gradient(180deg, #fff 0%, #f7fbff 100%);
+  }
+
+  .label {
+    color: var(--muted);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+  }
+
+  .summary-value {
+    margin-top: 7px;
+    font-size: 22px;
+    line-height: 1;
+    font-weight: 700;
+  }
+
+  .summary-note {
+    margin-top: 7px;
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 500;
+  }
+
+  .jump-card {
+    display: flex;
+    gap: 9px;
+    align-items: center;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 13px;
+    padding: 10px;
+    margin-bottom: 12px;
+    box-shadow: var(--shadow);
+  }
+
+  .jump-field {
+    flex: 1;
+    min-width: 0;
+    height: 38px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: var(--soft);
+    padding: 0 11px;
+    color: var(--text);
+    outline: none;
+  }
+
+  .jump-action {
+    height: 38px;
+    border: 0;
+    border-radius: 10px;
+    background: var(--blue);
+    color: #fff;
+    padding: 0 14px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  .jump-hint {
+    margin: -4px 2px 12px;
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.35;
+  }
+
+  .chips {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding: 0 0 12px;
+  }
+
+  .search-field {
+    width: 100%;
+    height: 38px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: var(--surface);
+    color: var(--text);
+    padding: 0 12px;
+    margin-bottom: 12px;
+    font-size: 13px;
+    outline: none;
+  }
+
+  .search-field::placeholder {
+    color: var(--muted);
+  }
+
+  .chip {
+    height: 33px;
+    padding: 0 12px;
+    border-radius: 9px;
+    border: 1px solid var(--line);
+    background: var(--surface);
+    color: #405977;
+    font-size: 13px;
+    font-weight: 600;
+    white-space: nowrap;
+    cursor: pointer;
+  }
+
+  .chip.active {
+    border-color: rgba(47,111,228,.34);
+    background: var(--blue-soft);
+    color: var(--blue);
+  }
+
+  .section-title {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 8px 2px 9px;
+    color: var(--muted);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .09em;
+    text-transform: uppercase;
+  }
+
+  .section-title::after {
+    content: "";
+    height: 1px;
+    flex: 1;
+    background: var(--line);
+  }
+
+  .now-divider {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 3px;
+  }
+
+  .now-divider::before,
+  .now-divider::after {
+    content: "";
+    height: 1px;
+    flex: 1;
+    background: rgba(21,150,91,.3);
+  }
+
+  .now-pill {
+    border-radius: 999px;
+    background: var(--green);
+    color: #fff;
+    padding: 4px 10px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+  }
+
+  .week-card {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    min-height: 70px;
+    margin-bottom: 8px;
+    padding: 12px;
+    border: 1px solid var(--line);
+    border-radius: 13px;
+    background: var(--surface);
+    box-shadow: var(--shadow);
+    cursor: pointer;
+  }
+
+  .week-card:active { transform: scale(.99); }
+
+  .week-card.future {
+    box-shadow: none;
+    border-color: var(--line-soft);
+  }
+
+  .week-card.current {
+    border-color: rgba(47,111,228,.75);
+    background: linear-gradient(135deg, #f0f5ff 0%, #fff 62%);
+  }
+
+  .week-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    display: grid;
+    place-items: center;
+    flex: 0 0 auto;
+  }
+
+  .week-icon svg { width: 18px; height: 18px; }
+  .week-icon.future-icon { background: var(--soft); color: var(--muted); }
+  .week-icon.current-icon { background: var(--blue); color: #fff; }
+  .week-icon.history-icon { background: var(--blue-soft); color: var(--blue); }
+
+  .week-info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .week-range {
+    font-size: 15px;
+    line-height: 1.2;
+    font-weight: 650;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .week-meta {
+    margin-top: 4px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .badges {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    flex: 0 0 auto;
+  }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 28px;
+    height: 26px;
+    padding: 0 8px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+
+  .badge.blue { background: var(--blue-soft); color: var(--blue); }
+  .badge.orange { background: var(--orange-soft); color: #b66f00; }
+  .badge.red { background: var(--red-soft); color: var(--red); }
+  .badge.green { background: var(--green-soft); color: var(--green); }
+  .badge.muted { background: var(--soft); color: var(--muted); }
+  .badge.add {
+    border: 1px dashed var(--line);
+    background: transparent;
+    color: var(--muted);
+    font-weight: 650;
+  }
+
+  .tag {
+    display: inline-flex;
+    align-items: center;
+    height: 18px;
+    padding: 0 6px;
+    border-radius: 5px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+  }
+
+  .tag.blue { background: var(--blue-soft); color: var(--blue); }
+  .tag.orange { background: var(--orange-soft); color: var(--orange); }
+
+  .chevron {
+    display: none;
+    color: var(--muted);
+  }
+
+  #toast {
+    position: fixed;
+    left: 50%;
+    bottom: 24px;
+    transform: translateX(-50%) translateY(14px);
+    opacity: 0;
+    pointer-events: none;
+    background: #102033;
+    color: #fff;
+    padding: 10px 16px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 600;
+    transition: opacity .18s ease, transform .18s ease;
+    z-index: 30;
+  }
+
+  #toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  .modal-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 40;
+    display: none;
+    align-items: flex-end;
+    justify-content: center;
+    background: rgba(16,32,51,.34);
+    padding: 12px;
+  }
+
+  .modal-backdrop.show {
+    display: flex;
+  }
+
+  .week-modal {
+    width: min(100%, 540px);
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 24px 24px 18px 18px;
+    box-shadow: 0 18px 46px rgba(17,36,61,.22);
+    padding: 18px;
+  }
+
+  .sheet-handle {
+    width: 42px;
+    height: 4px;
+    border-radius: 999px;
+    background: var(--line);
+    margin: 0 auto 14px;
+  }
+
+  .modal-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .week-modal h2 {
+    margin: 0;
+    font-size: 21px;
+    line-height: 1.15;
+    font-weight: 700;
+    letter-spacing: 0;
+  }
+
+  .modal-copy {
+    margin: 5px 0 0;
+    color: #486180;
+    font-size: 14px;
+    line-height: 1.35;
+    font-weight: 500;
+  }
+
+  .modal-close {
+    width: 34px;
+    height: 34px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: var(--soft);
+    color: #405977;
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+  }
+
+  .quick-weeks {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+
+  .quick-week {
+    border: 1px solid var(--line);
+    border-radius: 13px;
+    background: var(--surface);
+    padding: 11px;
+    text-align: left;
+    cursor: pointer;
+  }
+
+  .quick-week.selected {
+    border-color: rgba(47,111,228,.55);
+    background: var(--blue-soft);
+  }
+
+  .quick-label {
+    display: block;
+    color: var(--muted);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+  }
+
+  .quick-date {
+    display: block;
+    margin-top: 5px;
+    color: var(--text);
+    font-size: 14px;
+    font-weight: 700;
+  }
+
+  .date-shell {
+    position: relative;
+    margin-bottom: 12px;
+  }
+
+  .date-shell input {
+    width: 100%;
+    height: 52px;
+    border: 1px solid var(--line);
+    border-radius: 13px;
+    background: var(--soft);
+    color: var(--text);
+    padding: 0 52px 0 18px;
+    font-size: 16px;
+    outline: none;
+  }
+
+  .date-shell svg {
+    position: absolute;
+    right: 18px;
+    top: 50%;
+    width: 22px;
+    height: 22px;
+    transform: translateY(-50%);
+    color: #66758a;
+    pointer-events: none;
+  }
+
+  .future-preview {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+    padding: 10px 12px;
+    border-radius: 12px;
+    background: var(--blue-soft);
+    color: #315783;
+    font-size: 13px;
+    font-weight: 600;
+  }
+
+  .modal-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .modal-btn {
+    height: 50px;
+    border-radius: 13px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  .modal-btn.secondary {
+    border: 2px solid var(--line);
+    background: var(--surface);
+    color: #486180;
+  }
+
+  .modal-btn.primary {
+    border: 0;
+    background: var(--blue);
+    color: #fff;
+  }
+
+  @media (min-width: 760px) {
+    .shell,
+    .header-row {
+      width: min(100%, 720px);
+    }
+
+    .summary {
+      grid-template-columns: 1.2fr repeat(4, 1fr);
+    }
+
+    .summary-card.wide {
+      grid-column: auto;
+    }
+
+    .chevron {
+      display: grid;
+      place-items: center;
+      flex: 0 0 auto;
+    }
+  }
+
+  @media (min-width: 1020px) {
+    body {
+      background:
+        linear-gradient(90deg, rgba(255,255,255,.72) 0 360px, transparent 360px),
+        var(--page);
+    }
+
+    .header {
+      padding: 14px 20px 12px;
+    }
+
+    .header-row {
+      width: min(100%, 1180px);
+    }
+
+    h1 {
+      font-size: 20px;
+    }
+
+    .shell {
+      width: min(100%, 1180px);
+      padding: 18px 20px 56px;
+    }
+
+    .content-grid {
+      display: grid;
+      grid-template-columns: 336px minmax(0, 1fr);
+      gap: 18px;
+      align-items: start;
+    }
+
+    .side-panel {
+      display: block;
+      position: sticky;
+      top: 82px;
+    }
+
+    .week-panel {
+      display: block;
+      min-width: 0;
+    }
+
+    .summary {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      margin-bottom: 12px;
+    }
+
+    .summary-card.wide {
+      grid-column: 1 / -1;
+    }
+
+    .summary-value {
+      font-size: 24px;
+    }
+
+    .jump-card {
+      margin-bottom: 14px;
+    }
+
+    .chips {
+      padding: 0;
+      flex-wrap: wrap;
+      overflow: visible;
+      margin-bottom: 12px;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      flex: 1 1 auto;
+      justify-content: center;
+      min-width: 92px;
+    }
+
+    .week-panel-card {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      box-shadow: 0 8px 22px rgba(17,36,61,.07);
+      overflow: hidden;
+    }
+
+    .week-panel-head {
+      display: grid;
+      grid-template-columns: minmax(260px, 1fr) 170px 120px;
+      gap: 12px;
+      align-items: center;
+      padding: 13px 16px;
+      background: var(--soft);
+      border-bottom: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    .section-title,
+    .now-divider {
+      margin: 0 16px;
+    }
+
+    .section-title {
+      padding-top: 16px;
+    }
+
+    .week-card {
+      display: grid;
+      grid-template-columns: 38px minmax(0, 1fr) 170px 120px 18px;
+      gap: 12px;
+      min-height: 68px;
+      margin: 0;
+      padding: 13px 16px;
+      border: 0;
+      border-top: 1px solid var(--line-soft);
+      border-radius: 0;
+      box-shadow: none;
+    }
+
+    .week-card:first-of-type {
+      border-top: 0;
+    }
+
+    .week-card:hover {
+      background: #fbfdff;
+    }
+
+    .week-card.current {
+      border-left: 4px solid var(--blue);
+      border-color: var(--line-soft);
+      background: linear-gradient(90deg, #f2f6ff 0%, #fff 68%);
+      padding-left: 12px;
+    }
+
+    .week-card.future {
+      border-color: var(--line-soft);
+    }
+
+    .week-icon {
+      grid-column: 1;
+    }
+
+    .week-info {
+      grid-column: 2;
+    }
+
+    .badges {
+      grid-column: 3;
+      justify-content: flex-start;
+    }
+
+    .chevron {
+      grid-column: 5;
+    }
+
+    .week-status {
+      grid-column: 4;
+      display: inline-flex;
+      justify-content: flex-start;
+    }
+
+    .desktop-only {
+      display: inline-flex;
+    }
+
+    .modal-backdrop {
+      align-items: center;
+    }
+
+    .week-modal {
+      border-radius: 18px;
+      padding: 22px;
+    }
+
+    .sheet-handle {
+      display: none;
+    }
+
+    .quick-weeks {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  @media (max-width: 1019px) {
+    .week-panel-head,
+    .desktop-only {
+      display: none;
+    }
+  }
+</style>
+</head>
+<body>
+  <header class="header">
+    <div class="header-row">
+      <button class="back-btn" aria-label="Back">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"></path></svg>
+      </button>
+      <div class="header-title">
+        <h1>Week History</h1>
+        <div class="header-sub">Jump to future weeks or review past work</div>
+      </div>
+      <button class="icon-btn" aria-label="Calendar" onclick="openSetWeek()">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"></rect><path d="M16 2v4M8 2v4M3 10h18"></path></svg>
+      </button>
+    </div>
+  </header>
+
+  <main class="shell">
+    <div class="content-grid">
+      <aside class="side-panel">
+        <section class="summary" aria-label="Work week summary">
+          <div class="summary-card wide">
+            <div class="label">2026 so far</div>
+            <div class="summary-value">17 weeks</div>
+            <div class="summary-note">378 ordinary hrs, 19 overtime hrs</div>
+          </div>
+          <div class="summary-card">
+            <div class="label">On-call</div>
+            <div class="summary-value">13</div>
+            <div class="summary-note">weeks</div>
+          </div>
+          <div class="summary-card">
+            <div class="label">Extra</div>
+            <div class="summary-value">4</div>
+            <div class="summary-note">shifts</div>
+          </div>
+          <div class="summary-card">
+            <div class="label">Callouts</div>
+            <div class="summary-value">6</div>
+            <div class="summary-note">incidents</div>
+          </div>
+          <div class="summary-card">
+            <div class="label">Average</div>
+            <div class="summary-value">22.2h</div>
+            <div class="summary-note">per week</div>
+          </div>
+        </section>
+
+        <section class="jump-card" aria-label="Jump to week">
+          <input class="jump-field" type="week" value="2026-W18" aria-label="Choose week">
+          <button class="jump-action" onclick="openSetWeek()">Jump</button>
+        </section>
+        <div class="jump-hint">Choose any Friday week start, including future weeks, then open that week.</div>
+
+        <nav class="chips" aria-label="Filters">
+          <button class="chip active">All</button>
+          <button class="chip">Upcoming</button>
+          <button class="chip">History</button>
+          <button class="chip">On-call</button>
+          <button class="chip">With OT</button>
+        </nav>
+
+        <input class="search-field" type="search" placeholder="Search week, site, note" aria-label="Search weeks">
+      </aside>
+
+      <section class="week-panel" aria-label="Weeks">
+        <div class="week-panel-card">
+          <div class="week-panel-head">
+            <div>Week</div>
+            <div>Totals</div>
+            <div>Status</div>
+          </div>
+
+          <section aria-label="Upcoming weeks">
+            <div class="section-title">Upcoming</div>
+
+      <article class="week-card future" onclick="openWeek('8 May - 14 May')">
+        <div class="week-icon future-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"></rect><path d="M16 2v4M8 2v4M3 10h18"></path></svg>
+        </div>
+        <div class="week-info">
+          <div class="week-range">8 May - 14 May</div>
+          <div class="week-meta">Week 19</div>
+        </div>
+        <div class="badges">
+          <span class="badge add">Add</span>
+        </div>
+        <div class="week-status desktop-only"><span class="badge muted">Planned</span></div>
+        <svg class="chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"></path></svg>
+      </article>
+
+      <article class="week-card future" onclick="openWeek('1 May - 7 May')">
+        <div class="week-icon future-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"></rect><path d="M16 2v4M8 2v4M3 10h18"></path></svg>
+        </div>
+        <div class="week-info">
+          <div class="week-range">1 May - 7 May</div>
+          <div class="week-meta">Week 18 <span class="tag blue">On-call</span></div>
+        </div>
+        <div class="badges">
+          <span class="badge add">Add</span>
+        </div>
+        <div class="week-status desktop-only"><span class="badge blue">On-call</span></div>
+        <svg class="chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"></path></svg>
+      </article>
+          </section>
+
+          <div class="now-divider"><span class="now-pill">This week</span></div>
+
+    <article class="week-card current" onclick="openWeek('24 Apr - 30 Apr')">
+      <div class="week-icon current-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"></rect><path d="M16 2v4M8 2v4M3 10h18"></path></svg>
+      </div>
+      <div class="week-info">
+        <div class="week-range">24 Apr - 30 Apr</div>
+        <div class="week-meta">Week 17 <span class="tag blue">Synced</span></div>
+      </div>
+      <div class="badges">
+        <span class="badge blue">4h</span>
+        <span class="badge orange">+1</span>
+      </div>
+      <div class="week-status desktop-only"><span class="badge green">Synced</span></div>
+      <svg class="chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"></path></svg>
+    </article>
+
+          <section aria-label="Previous weeks">
+            <div class="section-title">History</div>
+
+      <article class="week-card" onclick="openWeek('17 Apr - 23 Apr')">
+        <div class="week-icon history-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"></rect><path d="M16 2v4M8 2v4M3 10h18"></path></svg>
+        </div>
+        <div class="week-info">
+          <div class="week-range">17 Apr - 23 Apr</div>
+          <div class="week-meta">8 tasks, 4 sites <span class="tag blue">On-call</span></div>
+        </div>
+        <div class="badges">
+          <span class="badge blue">30h</span>
+          <span class="badge orange">+1</span>
+          <span class="badge red">2</span>
+        </div>
+        <div class="week-status desktop-only"><span class="badge green">Complete</span></div>
+        <svg class="chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"></path></svg>
+      </article>
+
+      <article class="week-card" onclick="openWeek('10 Apr - 16 Apr')">
+        <div class="week-icon history-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"></rect><path d="M16 2v4M8 2v4M3 10h18"></path></svg>
+        </div>
+        <div class="week-info">
+          <div class="week-range">10 Apr - 16 Apr</div>
+          <div class="week-meta">7 tasks, 5 sites</div>
+        </div>
+        <div class="badges">
+          <span class="badge blue">28h</span>
+        </div>
+        <div class="week-status desktop-only"><span class="badge green">Complete</span></div>
+        <svg class="chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"></path></svg>
+      </article>
+
+      <article class="week-card" onclick="openWeek('3 Apr - 9 Apr')">
+        <div class="week-icon history-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"></rect><path d="M16 2v4M8 2v4M3 10h18"></path></svg>
+        </div>
+        <div class="week-info">
+          <div class="week-range">3 Apr - 9 Apr</div>
+          <div class="week-meta">Annual leave</div>
+        </div>
+        <div class="badges">
+          <span class="badge muted">0h</span>
+        </div>
+        <div class="week-status desktop-only"><span class="badge muted">Empty</span></div>
+        <svg class="chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"></path></svg>
+      </article>
+
+      <article class="week-card" onclick="openWeek('27 Mar - 2 Apr')">
+        <div class="week-icon history-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"></rect><path d="M16 2v4M8 2v4M3 10h18"></path></svg>
+        </div>
+        <div class="week-info">
+          <div class="week-range">27 Mar - 2 Apr</div>
+          <div class="week-meta">9 tasks <span class="tag orange">Extra</span></div>
+        </div>
+        <div class="badges">
+          <span class="badge blue">32h</span>
+          <span class="badge orange">+3</span>
+        </div>
+        <div class="week-status desktop-only"><span class="badge green">Complete</span></div>
+        <svg class="chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"></path></svg>
+      </article>
+          </section>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <div id="toast">Opening week</div>
+
+  <div class="modal-backdrop" id="set-week-modal" onclick="closeSetWeek(event)">
+    <section class="week-modal" role="dialog" aria-modal="true" aria-labelledby="set-week-title">
+      <div class="sheet-handle" aria-hidden="true"></div>
+      <div class="modal-head">
+        <div>
+          <h2 id="set-week-title">Jump to Week</h2>
+          <p class="modal-copy">Open an upcoming week or choose a Friday start date.</p>
+        </div>
+        <button class="modal-close" onclick="hideSetWeek()" aria-label="Close">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"></path></svg>
+        </button>
+      </div>
+
+      <div class="quick-weeks" aria-label="Upcoming week shortcuts">
+        <button class="quick-week selected" onclick="setFutureWeekLabel(event, '1 May - 7 May')">
+          <span class="quick-label">Next week</span>
+          <span class="quick-date">1 May - 7 May</span>
+        </button>
+        <button class="quick-week" onclick="setFutureWeekLabel(event, '8 May - 14 May')">
+          <span class="quick-label">Week 19</span>
+          <span class="quick-date">8 May - 14 May</span>
+        </button>
+        <button class="quick-week" onclick="setFutureWeekLabel(event, '15 May - 21 May')">
+          <span class="quick-label">Week 20</span>
+          <span class="quick-date">15 May - 21 May</span>
+        </button>
+      </div>
+
+      <label class="date-shell">
+        <input type="text" value="01 / 05 / 2026" aria-label="Week start date">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="4" width="18" height="18" rx="2"></rect>
+          <path d="M16 2v4M8 2v4M3 10h18"></path>
+        </svg>
+      </label>
+
+      <div class="future-preview">
+        <span class="badge blue">Future</span>
+        <span id="future-preview-copy">Opens 1 May - 7 May as an empty planned week.</span>
+      </div>
+
+      <div class="modal-actions">
+        <button class="modal-btn secondary" onclick="hideSetWeek()">Cancel</button>
+        <button class="modal-btn primary" onclick="setFutureWeek()">Open Week</button>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    let timer;
+    let selectedFutureWeek = "1 May - 7 May";
+    function openWeek(label) {
+      const toast = document.getElementById("toast");
+      toast.textContent = "Opening " + label;
+      toast.classList.add("show");
+      clearTimeout(timer);
+      timer = setTimeout(() => toast.classList.remove("show"), 1800);
+    }
+
+    function openSetWeek() {
+      document.getElementById("set-week-modal").classList.add("show");
+    }
+
+    function hideSetWeek() {
+      document.getElementById("set-week-modal").classList.remove("show");
+    }
+
+    function closeSetWeek(event) {
+      if (event.target.id === "set-week-modal") hideSetWeek();
+    }
+
+    function setFutureWeek() {
+      hideSetWeek();
+      openWeek(selectedFutureWeek);
+    }
+
+    function setFutureWeekLabel(event, label) {
+      selectedFutureWeek = label;
+      document.querySelectorAll(".quick-week").forEach((item) => item.classList.remove("selected"));
+      event.currentTarget.classList.add("selected");
+      document.getElementById("future-preview-copy").textContent = "Opens " + label + " as an empty planned week.";
+    }
+  </script>
+</body>
+</html>

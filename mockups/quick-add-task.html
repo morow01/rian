@@ -1,0 +1,251 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Rian — Quick-add task mockup</title>
+<style>
+  :root {
+    --bg-page: #E8EEF5;
+    --bg-card: #FFFFFF;
+    --border: #D4E0EC;
+    --border-subtle: #EAEFF5;
+    --text-primary: #0F1C2E;
+    --text-secondary: #4A6580;
+    --text-muted: #8BA5BE;
+    --accent: #2D6BE4;
+    --accent-light: #EBF1FD;
+    --pill-slate-bg: #EDF1F5;
+    --pill-slate-color: #5A7289;
+    --pill-blue-bg: #EBF1FD;
+    --pill-blue-color: #1A4FB5;
+  }
+  * { box-sizing: border-box; margin: 0; }
+  body {
+    font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--bg-page);
+    color: var(--text-primary);
+    padding: 24px 16px 80px;
+    -webkit-font-smoothing: antialiased;
+  }
+  h1 { font-size: 18px; text-align: center; margin-bottom: 6px; }
+  .sub { text-align: center; color: var(--text-secondary); font-size: 13px; margin-bottom: 28px; }
+  .section-title {
+    font-size: 11px; font-weight: 700; letter-spacing: 0.08em;
+    text-transform: uppercase; color: var(--text-secondary);
+    margin: 28px 0 10px; padding-left: 4px;
+  }
+
+  /* Day row — mimics the real app */
+  .week-list { background: var(--bg-card); border-radius: 16px; overflow: hidden; border: 1px solid var(--border); max-width: 440px; margin: 0 auto; }
+  .day-row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 14px 16px; border-bottom: 1px solid var(--border-subtle);
+    cursor: pointer; user-select: none; position: relative;
+    transition: background 0.15s;
+  }
+  .day-row:last-child { border-bottom: none; }
+  .day-row:active { background: var(--accent-light); }
+  .date-badge {
+    width: 40px; height: 40px; min-width: 40px; border-radius: 10px;
+    background: #95a6c1; color: #fff; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .date-badge.today { background: var(--accent); }
+  .date-badge .dom { font-size: 18px; font-weight: 700; line-height: 1; }
+  .day-info { flex: 1; }
+  .day-name { font-size: 14px; font-weight: 700; }
+  .day-pills { display: flex; gap: 5px; margin-top: 3px; }
+  .pill { font-size: 11px; font-weight: 500; border-radius: 8px; padding: 3px 8px; }
+  .pill-slate { background: var(--pill-slate-bg); color: var(--pill-slate-color); }
+  .pill-blue { background: var(--pill-blue-bg); color: var(--pill-blue-color); }
+  .chevron { color: #b4bece; font-size: 18px; }
+
+  /* Long-press ripple animation */
+  .day-row .lp-ring {
+    position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%) scale(0);
+    width: 60px; height: 60px; border-radius: 50%;
+    border: 2px solid var(--accent); opacity: 0;
+    pointer-events: none;
+  }
+  .day-row.pressing .lp-ring {
+    animation: lpRing 0.6s ease forwards;
+  }
+  @keyframes lpRing {
+    0% { transform: translate(-50%,-50%) scale(0); opacity: 0.6; }
+    100% { transform: translate(-50%,-50%) scale(1.5); opacity: 0; }
+  }
+
+  /* Quick-add bottom sheet */
+  .qa-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.4);
+    backdrop-filter: blur(3px); z-index: 100;
+    display: flex; align-items: flex-end; justify-content: center;
+    animation: fadeIn 0.15s ease;
+    opacity: 1; transition: opacity 0.2s;
+  }
+  .qa-overlay.hidden { display: none; }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+  .qa-sheet {
+    background: var(--bg-card); border-radius: 20px 20px 0 0;
+    width: 100%; max-width: 480px; padding: 0;
+    animation: slideUp 0.25s ease; box-shadow: 0 -8px 40px rgba(0,0,0,0.15);
+  }
+  @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+
+  .qa-handle { width: 36px; height: 4px; background: #cbd5e1; border-radius: 2px; margin: 10px auto 0; }
+  .qa-header {
+    padding: 16px 20px 12px; display: flex; align-items: center; gap: 10px;
+  }
+  .qa-header .badge {
+    width: 36px; height: 36px; border-radius: 10px; background: var(--accent);
+    color: #fff; display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 15px;
+  }
+  .qa-header .title { font-size: 15px; font-weight: 700; }
+  .qa-header .sub-text { font-size: 12px; color: var(--text-secondary); }
+
+  .qa-body { padding: 0 20px 20px; display: flex; flex-direction: column; gap: 14px; }
+  .qa-field label {
+    font-size: 11px; font-weight: 700; letter-spacing: 0.06em;
+    text-transform: uppercase; color: var(--text-muted); display: block; margin-bottom: 5px;
+  }
+  .qa-field input, .qa-field select {
+    width: 100%; padding: 10px 12px; border: 1px solid var(--border);
+    border-radius: 12px; font-size: 14px; font-family: inherit;
+    background: #f8fafc; outline: none;
+  }
+  .qa-field input:focus { border-color: var(--accent); }
+  .qa-field .loc-btn {
+    width: 100%; padding: 10px 12px; border: 1px solid var(--border);
+    border-radius: 12px; font-size: 14px; font-family: inherit;
+    background: #f8fafc; text-align: left; cursor: pointer; color: var(--text-muted);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .qa-field .loc-btn svg { flex-shrink: 0; color: #e8453c; }
+
+  .qa-actions {
+    display: flex; gap: 10px; padding: 14px 20px;
+    border-top: 1px solid var(--border-subtle); background: var(--bg-card);
+  }
+  .btn-cancel {
+    flex: 1; padding: 12px; border-radius: 12px; border: 1px solid var(--border);
+    background: transparent; font-size: 14px; font-weight: 600; cursor: pointer;
+    color: var(--text-secondary);
+  }
+  .btn-add {
+    flex: 2; padding: 12px; border-radius: 12px; border: none;
+    background: var(--accent); color: #fff; font-size: 14px; font-weight: 700;
+    cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;
+  }
+  .btn-add:active { transform: scale(0.98); }
+
+  .hint {
+    max-width: 440px; margin: 16px auto 0; padding: 12px 16px;
+    background: var(--accent-light); border-radius: 12px;
+    font-size: 12px; color: var(--accent); line-height: 1.5;
+  }
+  .variant-box {
+    max-width: 440px; margin: 0 auto;
+  }
+</style>
+</head>
+<body>
+
+<h1>Quick-add task from day header</h1>
+<div class="sub">Long-press any day row to instantly add a task</div>
+
+<div class="section-title">Current flow (tap → expand → scroll → + Add Task)</div>
+<div class="variant-box">
+  <div class="week-list">
+    <div class="day-row">
+      <div class="date-badge"><div class="dom">14</div></div>
+      <div class="day-info">
+        <div class="day-name">Monday</div>
+        <div class="day-pills"><span class="pill pill-slate">2 tasks</span><span class="pill pill-blue">8h</span></div>
+      </div>
+      <div class="chevron">›</div>
+    </div>
+    <div class="day-row" id="demo-row" onclick="showSheet()">
+      <div class="date-badge today"><div class="dom">15</div></div>
+      <div class="day-info">
+        <div class="day-name">Tuesday <span style="font-weight:400;color:var(--text-muted);font-size:12px;">(tap to try)</span></div>
+        <div class="day-pills"><span class="pill pill-slate">1 task</span><span class="pill pill-blue">4h</span></div>
+      </div>
+      <div class="chevron">›</div>
+      <div class="lp-ring"></div>
+    </div>
+    <div class="day-row">
+      <div class="date-badge"><div class="dom">16</div></div>
+      <div class="day-info">
+        <div class="day-name">Wednesday</div>
+        <div class="day-pills" style="color:var(--text-muted);font-size:11px;">No entries</div>
+      </div>
+      <div class="chevron">›</div>
+    </div>
+  </div>
+</div>
+
+<div class="hint">
+  <strong>Interaction:</strong> Long-press (500ms) a day row → bottom sheet slides up with Description + Location pre-filled fields. Tap "Add Task" → task created, day auto-expands to show it. Regular tap still expands/collapses the day as before.
+</div>
+
+<!-- Quick-add sheet -->
+<div class="qa-overlay hidden" id="qa-overlay" onclick="if(event.target===this)hideSheet()">
+  <div class="qa-sheet">
+    <div class="qa-handle"></div>
+    <div class="qa-header">
+      <div class="badge">15</div>
+      <div>
+        <div class="title">Quick Add — Tuesday</div>
+        <div class="sub-text">15 Apr 2026</div>
+      </div>
+    </div>
+    <div class="qa-body">
+      <div class="qa-field">
+        <label>Description</label>
+        <input type="text" placeholder="e.g. Fault, Routine, Training…" autofocus>
+      </div>
+      <div class="qa-field">
+        <label>Location</label>
+        <div class="loc-btn" onclick="this.innerHTML='<svg width=14 height=14 viewBox=&quot;0 0 24 24&quot; fill=&quot;#e8453c&quot;><path d=&quot;M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 010-5 2.5 2.5 0 010 5z&quot;/></svg> Portlaoise (PGS)'">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="#e8453c"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 010-5 2.5 2.5 0 010 5z"/></svg>
+          Tap to select location…
+        </div>
+      </div>
+      <div class="qa-field">
+        <label>Hours</label>
+        <div style="display:flex;gap:10px;">
+          <div style="flex:1;">
+            <input type="number" value="8" min="0" step="0.5" style="text-align:center;font-weight:700;">
+            <div style="font-size:10px;color:var(--text-muted);text-align:center;margin-top:3px;">Ordinary</div>
+          </div>
+          <div style="flex:1;">
+            <input type="number" value="0" min="0" step="0.5" style="text-align:center;font-weight:700;">
+            <div style="font-size:10px;color:var(--text-muted);text-align:center;margin-top:3px;">Overtime</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="qa-actions">
+      <button class="btn-cancel" onclick="hideSheet()">Cancel</button>
+      <button class="btn-add" onclick="hideSheet()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Add Task
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+function showSheet() {
+  document.getElementById('qa-overlay').classList.remove('hidden');
+}
+function hideSheet() {
+  document.getElementById('qa-overlay').classList.add('hidden');
+}
+</script>
+
+</body>
+</html>

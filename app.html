@@ -9196,6 +9196,12 @@
       color: var(--text-primary);
     }
 
+    .finder-search-input::placeholder {
+      color: var(--text-muted);
+      font-size: 15px;
+      font-weight: 400;
+    }
+
     .finder-v-separator {
       width: 1px;
       height: 20px;
@@ -17792,9 +17798,13 @@
         padding: 16px;
       }
 
-      .dco-detail-form-2col .desk-field-group { min-width: 0; }
+      .dco-detail-form-2col .desk-field-group {
+        min-width: 0;
+      }
 
-      .dco-detail-form-2col .desk-field-group.wide { grid-column: 1 / -1; }
+      .dco-detail-form-2col .desk-field-group.wide {
+        grid-column: 1 / -1;
+      }
 
       .dco-detail-form-2col .act-textarea,
       .dco-detail-form-2col .act-input {
@@ -17804,7 +17814,9 @@
       }
 
       .dco-detail-form-2col .act-textarea:focus,
-      .dco-detail-form-2col .act-input:focus { border-color: var(--accent); }
+      .dco-detail-form-2col .act-input:focus {
+        border-color: var(--accent);
+      }
 
       /* Unified tint button for callout panel headers */
       .dco-hdr-btn {
@@ -17825,10 +17837,12 @@
         flex-shrink: 0;
         transition: background 0.12s, color 0.12s;
       }
+
       .dco-hdr-btn:hover {
         background: var(--accent);
         color: #fff;
       }
+
       .dco-hdr-badge {
         display: inline-flex;
         align-items: center;
@@ -18063,169 +18077,1178 @@
         background: rgba(var(--accent-rgb), 0.4);
       }
     }
-  /* ── Week History View ── */
-  .hist-view { min-height:calc(100vh - 60px); background:var(--bg-page); display:flex; flex-direction:column; }
-  .hist-hdr { position:sticky; top:0; z-index:10; background:var(--bg-card); border-bottom:1px solid var(--border); padding:12px 14px; display:flex; align-items:center; gap:10px; flex-shrink:0; }
-  .hist-hdr h2 { font-size:17px; font-weight:800; color:var(--text-primary); margin:0; }
-  .hist-hdr p  { font-size:12px; color:var(--text-muted); margin:2px 0 0; }
-  .hist-icon-btn { width:34px; height:34px; border-radius:9px; border:1px solid var(--border); background:var(--bg-input); color:var(--text-secondary); display:flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0; }
-  .hist-body { flex:1; padding:12px 12px 40px; }
-  .hist-mobile-search-card { background:var(--bg-card); border:1px solid var(--border); border-radius:14px; padding:10px; margin-bottom:12px; box-shadow:0 1px 4px rgba(var(--shadow-rgb),0.06); }
-  .hist-mobile-search { min-height:42px; border:1px solid var(--border); border-radius:11px; background:var(--bg-input); display:flex; align-items:center; gap:9px; padding:0 11px; color:var(--text-muted); }
-  .hist-mobile-search input { flex:1; min-width:0; border:0; outline:0; background:transparent; color:var(--text-primary); font-size:15px; font-weight:700; font-family:var(--font-body); -webkit-appearance:none; appearance:none; }
-  .hist-mobile-search-clear { width:28px; height:28px; border:0; border-radius:8px; background:transparent; color:var(--text-muted); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
-  .hist-mobile-scope { margin-top:9px; display:grid; grid-template-columns:repeat(3,1fr); gap:2px; padding:3px; border:1px solid var(--border); border-radius:11px; background:var(--bg-input); }
-  .hist-mobile-scope button { height:32px; border:0; border-radius:8px; background:transparent; color:var(--text-secondary); font-size:12px; font-weight:800; font-family:var(--font-body); }
-  .hist-mobile-scope button.active { background:var(--bg-card); color:var(--accent); box-shadow:0 1px 2px rgba(var(--shadow-rgb),0.08); }
-  .hist-stats { display:grid; grid-template-columns:1fr 1fr; background:var(--bg-card); border:1px solid var(--border); border-radius:14px; overflow:hidden; margin-bottom:14px; box-shadow:0 1px 4px rgba(var(--shadow-rgb),0.06); }
-  .hist-stat-card { min-height:74px; background:var(--bg-card); padding:12px; border-bottom:1px solid var(--border); }
-  .hist-stat-card:nth-child(odd) { border-right:1px solid var(--border); }
-  .hist-stat-card:nth-child(n+3) { border-bottom:0; }
-  .hist-stat-card.wide { grid-column:auto; }
-  .hist-stat-label { font-size:10px; font-weight:800; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.08em; }
-  .hist-stat-val { font-size:22px; font-weight:800; color:var(--accent); line-height:1; margin-top:6px; }
-  .hist-stat-note { font-size:11px; color:var(--text-muted); margin-top:5px; }
-  .hist-chips { display:flex; gap:6px; overflow-x:auto; padding-bottom:12px; scrollbar-width:none; }
-  .hist-chips::-webkit-scrollbar { display:none; }
-  .hist-chip { height:30px; padding:0 12px; border-radius:8px; border:1px solid var(--border); background:var(--bg-card); color:var(--text-secondary); font-size:12px; font-weight:600; white-space:nowrap; flex-shrink:0; cursor:pointer; font-family:var(--font-body); }
-  .hist-chip.active { background:var(--accent-light); border-color:rgba(var(--accent-rgb),0.3); color:var(--accent); }
-  .hist-section-hdr { display:flex; align-items:center; gap:8px; padding:10px 2px 8px; font-size:10px; font-weight:800; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.1em; }
-  .hist-section-hdr::after { content:''; flex:1; height:1px; background:var(--border); }
-  .hist-now-divider { display:flex; align-items:center; gap:8px; padding:8px 2px; }
-  .hist-now-divider::before,.hist-now-divider::after { content:''; flex:1; height:1px; background:rgba(34,197,94,0.3); }
-  .hist-now-pill { background:#22c55e; color:#fff; font-size:10px; font-weight:800; letter-spacing:0.08em; text-transform:uppercase; padding:3px 10px; border-radius:20px; white-space:nowrap; }
-  .hist-week-row { display:flex; align-items:center; gap:10px; min-height:62px; margin-bottom:7px; padding:10px 12px; background:var(--bg-card); border:1px solid var(--border); border-radius:12px; box-shadow:0 1px 4px rgba(var(--shadow-rgb),0.06); cursor:pointer; transition:box-shadow 0.14s; user-select:none; }
-  .hist-week-row:active { transform:scale(0.99); }
-  .hist-week-row:hover { box-shadow:0 3px 12px rgba(var(--shadow-rgb),0.10); }
-  .hist-week-row.future { box-shadow:none; border-color:var(--border-subtle,#eaeff5); }
-  .hist-week-row.current { border-left:4px solid var(--accent); background:var(--bg-card); }
-  .hist-week-icon { width:36px; height:36px; border-radius:9px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
-  .hist-week-icon.future  { background:var(--bg-input); color:var(--text-muted); opacity:0.7; }
-  .hist-week-icon.current { background:var(--accent); color:#fff; }
-  .hist-week-icon.past    { background:var(--accent-light); color:var(--accent); }
-  .hist-week-info { flex:1; min-width:0; }
-  .hist-week-range { font-size:14px; font-weight:700; color:var(--text-primary); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-  .hist-week-range.future { color:var(--text-secondary); font-weight:600; }
-  .hist-week-meta { font-size:11px; color:var(--text-muted); margin-top:3px; display:flex; align-items:center; gap:5px; flex-wrap:wrap; }
-  .hist-badges { display:flex; gap:5px; align-items:center; flex-shrink:0; }
-  .hist-badge { height:24px; padding:0 8px; border-radius:7px; font-size:12px; font-weight:700; display:inline-flex; align-items:center; gap:3px; white-space:nowrap; }
-  .hist-badge.blue  { background:var(--accent-light); color:var(--accent); }
-  .hist-badge.amber { background:#fff8ec; color:#F59E0B; }
-  .hist-badge.red   { background:#fff1f1; color:#ef4444; }
-  .hist-badge.muted { background:var(--bg-input); color:var(--text-muted); }
-  .hist-badge.add   { border:1px dashed var(--border); background:transparent; color:var(--text-muted); font-size:11px; }
-  .hist-tag { display:inline-flex; align-items:center; height:16px; padding:0 5px; border-radius:4px; font-size:9px; font-weight:800; letter-spacing:0.05em; text-transform:uppercase; }
-  .hist-tag.blue  { background:var(--accent-light); color:var(--accent); }
-  .hist-tag.amber { background:#fff8ec; color:#F59E0B; }
-  .hist-mobile-results-card { background:var(--bg-card); border:1px solid var(--border); border-radius:14px; overflow:hidden; box-shadow:0 1px 4px rgba(var(--shadow-rgb),0.06); }
-  .hist-mobile-results-head { padding:13px 14px 11px; border-bottom:1px solid var(--border); }
-  .hist-mobile-results-title { font-size:14px; font-weight:800; color:var(--text-primary); }
-  .hist-mobile-results-sub { margin-top:3px; font-size:12px; color:var(--text-muted); font-weight:600; }
-  .hist-mobile-result-group { padding:8px 14px 6px; background:var(--bg-page); border-top:1px solid var(--border); border-bottom:1px solid var(--border); color:var(--text-muted); font-size:10px; font-weight:800; letter-spacing:0.08em; text-transform:uppercase; }
-  .hist-mobile-result-group:first-of-type { border-top:0; }
-  .hist-mobile-result { display:flex; gap:11px; padding:13px 14px; border-bottom:1px solid var(--border); cursor:pointer; }
-  .hist-mobile-result:last-child { border-bottom:0; }
-  .hist-mobile-kind { width:34px; height:34px; border-radius:10px; display:flex; align-items:center; justify-content:center; background:rgba(var(--accent-rgb),0.10); color:var(--accent); font-size:12px; font-weight:800; flex-shrink:0; }
-  .hist-mobile-kind.callout { background:rgba(var(--priority-high-rgb),0.10); color:var(--priority-high); }
-  .hist-mobile-result-main { flex:1; min-width:0; }
-  .hist-mobile-result-title { font-size:14px; font-weight:800; color:var(--text-primary); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-  .hist-mobile-result-meta { margin-top:3px; font-size:11px; color:var(--text-muted); font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-  .hist-mobile-result-snippet { margin-top:8px; color:var(--text-secondary); font-size:12px; line-height:1.35; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
-  .hist-mobile-empty { padding:28px 18px; color:var(--text-muted); text-align:center; font-size:13px; line-height:1.45; }
-  .hist-mark { padding:0; border-radius:3px; background:rgba(var(--amber-rgb),0.26); color:inherit; }
-  .hist-jump-overlay { position:fixed; inset:0; z-index:200; background:rgba(0,0,0,0.35); display:flex; align-items:flex-end; justify-content:center; padding:12px; }
-  .hist-jump-sheet { width:min(100%,480px); background:var(--bg-card); border-radius:20px 20px 16px 16px; padding:16px; box-shadow:0 16px 48px rgba(0,0,0,0.18); }
-  .hist-jump-handle { width:38px; height:4px; border-radius:2px; background:var(--border); margin:0 auto 14px; }
-  .hist-jump-title { font-size:18px; font-weight:800; color:var(--text-primary); margin-bottom:4px; }
-  .hist-jump-sub { font-size:13px; color:var(--text-muted); margin-bottom:14px; }
-  .hist-quick-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; margin-bottom:14px; }
-  .hist-quick-btn { border:1px solid var(--border); border-radius:11px; background:var(--bg-card); padding:10px; text-align:left; cursor:pointer; transition:border-color 0.12s,background 0.12s; font-family:var(--font-body); }
-  .hist-quick-btn.sel { border-color:rgba(var(--accent-rgb),0.5); background:var(--accent-light); }
-  .hist-quick-label { font-size:10px; font-weight:800; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.06em; display:block; }
-  .hist-quick-date { font-size:12px; font-weight:700; color:var(--text-primary); margin-top:4px; display:block; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-  .hist-date-wrap { position:relative; margin-bottom:12px; }
-  .hist-date-wrap input { width:100%; height:48px; border:1px solid var(--border); border-radius:12px; background:var(--bg-input); color:var(--text-primary); padding:0 44px 0 14px; font-size:15px; outline:none; font-family:var(--font-body); }
-  .hist-date-wrap input:focus { border-color:var(--accent); }
-  .hist-date-wrap svg { position:absolute; right:14px; top:50%; transform:translateY(-50%); color:var(--text-muted); pointer-events:none; }
-  .hist-jump-actions { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
-  .hist-jump-btn { height:46px; border-radius:12px; font-size:14px; font-weight:700; cursor:pointer; font-family:var(--font-body); }
-  .hist-jump-btn.cancel { border:1px solid var(--border); background:var(--bg-card); color:var(--text-secondary); }
-  .hist-jump-btn.go { border:none; background:var(--accent); color:#fff; }
 
-  /* ── Week History — desktop sidebar + table ── */
-  @media (min-width: 1280px) {
-    .hist-desk-wrap { display:flex; height:calc(100vh - 110px); border-top:1px solid var(--border); overflow:hidden; }
-    .hist-desk-sidebar { width:260px; background:var(--bg-card); border-right:1px solid var(--border); display:flex; flex-direction:column; overflow-y:auto; flex-shrink:0; }
-    .hist-desk-sidebar-hdr { font-size:10px; font-weight:800; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.1em; padding:14px 16px 6px; }
-    .hist-desk-sb-stats { display:grid; grid-template-columns:1fr 1fr; border-top:1px solid var(--border); border-bottom:1px solid var(--border); }
-    .hist-desk-sb-stat { text-align:center; padding:12px 8px 10px; border-bottom:1px solid var(--border); }
-    .hist-desk-sb-stat:nth-child(odd) { border-right:1px solid var(--border); }
-    .hist-desk-sb-stat:nth-child(n+3) { border-bottom:none; }
-    .hist-desk-sb-stat-val { font-size:20px; font-weight:800; line-height:1.2; }
-    .hist-desk-sb-stat-lbl { font-size:9px; color:var(--text-muted); margin-top:2px; font-weight:600; text-transform:uppercase; }
-    .hist-desk-sb-filter { display:flex; align-items:center; gap:8px; padding:8px 12px; border:none; background:transparent; font-family:var(--font-body); font-size:13px; font-weight:600; color:var(--text-secondary); cursor:pointer; width:100%; text-align:left; border-radius:8px; }
-    .hist-desk-sb-filter:hover { background:var(--bg-input); }
-    .hist-desk-sb-filter.active { background:var(--accent-light); color:var(--accent); font-weight:700; }
-    .hist-desk-sb-dot { width:7px; height:7px; border-radius:50%; background:currentColor; flex-shrink:0; opacity:0.7; }
-    .hist-desk-sb-jump { margin:10px 12px 16px; display:flex; align-items:center; justify-content:center; gap:7px; height:38px; border-radius:10px; background:var(--accent); color:#fff; font-size:13px; font-weight:700; border:none; cursor:pointer; font-family:var(--font-body); width:calc(100% - 24px); }
-    .hist-desk-main { flex:1; display:flex; flex-direction:column; overflow:hidden; min-width:0; }
-    .hist-desk-head { min-height:74px; background:var(--bg-card); border-bottom:1px solid var(--border); display:flex; align-items:center; gap:18px; padding:0 22px; flex-shrink:0; }
-    .hist-desk-head h1 { margin:0; font-size:18px; line-height:1.15; font-weight:800; color:var(--text-primary); }
-    .hist-desk-head p { margin:4px 0 0; font-size:12px; color:var(--text-muted); }
-    .hist-desk-head-meta { margin-left:auto; display:flex; align-items:center; gap:18px; color:var(--text-muted); font-size:12px; font-weight:600; white-space:nowrap; }
-    .hist-desk-head-meta span { display:inline-flex; align-items:center; gap:6px; }
-    .hist-desk-head-meta span + span::before { content:''; width:1px; height:16px; background:var(--border); margin-right:12px; }
-    .hist-desk-head-wrap { background:var(--bg-card); border-bottom:1px solid var(--border); padding:14px 22px; flex-shrink:0; }
-    .hist-desk-head-wrap .hist-desk-head { min-height:auto; border-bottom:none; padding:0; }
-    .hist-desk-search-row { margin-top:14px; display:flex; align-items:center; gap:10px; }
-    .hist-desk-search { flex:1; height:40px; border:1px solid var(--border); border-radius:10px; background:var(--bg-input); display:flex; align-items:center; gap:9px; padding:0 12px; color:var(--text-muted); }
-    .hist-desk-search input { flex:1; min-width:0; border:none; outline:none; background:transparent; color:var(--text-primary); font-size:14px; font-weight:600; font-family:var(--font-body); }
-    .hist-desk-scope { height:40px; display:flex; align-items:center; gap:2px; padding:3px; border:1px solid var(--border); border-radius:10px; background:var(--bg-input); flex-shrink:0; }
-    .hist-desk-scope button { height:32px; padding:0 12px; border:none; border-radius:8px; background:transparent; color:var(--text-secondary); font-size:12px; font-weight:800; cursor:pointer; font-family:var(--font-body); }
-    .hist-desk-scope button.active { background:var(--bg-card); color:var(--accent); box-shadow:0 1px 2px rgba(var(--shadow-rgb),0.08); }
-    .hist-desk-content { flex:1; min-height:0; display:flex; overflow:hidden; }
-    .hist-desk-content.no-search { display:block; }
-    .hist-desk-table-wrap { flex:1; min-width:520px; overflow:auto; }
-    .hist-desk-table { width:100%; min-width:860px; border-collapse:collapse; }
-    .hist-desk-table thead th { position:sticky; top:0; z-index:2; background:var(--bg-card-alt); border-bottom:1px solid var(--border); padding:8px 16px; text-align:left; font-size:10px; font-weight:800; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.08em; white-space:nowrap; }
-    .hist-desk-table thead th:first-child { padding-left:20px; }
-    .hist-desk-table thead th.r { text-align:right; }
-    .hist-desk-table thead th.c { text-align:center; }
-    .hist-desk-table tbody tr { border-bottom:1px solid var(--border); cursor:pointer; transition:background 0.1s; }
-    .hist-desk-table tbody tr:hover { background:var(--bg-card-alt); }
-    .hist-desk-table tbody tr.hdt-current td { background:rgba(var(--accent-rgb),0.08); }
-    .hist-desk-table tbody tr.hdt-current td:first-child { box-shadow:inset 4px 0 0 var(--accent); }
-    .hist-desk-table tbody tr.hdt-future { opacity:0.65; }
-    .hist-desk-table tbody td { padding:10px 16px; vertical-align:middle; }
-    .hist-desk-table tbody td:first-child { padding-left:20px; }
-    .hist-desk-table tbody tr.hdt-sec td { padding:6px 20px 4px; background:var(--bg-page); border-top:1px solid var(--border); border-bottom:1px solid var(--border); cursor:default; }
-    .hist-desk-table tbody tr.hdt-sec:hover { background:var(--bg-page); }
-    .hdt-sec-lbl { font-size:10px; font-weight:800; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.1em; }
-    .hdt-range { font-size:13px; font-weight:700; color:var(--text-primary); white-space:nowrap; }
-    .hdt-sub { margin-top:3px; color:var(--text-muted); font-size:11px; font-weight:600; }
-    .hdt-range.dim { color:var(--text-secondary); font-weight:600; }
-    .hdt-h { font-size:14px; font-weight:800; text-align:right; }
-    .hdt-ot { font-size:12px; font-weight:700; color:#F59E0B; text-align:right; }
-    .hdt-n { font-size:12px; font-weight:600; color:var(--text-secondary); text-align:center; }
-    .hdt-muted { opacity:0.35; }
-    .hdt-status { display:flex; align-items:center; gap:6px; }
-    .hdt-arrow { width:28px; height:28px; border-radius:7px; border:1px solid var(--border); background:var(--bg-input); color:var(--text-secondary); display:flex; align-items:center; justify-content:center; margin-left:auto; }
-    .hist-results-panel { background:var(--bg-card); border-left:1px solid var(--border); overflow:auto; flex-shrink:0; }
-    .hist-results-head { position:sticky; top:0; z-index:2; background:var(--bg-card); border-bottom:1px solid var(--border); padding:14px 16px 12px; }
-    .hist-results-title { font-size:13px; font-weight:800; color:var(--text-primary); }
-    .hist-results-sub { margin-top:3px; font-size:11px; color:var(--text-muted); font-weight:600; }
-    .hist-results-hint { padding:12px 16px; color:var(--text-muted); font-size:12px; line-height:1.4; }
-    .hist-result-group { padding:8px 16px 6px; background:var(--bg-page); border-top:1px solid var(--border); border-bottom:1px solid var(--border); color:var(--text-muted); font-size:10px; font-weight:800; letter-spacing:0.08em; text-transform:uppercase; }
-    .hist-result { padding:12px 16px; border-bottom:1px solid var(--border); cursor:pointer; transition:background 0.12s; }
-    .hist-result:hover { background:var(--bg-card-alt); }
-    .hist-result-top { display:flex; align-items:center; gap:8px; min-width:0; }
-    .hist-result-kind { width:28px; height:28px; border-radius:8px; display:flex; align-items:center; justify-content:center; background:rgba(var(--accent-rgb),0.10); color:var(--accent); font-size:12px; font-weight:800; flex-shrink:0; }
-    .hist-result-kind.callout { background:rgba(var(--priority-high-rgb),0.10); color:var(--priority-high); }
-    .hist-result-title { min-width:0; font-size:13px; font-weight:800; color:var(--text-primary); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-    .hist-result-meta { margin-top:2px; font-size:11px; color:var(--text-muted); font-weight:600; }
-    .hist-result-snippet { margin:8px 0 0 36px; font-size:12px; line-height:1.35; color:var(--text-secondary); }
-    .hist-mark { padding:0; border-radius:3px; background:rgba(var(--amber-rgb),0.26); color:inherit; }
-  }
+    /* ── Week History View ── */
+    .hist-view {
+      min-height: calc(100vh - 60px);
+      background: var(--bg-page);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .hist-hdr {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background: var(--bg-card);
+      border-bottom: 1px solid var(--border);
+      padding: 12px 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-shrink: 0;
+    }
+
+    .hist-hdr h2 {
+      font-size: 17px;
+      font-weight: 800;
+      color: var(--text-primary);
+      margin: 0;
+    }
+
+    .hist-hdr p {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin: 2px 0 0;
+    }
+
+    .hist-icon-btn {
+      width: 34px;
+      height: 34px;
+      border-radius: 9px;
+      border: 1px solid var(--border);
+      background: var(--bg-input);
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .hist-body {
+      flex: 1;
+      padding: 12px 12px 40px;
+    }
+
+    .hist-mobile-search-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 10px;
+      margin-bottom: 12px;
+      box-shadow: 0 1px 4px rgba(var(--shadow-rgb), 0.06);
+    }
+
+    .hist-mobile-search {
+      min-height: 42px;
+      border: 1px solid var(--border);
+      border-radius: 11px;
+      background: var(--bg-input);
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      padding: 0 11px;
+      color: var(--text-muted);
+    }
+
+    .hist-mobile-search input {
+      flex: 1;
+      min-width: 0;
+      border: 0;
+      outline: 0;
+      background: transparent;
+      color: var(--text-primary);
+      font-size: 15px;
+      font-weight: 700;
+      font-family: var(--font-body);
+      -webkit-appearance: none;
+      appearance: none;
+    }
+
+    .hist-mobile-search input::-webkit-search-cancel-button,
+    .hist-mobile-search input::-webkit-search-decoration,
+    .hist-results-panel .finder-search-input::-webkit-search-cancel-button,
+    .hist-results-panel .finder-search-input::-webkit-search-decoration {
+      -webkit-appearance: none;
+      appearance: none;
+      display: none;
+    }
+
+    .hist-mobile-search input::-ms-clear,
+    .hist-results-panel .finder-search-input::-ms-clear {
+      display: none;
+      width: 0;
+      height: 0;
+    }
+
+    .hist-mobile-search-clear {
+      width: 28px;
+      height: 28px;
+      border: 0;
+      border-radius: 8px;
+      background: transparent;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .hist-mobile-scope {
+      margin-top: 9px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2px;
+      padding: 3px;
+      border: 1px solid var(--border);
+      border-radius: 11px;
+      background: var(--bg-input);
+    }
+
+    .hist-mobile-scope button {
+      height: 32px;
+      border: 0;
+      border-radius: 8px;
+      background: transparent;
+      color: var(--text-secondary);
+      font-size: 12px;
+      font-weight: 800;
+      font-family: var(--font-body);
+    }
+
+    .hist-mobile-scope button.active {
+      background: var(--bg-card);
+      color: var(--accent);
+      box-shadow: 0 1px 2px rgba(var(--shadow-rgb), 0.08);
+    }
+
+    .hist-stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+      margin-bottom: 14px;
+      box-shadow: 0 1px 4px rgba(var(--shadow-rgb), 0.06);
+    }
+
+    .hist-stat-card {
+      min-height: 74px;
+      background: var(--bg-card);
+      padding: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .hist-stat-card:nth-child(odd) {
+      border-right: 1px solid var(--border);
+    }
+
+    .hist-stat-card:nth-child(n+3) {
+      border-bottom: 0;
+    }
+
+    .hist-stat-card.wide {
+      grid-column: auto;
+    }
+
+    .hist-stat-label {
+      font-size: 10px;
+      font-weight: 800;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .hist-stat-val {
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--accent);
+      line-height: 1;
+      margin-top: 6px;
+    }
+
+    .hist-stat-note {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 5px;
+    }
+
+    .hist-chips {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      padding-bottom: 12px;
+      scrollbar-width: none;
+    }
+
+    .hist-chips::-webkit-scrollbar {
+      display: none;
+    }
+
+    .hist-chip {
+      height: 30px;
+      padding: 0 12px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--bg-card);
+      color: var(--text-secondary);
+      font-size: 12px;
+      font-weight: 600;
+      white-space: nowrap;
+      flex-shrink: 0;
+      cursor: pointer;
+      font-family: var(--font-body);
+    }
+
+    .hist-chip.active {
+      background: var(--accent-light);
+      border-color: rgba(var(--accent-rgb), 0.3);
+      color: var(--accent);
+    }
+
+    .hist-section-hdr {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 2px 8px;
+      font-size: 10px;
+      font-weight: 800;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+
+    .hist-section-hdr::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    .hist-now-divider {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 2px;
+    }
+
+    .hist-now-divider::before,
+    .hist-now-divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: rgba(34, 197, 94, 0.3);
+    }
+
+    .hist-now-pill {
+      background: #22c55e;
+      color: #fff;
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 3px 10px;
+      border-radius: 20px;
+      white-space: nowrap;
+    }
+
+    .hist-week-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-height: 62px;
+      margin-bottom: 7px;
+      padding: 10px 12px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      box-shadow: 0 1px 4px rgba(var(--shadow-rgb), 0.06);
+      cursor: pointer;
+      transition: box-shadow 0.14s;
+      user-select: none;
+    }
+
+    .hist-week-row:active {
+      transform: scale(0.99);
+    }
+
+    .hist-week-row:hover {
+      box-shadow: 0 3px 12px rgba(var(--shadow-rgb), 0.10);
+    }
+
+    .hist-week-row.future {
+      box-shadow: none;
+      border-color: var(--border-subtle, #eaeff5);
+    }
+
+    .hist-week-row.current {
+      border-left: 4px solid var(--accent);
+      background: var(--bg-card);
+    }
+
+    .hist-week-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 9px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .hist-week-icon.future {
+      background: var(--bg-input);
+      color: var(--text-muted);
+      opacity: 0.7;
+    }
+
+    .hist-week-icon.current {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .hist-week-icon.past {
+      background: var(--accent-light);
+      color: var(--accent);
+    }
+
+    .hist-week-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .hist-week-range {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-primary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .hist-week-range.future {
+      color: var(--text-secondary);
+      font-weight: 600;
+    }
+
+    .hist-week-meta {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 3px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      flex-wrap: wrap;
+    }
+
+    .hist-badges {
+      display: flex;
+      gap: 5px;
+      align-items: center;
+      flex-shrink: 0;
+    }
+
+    .hist-badge {
+      height: 24px;
+      padding: 0 8px;
+      border-radius: 7px;
+      font-size: 12px;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      white-space: nowrap;
+    }
+
+    .hist-badge.blue {
+      background: var(--accent-light);
+      color: var(--accent);
+    }
+
+    .hist-badge.amber {
+      background: #fff8ec;
+      color: #F59E0B;
+    }
+
+    .hist-badge.red {
+      background: #fff1f1;
+      color: #ef4444;
+    }
+
+    .hist-badge.muted {
+      background: var(--bg-input);
+      color: var(--text-muted);
+    }
+
+    .hist-badge.add {
+      border: 1px dashed var(--border);
+      background: transparent;
+      color: var(--text-muted);
+      font-size: 11px;
+    }
+
+    .hist-tag {
+      display: inline-flex;
+      align-items: center;
+      height: 16px;
+      padding: 0 5px;
+      border-radius: 4px;
+      font-size: 9px;
+      font-weight: 800;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .hist-tag.blue {
+      background: var(--accent-light);
+      color: var(--accent);
+    }
+
+    .hist-tag.amber {
+      background: #fff8ec;
+      color: #F59E0B;
+    }
+
+    .hist-mobile-results-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: 0 1px 4px rgba(var(--shadow-rgb), 0.06);
+    }
+
+    .hist-mobile-results-head {
+      padding: 13px 14px 11px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .hist-mobile-results-title {
+      font-size: 14px;
+      font-weight: 800;
+      color: var(--text-primary);
+    }
+
+    .hist-mobile-results-sub {
+      margin-top: 3px;
+      font-size: 12px;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .hist-mobile-result-group {
+      padding: 8px 14px 6px;
+      background: var(--bg-page);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      color: var(--text-muted);
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .hist-mobile-result-group:first-of-type {
+      border-top: 0;
+    }
+
+    .hist-mobile-result {
+      display: flex;
+      gap: 11px;
+      padding: 13px 14px;
+      border-bottom: 1px solid var(--border);
+      cursor: pointer;
+    }
+
+    .hist-mobile-result:last-child {
+      border-bottom: 0;
+    }
+
+    .hist-mobile-kind {
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(var(--accent-rgb), 0.10);
+      color: var(--accent);
+      font-size: 12px;
+      font-weight: 800;
+      flex-shrink: 0;
+    }
+
+    .hist-mobile-kind.callout {
+      background: rgba(var(--priority-high-rgb), 0.10);
+      color: var(--priority-high);
+    }
+
+    .hist-mobile-result-main {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .hist-mobile-result-title {
+      font-size: 14px;
+      font-weight: 800;
+      color: var(--text-primary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .hist-mobile-result-meta {
+      margin-top: 3px;
+      font-size: 11px;
+      color: var(--text-muted);
+      font-weight: 700;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .hist-mobile-result-snippet {
+      margin-top: 8px;
+      color: var(--text-secondary);
+      font-size: 12px;
+      line-height: 1.35;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .hist-mobile-empty {
+      padding: 28px 18px;
+      color: var(--text-muted);
+      text-align: center;
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .hist-mark {
+      padding: 0;
+      border-radius: 3px;
+      background: rgba(var(--amber-rgb), 0.26);
+      color: inherit;
+    }
+
+    .hist-jump-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 200;
+      background: rgba(0, 0, 0, 0.35);
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      padding: 12px;
+    }
+
+    .hist-jump-sheet {
+      width: min(100%, 480px);
+      background: var(--bg-card);
+      border-radius: 20px 20px 16px 16px;
+      padding: 16px;
+      box-shadow: 0 16px 48px rgba(0, 0, 0, 0.18);
+    }
+
+    .hist-jump-handle {
+      width: 38px;
+      height: 4px;
+      border-radius: 2px;
+      background: var(--border);
+      margin: 0 auto 14px;
+    }
+
+    .hist-jump-title {
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+
+    .hist-jump-sub {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 14px;
+    }
+
+    .hist-quick-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .hist-quick-btn {
+      border: 1px solid var(--border);
+      border-radius: 11px;
+      background: var(--bg-card);
+      padding: 10px;
+      text-align: left;
+      cursor: pointer;
+      transition: border-color 0.12s, background 0.12s;
+      font-family: var(--font-body);
+    }
+
+    .hist-quick-btn.sel {
+      border-color: rgba(var(--accent-rgb), 0.5);
+      background: var(--accent-light);
+    }
+
+    .hist-quick-label {
+      font-size: 10px;
+      font-weight: 800;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      display: block;
+    }
+
+    .hist-quick-date {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-top: 4px;
+      display: block;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .hist-date-wrap {
+      position: relative;
+      margin-bottom: 12px;
+    }
+
+    .hist-date-wrap input {
+      width: 100%;
+      height: 48px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--bg-input);
+      color: var(--text-primary);
+      padding: 0 44px 0 14px;
+      font-size: 15px;
+      outline: none;
+      font-family: var(--font-body);
+    }
+
+    .hist-date-wrap input:focus {
+      border-color: var(--accent);
+    }
+
+    .hist-date-wrap svg {
+      position: absolute;
+      right: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      pointer-events: none;
+    }
+
+    .hist-jump-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .hist-jump-btn {
+      height: 46px;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: var(--font-body);
+    }
+
+    .hist-jump-btn.cancel {
+      border: 1px solid var(--border);
+      background: var(--bg-card);
+      color: var(--text-secondary);
+    }
+
+    .hist-jump-btn.go {
+      border: none;
+      background: var(--accent);
+      color: #fff;
+    }
+
+    /* ── Week History — desktop sidebar + table ── */
+    @media (min-width: 1280px) {
+      .hist-desk-wrap {
+        display: flex;
+        height: calc(100vh - 110px);
+        border-top: 1px solid var(--border);
+        overflow: hidden;
+      }
+
+      .hist-desk-sidebar {
+        width: 260px;
+        background: var(--bg-card);
+        border-right: 1px solid var(--border);
+        display: flex;
+        flex-direction: column;
+        overflow-y: auto;
+        flex-shrink: 0;
+      }
+
+      .hist-desk-sidebar-hdr {
+        font-size: 10px;
+        font-weight: 800;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        padding: 14px 16px 6px;
+      }
+
+      .hist-desk-sb-stats {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        border-top: 1px solid var(--border);
+        border-bottom: 1px solid var(--border);
+      }
+
+      .hist-desk-sb-stat {
+        text-align: center;
+        padding: 12px 8px 10px;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .hist-desk-sb-stat:nth-child(odd) {
+        border-right: 1px solid var(--border);
+      }
+
+      .hist-desk-sb-stat:nth-child(n+3) {
+        border-bottom: none;
+      }
+
+      .hist-desk-sb-stat-val {
+        font-size: 20px;
+        font-weight: 800;
+        line-height: 1.2;
+      }
+
+      .hist-desk-sb-stat-lbl {
+        font-size: 9px;
+        color: var(--text-muted);
+        margin-top: 2px;
+        font-weight: 600;
+        text-transform: uppercase;
+      }
+
+      .hist-desk-sb-filter {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 12px;
+        border: none;
+        background: transparent;
+        font-family: var(--font-body);
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--text-secondary);
+        cursor: pointer;
+        width: 100%;
+        text-align: left;
+        border-radius: 8px;
+      }
+
+      .hist-desk-sb-filter:hover {
+        background: var(--bg-input);
+      }
+
+      .hist-desk-sb-filter.active {
+        background: var(--accent-light);
+        color: var(--accent);
+        font-weight: 700;
+      }
+
+      .hist-desk-sb-dot {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: currentColor;
+        flex-shrink: 0;
+        opacity: 0.7;
+      }
+
+      .hist-desk-sb-jump {
+        margin: 10px 12px 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 7px;
+        height: 38px;
+        border-radius: 10px;
+        background: var(--accent);
+        color: #fff;
+        font-size: 13px;
+        font-weight: 700;
+        border: none;
+        cursor: pointer;
+        font-family: var(--font-body);
+        width: calc(100% - 24px);
+      }
+
+      .hist-desk-main {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        min-width: 0;
+      }
+
+      .hist-desk-head {
+        min-height: 74px;
+        background: var(--bg-card);
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        gap: 18px;
+        padding: 0 22px;
+        flex-shrink: 0;
+      }
+
+      .hist-desk-head h1 {
+        margin: 0;
+        font-size: 18px;
+        line-height: 1.15;
+        font-weight: 800;
+        color: var(--text-primary);
+      }
+
+      .hist-desk-head p {
+        margin: 4px 0 0;
+        font-size: 12px;
+        color: var(--text-muted);
+      }
+
+      .hist-desk-head-meta {
+        margin-left: auto;
+        display: flex;
+        align-items: center;
+        gap: 18px;
+        color: var(--text-muted);
+        font-size: 12px;
+        font-weight: 600;
+        white-space: nowrap;
+      }
+
+      .hist-desk-head-meta span {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .hist-desk-head-meta span+span::before {
+        content: '';
+        width: 1px;
+        height: 16px;
+        background: var(--border);
+        margin-right: 12px;
+      }
+
+      .hist-desk-head-wrap {
+        background: var(--bg-card);
+        border-bottom: 1px solid var(--border);
+        padding: 14px 22px;
+        flex-shrink: 0;
+      }
+
+      .hist-desk-head-wrap .hist-desk-head {
+        min-height: auto;
+        border-bottom: none;
+        padding: 0;
+      }
+
+      .hist-desk-content {
+        flex: 1;
+        min-height: 0;
+        display: flex;
+        overflow: hidden;
+      }
+
+      .hist-desk-content.no-search {
+        display: flex;
+      }
+
+      .hist-desk-table-wrap {
+        flex: 1;
+        min-width: 0;
+        overflow-y: auto;
+        overflow-x: hidden;
+        background: var(--bg-card);
+      }
+
+      .hist-desk-table {
+        width: 100%;
+        min-width: 0;
+        border-collapse: collapse;
+        table-layout: fixed;
+        background: var(--bg-card);
+      }
+
+      .hist-desk-table th,
+      .hist-desk-table td {
+        box-sizing: border-box;
+      }
+
+      .hist-desk-table thead th {
+        position: sticky;
+        top: 0;
+        z-index: 2;
+        background: var(--bg-card-alt);
+        border-bottom: 1px solid var(--border);
+        padding: 8px 10px;
+        text-align: left;
+        font-size: 10px;
+        font-weight: 800;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        white-space: nowrap;
+      }
+
+      .hist-desk-table thead th:first-child {
+        padding-left: 16px;
+      }
+
+      .hist-desk-table thead th.r {
+        text-align: right;
+      }
+
+      .hist-desk-table thead th.c {
+        text-align: center;
+      }
+
+      .hist-desk-table tbody tr {
+        border-bottom: 1px solid var(--border);
+        background: var(--bg-card);
+        cursor: pointer;
+        transition: background 0.1s;
+      }
+
+      .hist-desk-table tbody tr:hover {
+        background: var(--bg-card-alt);
+      }
+
+      .hist-desk-table tbody tr.hdt-current {
+        background: linear-gradient(to right, rgba(var(--accent-rgb), 0.10), rgba(var(--accent-rgb), 0.03));
+      }
+
+      .hist-desk-table tbody tr.hdt-current td {
+        background: transparent;
+      }
+
+      .hist-desk-table tbody tr.hdt-current td:first-child {
+        box-shadow: inset 4px 0 0 var(--accent);
+      }
+
+      .hist-desk-table tbody tr.hdt-future {
+        opacity: 0.65;
+      }
+
+      .hist-desk-table tbody td {
+        padding: 10px 10px;
+        vertical-align: middle;
+        background: var(--bg-card);
+      }
+
+      .hist-desk-table tbody td:first-child {
+        padding-left: 16px;
+      }
+
+      .hist-desk-table tbody tr.hdt-sec td {
+        height: 34px;
+        padding: 0 20px;
+        background: var(--bg-input);
+        border-top: 1px solid var(--border);
+        border-bottom: 1px solid var(--border);
+        cursor: default;
+        vertical-align: middle;
+      }
+
+      .hist-desk-table tbody tr.hdt-sec:hover {
+        background: var(--bg-page);
+      }
+
+      .hdt-sec-lbl {
+        display: inline-block;
+        transform: translateY(-2px);
+        font-size: 10px;
+        font-weight: 800;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+      }
+
+      .hdt-range {
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--text-primary);
+        white-space: nowrap;
+      }
+
+      .hdt-sub {
+        margin-top: 3px;
+        color: var(--text-muted);
+        font-size: 11px;
+        font-weight: 500;
+      }
+
+      .hdt-range.dim {
+        color: var(--text-secondary);
+        font-weight: 600;
+      }
+
+      .hdt-h {
+        font-size: 13px;
+        font-weight: 800;
+        text-align: right;
+      }
+
+      .hdt-ot {
+        font-size: 13px;
+        font-weight: 800;
+        color: #F59E0B;
+        text-align: right;
+      }
+
+      .hdt-n {
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--text-secondary);
+        text-align: center;
+      }
+
+      .hdt-muted {
+        opacity: 0.35;
+      }
+
+      .hdt-status {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .hist-results-panel {
+        background: var(--bg-card);
+        border-left: 1px solid var(--border);
+        overflow: auto;
+        flex-shrink: 0;
+      }
+
+      .hist-results-head {
+        position: sticky;
+        top: 0;
+        z-index: 2;
+        background: var(--bg-card);
+        border-bottom: 1px solid var(--border);
+        padding: 14px 16px 12px;
+      }
+
+      .hist-results-title {
+        font-size: 13px;
+        font-weight: 800;
+        color: var(--text-primary);
+      }
+
+      .hist-results-sub {
+        margin-top: 3px;
+        font-size: 11px;
+        color: var(--text-muted);
+        font-weight: 600;
+      }
+
+      .hist-results-hint {
+        padding: 12px 16px;
+        color: var(--text-muted);
+        font-size: 12px;
+        line-height: 1.4;
+      }
+
+      .hist-result-group {
+        padding: 8px 16px 6px;
+        background: var(--bg-card-alt);
+        border-top: 1px solid var(--border);
+        border-bottom: 1px solid var(--border);
+        color: var(--text-muted);
+        font-size: 10px;
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .hist-result {
+        padding: 12px 16px;
+        border-bottom: 1px solid var(--border);
+        cursor: pointer;
+        transition: background 0.12s;
+      }
+
+      .hist-result:hover {
+        background: var(--bg-card-alt);
+      }
+
+      .hist-result-top {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        min-width: 0;
+      }
+
+      .hist-result-kind {
+        width: 28px;
+        height: 28px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(var(--accent-rgb), 0.10);
+        color: var(--accent);
+        font-size: 12px;
+        font-weight: 800;
+        flex-shrink: 0;
+      }
+
+      .hist-result-kind.callout {
+        background: rgba(var(--priority-high-rgb), 0.10);
+        color: var(--priority-high);
+      }
+
+      .hist-result-title {
+        min-width: 0;
+        font-size: 13px;
+        font-weight: 800;
+        color: var(--text-primary);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .hist-result-meta {
+        margin-top: 2px;
+        font-size: 11px;
+        color: var(--text-muted);
+        font-weight: 600;
+      }
+
+      .hist-result-snippet {
+        margin: 8px 0 0 36px;
+        font-size: 12px;
+        line-height: 1.35;
+        color: var(--text-secondary);
+      }
+
+      .hist-mark {
+        padding: 0;
+        border-radius: 3px;
+        background: rgba(var(--amber-rgb), 0.26);
+        color: inherit;
+      }
+    }
   </style>
 </head>
 
@@ -18696,7 +19719,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '6.0.37';
+    const VERSION = '6.0.59';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -31804,16 +32827,16 @@
       const snap = await db_fs.collection('users/' + uid + '/weeks').get().catch(() => null);
       if (!snap) return [];
       const results = [];
-      snap.forEach(function(doc) {
+      snap.forEach(function (doc) {
         const weekStart = doc.id;
         const data = doc.data();
         let totalOrd = 0, totalOT = 0, taskCount = 0;
         const sites = new Set();
         const tasks = [];
-        (data.days || []).forEach(function(day, di) {
-          (day.activities || []).filter(function(a) { return !a._draft; }).forEach(function(act) {
+        (data.days || []).forEach(function (day, di) {
+          (day.activities || []).filter(function (a) { return !a._draft; }).forEach(function (act) {
             totalOrd += parseFloat(act.ordinary || 0);
-            totalOT  += parseFloat(act.overtime || 0);
+            totalOT += parseFloat(act.overtime || 0);
             taskCount++;
             if (act.location) sites.add(act.location);
             tasks.push({
@@ -31830,20 +32853,20 @@
         });
         results.push({ weekStart: weekStart, totalOrd: totalOrd, totalOT: totalOT, taskCount: taskCount, siteCount: sites.size, tasks: tasks });
       });
-      return results.sort(function(a, b) { return b.weekStart.localeCompare(a.weekStart); });
+      return results.sort(function (a, b) { return b.weekStart.localeCompare(a.weekStart); });
     }
 
     function renderHistoryView() {
       // Auto-trigger data load if arriving via page reload (not openHistoryView)
       if (!state.historyWeeks) {
         state.historyWeeks = 'loading';
-        _loadAllWeeks().then(function(w) { state.historyWeeks = w; render(); });
+        _loadAllWeeks().then(function (w) { state.historyWeeks = w; render(); });
       }
       if (_isDesktop()) return _renderDesktopHistory();
-      const onCall  = (state.callouts && state.callouts.onCall)  || {};
-      const coWeeks = (state.callouts && state.callouts.weeks)   || {};
-      const filter  = state.historyFilter || 'all';
-      const weeks   = Array.isArray(state.historyWeeks) ? state.historyWeeks : [];
+      const onCall = (state.callouts && state.callouts.onCall) || {};
+      const coWeeks = (state.callouts && state.callouts.weeks) || {};
+      const filter = state.historyFilter || 'all';
+      const weeks = Array.isArray(state.historyWeeks) ? state.historyWeeks : [];
       const isLoading = state.historyWeeks === 'loading';
       const curWeekStart = dateToStr(getCurrentFriday()); // always actual current week
       const curYear = new Date().getFullYear();
@@ -31858,35 +32881,33 @@
       ];
 
       // Year summary
-      const curYearWeeks = weeks.filter(function(w) { return w.weekStart.startsWith(String(curYear)); });
-      const workedWeeks  = curYearWeeks.filter(function(w) { return w.taskCount > 0 || w.totalOrd > 0; });
-      const yearOrd = Math.round(curYearWeeks.reduce(function(s, w) { return s + w.totalOrd; }, 0));
-      const yearOT  = Math.round(curYearWeeks.reduce(function(s, w) { return s + w.totalOT;  }, 0));
-      const avgHrs  = workedWeeks.length > 0 ? (curYearWeeks.reduce(function(s,w){return s+w.totalOrd;},0) / workedWeeks.length).toFixed(1) : '–';
-      const yearOnCall  = Object.entries(onCall).filter(function(e) { return e[0].startsWith(String(curYear)) && (e[1]==='oncall'||e[1]==='extra'); }).length;
-      const yearCallouts = Object.entries(coWeeks).filter(function(e){ return e[0].startsWith(String(curYear)); }).reduce(function(s,e){ return s + ((e[1].callouts||[]).length); }, 0);
+      const curYearWeeks = weeks.filter(function (w) { return w.weekStart.startsWith(String(curYear)); });
+      const workedWeeks = curYearWeeks.filter(function (w) { return w.taskCount > 0 || w.totalOrd > 0; });
+      const yearOrd = Math.round(curYearWeeks.reduce(function (s, w) { return s + w.totalOrd; }, 0));
+      const yearOT = Math.round(curYearWeeks.reduce(function (s, w) { return s + w.totalOT; }, 0));
+      const avgHrs = workedWeeks.length > 0 ? (curYearWeeks.reduce(function (s, w) { return s + w.totalOrd; }, 0) / workedWeeks.length).toFixed(1) : '–';
+      const yearOnCall = Object.entries(onCall).filter(function (e) { return e[0].startsWith(String(curYear)) && (e[1] === 'oncall' || e[1] === 'extra'); }).length;
+      const yearCallouts = Object.entries(coWeeks).filter(function (e) { return e[0].startsWith(String(curYear)); }).reduce(function (s, e) { return s + ((e[1].callouts || []).length); }, 0);
       const searchResults = searchQ ? _histBuildSearchResults(searchQ, searchScope, weeks, coWeeks) : [];
 
       // SVGs
-      var calSvg   = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>';
-      var chevSvg  = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>';
+      var calSvg = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>';
+      var chevSvg = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>';
       var phoneSvg = '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.13 13.9 19.79 19.79 0 0 1 1.06 5.27 2 2 0 0 1 3 3h3a2 2 0 0 1 2 1.72c.127.96.362 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>';
 
       function weekRow(ws, type) {
         var isOnCall = onCall[ws] === 'oncall';
-        var isExtra  = onCall[ws] === 'extra';
-        var coCount  = ((coWeeks[ws] && coWeeks[ws].callouts) || []).length;
-        var wData    = weeks.find(function(w){ return w.weekStart === ws; });
-        var ord  = wData ? wData.totalOrd  : 0;
-        var ot   = wData ? wData.totalOT   : 0;
+        var isExtra = onCall[ws] === 'extra';
+        var coCount = ((coWeeks[ws] && coWeeks[ws].callouts) || []).length;
+        var wData = weeks.find(function (w) { return w.weekStart === ws; });
+        var ord = wData ? wData.totalOrd : 0;
+        var ot = wData ? wData.totalOT : 0;
         var tasks = wData ? wData.taskCount : 0;
-        var isFuture  = type === 'future';
+        var isFuture = type === 'future';
         var isCurrent = type === 'current';
 
         var badges = '';
-        if (isFuture) {
-          badges = '<span class="hist-badge add">+ Add tasks</span>';
-        } else {
+        if (!isFuture) {
           if (ord > 0 || ot > 0 || isCurrent) badges += '<span class="hist-badge blue">' + Math.round(ord + ot) + 'h</span>';
           else badges += '<span class="hist-badge muted">0h</span>';
           if (ot > 0) badges += '<span class="hist-badge amber">+' + Math.round(ot) + ' OT</span>';
@@ -31895,7 +32916,7 @@
 
         var tags = '';
         if (isOnCall) tags += ' <span class="hist-tag blue">On-Call</span>';
-        if (isExtra)  tags += ' <span class="hist-tag amber">Extra</span>';
+        if (isExtra) tags += ' <span class="hist-tag amber">Extra</span>';
 
         var meta = '';
         if (isFuture) {
@@ -31918,15 +32939,15 @@
       }
 
       // Filter past weeks
-      var pastWeeks = weeks.filter(function(w) { return w.weekStart < curWeekStart; });
-      if (filter === 'oncall')   pastWeeks = pastWeeks.filter(function(w){ return !!onCall[w.weekStart]; });
-      if (filter === 'ot')       pastWeeks = pastWeeks.filter(function(w){ return w.totalOT > 0; });
-      if (filter === 'callouts') pastWeeks = pastWeeks.filter(function(w){ return ((coWeeks[w.weekStart]&&coWeeks[w.weekStart].callouts)||[]).length > 0; });
+      var pastWeeks = weeks.filter(function (w) { return w.weekStart < curWeekStart; });
+      if (filter === 'oncall') pastWeeks = pastWeeks.filter(function (w) { return !!onCall[w.weekStart]; });
+      if (filter === 'ot') pastWeeks = pastWeeks.filter(function (w) { return w.totalOT > 0; });
+      if (filter === 'callouts') pastWeeks = pastWeeks.filter(function (w) { return ((coWeeks[w.weekStart] && coWeeks[w.weekStart].callouts) || []).length > 0; });
 
       // Build list
       var listHtml = '';
       listHtml += '<div class="hist-section-hdr">Upcoming</div>';
-      futureWeeks.forEach(function(ws){ listHtml += weekRow(ws, 'future'); });
+      futureWeeks.forEach(function (ws) { listHtml += weekRow(ws, 'future'); });
       listHtml += '<div class="hist-now-divider"><span class="hist-now-pill">This Week</span></div>';
       listHtml += weekRow(curWeekStart, 'current');
       listHtml += '<div class="hist-section-hdr">History</div>';
@@ -31935,11 +32956,11 @@
       } else if (pastWeeks.length === 0) {
         listHtml += '<div style="text-align:center;padding:32px;color:var(--text-muted);font-size:14px">No weeks found</div>';
       } else {
-        pastWeeks.forEach(function(w){ listHtml += weekRow(w.weekStart, 'past'); });
+        pastWeeks.forEach(function (w) { listHtml += weekRow(w.weekStart, 'past'); });
       }
 
       // Search
-      var scopeButtons = [['all','All'],['tasks','Tasks'],['callouts','Callouts']].map(function(s) {
+      var scopeButtons = [['all', 'All'], ['tasks', 'Tasks'], ['callouts', 'Callouts']].map(function (s) {
         return '<button class="' + (searchScope === s[0] ? 'active' : '') + '" onclick="historySearchScope(\'' + s[0] + '\')">' + s[1] + '</button>';
       }).join('');
       var clearBtn = searchQ ? '<button class="hist-mobile-search-clear" onclick="historySearchInput(\'\')" aria-label="Clear search">' +
@@ -31963,14 +32984,14 @@
 
       // Filter chips
       var chipsHtml = '<div class="hist-chips">' +
-        [['all','All'],['oncall','On-call'],['ot','With OT'],['callouts','With Callouts']].map(function(c){
-          return '<button class="hist-chip' + (filter===c[0]?' active':'') + '" onclick="historyFilter(\'' + c[0] + '\')">' + c[1] + '</button>';
+        [['all', 'All'], ['oncall', 'On-call'], ['ot', 'With OT'], ['callouts', 'With Callouts']].map(function (c) {
+          return '<button class="hist-chip' + (filter === c[0] ? ' active' : '') + '" onclick="historyFilter(\'' + c[0] + '\')">' + c[1] + '</button>';
         }).join('') + '</div>';
 
       // Jump modal
       var jumpHtml = '';
       if (state.historyJumpOpen) {
-        var qw = [curWeekStart, _histAddWeeks(curWeekStart,1), _histAddWeeks(curWeekStart,2)];
+        var qw = [curWeekStart, _histAddWeeks(curWeekStart, 1), _histAddWeeks(curWeekStart, 2)];
         var qLabels = ['This week', 'Next week', 'Week after'];
         var selQ = state.historyJumpQuick != null ? state.historyJumpQuick : 1;
         var jumpDate = state.historyJumpDate || qw[selQ];
@@ -31980,8 +33001,8 @@
           '<div class="hist-jump-title">Select Week</div>' +
           '<div class="hist-jump-sub">Choose a week to view tasks or add new ones</div>' +
           '<div class="hist-quick-grid">' +
-          qw.map(function(ws, i){
-            return '<button class="hist-quick-btn' + (selQ===i?' sel':'') + '" onclick="histSetQuick(' + i + ',\'' + ws + '\')">' +
+          qw.map(function (ws, i) {
+            return '<button class="hist-quick-btn' + (selQ === i ? ' sel' : '') + '" onclick="histSetQuick(' + i + ',\'' + ws + '\')">' +
               '<span class="hist-quick-label">' + qLabels[i] + '</span>' +
               '<span class="hist-quick-date">' + esc(formatWeekRange(ws)) + '</span>' +
               '</button>';
@@ -32022,7 +33043,7 @@
 
     function _histSearchMatch(hay, tokens) {
       hay = String(hay || '').toLowerCase();
-      return tokens.every(function(t) { return hay.indexOf(t) !== -1; });
+      return tokens.every(function (t) { return hay.indexOf(t) !== -1; });
     }
 
     function _histSearchScore(fields, tokens) {
@@ -32030,7 +33051,7 @@
       var body = String(fields.body || '').toLowerCase();
       var meta = String(fields.meta || '').toLowerCase();
       var score = 0;
-      tokens.forEach(function(t) {
+      tokens.forEach(function (t) {
         if (title.indexOf(t) === 0) score += 100;
         else if (title.indexOf(t) > 0) score += 80;
         if (body.indexOf(t) >= 0) score += 35;
@@ -32041,8 +33062,8 @@
 
     function _histHighlight(text, q) {
       var out = esc(text || '');
-      var tokens = _histSearchTokens(q).filter(function(t) { return t.length > 1; });
-      tokens.forEach(function(t) {
+      var tokens = _histSearchTokens(q).filter(function (t) { return t.length > 1; });
+      tokens.forEach(function (t) {
         var re = new RegExp('(' + t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'ig');
         out = out.replace(re, '<span class="hist-mark">$1</span>');
       });
@@ -32068,9 +33089,9 @@
       var results = [];
 
       if (scope === 'all' || scope === 'tasks') {
-        weeks.forEach(function(w) {
-          (w.tasks || []).forEach(function(t) {
-            var codeText = (t.codes || []).map(function(c) { return [c.c, c.d, c.a].filter(Boolean).join(' '); }).join(' ');
+        weeks.forEach(function (w) {
+          (w.tasks || []).forEach(function (t) {
+            var codeText = (t.codes || []).map(function (c) { return [c.c, c.d, c.a].filter(Boolean).join(' '); }).join(' ');
             var title = stripHtml(t.description || '').replace(/\s+/g, ' ').trim() || 'Untitled task';
             var meta = 'Task' + (t.location ? ' · ' + t.location : '') + (t.date ? ' · ' + formatDateShort(t.date) : '');
             var bodyText = [stripHtml(t.notes), codeText, t.location].join(' ');
@@ -32093,10 +33114,10 @@
       }
 
       if (scope === 'all' || scope === 'callouts') {
-        Object.entries(coWeeks || {}).forEach(function(entry) {
+        Object.entries(coWeeks || {}).forEach(function (entry) {
           var wk = entry[0];
           var wd = entry[1] || {};
-          (wd.callouts || []).forEach(function(co) {
+          (wd.callouts || []).forEach(function (co) {
             var title = stripHtml(co.fault || co.site || co.location || co.ticket || '').replace(/\s+/g, ' ').trim() || 'Callout';
             var meta = 'Callout' + (co.ticket ? ' · ' + co.ticket : '') + ((co.site || co.location) ? ' · ' + (co.site || co.location) : '');
             var bodyText = [co.notes, co.fault, co.site, co.location, co.engineerOnSite].join(' ');
@@ -32116,7 +33137,7 @@
         });
       }
 
-      return results.sort(function(a, b) {
+      return results.sort(function (a, b) {
         if ((b.score || 0) !== (a.score || 0)) return (b.score || 0) - (a.score || 0);
         var d = String(b.date || '').localeCompare(String(a.date || ''));
         if (d) return d;
@@ -32125,7 +33146,7 @@
     }
 
     function _histResultMatchesForWeek(results, weekStart) {
-      return results.filter(function(r) { return r.weekStart === weekStart; }).length;
+      return results.filter(function (r) { return r.weekStart === weekStart; }).length;
     }
 
     function _histScopeLabel(scope) {
@@ -32142,16 +33163,33 @@
       return Math.max(210, Math.min(380, w || 260));
     }
 
-    function _histBuildResultsHtml(results, q) {
+    function _histBuildSearchControlsHtml(searchQ, searchScope) {
+      var scopeButtons = [['all', 'All'], ['tasks', 'Tasks'], ['callouts', 'Callouts']].map(function (s) {
+        var active = searchScope === s[0];
+        return '<button onclick="historySearchScope(\'' + s[0] + '\')" class="flex-1 py-2 px-4 rounded-lg text-sm font-bold transition-all duration-200" style="' +
+          (active ? 'background:var(--bg-segment-active);color:var(--text-primary);box-shadow:0 1px 3px rgba(var(--shadow-rgb),0.12)' : 'color:var(--text-muted);') +
+          '">' + s[1] + '</button>';
+      }).join('');
+      return '<div style="margin-top:12px;display:flex;flex-direction:column;gap:10px">' +
+        '<div class="dfnd-search-wrap">' +
+        '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>' +
+        '<input id="hist-search-input" type="search" placeholder="Search tasks and callouts..." value="' + escAttr(searchQ || '') + '" oninput="historySearchInput(this.value)">' +
+        '</div>' +
+        '<div class="flex p-1 rounded-xl" style="background:var(--bg-code-group)">' + scopeButtons + '</div>' +
+        '</div>';
+    }
+
+    function _histBuildResultsHtml(results, q, searchScope) {
       var html = '<aside class="hist-results-panel" style="width:' + _histResultsWidth() + 'px">' +
         '<div class="hist-results-head"><div class="hist-results-title">Search Results</div>' +
-        '<div class="hist-results-sub">' + results.length + ' match' + (results.length === 1 ? '' : 'es') + ' for <strong>' + esc(q) + '</strong></div></div>';
+        '<div class="hist-results-sub">' + results.length + ' match' + (results.length === 1 ? '' : 'es') + ' for <strong>' + esc(q) + '</strong></div>' +
+        _histBuildSearchControlsHtml(q, searchScope) + '</div>';
       if (!results.length) {
         return html + '<div class="hist-results-hint">No matching tasks or callouts found.</div></aside>';
       }
       html += '<div class="hist-results-hint">Select a result to open the matching task or callout.</div>';
       var lastWeek = null;
-      results.forEach(function(r) {
+      results.forEach(function (r) {
         if (r.weekStart !== lastWeek) {
           html += '<div class="hist-result-group">' + esc(formatWeekRange(r.weekStart)) + '</div>';
           lastWeek = r.weekStart;
@@ -32173,6 +33211,18 @@
       return html + '</aside>';
     }
 
+    function _histBuildIdleResultsHtml(searchQ, searchScope) {
+      return '<aside class="hist-results-panel" style="width:' + _histResultsWidth() + 'px">' +
+        '<div class="hist-results-head"><div class="hist-results-title">Search Results</div>' +
+        _histBuildSearchControlsHtml(searchQ || '', searchScope || 'all') + '</div>' +
+        '<div class="hist-results-hint">' +
+        '<div style="font-weight:800;color:var(--text-primary);margin-bottom:6px">Search saved work</div>' +
+        '<div>Find previous tasks and callouts by site, ticket, code, fault text, notes, or description.</div>' +
+        '<div style="margin-top:12px;color:var(--text-muted)">Results stay pinned here so the week table remains visible while you search.</div>' +
+        '</div>' +
+        '</aside>';
+    }
+
     function _histBuildMobileResultsHtml(results, q) {
       var html = '<div class="hist-mobile-results-card">' +
         '<div class="hist-mobile-results-head">' +
@@ -32183,7 +33233,7 @@
         return html + '<div class="hist-mobile-empty">No matching tasks or callouts found.</div></div>';
       }
       var lastWeek = null;
-      results.forEach(function(r) {
+      results.forEach(function (r) {
         if (r.weekStart !== lastWeek) {
           html += '<div class="hist-mobile-result-group">' + esc(formatWeekRange(r.weekStart)) + '</div>';
           lastWeek = r.weekStart;
@@ -32206,80 +33256,80 @@
     }
 
     function _renderDesktopHistory() {
-      var onCall       = (state.callouts && state.callouts.onCall) || {};
-      var coWeeks      = (state.callouts && state.callouts.weeks)  || {};
-      var filter       = state.historyFilter || 'all';
-      var weeks        = Array.isArray(state.historyWeeks) ? state.historyWeeks : [];
-      var isLoading    = state.historyWeeks === 'loading';
+      var onCall = (state.callouts && state.callouts.onCall) || {};
+      var coWeeks = (state.callouts && state.callouts.weeks) || {};
+      var filter = state.historyFilter || 'all';
+      var weeks = Array.isArray(state.historyWeeks) ? state.historyWeeks : [];
+      var isLoading = state.historyWeeks === 'loading';
       var curWeekStart = dateToStr(getCurrentFriday());
-      var curYear      = new Date().getFullYear();
-      var searchQ      = (state.historySearch || '').trim();
-      var searchScope  = state.historySearchScope || 'all';
+      var curYear = new Date().getFullYear();
+      var searchQ = (state.historySearch || '').trim();
+      var searchScope = state.historySearchScope || 'all';
 
       // Auto-select most recent past week if none selected
       if (!state.histSelectedWeek) {
-        var firstPast = weeks.find(function(w){ return w.weekStart < curWeekStart; });
+        var firstPast = weeks.find(function (w) { return w.weekStart < curWeekStart; });
         state.histSelectedWeek = firstPast ? firstPast.weekStart : curWeekStart;
       }
       var selWs = state.histSelectedWeek;
 
       // Year summary
-      var curYearWeeks = weeks.filter(function(w){ return w.weekStart.startsWith(String(curYear)); });
-      var workedWeeks  = curYearWeeks.filter(function(w){ return w.taskCount > 0 || w.totalOrd > 0; });
-      var yearOrd = Math.round(curYearWeeks.reduce(function(s,w){ return s+w.totalOrd; }, 0));
-      var yearOT  = Math.round(curYearWeeks.reduce(function(s,w){ return s+w.totalOT;  }, 0));
-      var avgHrs  = workedWeeks.length > 0 ? (curYearWeeks.reduce(function(s,w){return s+w.totalOrd;},0)/workedWeeks.length).toFixed(1) : '–';
-      var yearOnCall  = Object.entries(onCall).filter(function(e){ return e[0].startsWith(String(curYear)) && (e[1]==='oncall'||e[1]==='extra'); }).length;
-      var yearCallouts = Object.entries(coWeeks).filter(function(e){ return e[0].startsWith(String(curYear)); }).reduce(function(s,e){ return s+((e[1].callouts||[]).length); }, 0);
+      var curYearWeeks = weeks.filter(function (w) { return w.weekStart.startsWith(String(curYear)); });
+      var workedWeeks = curYearWeeks.filter(function (w) { return w.taskCount > 0 || w.totalOrd > 0; });
+      var yearOrd = Math.round(curYearWeeks.reduce(function (s, w) { return s + w.totalOrd; }, 0));
+      var yearOT = Math.round(curYearWeeks.reduce(function (s, w) { return s + w.totalOT; }, 0));
+      var avgHrs = workedWeeks.length > 0 ? (curYearWeeks.reduce(function (s, w) { return s + w.totalOrd; }, 0) / workedWeeks.length).toFixed(1) : '–';
+      var yearOnCall = Object.entries(onCall).filter(function (e) { return e[0].startsWith(String(curYear)) && (e[1] === 'oncall' || e[1] === 'extra'); }).length;
+      var yearCallouts = Object.entries(coWeeks).filter(function (e) { return e[0].startsWith(String(curYear)); }).reduce(function (s, e) { return s + ((e[1].callouts || []).length); }, 0);
       var searchResults = searchQ ? _histBuildSearchResults(searchQ, searchScope, weeks, coWeeks) : [];
       var matchWeeks = {};
-      searchResults.forEach(function(r) { matchWeeks[r.weekStart] = true; });
+      searchResults.forEach(function (r) { matchWeeks[r.weekStart] = true; });
 
       var phoneSvg = '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.13 13.9 19.79 19.79 0 0 1 1.06 5.27 2 2 0 0 1 3 3h3a2 2 0 0 1 2 1.72c.127.96.362 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>';
-      var chevSvg  = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>';
+      var chevSvg = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>';
 
       // ── Sidebar ──
-      var dotColors = { all:'var(--accent)', oncall:'#F59E0B', ot:'#F59E0B', callouts:'#ef4444' };
+      var dotColors = { all: 'var(--accent)', oncall: '#F59E0B', ot: '#F59E0B', callouts: '#ef4444' };
       var sidebarHtml = '<div class="hist-desk-sidebar" style="width:' + _histSidebarWidth() + 'px">' +
         '<div class="hist-desk-sidebar-hdr">' + curYear + ' so far</div>' +
         '<div class="hist-desk-sb-stats">' +
-          '<div class="hist-desk-sb-stat"><div class="hist-desk-sb-stat-val" style="color:var(--accent)">' + (isLoading?'…':curYearWeeks.length) + '</div><div class="hist-desk-sb-stat-lbl">Weeks worked</div></div>' +
-          '<div class="hist-desk-sb-stat"><div class="hist-desk-sb-stat-val" style="color:var(--accent)">' + (isLoading?'…':yearOrd) + 'h</div><div class="hist-desk-sb-stat-lbl">Ordinary hrs</div></div>' +
-          '<div class="hist-desk-sb-stat"><div class="hist-desk-sb-stat-val" style="color:#F59E0B">' + yearOnCall + '</div><div class="hist-desk-sb-stat-lbl">On-call wks</div></div>' +
-          '<div class="hist-desk-sb-stat"><div class="hist-desk-sb-stat-val" style="color:#8B5CF6">' + yearCallouts + '</div><div class="hist-desk-sb-stat-lbl">Callouts</div></div>' +
+        '<div class="hist-desk-sb-stat"><div class="hist-desk-sb-stat-val" style="color:var(--accent)">' + (isLoading ? '…' : curYearWeeks.length) + '</div><div class="hist-desk-sb-stat-lbl">Weeks worked</div></div>' +
+        '<div class="hist-desk-sb-stat"><div class="hist-desk-sb-stat-val" style="color:var(--accent)">' + (isLoading ? '…' : yearOrd) + 'h</div><div class="hist-desk-sb-stat-lbl">Ordinary hrs</div></div>' +
+        '<div class="hist-desk-sb-stat"><div class="hist-desk-sb-stat-val" style="color:#F59E0B">' + yearOnCall + '</div><div class="hist-desk-sb-stat-lbl">On-call wks</div></div>' +
+        '<div class="hist-desk-sb-stat"><div class="hist-desk-sb-stat-val" style="color:#8B5CF6">' + yearCallouts + '</div><div class="hist-desk-sb-stat-lbl">Callouts</div></div>' +
         '</div>' +
         '<div style="height:1px;background:var(--border);margin:0 12px 10px"></div>' +
         '<div class="hist-desk-sidebar-hdr">Filter</div>' +
         '<div style="padding:0 4px 10px">' +
-        [['all','All weeks'],['oncall','On-call only'],['ot','With OT'],['callouts','With callouts']].map(function(c){
+        [['all', 'All weeks'], ['oncall', 'On-call only'], ['ot', 'With OT'], ['callouts', 'With callouts']].map(function (c) {
           var isA = filter === c[0];
-          return '<button class="hist-desk-sb-filter' + (isA?' active':'') + '" onclick="historyFilter(\'' + c[0] + '\')">' +
+          return '<button class="hist-desk-sb-filter' + (isA ? ' active' : '') + '" onclick="historyFilter(\'' + c[0] + '\')">' +
             '<span class="hist-desk-sb-dot" style="color:' + dotColors[c[0]] + '"></span>' + c[1] + '</button>';
         }).join('') +
         '</div>' +
         '<div style="height:1px;background:var(--border);margin:0 12px 10px"></div>' +
         '<button class="hist-desk-sb-jump" onclick="histOpenJump()">' +
-          '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>' +
-          'Select Week</button>' +
+        '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>' +
+        'Select Week</button>' +
         '</div>';
 
       // ── Table rows ──
-      var futureWeeks = [_histAddWeeks(curWeekStart,1), _histAddWeeks(curWeekStart,2), _histAddWeeks(curWeekStart,3)];
-      var pastWeeks = weeks.filter(function(w){ return w.weekStart < curWeekStart; });
-      if (filter === 'oncall')   pastWeeks = pastWeeks.filter(function(w){ return !!onCall[w.weekStart]; });
-      if (filter === 'ot')       pastWeeks = pastWeeks.filter(function(w){ return w.totalOT > 0; });
-      if (filter === 'callouts') pastWeeks = pastWeeks.filter(function(w){ return ((coWeeks[w.weekStart]&&coWeeks[w.weekStart].callouts)||[]).length > 0; });
-      if (searchQ) pastWeeks = pastWeeks.filter(function(w){ return !!matchWeeks[w.weekStart]; });
+      var futureWeeks = [_histAddWeeks(curWeekStart, 1), _histAddWeeks(curWeekStart, 2), _histAddWeeks(curWeekStart, 3)];
+      var pastWeeks = weeks.filter(function (w) { return w.weekStart < curWeekStart; });
+      if (filter === 'oncall') pastWeeks = pastWeeks.filter(function (w) { return !!onCall[w.weekStart]; });
+      if (filter === 'ot') pastWeeks = pastWeeks.filter(function (w) { return w.totalOT > 0; });
+      if (filter === 'callouts') pastWeeks = pastWeeks.filter(function (w) { return ((coWeeks[w.weekStart] && coWeeks[w.weekStart].callouts) || []).length > 0; });
+      if (searchQ) pastWeeks = pastWeeks.filter(function (w) { return !!matchWeeks[w.weekStart]; });
 
       function tableRow(ws, type) {
-        var isFuture  = type === 'future';
+        var isFuture = type === 'future';
         var isCurrent = type === 'current';
-        var isOnCall  = onCall[ws] === 'oncall';
-        var isExtra   = onCall[ws] === 'extra';
-        var coCount   = ((coWeeks[ws] && coWeeks[ws].callouts) || []).length;
-        var wData     = weeks.find(function(w){ return w.weekStart === ws; });
-        var ord  = wData ? Math.round(wData.totalOrd) : 0;
-        var ot   = wData ? Math.round(wData.totalOT)  : 0;
+        var isOnCall = onCall[ws] === 'oncall';
+        var isExtra = onCall[ws] === 'extra';
+        var coCount = ((coWeeks[ws] && coWeeks[ws].callouts) || []).length;
+        var wData = weeks.find(function (w) { return w.weekStart === ws; });
+        var ord = wData ? Math.round(wData.totalOrd) : 0;
+        var ot = wData ? Math.round(wData.totalOT) : 0;
         var tasks = wData ? wData.taskCount : 0;
         var sites = wData ? wData.siteCount : 0;
         var matches = searchQ ? _histResultMatchesForWeek(searchResults, ws) : 0;
@@ -32287,22 +33337,22 @@
         var trClass = isFuture ? 'hdt-future' : (isCurrent ? 'hdt-current' : '');
 
         var onCallCell = '';
-        if (isOnCall)  onCallCell = '<span class="hdt-status"><span class="hist-badge amber">On-Call</span></span>';
+        if (isOnCall) onCallCell = '<span class="hdt-status"><span class="hist-badge amber">On-Call</span></span>';
         else if (isExtra) onCallCell = '<span class="hdt-status"><span class="hist-badge amber">Extra</span></span>';
 
         var coCell = coCount > 0 ? '<span class="hist-badge red">' + phoneSvg + ' ' + coCount + '</span>' : '';
         var total = ord + ot;
-        var ordCell = isFuture ? '<span class="hdt-muted">—</span>' : '<span style="color:' + (ord>0?'var(--accent)':'var(--text-muted)') + '">' + (ord>0?ord+'h':'0h') + '</span>';
-        var otCell  = ot > 0 ? '<span style="color:#F59E0B;font-weight:700">' + ot + 'h</span>' : '<span class="hdt-muted">—</span>';
-        var totalCell = isFuture ? '<span class="hdt-muted">—</span>' : '<span style="color:' + (total>0?'var(--text-primary)':'var(--text-muted)') + '">' + (total>0?total+'h':'0h') + '</span>';
+        var ordCell = isFuture ? '<span class="hdt-muted">—</span>' : '<span style="color:' + (ord > 0 ? 'var(--accent)' : 'var(--text-muted)') + '">' + (ord > 0 ? ord + 'h' : '0h') + '</span>';
+        var otCell = ot > 0 ? '<span style="color:#F59E0B;font-weight:700">' + ot + 'h</span>' : '<span class="hdt-muted">—</span>';
+        var totalCell = isFuture ? '<span class="hdt-muted">—</span>' : '<span style="color:' + (total > 0 ? 'var(--text-primary)' : 'var(--text-muted)') + '">' + (total > 0 ? total + 'h' : '0h') + '</span>';
         var taskCell = isFuture ? '<span class="hdt-muted">—</span>' : (tasks > 0 ? tasks : '<span class="hdt-muted">0</span>');
         var siteCell = isFuture ? '<span class="hdt-muted">—</span>' : (sites > 0 ? sites : '<span class="hdt-muted">0</span>');
-        var addCell  = isFuture ? '<span class="hist-badge" style="border:1px dashed var(--border);background:transparent;color:var(--text-muted);font-size:11px">+ Add tasks</span>' : '';
+        var addCell = '';
         var subText = isFuture ? 'Ready for planning' : (isCurrent ? 'Current week' : (tasks > 0 || sites > 0 ? tasks + ' task' + (tasks === 1 ? '' : 's') + ' · ' + sites + ' site' + (sites === 1 ? '' : 's') : 'No recorded work'));
         if (matches > 0) subText += ' · ' + matches + ' match' + (matches === 1 ? '' : 'es');
 
         return '<tr class="' + trClass + '" onclick="histGoToWeek(\'' + ws + '\')">' +
-          '<td><div class="hdt-range' + (isFuture?' dim':'') + '">' + esc(formatWeekRange(ws)) + '</div><div class="hdt-sub">' + esc(subText) + '</div></td>' +
+          '<td><div class="hdt-range' + (isFuture ? ' dim' : '') + '">' + esc(formatWeekRange(ws)) + '</div><div class="hdt-sub">' + esc(subText) + '</div></td>' +
           '<td style="text-align:right"><div class="hdt-h">' + ordCell + '</div></td>' +
           '<td style="text-align:right"><div class="hdt-ot">' + otCell + '</div></td>' +
           '<td style="text-align:right"><div class="hdt-h">' + totalCell + '</div></td>' +
@@ -32310,80 +33360,68 @@
           '<td style="text-align:center"><div class="hdt-n">' + siteCell + '</div></td>' +
           '<td>' + onCallCell + '</td>' +
           '<td>' + coCell + addCell + '</td>' +
-          '<td><div class="hdt-arrow">' + chevSvg + '</div></td>' +
           '</tr>';
       }
 
-      var secRow = function(label, color) {
-        return '<tr class="hdt-sec"><td colspan="9"><span class="hdt-sec-lbl"' + (color?' style="color:'+color+'"':'') + '>' + label + '</span></td></tr>';
+      var secRow = function (label, color) {
+        return '<tr class="hdt-sec"><td colspan="8"><span class="hdt-sec-lbl"' + (color ? ' style="color:' + color + '"' : '') + '>' + label + '</span></td></tr>';
       };
 
       var tableBody = '';
       if (filter === 'all' && !searchQ) {
         tableBody += secRow('Upcoming');
-        futureWeeks.forEach(function(ws){ tableBody += tableRow(ws,'future'); });
-        tableBody += secRow('● This Week','#22c55e');
-        tableBody += tableRow(curWeekStart,'current');
+        futureWeeks.forEach(function (ws) { tableBody += tableRow(ws, 'future'); });
+        tableBody += secRow('● This Week', '#22c55e');
+        tableBody += tableRow(curWeekStart, 'current');
         tableBody += secRow('History');
       } else if (searchQ) {
         tableBody += secRow('Matching Weeks');
-        if (matchWeeks[curWeekStart]) tableBody += tableRow(curWeekStart,'current');
+        if (matchWeeks[curWeekStart]) tableBody += tableRow(curWeekStart, 'current');
       }
       if (isLoading) {
-        tableBody += '<tr><td colspan="9" style="text-align:center;padding:40px;color:var(--text-muted);font-size:13px">Loading…</td></tr>';
+        tableBody += '<tr><td colspan="8" style="text-align:center;padding:40px;color:var(--text-muted);font-size:13px">Loading…</td></tr>';
       } else if ((searchQ && searchResults.length === 0) || (!searchQ && pastWeeks.length === 0)) {
-        tableBody += '<tr><td colspan="9" style="text-align:center;padding:40px;color:var(--text-muted);font-size:13px">' + (searchQ ? 'No matching tasks or callouts' : 'No weeks found') + '</td></tr>';
+        tableBody += '<tr><td colspan="8" style="text-align:center;padding:40px;color:var(--text-muted);font-size:13px">' + (searchQ ? 'No matching tasks or callouts' : 'No weeks found') + '</td></tr>';
       } else {
-        pastWeeks.forEach(function(w){ tableBody += tableRow(w.weekStart,'past'); });
+        pastWeeks.forEach(function (w) { tableBody += tableRow(w.weekStart, 'past'); });
       }
 
-      var filterLabel = ({ all:'Showing all weeks', oncall:'Showing on-call weeks', ot:'Showing weeks with OT', callouts:'Showing weeks with callouts' })[filter] || 'Showing all weeks';
+      var filterLabel = ({ all: 'Showing all weeks', oncall: 'Showing on-call weeks', ot: 'Showing weeks with OT', callouts: 'Showing weeks with callouts' })[filter] || 'Showing all weeks';
       var avgLabel = workedWeeks.length > 0 ? 'Avg ' + avgHrs + 'h / worked week' : 'No worked weeks yet';
-      var searchMeta = searchQ ? searchResults.length + ' search result' + (searchResults.length === 1 ? '' : 's') : filterLabel;
-      var scopeButtons = [['all','All'],['tasks','Tasks'],['callouts','Callouts']].map(function(s) {
-        return '<button class="' + (searchScope === s[0] ? 'active' : '') + '" onclick="historySearchScope(\'' + s[0] + '\')">' + s[1] + '</button>';
-      }).join('');
-      var resultsHtml = searchQ ? _histBuildResultsHtml(searchResults, searchQ) : '';
+      var searchMeta = filterLabel;
+      var resultsHtml = searchQ ? _histBuildResultsHtml(searchResults, searchQ, searchScope) : _histBuildIdleResultsHtml(searchQ, searchScope);
       var mainHtml = '<div class="hist-desk-main">' +
         '<div class="hist-desk-head-wrap">' +
         '<div class="hist-desk-head">' +
-        '<button class="hist-icon-btn" onclick="setView(\'' + (state.prevView||'week') + '\')" title="Back">' +
+        '<button class="hist-icon-btn" onclick="setView(\'' + (state.prevView || 'week') + '\')" title="Back">' +
         '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>' +
         '</button>' +
         '<div><h1>Week History</h1><p>Search saved tasks and callouts, or select a week</p></div>' +
         '<div class="hist-desk-head-meta"><span>' + searchMeta + '</span><span>' + avgLabel + '</span></div>' +
-        '</div>' +
-        '<div class="hist-desk-search-row">' +
-        '<div class="hist-desk-search">' +
-        '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>' +
-        '<input type="search" placeholder="Search tasks and callouts..." value="' + escAttr(searchQ) + '" oninput="historySearchInput(this.value)">' +
-        '</div>' +
-        '<div class="hist-desk-scope">' + scopeButtons + '</div>' +
         '</div>' +
         '</div>' +
         '<div class="hist-desk-content' + (searchQ ? '' : ' no-search') + '">' +
         '<div class="hist-desk-table-wrap">' +
         '<table class="hist-desk-table">' +
         '<thead><tr>' +
-        '<th style="width:230px">Week</th>' +
-        '<th class="r" style="width:70px">Ord</th>' +
-        '<th class="r" style="width:60px">OT</th>' +
-        '<th class="r" style="width:75px">Total</th>' +
-        '<th class="c" style="width:65px">Tasks</th>' +
-        '<th class="c" style="width:65px">Sites</th>' +
-        '<th style="width:120px">Status</th>' +
-        '<th style="width:120px">Callouts</th>' +
-        '<th></th>' +
+        '<th style="width:150px">Week</th>' +
+        '<th class="r" style="width:46px">Ord</th>' +
+        '<th class="r" style="width:36px">OT</th>' +
+        '<th class="r" style="width:50px">Total</th>' +
+        '<th class="c" style="width:42px">Tasks</th>' +
+        '<th class="c" style="width:38px">Sites</th>' +
+        '<th style="width:62px">Status</th>' +
+        '<th style="width:70px">Callouts</th>' +
         '</tr></thead>' +
         '<tbody>' + tableBody + '</tbody>' +
         '</table>' +
-        '</div>' + (searchQ ? '<div class="dj-resize-handle dj-rh-invis" onmousedown="histResultsResizeStart(event)"></div>' : '') + resultsHtml + '</div></div>';
+        '</div><div class="dj-resize-handle dj-rh-invis" onmousedown="histResultsResizeStart(event)"></div>' + resultsHtml + '</div></div>';
 
       // Jump modal
       var jumpHtml = '';
       if (state.historyJumpOpen) {
-        var qw = [curWeekStart, _histAddWeeks(curWeekStart,1), _histAddWeeks(curWeekStart,2)];
-        var qLabels = ['This week','Next week','Week after'];
+        var qw = [curWeekStart, _histAddWeeks(curWeekStart, 1), _histAddWeeks(curWeekStart, 2)];
+        var qLabels = ['This week', 'Next week', 'Week after'];
         var selQ = state.historyJumpQuick != null ? state.historyJumpQuick : 1;
         var jumpDate = state.historyJumpDate || qw[selQ];
         jumpHtml = '<div class="hist-jump-overlay" onclick="if(event.target.classList.contains(\'hist-jump-overlay\'))histCloseJump()">' +
@@ -32391,9 +33429,9 @@
           '<div class="hist-jump-title">Select Week</div>' +
           '<div class="hist-jump-sub">Choose a week to view tasks or add new ones</div>' +
           '<div class="hist-quick-grid">' +
-          qw.map(function(ws,i){ return '<button class="hist-quick-btn'+(selQ===i?' sel':'')+'" onclick="histSetQuick('+i+',\''+ws+'\')"><span class="hist-quick-label">'+qLabels[i]+'</span><span class="hist-quick-date">'+esc(formatWeekRange(ws))+'</span></button>'; }).join('') +
+          qw.map(function (ws, i) { return '<button class="hist-quick-btn' + (selQ === i ? ' sel' : '') + '" onclick="histSetQuick(' + i + ',\'' + ws + '\')"><span class="hist-quick-label">' + qLabels[i] + '</span><span class="hist-quick-date">' + esc(formatWeekRange(ws)) + '</span></button>'; }).join('') +
           '</div>' +
-          '<div class="hist-date-wrap"><input type="date" id="hist-date-input" value="'+esc(jumpDate)+'" oninput="histDateChange(this.value)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></div>' +
+          '<div class="hist-date-wrap"><input type="date" id="hist-date-input" value="' + esc(jumpDate) + '" oninput="histDateChange(this.value)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></div>' +
           '<div class="hist-jump-actions"><button class="hist-jump-btn cancel" onclick="histCloseJump()">Cancel</button><button class="hist-jump-btn go" onclick="histJumpGo()">Open Week</button></div>' +
           '</div></div>';
       }
@@ -32408,12 +33446,12 @@
     function historySearchInput(value) {
       state.historySearch = value || '';
       render();
-      requestAnimationFrame(function() {
-        var el = document.querySelector('.hist-desk-search input') || document.querySelector('.hist-mobile-search input');
+      requestAnimationFrame(function () {
+        var el = document.getElementById('hist-search-input') || document.querySelector('.hist-mobile-search input');
         if (el) {
           el.focus({ preventScroll: true });
           var len = el.value.length;
-          try { el.setSelectionRange(len, len); } catch(e) {}
+          try { el.setSelectionRange(len, len); } catch (e) { }
         }
       });
     }
@@ -32438,7 +33476,7 @@
         document.removeEventListener('mousemove', onMove);
         document.removeEventListener('mouseup', onUp);
         var el = document.querySelector('.hist-results-panel');
-        if (el) try { localStorage.setItem('rian_hist_results_width', String(parseInt(el.style.width) || _histResultsWidth())); } catch(e) {}
+        if (el) try { localStorage.setItem('rian_hist_results_width', String(parseInt(el.style.width) || _histResultsWidth())); } catch (e) { }
       }
       document.addEventListener('mousemove', onMove);
       document.addEventListener('mouseup', onUp);
@@ -32459,7 +33497,7 @@
         document.removeEventListener('mousemove', onMove);
         document.removeEventListener('mouseup', onUp);
         var el = document.querySelector('.hist-desk-sidebar');
-        if (el) try { localStorage.setItem('rian_hist_sidebar_width', String(parseInt(el.style.width) || _histSidebarWidth())); } catch(e) {}
+        if (el) try { localStorage.setItem('rian_hist_sidebar_width', String(parseInt(el.style.width) || _histSidebarWidth())); } catch (e) { }
       }
       document.addEventListener('mousemove', onMove);
       document.addEventListener('mouseup', onUp);
@@ -32471,7 +33509,19 @@
         state.calloutsSelectedWeek = weekStart;
         state.calloutsView = 'week';
         state.dcoSelectedCo = id || null;
+        state.calloutsExpandedId = id || null;
+        state.calloutsEditId = id || null;
+        state.calloutsNotesOpen = false;
         render();
+        if (id) {
+          setTimeout(function () {
+            var target = document.querySelector('.co-card[data-co-id="' + id + '"]');
+            if (target) {
+              var y = target.getBoundingClientRect().top + window.scrollY - 80;
+              window.scrollTo({ top: Math.max(0, y), behavior: 'smooth' });
+            }
+          }, 120);
+        }
         return;
       }
       if (type === 'task') {
@@ -32479,8 +33529,8 @@
         await loadWeek(weekStart);
         var di = typeof dayIdx === 'number' && !isNaN(dayIdx) ? dayIdx : -1;
         if (di < 0 && id && state.weekData) {
-          (state.weekData.days || []).some(function(day, idx) {
-            if ((day.activities || []).some(function(act) { return act.id === id; })) {
+          (state.weekData.days || []).some(function (day, idx) {
+            if ((day.activities || []).some(function (act) { return act.id === id; })) {
               di = idx;
               return true;
             }
@@ -32499,7 +33549,7 @@
         }
         saveUiState();
         render();
-        setTimeout(function() {
+        setTimeout(function () {
           var target = id
             ? document.querySelector('.activity-card[data-act-id="' + id + '"]')
             : document.querySelector('.day-card[data-day-idx="' + di + '"]');

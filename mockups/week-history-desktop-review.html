@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Week History Desktop Review</title>
+<style>
+  * { box-sizing: border-box; }
+  :root {
+    --accent:#2D6BE4;
+    --accent-rgb:45,107,228;
+    --amber-rgb:245,158,11;
+    --priority-high-rgb:239,68,68;
+    --bg-page:#f4f7fb;
+    --bg-card:#fff;
+    --bg-card-alt:#f8fafc;
+    --bg-input:#eef3f8;
+    --border:#dfe7f0;
+    --text-primary:#172033;
+    --text-secondary:#536174;
+    --text-muted:#8a98aa;
+    --shadow-rgb:15,23,42;
+  }
+  body {
+    margin:0;
+    min-height:100vh;
+    background:var(--bg-page);
+    color:var(--text-primary);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  }
+  button { font-family:inherit; }
+  .app {
+    height:100vh;
+    display:flex;
+    flex-direction:column;
+  }
+  .top-nav {
+    height:58px;
+    background:#101827;
+    color:#fff;
+    display:flex;
+    align-items:center;
+    padding:0 22px;
+    gap:18px;
+  }
+  .brand { font-weight:850; letter-spacing:.08em; font-size:13px; }
+  .tabs { display:flex; gap:4px; }
+  .tab {
+    height:34px;
+    padding:0 13px;
+    border:0;
+    border-radius:8px;
+    background:transparent;
+    color:#aeb9c8;
+    font-size:12px;
+    font-weight:750;
+  }
+  .tab.active { background:rgba(255,255,255,.1); color:#fff; }
+  .shell {
+    display:flex;
+    height:calc(100vh - 58px);
+    overflow:hidden;
+    border-top:1px solid rgba(255,255,255,.06);
+  }
+  .sidebar {
+    width:264px;
+    background:var(--bg-card);
+    border-right:1px solid var(--border);
+    display:flex;
+    flex-direction:column;
+    overflow:auto;
+  }
+  .side-label {
+    padding:16px 16px 8px;
+    font-size:10px;
+    line-height:1;
+    letter-spacing:.1em;
+    text-transform:uppercase;
+    font-weight:850;
+    color:var(--text-muted);
+  }
+  .stats {
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:8px;
+    padding:0 12px 14px;
+  }
+  .stat {
+    background:var(--bg-input);
+    border:1px solid transparent;
+    border-radius:8px;
+    padding:10px;
+  }
+  .stat strong {
+    display:block;
+    font-size:19px;
+    line-height:1;
+  }
+  .stat span {
+    display:block;
+    margin-top:5px;
+    font-size:10px;
+    color:var(--text-muted);
+    font-weight:700;
+  }
+  .divider { height:1px; background:var(--border); margin:0 12px 10px; }
+  .filters { padding:0 4px 10px; }
+  .filter {
+    width:100%;
+    height:36px;
+    border:0;
+    border-radius:8px;
+    background:transparent;
+    color:var(--text-secondary);
+    display:flex;
+    align-items:center;
+    gap:9px;
+    padding:0 12px;
+    font-size:13px;
+    font-weight:700;
+    cursor:pointer;
+  }
+  .filter.active {
+    background:rgba(var(--accent-rgb),.1);
+    color:var(--accent);
+  }
+  .dot {
+    width:7px;
+    height:7px;
+    border-radius:999px;
+    background:currentColor;
+    opacity:.75;
+  }
+  .jump {
+    height:38px;
+    margin:10px 12px 16px;
+    border:0;
+    border-radius:9px;
+    background:var(--accent);
+    color:#fff;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:7px;
+    font-size:13px;
+    font-weight:800;
+  }
+  .main {
+    flex:1;
+    min-width:0;
+    display:flex;
+    flex-direction:column;
+    overflow:hidden;
+  }
+  .page-head {
+    min-height:74px;
+    background:var(--bg-card);
+    border-bottom:1px solid var(--border);
+    display:flex;
+    align-items:center;
+    padding:0 22px;
+    gap:18px;
+  }
+  .title h1 {
+    margin:0;
+    font-size:18px;
+    line-height:1.15;
+    font-weight:850;
+  }
+  .title p {
+    margin:4px 0 0;
+    font-size:12px;
+    color:var(--text-muted);
+  }
+  .head-spacer { flex:1; }
+  .head-meta {
+    display:flex;
+    align-items:center;
+    gap:18px;
+    color:var(--text-muted);
+    font-size:12px;
+    font-weight:650;
+    white-space:nowrap;
+  }
+  .head-meta span {
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+  }
+  .head-meta span + span::before {
+    content:'';
+    width:1px;
+    height:16px;
+    background:var(--border);
+    margin-right:12px;
+  }
+  .table-wrap {
+    flex:1;
+    overflow:auto;
+  }
+  table {
+    width:100%;
+    border-collapse:separate;
+    border-spacing:0;
+  }
+  th {
+    position:sticky;
+    top:0;
+    z-index:2;
+    height:35px;
+    padding:0 14px;
+    background:var(--bg-card-alt);
+    border-bottom:1px solid var(--border);
+    color:var(--text-muted);
+    font-size:10px;
+    font-weight:850;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    text-align:left;
+    white-space:nowrap;
+  }
+  th:first-child { padding-left:22px; }
+  th.r, td.r { text-align:right; }
+  th.c, td.c { text-align:center; }
+  tbody tr {
+    background:var(--bg-card);
+    cursor:pointer;
+  }
+  tbody tr:hover td { background:var(--bg-card-alt); }
+  td {
+    height:54px;
+    padding:8px 14px;
+    border-bottom:1px solid var(--border);
+    vertical-align:middle;
+    transition:background .12s;
+  }
+  td:first-child { padding-left:22px; }
+  tr.current {
+    background:linear-gradient(to right,rgba(var(--accent-rgb),.11),rgba(var(--accent-rgb),.025));
+  }
+  tr.current td:first-child {
+    box-shadow:inset 4px 0 0 var(--accent);
+  }
+  tr.future { opacity:.68; }
+  tr.section td {
+    height:31px;
+    padding:0 22px;
+    background:var(--bg-page);
+    border-top:1px solid var(--border);
+    border-bottom:1px solid var(--border);
+    cursor:default;
+  }
+  tr.section:first-child td { border-top:0; }
+  tr.section:hover td { background:var(--bg-page); }
+  .section-label {
+    display:flex;
+    align-items:center;
+    gap:7px;
+    color:var(--text-muted);
+    font-size:10px;
+    font-weight:700;
+    letter-spacing:.1em;
+    text-transform:uppercase;
+  }
+  .week-main {
+    font-size:13px;
+    font-weight:850;
+    color:var(--text-primary);
+    white-space:nowrap;
+  }
+  .week-sub {
+    margin-top:3px;
+    color:var(--text-muted);
+    font-size:11px;
+    font-weight:600;
+  }
+  .num {
+    font-size:13px;
+    font-weight:850;
+    color:var(--text-primary);
+  }
+  .num.accent { color:var(--accent); }
+  .num.amber { color:#d97706; }
+  .muted { color:var(--text-muted); opacity:.48; font-weight:750; }
+  .small-num {
+    color:var(--text-secondary);
+    font-size:12px;
+    font-weight:750;
+  }
+  .chip {
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:5px;
+    min-height:24px;
+    padding:0 8px;
+    border-radius:7px;
+    font-size:11px;
+    font-weight:850;
+    white-space:nowrap;
+  }
+  .chip.blue { background:rgba(var(--accent-rgb),.11); color:var(--accent); }
+  .chip.amber { background:rgba(var(--amber-rgb),.13); color:#b45309; }
+  .chip.red { background:rgba(var(--priority-high-rgb),.11); color:#dc2626; }
+  .chip.dash { border:1px dashed var(--border); color:var(--text-muted); background:transparent; }
+  .status-cell {
+    display:flex;
+    align-items:center;
+    gap:6px;
+  }
+  .status-bar {
+    width:4px;
+    height:26px;
+    border-radius:99px;
+    background:rgba(var(--amber-rgb),.8);
+  }
+  .arrow {
+    width:28px;
+    height:28px;
+    margin-left:auto;
+    border:1px solid var(--border);
+    border-radius:7px;
+    background:var(--bg-input);
+    color:var(--text-secondary);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="top-nav">
+    <div class="brand">RIAN</div>
+    <div class="tabs">
+      <button class="tab">TIMESHEET</button>
+      <button class="tab active">HISTORY</button>
+      <button class="tab">NOTES</button>
+      <button class="tab">FINDER</button>
+      <button class="tab">ROUTINES</button>
+    </div>
+  </div>
+
+  <div class="shell">
+    <aside class="sidebar">
+      <div class="side-label">2026 so far</div>
+      <div class="stats">
+        <div class="stat"><strong style="color:var(--accent)">17</strong><span>Weeks worked</span></div>
+        <div class="stat"><strong style="color:var(--accent)">604h</strong><span>Ordinary hrs</span></div>
+        <div class="stat"><strong style="color:#d97706">5</strong><span>On-call wks</span></div>
+        <div class="stat"><strong style="color:#7c3aed">14</strong><span>Callouts</span></div>
+      </div>
+      <div class="divider"></div>
+      <div class="side-label">Filter</div>
+      <div class="filters">
+        <button class="filter active"><span class="dot"></span>All weeks</button>
+        <button class="filter" style="color:#b45309"><span class="dot"></span>On-call only</button>
+        <button class="filter" style="color:#d97706"><span class="dot"></span>With OT</button>
+        <button class="filter" style="color:#dc2626"><span class="dot"></span>With callouts</button>
+      </div>
+      <div class="divider"></div>
+      <button class="jump">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+        Jump to Any Week
+      </button>
+    </aside>
+
+    <main class="main">
+      <header class="page-head">
+        <div class="title">
+          <h1>Week History</h1>
+          <p>Review past work, jump forward, or add tasks to upcoming weeks</p>
+        </div>
+        <div class="head-spacer"></div>
+        <div class="head-meta">
+          <span>Showing all weeks</span>
+          <span>Avg 35.5h / worked week</span>
+        </div>
+      </header>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th style="width:230px">Week</th>
+              <th class="r" style="width:74px">Ord</th>
+              <th class="r" style="width:70px">OT</th>
+              <th class="r" style="width:80px">Total</th>
+              <th class="c" style="width:70px">Tasks</th>
+              <th class="c" style="width:70px">Sites</th>
+              <th style="width:130px">Status</th>
+              <th style="width:115px">Callouts</th>
+              <th style="width:42px"></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="section"><td colspan="9"><span class="section-label">Upcoming</span></td></tr>
+            <tr class="future">
+              <td><div class="week-main">1 May - 7 May</div><div class="week-sub">Ready for planning</div></td>
+              <td class="r"><span class="muted">-</span></td><td class="r"><span class="muted">-</span></td><td class="r"><span class="muted">-</span></td>
+              <td class="c"><span class="muted">-</span></td><td class="c"><span class="muted">-</span></td>
+              <td></td><td><span class="chip dash">+ Add tasks</span></td><td><div class="arrow">›</div></td>
+            </tr>
+            <tr class="future">
+              <td><div class="week-main">8 May - 14 May</div><div class="week-sub">Ready for planning</div></td>
+              <td class="r"><span class="muted">-</span></td><td class="r"><span class="muted">-</span></td><td class="r"><span class="muted">-</span></td>
+              <td class="c"><span class="muted">-</span></td><td class="c"><span class="muted">-</span></td>
+              <td></td><td><span class="chip dash">+ Add tasks</span></td><td><div class="arrow">›</div></td>
+            </tr>
+
+            <tr class="section"><td colspan="9"><span class="section-label" style="color:#16a34a">This Week</span></td></tr>
+            <tr class="current">
+              <td><div class="week-main">24 Apr - 30 Apr</div><div class="week-sub">Current week</div></td>
+              <td class="r"><span class="num accent">31h</span></td><td class="r"><span class="muted">-</span></td><td class="r"><span class="num">31h</span></td>
+              <td class="c"><span class="small-num">9</span></td><td class="c"><span class="small-num">4</span></td>
+              <td></td><td></td><td><div class="arrow">›</div></td>
+            </tr>
+
+            <tr class="section"><td colspan="9"><span class="section-label">History</span></td></tr>
+            <tr>
+              <td><div class="week-main">17 Apr - 23 Apr</div><div class="week-sub">12 tasks · 5 sites</div></td>
+              <td class="r"><span class="num accent">37h</span></td><td class="r"><span class="num amber">3h</span></td><td class="r"><span class="num">40h</span></td>
+              <td class="c"><span class="small-num">12</span></td><td class="c"><span class="small-num">5</span></td>
+              <td><div class="status-cell"><span class="status-bar"></span><span class="chip amber">On-Call</span></div></td>
+              <td><span class="chip red">☎ 2</span></td><td><div class="arrow">›</div></td>
+            </tr>
+            <tr>
+              <td><div class="week-main">10 Apr - 16 Apr</div><div class="week-sub">8 tasks · 3 sites</div></td>
+              <td class="r"><span class="num accent">34h</span></td><td class="r"><span class="muted">-</span></td><td class="r"><span class="num">34h</span></td>
+              <td class="c"><span class="small-num">8</span></td><td class="c"><span class="small-num">3</span></td>
+              <td></td><td></td><td><div class="arrow">›</div></td>
+            </tr>
+            <tr>
+              <td><div class="week-main">3 Apr - 9 Apr</div><div class="week-sub">10 tasks · 6 sites</div></td>
+              <td class="r"><span class="num accent">36h</span></td><td class="r"><span class="num amber">6h</span></td><td class="r"><span class="num">42h</span></td>
+              <td class="c"><span class="small-num">10</span></td><td class="c"><span class="small-num">6</span></td>
+              <td><div class="status-cell"><span class="status-bar"></span><span class="chip amber">Extra</span></div></td>
+              <td><span class="chip red">☎ 1</span></td><td><div class="arrow">›</div></td>
+            </tr>
+            <tr>
+              <td><div class="week-main">27 Mar - 2 Apr</div><div class="week-sub">No recorded work</div></td>
+              <td class="r"><span class="muted">0h</span></td><td class="r"><span class="muted">-</span></td><td class="r"><span class="muted">0h</span></td>
+              <td class="c"><span class="muted">0</span></td><td class="c"><span class="muted">0</span></td>
+              <td></td><td></td><td><div class="arrow">›</div></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </main>
+  </div>
+</div>
+</body>
+</html>

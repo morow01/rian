@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Journal Context Menu — Desktop Options</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f0f2f5; color: #1e293b; }
+
+  .page-title { text-align: center; padding: 28px 0 8px; font-size: 22px; font-weight: 700; color: #1e293b; }
+  .page-sub { text-align: center; font-size: 13px; color: #64748b; margin-bottom: 28px; }
+
+  .options-row { display: flex; gap: 24px; justify-content: center; padding: 0 24px 40px; flex-wrap: wrap; align-items: flex-start; }
+
+  /* ── Panel shell ── */
+  .panel-wrap {
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.10);
+    overflow: hidden;
+    width: 340px;
+    flex-shrink: 0;
+  }
+  .panel-label {
+    background: #1e293b; color: #fff;
+    padding: 10px 16px; font-size: 12px; font-weight: 700;
+    letter-spacing: 0.06em; text-transform: uppercase;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .panel-label span { background: #4d94ff; color:#fff; border-radius:6px; padding: 2px 8px; font-size:11px; }
+
+  /* ── Shared section list ── */
+  .col1 { width: 100%; padding: 6px 0; background: #f8fafc; border-right: 1px solid #e2e8f0; }
+  .nb-row {
+    display: flex; align-items: center; gap: 6px;
+    padding: 8px 12px 4px; font-size: 13px; font-weight: 700;
+    color: #1e293b; cursor: pointer; user-select: none;
+  }
+  .nb-row:hover { background: rgba(45,107,228,0.03); }
+  .sec-row {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 10px 10px 18px; cursor: pointer;
+    border-left: 3px solid transparent;
+    border-bottom: 1px solid #f1f5f9;
+    transition: background 0.1s; position: relative;
+  }
+  .sec-row:hover { background: rgba(45,107,228,0.04); }
+  .sec-row.active {
+    background: linear-gradient(to right, rgba(45,107,228,0.10), rgba(45,107,228,0.03));
+    border-left-color: #2D6BE4;
+  }
+  .sec-icon {
+    width: 34px; height: 34px; border-radius: 9px;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .sec-info { flex: 1; min-width: 0; }
+  .sec-name { font-size: 13px; font-weight: 600; color: #1e293b; }
+  .sec-meta { font-size: 11px; color: #94a3b8; margin-top: 1px; }
+  .more-btn {
+    width: 24px; height: 24px; border-radius: 6px; border: none;
+    background: transparent; cursor: pointer; display: flex;
+    align-items: center; justify-content: center;
+    color: #94a3b8; font-size: 16px; opacity: 0;
+    transition: opacity 0.15s, background 0.1s; flex-shrink: 0; padding: 0;
+  }
+  .sec-row:hover .more-btn { opacity: 1; }
+  .more-btn:hover { background: #e2e8f0; color: #1e293b; }
+
+  /* ── OPTION A: Popover context menu ── */
+  .popover {
+    position: absolute; right: 6px; top: 50%;
+    transform: translateY(-50%) translateY(0);
+    background: #fff; border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.13);
+    min-width: 170px; z-index: 10;
+    padding: 4px 0;
+    display: none;
+  }
+  .popover.show { display: block; }
+  .popover-item {
+    display: flex; align-items: center; gap: 9px;
+    padding: 8px 14px; font-size: 13px; font-weight: 500;
+    color: #1e293b; cursor: pointer; transition: background 0.1s;
+    background: none; border: none; width: 100%; text-align: left;
+  }
+  .popover-item:hover { background: #f1f5f9; }
+  .popover-item.danger { color: #ef4444; }
+  .popover-item.danger:hover { background: #fef2f2; }
+  .popover-sep { height: 1px; background: #f1f5f9; margin: 3px 0; }
+  .popover-item svg { flex-shrink: 0; }
+
+  /* ── OPTION B: Centered modal ── */
+  .modal-backdrop {
+    position: absolute; inset: 0;
+    background: rgba(0,0,0,0.18); border-radius: 0 0 16px 16px;
+    display: none; align-items: center; justify-content: center;
+    z-index: 20;
+  }
+  .modal-backdrop.show { display: flex; }
+  .modal-box {
+    background: #fff; border-radius: 14px;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.18);
+    padding: 0; width: 260px; overflow: hidden;
+  }
+  .modal-title {
+    padding: 14px 16px 10px; font-size: 13px; font-weight: 700;
+    color: #64748b; border-bottom: 1px solid #f1f5f9;
+    text-transform: uppercase; letter-spacing: 0.05em;
+  }
+  .modal-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 11px 16px; font-size: 14px; font-weight: 500;
+    color: #1e293b; cursor: pointer; transition: background 0.1s;
+    border: none; background: none; width: 100%; text-align: left;
+    border-bottom: 1px solid #f8fafc;
+  }
+  .modal-item:hover { background: #f8fafc; }
+  .modal-item.danger { color: #ef4444; }
+  .modal-item.danger:hover { background: #fef2f2; }
+  .modal-cancel {
+    display: block; width: 100%; padding: 12px 16px;
+    font-size: 14px; font-weight: 600; color: #64748b;
+    background: #f8fafc; border: none; border-top: 1px solid #e2e8f0;
+    cursor: pointer; transition: background 0.1s;
+  }
+  .modal-cancel:hover { background: #f1f5f9; }
+
+  /* ── OPTION C: Inline edit ── */
+  .inline-input-wrap {
+    display: flex; align-items: center; gap: 6px;
+    padding: 6px 10px 6px 18px;
+    border-left: 3px solid #2D6BE4;
+    background: linear-gradient(to right, rgba(45,107,228,0.08), rgba(45,107,228,0.02));
+    border-bottom: 1px solid #f1f5f9;
+  }
+  .inline-input {
+    flex: 1; border: 1px solid #2D6BE4; border-radius: 7px;
+    padding: 5px 10px; font-size: 13px; font-weight: 600;
+    color: #1e293b; background: #fff; outline: none;
+  }
+  .inline-save {
+    padding: 5px 10px; border-radius: 7px; border: none;
+    background: #2D6BE4; color: #fff; font-size: 12px;
+    font-weight: 700; cursor: pointer; flex-shrink: 0;
+  }
+  .inline-cancel-btn {
+    padding: 5px 8px; border-radius: 7px; border: 1px solid #e2e8f0;
+    background: #fff; color: #64748b; font-size: 12px;
+    font-weight: 600; cursor: pointer; flex-shrink: 0;
+  }
+  .inline-delete-confirm {
+    display: none; align-items: center; justify-content: space-between;
+    padding: 8px 12px 8px 18px;
+    border-left: 3px solid #ef4444;
+    background: #fef2f2;
+    border-bottom: 1px solid #fecaca;
+    font-size: 12px; color: #b91c1c;
+  }
+  .inline-delete-confirm.show { display: flex; }
+  .del-confirm-btns { display: flex; gap: 6px; }
+  .del-yes {
+    padding: 4px 10px; border-radius: 6px; border: none;
+    background: #ef4444; color: #fff; font-size: 12px;
+    font-weight: 700; cursor: pointer;
+  }
+  .del-no {
+    padding: 4px 10px; border-radius: 6px; border: 1px solid #fca5a5;
+    background: #fff; color: #ef4444; font-size: 12px;
+    font-weight: 600; cursor: pointer;
+  }
+
+  /* Hover action buttons (Option C) */
+  .sec-actions {
+    display: none; align-items: center; gap: 3px; margin-left: 2px;
+  }
+  .sec-row:hover .sec-actions { display: flex; }
+  .act-icon-btn {
+    width: 26px; height: 26px; border-radius: 6px;
+    border: 1px solid #e2e8f0; background: #fff;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; color: #64748b; transition: all 0.1s;
+    padding: 0;
+  }
+  .act-icon-btn:hover { background: #f1f5f9; color: #1e293b; border-color: #cbd5e1; }
+  .act-icon-btn.del:hover { background: #fef2f2; color: #ef4444; border-color: #fca5a5; }
+
+  /* ── Trigger buttons ── */
+  .trigger-row { padding: 10px 12px; border-top: 1px solid #f1f5f9; background: #fff; display: flex; gap: 8px; flex-wrap: wrap; }
+  .trigger-btn {
+    padding: 6px 14px; border-radius: 8px; font-size: 12px; font-weight: 600;
+    cursor: pointer; border: 1px solid #e2e8f0; background: #f8fafc;
+    color: #475569; transition: all 0.1s;
+  }
+  .trigger-btn:hover { background: #2D6BE4; color: #fff; border-color: #2D6BE4; }
+  .trigger-btn.active-t { background: #2D6BE4; color: #fff; border-color: #2D6BE4; }
+
+  /* ── Panel layout ── */
+  .panel-inner { position: relative; overflow: hidden; }
+  .demo-cols { display: flex; }
+  .demo-col1 { width: 160px; flex-shrink: 0; }
+  .demo-col2 { flex: 1; background: #fff; padding: 12px; display: flex; align-items: center; justify-content: center; }
+  .empty-hint { font-size: 12px; color: #cbd5e1; text-align: center; }
+
+  .chevron { display: inline-block; transition: transform 0.2s; margin-right: 2px; }
+
+  .note-label {
+    font-size: 11px; color: #94a3b8; padding: 6px 10px 2px;
+    font-weight: 600; letter-spacing: 0.04em;
+  }
+</style>
+</head>
+<body>
+
+<div class="page-title">Journal — Desktop Context Menu Options</div>
+<div class="page-sub">Click the <strong>•••</strong> button on a section row to see each option in action</div>
+
+<div class="options-row">
+
+  <!-- ══ OPTION A: Popover ══ -->
+  <div class="panel-wrap">
+    <div class="panel-label">Option A — Popover <span>Recommended</span></div>
+    <div class="panel-inner" id="optA">
+      <div class="demo-cols">
+        <div class="demo-col1 col1">
+          <div class="nb-row">
+            <span class="chevron" style="transform:rotate(0deg)">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+            </span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+            Field Work
+          </div>
+          <div class="sec-row" id="aRow1" onclick="aSelectSec('aRow1')">
+            <div class="sec-icon" style="background:#ef444422"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></div>
+            <div class="sec-info"><div class="sec-name">March 2026</div><div class="sec-meta">2 pages</div></div>
+            <button class="more-btn" onclick="event.stopPropagation();aTogglePopover('aRow1')" title="Options">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="19" r="2"/></svg>
+            </button>
+            <div class="popover" id="aPopover1">
+              <button class="popover-item" onclick="aCloseAll()">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                Rename
+              </button>
+              <button class="popover-item" onclick="aCloseAll()">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/><line x1="21.17" y1="8" x2="12" y2="8"/><line x1="3.95" y1="6.06" x2="8.54" y2="14"/><line x1="10.88" y1="21.94" x2="15.46" y2="14"/></svg>
+                Change Colour…
+              </button>
+              <div class="popover-sep"></div>
+              <button class="popover-item danger" onclick="aCloseAll()">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+                Delete
+              </button>
+            </div>
+          </div>
+          <div class="sec-row active" id="aRow2" onclick="aSelectSec('aRow2')">
+            <div class="sec-icon" style="background:#f9731622"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#f97316" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></div>
+            <div class="sec-info"><div class="sec-name">April 2026</div><div class="sec-meta">5 pages</div></div>
+            <button class="more-btn" onclick="event.stopPropagation();aTogglePopover('aRow2')" title="Options">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="19" r="2"/></svg>
+            </button>
+            <div class="popover" id="aPopover2">
+              <button class="popover-item" onclick="aCloseAll()">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                Rename
+              </button>
+              <button class="popover-item" onclick="aCloseAll()">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/><line x1="21.17" y1="8" x2="12" y2="8"/><line x1="3.95" y1="6.06" x2="8.54" y2="14"/><line x1="10.88" y1="21.94" x2="15.46" y2="14"/></svg>
+                Change Colour…
+              </button>
+              <div class="popover-sep"></div>
+              <button class="popover-item danger" onclick="aCloseAll()">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="demo-col2">
+          <div class="empty-hint">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="1.5" style="margin-bottom:6px"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            <div>Page editor</div>
+          </div>
+        </div>
+      </div>
+      <div class="trigger-row">
+        <div style="font-size:11px;color:#94a3b8;align-self:center;flex:1">Hover a row → click •••</div>
+      </div>
+    </div>
+    <div style="padding:12px 14px 14px;background:#f8fafc;border-top:1px solid #f1f5f9">
+      <div style="font-size:12px;font-weight:700;color:#475569;margin-bottom:4px">✓ Pros</div>
+      <div style="font-size:12px;color:#64748b;line-height:1.6">Appears right next to the item. Standard desktop pattern (Notion, Linear, VS Code). Quick — no overlay, no animation. Click outside to dismiss.</div>
+      <div style="font-size:12px;font-weight:700;color:#475569;margin:8px 0 4px">⚠ Cons</div>
+      <div style="font-size:12px;color:#64748b;line-height:1.6">Requires click-outside handling. Can clip if panel is narrow.</div>
+    </div>
+  </div>
+
+  <!-- ══ OPTION B: Centered modal ══ -->
+  <div class="panel-wrap">
+    <div class="panel-label">Option B — Centered Modal</div>
+    <div class="panel-inner" id="optB" style="min-height:340px">
+      <div class="demo-cols">
+        <div class="demo-col1 col1">
+          <div class="nb-row">
+            <span class="chevron"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+            Field Work
+          </div>
+          <div class="sec-row active">
+            <div class="sec-icon" style="background:#ef444422"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></div>
+            <div class="sec-info"><div class="sec-name">March 2026</div><div class="sec-meta">2 pages</div></div>
+            <button class="more-btn" onclick="event.stopPropagation();bShowModal('March 2026')" title="Options">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="19" r="2"/></svg>
+            </button>
+          </div>
+          <div class="sec-row">
+            <div class="sec-icon" style="background:#f9731622"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#f97316" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></div>
+            <div class="sec-info"><div class="sec-name">April 2026</div><div class="sec-meta">5 pages</div></div>
+            <button class="more-btn" onclick="event.stopPropagation();bShowModal('April 2026')" title="Options">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="19" r="2"/></svg>
+            </button>
+          </div>
+        </div>
+        <div class="demo-col2">
+          <div class="empty-hint">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="1.5" style="margin-bottom:6px"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            <div>Page editor</div>
+          </div>
+        </div>
+      </div>
+      <!-- Centered modal overlay -->
+      <div class="modal-backdrop" id="bBackdrop" onclick="bHideModal()">
+        <div class="modal-box" onclick="event.stopPropagation()">
+          <div class="modal-title" id="bModalTitle">March 2026</div>
+          <button class="modal-item" onclick="bHideModal()">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            Rename
+          </button>
+          <button class="modal-item" onclick="bHideModal()">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/><line x1="21.17" y1="8" x2="12" y2="8"/><line x1="3.95" y1="6.06" x2="8.54" y2="14"/><line x1="10.88" y1="21.94" x2="15.46" y2="14"/></svg>
+            Change Colour…
+          </button>
+          <button class="modal-item danger" onclick="bHideModal()">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+            Delete
+          </button>
+          <button class="modal-cancel" onclick="bHideModal()">Cancel</button>
+        </div>
+      </div>
+    </div>
+    <div style="padding:12px 14px 14px;background:#f8fafc;border-top:1px solid #f1f5f9">
+      <div style="font-size:12px;font-weight:700;color:#475569;margin-bottom:4px">✓ Pros</div>
+      <div style="font-size:12px;color:#64748b;line-height:1.6">Familiar pattern — same as existing delete dialogs. Clear focus. Easy to build — reuse existing modal CSS.</div>
+      <div style="font-size:12px;font-weight:700;color:#475569;margin:8px 0 4px">⚠ Cons</div>
+      <div style="font-size:12px;color:#64748b;line-height:1.6">Interrupts the flow — feels heavy for a simple rename. Still a mobile-style modal, just centered.</div>
+    </div>
+  </div>
+
+  <!-- ══ OPTION C: Inline edit ══ -->
+  <div class="panel-wrap">
+    <div class="panel-label">Option C — Inline Edit + Icon Buttons</div>
+    <div class="panel-inner" id="optC">
+      <div class="demo-cols">
+        <div class="demo-col1 col1">
+          <div class="nb-row">
+            <span class="chevron"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+            Field Work
+          </div>
+
+          <!-- Row 1: normal until rename triggered -->
+          <div id="cRow1Normal" class="sec-row active">
+            <div class="sec-icon" style="background:#ef444422"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></div>
+            <div class="sec-info"><div class="sec-name">March 2026</div><div class="sec-meta">2 pages</div></div>
+            <div class="sec-actions">
+              <button class="act-icon-btn" onclick="cStartRename()" title="Rename">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+              </button>
+              <button class="act-icon-btn" onclick="cShowDeleteConfirm()" title="Change colour">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/></svg>
+              </button>
+              <button class="act-icon-btn del" onclick="cShowDeleteConfirm()" title="Delete">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+              </button>
+            </div>
+          </div>
+          <!-- Inline rename state -->
+          <div id="cRow1Rename" class="inline-input-wrap" style="display:none">
+            <div class="sec-icon" style="background:#ef444422;width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></div>
+            <input class="inline-input" value="March 2026" id="cRenameInput">
+            <button class="inline-save" onclick="cEndRename()">Save</button>
+            <button class="inline-cancel-btn" onclick="cCancelRename()">✕</button>
+          </div>
+          <!-- Delete confirm banner -->
+          <div id="cDeleteConfirm" class="inline-delete-confirm">
+            <span>Delete "March 2026"?</span>
+            <div class="del-confirm-btns">
+              <button class="del-yes" onclick="cHideDeleteConfirm()">Delete</button>
+              <button class="del-no" onclick="cHideDeleteConfirm()">Cancel</button>
+            </div>
+          </div>
+
+          <div class="sec-row">
+            <div class="sec-icon" style="background:#f9731622"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#f97316" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></div>
+            <div class="sec-info"><div class="sec-name">April 2026</div><div class="sec-meta">5 pages</div></div>
+            <div class="sec-actions">
+              <button class="act-icon-btn" title="Rename"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+              <button class="act-icon-btn" title="Change colour"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/></svg></button>
+              <button class="act-icon-btn del" title="Delete"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg></button>
+            </div>
+          </div>
+        </div>
+        <div class="demo-col2">
+          <div class="empty-hint">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="1.5" style="margin-bottom:6px"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            <div>Page editor</div>
+          </div>
+        </div>
+      </div>
+      <div class="trigger-row">
+        <div style="font-size:11px;color:#94a3b8;align-self:center;flex:1">Hover "March 2026" → click ✏ rename or 🗑 delete</div>
+      </div>
+    </div>
+    <div style="padding:12px 14px 14px;background:#f8fafc;border-top:1px solid #f1f5f9">
+      <div style="font-size:12px;font-weight:700;color:#475569;margin-bottom:4px">✓ Pros</div>
+      <div style="font-size:12px;color:#64748b;line-height:1.6">Most fluid — no menu at all. Edit happens right where you are. No extra click to reach Rename. Delete confirm is inline, not a modal.</div>
+      <div style="font-size:12px;font-weight:700;color:#475569;margin:8px 0 4px">⚠ Cons</div>
+      <div style="font-size:12px;color:#64748b;line-height:1.6">Most work to build. Colour picker needs separate solution. Three icon buttons may feel cluttered on narrow rows.</div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  // ── Option A: Popover ──
+  function aTogglePopover(rowId) {
+    var rowNum = rowId.replace('aRow', '');
+    var pop = document.getElementById('aPopover' + rowNum);
+    var wasOpen = pop.classList.contains('show');
+    aCloseAll();
+    if (!wasOpen) pop.classList.add('show');
+  }
+  function aSelectSec(rowId) {
+    aCloseAll();
+    document.querySelectorAll('#optA .sec-row').forEach(r => r.classList.remove('active'));
+    document.getElementById(rowId).classList.add('active');
+  }
+  function aCloseAll() {
+    document.querySelectorAll('.popover').forEach(p => p.classList.remove('show'));
+  }
+  document.addEventListener('click', function(e) {
+    if (!e.target.closest('.sec-row')) aCloseAll();
+  });
+
+  // ── Option B: Modal ──
+  function bShowModal(title) {
+    document.getElementById('bModalTitle').textContent = title;
+    document.getElementById('bBackdrop').classList.add('show');
+  }
+  function bHideModal() {
+    document.getElementById('bBackdrop').classList.remove('show');
+  }
+
+  // ── Option C: Inline ──
+  function cStartRename() {
+    document.getElementById('cRow1Normal').style.display = 'none';
+    document.getElementById('cDeleteConfirm').classList.remove('show');
+    document.getElementById('cRow1Rename').style.display = 'flex';
+    document.getElementById('cRenameInput').focus();
+    document.getElementById('cRenameInput').select();
+  }
+  function cEndRename() {
+    document.getElementById('cRow1Normal').style.display = 'flex';
+    document.getElementById('cRow1Rename').style.display = 'none';
+  }
+  function cCancelRename() {
+    document.getElementById('cRenameInput').value = 'March 2026';
+    cEndRename();
+  }
+  function cShowDeleteConfirm() {
+    document.getElementById('cRow1Normal').style.display = 'none';
+    document.getElementById('cRow1Rename').style.display = 'none';
+    document.getElementById('cDeleteConfirm').classList.add('show');
+  }
+  function cHideDeleteConfirm() {
+    document.getElementById('cDeleteConfirm').classList.remove('show');
+    document.getElementById('cRow1Normal').style.display = 'flex';
+  }
+  document.getElementById('cRenameInput').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') cEndRename();
+    if (e.key === 'Escape') cCancelRename();
+  });
+</script>
+</body>
+</html>

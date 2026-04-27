@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Week History — Desktop Mockup</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f0f4f8; color: #1e293b; min-height: 100vh; }
+
+  /* ── Tabs to switch between options ── */
+  .option-tabs { display: flex; gap: 0; background: #1e293b; padding: 10px 20px 0; }
+  .option-tab { padding: 8px 20px; font-size: 13px; font-weight: 700; color: #94a3b8; cursor: pointer; border-radius: 8px 8px 0 0; border: none; background: transparent; font-family: inherit; }
+  .option-tab.active { background: #f0f4f8; color: #1e293b; }
+  .option-label { position: fixed; top: 10px; right: 20px; background: #818cf8; color: #fff; font-size: 11px; font-weight: 800; padding: 4px 12px; border-radius: 20px; letter-spacing: 0.06em; text-transform: uppercase; z-index: 999; }
+
+  .option-panel { display: none; }
+  .option-panel.active { display: block; }
+
+  /* ── Shared tokens ── */
+  :root {
+    --accent: #2D6BE4;
+    --accent-rgb: 45,107,228;
+    --accent-light: #EEF3FE;
+    --bg-card: #fff;
+    --bg-page: #f0f4f8;
+    --bg-input: #F4F7FA;
+    --border: #e2e8f0;
+    --text-primary: #1e293b;
+    --text-secondary: #475569;
+    --text-muted: #94a3b8;
+    --shadow-rgb: 15,23,42;
+  }
+
+  /* ── OPTION A: Full-width table ── */
+  .hist-a-wrap { min-height: 100vh; background: var(--bg-page); display: flex; flex-direction: column; }
+
+  /* Top bar */
+  .hist-a-topbar { background: var(--bg-card); border-bottom: 1px solid var(--border); padding: 0 20px; display: flex; align-items: center; gap: 16px; height: 52px; flex-shrink: 0; }
+  .hist-a-back { width: 32px; height: 32px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg-input); color: var(--text-secondary); display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; }
+  .hist-a-title { font-size: 16px; font-weight: 800; color: var(--text-primary); }
+  .hist-a-sub   { font-size: 12px; color: var(--text-muted); margin-left: 4px; }
+  .hist-a-spacer { flex: 1; }
+  .hist-a-jump-btn { display: flex; align-items: center; gap: 6px; height: 32px; padding: 0 14px; border-radius: 8px; background: var(--accent); color: #fff; font-size: 12px; font-weight: 700; border: none; cursor: pointer; font-family: inherit; }
+
+  /* Stats strip */
+  .hist-a-stats { display: flex; gap: 0; background: var(--bg-card); border-bottom: 1px solid var(--border); }
+  .hist-a-stat { flex: 1; padding: 10px 20px; border-right: 1px solid var(--border); }
+  .hist-a-stat:last-child { border-right: none; }
+  .hist-a-stat-val { font-size: 20px; font-weight: 800; color: var(--text-primary); line-height: 1; }
+  .hist-a-stat-val.blue   { color: var(--accent); }
+  .hist-a-stat-val.amber  { color: #F59E0B; }
+  .hist-a-stat-val.purple { color: #8B5CF6; }
+  .hist-a-stat-lbl { font-size: 10px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; margin-top: 3px; }
+
+  /* Filter bar */
+  .hist-a-filters { display: flex; align-items: center; gap: 6px; padding: 10px 20px; background: var(--bg-page); border-bottom: 1px solid var(--border); }
+  .hist-a-filter-lbl { font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; margin-right: 4px; }
+  .hist-a-chip { height: 28px; padding: 0 12px; border-radius: 7px; border: 1px solid var(--border); background: var(--bg-card); color: var(--text-secondary); font-size: 12px; font-weight: 600; cursor: pointer; font-family: inherit; white-space: nowrap; }
+  .hist-a-chip.active { background: var(--accent-light); border-color: rgba(45,107,228,0.3); color: var(--accent); }
+
+  /* Table */
+  .hist-a-table-wrap { flex: 1; overflow-y: auto; padding: 0; }
+  .hist-a-table { width: 100%; border-collapse: collapse; }
+  .hist-a-table thead th { position: sticky; top: 0; z-index: 2; background: #f8fafc; border-bottom: 1px solid var(--border); padding: 8px 16px; text-align: left; font-size: 10px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; white-space: nowrap; }
+  .hist-a-table thead th:first-child { padding-left: 24px; }
+  .hist-a-table thead th.right { text-align: right; }
+  .hist-a-table thead th.center { text-align: center; }
+
+  .hist-a-table tbody tr { border-bottom: 1px solid var(--border); cursor: pointer; transition: background 0.1s; }
+  .hist-a-table tbody tr:hover { background: #f8fafc; }
+  .hist-a-table tbody tr.selected { background: var(--accent-light); }
+  .hist-a-table tbody tr.current { border-left: 3px solid var(--accent); }
+  .hist-a-table tbody tr.current td:first-child { padding-left: 21px; }
+  .hist-a-table tbody tr.oncall { background: #fffbeb; }
+  .hist-a-table tbody tr.oncall:hover { background: #fef3c7; }
+  .hist-a-table tbody tr.future { opacity: 0.65; }
+
+  .hist-a-table tbody td { padding: 10px 16px; vertical-align: middle; }
+  .hist-a-table tbody td:first-child { padding-left: 24px; }
+
+  /* Section dividers inside table */
+  .hist-a-table tbody tr.section-hdr td { padding: 6px 24px 4px; background: var(--bg-page); border-bottom: none; }
+  .hist-a-table tbody tr.section-hdr { cursor: default; }
+  .hist-a-table tbody tr.section-hdr:hover { background: var(--bg-page); }
+  .section-hdr-label { font-size: 10px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; }
+
+  .week-range { font-size: 13px; font-weight: 700; color: var(--text-primary); white-space: nowrap; }
+  .week-range.future { color: var(--text-secondary); font-weight: 600; }
+  .week-year { font-size: 11px; color: var(--text-muted); margin-top: 1px; }
+
+  .hour-val { font-size: 14px; font-weight: 800; color: var(--text-primary); text-align: right; }
+  .hour-val.zero { color: var(--text-muted); font-weight: 600; }
+  .ot-val { font-size: 12px; font-weight: 700; color: #F59E0B; text-align: right; }
+  .ot-val.zero { color: var(--text-muted); opacity: 0.4; font-weight: 400; }
+  .num-val { font-size: 12px; font-weight: 600; color: var(--text-secondary); text-align: center; }
+  .num-val.zero { color: var(--text-muted); opacity: 0.35; }
+
+  .badge { display: inline-flex; align-items: center; gap: 3px; height: 22px; padding: 0 8px; border-radius: 6px; font-size: 11px; font-weight: 700; white-space: nowrap; }
+  .badge.blue   { background: var(--accent-light); color: var(--accent); }
+  .badge.amber  { background: #fff8ec; color: #F59E0B; }
+  .badge.red    { background: #fff1f1; color: #ef4444; }
+  .badge.green  { background: #f0fdf4; color: #16a34a; }
+  .badge.muted  { background: var(--bg-input); color: var(--text-muted); }
+  .badge.dashed { border: 1px dashed var(--border); background: transparent; color: var(--text-muted); }
+
+  .action-btn { width: 28px; height: 28px; border-radius: 7px; border: 1px solid var(--border); background: var(--bg-input); color: var(--text-secondary); display: flex; align-items: center; justify-content: center; cursor: pointer; margin-left: auto; }
+
+  /* ── OPTION B: 2-panel (sidebar + table) ── */
+  .hist-b-wrap { min-height: 100vh; background: var(--bg-page); display: flex; flex-direction: column; }
+
+  .hist-b-topbar { background: var(--bg-card); border-bottom: 1px solid var(--border); padding: 0 20px; display: flex; align-items: center; gap: 16px; height: 52px; flex-shrink: 0; }
+
+  .hist-b-body { flex: 1; display: flex; overflow: hidden; }
+
+  /* Sidebar */
+  .hist-b-sidebar { width: 260px; background: var(--bg-card); border-right: 1px solid var(--border); display: flex; flex-direction: column; overflow-y: auto; flex-shrink: 0; }
+  .hist-b-sidebar-hdr { font-size: 10px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; padding: 14px 16px 6px; }
+
+  .hist-b-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 0 12px 14px; }
+  .hist-b-stat { background: var(--bg-input); border-radius: 10px; padding: 10px 10px 8px; }
+  .hist-b-stat-val { font-size: 18px; font-weight: 800; line-height: 1; }
+  .hist-b-stat-val.blue   { color: var(--accent); }
+  .hist-b-stat-val.amber  { color: #F59E0B; }
+  .hist-b-stat-val.purple { color: #8B5CF6; }
+  .hist-b-stat-lbl { font-size: 10px; color: var(--text-muted); margin-top: 4px; font-weight: 600; }
+
+  .hist-b-divider { height: 1px; background: var(--border); margin: 0 12px 10px; }
+
+  .hist-b-filter-btn { display: flex; align-items: center; gap: 8px; padding: 9px 14px; border: none; background: transparent; font-family: inherit; font-size: 13px; font-weight: 600; color: var(--text-secondary); cursor: pointer; width: 100%; text-align: left; border-radius: 8px; margin: 0 4px; width: calc(100% - 8px); }
+  .hist-b-filter-btn:hover { background: var(--bg-input); }
+  .hist-b-filter-btn.active { background: var(--accent-light); color: var(--accent); font-weight: 700; }
+  .hist-b-filter-dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; flex-shrink: 0; opacity: 0.7; }
+
+  .hist-b-jump { margin: 10px 12px 0; }
+  .hist-b-jump-btn { width: 100%; display: flex; align-items: center; justify-content: center; gap: 7px; height: 38px; border-radius: 10px; background: var(--accent); color: #fff; font-size: 13px; font-weight: 700; border: none; cursor: pointer; font-family: inherit; }
+
+  /* Table panel */
+  .hist-b-main { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-width: 0; }
+  .hist-b-table-wrap { flex: 1; overflow-y: auto; }
+  .hist-b-table { width: 100%; border-collapse: collapse; }
+  .hist-b-table thead th { position: sticky; top: 0; z-index: 2; background: #f8fafc; border-bottom: 1px solid var(--border); padding: 8px 16px; text-align: left; font-size: 10px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; white-space: nowrap; }
+  .hist-b-table thead th:first-child { padding-left: 20px; }
+  .hist-b-table thead th.right { text-align: right; }
+  .hist-b-table thead th.center { text-align: center; }
+  .hist-b-table tbody tr { border-bottom: 1px solid var(--border); cursor: pointer; transition: background 0.1s; }
+  .hist-b-table tbody tr:hover { background: #f8fafc; }
+  .hist-b-table tbody tr.current { border-left: 4px solid var(--accent); }
+  .hist-b-table tbody tr.current td:first-child { padding-left: 16px; }
+  .hist-b-table tbody tr.oncall { background: #fffbeb; }
+  .hist-b-table tbody tr.future { opacity: 0.65; }
+  .hist-b-table tbody td { padding: 10px 16px; vertical-align: middle; }
+  .hist-b-table tbody td:first-child { padding-left: 20px; }
+  .hist-b-table tbody tr.section-hdr td { padding: 6px 20px 4px; background: var(--bg-page); border-bottom: none; }
+  .hist-b-table tbody tr.section-hdr { cursor: default; }
+  .hist-b-table tbody tr.section-hdr:hover { background: var(--bg-page); }
+</style>
+</head>
+<body>
+
+<div class="option-tabs">
+  <button class="option-tab active" onclick="switchTab('a')">Option A — Full-width table</button>
+  <button class="option-tab" onclick="switchTab('b')">Option B — Sidebar + table</button>
+</div>
+
+<!-- ══════════════════════════════════════════════════════ -->
+<!-- OPTION A: Full-width table                            -->
+<!-- ══════════════════════════════════════════════════════ -->
+<div id="panel-a" class="option-panel active">
+<div class="hist-a-wrap">
+
+  <!-- Top bar -->
+  <div class="hist-a-topbar">
+    <div class="hist-a-back">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+    </div>
+    <div>
+      <span class="hist-a-title">Week History</span>
+      <span class="hist-a-sub">· 2026</span>
+    </div>
+    <div class="hist-a-spacer"></div>
+    <button class="hist-a-jump-btn">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+      Jump to Week
+    </button>
+  </div>
+
+  <!-- Stats strip -->
+  <div class="hist-a-stats">
+    <div class="hist-a-stat">
+      <div class="hist-a-stat-val blue">17</div>
+      <div class="hist-a-stat-lbl">Weeks worked</div>
+    </div>
+    <div class="hist-a-stat">
+      <div class="hist-a-stat-val blue">624h</div>
+      <div class="hist-a-stat-lbl">Ordinary hours</div>
+    </div>
+    <div class="hist-a-stat">
+      <div class="hist-a-stat-val amber">36.7h</div>
+      <div class="hist-a-stat-lbl">Avg / week</div>
+    </div>
+    <div class="hist-a-stat">
+      <div class="hist-a-stat-val amber">8</div>
+      <div class="hist-a-stat-lbl">On-call weeks</div>
+    </div>
+    <div class="hist-a-stat">
+      <div class="hist-a-stat-val purple">12</div>
+      <div class="hist-a-stat-lbl">Callout incidents</div>
+    </div>
+  </div>
+
+  <!-- Filter bar -->
+  <div class="hist-a-filters">
+    <span class="hist-a-filter-lbl">Show</span>
+    <button class="hist-a-chip active">All weeks</button>
+    <button class="hist-a-chip">On-call only</button>
+    <button class="hist-a-chip">With OT</button>
+    <button class="hist-a-chip">With callouts</button>
+  </div>
+
+  <!-- Table -->
+  <div class="hist-a-table-wrap">
+    <table class="hist-a-table">
+      <thead>
+        <tr>
+          <th style="width:200px">Week</th>
+          <th class="right" style="width:80px">Ord</th>
+          <th class="right" style="width:70px">OT</th>
+          <th class="center" style="width:70px">Tasks</th>
+          <th class="center" style="width:70px">Sites</th>
+          <th style="width:110px">On-call</th>
+          <th style="width:110px">Callouts</th>
+          <th style="width:40px"></th>
+        </tr>
+      </thead>
+      <tbody>
+
+        <!-- Upcoming section -->
+        <tr class="section-hdr">
+          <td colspan="8"><span class="section-hdr-label">Upcoming</span></td>
+        </tr>
+        <tr class="future">
+          <td><div class="week-range future">1 May – 7 May</div></td>
+          <td><div class="hour-val zero" style="text-align:right">—</div></td>
+          <td><div class="ot-val zero" style="text-align:right">—</div></td>
+          <td><div class="num-val zero">—</div></td>
+          <td><div class="num-val zero">—</div></td>
+          <td></td>
+          <td><span class="badge dashed">+ Add tasks</span></td>
+          <td><div class="action-btn"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></div></td>
+        </tr>
+        <tr class="future">
+          <td><div class="week-range future">8 May – 14 May</div></td>
+          <td><div class="hour-val zero" style="text-align:right">—</div></td>
+          <td><div class="ot-val zero" style="text-align:right">—</div></td>
+          <td><div class="num-val zero">—</div></td>
+          <td><div class="num-val zero">—</div></td>
+          <td><span class="badge amber">Extra shift</span></td>
+          <td><span class="badge dashed">+ Add tasks</span></td>
+          <td><div class="action-btn"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></div></td>
+        </tr>
+
+        <!-- Current week -->
+        <tr class="section-hdr">
+          <td colspan="8"><span class="section-hdr-label" style="color:#22c55e">● This Week</span></td>
+        </tr>
+        <tr class="current">
+          <td><div class="week-range">24 Apr – 30 Apr</div></td>
+          <td><div class="hour-val blue" style="text-align:right;color:var(--accent)">11h</div></td>
+          <td><div class="ot-val zero" style="text-align:right">—</div></td>
+          <td><div class="num-val">7</div></td>
+          <td><div class="num-val">5</div></td>
+          <td></td>
+          <td></td>
+          <td><div class="action-btn"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></div></td>
+        </tr>
+
+        <!-- History -->
+        <tr class="section-hdr">
+          <td colspan="8"><span class="section-hdr-label">History</span></td>
+        </tr>
+        <tr>
+          <td><div class="week-range">17 Apr – 23 Apr</div></td>
+          <td><div class="hour-val" style="text-align:right">39h</div></td>
+          <td><div class="ot-val zero" style="text-align:right">—</div></td>
+          <td><div class="num-val">12</div></td>
+          <td><div class="num-val">8</div></td>
+          <td></td>
+          <td></td>
+          <td><div class="action-btn"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></div></td>
+        </tr>
+        <tr class="oncall">
+          <td>
+            <div class="week-range">10 Apr – 16 Apr</div>
+          </td>
+          <td><div class="hour-val" style="text-align:right">41h</div></td>
+          <td><div class="ot-val" style="text-align:right">4h</div></td>
+          <td><div class="num-val">14</div></td>
+          <td><div class="num-val">9</div></td>
+          <td><span class="badge amber">On-Call</span></td>
+          <td><span class="badge red">📞 3</span></td>
+          <td><div class="action-btn"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></div></td>
+        </tr>
+        <tr>
+          <td><div class="week-range">3 Apr – 9 Apr</div></td>
+          <td><div class="hour-val" style="text-align:right">38h</div></td>
+          <td><div class="ot-val zero" style="text-align:right">—</div></td>
+          <td><div class="num-val">11</div></td>
+          <td><div class="num-val">7</div></td>
+          <td></td>
+          <td></td>
+          <td><div class="action-btn"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></div></td>
+        </tr>
+        <tr>
+          <td><div class="week-range">27 Mar – 2 Apr</div></td>
+          <td><div class="hour-val" style="text-align:right">40h</div></td>
+          <td><div class="ot-val zero" style="text-align:right">—</div></td>
+          <td><div class="num-val">13</div></td>
+          <td><div class="num-val">9</div></td>
+          <td></td>
+          <td></td>
+          <td><div class="action-btn"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></div></td>
+        </tr>
+        <tr class="oncall">
+          <td><div class="week-range">20 Mar – 26 Mar</div></td>
+          <td><div class="hour-val" style="text-align:right">44h</div></td>
+          <td><div class="ot-val" style="text-align:right">6h</div></td>
+          <td><div class="num-val">15</div></td>
+          <td><div class="num-val">10</div></td>
+          <td><span class="badge amber">On-Call</span></td>
+          <td><span class="badge red">📞 2</span></td>
+          <td><div class="action-btn"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></div></td>
+        </tr>
+        <tr>
+          <td><div class="week-range">13 Mar – 19 Mar</div></td>
+          <td><div class="hour-val" style="text-align:right">37h</div></td>
+          <td><div class="ot-val zero" style="text-align:right">—</div></td>
+          <td><div class="num-val">10</div></td>
+          <td><div class="num-val">7</div></td>
+          <td></td>
+          <td></td>
+          <td><div class="action-btn"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></div></td>
+        </tr>
+        <tr>
+          <td><div class="week-range">6 Mar – 12 Mar</div></td>
+          <td><div class="hour-val" style="text-align:right">39h</div></td>
+          <td><div class="ot-val zero" style="text-align:right">—</div></td>
+          <td><div class="num-val">11</div></td>
+          <td><div class="num-val">6</div></td>
+          <td></td>
+          <td></td>
+          <td><div class="action-btn"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></div></td>
+        </tr>
+        <tr>
+          <td><div class="week-range">27 Feb – 5 Mar</div></td>
+          <td><div class="hour-val" style="text-align:right">36h</div></td>
+          <td><div class="ot-val zero" style="text-align:right">—</div></td>
+          <td><div class="num-val">9</div></td>
+          <td><div class="num-val">6</div></td>
+          <td></td>
+          <td></td>
+          <td><div class="action-btn"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></div></td>
+        </tr>
+        <tr>
+          <td><div class="week-range">20 Feb – 26 Feb</div></td>
+          <td><div class="hour-val zero" style="text-align:right">0h</div></td>
+          <td><div class="ot-val zero" style="text-align:right">—</div></td>
+          <td><div class="num-val zero">0</div></td>
+          <td><div class="num-val zero">0</div></td>
+          <td></td>
+          <td></td>
+          <td><div class="action-btn"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></div></td>
+        </tr>
+
+      </tbody>
+    </table>
+  </div>
+
+</div>
+</div><!-- end panel-a -->
+
+
+<!-- ══════════════════════════════════════════════════════ -->
+<!-- OPTION B: Sidebar + Table                             -->
+<!-- ══════════════════════════════════════════════════════ -->
+<div id="panel-b" class="option-panel">
+<div class="hist-b-wrap">
+
+  <!-- Top bar -->
+  <div class="hist-b-topbar">
+    <div class="hist-a-back">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+    </div>
+    <div>
+      <span class="hist-a-title">Week History</span>
+      <span class="hist-a-sub">· 2026</span>
+    </div>
+  </div>
+
+  <div class="hist-b-body">
+
+    <!-- Sidebar -->
+    <div class="hist-b-sidebar">
+
+      <div class="hist-b-sidebar-hdr">2026 so far</div>
+      <div class="hist-b-stats">
+        <div class="hist-b-stat">
+          <div class="hist-b-stat-val blue">17</div>
+          <div class="hist-b-stat-lbl">Weeks</div>
+        </div>
+        <div class="hist-b-stat">
+          <div class="hist-b-stat-val blue">624h</div>
+          <div class="hist-b-stat-lbl">Ordinary</div>
+        </div>
+        <div class="hist-b-stat">
+          <div class="hist-b-stat-val amber">8</div>
+          <div class="hist-b-stat-lbl">On-call</div>
+        </div>
+        <div class="hist-b-stat">
+          <div class="hist-b-stat-val purple">12</div>
+          <div class="hist-b-stat-lbl">Callouts</div>
+        </div>
+      </div>
+
+      <div class="hist-b-divider"></div>
+      <div class="hist-b-sidebar-hdr">Filter</div>
+      <div style="padding: 0 4px 10px;">
+        <button class="hist-b-filter-btn active">
+          <span class="hist-b-filter-dot"></span> All weeks
+        </button>
+        <button class="hist-b-filter-btn">
+          <span class="hist-b-filter-dot" style="color:#F59E0B"></span> On-call only
+        </button>
+        <button class="hist-b-filter-btn">
+          <span class="hist-b-filter-dot" style="color:#F59E0B"></span> With OT
+        </button>
+        <button class="hist-b-filter-btn">
+          <span class="hist-b-filter-dot" style="color:#ef4444"></span> With callouts
+        </button>
+      </div>
+
+      <div class="hist-b-divider"></div>
+      <div style="padding: 10px 12px 16px;">
+        <button class="hist-b-jump-btn">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+          Jump to Any Week
+        </button>
+      </div>
+
+    </div>
+
+    <!-- Main table panel -->
+    <div class="hist-b-main">
+      <div class="hist-b-table-wrap">
+        <table class="hist-b-table">
+          <thead>
+            <tr>
+              <th style="width:190px">Week</th>
+              <th class="right" style="width:75px">Ord</th>
+              <th class="right" style="width:65px">OT</th>
+              <th class="center" style="width:65px">Tasks</th>
+              <th class="center" style="width:65px">Sites</th>
+              <th style="width:110px">On-call</th>
+              <th style="width:110px">Callouts</th>
+              <th style="width:40px"></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="section-hdr">
+              <td colspan="8"><span class="section-hdr-label">Upcoming</span></td>
+            </tr>
+            <tr class="future">
+              <td><div class="week-range future">1 May – 7 May</div></td>
+              <td><div class="hour-val zero" style="text-align:right">—</div></td>
+              <td><div class="ot-val zero" style="text-align:right">—</div></td>
+              <td><div class="num-val zero">—</div></td>
+              <td><div class="num-val zero">—</div></td>
+              <td></td>
+              <td><span class="badge dashed">+ Add tasks</span></td>
+              <td><div class="action-btn"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></div></td>
+            </tr>
+            <tr class="future">
+              <td><div class="week-range future">8 May – 14 May</div></td>
+              <td><div class="hour-val zero" style="text-align:right">—</div></td>
+              <td><div class="ot-val zero" style="text-align:right">—</div></td>
+              <td><div class="num-val zero">—</div></td>
+              <td><div class="num-val zero">—</div></td>
+              <td><span class="badge amber">Extra shift</span></td>
+              <td><span class="badge dashed">+ Add tasks</span></td>
+              <td><div class="action-btn"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></div></td>
+            </tr>
+            <tr class="section-hdr">
+              <td colspan="8"><span class="section-hdr-label" style="color:#22c55e">● This Week</span></td>
+            </tr>
+            <tr class="current">
+              <td><div class="week-range">24 Apr – 30 Apr</div></td>
+              <td><div class="hour-val" style="text-align:right;color:var(--accent)">11h</div></td>
+              <td><div class="ot-val zero" style="text-align:right">—</div></td>
+              <td><div class="num-val">7</div></td>
+              <td><div class="num-val">5</div></td>
+              <td></td>
+              <td></td>
+              <td><div class="action-btn"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></div></td>
+            </tr>
+            <tr class="section-hdr">
+              <td colspan="8"><span class="section-hdr-label">History</span></td>
+            </tr>
+            <tr>
+              <td><div class="week-range">17 Apr – 23 Apr</div></td>
+              <td><div class="hour-val" style="text-align:right">39h</div></td>
+              <td><div class="ot-val zero" style="text-align:right">—</div></td>
+              <td><div class="num-val">12</div></td>
+              <td><div class="num-val">8</div></td>
+              <td></td>
+              <td></td>
+              <td><div class="action-btn"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></div></td>
+            </tr>
+            <tr class="oncall">
+              <td><div class="week-range">10 Apr – 16 Apr</div></td>
+              <td><div class="hour-val" style="text-align:right">41h</div></td>
+              <td><div class="ot-val" style="text-align:right">4h</div></td>
+              <td><div class="num-val">14</div></td>
+              <td><div class="num-val">9</div></td>
+              <td><span class="badge amber">On-Call</span></td>
+              <td><span class="badge red">📞 3</span></td>
+              <td><div class="action-btn"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></div></td>
+            </tr>
+            <tr>
+              <td><div class="week-range">3 Apr – 9 Apr</div></td>
+              <td><div class="hour-val" style="text-align:right">38h</div></td>
+              <td><div class="ot-val zero" style="text-align:right">—</div></td>
+              <td><div class="num-val">11</div></td>
+              <td><div class="num-val">7</div></td>
+              <td></td>
+              <td></td>
+              <td><div class="action-btn"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></div></td>
+            </tr>
+            <tr class="oncall">
+              <td><div class="week-range">20 Mar – 26 Mar</div></td>
+              <td><div class="hour-val" style="text-align:right">44h</div></td>
+              <td><div class="ot-val" style="text-align:right">6h</div></td>
+              <td><div class="num-val">15</div></td>
+              <td><div class="num-val">10</div></td>
+              <td><span class="badge amber">On-Call</span></td>
+              <td><span class="badge red">📞 2</span></td>
+              <td><div class="action-btn"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></div></td>
+            </tr>
+            <tr>
+              <td><div class="week-range">13 Mar – 19 Mar</div></td>
+              <td><div class="hour-val" style="text-align:right">37h</div></td>
+              <td><div class="ot-val zero" style="text-align:right">—</div></td>
+              <td><div class="num-val">10</div></td>
+              <td><div class="num-val">7</div></td>
+              <td></td>
+              <td></td>
+              <td><div class="action-btn"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></div></td>
+            </tr>
+            <tr>
+              <td><div class="week-range">6 Mar – 12 Mar</div></td>
+              <td><div class="hour-val" style="text-align:right">39h</div></td>
+              <td><div class="ot-val zero" style="text-align:right">—</div></td>
+              <td><div class="num-val">11</div></td>
+              <td><div class="num-val">6</div></td>
+              <td></td>
+              <td></td>
+              <td><div class="action-btn"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></div></td>
+            </tr>
+            <tr>
+              <td><div class="week-range">27 Feb – 5 Mar</div></td>
+              <td><div class="hour-val" style="text-align:right">36h</div></td>
+              <td><div class="ot-val zero" style="text-align:right">—</div></td>
+              <td><div class="num-val">9</div></td>
+              <td><div class="num-val">6</div></td>
+              <td></td>
+              <td></td>
+              <td><div class="action-btn"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></div></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>
+</div><!-- end panel-b -->
+
+<script>
+  function switchTab(id) {
+    document.querySelectorAll('.option-tab').forEach(function(t, i) {
+      t.classList.toggle('active', (i === 0 && id === 'a') || (i === 1 && id === 'b'));
+    });
+    document.getElementById('panel-a').classList.toggle('active', id === 'a');
+    document.getElementById('panel-b').classList.toggle('active', id === 'b');
+  }
+</script>
+</body>
+</html>

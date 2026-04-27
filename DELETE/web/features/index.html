@@ -1,0 +1,2539 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rian — Features</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link
+    href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap"
+    rel="stylesheet">
+  <style>
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --navy: #0F1C2E;
+      --navy2: #162438;
+      --accent: #2D6BE4;
+      --accent-light: #EBF1FD;
+      --page: #E8EEF5;
+      --card: #FFFFFF;
+      --border: #D4E0EC;
+      --text: #0F1C2E;
+      --muted: #4A6580;
+      --faint: #8BA5BE;
+      --ot: #F5A623;
+      --green: #16a34a;
+      --red: #ef4444;
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--page);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    /* ── STICKY NAVBAR ── */
+    .site-nav {
+      position: sticky;
+      top: 0;
+      z-index: 200;
+      background: var(--navy);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      padding: 0 28px;
+      display: flex;
+      align-items: center;
+      height: 62px;
+      gap: 16px;
+    }
+
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-shrink: 0;
+      text-decoration: none;
+    }
+
+    .nav-logo-box {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #2D6BE4, #7c73e6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: 800;
+      color: #fff;
+      flex-shrink: 0;
+    }
+
+    .nav-brand-text {
+      display: flex;
+      flex-direction: column;
+      line-height: 1.2;
+    }
+
+    .nav-brand-name {
+      font-weight: 800;
+      font-size: 15px;
+      color: #fff;
+    }
+
+    .nav-brand-ver {
+      font-size: 10px;
+      color: rgba(255, 255, 255, 0.3);
+    }
+
+    .nav-links {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+    }
+
+    .nav-link {
+      padding: 7px 16px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      font-family: 'DM Sans', sans-serif;
+      color: rgba(255, 255, 255, 0.45);
+      background: transparent;
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.15s;
+      border: none;
+      white-space: nowrap;
+    }
+
+    .nav-link.active {
+      color: #fff;
+      background: rgba(45, 107, 228, 0.22);
+    }
+
+    .nav-link:hover:not(.active) {
+      color: rgba(255, 255, 255, 0.8);
+      background: rgba(255, 255, 255, 0.07);
+    }
+
+    .nav-cta {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      background: var(--accent);
+      color: #fff;
+      font-size: 13px;
+      font-weight: 700;
+      font-family: 'DM Sans', sans-serif;
+      padding: 9px 20px;
+      border-radius: 10px;
+      text-decoration: none;
+      border: none;
+      cursor: pointer;
+      flex-shrink: 0;
+      white-space: nowrap;
+      box-shadow: 0 3px 12px rgba(45, 107, 228, 0.45);
+      transition: background 0.15s, transform 0.1s;
+    }
+
+    .nav-cta:hover {
+      background: #2559c8;
+      transform: translateY(-1px);
+    }
+
+    /* On mobile, hide centre nav links to save space */
+    @media (max-width: 600px) {
+      .site-nav {
+        padding: 0 16px;
+      }
+
+      .nav-links {
+        display: none;
+      }
+
+      .nav-brand-ver {
+        display: none;
+      }
+    }
+
+    /* ── HERO ── */
+    .hero {
+      background: var(--navy);
+      color: #fff;
+      text-align: center;
+      padding: 60px 24px 72px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at 60% 0%, rgba(45, 107, 228, 0.25) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .hero-badge {
+      display: inline-block;
+      background: rgba(45, 107, 228, 0.2);
+      border: 1px solid rgba(45, 107, 228, 0.4);
+      color: #7EB3FF;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 5px 14px;
+      border-radius: 20px;
+      margin-bottom: 20px;
+    }
+
+    .hero h1 {
+      font-size: clamp(36px, 6vw, 60px);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 16px;
+      line-height: 1.1;
+    }
+
+    .hero h1 span {
+      color: #7EB3FF;
+    }
+
+    .hero p {
+      font-size: clamp(16px, 2vw, 19px);
+      color: rgba(255, 255, 255, 0.6);
+      max-width: 520px;
+      margin: 0 auto 36px;
+    }
+
+    /* ── HERO CTA ── */
+    .hero-cta {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .btn-launch {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--accent);
+      color: #fff;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      padding: 13px 28px;
+      border-radius: 12px;
+      text-decoration: none;
+      border: none;
+      cursor: pointer;
+      transition: background 0.15s, transform 0.15s;
+      box-shadow: 0 4px 16px rgba(45, 107, 228, 0.4);
+    }
+
+    .btn-launch:hover {
+      background: #1e56d0;
+      transform: translateY(-1px);
+    }
+
+    .btn-ghost {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255, 255, 255, 0.08);
+      color: rgba(255, 255, 255, 0.8);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px;
+      font-weight: 600;
+      padding: 13px 28px;
+      border-radius: 12px;
+      text-decoration: none;
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .btn-ghost:hover {
+      background: rgba(255, 255, 255, 0.14);
+    }
+
+    .hero-note {
+      margin-top: 14px;
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.35);
+    }
+
+    /* ── DESKTOP SPREADSHEET SECTION ── */
+    .desktop-section {
+      padding: 80px 24px;
+      background: #fff;
+    }
+
+    .desktop-inner {
+      max-width: 1080px;
+      margin: 0 auto;
+    }
+
+    .desktop-section .section-number {
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 8px;
+    }
+
+    .desktop-section h2 {
+      font-size: clamp(26px, 3vw, 38px);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      line-height: 1.15;
+      margin-bottom: 12px;
+    }
+
+    .desktop-section .lead {
+      font-size: 16px;
+      color: var(--muted);
+      margin-bottom: 32px;
+      line-height: 1.7;
+      max-width: 640px;
+    }
+
+    /* Browser/laptop chrome */
+    .browser-chrome {
+      background: var(--navy);
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: 0 32px 72px rgba(0, 0, 0, 0.22), 0 0 0 1px rgba(255, 255, 255, 0.06);
+    }
+
+    .browser-titlebar {
+      background: #1a2840;
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .browser-dots {
+      display: flex;
+      gap: 6px;
+    }
+
+    .browser-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+
+    .browser-dot.red {
+      background: #ff5f56;
+    }
+
+    .browser-dot.amber {
+      background: #ffbd2e;
+    }
+
+    .browser-dot.green {
+      background: #27c93f;
+    }
+
+    .browser-url {
+      flex: 1;
+      background: rgba(255, 255, 255, 0.07);
+      border-radius: 6px;
+      padding: 4px 10px;
+      font-size: 11px;
+      color: rgba(255, 255, 255, 0.35);
+      font-family: 'DM Mono', monospace;
+    }
+
+    .browser-body {
+      background: var(--navy);
+    }
+
+    /* App chrome inside browser */
+    .b-appheader {
+      background: var(--navy);
+      padding: 8px 16px 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .b-week-nav {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #fff;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .b-nav-arr {
+      color: rgba(255, 255, 255, 0.35);
+      font-size: 11px;
+      cursor: pointer;
+    }
+
+    .b-layout-btns {
+      display: flex;
+      gap: 4px;
+    }
+
+    .b-layout-btn {
+      padding: 4px 10px;
+      border-radius: 5px;
+      font-size: 11px;
+      font-weight: 600;
+      color: rgba(255, 255, 255, 0.4);
+      cursor: pointer;
+    }
+
+    .b-layout-btn.active {
+      background: rgba(45, 107, 228, 0.3);
+      color: #7EB3FF;
+    }
+
+    .b-tabs {
+      display: flex;
+      margin-top: 8px;
+    }
+
+    .b-tab {
+      flex: 1;
+      text-align: center;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 5px 0;
+      color: rgba(255, 255, 255, 0.35);
+    }
+
+    .b-tab.active {
+      color: var(--ot);
+      border-bottom: 2px solid var(--ot);
+    }
+
+    /* Spreadsheet table */
+    .ss-wrap {
+      overflow-x: auto;
+      background: var(--page);
+    }
+
+    .ss-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+      min-width: 700px;
+    }
+
+    .ss-table thead th {
+      background: var(--navy2);
+      color: rgba(255, 255, 255, 0.5);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 8px 12px;
+      text-align: left;
+      border-right: 1px solid rgba(255, 255, 255, 0.08);
+      white-space: nowrap;
+    }
+
+    .ss-table thead th:last-child {
+      border-right: none;
+    }
+
+    .ss-table tbody td {
+      padding: 9px 12px;
+      border-bottom: 1px solid var(--border);
+      border-right: 1px solid var(--border);
+      color: var(--text);
+      white-space: nowrap;
+    }
+
+    .ss-table tbody td:last-child {
+      border-right: none;
+    }
+
+    .ss-table tbody tr:hover td {
+      background: rgba(45, 107, 228, 0.05);
+    }
+
+    .ss-table tbody tr.day-header-row td {
+      background: rgba(15, 28, 46, 0.04);
+      font-weight: 700;
+      font-size: 11px;
+      color: var(--navy);
+      padding: 6px 12px;
+    }
+
+    .ss-code {
+      background: rgba(45, 107, 228, 0.1);
+      color: var(--accent);
+      border-radius: 4px;
+      padding: 2px 6px;
+      font-size: 10px;
+      font-weight: 700;
+      font-family: 'DM Mono', monospace;
+    }
+
+    .ss-ot {
+      color: var(--ot);
+      font-weight: 700;
+    }
+
+    .ss-muted {
+      color: var(--faint);
+      font-size: 11px;
+    }
+
+    .ss-total-row td {
+      background: var(--navy) !important;
+      color: #fff !important;
+      font-weight: 700;
+      font-size: 11px;
+      padding: 8px 12px;
+      border-color: rgba(255, 255, 255, 0.1) !important;
+    }
+
+    .ss-total-row td.ot-total {
+      color: var(--ot) !important;
+    }
+
+    /* ── SECTION LAYOUT ── */
+    .feature-section {
+      padding: 80px 24px;
+    }
+
+    .feature-section:nth-child(even) {
+      background: #fff;
+    }
+
+    .feature-inner {
+      max-width: 1080px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 64px;
+      align-items: center;
+    }
+
+    .feature-section:nth-child(odd) .feature-inner {
+      direction: rtl;
+    }
+
+    .feature-section:nth-child(odd) .feature-inner>* {
+      direction: ltr;
+    }
+
+
+
+    .section-number {
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 8px;
+    }
+
+    .feature-text h2 {
+      font-size: clamp(26px, 3vw, 38px);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      line-height: 1.15;
+      margin-bottom: 14px;
+    }
+
+    .feature-text .lead {
+      font-size: 16px;
+      color: var(--muted);
+      margin-bottom: 28px;
+      line-height: 1.7;
+    }
+
+    .feature-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .feature-list li {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+    }
+
+    .feature-list li .icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: var(--accent-light);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      color: var(--accent);
+      margin-top: 1px;
+    }
+
+    .feature-list li .icon.green {
+      background: rgba(22, 163, 74, 0.1);
+      color: var(--green);
+    }
+
+    .feature-list li .icon.orange {
+      background: rgba(245, 166, 35, 0.1);
+      color: var(--ot);
+    }
+
+    .feature-list li .icon.red {
+      background: rgba(239, 68, 68, 0.08);
+      color: var(--red);
+    }
+
+    .feature-list li strong {
+      display: block;
+      font-size: 14px;
+      font-weight: 700;
+      margin-bottom: 2px;
+    }
+
+    .feature-list li span {
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    /* ── PHONE FRAME ── */
+    .phones {
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+      align-items: flex-start;
+    }
+
+    .phone {
+      width: 195px;
+      background: #1a1a2e;
+      border-radius: 36px;
+      padding: 12px;
+      box-shadow: 0 24px 64px rgba(0, 0, 0, 0.22), 0 0 0 1px rgba(255, 255, 255, 0.06);
+      flex-shrink: 0;
+    }
+
+    .phone.secondary {
+      margin-top: 32px;
+    }
+
+    .phone-screen {
+      background: var(--page);
+      border-radius: 26px;
+      overflow: hidden;
+      min-height: 360px;
+    }
+
+    .phone-notch {
+      width: 60px;
+      height: 6px;
+      background: #1a1a2e;
+      border-radius: 3px;
+      margin: 0 auto 8px;
+    }
+
+    /* ── APP CHROME (header + tabs) ── */
+    .app-header {
+      background: var(--navy);
+      padding: 10px 12px 8px;
+      color: #fff;
+    }
+
+    .app-header-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .app-week {
+      font-size: 9px;
+      font-weight: 700;
+      text-align: center;
+      flex: 1;
+    }
+
+    .app-week-sub {
+      font-size: 7px;
+      color: rgba(255, 255, 255, 0.45);
+      text-align: center;
+      margin-top: 1px;
+    }
+
+    .app-nav-btn {
+      width: 16px;
+      height: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0.4;
+    }
+
+    .app-tabs {
+      display: flex;
+      background: var(--navy2);
+    }
+
+    .app-tab {
+      flex: 1;
+      text-align: center;
+      font-size: 7px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 5px 0;
+      color: rgba(255, 255, 255, 0.4);
+    }
+
+    .app-tab.active {
+      color: var(--ot);
+      border-bottom: 2px solid var(--ot);
+    }
+
+    /* ── TIMESHEET MOCKUP ── */
+    .ts-week-body {
+      padding: 6px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .ts-day {
+      background: var(--card);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .ts-day-header {
+      display: flex;
+      align-items: center;
+      padding: 6px 8px;
+      gap: 6px;
+    }
+
+    .ts-day-name {
+      font-size: 8px;
+      font-weight: 700;
+      flex: 1;
+    }
+
+    .ts-day-date {
+      font-size: 7px;
+      color: var(--faint);
+    }
+
+    .ts-day-hours {
+      font-size: 8px;
+      font-weight: 700;
+      color: var(--accent);
+      font-family: 'DM Mono', monospace;
+    }
+
+    .ts-chevron {
+      width: 10px;
+      height: 10px;
+      border-right: 1.5px solid var(--faint);
+      border-bottom: 1.5px solid var(--faint);
+      transform: rotate(45deg);
+      margin-left: 2px;
+    }
+
+    .ts-chevron.open {
+      transform: rotate(-135deg);
+    }
+
+    .ts-activities {
+      padding: 0 8px 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .ts-activity {
+      background: var(--page);
+      border-radius: 6px;
+      padding: 5px 7px;
+    }
+
+    .ts-act-desc {
+      font-size: 8px;
+      font-weight: 600;
+      margin-bottom: 2px;
+    }
+
+    .ts-act-row {
+      display: flex;
+      gap: 4px;
+      align-items: center;
+    }
+
+    .ts-code {
+      font-size: 6.5px;
+      font-family: 'DM Mono', monospace;
+      background: var(--accent-light);
+      color: var(--accent);
+      padding: 1px 4px;
+      border-radius: 3px;
+      font-weight: 500;
+    }
+
+    .ts-hrs {
+      font-size: 7px;
+      font-family: 'DM Mono', monospace;
+      color: var(--accent);
+      font-weight: 700;
+      margin-left: auto;
+    }
+
+    .ts-ot {
+      color: var(--ot);
+    }
+
+    .ts-add-btn {
+      margin: 0 8px 6px;
+      border: 1.5px dashed var(--border);
+      border-radius: 6px;
+      padding: 4px;
+      text-align: center;
+      font-size: 7.5px;
+      color: var(--faint);
+    }
+
+    .ts-day.collapsed .ts-activities {
+      display: none;
+    }
+
+    .ts-day.collapsed .ts-add-btn {
+      display: none;
+    }
+
+    .ts-summary {
+      background: var(--card);
+      border-radius: 8px;
+      margin: 0 6px 6px;
+      padding: 7px 8px;
+    }
+
+    .ts-sum-title {
+      font-size: 7.5px;
+      font-weight: 700;
+      margin-bottom: 5px;
+    }
+
+    .ts-sum-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 7px;
+      padding: 2px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .ts-sum-row:last-child {
+      border: none;
+    }
+
+    .ts-sum-row span:last-child {
+      font-weight: 600;
+      font-family: 'DM Mono', monospace;
+    }
+
+    /* ── WEEKLY SUMMARY MOCKUP ── */
+    .ws-screen {
+      background: var(--page);
+    }
+
+    /* Card wrapper */
+    .ws-card {
+      background: #fff;
+      border-radius: 10px;
+      margin: 6px;
+      overflow: hidden;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.07);
+      position: relative;
+    }
+
+    /* Card header — icon + title + badges + chevron */
+    .ws-header {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      padding: 7px 8px 6px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .ws-icon {
+      width: 18px;
+      height: 18px;
+      border-radius: 4px;
+      background: rgba(45, 107, 228, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .ws-title {
+      font-size: 8px;
+      font-weight: 800;
+      flex: 1;
+      color: var(--text);
+    }
+
+    .ws-badge {
+      border-radius: 10px;
+      padding: 1.5px 6px;
+      font-size: 6.5px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .ws-badge.ord {
+      background: rgba(45, 107, 228, 0.12);
+      color: var(--accent);
+    }
+
+    .ws-badge.ot {
+      background: rgba(245, 166, 35, 0.15);
+      color: var(--ot);
+    }
+
+    .ws-chevron {
+      font-size: 8px;
+      color: var(--faint);
+      margin-left: 2px;
+    }
+
+    /* Column header row */
+    .ws-col-row {
+      display: grid;
+      grid-template-columns: 1fr 22px 22px;
+      padding: 4px 8px 3px;
+      background: rgba(232, 238, 245, 0.6);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .ws-col-lbl {
+      font-size: 6px;
+      font-weight: 700;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      color: var(--faint);
+    }
+
+    .ws-col-lbl.right {
+      text-align: right;
+    }
+
+    /* Each code row */
+    .ws-row {
+      display: grid;
+      grid-template-columns: 1fr 22px 22px;
+      align-items: center;
+      padding: 5px 8px 4px;
+      border-bottom: 1px solid var(--border);
+      gap: 3px;
+    }
+
+    .ws-row:last-child {
+      border: none;
+    }
+
+    .ws-code {
+      font-size: 6.5px;
+      font-weight: 800;
+      color: var(--accent);
+      font-family: 'DM Mono', monospace;
+      letter-spacing: 0.02em;
+    }
+
+    .ws-desc {
+      font-size: 6.5px;
+      color: var(--text);
+      margin: 1px 0 3px;
+      line-height: 1.3;
+    }
+
+    .ws-bar-track {
+      height: 3px;
+      background: var(--border);
+      border-radius: 2px;
+    }
+
+    .ws-bar-fill {
+      height: 100%;
+      border-radius: 2px;
+      background: var(--accent);
+    }
+
+    .ws-bar-fill.ot-bar {
+      background: var(--ot);
+    }
+
+    .ws-bar-fill.mixed {
+      background: linear-gradient(90deg, var(--accent) 70%, var(--ot) 70%);
+    }
+
+    .ws-num {
+      font-size: 7.5px;
+      font-weight: 700;
+      text-align: right;
+      font-family: 'DM Mono', monospace;
+      color: var(--text);
+    }
+
+    .ws-num.ot {
+      color: var(--ot);
+    }
+
+    .ws-dash {
+      font-size: 8px;
+      text-align: right;
+      color: var(--faint);
+    }
+
+    /* Scroll fade on card — suggests more rows */
+    .ws-fade {
+      position: absolute;
+      bottom: 38px;
+      left: 0;
+      right: 0;
+      height: 22px;
+      background: linear-gradient(to bottom, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.95) 100%);
+      pointer-events: none;
+    }
+
+    /* Footer totals */
+    .ws-footer {
+      display: grid;
+      grid-template-columns: 1fr auto auto;
+      gap: 12px;
+      padding: 6px 8px;
+      border-top: 1px solid var(--border);
+      background: rgba(232, 238, 245, 0.5);
+    }
+
+    .ws-footer-lbl {
+      font-size: 6px;
+      font-weight: 800;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      color: var(--faint);
+      align-self: center;
+    }
+
+    .ws-footer-group {
+      text-align: right;
+    }
+
+    .ws-footer-sub {
+      font-size: 5.5px;
+      color: var(--faint);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .ws-footer-val {
+      font-size: 10px;
+      font-weight: 800;
+      font-family: 'DM Mono', monospace;
+    }
+
+    .ws-footer-val.ord {
+      color: var(--text);
+    }
+
+    .ws-footer-val.ot {
+      color: var(--ot);
+    }
+
+    /* ── NOTES MOCKUP ── */
+    .notes-body {
+      padding: 6px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .notes-filter-bar {
+      display: flex;
+      gap: 3px;
+      padding: 0 0 4px;
+    }
+
+    .notes-pill {
+      font-size: 7px;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 20px;
+      background: var(--card);
+      color: var(--faint);
+      border: 1px solid var(--border);
+    }
+
+    .notes-pill.active {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+
+    .note-card {
+      background: var(--card);
+      border-radius: 8px;
+      padding: 7px 8px;
+      border-left: 3px solid var(--border);
+    }
+
+    .note-card.urgent {
+      border-left-color: var(--red);
+    }
+
+    .note-card.high {
+      border-left-color: var(--ot);
+    }
+
+    .note-card.normal {
+      border-left-color: var(--accent);
+    }
+
+    .note-card.done {
+      border-left-color: var(--green);
+      opacity: 0.65;
+    }
+
+    .note-top {
+      display: flex;
+      align-items: flex-start;
+      gap: 5px;
+      margin-bottom: 3px;
+    }
+
+    .note-title {
+      font-size: 8px;
+      font-weight: 700;
+      flex: 1;
+      line-height: 1.3;
+    }
+
+    .note-badge {
+      font-size: 6px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 1px 5px;
+      border-radius: 10px;
+      white-space: nowrap;
+    }
+
+    .note-badge.urgent {
+      background: rgba(239, 68, 68, 0.1);
+      color: var(--red);
+    }
+
+    .note-badge.high {
+      background: rgba(245, 166, 35, 0.1);
+      color: var(--ot);
+    }
+
+    .note-badge.normal {
+      background: var(--accent-light);
+      color: var(--accent);
+    }
+
+    .note-badge.done {
+      background: rgba(22, 163, 74, 0.1);
+      color: var(--green);
+    }
+
+    .note-body {
+      font-size: 7px;
+      color: var(--muted);
+      line-height: 1.4;
+    }
+
+    .note-footer {
+      display: flex;
+      align-items: center;
+      margin-top: 5px;
+      gap: 5px;
+    }
+
+    .note-date {
+      font-size: 6.5px;
+      color: var(--faint);
+      flex: 1;
+    }
+
+    .note-btn {
+      font-size: 6.5px;
+      font-weight: 600;
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+
+    .note-btn.done-btn {
+      background: rgba(22, 163, 74, 0.08);
+      color: var(--green);
+    }
+
+    .note-btn.del-btn {
+      background: rgba(239, 68, 68, 0.08);
+      color: var(--red);
+    }
+
+    .add-note-dashed {
+      border: 1.5px dashed var(--border);
+      border-radius: 8px;
+      padding: 8px;
+      text-align: center;
+      font-size: 7.5px;
+      color: var(--faint);
+    }
+
+    /* ── FINDER MOCKUP ── */
+    .finder-body {
+      padding: 6px;
+    }
+
+    .finder-tabs {
+      display: flex;
+      gap: 3px;
+      margin-bottom: 6px;
+    }
+
+    .finder-tab {
+      flex: 1;
+      text-align: center;
+      padding: 4px;
+      border-radius: 7px;
+      font-size: 7px;
+      font-weight: 700;
+      background: var(--card);
+      color: var(--faint);
+    }
+
+    .finder-tab.active {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .finder-search {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      padding: 5px 8px;
+      font-size: 7.5px;
+      color: var(--faint);
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .finder-item {
+      background: var(--card);
+      border-radius: 7px;
+      padding: 6px 8px;
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .finder-icon {
+      width: 24px;
+      height: 24px;
+      background: var(--accent-light);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--accent);
+      flex-shrink: 0;
+    }
+
+    .finder-name {
+      font-size: 8px;
+      font-weight: 600;
+    }
+
+    .finder-sub {
+      font-size: 6.5px;
+      color: var(--faint);
+      margin-top: 1px;
+    }
+
+    .finder-chevron {
+      margin-left: auto;
+      color: var(--border);
+    }
+
+    /* Detail view */
+    .finder-detail {
+      background: var(--card);
+      border-radius: 8px;
+      overflow: hidden;
+      margin-top: 6px;
+    }
+
+    .finder-detail-header {
+      background: var(--navy);
+      padding: 8px 8px 6px;
+      color: #fff;
+    }
+
+    .finder-detail-name {
+      font-size: 9px;
+      font-weight: 700;
+    }
+
+    .finder-detail-code {
+      font-size: 7px;
+      font-family: 'DM Mono', monospace;
+      color: rgba(255, 255, 255, 0.5);
+      margin-top: 1px;
+    }
+
+    .finder-detail-row {
+      display: flex;
+      padding: 5px 8px;
+      border-bottom: 1px solid var(--border);
+      align-items: center;
+      gap: 6px;
+    }
+
+    .finder-detail-row:last-child {
+      border: none;
+    }
+
+    .finder-detail-label {
+      font-size: 7px;
+      color: var(--faint);
+      width: 55px;
+      flex-shrink: 0;
+    }
+
+    .finder-detail-val {
+      font-size: 7.5px;
+      font-weight: 500;
+    }
+
+    /* ── FEATURE CALLOUTS ── */
+    .callouts {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 8px;
+    }
+
+    .callout {
+      background: var(--page);
+      border-radius: 10px;
+      padding: 10px 12px;
+      border-left: 3px solid var(--accent);
+      font-size: 13px;
+    }
+
+    .callout strong {
+      display: block;
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 2px;
+    }
+
+    .callout span {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .callout.green {
+      border-left-color: var(--green);
+    }
+
+    .callout.orange {
+      border-left-color: var(--ot);
+    }
+
+    /* ── FOOTER ── */
+    .footer {
+      background: var(--navy);
+      color: rgba(255, 255, 255, 0.4);
+      text-align: center;
+      padding: 40px 24px;
+      font-size: 13px;
+    }
+
+    .footer strong {
+      color: #fff;
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 768px) {
+      .feature-inner {
+        grid-template-columns: 1fr;
+        gap: 40px;
+      }
+
+      .feature-section:nth-child(odd) .feature-inner {
+        direction: ltr;
+      }
+
+      .phones {
+        justify-content: center;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ════ STICKY NAVBAR ════ -->
+  <nav class="site-nav">
+    <a href="#" class="nav-brand">
+      <div class="nav-logo-box">R</div>
+      <div class="nav-brand-text">
+        <span class="nav-brand-name">Rian</span>
+        <span class="nav-brand-ver">v3.6.75</span>
+      </div>
+    </a>
+
+    <div class="nav-links">
+      <a href="#timesheet" class="nav-link active" data-section="timesheet">Timesheet</a>
+      <a href="#notes" class="nav-link" data-section="notes">Notes</a>
+      <a href="#finder" class="nav-link" data-section="finder">Finder</a>
+    </div>
+
+    <a href="https://morow01.github.io/rian/" target="_blank" rel="noopener" class="nav-cta">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
+        <polygon points="5 3 19 12 5 21 5 3" />
+      </svg>
+      Launch App
+    </a>
+  </nav>
+
+  <!-- ════ HERO ════ -->
+  <section class="hero">
+    <div class="hero-badge">Mobile First · Field Ready</div>
+    <h1>Everything you need<br><span>on the job site</span></h1>
+    <p>Rian keeps your timesheets, field notes, and site finder in one fast, cloud-synced app.</p>
+    <div class="hero-cta">
+      <a href="https://morow01.github.io/rian/" target="_blank" rel="noopener" class="btn-launch">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+          stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="5 3 19 12 5 21 5 3" />
+        </svg>
+        Launch App
+      </a>
+    </div>
+    <p class="hero-note">Sign in with your Google account</p>
+  </section>
+
+
+  <!-- ════ SECTION 1 — TIMESHEET ════ -->
+  <section class="feature-section" id="timesheet">
+    <div class="feature-inner">
+
+      <!-- Text -->
+      <div class="feature-text">
+        <div class="section-number">01 — Timesheet</div>
+        <h2>Track every hour, every day</h2>
+        <p class="lead">Log your ordinary and overtime hours against work codes for each day of the week. Everything
+          stays organised and ready to export.</p>
+        <ul class="feature-list">
+          <li>
+            <div class="icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="4" width="18" height="18" rx="2" />
+                <path d="M16 2v4M8 2v4M3 10h18" />
+              </svg>
+            </div>
+            <div>
+              <strong>Weekly overview</strong>
+              <span>See your full week at a glance — tap any day to expand and add tasks.</span>
+            </div>
+          </li>
+          <li>
+            <div class="icon orange">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10" />
+                <path d="M12 6v6l4 2" />
+              </svg>
+            </div>
+            <div>
+              <strong>Ordinary &amp; overtime hours</strong>
+              <span>Log both hour types per task. Overtime is highlighted automatically.</span>
+            </div>
+          </li>
+          <li>
+            <div class="icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M4 7h16M4 12h10M4 17h7" />
+              </svg>
+            </div>
+            <div>
+              <strong>Work codes &amp; locations</strong>
+              <span>Attach job codes and site locations to each task for accurate reporting.</span>
+            </div>
+          </li>
+          <li>
+            <div class="icon green">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                <polyline points="22,6 12,13 2,6" />
+              </svg>
+            </div>
+            <div>
+              <strong>Email &amp; export</strong>
+              <span>Send a formatted weekly summary directly from the app in one tap.</span>
+            </div>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Phones -->
+      <div class="phones">
+
+        <!-- Phone 1: collapsed week view -->
+        <div class="phone">
+          <div class="phone-notch"></div>
+          <div class="phone-screen">
+            <div class="app-header">
+              <div class="app-header-row">
+                <div class="app-nav-btn"><svg width="5" height="8" viewBox="0 0 5 8">
+                    <polygon points="5,0 0,4 5,8" fill="rgba(255,255,255,0.5)" />
+                  </svg></div>
+                <div>
+                  <div class="app-week">10 – 14 Mar 2026</div>
+                  <div class="app-week-sub">Synced · v3.6.75</div>
+                </div>
+                <div class="app-nav-btn"><svg width="5" height="8" viewBox="0 0 5 8">
+                    <polygon points="0,0 5,4 0,8" fill="rgba(255,255,255,0.5)" />
+                  </svg></div>
+              </div>
+            </div>
+            <div class="app-tabs">
+              <div class="app-tab active">Timesheet</div>
+              <div class="app-tab">Notes</div>
+              <div class="app-tab">Finder</div>
+            </div>
+            <div class="ts-week-body">
+              <!-- Day collapsed -->
+              <div class="ts-day collapsed">
+                <div class="ts-day-header">
+                  <div class="ts-day-name">Monday</div>
+                  <div class="ts-day-date">10 Mar</div>
+                  <div class="ts-day-hours">8h</div>
+                  <div class="ts-chevron"></div>
+                </div>
+              </div>
+              <div class="ts-day collapsed">
+                <div class="ts-day-header">
+                  <div class="ts-day-name">Tuesday</div>
+                  <div class="ts-day-date">11 Mar</div>
+                  <div class="ts-day-hours">9h</div>
+                  <div class="ts-chevron"></div>
+                </div>
+              </div>
+              <div class="ts-day collapsed">
+                <div class="ts-day-header">
+                  <div class="ts-day-name">Wednesday</div>
+                  <div class="ts-day-date">12 Mar</div>
+                  <div class="ts-day-hours">8h <span class="ts-ot">+2</span></div>
+                  <div class="ts-chevron"></div>
+                </div>
+              </div>
+              <div class="ts-day collapsed">
+                <div class="ts-day-header">
+                  <div class="ts-day-name">Thursday</div>
+                  <div class="ts-day-date">13 Mar</div>
+                  <div class="ts-day-hours">8h</div>
+                  <div class="ts-chevron"></div>
+                </div>
+              </div>
+              <div class="ts-day collapsed">
+                <div class="ts-day-header">
+                  <div class="ts-day-name">Friday</div>
+                  <div class="ts-day-date">14 Mar</div>
+                  <div class="ts-day-hours">8h</div>
+                  <div class="ts-chevron"></div>
+                </div>
+              </div>
+              <div class="ts-summary">
+                <div class="ts-sum-title">Weekly Summary</div>
+                <div class="ts-sum-row"><span>Ordinary</span><span>41h</span></div>
+                <div class="ts-sum-row"><span>Overtime</span><span style="color:var(--ot)">2h</span></div>
+                <div class="ts-sum-row"><span>Tasks</span><span>12</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Phone 2: expanded day -->
+        <div class="phone secondary">
+          <div class="phone-notch"></div>
+          <div class="phone-screen">
+            <div class="app-header">
+              <div class="app-header-row">
+                <div class="app-nav-btn"><svg width="5" height="8" viewBox="0 0 5 8">
+                    <polygon points="5,0 0,4 5,8" fill="rgba(255,255,255,0.5)" />
+                  </svg></div>
+                <div>
+                  <div class="app-week">10 – 14 Mar 2026</div>
+                  <div class="app-week-sub">Synced · v3.6.75</div>
+                </div>
+                <div class="app-nav-btn"><svg width="5" height="8" viewBox="0 0 5 8">
+                    <polygon points="0,0 5,4 0,8" fill="rgba(255,255,255,0.5)" />
+                  </svg></div>
+              </div>
+            </div>
+            <div class="app-tabs">
+              <div class="app-tab active">Timesheet</div>
+              <div class="app-tab">Notes</div>
+              <div class="app-tab">Finder</div>
+            </div>
+            <div class="ts-week-body">
+              <div class="ts-day collapsed">
+                <div class="ts-day-header">
+                  <div class="ts-day-name">Monday</div>
+                  <div class="ts-day-date">10 Mar</div>
+                  <div class="ts-day-hours">8h</div>
+                  <div class="ts-chevron"></div>
+                </div>
+              </div>
+              <!-- Expanded day -->
+              <div class="ts-day">
+                <div class="ts-day-header" style="border-bottom:1px solid var(--border)">
+                  <div class="ts-day-name">Tuesday</div>
+                  <div class="ts-day-date">11 Mar</div>
+                  <div class="ts-day-hours">9h</div>
+                  <div class="ts-chevron open"></div>
+                </div>
+                <div class="ts-activities">
+                  <div class="ts-activity">
+                    <div class="ts-act-desc">Cable installation — Level 3</div>
+                    <div class="ts-act-row">
+                      <span class="ts-code">EL-001</span>
+                      <span class="ts-code">SITE-A</span>
+                      <span class="ts-hrs">5h</span>
+                    </div>
+                  </div>
+                  <div class="ts-activity">
+                    <div class="ts-act-desc">Panel inspection &amp; testing</div>
+                    <div class="ts-act-row">
+                      <span class="ts-code">IN-044</span>
+                      <span class="ts-hrs">4h <span class="ts-ot">+1h OT</span></span>
+                    </div>
+                  </div>
+                </div>
+                <div class="ts-add-btn">+ Add Task</div>
+              </div>
+              <div class="ts-day collapsed">
+                <div class="ts-day-header">
+                  <div class="ts-day-name">Wednesday</div>
+                  <div class="ts-day-date">12 Mar</div>
+                  <div class="ts-day-hours">8h</div>
+                  <div class="ts-chevron"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /phones -->
+    </div>
+  </section>
+
+
+  <!-- ════ SECTION 1b — DESKTOP SPREADSHEET VIEW ════ -->
+  <section class="desktop-section">
+    <div class="desktop-inner">
+      <div class="section-number">01 — Timesheet · Desktop</div>
+      <h2>Spreadsheet view for the big screen</h2>
+      <p class="lead">Switch to table layout on a desktop or tablet and get a full-week spreadsheet. Every task, code,
+        and hour across all five days in a single resizable, scrollable view.</p>
+
+      <!-- Desktop browser mockup -->
+      <div class="browser-chrome">
+
+        <!-- Browser titlebar -->
+        <div class="browser-titlebar">
+          <div class="browser-dots">
+            <div class="browser-dot red"></div>
+            <div class="browser-dot amber"></div>
+            <div class="browser-dot green"></div>
+          </div>
+          <div class="browser-url">morow01.github.io/rian</div>
+        </div>
+
+        <!-- App chrome -->
+        <div class="browser-body">
+          <div class="b-appheader">
+            <div class="b-week-nav">
+              <span class="b-nav-arr">◀</span>
+              10 – 14 Mar 2026
+              <span class="b-nav-arr">▶</span>
+            </div>
+            <div class="b-layout-btns">
+              <div class="b-layout-btn">Card</div>
+              <div class="b-layout-btn active">Table</div>
+            </div>
+          </div>
+          <div class="b-tabs">
+            <div class="b-tab active">Timesheet</div>
+            <div class="b-tab">Notes</div>
+            <div class="b-tab">Finder</div>
+          </div>
+
+          <!-- Spreadsheet -->
+          <div class="ss-wrap">
+            <table class="ss-table">
+              <thead>
+                <tr>
+                  <th style="width:80px">Day</th>
+                  <th style="width:200px">Description</th>
+                  <th style="width:100px">Location</th>
+                  <th style="width:80px">Code</th>
+                  <th style="width:60px">Ord</th>
+                  <th style="width:60px">OT</th>
+                  <th style="width:60px">Total</th>
+                  <th>Notes</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="day-header-row">
+                  <td colspan="8">Monday · 10 Mar</td>
+                </tr>
+                <tr>
+                  <td class="ss-muted">Mon</td>
+                  <td>Cable installation — Level 3</td>
+                  <td>SITE-A</td>
+                  <td><span class="ss-code">EL-001</span></td>
+                  <td>5h</td>
+                  <td>—</td>
+                  <td>5h</td>
+                  <td class="ss-muted">West wing, cabinet 3</td>
+                </tr>
+                <tr>
+                  <td class="ss-muted">Mon</td>
+                  <td>Panel inspection &amp; testing</td>
+                  <td>SITE-A</td>
+                  <td><span class="ss-code">IN-044</span></td>
+                  <td>3h</td>
+                  <td>—</td>
+                  <td>3h</td>
+                  <td></td>
+                </tr>
+
+                <tr class="day-header-row">
+                  <td colspan="8">Tuesday · 11 Mar</td>
+                </tr>
+                <tr>
+                  <td class="ss-muted">Tue</td>
+                  <td>Fault diagnosis — MDF room</td>
+                  <td>EX-07</td>
+                  <td><span class="ss-code">FD-012</span></td>
+                  <td>4h</td>
+                  <td class="ss-ot">1h</td>
+                  <td>5h</td>
+                  <td class="ss-muted">Recurring fault, raised ticket</td>
+                </tr>
+                <tr>
+                  <td class="ss-muted">Tue</td>
+                  <td>Cable terminations</td>
+                  <td>EX-07</td>
+                  <td><span class="ss-code">EL-001</span></td>
+                  <td>4h</td>
+                  <td>—</td>
+                  <td>4h</td>
+                  <td></td>
+                </tr>
+
+                <tr class="day-header-row">
+                  <td colspan="8">Wednesday · 12 Mar</td>
+                </tr>
+                <tr>
+                  <td class="ss-muted">Wed</td>
+                  <td>Site survey — new build</td>
+                  <td>SITE-C</td>
+                  <td><span class="ss-code">SV-003</span></td>
+                  <td>8h</td>
+                  <td class="ss-ot">2h</td>
+                  <td>10h</td>
+                  <td class="ss-muted">Photos taken, uploaded</td>
+                </tr>
+
+                <tr class="day-header-row">
+                  <td colspan="8">Thursday · 13 Mar</td>
+                </tr>
+                <tr>
+                  <td class="ss-muted">Thu</td>
+                  <td>Remedial works — roof cabinet</td>
+                  <td>SITE-B</td>
+                  <td><span class="ss-code">RM-009</span></td>
+                  <td>8h</td>
+                  <td>—</td>
+                  <td>8h</td>
+                  <td></td>
+                </tr>
+
+                <tr class="day-header-row">
+                  <td colspan="8">Friday · 14 Mar</td>
+                </tr>
+                <tr>
+                  <td class="ss-muted">Fri</td>
+                  <td>Commissioning — power-up test</td>
+                  <td>SITE-A</td>
+                  <td><span class="ss-code">CM-022</span></td>
+                  <td>8h</td>
+                  <td>—</td>
+                  <td>8h</td>
+                  <td></td>
+                </tr>
+
+                <!-- Totals row -->
+                <tr class="ss-total-row">
+                  <td colspan="4" style="text-align:right">Weekly Total</td>
+                  <td>41h</td>
+                  <td class="ot-total">3h OT</td>
+                  <td>44h</td>
+                  <td></td>
+                </tr>
+              </tbody>
+            </table>
+          </div><!-- /ss-wrap -->
+
+        </div><!-- /browser-body -->
+      </div><!-- /browser-chrome -->
+
+    </div><!-- /desktop-inner -->
+  </section>
+
+
+  <!-- ════ SECTION 1c — WEEKLY SUMMARY ════ -->
+  <section class="feature-section">
+    <div class="feature-inner">
+
+      <!-- Text -->
+      <div class="feature-text">
+        <div class="section-number">01 — Timesheet · Summary</div>
+        <h2>Your week at a glance</h2>
+        <p class="lead">The weekly summary rolls up every task, code, and hour into a clean overview. See ordinary vs
+          overtime totals per day and for the full week — then email the whole thing in one tap.</p>
+        <ul class="feature-list">
+          <li>
+            <div class="icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="3" width="18" height="18" rx="2" />
+                <path d="M3 9h18M9 21V9" />
+              </svg>
+            </div>
+            <div>
+              <strong>Day-by-day breakdown</strong>
+              <span>Ordinary and overtime hours listed for each day of the week, with running totals.</span>
+            </div>
+          </li>
+          <li>
+            <div class="icon orange">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10" />
+                <path d="M12 6v6l4 2" />
+              </svg>
+            </div>
+            <div>
+              <strong>Overtime highlighted</strong>
+              <span>OT hours stand out in amber so you can spot them immediately.</span>
+            </div>
+          </li>
+          <li>
+            <div class="icon green">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                <polyline points="22,6 12,13 2,6" />
+              </svg>
+            </div>
+            <div>
+              <strong>One-tap email</strong>
+              <span>Send a formatted summary straight from the app — no copy-paste, no spreadsheet needed.</span>
+            </div>
+          </li>
+          <li>
+            <div class="icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M4 7h16M4 12h10M4 17h7" />
+              </svg>
+            </div>
+            <div>
+              <strong>Code totals</strong>
+              <span>Hours grouped by work code so supervisors can see exactly where time was spent.</span>
+            </div>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Phone -->
+      <div class="phones">
+        <div class="phone" style="width:215px">
+          <div class="phone-notch"></div>
+          <div class="phone-screen ws-screen" style="min-height:430px">
+
+            <!-- App header -->
+            <div class="app-header">
+              <div class="app-header-row">
+                <div class="app-nav-btn"><svg width="5" height="8" viewBox="0 0 5 8">
+                    <polygon points="5,0 0,4 5,8" fill="rgba(255,255,255,0.5)" />
+                  </svg></div>
+                <div>
+                  <div class="app-week">10 – 14 Mar 2026</div>
+                  <div class="app-week-sub">Synced · v3.6.75</div>
+                </div>
+                <div class="app-nav-btn"><svg width="5" height="8" viewBox="0 0 5 8">
+                    <polygon points="0,0 5,4 0,8" fill="rgba(255,255,255,0.5)" />
+                  </svg></div>
+              </div>
+            </div>
+            <div class="app-tabs">
+              <div class="app-tab active">Timesheet</div>
+              <div class="app-tab">Notes</div>
+              <div class="app-tab">Finder</div>
+            </div>
+
+            <!-- Weekly Summary card (matches real app) -->
+            <div class="ws-card">
+
+              <!-- Card header -->
+              <div class="ws-header">
+                <div class="ws-icon">
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2.5">
+                    <rect x="3" y="3" width="18" height="18" rx="2" />
+                    <path d="M3 9h18M9 21V9" />
+                  </svg>
+                </div>
+                <span class="ws-title">Weekly Summary</span>
+                <span class="ws-badge ord">39h</span>
+                <span class="ws-badge ot">+10 OT</span>
+                <span class="ws-chevron">︿</span>
+              </div>
+
+              <!-- Column headers -->
+              <div class="ws-col-row">
+                <div class="ws-col-lbl">Code / Description</div>
+                <div class="ws-col-lbl right">ORD</div>
+                <div class="ws-col-lbl right">OT</div>
+              </div>
+
+              <!-- Row: ABC1001X00 -->
+              <div class="ws-row">
+                <div>
+                  <div class="ws-code">ABC1001X00</div>
+                  <div class="ws-desc">General Site Installation Works</div>
+                  <div class="ws-bar-track">
+                    <div class="ws-bar-fill" style="width:100%"></div>
+                  </div>
+                </div>
+                <div class="ws-num">8</div>
+                <div class="ws-dash">—</div>
+              </div>
+
+              <!-- Row: DEF2002Y10 (has OT) -->
+              <div class="ws-row">
+                <div>
+                  <div class="ws-code">DEF2002Y10</div>
+                  <div class="ws-desc">Planned Maintenance; Team Briefing</div>
+                  <div class="ws-bar-track">
+                    <div class="ws-bar-fill mixed" style="width:100%"></div>
+                  </div>
+                </div>
+                <div class="ws-num">8</div>
+                <div class="ws-num ot">1</div>
+              </div>
+
+              <!-- Row: GHI3003Z20 -->
+              <div class="ws-row">
+                <div>
+                  <div class="ws-code">GHI3003Z20</div>
+                  <div class="ws-desc">Routine Equipment Inspection</div>
+                  <div class="ws-bar-track">
+                    <div class="ws-bar-fill" style="width:63%"></div>
+                  </div>
+                </div>
+                <div class="ws-num">5</div>
+                <div class="ws-dash">—</div>
+              </div>
+
+              <!-- Row: JKL4004W30 -->
+              <div class="ws-row">
+                <div>
+                  <div class="ws-code">JKL4004W30</div>
+                  <div class="ws-desc">Network Infrastructure Upgrade</div>
+                  <div class="ws-bar-track">
+                    <div class="ws-bar-fill" style="width:50%"></div>
+                  </div>
+                </div>
+                <div class="ws-num">4</div>
+                <div class="ws-dash">—</div>
+              </div>
+
+              <!-- Row: MNO5005V40 -->
+              <div class="ws-row">
+                <div>
+                  <div class="ws-code">MNO5005V40</div>
+                  <div class="ws-desc">Fault Investigation &amp; Repair</div>
+                  <div class="ws-bar-track">
+                    <div class="ws-bar-fill" style="width:38%"></div>
+                  </div>
+                </div>
+                <div class="ws-num">3</div>
+                <div class="ws-dash">—</div>
+              </div>
+
+              <!-- Row: PQR6006U50 (OT only) -->
+              <div class="ws-row">
+                <div>
+                  <div class="ws-code">PQR6006U50</div>
+                  <div class="ws-desc">Emergency Callout; Standby Cover</div>
+                  <div class="ws-bar-track">
+                    <div class="ws-bar-fill ot-bar" style="width:12%"></div>
+                  </div>
+                </div>
+                <div class="ws-num">0</div>
+                <div class="ws-num ot">1</div>
+              </div>
+
+              <!-- Row: STU7007T60 (OT only) -->
+              <div class="ws-row">
+                <div>
+                  <div class="ws-code">STU7007T60</div>
+                  <div class="ws-desc">Field Service – Priority Rollout</div>
+                  <div class="ws-bar-track">
+                    <div class="ws-bar-fill ot-bar" style="width:100%"></div>
+                  </div>
+                </div>
+                <div class="ws-num">0</div>
+                <div class="ws-num ot">8</div>
+              </div>
+
+              <!-- Scroll fade hint -->
+              <div class="ws-fade"></div>
+
+              <!-- Footer totals -->
+              <div class="ws-footer">
+                <div class="ws-footer-lbl">Total</div>
+                <div class="ws-footer-group">
+                  <div class="ws-footer-sub">ORD</div>
+                  <div class="ws-footer-val ord">39</div>
+                </div>
+                <div class="ws-footer-group">
+                  <div class="ws-footer-sub">OT</div>
+                  <div class="ws-footer-val ot">10</div>
+                </div>
+              </div>
+
+            </div><!-- /ws-card -->
+
+          </div><!-- /phone-screen -->
+        </div><!-- /phone -->
+      </div><!-- /phones -->
+
+    </div><!-- /feature-inner -->
+  </section>
+
+
+  <!-- ════ SECTION 2 — NOTES ════ -->
+  <section class="feature-section" id="notes">
+    <div class="feature-inner">
+
+      <!-- Text -->
+      <div class="feature-text">
+        <div class="section-number">02 — Notes</div>
+        <h2>Field notes that actually keep up</h2>
+        <p class="lead">Capture anything that needs following up — safety issues, reminders, punch list items.
+          Prioritise, filter, and mark done when resolved.</p>
+        <ul class="feature-list">
+          <li>
+            <div class="icon red">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+                <line x1="12" y1="9" x2="12" y2="13" />
+                <line x1="12" y1="17" x2="12.01" y2="17" />
+              </svg>
+            </div>
+            <div>
+              <strong>Priority levels</strong>
+              <span>Tag notes as Urgent, High, or Normal. Red left border makes critical items impossible to
+                miss.</span>
+            </div>
+          </li>
+          <li>
+            <div class="icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="8" y1="6" x2="21" y2="6" />
+                <line x1="8" y1="12" x2="21" y2="12" />
+                <line x1="8" y1="18" x2="21" y2="18" />
+                <line x1="3" y1="6" x2="3.01" y2="6" />
+                <line x1="3" y1="12" x2="3.01" y2="12" />
+                <line x1="3" y1="18" x2="3.01" y2="18" />
+              </svg>
+            </div>
+            <div>
+              <strong>Filter &amp; focus</strong>
+              <span>Switch between All, Open, and Done with one tap. No clutter.</span>
+            </div>
+          </li>
+          <li>
+            <div class="icon green">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="20 6 9 17 4 12" />
+              </svg>
+            </div>
+            <div>
+              <strong>Bulk actions</strong>
+              <span>Select multiple notes and mark them done or delete in one go.</span>
+            </div>
+          </li>
+          <li>
+            <div class="icon orange">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 20h9" />
+                <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
+              </svg>
+            </div>
+            <div>
+              <strong>Rich content</strong>
+              <span>Each note supports a full description body, not just a title.</span>
+            </div>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Phones -->
+      <div class="phones">
+
+        <!-- Phone 1: notes list -->
+        <div class="phone">
+          <div class="phone-notch"></div>
+          <div class="phone-screen">
+            <div class="app-header">
+              <div class="app-header-row">
+                <div class="app-nav-btn"></div>
+                <div class="app-week">Notes</div>
+                <div class="app-nav-btn"></div>
+              </div>
+            </div>
+            <div class="app-tabs">
+              <div class="app-tab">Timesheet</div>
+              <div class="app-tab active">Notes</div>
+              <div class="app-tab">Finder</div>
+            </div>
+            <div class="notes-body">
+              <div class="notes-filter-bar">
+                <div class="notes-pill active">All</div>
+                <div class="notes-pill">Open</div>
+                <div class="notes-pill">Done</div>
+              </div>
+              <div class="note-card urgent">
+                <div class="note-top">
+                  <div class="note-title">Safety barrier missing — Level 2 stairwell</div>
+                  <div class="note-badge urgent">Urgent</div>
+                </div>
+                <div class="note-body">Barrier not reinstalled after cable pull. Needs immediate attention before next
+                  crew arrives.</div>
+                <div class="note-footer">
+                  <div class="note-date">Today</div>
+                  <div class="note-btn done-btn">✓ Done</div>
+                  <div class="note-btn del-btn">Delete</div>
+                </div>
+              </div>
+              <div class="note-card high">
+                <div class="note-top">
+                  <div class="note-title">Confirm material delivery for Thursday</div>
+                  <div class="note-badge high">High</div>
+                </div>
+                <div class="note-body">Check conduit order status with supplier — delivery may be delayed.</div>
+                <div class="note-footer">
+                  <div class="note-date">Yesterday</div>
+                  <div class="note-btn done-btn">✓ Done</div>
+                </div>
+              </div>
+              <div class="note-card done">
+                <div class="note-top">
+                  <div class="note-title">Submit variation order VO-114</div>
+                  <div class="note-badge done">Done</div>
+                </div>
+                <div class="note-footer">
+                  <div class="note-date">10 Mar</div>
+                </div>
+              </div>
+              <div class="add-note-dashed">+ Add Note</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Phone 2: urgent note expanded / bulk -->
+        <div class="phone secondary">
+          <div class="phone-notch"></div>
+          <div class="phone-screen">
+            <div class="app-header">
+              <div class="app-header-row">
+                <div class="app-nav-btn"></div>
+                <div class="app-week">Notes</div>
+                <div class="app-nav-btn"></div>
+              </div>
+            </div>
+            <div class="app-tabs">
+              <div class="app-tab">Timesheet</div>
+              <div class="app-tab active">Notes</div>
+              <div class="app-tab">Finder</div>
+            </div>
+            <div class="notes-body">
+              <!-- Selection banner -->
+              <div
+                style="background:var(--accent-light);border-radius:8px;padding:6px 8px;display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
+                <div style="font-size:7.5px;font-weight:700;color:var(--accent)">2 selected</div>
+                <div style="display:flex;gap:4px">
+                  <div style="font-size:7px;color:var(--accent);font-weight:600">Select all</div>
+                  <div style="font-size:7px;color:var(--muted)">·</div>
+                  <div style="font-size:7px;color:var(--muted)">Cancel</div>
+                </div>
+              </div>
+              <div class="note-card urgent" style="outline:2px solid var(--accent);outline-offset:-1px">
+                <div class="note-top">
+                  <div
+                    style="width:10px;height:10px;border-radius:3px;background:var(--accent);flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;">
+                    <svg width="7" height="7" viewBox="0 0 12 12" fill="none">
+                      <polyline points="2,6 5,9 10,3" stroke="#fff" stroke-width="2" stroke-linecap="round" />
+                    </svg>
+                  </div>
+                  <div class="note-title">Safety barrier missing — Level 2</div>
+                  <div class="note-badge urgent">Urgent</div>
+                </div>
+              </div>
+              <div class="note-card high" style="outline:2px solid var(--accent);outline-offset:-1px">
+                <div class="note-top">
+                  <div
+                    style="width:10px;height:10px;border-radius:3px;background:var(--accent);flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;">
+                    <svg width="7" height="7" viewBox="0 0 12 12" fill="none">
+                      <polyline points="2,6 5,9 10,3" stroke="#fff" stroke-width="2" stroke-linecap="round" />
+                    </svg>
+                  </div>
+                  <div class="note-title">Confirm material delivery Thursday</div>
+                  <div class="note-badge high">High</div>
+                </div>
+              </div>
+              <div class="note-card normal">
+                <div class="note-top">
+                  <div
+                    style="width:10px;height:10px;border-radius:3px;border:1.5px solid var(--border);flex-shrink:0;margin-top:1px;">
+                  </div>
+                  <div class="note-title">Call site manager re: access</div>
+                  <div class="note-badge normal">Normal</div>
+                </div>
+              </div>
+              <!-- Bulk action bar -->
+              <div
+                style="position:sticky;bottom:0;background:var(--card);border-radius:8px;padding:6px 8px;display:flex;gap:6px;margin-top:6px;box-shadow:0 -2px 8px rgba(0,0,0,0.08)">
+                <div
+                  style="flex:1;background:rgba(22,163,74,0.08);border:1px solid rgba(22,163,74,0.2);border-radius:6px;text-align:center;padding:5px;font-size:7.5px;font-weight:700;color:var(--green)">
+                  ✓ Mark Done</div>
+                <div
+                  style="flex:1;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);border-radius:6px;text-align:center;padding:5px;font-size:7.5px;font-weight:700;color:var(--red)">
+                  Delete</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /phones -->
+    </div>
+  </section>
+
+
+  <!-- ════ SECTION 3 — FINDER ════ -->
+  <section class="feature-section" id="finder">
+    <div class="feature-inner">
+
+      <!-- Text -->
+      <div class="feature-text">
+        <div class="section-number">03 — Finder</div>
+        <h2>Find any site, exchange or cabinet</h2>
+        <p class="lead">Search your full database of exchanges and cabinets instantly. Get address, location
+          coordinates, power supply, and security details — all in one place.</p>
+        <ul class="feature-list">
+          <li>
+            <div class="icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8" />
+                <line x1="21" y1="21" x2="16.65" y2="16.65" />
+              </svg>
+            </div>
+            <div>
+              <strong>Instant search</strong>
+              <span>Search by name or code across all exchanges and cabinets at once.</span>
+            </div>
+          </li>
+          <li>
+            <div class="icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                <circle cx="12" cy="10" r="3" />
+              </svg>
+            </div>
+            <div>
+              <strong>Location &amp; address</strong>
+              <span>Full address details and coordinates for every site in your database.</span>
+            </div>
+          </li>
+          <li>
+            <div class="icon orange">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="2" y="7" width="20" height="14" rx="2" />
+                <path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2" />
+              </svg>
+            </div>
+            <div>
+              <strong>Exchanges &amp; Cabinets</strong>
+              <span>Separate tabs for exchanges and cabinets, each with their own search.</span>
+            </div>
+          </li>
+          <li>
+            <div class="icon green">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="2" y="2" width="20" height="8" rx="2" />
+                <rect x="2" y="14" width="20" height="8" rx="2" />
+                <line x1="6" y1="6" x2="6.01" y2="6" />
+                <line x1="6" y1="18" x2="6.01" y2="18" />
+              </svg>
+            </div>
+            <div>
+              <strong>Full site details</strong>
+              <span>Security info, power supply, emergency contacts — everything in one place.</span>
+            </div>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Phones -->
+      <div class="phones">
+
+        <!-- Phone 1: finder list -->
+        <div class="phone">
+          <div class="phone-notch"></div>
+          <div class="phone-screen">
+            <div class="app-header">
+              <div class="app-header-row">
+                <div class="app-nav-btn"></div>
+                <div class="app-week">Finder</div>
+                <div class="app-nav-btn"></div>
+              </div>
+            </div>
+            <div class="app-tabs">
+              <div class="app-tab">Timesheet</div>
+              <div class="app-tab">Notes</div>
+              <div class="app-tab active">Finder</div>
+            </div>
+            <div class="finder-body">
+              <div class="finder-tabs">
+                <div class="finder-tab active">
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    style="display:inline-block;vertical-align:middle;margin-right:2px">
+                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                    <circle cx="12" cy="10" r="3" />
+                  </svg>
+                  Exchanges
+                </div>
+                <div class="finder-tab">
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    style="display:inline-block;vertical-align:middle;margin-right:2px">
+                    <rect x="2" y="2" width="20" height="8" rx="2" />
+                    <rect x="2" y="14" width="20" height="8" rx="2" />
+                  </svg>
+                  Cabinets
+                </div>
+              </div>
+              <div class="finder-search">
+                <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <circle cx="11" cy="11" r="8" />
+                  <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                </svg>
+                Search exchanges…
+              </div>
+              <div class="finder-item">
+                <div class="finder-icon">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                    <circle cx="12" cy="10" r="3" />
+                  </svg>
+                </div>
+                <div>
+                  <div class="finder-name">Bankstown Exchange</div>
+                  <div class="finder-sub">BKTN · Bankstown NSW</div>
+                </div>
+                <div class="finder-chevron"><svg width="9" height="9" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2.5">
+                    <polyline points="9 18 15 12 9 6" />
+                  </svg></div>
+              </div>
+              <div class="finder-item">
+                <div class="finder-icon">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                    <circle cx="12" cy="10" r="3" />
+                  </svg>
+                </div>
+                <div>
+                  <div class="finder-name">Parramatta Exchange</div>
+                  <div class="finder-sub">PRMT · Parramatta NSW</div>
+                </div>
+                <div class="finder-chevron"><svg width="9" height="9" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2.5">
+                    <polyline points="9 18 15 12 9 6" />
+                  </svg></div>
+              </div>
+              <div class="finder-item">
+                <div class="finder-icon">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                    <circle cx="12" cy="10" r="3" />
+                  </svg>
+                </div>
+                <div>
+                  <div class="finder-name">Liverpool Exchange</div>
+                  <div class="finder-sub">LVPL · Liverpool NSW</div>
+                </div>
+                <div class="finder-chevron"><svg width="9" height="9" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2.5">
+                    <polyline points="9 18 15 12 9 6" />
+                  </svg></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Phone 2: finder detail -->
+        <div class="phone secondary">
+          <div class="phone-notch"></div>
+          <div class="phone-screen">
+            <div class="app-header">
+              <div class="app-header-row">
+                <div class="app-nav-btn"></div>
+                <div class="app-week">Finder</div>
+                <div class="app-nav-btn"></div>
+              </div>
+            </div>
+            <div class="app-tabs">
+              <div class="app-tab">Timesheet</div>
+              <div class="app-tab">Notes</div>
+              <div class="app-tab active">Finder</div>
+            </div>
+            <div class="finder-body">
+              <div class="finder-tabs">
+                <div class="finder-tab active">Exchanges</div>
+                <div class="finder-tab">Cabinets</div>
+              </div>
+              <div class="finder-search">
+                <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <circle cx="11" cy="11" r="8" />
+                  <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                </svg>
+                Bankstown
+              </div>
+              <div class="finder-detail">
+                <div class="finder-detail-header">
+                  <div class="finder-detail-name">Bankstown Exchange</div>
+                  <div class="finder-detail-code">BKTN</div>
+                </div>
+                <div class="finder-detail-row">
+                  <div class="finder-detail-label">Address</div>
+                  <div class="finder-detail-val">14 Marion St, Bankstown NSW</div>
+                </div>
+                <div class="finder-detail-row">
+                  <div class="finder-detail-label">Coordinates</div>
+                  <div class="finder-detail-val" style="font-family:'DM Mono',monospace;font-size:7px;">-33.9173,
+                    151.0347</div>
+                </div>
+                <div class="finder-detail-row">
+                  <div class="finder-detail-label">Power</div>
+                  <div class="finder-detail-val">240V AC / Battery backup</div>
+                </div>
+                <div class="finder-detail-row">
+                  <div class="finder-detail-label">Security</div>
+                  <div class="finder-detail-val">Keypad — Code on file</div>
+                </div>
+                <div class="finder-detail-row">
+                  <div class="finder-detail-label">Emergency</div>
+                  <div class="finder-detail-val" style="color:var(--accent)">0400 123 456</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /phones -->
+    </div>
+  </section>
+
+
+  <!-- ════ FOOTER ════ -->
+  <footer class="footer">
+    <p><strong>Rian</strong> · Built for field technicians</p>
+    <p style="margin-top:6px">Data cached locally · Syncs to cloud · Mobile first</p>
+    <p style="margin-top:6px;font-size:11px;opacity:0.45">v3.6.75</p>
+    <div style="margin-top:24px">
+      <a href="https://morow01.github.io/rian/" target="_blank" rel="noopener" class="btn-launch"
+        style="font-size:14px;padding:11px 24px;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+          stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="5 3 19 12 5 21 5 3" />
+        </svg>
+        Launch App
+      </a>
+    </div>
+  </footer>
+
+  <script>
+    // Smooth scroll for all in-page section links (navbar + any hero links)
+    document.querySelectorAll('a[data-section]').forEach(link => {
+      link.addEventListener('click', e => {
+        e.preventDefault();
+        const target = document.getElementById(link.dataset.section);
+        if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    });
+
+    // Highlight active nav-link based on scroll position
+    const sections = ['timesheet', 'notes', 'finder'].map(id => document.getElementById(id));
+    const navLinks = document.querySelectorAll('a.nav-link[data-section]');
+    window.addEventListener('scroll', () => {
+      const scrollY = window.scrollY + 100;
+      let current = 0;
+      sections.forEach((s, i) => { if (s && s.offsetTop <= scrollY) current = i; });
+      navLinks.forEach((t, i) => t.classList.toggle('active', i === current));
+    }, { passive: true });
+  </script>
+
+</body>
+
+</html>

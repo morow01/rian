@@ -1,0 +1,798 @@
+<!doctype html>
+<html data-theme="claude">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Rian — Desktop Three-Panel Mockup</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  /* ── Claude (default light) ── */
+  :root {
+    --font-body: 'DM Sans', sans-serif;
+    --font-mono: 'DM Mono', monospace;
+    --bg-page: #E8EEF5;
+    --bg-header: #0F1C2E;
+    --bg-header-tab: #162438;
+    --text-header: #FFFFFF;
+    --text-header-sub: rgba(255, 255, 255, 0.6);
+    --bg-card: #FFFFFF;
+    --bg-card-alt: #F4F7FA;
+    --bg-day-header: #FFFFFF;
+    --bg-input: #f8fafc;
+    --bg-code-group: #F4F7FA;
+    --bg-segment-active: #FFFFFF;
+    --bg-modal: #FFFFFF;
+    --accent: #2D6BE4;
+    --accent-light: #EBF1FD;
+    --accent-chip-bg: #EBF1FD;
+    --accent-chip-text: #1A4FB5;
+    --accent-rgb: 45, 107, 228;
+    --text-primary: #0F1C2E;
+    --text-secondary: #4A6580;
+    --text-muted: #8BA5BE;
+    --text-input: #0F1C2E;
+    --text-hours: #2D6BE4;
+    --text-ot: #F5A623;
+    --border: #D4E0EC;
+    --border-input: #D4E0EC;
+    --border-subtle: #EAEFF5;
+    --border-medium: #E0E8F0;
+    --shadow-card: 0 1px 4px rgba(15, 28, 46, 0.08);
+    --shadow-rgb: 0, 0, 0;
+    --shadow-brand-rgb: 15, 28, 46;
+    --overlay: rgba(15, 28, 46, 0.55);
+    --slate-alpha-10: rgba(148, 163, 184, 0.10);
+    --slate-alpha-40: rgba(148, 163, 184, 0.40);
+    --amber-rgb: 245, 166, 35;
+    --amber-alpha-10: rgba(var(--amber-rgb), 0.10);
+    --tab-active: #F5A623;
+  }
+
+  /* ── Dark ── */
+  [data-theme="dark"] {
+    --bg-page: #0f1624;
+    --bg-header: #090e1c;
+    --bg-header-tab: #1e293b;
+    --bg-card: #1e293b;
+    --bg-card-alt: #273449;
+    --bg-day-header: #1e293b;
+    --bg-input: #171f2d;
+    --bg-code-group: #141c2b;
+    --bg-segment-active: #273449;
+    --bg-modal: #1e293b;
+    --text-header: #f1f5f9;
+    --text-header-sub: rgba(255, 255, 255, 0.6);
+    --text-primary: #f1f5f9;
+    --text-secondary: #cbd5e1;
+    --text-muted: #94a3b8;
+    --text-input: #f1f5f9;
+    --text-hours: #60a5fa;
+    --text-ot: #fbbf24;
+    --accent: #4d94ff;
+    --accent-light: #1a3272;
+    --accent-rgb: 77, 148, 255;
+    --accent-chip-bg: #1a3272;
+    --accent-chip-text: #93c5fd;
+    --border: #334155;
+    --border-input: #475569;
+    --border-subtle: #253347;
+    --border-medium: #334155;
+    --shadow-card: 0 1px 4px rgba(0, 0, 0, 0.2);
+    --shadow-rgb: 0, 0, 0;
+    --shadow-brand-rgb: 0, 0, 0;
+    --overlay: rgba(0, 0, 0, 0.75);
+    --slate-alpha-10: rgba(148, 163, 184, 0.18);
+    --slate-alpha-40: rgba(148, 163, 184, 0.40);
+    --amber-rgb: 251, 191, 36;
+    --amber-alpha-10: rgba(var(--amber-rgb), 0.18);
+    --tab-active: #F5A623;
+  }
+
+  * { box-sizing: border-box; margin: 0; }
+  body {
+    font-family: var(--font-body);
+    background: var(--bg-page);
+    color: var(--text-primary);
+    -webkit-font-smoothing: antialiased;
+    padding: 0;
+    min-height: 100vh;
+  }
+
+  /* ── Theme switcher bar ── */
+  .theme-bar {
+    position: sticky; top: 0; z-index: 100;
+    display: flex; gap: 6px; padding: 8px 16px;
+    background: var(--bg-header); border-bottom: 1px solid var(--border);
+    align-items: center;
+  }
+  .theme-bar-label {
+    font-size: 11px; font-weight: 700; color: var(--text-header-sub);
+    text-transform: uppercase; letter-spacing: 0.08em; margin-right: 8px;
+  }
+  .theme-bar button {
+    padding: 5px 12px; border-radius: 999px; border: 1px solid transparent;
+    font-size: 11px; font-weight: 600; cursor: pointer;
+    background: transparent; color: var(--text-header-sub);
+    transition: all 0.15s; font-family: var(--font-body);
+  }
+  .theme-bar button.active {
+    background: var(--accent); color: #fff; border-color: var(--accent);
+  }
+  .theme-bar button:not(.active):hover {
+    background: rgba(255,255,255,0.08);
+  }
+
+  /* ── App header ── */
+  .app-header {
+    background: var(--bg-header); color: var(--text-header);
+    padding: 14px 20px; display: flex; align-items: center; gap: 12px;
+  }
+  .hdr-nav-btn {
+    width: 32px; height: 32px; border-radius: 8px;
+    background: rgba(255, 255, 255, 0.08); border: none;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; color: var(--text-header); font-size: 16px;
+    transition: background 0.15s; flex-shrink: 0;
+  }
+  .hdr-nav-btn:hover { background: rgba(255, 255, 255, 0.15); }
+  .hdr-center { flex: 1; text-align: center; }
+  .hdr-title { font-size: 15px; font-weight: 700; }
+  .hdr-sub { font-size: 11px; color: var(--text-header-sub); margin-top: 2px; }
+
+  /* ── Metric tiles in header ── */
+  .hdr-metrics {
+    display: flex; gap: 8px; padding: 0 20px 14px;
+    background: var(--bg-header);
+  }
+  .hdr-metric-tile {
+    flex: 1; background: rgba(255, 255, 255, 0.07);
+    border-radius: 12px; padding: 10px 14px;
+  }
+  .hdr-metric-val {
+    font-size: 20px; font-weight: 800; font-family: var(--font-mono);
+    color: #fff; line-height: 1;
+  }
+  .hdr-metric-val.ot { color: var(--text-ot); }
+  .hdr-metric-lbl {
+    font-size: 10px; font-weight: 600; letter-spacing: 0.1em;
+    text-transform: uppercase; color: rgba(255, 255, 255, 0.3); margin-top: 4px;
+  }
+
+  /* ── Tab nav ── */
+  .tab-nav {
+    display: flex; background: var(--bg-header);
+    border-bottom: 2px solid var(--bg-header-tab); padding: 0 16px;
+  }
+  .tab-nav button {
+    flex: none; padding: 10px 20px; border: none; background: none;
+    font-size: 11px; font-weight: 700; color: var(--text-muted);
+    cursor: pointer; border-bottom: 2px solid transparent;
+    margin-bottom: -2px; text-transform: uppercase; letter-spacing: 0.05em;
+    font-family: var(--font-body); transition: color 0.15s;
+  }
+  .tab-nav button.active { color: var(--tab-active); border-bottom-color: var(--tab-active); }
+  .tab-nav button:hover:not(.active) { color: var(--text-secondary); }
+
+  /* ── Three-panel layout ── */
+  .three-panel {
+    display: flex; max-width: 1400px; margin: 0 auto;
+    min-height: calc(100vh - 160px);
+  }
+
+  /* Panel: Days */
+  .panel-days {
+    width: 260px; min-width: 260px;
+    border-right: 1px solid var(--border);
+    background: var(--bg-page);
+    display: flex; flex-direction: column;
+  }
+  .panel-days-header {
+    padding: 14px 14px 10px;
+    font-size: 11px; font-weight: 700; color: var(--text-muted);
+    text-transform: uppercase; letter-spacing: 0.06em;
+    border-bottom: 1px solid var(--border-subtle);
+  }
+
+  .day-row {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 14px; cursor: pointer;
+    border-bottom: 1px solid var(--border-subtle);
+    transition: background 0.12s;
+    border-left: 3px solid transparent;
+  }
+  .day-row:hover { background: var(--accent-light); }
+  .day-row.selected { background: var(--accent-light); border-left-color: var(--accent); }
+  .day-row.today .date-badge { background: var(--accent); }
+
+  .date-badge {
+    width: 34px; height: 34px; min-width: 34px; border-radius: 10px;
+    background: var(--text-muted); color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; font-weight: 700;
+  }
+  .day-info { flex: 1; min-width: 0; }
+  .day-name { font-size: 13px; font-weight: 700; color: var(--text-primary); }
+  .day-date { font-size: 11px; color: var(--text-muted); }
+  .day-pills { display: flex; gap: 5px; margin-top: 3px; }
+
+  .pill {
+    font-size: 10px; font-weight: 600; border-radius: 6px; padding: 2px 7px;
+    line-height: 1.4;
+  }
+  .pill-slate { background: var(--slate-alpha-10); color: var(--text-secondary); }
+  .pill-blue { background: var(--accent-chip-bg); color: var(--accent-chip-text); font-family: var(--font-mono); }
+  .pill-amber { background: var(--amber-alpha-10); color: var(--text-ot); font-family: var(--font-mono); }
+
+  .day-empty { font-size: 10px; color: var(--text-muted); margin-top: 3px; }
+
+  /* Summary in days panel */
+  .panel-summary {
+    margin-top: auto; padding: 12px;
+  }
+  .summary-bar {
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 12px 14px;
+    box-shadow: var(--shadow-card);
+  }
+  .summary-title {
+    font-size: 12px; font-weight: 700; color: var(--text-secondary);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .summary-badge {
+    background: var(--accent-chip-bg); color: var(--accent-chip-text);
+    font-size: 12px; font-weight: 700; font-family: var(--font-mono);
+    padding: 2px 8px; border-radius: 6px;
+  }
+  .summary-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 6px 0; font-size: 12px;
+  }
+  .summary-row + .summary-row { border-top: 1px solid var(--border-subtle); }
+  .summary-code { color: var(--text-secondary); font-weight: 500; }
+  .summary-hrs { font-family: var(--font-mono); font-weight: 700; color: var(--text-hours); }
+
+  /* Panel: Tasks list */
+  .panel-tasks {
+    width: 320px; min-width: 320px;
+    border-right: 1px solid var(--border);
+    background: var(--bg-card); overflow-y: auto;
+    display: flex; flex-direction: column;
+  }
+  .panel-tasks-header {
+    padding: 14px 14px 10px;
+    font-size: 12px; font-weight: 700; color: var(--text-secondary);
+    border-bottom: 1px solid var(--border-subtle);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .panel-tasks-header .badge {
+    width: 28px; height: 28px; border-radius: 8px; background: var(--accent);
+    color: #fff; display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 13px;
+  }
+  .panel-tasks-list { padding: 10px 12px; flex: 1; }
+
+  .task-card {
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 12px 14px; margin-bottom: 8px;
+    cursor: pointer; transition: all 0.12s;
+    box-shadow: var(--shadow-card);
+  }
+  .task-card:hover { border-color: rgba(var(--accent-rgb), 0.4); }
+  .task-card.selected {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px rgba(var(--accent-rgb), 0.15);
+    background: var(--accent-light);
+  }
+  .task-title { font-size: 14px; font-weight: 600; color: var(--text-primary); }
+  .task-meta {
+    font-size: 12px; color: var(--text-muted); margin-top: 4px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .task-hrs {
+    font-family: var(--font-mono); font-weight: 700;
+    color: var(--text-hours); font-size: 12px;
+  }
+
+  .add-task-btn {
+    width: 100%; padding: 10px; margin-top: 4px;
+    border: 1px dashed var(--border); border-radius: 12px;
+    background: none; color: var(--accent); font-weight: 700;
+    font-size: 12px; cursor: pointer; font-family: var(--font-body);
+    transition: background 0.12s;
+  }
+  .add-task-btn:hover { background: var(--accent-light); }
+
+  /* Panel: Detail */
+  .panel-detail {
+    flex: 1; padding: 20px 28px; overflow-y: auto;
+    background: var(--bg-page);
+  }
+  .detail-header {
+    font-size: 16px; font-weight: 700; margin-bottom: 20px;
+    display: flex; align-items: center; gap: 10px;
+    color: var(--text-primary);
+  }
+  .detail-header .num-badge {
+    background: var(--accent); color: #fff;
+    width: 30px; height: 30px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; font-weight: 700; flex-shrink: 0;
+  }
+  .detail-form {
+    display: flex; flex-direction: column; gap: 16px;
+    max-width: 600px;
+  }
+  .field-group { display: flex; flex-direction: column; gap: 4px; }
+  .field-label {
+    font-size: 10px; font-weight: 800; text-transform: uppercase;
+    color: var(--text-muted); letter-spacing: 0.06em;
+  }
+  .field-input {
+    width: 100%; padding: 10px 12px; border: 1px solid var(--border-input);
+    border-radius: 12px; font-size: 14px; background: var(--bg-input);
+    color: var(--text-input); outline: none; font-family: var(--font-body);
+    transition: border-color 0.15s;
+  }
+  .field-input:focus { border-color: var(--accent); }
+  .field-input.note-field {
+    min-height: 80px; resize: vertical;
+  }
+  .field-placeholder { color: var(--text-muted); }
+
+  /* Work codes chips */
+  .codes-wrap {
+    display: flex; gap: 6px; flex-wrap: wrap;
+    padding: 10px 12px; border: 1px solid var(--border-input);
+    border-radius: 12px; background: var(--bg-input); min-height: 44px;
+    align-items: center;
+  }
+  .code-chip {
+    background: var(--bg-code-group); padding: 5px 10px; border-radius: 8px;
+    font-size: 12px; font-weight: 500; color: var(--text-primary);
+    display: flex; align-items: center; gap: 6px;
+  }
+  .code-chip-sub { color: var(--text-muted); font-size: 10px; font-family: var(--font-mono); }
+
+  /* Hours row */
+  .hrs-row { display: flex; gap: 12px; }
+  .hrs-box {
+    flex: 1; text-align: center; padding: 14px 10px;
+    border: 1px solid var(--border-input); border-radius: 12px;
+    background: var(--bg-input);
+  }
+  .hrs-val {
+    font-size: 24px; font-weight: 700; font-family: var(--font-mono);
+    color: var(--text-hours);
+  }
+  .hrs-val.ot { color: var(--text-ot); }
+  .hrs-label {
+    font-size: 10px; font-weight: 700; color: var(--text-muted);
+    text-transform: uppercase; letter-spacing: 0.05em; margin-top: 4px;
+  }
+
+  /* Detail actions */
+  .detail-actions {
+    display: flex; gap: 8px; margin-top: 8px; padding-top: 16px;
+    border-top: 1px solid var(--border-subtle);
+  }
+  .detail-btn {
+    padding: 8px 16px; border-radius: 10px; border: 1px solid var(--border);
+    background: var(--bg-card); color: var(--text-secondary);
+    font-size: 12px; font-weight: 600; cursor: pointer;
+    font-family: var(--font-body); transition: all 0.12s;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .detail-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .detail-btn.primary {
+    background: var(--accent); color: #fff; border-color: var(--accent);
+  }
+  .detail-btn.primary:hover { opacity: 0.9; }
+
+  /* ── Empty state ── */
+  .empty-state {
+    display: flex; flex-direction: column; align-items: center;
+    justify-content: center; height: 100%; color: var(--text-muted);
+    gap: 8px; padding: 40px;
+  }
+  .empty-state svg { opacity: 0.4; }
+  .empty-state p { font-size: 13px; }
+</style>
+</head>
+<body>
+
+<!-- Theme switcher -->
+<div class="theme-bar">
+  <span class="theme-bar-label">Theme</span>
+  <button class="active" onclick="switchTheme('claude', this)">Claude</button>
+  <button onclick="switchTheme('dark', this)">Dark</button>
+</div>
+
+<!-- App header -->
+<div class="app-header">
+  <button class="hdr-nav-btn">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>
+  </button>
+  <div class="hdr-center">
+    <div class="hdr-title">17 Apr – 23 Apr</div>
+    <div class="hdr-sub">Synced v5.7.5</div>
+  </div>
+  <button class="hdr-nav-btn">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>
+  </button>
+  <button class="hdr-nav-btn" style="margin-left:8px">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+  </button>
+</div>
+
+<!-- Metric tiles -->
+<div class="hdr-metrics">
+  <div class="hdr-metric-tile">
+    <div class="hdr-metric-val">9.0</div>
+    <div class="hdr-metric-lbl">Ordinary</div>
+  </div>
+  <div class="hdr-metric-tile">
+    <div class="hdr-metric-val ot">0.0</div>
+    <div class="hdr-metric-lbl">Overtime</div>
+  </div>
+  <div class="hdr-metric-tile">
+    <div class="hdr-metric-val">9.0</div>
+    <div class="hdr-metric-lbl">Total</div>
+  </div>
+</div>
+
+<!-- Tab nav -->
+<div class="tab-nav">
+  <button class="active">Timesheet</button>
+  <button>Notes</button>
+  <button>Journal</button>
+  <button>Finder</button>
+  <button>Callouts</button>
+  <button>Routines</button>
+</div>
+
+<!-- Three-panel content -->
+<div class="three-panel">
+
+  <!-- Left: Days -->
+  <div class="panel-days">
+    <div class="panel-days-header">Week Days</div>
+
+    <div class="day-row selected today" onclick="selectDay(this, 'fri')">
+      <div class="date-badge" style="background:var(--accent)">17</div>
+      <div class="day-info">
+        <div class="day-name">Friday</div>
+        <div class="day-date">17 April</div>
+        <div class="day-pills">
+          <span class="pill pill-slate">3 tasks</span>
+          <span class="pill pill-blue">7h</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="day-row" onclick="selectDay(this, 'mon')">
+      <div class="date-badge">20</div>
+      <div class="day-info">
+        <div class="day-name">Monday</div>
+        <div class="day-date">20 April</div>
+        <div class="day-pills">
+          <span class="pill pill-slate">2 tasks</span>
+          <span class="pill pill-blue">2h</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="day-row" onclick="selectDay(this, 'tue')">
+      <div class="date-badge">21</div>
+      <div class="day-info">
+        <div class="day-name">Tuesday</div>
+        <div class="day-date">21 April</div>
+        <div class="day-empty">No entries</div>
+      </div>
+    </div>
+
+    <div class="day-row" onclick="selectDay(this, 'wed')">
+      <div class="date-badge">22</div>
+      <div class="day-info">
+        <div class="day-name">Wednesday</div>
+        <div class="day-date">22 April</div>
+        <div class="day-empty">No entries</div>
+      </div>
+    </div>
+
+    <div class="day-row" onclick="selectDay(this, 'thu')">
+      <div class="date-badge">23</div>
+      <div class="day-info">
+        <div class="day-name">Thursday</div>
+        <div class="day-date">23 April</div>
+        <div class="day-empty">No entries</div>
+      </div>
+    </div>
+
+    <!-- Weekend rows (dimmed) -->
+    <div class="day-row" onclick="selectDay(this, 'sat')" style="opacity:0.5">
+      <div class="date-badge">18</div>
+      <div class="day-info">
+        <div class="day-name">Saturday</div>
+        <div class="day-date">18 April</div>
+        <div class="day-empty">Weekend</div>
+      </div>
+    </div>
+
+    <div class="day-row" onclick="selectDay(this, 'sun')" style="opacity:0.5">
+      <div class="date-badge">19</div>
+      <div class="day-info">
+        <div class="day-name">Sunday</div>
+        <div class="day-date">19 April</div>
+        <div class="day-empty">Weekend</div>
+      </div>
+    </div>
+
+    <!-- Summary -->
+    <div class="panel-summary">
+      <div class="summary-bar">
+        <div class="summary-title">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+          Weekly Summary
+          <span class="summary-badge">9h</span>
+        </div>
+        <div style="margin-top:8px">
+          <div class="summary-row">
+            <span class="summary-code">Routines</span>
+            <span class="summary-hrs">4h</span>
+          </div>
+          <div class="summary-row">
+            <span class="summary-code">Training</span>
+            <span class="summary-hrs">2h</span>
+          </div>
+          <div class="summary-row">
+            <span class="summary-code">Install</span>
+            <span class="summary-hrs">3h</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Middle: Tasks list -->
+  <div class="panel-tasks" id="panel-tasks">
+    <div class="panel-tasks-header">
+      <span class="badge">17</span>
+      <span>Friday · 17 Apr · 3 tasks</span>
+    </div>
+    <div class="panel-tasks-list" id="tasks-list">
+      <div class="task-card selected" onclick="selectTask(this, 0)">
+        <div class="task-title">Collins Lane</div>
+        <div class="task-meta">
+          <span>CSA</span>
+          <span style="color:var(--border)">·</span>
+          <span class="task-hrs">1h</span>
+        </div>
+      </div>
+      <div class="task-card" onclick="selectTask(this, 1)">
+        <div class="task-title">Routines</div>
+        <div class="task-meta">
+          <span>KLE</span>
+          <span style="color:var(--border)">·</span>
+          <span class="task-hrs">4h</span>
+        </div>
+      </div>
+      <div class="task-card" onclick="selectTask(this, 2)">
+        <div class="task-title">GDPR Course</div>
+        <div class="task-meta">
+          <span>Training</span>
+          <span style="color:var(--border)">·</span>
+          <span class="task-hrs">2h</span>
+        </div>
+      </div>
+      <button class="add-task-btn">+ Add Task</button>
+    </div>
+  </div>
+
+  <!-- Right: Task detail -->
+  <div class="panel-detail" id="panel-detail">
+    <div class="detail-header">
+      <span class="num-badge">1</span>
+      Collins Lane
+    </div>
+    <div class="detail-form">
+      <div class="field-group">
+        <div class="field-label">Description</div>
+        <input class="field-input" value="Collins Lane">
+      </div>
+      <div class="field-group">
+        <div class="field-label">Notes</div>
+        <div class="field-input note-field field-placeholder">+ Add a note...</div>
+      </div>
+      <div class="field-group">
+        <div class="field-label">Location</div>
+        <input class="field-input" value="Collins Lane (CSA)">
+      </div>
+      <div class="field-group">
+        <div class="field-label">Work Codes</div>
+        <div class="codes-wrap">
+          <span class="code-chip">
+            Routines
+            <span class="code-chip-sub">WRT0001A01</span>
+          </span>
+        </div>
+      </div>
+      <div class="hrs-row">
+        <div class="hrs-box">
+          <div class="hrs-val">1</div>
+          <div class="hrs-label">Ordinary</div>
+        </div>
+        <div class="hrs-box">
+          <div class="hrs-val ot">0</div>
+          <div class="hrs-label">Overtime</div>
+        </div>
+      </div>
+      <div class="detail-actions">
+        <button class="detail-btn">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+          Copy
+        </button>
+        <button class="detail-btn">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          Move
+        </button>
+        <button class="detail-btn" style="margin-left:auto;color:var(--text-muted);border-color:transparent;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+          Delete
+        </button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// Task data for demo interactivity
+const taskData = {
+  fri: [
+    { title: 'Collins Lane', loc: 'CSA', hrs: 1, ot: 0, desc: 'Collins Lane', locFull: 'Collins Lane (CSA)', code: 'Routines', codeSub: 'WRT0001A01', note: '' },
+    { title: 'Routines', loc: 'KLE', hrs: 4, ot: 0, desc: 'Routines — Kildare exchanges', locFull: 'Kildare (KLE)', code: 'Routines', codeSub: 'WRT0001A01', note: 'Checked main exchange, all readings normal' },
+    { title: 'GDPR Course', loc: 'Training', hrs: 2, ot: 0, desc: 'GDPR Annual Refresher', locFull: '—', code: 'Training COps FE', codeSub: 'TRN0004B01', note: '' },
+  ],
+  mon: [
+    { title: 'Maynooth Fibre', loc: 'MYN', hrs: 1, ot: 0.5, desc: 'Maynooth fibre install', locFull: 'Maynooth (MYN)', code: 'Install', codeSub: 'INS0002A01', note: 'New fibre run from cab 4' },
+    { title: 'Leixlip Check', loc: 'LXP', hrs: 1, ot: 0, desc: 'Leixlip battery check', locFull: 'Leixlip (LXP)', code: 'Routines', codeSub: 'WRT0001A01', note: '' },
+  ],
+  tue: [], wed: [], thu: [], sat: [], sun: []
+};
+
+const dayLabels = {
+  fri: { name: 'Friday', date: '17 Apr', num: '17', count: 3 },
+  mon: { name: 'Monday', date: '20 Apr', num: '20', count: 2 },
+  tue: { name: 'Tuesday', date: '21 Apr', num: '21', count: 0 },
+  wed: { name: 'Wednesday', date: '22 Apr', num: '22', count: 0 },
+  thu: { name: 'Thursday', date: '23 Apr', num: '23', count: 0 },
+  sat: { name: 'Saturday', date: '18 Apr', num: '18', count: 0 },
+  sun: { name: 'Sunday', date: '19 Apr', num: '19', count: 0 },
+};
+
+let currentDay = 'fri';
+let currentTask = 0;
+
+function selectDay(el, dayKey) {
+  document.querySelectorAll('.day-row').forEach(r => r.classList.remove('selected'));
+  el.classList.add('selected');
+  currentDay = dayKey;
+  currentTask = 0;
+  renderTasks();
+  renderDetail();
+}
+
+function selectTask(el, idx) {
+  document.querySelectorAll('.task-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  currentTask = idx;
+  renderDetail();
+}
+
+function renderTasks() {
+  const tasks = taskData[currentDay] || [];
+  const day = dayLabels[currentDay];
+  const header = document.querySelector('.panel-tasks-header');
+  const taskCount = tasks.length;
+  header.innerHTML = `<span class="badge">${day.num}</span><span>${day.name} · ${day.date} · ${taskCount} task${taskCount !== 1 ? 's' : ''}</span>`;
+
+  const list = document.getElementById('tasks-list');
+  if (tasks.length === 0) {
+    list.innerHTML = `
+      <div class="empty-state" style="padding:40px 20px">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="9" x2="15" y2="15"/><line x1="15" y1="9" x2="9" y2="15"/></svg>
+        <p>No tasks for ${day.name}</p>
+      </div>
+      <button class="add-task-btn">+ Add Task</button>`;
+  } else {
+    list.innerHTML = tasks.map((t, i) =>
+      `<div class="task-card${i === 0 ? ' selected' : ''}" onclick="selectTask(this, ${i})">
+        <div class="task-title">${t.title}</div>
+        <div class="task-meta">
+          <span>${t.loc}</span>
+          <span style="color:var(--border)">·</span>
+          <span class="task-hrs">${t.hrs}h${t.ot ? ' + ' + t.ot + 'h OT' : ''}</span>
+        </div>
+      </div>`
+    ).join('') + '<button class="add-task-btn">+ Add Task</button>';
+  }
+}
+
+function renderDetail() {
+  const tasks = taskData[currentDay] || [];
+  const detail = document.getElementById('panel-detail');
+
+  if (tasks.length === 0) {
+    detail.innerHTML = `
+      <div class="empty-state">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        <p>Select a task to view details</p>
+      </div>`;
+    return;
+  }
+
+  const t = tasks[currentTask] || tasks[0];
+  const idx = currentTask + 1;
+  detail.innerHTML = `
+    <div class="detail-header">
+      <span class="num-badge">${idx}</span>
+      ${t.title}
+    </div>
+    <div class="detail-form">
+      <div class="field-group">
+        <div class="field-label">Description</div>
+        <input class="field-input" value="${t.desc}">
+      </div>
+      <div class="field-group">
+        <div class="field-label">Notes</div>
+        <div class="field-input note-field ${t.note ? '' : 'field-placeholder'}">${t.note || '+ Add a note...'}</div>
+      </div>
+      <div class="field-group">
+        <div class="field-label">Location</div>
+        <input class="field-input" value="${t.locFull}">
+      </div>
+      <div class="field-group">
+        <div class="field-label">Work Codes</div>
+        <div class="codes-wrap">
+          <span class="code-chip">
+            ${t.code}
+            <span class="code-chip-sub">${t.codeSub}</span>
+          </span>
+        </div>
+      </div>
+      <div class="hrs-row">
+        <div class="hrs-box">
+          <div class="hrs-val">${t.hrs}</div>
+          <div class="hrs-label">Ordinary</div>
+        </div>
+        <div class="hrs-box">
+          <div class="hrs-val${t.ot ? ' ot' : ''}">${t.ot}</div>
+          <div class="hrs-label">Overtime</div>
+        </div>
+      </div>
+      <div class="detail-actions">
+        <button class="detail-btn">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+          Copy
+        </button>
+        <button class="detail-btn">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          Move
+        </button>
+        <button class="detail-btn" style="margin-left:auto;color:var(--text-muted);border-color:transparent;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+          Delete
+        </button>
+      </div>
+    </div>`;
+}
+
+function switchTheme(theme, btn) {
+  document.documentElement.setAttribute('data-theme', theme);
+  document.querySelectorAll('.theme-bar button').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+</script>
+
+</body>
+</html>

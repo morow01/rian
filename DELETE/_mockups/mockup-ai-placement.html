@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fault AI – UI Placement Mockups</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f0f4f8; padding: 20px; }
+  h1 { text-align: center; font-size: 16px; color: #475569; margin-bottom: 20px; font-weight: 500; letter-spacing: 0.05em; text-transform: uppercase; }
+
+  .options { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; }
+
+  .option { flex: 1; min-width: 260px; max-width: 300px; }
+  .option-label { text-align: center; font-size: 13px; font-weight: 700; color: #1e293b; margin-bottom: 8px; }
+  .option-sub { text-align: center; font-size: 11px; color: #64748b; margin-bottom: 12px; line-height: 1.4; }
+
+  /* Phone frame */
+  .phone { border-radius: 36px; background: #1a1a2e; padding: 10px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
+  .screen { border-radius: 28px; overflow: hidden; background: #f1f5f9; }
+
+  /* Header */
+  .app-header { background: #1e293b; padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; }
+  .app-header .week { color: #fff; font-size: 13px; font-weight: 600; }
+  .app-header .icons { display: flex; gap: 10px; align-items: center; }
+  .app-header .icon-btn { color: #94a3b8; font-size: 16px; cursor: pointer; transition: color .2s; }
+  .app-header .icon-btn.ai { color: #f59e0b; font-size: 18px; }
+  .synced { color: #4ade80; font-size: 10px; display: block; text-align: center; }
+
+  /* Tabs */
+  .tabs { display: flex; background: #1e293b; border-top: 1px solid #334155; }
+  .tab { flex: 1; text-align: center; padding: 8px 4px; font-size: 10px; font-weight: 600; color: #64748b; letter-spacing: 0.05em; cursor: pointer; }
+  .tab.active { color: #f59e0b; border-bottom: 2px solid #f59e0b; }
+  .tab.ai-tab { color: #818cf8; }
+  .tab.ai-tab.active { color: #818cf8; border-bottom: 2px solid #818cf8; }
+
+  /* Day list */
+  .day-row { background: #fff; border-bottom: 1px solid #e2e8f0; padding: 10px 14px; display: flex; align-items: center; justify-content: space-between; }
+  .day-row .day-name { font-size: 12px; font-weight: 600; color: #1e293b; }
+  .day-row .day-date { font-size: 11px; color: #94a3b8; margin-left: 6px; }
+  .day-row .no-entries { font-size: 10px; color: #cbd5e1; }
+  .day-row.weekend { opacity: 0.4; }
+
+  /* Activity card */
+  .activity-card { background: #fff; margin: 8px; border-radius: 12px; padding: 12px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+  .field-label { font-size: 10px; font-weight: 700; color: #64748b; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 4px; display: flex; justify-content: space-between; align-items: center; }
+  .field-input { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px 10px; font-size: 12px; color: #1e293b; margin-bottom: 10px; }
+  .ask-ai-btn { font-size: 9px; font-weight: 700; background: #818cf8; color: #fff; border: none; border-radius: 20px; padding: 3px 8px; cursor: pointer; }
+
+  /* AI panel overlay */
+  .ai-panel { position: relative; background: #fff; }
+  .ai-panel-header { background: #1e293b; padding: 12px 16px; display: flex; align-items: center; gap: 10px; }
+  .ai-panel-header .close { color: #94a3b8; font-size: 16px; }
+  .ai-panel-header .title { color: #fff; font-size: 13px; font-weight: 700; flex: 1; }
+  .ai-search-bar { margin: 12px; background: #f1f5f9; border-radius: 10px; padding: 8px 12px; display: flex; align-items: center; gap: 8px; border: 1.5px solid #e2e8f0; }
+  .ai-search-bar input-mock { flex: 1; font-size: 12px; color: #1e293b; }
+  .ai-search-bar .search-icon { color: #818cf8; font-size: 14px; }
+  .ai-response { margin: 0 12px 12px; background: #f8f7ff; border-radius: 10px; padding: 10px 12px; border-left: 3px solid #818cf8; }
+  .ai-response .ai-label { font-size: 9px; font-weight: 700; color: #818cf8; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px; }
+  .ai-response .ai-text { font-size: 11px; color: #334155; line-height: 1.5; }
+  .ai-response .ai-source { font-size: 10px; color: #94a3b8; margin-top: 6px; font-style: italic; }
+
+  /* AI tab view */
+  .ai-tab-view { padding: 12px; }
+  .ai-tab-hero { text-align: center; padding: 16px 0 12px; }
+  .ai-tab-hero .icon { font-size: 32px; }
+  .ai-tab-hero .title { font-size: 14px; font-weight: 700; color: #1e293b; margin-top: 6px; }
+  .ai-tab-hero .sub { font-size: 11px; color: #64748b; margin-top: 3px; }
+  .recent-label { font-size: 10px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.06em; margin: 12px 0 6px; }
+  .recent-item { background: #fff; border-radius: 8px; padding: 8px 12px; margin-bottom: 6px; display: flex; align-items: center; gap: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); cursor: pointer; }
+  .recent-item .ri-icon { font-size: 14px; }
+  .recent-item .ri-text { font-size: 11px; color: #334155; font-weight: 500; }
+  .recent-item .ri-date { font-size: 10px; color: #94a3b8; margin-left: auto; }
+
+  /* Inline AI result under notes */
+  .inline-ai-result { background: #f8f7ff; border-radius: 8px; padding: 8px 10px; border-left: 3px solid #818cf8; margin-top: 0; margin-bottom: 10px; }
+  .inline-ai-result .label { font-size: 9px; font-weight: 700; color: #818cf8; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 4px; }
+  .inline-ai-result .text { font-size: 11px; color: #334155; line-height: 1.45; }
+  .inline-ai-result .source { font-size: 10px; color: #94a3b8; margin-top: 4px; font-style: italic; }
+
+  .option-badge { display: inline-block; background: #818cf8; color: #fff; font-size: 10px; font-weight: 700; border-radius: 4px; padding: 2px 7px; margin-bottom: 6px; }
+</style>
+</head>
+<body>
+
+<h1>Fault AI — UI Placement Options</h1>
+
+<div class="options">
+
+  <!-- OPTION A: Header Icon -->
+  <div class="option">
+    <div class="option-badge">Option A</div>
+    <div class="option-label">🤖 Header Icon</div>
+    <div class="option-sub">Tap the AI icon in the top bar → full-screen panel. Always reachable from any tab.</div>
+    <div class="phone">
+      <div class="screen">
+        <div class="app-header">
+          <span class="week">◀ &nbsp;23 Jan – 29 Jan &nbsp;▼&nbsp; ▶<br><span class="synced">✓ Synced v4.1.33</span></span>
+          <div class="icons">
+            <span class="icon-btn ai" title="Fault AI">🤖</span>
+            <span class="icon-btn">☰</span>
+          </div>
+        </div>
+        <div class="tabs">
+          <div class="tab active">TIMESHEET</div>
+          <div class="tab">NOTES</div>
+          <div class="tab">FINDER</div>
+        </div>
+        <!-- Simulated open AI panel overlay -->
+        <div class="ai-panel">
+          <div class="ai-panel-header">
+            <span class="close">✕</span>
+            <span class="title">🤖 Fault Assistant</span>
+          </div>
+          <div style="padding:4px 0 0">
+            <div class="ai-search-bar">
+              <span class="search-icon">🔍</span>
+              <span style="flex:1;font-size:12px;color:#1e293b;">CN Isolated</span>
+            </div>
+            <div class="ai-response">
+              <div class="ai-label">💡 Based on your past notes</div>
+              <div class="ai-text">When you had <strong>CN Isolated</strong> previously, the cause was a <strong>fibre break</strong> on the transmission span. Check for signal loss and measure fibre continuity from the exchange outward.</div>
+              <div class="ai-source">From 3 past entries · most recent: 14 Feb 2025</div>
+            </div>
+            <div style="margin:0 12px">
+              <div style="font-size:10px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;">Matching past notes</div>
+              <div style="background:#fff;border-radius:8px;padding:8px 10px;box-shadow:0 1px 3px rgba(0,0,0,.06);margin-bottom:6px;">
+                <div style="font-size:10px;color:#f59e0b;font-weight:700;">14 Feb 2025 · CN Isolated</div>
+                <div style="font-size:11px;color:#334155;margin-top:2px;line-height:1.4;">Transmission down. Measured fibre — found break 2.3km from exchange. Spliced and restored.</div>
+              </div>
+              <div style="background:#fff;border-radius:8px;padding:8px 10px;box-shadow:0 1px 3px rgba(0,0,0,.06);">
+                <div style="font-size:10px;color:#f59e0b;font-weight:700;">2 Nov 2024 · CN Isolated</div>
+                <div style="font-size:11px;color:#334155;margin-top:2px;line-height:1.4;">Loss of signal on span 3. Checked patch leads first — all OK. Eventually found dirty connector on ODF.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- OPTION B: Fourth Tab -->
+  <div class="option">
+    <div class="option-badge">Option B</div>
+    <div class="option-label">Fourth Tab (AI)</div>
+    <div class="option-sub">Permanent tab in the nav bar. The AI feature has its own dedicated home with recent query history.</div>
+    <div class="phone">
+      <div class="screen">
+        <div class="app-header">
+          <span class="week">◀ &nbsp;23 Jan – 29 Jan &nbsp;▼&nbsp; ▶<br><span class="synced">✓ Synced v4.1.33</span></span>
+          <div class="icons">
+            <span class="icon-btn">☰</span>
+          </div>
+        </div>
+        <div class="tabs">
+          <div class="tab">TIMESHEET</div>
+          <div class="tab">NOTES</div>
+          <div class="tab">FINDER</div>
+          <div class="tab ai-tab active">AI</div>
+        </div>
+        <div class="ai-tab-view">
+          <div class="ai-tab-hero">
+            <div class="icon">🤖</div>
+            <div class="title">Fault Assistant</div>
+            <div class="sub">Search your fault history with AI</div>
+          </div>
+          <div class="ai-search-bar" style="margin:0 0 0">
+            <span class="search-icon">🔍</span>
+            <span style="flex:1;font-size:12px;color:#94a3b8;">Ask about a fault...</span>
+          </div>
+          <div class="recent-label">Recent searches</div>
+          <div class="recent-item">
+            <span class="ri-icon">⚡</span>
+            <span class="ri-text">CN Isolated</span>
+            <span class="ri-date">today</span>
+          </div>
+          <div class="recent-item">
+            <span class="ri-icon">📡</span>
+            <span class="ri-text">Transmission loss</span>
+            <span class="ri-date">Mon</span>
+          </div>
+          <div class="recent-item">
+            <span class="ri-icon">🔋</span>
+            <span class="ri-text">Power RSU fault</span>
+            <span class="ri-date">last week</span>
+          </div>
+          <div class="recent-label">Your knowledge base</div>
+          <div style="background:#fff;border-radius:8px;padding:10px 12px;box-shadow:0 1px 3px rgba(0,0,0,.06);display:flex;justify-content:space-between;">
+            <div style="text-align:center;flex:1;">
+              <div style="font-size:20px;font-weight:800;color:#818cf8;">47</div>
+              <div style="font-size:10px;color:#94a3b8;">fault notes</div>
+            </div>
+            <div style="text-align:center;flex:1;">
+              <div style="font-size:20px;font-weight:800;color:#f59e0b;">12</div>
+              <div style="font-size:10px;color:#94a3b8;">fault types</div>
+            </div>
+            <div style="text-align:center;flex:1;">
+              <div style="font-size:20px;font-weight:800;color:#4ade80;">8</div>
+              <div style="font-size:10px;color:#94a3b8;">months data</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- OPTION C: In-activity Notes button -->
+  <div class="option">
+    <div class="option-badge">Option C</div>
+    <div class="option-label">🤖 Inside Activity Card</div>
+    <div class="option-sub">A small Ask AI button next to the Notes label. Searches past notes matching this activity's description and shows result inline.</div>
+    <div class="phone">
+      <div class="screen">
+        <div class="app-header">
+          <span class="week">◀ &nbsp;23 Jan – 29 Jan &nbsp;▼&nbsp; ▶<br><span class="synced">✓ Synced v4.1.33</span></span>
+          <div class="icons">
+            <span class="icon-btn">☰</span>
+          </div>
+        </div>
+        <div class="tabs">
+          <div class="tab active">TIMESHEET</div>
+          <div class="tab">NOTES</div>
+          <div class="tab">FINDER</div>
+        </div>
+        <div style="background:#e8edff;padding:6px 10px;font-size:10px;color:#4338ca;font-weight:600;">▼ Friday 23 Jan</div>
+        <div class="activity-card">
+          <div class="field-label">Description</div>
+          <div class="field-input">CN Isolated</div>
+
+          <div class="field-label">
+            <span>Notes</span>
+            <button class="ask-ai-btn">🤖 Ask AI</button>
+          </div>
+          <!-- AI result shown inline after tapping Ask AI -->
+          <div class="inline-ai-result">
+            <div class="label">💡 Based on 3 past entries</div>
+            <div class="text"><strong>CN Isolated</strong> has previously been caused by a <strong>fibre break</strong> on the transmission span and once by a dirty connector on the ODF. Start by checking signal loss and measuring fibre.</div>
+            <div class="source">Most recent: 14 Feb 2025</div>
+          </div>
+          <div class="field-input" style="min-height:52px;color:#94a3b8;font-size:11px;">Type your notes here…</div>
+
+          <div class="field-label">
+            <span>Work Codes</span>
+            <button style="font-size:9px;font-weight:700;background:#f59e0b;color:#fff;border:none;border-radius:20px;padding:3px 8px;cursor:pointer;">✨ Suggest</button>
+          </div>
+          <div class="field-input">MDS0002A10</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div style="text-align:center;margin-top:24px;font-size:12px;color:#64748b;max-width:700px;margin-left:auto;margin-right:auto;">
+  <strong>Note:</strong> All three options use the same AI backend — Gemini reads your past activity notes and synthesises an answer. The difference is only where you access it.<br><br>
+  <strong>Option A</strong> is best if you want to look up a fault <em>before</em> starting an activity.<br>
+  <strong>Option B</strong> gives the feature a permanent home with history and stats.<br>
+  <strong>Option C</strong> is most contextual — the AI knows the fault you're working on without you having to type it.
+</div>
+
+</body>
+</html>

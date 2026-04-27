@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Week History Search Review</title>
+<style>
+  * { box-sizing:border-box; }
+  :root {
+    --accent:#2D6BE4;
+    --accent-rgb:45,107,228;
+    --amber-rgb:245,158,11;
+    --priority-high-rgb:239,68,68;
+    --bg-page:#f4f7fb;
+    --bg-card:#fff;
+    --bg-card-alt:#f8fafc;
+    --bg-input:#eef3f8;
+    --border:#dfe7f0;
+    --text-primary:#172033;
+    --text-secondary:#536174;
+    --text-muted:#8a98aa;
+  }
+  body {
+    margin:0;
+    min-height:100vh;
+    background:var(--bg-page);
+    color:var(--text-primary);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  }
+  button,input { font-family:inherit; }
+  .top-nav {
+    height:58px;
+    background:#101827;
+    color:#fff;
+    display:flex;
+    align-items:center;
+    gap:18px;
+    padding:0 22px;
+  }
+  .brand { font-weight:850; letter-spacing:.08em; font-size:13px; }
+  .tab {
+    height:34px;
+    padding:0 13px;
+    border:0;
+    border-radius:8px;
+    background:transparent;
+    color:#aeb9c8;
+    font-size:12px;
+    font-weight:750;
+  }
+  .tab.active { background:rgba(255,255,255,.1); color:#fff; }
+  .shell {
+    height:calc(100vh - 58px);
+    display:flex;
+    overflow:hidden;
+  }
+  .sidebar {
+    width:264px;
+    background:var(--bg-card);
+    border-right:1px solid var(--border);
+    overflow:auto;
+  }
+  .side-label {
+    padding:16px 16px 8px;
+    font-size:10px;
+    letter-spacing:.1em;
+    text-transform:uppercase;
+    font-weight:850;
+    color:var(--text-muted);
+  }
+  .stats {
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:8px;
+    padding:0 12px 14px;
+  }
+  .stat {
+    background:var(--bg-input);
+    border-radius:8px;
+    padding:10px;
+  }
+  .stat strong { display:block; font-size:19px; line-height:1; }
+  .stat span { display:block; margin-top:5px; font-size:10px; color:var(--text-muted); font-weight:700; }
+  .divider { height:1px; background:var(--border); margin:0 12px 10px; }
+  .filters { padding:0 4px 10px; }
+  .filter {
+    width:100%;
+    height:36px;
+    border:0;
+    border-radius:8px;
+    background:transparent;
+    color:var(--text-secondary);
+    display:flex;
+    align-items:center;
+    gap:9px;
+    padding:0 12px;
+    font-size:13px;
+    font-weight:700;
+  }
+  .filter.active { background:rgba(var(--accent-rgb),.1); color:var(--accent); }
+  .dot { width:7px; height:7px; border-radius:99px; background:currentColor; opacity:.75; }
+  .jump {
+    height:38px;
+    margin:10px 12px 16px;
+    border:0;
+    border-radius:9px;
+    background:var(--accent);
+    color:#fff;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:7px;
+    font-size:13px;
+    font-weight:800;
+  }
+  .main {
+    flex:1;
+    min-width:0;
+    display:flex;
+    flex-direction:column;
+    overflow:hidden;
+  }
+  .head {
+    min-height:118px;
+    background:var(--bg-card);
+    border-bottom:1px solid var(--border);
+    padding:16px 22px 14px;
+  }
+  .head-top {
+    display:flex;
+    align-items:flex-start;
+    gap:18px;
+  }
+  h1 {
+    margin:0;
+    font-size:18px;
+    line-height:1.15;
+    font-weight:800;
+  }
+  .sub {
+    margin:4px 0 0;
+    font-size:12px;
+    color:var(--text-muted);
+  }
+  .head-meta {
+    margin-left:auto;
+    display:flex;
+    gap:18px;
+    color:var(--text-muted);
+    font-size:12px;
+    font-weight:600;
+    white-space:nowrap;
+  }
+  .search-row {
+    margin-top:14px;
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+  .search-box {
+    flex:1;
+    height:40px;
+    border:1px solid var(--border);
+    border-radius:10px;
+    background:var(--bg-input);
+    display:flex;
+    align-items:center;
+    gap:9px;
+    padding:0 12px;
+    color:var(--text-muted);
+  }
+  .search-box input {
+    flex:1;
+    min-width:0;
+    border:0;
+    outline:0;
+    background:transparent;
+    color:var(--text-primary);
+    font-size:14px;
+    font-weight:600;
+  }
+  .scope {
+    height:40px;
+    display:flex;
+    align-items:center;
+    gap:2px;
+    padding:3px;
+    border:1px solid var(--border);
+    border-radius:10px;
+    background:var(--bg-input);
+  }
+  .scope button {
+    height:32px;
+    padding:0 12px;
+    border:0;
+    border-radius:8px;
+    background:transparent;
+    color:var(--text-secondary);
+    font-size:12px;
+    font-weight:800;
+  }
+  .scope button.active { background:var(--bg-card); color:var(--accent); box-shadow:0 1px 2px rgba(15,23,42,.08); }
+  .content {
+    flex:1;
+    min-height:0;
+    display:grid;
+    grid-template-columns:minmax(520px,1fr) 360px;
+    overflow:hidden;
+  }
+  .table-wrap { overflow:auto; }
+  table { width:100%; border-collapse:collapse; }
+  th {
+    position:sticky;
+    top:0;
+    z-index:2;
+    height:35px;
+    padding:0 14px;
+    background:var(--bg-card-alt);
+    border-bottom:1px solid var(--border);
+    color:var(--text-muted);
+    font-size:10px;
+    font-weight:850;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    text-align:left;
+    white-space:nowrap;
+  }
+  th:first-child,td:first-child { padding-left:22px; }
+  th.r,td.r { text-align:right; }
+  th.c,td.c { text-align:center; }
+  td {
+    height:56px;
+    padding:8px 14px;
+    border-bottom:1px solid var(--border);
+    background:var(--bg-card);
+    vertical-align:middle;
+  }
+  tr.current td { background:rgba(var(--accent-rgb),.08); }
+  tr.current td:first-child { box-shadow:inset 4px 0 0 var(--accent); }
+  .week-main { font-size:13px; font-weight:700; color:var(--text-primary); white-space:nowrap; }
+  .week-sub { margin-top:3px; color:var(--text-muted); font-size:11px; font-weight:600; }
+  .num { font-size:13px; font-weight:850; }
+  .accent { color:var(--accent); }
+  .amber { color:#d97706; }
+  .muted { color:var(--text-muted); opacity:.48; font-weight:750; }
+  .chip {
+    display:inline-flex;
+    align-items:center;
+    gap:5px;
+    min-height:24px;
+    padding:0 8px;
+    border-radius:7px;
+    font-size:11px;
+    font-weight:850;
+    white-space:nowrap;
+  }
+  .chip.amber { background:rgba(var(--amber-rgb),.13); color:#b45309; }
+  .chip.red { background:rgba(var(--priority-high-rgb),.11); color:#dc2626; }
+  mark {
+    padding:0 2px;
+    border-radius:4px;
+    background:rgba(var(--amber-rgb),.28);
+    color:inherit;
+  }
+  .results {
+    background:var(--bg-card);
+    border-left:1px solid var(--border);
+    overflow:auto;
+  }
+  .results-head {
+    position:sticky;
+    top:0;
+    background:var(--bg-card);
+    border-bottom:1px solid var(--border);
+    padding:14px 16px 12px;
+    z-index:3;
+  }
+  .results-title {
+    font-size:13px;
+    font-weight:850;
+    color:var(--text-primary);
+  }
+  .results-sub {
+    margin-top:3px;
+    font-size:11px;
+    color:var(--text-muted);
+    font-weight:600;
+  }
+  .result-group {
+    padding:10px 16px 6px;
+    background:var(--bg-page);
+    border-top:1px solid var(--border);
+    border-bottom:1px solid var(--border);
+    color:var(--text-muted);
+    font-size:10px;
+    font-weight:850;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+  }
+  .result {
+    padding:12px 16px;
+    border-bottom:1px solid var(--border);
+  }
+  .result-top {
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .result-kind {
+    width:28px;
+    height:28px;
+    border-radius:8px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:rgba(var(--accent-rgb),.1);
+    color:var(--accent);
+    flex-shrink:0;
+  }
+  .result-kind.callout {
+    background:rgba(var(--priority-high-rgb),.1);
+    color:#dc2626;
+  }
+  .result-title {
+    min-width:0;
+    flex:1;
+    font-size:13px;
+    font-weight:800;
+    color:var(--text-primary);
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+  .result-week {
+    margin-top:2px;
+    font-size:11px;
+    color:var(--text-muted);
+    font-weight:650;
+  }
+  .result-snippet {
+    margin:8px 0 0 36px;
+    font-size:12px;
+    line-height:1.35;
+    color:var(--text-secondary);
+  }
+  .open-btn {
+    margin:10px 0 0 36px;
+    height:28px;
+    border:1px solid var(--border);
+    border-radius:7px;
+    background:var(--bg-input);
+    color:var(--text-secondary);
+    padding:0 10px;
+    font-size:12px;
+    font-weight:800;
+  }
+  .hint {
+    padding:12px 16px;
+    color:var(--text-muted);
+    font-size:12px;
+    line-height:1.4;
+  }
+</style>
+</head>
+<body>
+<div class="top-nav">
+  <div class="brand">RIAN</div>
+  <button class="tab">TIMESHEET</button>
+  <button class="tab active">HISTORY</button>
+  <button class="tab">NOTES</button>
+  <button class="tab">FINDER</button>
+  <button class="tab">ROUTINES</button>
+</div>
+
+<div class="shell">
+  <aside class="sidebar">
+    <div class="side-label">2026 so far</div>
+    <div class="stats">
+      <div class="stat"><strong style="color:var(--accent)">17</strong><span>Weeks worked</span></div>
+      <div class="stat"><strong style="color:var(--accent)">604h</strong><span>Ordinary hrs</span></div>
+      <div class="stat"><strong style="color:#d97706">5</strong><span>On-call wks</span></div>
+      <div class="stat"><strong style="color:#7c3aed">14</strong><span>Callouts</span></div>
+    </div>
+    <div class="divider"></div>
+    <div class="side-label">Filter</div>
+    <div class="filters">
+      <button class="filter active"><span class="dot"></span>All weeks</button>
+      <button class="filter" style="color:#b45309"><span class="dot"></span>On-call only</button>
+      <button class="filter" style="color:#d97706"><span class="dot"></span>With OT</button>
+      <button class="filter" style="color:#dc2626"><span class="dot"></span>With callouts</button>
+    </div>
+    <div class="divider"></div>
+    <button class="jump">Jump to Any Week</button>
+  </aside>
+
+  <main class="main">
+    <header class="head">
+      <div class="head-top">
+        <div>
+          <h1>Week History</h1>
+          <p class="sub">Search across saved tasks, task notes, locations, tickets, and callout notes</p>
+        </div>
+        <div class="head-meta">
+          <span>Showing all weeks</span>
+          <span>5 results</span>
+        </div>
+      </div>
+      <div class="search-row">
+        <div class="search-box">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+          <input value="battery" aria-label="Search history">
+        </div>
+        <div class="scope">
+          <button class="active">All</button>
+          <button>Tasks</button>
+          <button>Callouts</button>
+          <button>Locations</button>
+        </div>
+      </div>
+    </header>
+
+    <section class="content">
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th style="width:230px">Week</th>
+              <th class="r" style="width:70px">Ord</th>
+              <th class="r" style="width:60px">OT</th>
+              <th class="r" style="width:75px">Total</th>
+              <th class="c" style="width:65px">Tasks</th>
+              <th class="c" style="width:65px">Sites</th>
+              <th style="width:120px">Status</th>
+              <th style="width:120px">Callouts</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="current">
+              <td><div class="week-main">24 Apr - 30 Apr</div><div class="week-sub">Current week · 1 match</div></td>
+              <td class="r"><span class="num accent">31h</span></td><td class="r"><span class="muted">-</span></td><td class="r"><span class="num">31h</span></td>
+              <td class="c">9</td><td class="c">4</td><td></td><td></td>
+            </tr>
+            <tr>
+              <td><div class="week-main">17 Apr - 23 Apr</div><div class="week-sub">12 tasks · 5 sites · 3 matches</div></td>
+              <td class="r"><span class="num accent">37h</span></td><td class="r"><span class="num amber">3h</span></td><td class="r"><span class="num">40h</span></td>
+              <td class="c">12</td><td class="c">5</td><td><span class="chip amber">On-Call</span></td><td><span class="chip red">☎ 2</span></td>
+            </tr>
+            <tr>
+              <td><div class="week-main">3 Apr - 9 Apr</div><div class="week-sub">10 tasks · 6 sites · 1 match</div></td>
+              <td class="r"><span class="num accent">36h</span></td><td class="r"><span class="num amber">6h</span></td><td class="r"><span class="num">42h</span></td>
+              <td class="c">10</td><td class="c">6</td><td><span class="chip amber">Extra</span></td><td><span class="chip red">☎ 1</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <aside class="results">
+        <div class="results-head">
+          <div class="results-title">Search Results</div>
+          <div class="results-sub">5 matches for <strong>battery</strong></div>
+        </div>
+        <div class="hint">Selecting a result would open that week and expand the matching task or callout.</div>
+
+        <div class="result-group">24 Apr - 30 Apr</div>
+        <div class="result">
+          <div class="result-top">
+            <div class="result-kind">T</div>
+            <div>
+              <div class="result-title">Generator <mark>battery</mark> test</div>
+              <div class="result-week">Task · Ballydaly · Tue 28 Apr</div>
+            </div>
+          </div>
+          <div class="result-snippet">Recorded float voltage and charger status before routine handover.</div>
+          <button class="open-btn">Open task</button>
+        </div>
+
+        <div class="result-group">17 Apr - 23 Apr</div>
+        <div class="result">
+          <div class="result-top">
+            <div class="result-kind">T</div>
+            <div>
+              <div class="result-title">Replace UPS <mark>battery</mark> string</div>
+              <div class="result-week">Task · Portlaoise · Mon 20 Apr</div>
+            </div>
+          </div>
+          <div class="result-snippet">New battery set fitted. Site left on mains with no alarms active.</div>
+          <button class="open-btn">Open task</button>
+        </div>
+        <div class="result">
+          <div class="result-top">
+            <div class="result-kind callout">☎</div>
+            <div>
+              <div class="result-title">Mains fail, low <mark>battery</mark> alarm</div>
+              <div class="result-week">Callout · Ticket INC-18422 · Wed 22 Apr</div>
+            </div>
+          </div>
+          <div class="result-snippet">Fault cleared after charger reset. Engineer on site confirmed cabinet stable.</div>
+          <button class="open-btn">Open callout</button>
+        </div>
+        <div class="result">
+          <div class="result-top">
+            <div class="result-kind">T</div>
+            <div>
+              <div class="result-title">Cabinet inspection</div>
+              <div class="result-week">Task note · Kilbeggan · Thu 23 Apr</div>
+            </div>
+          </div>
+          <div class="result-snippet">Note mentions battery cabinet temperature and corrosion check.</div>
+          <button class="open-btn">Open task</button>
+        </div>
+
+        <div class="result-group">3 Apr - 9 Apr</div>
+        <div class="result">
+          <div class="result-top">
+            <div class="result-kind callout">☎</div>
+            <div>
+              <div class="result-title">Radio site <mark>battery</mark> backup</div>
+              <div class="result-week">Callout · Ticket INC-18091 · Sat 4 Apr</div>
+            </div>
+          </div>
+          <div class="result-snippet">Backup restored after reseating battery monitor lead.</div>
+          <button class="open-btn">Open callout</button>
+        </div>
+      </aside>
+    </section>
+  </main>
+</div>
+</body>
+</html>

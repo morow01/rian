@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Journal 3-Column + TipTap Test</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f0f2f5; }
+button { font-family: inherit; }
+input { font-family: inherit; }
+
+:root {
+  --accent: #2D6BE4;
+  --accent-rgb: 45,107,228;
+  --bg-card: #ffffff;
+  --bg-card-alt: #f1f5f9;
+  --bg-input: #F4F7FA;
+  --bg-page: #f0f2f5;
+  --border: #e2e8f0;
+  --border-subtle: #f1f5f9;
+  --text-primary: #1e293b;
+  --text-secondary: #475569;
+  --text-muted: #94a3b8;
+  --shadow-rgb: 0,0,0;
+  --font-body: 'Inter', -apple-system, sans-serif;
+  --priority-high: #dc2626;
+}
+
+.dj-wrap { display: flex; height: calc(100vh - 60px); overflow: hidden; margin: 20px; border: 1px solid var(--border); border-radius: 12px; }
+.dj-resize-handle { width: 1px; cursor: col-resize; background: var(--border); flex-shrink: 0; position: relative; z-index: 2; }
+.dj-resize-handle::before { content: ''; position: absolute; top: 0; bottom: 0; left: -3px; width: 7px; }
+.dj-col1 { min-width: 140px; max-width: 300px; background: var(--bg-card); display: flex; flex-direction: column; overflow: hidden; flex-shrink: 0; }
+.dj-col1-body { flex: 1; overflow-y: auto; padding: 4px 0; }
+.dj-nb-row { display: flex; align-items: center; gap: 6px; padding: 8px 12px 4px; font-size: 13px; font-weight: 700; color: var(--text-primary); cursor: pointer; user-select: none; }
+.dj-nb-row:hover { background: rgba(var(--accent-rgb), 0.03); }
+.dj-chev { display: flex; transition: transform 0.15s; }
+.dj-chev.open { transform: rotate(0deg); }
+.dj-chev.closed { transform: rotate(-90deg); }
+.dj-sec-row { display: flex; align-items: center; gap: 6px; padding: 6px 12px 6px 24px; font-size: 12px; font-weight: 500; color: var(--text-secondary); cursor: pointer; border-left: 3px solid transparent; transition: background 0.1s; }
+.dj-sec-row:hover { background: rgba(var(--accent-rgb), 0.04); }
+.dj-sec-row.active { background: linear-gradient(to right, rgba(var(--accent-rgb), 0.10), rgba(var(--accent-rgb), 0.03)); font-weight: 700; color: var(--text-primary); }
+.dj-sec-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.dj-col1-footer { padding: 8px 12px; border-top: 1px solid var(--border); }
+.dj-add-sec-btn { display: flex; align-items: center; gap: 5px; padding: 5px 8px; border: none; background: transparent; color: var(--accent); font-size: 11px; font-weight: 700; cursor: pointer; border-radius: 6px; width: 100%; }
+.dj-col2 { min-width: 180px; max-width: 400px; background: var(--bg-card); display: flex; flex-direction: column; overflow: hidden; flex-shrink: 0; }
+.dj-col2-header { padding: 8px 10px; display: flex; align-items: center; gap: 6px; border-bottom: 1px solid var(--border); }
+.dj-add-page-btn { display: flex; align-items: center; gap: 5px; padding: 5px 10px; border: none; background: transparent; color: var(--accent); font-size: 12px; font-weight: 700; cursor: pointer; border-radius: 6px; }
+.dj-col2-body { flex: 1; overflow-y: auto; padding: 0; }
+.dj-pg-row { display: flex; align-items: center; padding: 7px 10px 7px 14px; cursor: pointer; border-left: 3px solid transparent; transition: background 0.1s; }
+.dj-pg-row:hover { background: rgba(var(--accent-rgb), 0.04); }
+.dj-pg-row.active { background: linear-gradient(to right, rgba(var(--accent-rgb), 0.10), rgba(var(--accent-rgb), 0.03)); border-left-color: var(--accent); }
+.dj-pg-row .dj-pg-title { flex: 1; min-width: 0; font-size: 13px; font-weight: 500; color: var(--text-primary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dj-pg-row.active .dj-pg-title { font-weight: 700; }
+.dj-editor { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-width: 0; background: #fff; }
+.dj-page-header { padding: 16px 28px 12px; border-bottom: 1px solid var(--border-subtle); }
+.dj-page-title-input { width: 100%; padding: 0; border: none; font-size: 22px; font-weight: 700; color: var(--text-primary); outline: none; background: transparent; margin-bottom: 4px; }
+.dj-page-meta { display: flex; align-items: center; gap: 12px; font-size: 12px; color: var(--text-muted); }
+
+/* Compact toolbar */
+.dj-tt-toolbar {
+  display: flex; align-items: center; gap: 1px;
+  padding: 4px 12px; border-bottom: 1px solid var(--border);
+  background: var(--bg-card); flex-wrap: wrap; overflow: hidden;
+}
+.dj-tt-toolbar .tt-btn {
+  width: 30px; height: 30px; border: none; background: transparent;
+  color: var(--text-secondary); cursor: pointer; border-radius: 6px;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  font-family: var(--font-body); font-size: 13px; font-weight: 700; transition: background 0.1s;
+}
+.dj-tt-toolbar .tt-btn:hover { background: rgba(var(--accent-rgb), 0.08); }
+.dj-tt-toolbar .tt-btn.tt-active { color: var(--accent); background: rgba(var(--accent-rgb), 0.10); }
+.dj-tt-toolbar .tt-btn svg { width: 16px; height: 16px; }
+.dj-tt-toolbar .tt-sep { width: 1px; height: 20px; background: var(--border); margin: 0 4px; flex-shrink: 0; }
+
+/* Editor mount area */
+#dj-editor-mount {
+  flex: 1; overflow-y: auto; padding: 12px 28px 28px;
+}
+#dj-editor-mount .ProseMirror {
+  outline: none; min-height: 200px; font-size: 14px; line-height: 1.7; color: var(--text-primary);
+}
+
+/* Simulated editable area */
+.mock-editor {
+  min-height: 200px; font-size: 14px; line-height: 1.7; color: var(--text-primary);
+  outline: none;
+}
+.mock-editor p { margin-bottom: 8px; }
+.mock-editor ul { padding-left: 20px; margin-bottom: 8px; }
+.mock-editor li { margin-bottom: 4px; }
+.mock-editor strong { font-weight: 700; }
+
+h2 { margin: 12px 20px 4px; font-size: 16px; color: var(--text-primary); }
+.subtitle { margin: 0 20px 0; font-size: 12px; color: var(--text-muted); }
+</style>
+</head>
+<body>
+<h2>Journal Desktop — 3 Column + Inline TipTap Editor</h2>
+<p class="subtitle">Col 3 now has a compact toolbar and inline editor — no fullscreen modal needed</p>
+
+<div class="dj-wrap">
+  <!-- Col 1 -->
+  <div class="dj-col1" style="width:200px">
+    <div class="dj-col1-body">
+      <div class="dj-nb-row">
+        <span class="dj-chev open"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+        Field Notes
+      </div>
+      <div class="dj-sec-row active">
+        <span class="dj-sec-dot" style="background:#2D6BE4"></span>
+        Tullamore Area
+        <span style="margin-left:auto;font-size:10px;color:var(--text-muted)">4</span>
+      </div>
+      <div class="dj-sec-row">
+        <span class="dj-sec-dot" style="background:#f97316"></span>
+        Portlaoise Area
+        <span style="margin-left:auto;font-size:10px;color:var(--text-muted)">2</span>
+      </div>
+      <div class="dj-sec-row">
+        <span class="dj-sec-dot" style="background:#059669"></span>
+        Birr Area
+        <span style="margin-left:auto;font-size:10px;color:var(--text-muted)">1</span>
+      </div>
+      <div class="dj-nb-row">
+        <span class="dj-chev closed"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+        Training Log
+      </div>
+    </div>
+    <div class="dj-col1-footer">
+      <button class="dj-add-sec-btn">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Add Notebook
+      </button>
+    </div>
+  </div>
+
+  <div class="dj-resize-handle"></div>
+
+  <!-- Col 2 -->
+  <div class="dj-col2" style="width:260px">
+    <div class="dj-col2-header">
+      <span style="font-weight:700;font-size:13px;color:var(--text-primary);flex:1">Tullamore Area</span>
+      <button class="dj-add-page-btn">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Add Page
+      </button>
+    </div>
+    <div style="padding:6px 10px;position:relative;border-bottom:1px solid var(--border)">
+      <span style="position:absolute;left:20px;top:15px;color:var(--text-muted)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
+      <input placeholder="Search pages…" style="width:100%;padding:7px 10px 7px 30px;border:1px solid var(--border);border-radius:8px;font-size:12px;background:var(--bg-input);outline:none;box-sizing:border-box;color:var(--text-primary)" />
+    </div>
+    <div class="dj-col2-body">
+      <div class="dj-pg-row active">
+        <div style="flex:1;min-width:0">
+          <span class="dj-pg-title">Ballinagar (BXGA)</span>
+          <div style="font-size:11px;color:var(--text-muted);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
+            31 Mar '26 &middot; Cabinet inspection complete…
+          </div>
+        </div>
+      </div>
+      <div class="dj-pg-row">
+        <div style="flex:1;min-width:0">
+          <span class="dj-pg-title">Clara (CCRB)</span>
+          <div style="font-size:11px;color:var(--text-muted);margin-top:2px">2 Apr '26 &middot; RSU site visit…</div>
+        </div>
+      </div>
+      <div class="dj-pg-row">
+        <div style="flex:1;min-width:0">
+          <span class="dj-pg-title">Kilbeggan (KBNB)</span>
+          <div style="font-size:11px;color:var(--text-muted);margin-top:2px">1 Apr '26 &middot; New UPS installation…</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="dj-resize-handle"></div>
+
+  <!-- Col 3: Editor with toolbar -->
+  <div class="dj-editor" style="position:relative">
+    <div class="dj-page-header">
+      <input class="dj-page-title-input" value="Ballinagar (BXGA)" />
+      <div class="dj-page-meta">
+        <span>31 Mar '26</span>
+        <span style="display:flex;align-items:center;gap:4px"><span style="width:6px;height:6px;border-radius:50%;background:#2D6BE4"></span>Tullamore Area</span>
+      </div>
+    </div>
+    <!-- Compact toolbar -->
+    <div class="dj-tt-toolbar">
+      <button class="tt-btn" title="Undo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 14 4 9 9 4"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg></button>
+      <button class="tt-btn" title="Redo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 14 20 9 15 4"/><path d="M4 20v-7a4 4 0 0 1 4-4h12"/></svg></button>
+      <div class="tt-sep"></div>
+      <button class="tt-btn tt-active" title="Bold"><b>B</b></button>
+      <button class="tt-btn" title="Italic"><i>I</i></button>
+      <button class="tt-btn" title="Strikethrough"><s>S</s></button>
+      <div class="tt-sep"></div>
+      <button class="tt-btn" title="H1" style="font-size:14px">H1</button>
+      <button class="tt-btn" title="H2" style="font-size:13px">H2</button>
+      <button class="tt-btn" title="H3" style="font-size:12px">H3</button>
+      <div class="tt-sep"></div>
+      <button class="tt-btn" title="Bullet List"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="9" y1="6" x2="20" y2="6"/><line x1="9" y1="12" x2="20" y2="12"/><line x1="9" y1="18" x2="20" y2="18"/><circle cx="4" cy="6" r="1.2" fill="currentColor"/><circle cx="4" cy="12" r="1.2" fill="currentColor"/><circle cx="4" cy="18" r="1.2" fill="currentColor"/></svg></button>
+      <button class="tt-btn" title="Numbered List"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="10" y1="6" x2="21" y2="6"/><line x1="10" y1="12" x2="21" y2="12"/><line x1="10" y1="18" x2="21" y2="18"/><path d="M4 6h1v4"/><path d="M4 10h2"/><path d="M6 18H4c0-1 2-2 2-3s-1-1.5-2-1"/></svg></button>
+      <button class="tt-btn" title="Task List"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></button>
+      <div class="tt-sep"></div>
+      <button class="tt-btn" title="Blockquote"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V21z"/><path d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2h.75c0 2.25.25 4-2.75 5v3z"/></svg></button>
+      <button class="tt-btn" title="Code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg></button>
+      <button class="tt-btn" title="Horizontal Rule"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="3" y1="12" x2="21" y2="12"/></svg></button>
+      <button class="tt-btn" title="Link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg></button>
+    </div>
+    <!-- Editor mount point -->
+    <div id="dj-editor-mount">
+      <div class="mock-editor" contenteditable="true">
+        <p>Cabinet inspection complete. All cards seated properly.</p>
+        <p>Voltage readings normal — 48.2V DC.</p>
+        <p>Fan unit replaced (noisy bearing).</p>
+        <p><strong>Follow-up items:</strong></p>
+        <ul>
+          <li>Order replacement filter for rack 3</li>
+          <li>Schedule battery load test for next visit</li>
+          <li>Update inventory spreadsheet with fan unit serial</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

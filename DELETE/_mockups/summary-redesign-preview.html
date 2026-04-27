@@ -1,0 +1,999 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Weekly Summary — Redesign Preview</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  font-family:'DM Sans',sans-serif;
+  background:#dde3ed;
+  min-height:100vh;
+  padding:40px 16px 80px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:56px;
+}
+
+.section-title {
+  font-size:10px;
+  font-weight:700;
+  letter-spacing:0.14em;
+  text-transform:uppercase;
+  color:#7a8299;
+  text-align:center;
+  margin-bottom:-36px;
+}
+
+.row-of-phones {
+  display:flex;
+  gap:28px;
+  flex-wrap:wrap;
+  justify-content:center;
+  align-items:flex-start;
+}
+
+.phone-label {
+  font-size:10px;
+  font-weight:700;
+  letter-spacing:0.1em;
+  text-transform:uppercase;
+  color:#8a91a8;
+  text-align:center;
+  margin-bottom:10px;
+}
+
+.phone {
+  width:340px;
+  border-radius:36px;
+  overflow:hidden;
+  background:#f0f3f8;
+  box-shadow:0 28px 70px rgba(0,0,0,0.18), 0 4px 16px rgba(0,0,0,0.1);
+  padding-bottom:20px;
+}
+
+/* ── App chrome ── */
+.app-header {
+  background:#0F1C2E;
+  padding:16px 20px 14px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
+.app-header-title { font-size:15px; font-weight:700; color:#fff; letter-spacing:-0.01em; }
+.app-header-sub { font-size:11px; color:rgba(255,255,255,0.45); margin-top:1px; }
+.app-tabs {
+  background:#0F1C2E;
+  border-top:1px solid rgba(255,255,255,0.07);
+  display:flex;
+}
+.app-tab {
+  flex:1;
+  padding:10px 0 12px;
+  text-align:center;
+  font-size:10px;
+  font-weight:600;
+  color:rgba(255,255,255,0.4);
+  letter-spacing:0.04em;
+  text-transform:uppercase;
+}
+.app-tab.active { color:#f59e0b; border-bottom:2px solid #f59e0b; }
+
+.app-body { padding:12px 14px; display:flex; flex-direction:column; gap:10px; }
+
+/* ── Day cards (fake) ── */
+.fake-day { background:#fff; border-radius:14px; padding:14px 16px; display:flex; justify-content:space-between; align-items:center; }
+.fake-day-name { font-size:13px; font-weight:600; color:#1e2a3a; }
+.fake-day-code { font-size:11px; font-family:'DM Mono',monospace; color:#2D6BE4; margin-top:2px; }
+.fake-day-sub { font-size:11px; color:#94a3b8; margin-top:1px; }
+.fake-pill { background:#EBF1FD; color:#1A4FB5; font-size:12px; font-weight:700; font-family:'DM Mono',monospace; padding:4px 10px; border-radius:20px; }
+
+/* ── Section divider ── */
+.sum-divider {
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:4px 2px;
+}
+.sum-divider-line { flex:1; height:1px; background:#c9d2e0; }
+.sum-divider-label { font-size:10px; font-weight:700; letter-spacing:0.13em; text-transform:uppercase; color:#94a3b8; }
+
+/* ═══════════════════════════════════════════
+   SUMMARY CARD — SHARED STYLES
+═══════════════════════════════════════════ */
+.sum-card {
+  border-radius:20px;
+  overflow:hidden;
+  box-shadow:0 4px 20px rgba(0,0,0,0.08);
+}
+
+/* Dark header */
+.sum-head {
+  background:#1c2233;
+  padding:16px 18px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  cursor:pointer;
+  user-select:none;
+}
+.sum-head:active { opacity:0.9; }
+
+.sum-head-left { display:flex; align-items:center; gap:12px; }
+
+.sum-icon {
+  width:38px; height:38px;
+  border-radius:12px;
+  background:linear-gradient(135deg,#4f7aff 0%,#7b5ea7 100%);
+  display:flex; align-items:center; justify-content:center;
+  font-size:17px; flex-shrink:0;
+}
+
+.sum-title { font-size:13px; font-weight:700; color:#fff; letter-spacing:-0.01em; }
+.sum-sub { font-size:11px; color:#6b7694; margin-top:2px; }
+
+.sum-head-right { display:flex; align-items:center; gap:10px; }
+
+.sum-badge {
+  background:#4f7aff; color:#fff;
+  font-size:13px; font-weight:700;
+  font-family:'DM Mono',monospace;
+  padding:5px 12px; border-radius:30px;
+}
+
+.sum-chevron { color:#3d4561; font-size:18px; transition:transform 0.22s; }
+.sum-chevron.open { transform:rotate(180deg); }
+
+/* Mini sparkline bars (collapsed) */
+.sc-bars { display:flex; align-items:flex-end; gap:3px; height:22px; }
+.sc-bar { width:4px; border-radius:2px; background:#4f7aff; }
+
+/* Body */
+.sum-body { background:#fff; }
+
+.sum-col-head {
+  display:grid;
+  grid-template-columns:1fr 44px 44px;
+  gap:6px;
+  padding:12px 18px 8px;
+  border-bottom:1px solid #f0f2f6;
+}
+.sum-col-th {
+  font-size:10px; font-weight:700;
+  letter-spacing:0.1em; text-transform:uppercase;
+  color:#b0b7cc;
+}
+.sum-col-th.r { text-align:right; }
+
+/* ── Data rows ── */
+.sum-row {
+  display:grid;
+  grid-template-columns:1fr 44px 44px;
+  gap:6px;
+  padding:12px 18px;
+  border-bottom:1px solid #f6f7fb;
+  align-items:start;
+}
+.sum-row:last-of-type { border-bottom:none; }
+.sum-row.missing .row-code { color:#ef4444; }
+.sum-row.missing .row-name { color:#ef4444; }
+.sum-row.missing .row-hrs { color:#ef4444; }
+.sum-row.missing .bar-fill { background:#ef4444; }
+.sum-row.missing .sparkline-path { stroke:#ef4444; }
+
+.row-code {
+  font-size:10px; font-weight:600;
+  font-family:'DM Mono',monospace;
+  color:#4f7aff;
+  letter-spacing:0.03em;
+  margin-bottom:2px;
+}
+.row-name {
+  font-size:12px; font-weight:500;
+  color:#1e2a3a;
+  line-height:1.35;
+  margin-bottom:5px;
+}
+
+/* Thin progress bar */
+.bar-wrap {
+  height:3px; background:#eef0f6;
+  border-radius:2px; overflow:hidden;
+  margin-bottom:6px;
+}
+.bar-fill {
+  height:100%; border-radius:2px;
+  background:linear-gradient(90deg,#4f7aff,#7b5ea7);
+}
+
+/* ── SPARKLINE (line graph) ── */
+.sparkline-wrap {
+  width:100%; height:28px;
+  margin-top:2px;
+}
+.sparkline-wrap svg { width:100%; height:100%; overflow:visible; }
+
+/* Day labels under sparkline */
+.spark-days {
+  display:flex; justify-content:space-between;
+  padding:0 1px;
+  margin-top:2px;
+}
+.spark-day-label {
+  font-size:8px; font-weight:600;
+  color:#c0c8dc; letter-spacing:0.04em;
+  text-transform:uppercase;
+  flex:1; text-align:center;
+}
+
+.row-hrs {
+  font-size:14px; font-weight:700;
+  color:#1e2a3a;
+  font-family:'DM Mono',monospace;
+  text-align:right;
+  padding-top:2px;
+}
+.row-ot {
+  font-size:14px; font-weight:500;
+  color:#ccc;
+  font-family:'DM Mono',monospace;
+  text-align:right;
+  padding-top:2px;
+}
+.row-ot.has-ot { color:#f59e0b; font-weight:700; }
+
+/* Footer */
+.sum-footer {
+  background:#f8f9fc;
+  padding:13px 18px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  border-top:1px solid #eef0f6;
+}
+.footer-label {
+  font-size:11px; font-weight:700;
+  letter-spacing:0.1em; text-transform:uppercase;
+  color:#9aa0b2;
+}
+.footer-totals { display:flex; gap:16px; align-items:center; }
+.footer-total-item { text-align:right; }
+.footer-total-lbl {
+  font-size:10px; color:#b0b7cc;
+  text-transform:uppercase; letter-spacing:0.08em;
+}
+.footer-total-val {
+  font-size:20px; font-weight:800;
+  font-family:'DM Mono',monospace;
+  color:#1c2233; line-height:1.1;
+}
+.footer-total-val.ot { color:#f59e0b; }
+.footer-divider { width:1px; height:32px; background:#e4e7f0; }
+
+/* ══════════════════════════════
+   HEADER OPTION A — Dark Metric Pills
+══════════════════════════════ */
+.hdr-a {
+  background:linear-gradient(160deg,#0f1c2e 0%,#1a2d4a 100%);
+  padding:18px 20px 16px;
+}
+.hdr-a-top {
+  display:flex; align-items:center; justify-content:space-between;
+  margin-bottom:14px;
+}
+.hdr-a-week { font-size:16px; font-weight:800; color:#fff; letter-spacing:-0.02em; }
+.hdr-a-sub { font-size:11px; color:rgba(255,255,255,0.4); margin-top:2px; }
+.hdr-a-sync { font-size:11px; color:#22c55e; font-weight:600; display:flex; align-items:center; gap:4px; }
+.hdr-a-metrics {
+  display:flex; gap:8px;
+}
+.hdr-a-metric {
+  flex:1; background:rgba(255,255,255,0.07);
+  border-radius:12px; padding:10px 12px;
+}
+.hdr-a-metric-val {
+  font-size:20px; font-weight:800;
+  font-family:'DM Mono',monospace; color:#fff;
+  line-height:1;
+}
+.hdr-a-metric-val.ot { color:#f59e0b; }
+.hdr-a-metric-lbl {
+  font-size:10px; font-weight:600;
+  letter-spacing:0.1em; text-transform:uppercase;
+  color:rgba(255,255,255,0.35); margin-top:4px;
+}
+.hdr-a-nav {
+  display:flex; align-items:center; justify-content:center; gap:20px;
+  margin-top:14px;
+}
+.hdr-a-nav-btn {
+  width:28px; height:28px;
+  background:rgba(255,255,255,0.1);
+  border-radius:8px;
+  display:flex; align-items:center; justify-content:center;
+  color:rgba(255,255,255,0.6); font-size:15px;
+}
+.hdr-a-nav-week {
+  font-size:13px; font-weight:600; color:rgba(255,255,255,0.8);
+  letter-spacing:-0.01em;
+}
+
+/* ══════════════════════════════
+   HEADER OPTION B — Light with accent strip
+══════════════════════════════ */
+.hdr-b {
+  background:#fff;
+  border-bottom:1px solid #e8edf5;
+}
+.hdr-b-strip {
+  background:linear-gradient(90deg,#2D6BE4,#5b4aff);
+  height:4px;
+}
+.hdr-b-inner {
+  padding:14px 20px 16px;
+}
+.hdr-b-top {
+  display:flex; align-items:center; justify-content:space-between;
+  margin-bottom:12px;
+}
+.hdr-b-week { font-size:15px; font-weight:800; color:#0f1c2e; letter-spacing:-0.02em; }
+.hdr-b-sync { font-size:11px; color:#22c55e; font-weight:600; }
+.hdr-b-nav { display:flex; align-items:center; gap:8px; }
+.hdr-b-nav-btn {
+  width:26px; height:26px; background:#f0f4fa;
+  border-radius:8px; display:flex; align-items:center; justify-content:center;
+  color:#4a6580; font-size:14px;
+}
+.hdr-b-stats {
+  display:flex; gap:0; border:1px solid #e8edf5; border-radius:14px; overflow:hidden;
+}
+.hdr-b-stat {
+  flex:1; padding:10px 14px; text-align:center;
+  border-right:1px solid #e8edf5;
+}
+.hdr-b-stat:last-child { border-right:none; }
+.hdr-b-stat-val {
+  font-size:18px; font-weight:800;
+  font-family:'DM Mono',monospace; color:#0f1c2e;
+  line-height:1;
+}
+.hdr-b-stat-val.ot { color:#f59e0b; }
+.hdr-b-stat-lbl {
+  font-size:10px; font-weight:600;
+  text-transform:uppercase; letter-spacing:0.1em;
+  color:#94a3b8; margin-top:3px;
+}
+
+/* Expanded version of B also shows mini bar chart per day */
+.hdr-b-daybars { display:flex; gap:6px; margin-top:12px; align-items:flex-end; }
+.hdr-b-daybar-wrap { flex:1; display:flex; flex-direction:column; align-items:center; gap:4px; }
+.hdr-b-daybar-outer {
+  width:100%; height:36px; background:#f0f4fa;
+  border-radius:6px; overflow:hidden; display:flex; align-items:flex-end;
+}
+.hdr-b-daybar-fill {
+  width:100%; border-radius:4px;
+  background:linear-gradient(180deg,#4f7aff,#2D6BE4);
+}
+.hdr-b-daybar-lbl { font-size:9px; font-weight:700; color:#94a3b8; text-transform:uppercase; letter-spacing:0.06em; }
+.hdr-b-daybar-hrs { font-size:9px; font-weight:700; color:#1e2a3a; font-family:'DM Mono',monospace; }
+
+/* ══════════════════════════════
+   HEADER OPTION C — Minimal clean
+══════════════════════════════ */
+.hdr-c {
+  background:#0f1c2e;
+  padding:14px 20px 0;
+}
+.hdr-c-top {
+  display:flex; align-items:center; justify-content:space-between;
+  padding-bottom:14px;
+}
+.hdr-c-nav { display:flex; align-items:center; gap:14px; }
+.hdr-c-arrow { color:rgba(255,255,255,0.5); font-size:20px; cursor:pointer; }
+.hdr-c-week { font-size:15px; font-weight:700; color:#fff; letter-spacing:-0.02em; }
+.hdr-c-menu { color:rgba(255,255,255,0.5); font-size:18px; }
+.hdr-c-badges { display:flex; gap:6px; }
+.hdr-c-badge {
+  padding:5px 12px; border-radius:20px;
+  font-size:12px; font-weight:700;
+  font-family:'DM Mono',monospace;
+}
+.hdr-c-badge.ord { background:#2D6BE4; color:#fff; }
+.hdr-c-badge.ot { background:rgba(245,158,11,0.2); color:#f59e0b; }
+.hdr-c-badge.sync { background:rgba(34,197,94,0.15); color:#22c55e; font-family:'DM Sans',sans-serif; font-size:11px; }
+
+/* Expanded C — shows a mini weekly area chart */
+.hdr-c-chart {
+  padding:0 0 14px;
+  position:relative;
+}
+.hdr-c-chart svg { width:100%; height:48px; display:block; overflow:visible; }
+
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════
+     SECTION 1 — WEEKLY SUMMARY REDESIGN
+     (Mockup style + sparkline line graph)
+═══════════════════════════════════════════ -->
+<div class="section-title">Weekly Summary — New Design (click to expand/collapse)</div>
+
+<div class="row-of-phones">
+
+  <!-- COLLAPSED -->
+  <div>
+    <div class="phone-label">Collapsed</div>
+    <div class="phone">
+      <div style="height:12px"></div>
+      <div class="app-body">
+        <div class="fake-day">
+          <div>
+            <div class="fake-day-name">Monday</div>
+            <div class="fake-day-code">WVM0001A99 · WWO0001A99</div>
+          </div>
+          <div class="fake-pill">5h</div>
+        </div>
+        <div class="fake-day" style="opacity:0.5">
+          <div>
+            <div class="fake-day-name">Tuesday</div>
+            <div class="fake-day-sub">No tasks</div>
+          </div>
+        </div>
+
+        <div class="sum-divider">
+          <div class="sum-divider-line"></div>
+          <div class="sum-divider-label">Weekly Summary</div>
+          <div class="sum-divider-line"></div>
+        </div>
+
+        <!-- Collapsed summary card -->
+        <div class="sum-card" onclick="toggleSummary1(this)" style="cursor:pointer;">
+          <div class="sum-head">
+            <div class="sum-head-left">
+              <div class="sum-icon">📊</div>
+              <div>
+                <div class="sum-title">Weekly Summary</div>
+                <div class="sum-sub">4 work codes · 1 issue</div>
+              </div>
+            </div>
+            <div class="sum-head-right">
+              <div class="sc-bars">
+                <div class="sc-bar" style="height:10px;opacity:0.4"></div>
+                <div class="sc-bar" style="height:18px;opacity:0.6"></div>
+                <div class="sc-bar" style="height:14px;opacity:0.5"></div>
+                <div class="sc-bar" style="height:24px;opacity:0.9"></div>
+                <div class="sc-bar" style="height:8px;opacity:0.35"></div>
+              </div>
+              <div class="sum-badge">13h</div>
+              <div class="sum-chevron" id="chev1">▾</div>
+            </div>
+          </div>
+          <!-- Body hidden when collapsed -->
+          <div id="sum-body-1" style="display:none;">
+            <!-- filled by js -->
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- EXPANDED -->
+  <div>
+    <div class="phone-label">Expanded</div>
+    <div class="phone">
+      <div style="height:12px"></div>
+      <div class="app-body">
+        <div class="fake-day">
+          <div>
+            <div class="fake-day-name">Monday</div>
+            <div class="fake-day-code">WVM0001A99 · WWO0001A99</div>
+          </div>
+          <div class="fake-pill">5h</div>
+        </div>
+        <div class="fake-day" style="opacity:0.5">
+          <div>
+            <div class="fake-day-name">Tuesday</div>
+            <div class="fake-day-sub">No tasks</div>
+          </div>
+        </div>
+
+        <div class="sum-divider">
+          <div class="sum-divider-line"></div>
+          <div class="sum-divider-label">Weekly Summary</div>
+          <div class="sum-divider-line"></div>
+        </div>
+
+        <div class="sum-card">
+          <div class="sum-head">
+            <div class="sum-head-left">
+              <div class="sum-icon">📊</div>
+              <div>
+                <div class="sum-title">Weekly Summary</div>
+                <div class="sum-sub">4 work codes · 1 issue</div>
+              </div>
+            </div>
+            <div class="sum-head-right">
+              <div class="sum-badge">13h</div>
+              <div class="sum-chevron open">▾</div>
+            </div>
+          </div>
+
+          <div class="sum-body">
+            <div class="sum-col-head">
+              <div class="sum-col-th">Code / Description</div>
+              <div class="sum-col-th r">ORD</div>
+              <div class="sum-col-th r">OT</div>
+            </div>
+
+            <!-- Row 1 -->
+            <div class="sum-row">
+              <div>
+                <div class="row-code">WVM0001A99</div>
+                <div class="row-name">Van Maintenance COps FE</div>
+                <div class="bar-wrap"><div class="bar-fill" style="width:31%"></div></div>
+                <div class="sparkline-wrap">${makeSpark([2,0,1,0,1], '#4f7aff')}</div>
+                <div class="spark-days">
+                  <div class="spark-day-label">M</div>
+                  <div class="spark-day-label">T</div>
+                  <div class="spark-day-label">W</div>
+                  <div class="spark-day-label">T</div>
+                  <div class="spark-day-label">F</div>
+                </div>
+              </div>
+              <div class="row-hrs">4</div>
+              <div class="row-ot">—</div>
+            </div>
+
+            <!-- Row 2 -->
+            <div class="sum-row">
+              <div>
+                <div class="row-code">UWO0001A99</div>
+                <div class="row-name">Other Unworked Leave; Meetings</div>
+                <div class="bar-wrap"><div class="bar-fill" style="width:23%"></div></div>
+                <div class="sparkline-wrap">${makeSpark([1,2,0,0,0], '#4f7aff')}</div>
+                <div class="spark-days">
+                  <div class="spark-day-label">M</div>
+                  <div class="spark-day-label">T</div>
+                  <div class="spark-day-label">W</div>
+                  <div class="spark-day-label">T</div>
+                  <div class="spark-day-label">F</div>
+                </div>
+              </div>
+              <div class="row-hrs">3</div>
+              <div class="row-ot">—</div>
+            </div>
+
+            <!-- Row 3 -->
+            <div class="sum-row">
+              <div>
+                <div class="row-code">WWO0001A99</div>
+                <div class="row-name">General Admin COps FE</div>
+                <div class="bar-wrap"><div class="bar-fill" style="width:15%"></div></div>
+                <div class="sparkline-wrap">${makeSpark([0,1,0,1,0], '#4f7aff')}</div>
+                <div class="spark-days">
+                  <div class="spark-day-label">M</div>
+                  <div class="spark-day-label">T</div>
+                  <div class="spark-day-label">W</div>
+                  <div class="spark-day-label">T</div>
+                  <div class="spark-day-label">F</div>
+                </div>
+              </div>
+              <div class="row-hrs">2</div>
+              <div class="row-ot">—</div>
+            </div>
+
+            <!-- Row missing -->
+            <div class="sum-row missing">
+              <div>
+                <div class="row-code">MISSING</div>
+                <div class="row-name">No work code selected</div>
+                <div class="bar-wrap"><div class="bar-fill" style="width:31%"></div></div>
+                <div class="sparkline-wrap">${makeSpark([2,0,2,0,0], '#ef4444')}</div>
+                <div class="spark-days">
+                  <div class="spark-day-label">M</div>
+                  <div class="spark-day-label">T</div>
+                  <div class="spark-day-label">W</div>
+                  <div class="spark-day-label">T</div>
+                  <div class="spark-day-label">F</div>
+                </div>
+              </div>
+              <div class="row-hrs">4</div>
+              <div class="row-ot">—</div>
+            </div>
+          </div><!-- /sum-body -->
+
+          <div class="sum-footer">
+            <div class="footer-label">Total</div>
+            <div class="footer-totals">
+              <div class="footer-total-item">
+                <div class="footer-total-lbl">ORD</div>
+                <div class="footer-total-val">13</div>
+              </div>
+              <div class="footer-divider"></div>
+              <div class="footer-total-item">
+                <div class="footer-total-lbl">OT</div>
+                <div class="footer-total-val ot">2.5</div>
+              </div>
+            </div>
+          </div>
+        </div><!-- /sum-card -->
+
+      </div>
+    </div>
+  </div>
+
+</div><!-- /row-of-phones -->
+
+
+<!-- ══════════════════════════════════════════
+     SECTION 2 — HEADER OPTION A
+     Dark gradient with metric cards
+═══════════════════════════════════════════ -->
+<div class="section-title">Header Option A — Dark with metric tiles (collapsed / expanded)</div>
+
+<div class="row-of-phones">
+
+  <!-- A Collapsed -->
+  <div>
+    <div class="phone-label">Collapsed</div>
+    <div class="phone">
+      <div class="hdr-a">
+        <div class="hdr-a-top">
+          <div>
+            <div class="hdr-a-week">6 Mar – 12 Mar</div>
+            <div class="hdr-a-sub">Week 11 · 3 tasks logged</div>
+          </div>
+          <div class="hdr-a-sync">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+            Synced
+          </div>
+        </div>
+        <div class="hdr-a-nav">
+          <div class="hdr-a-nav-btn">‹</div>
+          <div class="hdr-a-nav-week">6 Mar – 12 Mar</div>
+          <div class="hdr-a-nav-btn">›</div>
+        </div>
+      </div>
+      <div class="app-tabs">
+        <div class="app-tab active">Timesheet</div>
+        <div class="app-tab">Notes</div>
+        <div class="app-tab">Finder</div>
+      </div>
+      <div class="app-body">
+        <div class="fake-day"><div><div class="fake-day-name">Monday</div><div class="fake-day-code">WVM0001A99</div></div><div class="fake-pill">5h</div></div>
+        <div class="fake-day" style="opacity:0.45"><div><div class="fake-day-name">Tuesday</div><div class="fake-day-sub">No tasks</div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- A Expanded -->
+  <div>
+    <div class="phone-label">Expanded</div>
+    <div class="phone">
+      <div class="hdr-a">
+        <div class="hdr-a-top">
+          <div>
+            <div class="hdr-a-week">6 Mar – 12 Mar</div>
+            <div class="hdr-a-sub">Week 11 · 3 tasks logged</div>
+          </div>
+          <div class="hdr-a-sync">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+            Synced
+          </div>
+        </div>
+        <div class="hdr-a-metrics">
+          <div class="hdr-a-metric">
+            <div class="hdr-a-metric-val">13</div>
+            <div class="hdr-a-metric-lbl">Ord hrs</div>
+          </div>
+          <div class="hdr-a-metric">
+            <div class="hdr-a-metric-val ot">2.5</div>
+            <div class="hdr-a-metric-lbl">Overtime</div>
+          </div>
+          <div class="hdr-a-metric">
+            <div class="hdr-a-metric-val">4</div>
+            <div class="hdr-a-metric-lbl">Tasks</div>
+          </div>
+        </div>
+        <div class="hdr-a-nav" style="margin-top:14px">
+          <div class="hdr-a-nav-btn">‹</div>
+          <div class="hdr-a-nav-week">6 Mar – 12 Mar</div>
+          <div class="hdr-a-nav-btn">›</div>
+        </div>
+      </div>
+      <div class="app-tabs">
+        <div class="app-tab active">Timesheet</div>
+        <div class="app-tab">Notes</div>
+        <div class="app-tab">Finder</div>
+      </div>
+      <div class="app-body">
+        <div class="fake-day"><div><div class="fake-day-name">Monday</div><div class="fake-day-code">WVM0001A99</div></div><div class="fake-pill">5h</div></div>
+        <div class="fake-day" style="opacity:0.45"><div><div class="fake-day-name">Tuesday</div><div class="fake-day-sub">No tasks</div></div></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+
+<!-- ══════════════════════════════════════════
+     SECTION 3 — HEADER OPTION B
+     White header with colour strip + day bars
+═══════════════════════════════════════════ -->
+<div class="section-title">Header Option B — Light with accent bar + daily hours chart</div>
+
+<div class="row-of-phones">
+
+  <!-- B Collapsed -->
+  <div>
+    <div class="phone-label">Collapsed</div>
+    <div class="phone">
+      <div class="hdr-b">
+        <div class="hdr-b-strip"></div>
+        <div class="hdr-b-inner">
+          <div class="hdr-b-top">
+            <div>
+              <div class="hdr-b-week">6 Mar – 12 Mar</div>
+              <div style="font-size:11px;color:#94a3b8;margin-top:2px;">Week 11 · 3 tasks</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <div class="hdr-b-sync" style="font-size:11px;color:#22c55e;font-weight:600;">✓ Synced</div>
+              <div class="hdr-b-nav">
+                <div class="hdr-b-nav-btn">‹</div>
+                <div class="hdr-b-nav-btn">›</div>
+              </div>
+            </div>
+          </div>
+          <div class="hdr-b-stats">
+            <div class="hdr-b-stat">
+              <div class="hdr-b-stat-val">13</div>
+              <div class="hdr-b-stat-lbl">Ord hrs</div>
+            </div>
+            <div class="hdr-b-stat">
+              <div class="hdr-b-stat-val ot">2.5</div>
+              <div class="hdr-b-stat-lbl">Overtime</div>
+            </div>
+            <div class="hdr-b-stat">
+              <div class="hdr-b-stat-val">4</div>
+              <div class="hdr-b-stat-lbl">Tasks</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="app-tabs" style="background:#0f1c2e;">
+        <div class="app-tab active">Timesheet</div>
+        <div class="app-tab">Notes</div>
+        <div class="app-tab">Finder</div>
+      </div>
+      <div class="app-body">
+        <div class="fake-day"><div><div class="fake-day-name">Monday</div><div class="fake-day-code">WVM0001A99</div></div><div class="fake-pill">5h</div></div>
+        <div class="fake-day" style="opacity:0.45"><div><div class="fake-day-name">Tuesday</div><div class="fake-day-sub">No tasks</div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- B Expanded — with daily bar chart -->
+  <div>
+    <div class="phone-label">Expanded (tap week to toggle)</div>
+    <div class="phone">
+      <div class="hdr-b">
+        <div class="hdr-b-strip"></div>
+        <div class="hdr-b-inner">
+          <div class="hdr-b-top">
+            <div>
+              <div class="hdr-b-week">6 Mar – 12 Mar</div>
+              <div style="font-size:11px;color:#94a3b8;margin-top:2px;">Week 11 · 3 tasks</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <div style="font-size:11px;color:#22c55e;font-weight:600;">✓ Synced</div>
+              <div class="hdr-b-nav">
+                <div class="hdr-b-nav-btn">‹</div>
+                <div class="hdr-b-nav-btn">›</div>
+              </div>
+            </div>
+          </div>
+          <div class="hdr-b-stats">
+            <div class="hdr-b-stat">
+              <div class="hdr-b-stat-val">13</div>
+              <div class="hdr-b-stat-lbl">Ord hrs</div>
+            </div>
+            <div class="hdr-b-stat">
+              <div class="hdr-b-stat-val ot">2.5</div>
+              <div class="hdr-b-stat-lbl">Overtime</div>
+            </div>
+            <div class="hdr-b-stat">
+              <div class="hdr-b-stat-val">4</div>
+              <div class="hdr-b-stat-lbl">Tasks</div>
+            </div>
+          </div>
+          <!-- Day bars chart -->
+          <div class="hdr-b-daybars" style="margin-top:14px;">
+            <div class="hdr-b-daybar-wrap">
+              <div class="hdr-b-daybar-hrs">5h</div>
+              <div class="hdr-b-daybar-outer"><div class="hdr-b-daybar-fill" style="height:100%"></div></div>
+              <div class="hdr-b-daybar-lbl">Mon</div>
+            </div>
+            <div class="hdr-b-daybar-wrap">
+              <div class="hdr-b-daybar-hrs">0h</div>
+              <div class="hdr-b-daybar-outer"><div class="hdr-b-daybar-fill" style="height:0%"></div></div>
+              <div class="hdr-b-daybar-lbl">Tue</div>
+            </div>
+            <div class="hdr-b-daybar-wrap">
+              <div class="hdr-b-daybar-hrs">4h</div>
+              <div class="hdr-b-daybar-outer"><div class="hdr-b-daybar-fill" style="height:80%"></div></div>
+              <div class="hdr-b-daybar-lbl">Wed</div>
+            </div>
+            <div class="hdr-b-daybar-wrap">
+              <div class="hdr-b-daybar-hrs">2h</div>
+              <div class="hdr-b-daybar-outer"><div class="hdr-b-daybar-fill" style="height:40%"></div></div>
+              <div class="hdr-b-daybar-lbl">Thu</div>
+            </div>
+            <div class="hdr-b-daybar-wrap">
+              <div class="hdr-b-daybar-hrs">2h</div>
+              <div class="hdr-b-daybar-outer"><div class="hdr-b-daybar-fill" style="height:40%"></div></div>
+              <div class="hdr-b-daybar-lbl">Fri</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="app-tabs" style="background:#0f1c2e;">
+        <div class="app-tab active">Timesheet</div>
+        <div class="app-tab">Notes</div>
+        <div class="app-tab">Finder</div>
+      </div>
+      <div class="app-body">
+        <div class="fake-day"><div><div class="fake-day-name">Monday</div><div class="fake-day-code">WVM0001A99</div></div><div class="fake-pill">5h</div></div>
+        <div class="fake-day" style="opacity:0.45"><div><div class="fake-day-name">Tuesday</div><div class="fake-day-sub">No tasks</div></div></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+
+<!-- ══════════════════════════════════════════
+     SECTION 4 — HEADER OPTION C
+     Minimal dark with area chart
+═══════════════════════════════════════════ -->
+<div class="section-title">Header Option C — Minimal dark with weekly area chart</div>
+
+<div class="row-of-phones">
+
+  <!-- C Collapsed -->
+  <div>
+    <div class="phone-label">Collapsed</div>
+    <div class="phone">
+      <div class="hdr-c">
+        <div class="hdr-c-top">
+          <div class="hdr-c-nav">
+            <div class="hdr-c-arrow">‹</div>
+            <div class="hdr-c-week">6 Mar – 12 Mar</div>
+            <div class="hdr-c-arrow">›</div>
+          </div>
+          <div class="hdr-c-badges">
+            <div class="hdr-c-badge ord">13h</div>
+            <div class="hdr-c-badge ot">+2.5 OT</div>
+            <div class="hdr-c-badge sync">✓ Synced</div>
+          </div>
+        </div>
+      </div>
+      <div class="app-tabs" style="background:#0f1c2e;">
+        <div class="app-tab active">Timesheet</div>
+        <div class="app-tab">Notes</div>
+        <div class="app-tab">Finder</div>
+      </div>
+      <div class="app-body">
+        <div class="fake-day"><div><div class="fake-day-name">Monday</div><div class="fake-day-code">WVM0001A99</div></div><div class="fake-pill">5h</div></div>
+        <div class="fake-day" style="opacity:0.45"><div><div class="fake-day-name">Tuesday</div><div class="fake-day-sub">No tasks</div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- C Expanded — area chart -->
+  <div>
+    <div class="phone-label">Expanded</div>
+    <div class="phone">
+      <div class="hdr-c">
+        <div class="hdr-c-top">
+          <div class="hdr-c-nav">
+            <div class="hdr-c-arrow">‹</div>
+            <div class="hdr-c-week">6 Mar – 12 Mar</div>
+            <div class="hdr-c-arrow">›</div>
+          </div>
+          <div class="hdr-c-badges">
+            <div class="hdr-c-badge ord">13h</div>
+            <div class="hdr-c-badge ot">+2.5 OT</div>
+          </div>
+        </div>
+        <!-- Area chart -->
+        <div class="hdr-c-chart">
+          <svg viewBox="0 0 300 48" preserveAspectRatio="none">
+            <defs>
+              <linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#4f7aff" stop-opacity="0.35"/>
+                <stop offset="100%" stop-color="#4f7aff" stop-opacity="0.03"/>
+              </linearGradient>
+            </defs>
+            <!-- Day points: M=5h, T=0h, W=4h, Th=2h, F=2h — max=5h maps to y=4, 0h→y=44 -->
+            <path d="M0,4 L75,44 L150,12 L225,28 L300,28 L300,48 L0,48 Z"
+              fill="url(#areaGrad)"/>
+            <path d="M0,4 L75,44 L150,12 L225,28 L300,28"
+              fill="none" stroke="#4f7aff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <!-- Dots -->
+            <circle cx="0" cy="4" r="3" fill="#4f7aff"/>
+            <circle cx="75" cy="44" r="3" fill="#4f7aff" opacity="0.35"/>
+            <circle cx="150" cy="12" r="3" fill="#4f7aff"/>
+            <circle cx="225" cy="28" r="3" fill="#4f7aff"/>
+            <circle cx="300" cy="28" r="3" fill="#4f7aff"/>
+          </svg>
+          <!-- Day labels -->
+          <div style="display:flex;justify-content:space-between;padding:4px 0 0;margin-top:2px;">
+            <span style="font-size:9px;font-weight:700;color:rgba(255,255,255,0.35);text-transform:uppercase;letter-spacing:0.06em;">Mon<br><span style="color:rgba(255,255,255,0.7);font-size:10px;font-family:'DM Mono',monospace;">5h</span></span>
+            <span style="font-size:9px;font-weight:700;color:rgba(255,255,255,0.25);text-transform:uppercase;letter-spacing:0.06em;">Tue<br><span style="color:rgba(255,255,255,0.4);font-size:10px;font-family:'DM Mono',monospace;">0h</span></span>
+            <span style="font-size:9px;font-weight:700;color:rgba(255,255,255,0.35);text-transform:uppercase;letter-spacing:0.06em;">Wed<br><span style="color:rgba(255,255,255,0.7);font-size:10px;font-family:'DM Mono',monospace;">4h</span></span>
+            <span style="font-size:9px;font-weight:700;color:rgba(255,255,255,0.35);text-transform:uppercase;letter-spacing:0.06em;">Thu<br><span style="color:rgba(255,255,255,0.7);font-size:10px;font-family:'DM Mono',monospace;">2h</span></span>
+            <span style="font-size:9px;font-weight:700;color:rgba(255,255,255,0.35);text-transform:uppercase;letter-spacing:0.06em;">Fri<br><span style="color:rgba(255,255,255,0.7);font-size:10px;font-family:'DM Mono',monospace;">2h</span></span>
+          </div>
+        </div>
+      </div>
+      <div class="app-tabs" style="background:#0f1c2e;">
+        <div class="app-tab active">Timesheet</div>
+        <div class="app-tab">Notes</div>
+        <div class="app-tab">Finder</div>
+      </div>
+      <div class="app-body">
+        <div class="fake-day"><div><div class="fake-day-name">Monday</div><div class="fake-day-code">WVM0001A99</div></div><div class="fake-pill">5h</div></div>
+        <div class="fake-day" style="opacity:0.45"><div><div class="fake-day-name">Tuesday</div><div class="fake-day-sub">No tasks</div></div></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ── Sparkline SVG generator ──
+function makeSpark(vals, color) {
+  const w = 200, h = 28;
+  const max = Math.max(...vals, 1);
+  const n = vals.length;
+  const xs = vals.map((_, i) => (i / (n - 1)) * w);
+  const ys = vals.map(v => h - (v / max) * (h - 4) - 2);
+  const pts = xs.map((x, i) => `${x},${ys[i]}`).join(' L');
+  const area = `M${xs[0]},${ys[0]} L${pts} L${xs[n-1]},${h} L${xs[0]},${h} Z`;
+  const line = `M${xs[0]},${ys[0]} L${pts}`;
+  const dots = xs.map((x, i) => vals[i] > 0 ? `<circle cx="${x}" cy="${ys[i]}" r="2.5" fill="${color}"/>` : '').join('');
+
+  return `<svg viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="sg${color.replace('#','')}" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="${color}" stop-opacity="0.18"/>
+        <stop offset="100%" stop-color="${color}" stop-opacity="0.02"/>
+      </linearGradient>
+    </defs>
+    <path d="${area}" fill="url(#sg${color.replace('#','')})"/>
+    <path d="${line}" fill="none" stroke="${color}" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="sparkline-path"/>
+    ${dots}
+  </svg>`;
+}
+
+// Inject sparklines into the static HTML
+document.querySelectorAll('.sparkline-wrap').forEach((el, i) => {
+  const data = [
+    [2,0,1,0,1],
+    [1,2,0,0,0],
+    [0,1,0,1,0],
+    [2,0,2,0,0]
+  ];
+  const colors = ['#4f7aff','#4f7aff','#4f7aff','#ef4444'];
+  if (data[i]) el.innerHTML = makeSpark(data[i], colors[i]);
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git commit -m ' *)",
+      "Bash(git stash *)",
+      "Bash(git push *)",
+      "Bash(curl -s \"https://morow01.github.io/rian/app.html\")",
+      "Bash(git add *)"
+    ]
+  }
+}
