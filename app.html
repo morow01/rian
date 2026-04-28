@@ -14519,6 +14519,47 @@
       padding: 0 0 24px;
     }
 
+    .rtn-page>.hist-hdr {
+      margin-bottom: 0;
+    }
+
+    .rtn-head-year {
+      height: 34px;
+      min-width: 124px;
+      border: none;
+      background: transparent;
+      border-radius: 0;
+      display: grid;
+      grid-template-columns: 34px 1fr 34px;
+      align-items: center;
+      gap: 8px;
+      align-self: center;
+    }
+
+    .rtn-head-year button {
+      height: 100%;
+      border: 1px solid var(--border-subtle);
+      border-radius: 10px;
+      background: var(--bg-code-group);
+      color: var(--accent);
+      cursor: pointer;
+      line-height: 1;
+      font-size: 16px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .rtn-head-year span {
+      text-align: center;
+      color: var(--text-primary);
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: 0;
+      line-height: 1;
+    }
+
     .rtn-top-bar {
       display: flex;
       align-items: center;
@@ -14563,6 +14604,55 @@
       font-size: 13px;
       font-weight: 700;
       cursor: pointer;
+    }
+
+    .rtn-tools-row {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 12px;
+      padding: 9px 16px 14px;
+      background: var(--bg-card);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .rtn-tools-row .rtn-tab-bar {
+      flex: 1;
+      min-width: 0;
+      margin: 0;
+    }
+
+    .rtn-tool-actions {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
+      padding-left: 10px;
+      border-left: 1px solid var(--border);
+    }
+
+    .rtn-tool-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+    }
+
+    @media (max-width: 430px) {
+      .rtn-head-year {
+        min-width: 120px;
+        height: 34px;
+        grid-template-columns: 34px 1fr 34px;
+        gap: 7px;
+      }
+
+      .rtn-head-year span {
+        font-size: 19px;
+      }
+
     }
 
     /* Empty state */
@@ -14646,6 +14736,7 @@
       font-weight: 700;
       color: var(--text-muted);
       text-align: left;
+      border-right: 1px solid var(--border);
     }
 
     .rtn-th-month {
@@ -14675,6 +14766,7 @@
       font-weight: 600;
       color: var(--text-primary);
       border-bottom: 1px solid var(--border);
+      border-right: 1px solid var(--border);
       vertical-align: middle;
     }
 
@@ -14723,6 +14815,18 @@
 
     .rtn-td-cell.cur-col {
       background: rgba(var(--accent-rgb), 0.05);
+    }
+
+    .rtn-tab-content .rtn-grid-scroll,
+    .rtn-tab-content .rtn-table,
+    .rtn-tab-content .rtn-th-site,
+    .rtn-tab-content .rtn-th-month,
+    .rtn-tab-content .rtn-td-cell {
+      background: var(--bg-card);
+    }
+
+    .rtn-tab-content .rtn-td-cell.cur-col {
+      background: rgba(var(--accent-rgb), 0.035);
     }
 
     /* Cell button */
@@ -14798,7 +14902,8 @@
 
     .rtn-tab-btn {
       flex: 1;
-      padding: 7px 4px;
+      min-height: 36px;
+      padding: 0 4px;
       text-align: center;
       font-size: 12px;
       font-weight: 700;
@@ -14843,7 +14948,7 @@
 
     #rtn-tab-stats,
     #rtn-tab-due {
-      padding: 0 16px;
+      padding: 12px 16px 0;
     }
 
     /* Mobile stats cards */
@@ -15083,15 +15188,46 @@
     /* ── Routines desktop overrides ── */
     @media (min-width: 1280px) {
       .rtn-page {
-        max-width: 1400px;
-        margin: 0 auto;
+        width: 100%;
+        max-width: none;
+        margin: 0;
         padding: 0 24px 40px;
+      }
+
+      .rtn-page>.hist-desk-head {
+        margin-left: -24px;
+        margin-right: -24px;
+        margin-bottom: 24px;
+        padding-left: 46px;
+        padding-right: 46px;
+      }
+
+      .rtn-head-year {
+        height: 36px;
+        min-width: 132px;
+        grid-template-columns: 36px 1fr 36px;
       }
 
       .rtn-top-bar {
         padding: 16px 0;
         background: transparent;
         border-bottom: none;
+      }
+
+      .rtn-tools-row {
+        padding: 0 0 16px;
+        background: transparent;
+        border-bottom: none;
+      }
+
+      .rtn-tools-row.rtn-desktop-tools {
+        display: none;
+      }
+
+      .rtn-tool-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
       }
 
       .rtn-year-label {
@@ -15190,7 +15326,8 @@
       .rtn-dash-card .rtn-table th {
         position: sticky;
         top: 0;
-        background: var(--bg-card-alt);
+        background: var(--bg-card);
+        border-bottom: 2px solid var(--border);
         z-index: 2;
       }
 
@@ -15198,7 +15335,7 @@
         position: sticky;
         left: 0;
         z-index: 3;
-        background: var(--bg-card-alt);
+        background: var(--bg-card);
         width: 120px;
         min-width: 120px;
         max-width: 120px;
@@ -15219,6 +15356,21 @@
       .rtn-dash-card .rtn-table {
         width: 100%;
         table-layout: fixed;
+      }
+
+      .rtn-dash-card .rtn-td-cell.cur-col {
+        background: rgba(var(--accent-rgb), 0.035);
+      }
+
+      .rtn-dash-card .rtn-th-month.cur {
+        background: var(--bg-card);
+      }
+
+      .rtn-card-title-actions {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-left: auto;
       }
 
       .rtn-dash-card .rtn-cell-btn:hover {
@@ -18468,15 +18620,15 @@
       grid-template-columns: repeat(3, 1fr);
       gap: 2px;
       padding: 3px;
-      border: 1px solid var(--border);
-      border-radius: 11px;
-      background: var(--bg-input);
+      border: none;
+      border-radius: 14px;
+      background: var(--bg-code-group);
     }
 
     .hist-mobile-scope button {
-      height: 32px;
+      height: 38px;
       border: 0;
-      border-radius: 8px;
+      border-radius: 11px;
       background: transparent;
       color: var(--text-secondary);
       font-size: 12px;
@@ -18485,9 +18637,9 @@
     }
 
     .hist-mobile-scope button.active {
-      background: var(--bg-card);
-      color: var(--accent);
-      box-shadow: 0 1px 2px rgba(var(--shadow-rgb), 0.08);
+      background: var(--bg-segment-active);
+      color: var(--text-primary);
+      box-shadow: 0 1px 3px rgba(var(--shadow-rgb), 0.12);
     }
 
     .hist-stats {
@@ -19986,7 +20138,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '6.0.79';
+    const VERSION = '6.0.96';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -23713,6 +23865,17 @@
       const pref = getLayoutPref();
       if (pref === 'mobile') return false;
       return window.innerWidth >= 1280;
+    }
+
+    function renderSecondaryPageHeader(title, subtitle, actionHtml, backOnclick) {
+      const backSvg = '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>';
+      const backAction = backOnclick || ("setView('" + (state.prevView || 'week') + "')");
+      const backBtn = '<button class="hist-icon-btn" onclick="' + backAction + '" title="Back">' + backSvg + '</button>';
+      const body = '<div style="flex:1;min-width:0"><h2>' + esc(title) + '</h2><p>' + esc(subtitle) + '</p></div>';
+      if (_isDesktop()) {
+        return '<div class="hist-desk-head">' + backBtn + '<div><h1>' + esc(title) + '</h1><p>' + esc(subtitle) + '</p></div>' + (actionHtml ? '<div style="margin-left:auto">' + actionHtml + '</div>' : '') + '</div>';
+      }
+      return '<div class="hist-hdr">' + backBtn + body + (actionHtml || '') + '</div>';
     }
 
     function renderWeekView() {
@@ -29146,7 +29309,7 @@
 
       return '<div class="j-screen">'
         + '<div class="j-top-bar">'
-        + '<div style="flex:1"><div class="j-top-title">Field Journal' + _jSyncDot() + '</div></div>'
+        + '<div style="flex:1"></div>'
         + (edit
           ? '<button class="j-edit-done" onclick="jExitEditMode()">Done</button>'
           : '<button class="j-search-btn" onclick="jToggleSearch()" title="Search">'
@@ -33215,7 +33378,7 @@
         if (!isFuture) {
           if (ord > 0 || ot > 0 || isCurrent) badges += '<span class="hist-badge blue">' + Math.round(ord + ot) + 'h</span>';
           else badges += '<span class="hist-badge muted">0h</span>';
-          if (ot > 0) badges += '<span class="hist-badge amber">+' + Math.round(ot) + ' OT</span>';
+          if (ot > 0) badges += '<span class="hist-badge amber">' + Math.round(ot) + ' OT</span>';
           if (coCount > 0) badges += '<span class="hist-badge red">' + phoneSvg + ' ' + coCount + '</span>';
         }
 
@@ -34520,13 +34683,9 @@
 
     // Conflicts list screen
     function renderTagsFullView() {
-      const tagSvg = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>`;
+      const tagBack = "event.stopPropagation();if(_teReturnNoteId){_catDropdownOpen=_teReturnNoteId;_teReturnNoteId=null;}setView('notes')";
       return `
-        <div style="background:var(--bg-card);border-bottom:1px solid var(--border);padding:14px 16px 12px;display:flex;align-items:center;gap:10px">
-          <button class="back-btn" onclick="event.stopPropagation();if(_teReturnNoteId){_catDropdownOpen=_teReturnNoteId;_teReturnNoteId=null;}setView('notes')">${`<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>`}</button>
-          <span style="display:flex;align-items:center;color:var(--accent)">${tagSvg}</span>
-          <span style="font-size:17px;font-weight:800;flex:1;color:var(--text-primary)">Notes Tag Manager</span>
-        </div>
+        ${renderSecondaryPageHeader('Notes Tag Manager', 'Create, edit and toggle note tags', '', tagBack)}
         <div style="background:var(--bg-page);min-height:100vh;padding:20px 16px 100px">
           <div id="tag-editor-body" style="max-width:480px;margin:0 auto;background:var(--bg-card);border-radius:16px;padding:16px 18px;box-shadow:0 1px 4px rgba(var(--shadow-rgb),0.07)"></div>
         </div>`;
@@ -37803,14 +37962,26 @@
       if (state.view === 'routines') render();
     }
 
+    function renderRoutinesPageHeader(year) {
+      const yearControl = '<div class="rtn-head-year" aria-label="Routine year">' +
+        '<button onclick="event.stopPropagation();routinesChangeYear(-1)" title="Previous year"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>' +
+        '<span>' + year + '</span>' +
+        '<button onclick="event.stopPropagation();routinesChangeYear(1)" title="Next year"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></button>' +
+        '</div>';
+      return renderSecondaryPageHeader('Routines', 'Track monthly site visits', yearControl);
+    }
+
     // Render the Routines view
     function renderRoutinesView() {
       const r = state.routines;
-      if (!r) return `<div class="rtn-page"><div class="rtn-empty"><div class="rtn-empty-title">Loading…</div></div></div>`;
+      const year = state.routinesYear;
+      const routinesHeader = renderRoutinesPageHeader(year);
+      if (!r) return `<div class="rtn-page">${routinesHeader}<div class="rtn-empty"><div class="rtn-empty-title">Loading...</div></div></div>`;
 
       if (!r.selectedSites || r.selectedSites.length === 0) {
         return `
           <div class="rtn-page">
+            ${routinesHeader}
             <div class="rtn-empty">
               <div class="rtn-empty-icon">🗓️</div>
               <div class="rtn-empty-title">Track your routine visits</div>
@@ -37823,7 +37994,6 @@
       const now = new Date();
       const curYear = now.getFullYear();
       const curMonth = now.getMonth() + 1; // 1-based
-      const year = state.routinesYear;
 
       // Build grid HTML
       let headCells = `<th class="rtn-th-site">Site</th>`;
@@ -37957,20 +38127,16 @@
           deskHeadCells += '<th class="rtn-th-month' + (isCur ? ' cur' : '') + '">' + MONTHS_SHORT[m - 1] + '</th>';
         }
 
-        return '<div class="rtn-page">'
-          + '<div class="rtn-top-bar"><div class="rtn-year-nav">'
-          + '<button class="rtn-year-btn" onclick="routinesChangeYear(-1)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>'
-          + '<span class="rtn-year-label">' + year + '</span>'
-          + '<button class="rtn-year-btn" onclick="routinesChangeYear(1)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></button>'
-          + '</div><div style="display:flex;gap:6px;align-items:center">'
-          + '<button class="rtn-edit-btn" onclick="refreshRoutines()" title="Refresh data" style="padding:7px 10px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg></button>'
+        return '<div class="rtn-page">' + routinesHeader
+          + '<div class="rtn-tools-row rtn-desktop-tools"><div class="rtn-tool-actions">'
+          + '<button class="rtn-edit-btn rtn-tool-icon" onclick="refreshRoutines()" title="Refresh data"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg></button>'
           + '<button class="rtn-edit-btn" onclick="openRoutinesSitePicker()">Edit Sites</button>'
           + '</div></div>'
           // Dashboard grid
           + '<div class="rtn-dash">'
           // Main grid card
           + '<div class="rtn-dash-card">'
-          + '<div class="rtn-dash-card-hdr">Routine Visits <span class="rtn-dash-badge">' + sortedSites.length + ' sites &times; 12 months</span></div>'
+          + '<div class="rtn-dash-card-hdr">Routine Visits <span class="rtn-card-title-actions"><button class="rtn-edit-btn rtn-tool-icon" onclick="refreshRoutines()" title="Refresh data"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg></button><button class="rtn-edit-btn" onclick="openRoutinesSitePicker()">Edit Sites</button></span></div>'
           + '<div class="rtn-grid-scroll" id="rtn-grid-scroll"><table class="rtn-table"><thead><tr>' + deskHeadCells + '</tr></thead><tbody>' + rows + '</tbody></table></div>'
           + '</div>'
           // Sidebar
@@ -38007,21 +38173,18 @@
 
       // Mobile due + never (reuse existing dueHtml/neverHtml)
 
-      return '<div class="rtn-page">'
-        + '<div class="rtn-top-bar"><div class="rtn-year-nav">'
-        + '<button class="rtn-year-btn" onclick="routinesChangeYear(-1)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>'
-        + '<span class="rtn-year-label">' + year + '</span>'
-        + '<button class="rtn-year-btn" onclick="routinesChangeYear(1)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></button>'
-        + '</div><div style="display:flex;gap:6px;align-items:center">'
-        + '<button class="rtn-edit-btn" onclick="refreshRoutines()" title="Refresh data" style="padding:7px 10px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg></button>'
-        + '<button class="rtn-edit-btn" onclick="openRoutinesSitePicker()">Edit Sites</button>'
-        + '</div></div>'
+      return '<div class="rtn-page">' + routinesHeader
+        + '<div class="rtn-tools-row">'
         // Tab bar
         + '<div class="rtn-tab-bar">'
         + '<button class="rtn-tab-btn active" onclick="rtnMobTab(\'grid\',this)">Grid</button>'
         + '<button class="rtn-tab-btn" onclick="rtnMobTab(\'stats\',this)">Stats</button>'
         + '<button class="rtn-tab-btn" onclick="rtnMobTab(\'due\',this)">Due <span class="rtn-tab-badge">' + dueVisits.length + '</span></button>'
         + '</div>'
+        + '<div class="rtn-tool-actions">'
+        + '<button class="rtn-edit-btn rtn-tool-icon" onclick="refreshRoutines()" title="Refresh data"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg></button>'
+        + '<button class="rtn-edit-btn rtn-tool-icon" onclick="openRoutinesSitePicker()" title="Edit sites"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></button>'
+        + '</div></div>'
         // Tab: Grid
         + '<div class="rtn-tab-content active" id="rtn-tab-grid">'
         + '<div class="rtn-sticky-hdr" id="rtn-sticky-hdr"><table class="rtn-table"><thead><tr>' + headCells + '</tr></thead></table></div>'
@@ -38552,7 +38715,8 @@
       detailHtml += '</div>';
 
       // Wrap in three-panel + schedule overlay
-      return '<main><div class="dco-wrap">' + weeksHtml + '<div class="dj-resize-handle dj-rh-invis" onmousedown="dcoResizeStart(event,1)"></div>' + calloutsHtml + '<div class="dj-resize-handle dj-rh-invis" onmousedown="dcoResizeStart(event,2)"></div>' + detailHtml + '</div></main>' + renderOcScheduleOverlay();
+      var scheduleAction = '<button class="hist-icon-btn" onclick="ocOpenSchedule()" title="On-Call Schedule"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></button>';
+      return '<main>' + renderSecondaryPageHeader('Callouts', 'On-call incident log and schedule', scheduleAction) + '<div class="dco-wrap">' + weeksHtml + '<div class="dj-resize-handle dj-rh-invis" onmousedown="dcoResizeStart(event,1)"></div>' + calloutsHtml + '<div class="dj-resize-handle dj-rh-invis" onmousedown="dcoResizeStart(event,2)"></div>' + detailHtml + '</div></main>' + renderOcScheduleOverlay();
     }
 
     // ── Desktop Callouts: resizable column widths ──
@@ -38797,14 +38961,9 @@
       });
       const avgPerWeek = pastOnCallCount > 0 ? (totalIncidents / pastOnCallCount).toFixed(1) : '–';
 
+      const scheduleAction = '<button class="hist-icon-btn" onclick="ocOpenSchedule()" title="On-Call Schedule"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></button>';
       let html = `<div class="co-page">`;
-      // Header bar — calendar icon opens schedule overlay
-      html += `<div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;">
-        <span style="font-size:17px;font-weight:700;color:var(--text-primary)">Callouts</span>
-        <button class="oc-cal-btn" onclick="ocOpenSchedule()" title="On-Call Schedule">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>On-Call Schedule
-        </button>
-      </div>`;
+      html += renderSecondaryPageHeader('Callouts', 'On-call incident log and schedule', scheduleAction);
 
       // ── Current Week card (same style as Previous Weeks) ──
       // Show if week entry exists OR if marked on-call/extra in schedule
