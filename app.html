@@ -19986,7 +19986,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '6.0.74';
+    const VERSION = '6.0.76';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -23453,7 +23453,7 @@
       </div>
       <div class="flex-1 text-center" style="min-width:0">
         <div class="text-xs flex items-center justify-center gap-2" style="color:var(--text-header-sub);min-height:18px">
-          <span title="${syncTitles[state.syncStatus]}" style="color:${syncStatusColor};font-weight:600">${syncStatusLabel}</span>
+          <span title="${syncTitles[state.syncStatus]}" style="color:${syncStatusColor}">${syncStatusLabel}</span>
           <span style="color:var(--text-muted)" class="text-xs">v${VERSION}</span>
         </div>
       </div>
@@ -37052,9 +37052,11 @@
       };
       const payload = {
         _format: 'rian-export-v1',
+        _date: dateKey,
         _exportedAt: new Date(now).toISOString(),
         _sourceUid: uid,
         _sourceEmail: state.currentUser?.email || '',
+        _deviceName: getDeviceName(),
         _version: VERSION,
         _backedUpAt: now,
         _noteCount: noteCount,
@@ -37090,6 +37092,8 @@
         // Blob size calc failed — still attempt the write
       }
       await backupRef.set(payload);
+      const verify = await backupRef.get({ source: 'server' }).catch(() => null);
+      if (!verify?.exists) throw new Error('backup write not confirmed');
       // Prune: keep only the 30 most recent backups
       try {
         const allSnap = await db_fs.collection(`users/${uid}/backups`).orderBy('_backedUpAt', 'asc').get();
@@ -37117,7 +37121,8 @@
       if (!listEl) return;
       listEl.innerHTML = '<div style="padding:32px 24px;text-align:center;color:var(--text-muted);font-size:0.9rem">Loading…</div>';
       try {
-        const snap = await db_fs.collection(`users/${uid}/backups`).orderBy('_backedUpAt', 'desc').limit(30).get();
+        const col = db_fs.collection(`users/${uid}/backups`).orderBy('_backedUpAt', 'desc').limit(30);
+        const snap = await col.get({ source: 'server' }).catch(() => col.get());
         if (snap.empty) {
           listEl.innerHTML = '<div style="padding:32px 24px;text-align:center;color:var(--text-muted);font-size:0.9rem">No backups yet.<br><span style="font-size:0.78rem">The first backup will run automatically the next time you open the app.</span></div>';
           return;
@@ -37132,7 +37137,9 @@
           const timeLabel = b._backedUpAt
             ? new Date(b._backedUpAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
             : '';
+          const deviceLabel = b._deviceName ? `From ${b._deviceName}` : '';
           const meta = [
+            deviceLabel,
             b._noteCount != null ? `${b._noteCount} notes` : '',
             b._weekCount != null ? `${b._weekCount} weeks` : '',
             b._calloutCount != null && b._calloutCount > 0 ? `${b._calloutCount} callouts` : '',
