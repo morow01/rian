@@ -2695,6 +2695,11 @@
       --amber-rgb: 15, 56, 15;
       --priority-low-border: #8BAC0F;
       --priority-low-dark: #0F380F;
+      --notes-tab-seg-bg: #306230;
+      --notes-tab-active-bg: #9BBC0F;
+      --notes-tab-inactive-text: #9BBC0F;
+      --notes-tab-count-bg: #0F380F;
+      --notes-tab-count-text: #9BBC0F;
     }
 
     [data-theme="gameboy"] body {
@@ -2912,6 +2917,33 @@
     }
 
     /* Fix ··· dots button — use smaller font and no letter-spacing */
+    [data-theme="gameboy"] .notes-tab,
+    [data-theme="gameboy"] .dnotes-sidebar-btn,
+    [data-theme="gameboy"] .dnotes-cat-btn {
+      color: #0F380F;
+    }
+
+    [data-theme="gameboy"] .notes-tab:not(.active),
+    [data-theme="gameboy"] .dnotes-sidebar-btn:not(.active),
+    [data-theme="gameboy"] .dnotes-cat-btn:not(.active) {
+      color: #306230;
+    }
+
+    [data-theme="gameboy"] .notes-tab:not(.active) .tab-count,
+    [data-theme="gameboy"] .notes-tab .tab-count.archive-count,
+    [data-theme="gameboy"] .notes-tab .tab-count.bin-count,
+    [data-theme="gameboy"] .dnotes-count {
+      background: var(--notes-tab-count-bg);
+      color: var(--notes-tab-count-text);
+    }
+
+    [data-theme="gameboy"] .notes-tab.active .tab-count,
+    [data-theme="gameboy"] .notes-tab.active .tab-count.archive-count,
+    [data-theme="gameboy"] .notes-tab.active .tab-count.bin-count {
+      background: var(--notes-tab-count-bg);
+      color: var(--notes-tab-count-text);
+    }
+
     [data-theme="gameboy"] .btn-more {
       font-size: 10px !important;
       letter-spacing: 0 !important;
@@ -19522,7 +19554,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '6.1.15';
+    const VERSION = '6.1.16';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -28418,11 +28450,11 @@
       const activeCount = openNotes.length + doneNotes.length;
       const binCount = binNotes.length;
       const notesTab = state.notesTab || 'notes';
-      const _ntActive = 'background:var(--bg-segment-active);color:var(--text-primary);box-shadow:0 1px 3px rgba(var(--shadow-rgb),0.12)';
-      const _ntInactive = 'color:var(--text-muted)';
+      const _ntActive = 'background:var(--notes-tab-active-bg,var(--bg-segment-active));color:var(--text-primary);box-shadow:0 1px 3px rgba(var(--shadow-rgb),0.12)';
+      const _ntInactive = 'color:var(--notes-tab-inactive-text,var(--text-muted))';
       const tabBar = `
   <div style="padding:10px 16px 2px">
-    <div style="display:flex;padding:3px;border-radius:14px;background:var(--bg-code-group);gap:2px">
+    <div style="display:flex;padding:3px;border-radius:14px;background:var(--notes-tab-seg-bg,var(--bg-code-group));gap:2px">
       <button onclick="switchNotesTab('notes')" style="flex:1;padding:7px 4px;border-radius:11px;border:none;font-size:12px;font-weight:700;cursor:pointer;transition:all 0.18s;${notesTab === 'notes' ? _ntActive : _ntInactive}">
         <span style="display:inline-flex;align-items:center;gap:5px">
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg>
