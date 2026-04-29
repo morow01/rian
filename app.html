@@ -1636,6 +1636,140 @@
     }
 
     /* ── Task fullscreen modal (experiment/fullscreen-task-modal) ── */
+    @media (max-width: 1279px) {
+      :root[data-task-layout="grouped"] .week-list {
+        background: var(--bg-page);
+        border: 0;
+        padding: 0 8px 12px;
+      }
+
+      :root[data-task-layout="grouped"] .day-card {
+        margin: 10px 0;
+        border: 0;
+        border-radius: 0;
+        overflow: visible;
+        background: transparent;
+        box-shadow: none;
+      }
+
+      :root[data-task-layout="grouped"] .day-card:last-child {
+        border-bottom: 0;
+      }
+
+      :root[data-task-layout="grouped"] .day-header {
+        position: relative;
+        top: auto;
+        padding: 15px 17px;
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 3px 12px rgba(var(--shadow-rgb), 0.07);
+        gap: 16px;
+      }
+
+      :root[data-task-layout="grouped"] .day-card.expanded .day-header {
+        border-bottom: 1px solid var(--border);
+        border-radius: 16px;
+      }
+
+      :root[data-task-layout="grouped"] .day-activities {
+        margin: 10px 10px 0 10px;
+        padding: 0;
+        border: 0;
+        border-radius: 0;
+        background: transparent;
+        padding-left: 0;
+        overflow: hidden;
+        box-shadow: none;
+      }
+
+      :root[data-task-layout="grouped"] .day-activities::before,
+      :root[data-task-layout="grouped"] .activity-card::before,
+      :root[data-task-layout="grouped"] .activity-card::after {
+        display: none;
+      }
+
+      :root[data-task-layout="grouped"] .day-today .day-header::before {
+        display: block;
+        border-radius: 16px 0 0 16px;
+      }
+
+      :root[data-task-layout="grouped"] .activity-card {
+        margin: 0;
+        border: 1px solid var(--border);
+        border-bottom: 0;
+        border-radius: 0;
+        box-shadow: none;
+        overflow: hidden;
+        background: var(--bg-card);
+      }
+
+      :root[data-task-layout="grouped"] .activity-card:first-of-type {
+        border-top-left-radius: 12px;
+        border-top-right-radius: 12px;
+      }
+
+      :root[data-task-layout="grouped"] .activity-card:last-of-type {
+        border-bottom: 1px solid var(--border);
+        border-bottom-left-radius: 12px;
+        border-bottom-right-radius: 12px;
+        box-shadow: 0 1px 5px rgba(var(--shadow-rgb), 0.04);
+      }
+
+      :root[data-task-layout="grouped"] .activity-card+.activity-card {
+        border-top-color: var(--border-subtle, #EAEFF5);
+      }
+
+      :root[data-task-layout="grouped"] .activity-card.expanded {
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        box-shadow: 0 2px 8px rgba(var(--shadow-rgb), 0.05);
+        margin: 0 0 10px;
+      }
+
+      :root[data-task-layout="grouped"] .activity-card:has(+ .activity-card.expanded) {
+        border-bottom: 1px solid var(--border);
+        border-bottom-left-radius: 12px;
+        border-bottom-right-radius: 12px;
+        box-shadow: 0 2px 8px rgba(var(--shadow-rgb), 0.05);
+      }
+
+      :root[data-task-layout="grouped"] .activity-card.expanded .activity-detail {
+        background: color-mix(in srgb, var(--bg-card) 92%, var(--bg-page));
+      }
+
+      :root[data-task-layout="grouped"] .activity-card.expanded+.activity-card {
+        border-top: 1px solid var(--border);
+        border-top-left-radius: 12px;
+        border-top-right-radius: 12px;
+      }
+
+      :root[data-task-layout="grouped"] .activity-card.expanded~.activity-card:not(.expanded)+.activity-card:not(.expanded) {
+        border-top-left-radius: 0;
+        border-top-right-radius: 0;
+      }
+
+      :root[data-task-layout="grouped"] .activity-card.expanded .act-actions-row {
+        background: color-mix(in srgb, var(--bg-card) 88%, var(--bg-page));
+        border-top-color: var(--border) !important;
+        padding-top: 12px !important;
+        padding-right: 24px !important;
+      }
+
+      :root[data-task-layout="grouped"] .day-activities .add-task-btn {
+        margin: 10px 8px 0 18px !important;
+        width: calc(100% - 26px) !important;
+        border-radius: 12px !important;
+        border: 1px solid var(--border) !important;
+        background: var(--bg-card) !important;
+        box-shadow: 0 1px 5px rgba(var(--shadow-rgb), 0.04);
+      }
+
+      :root[data-task-layout="grouped"] .day-card.expanded {
+        background: transparent;
+      }
+    }
+
     #task-modal-overlay {
       display: none;
       position: fixed;
@@ -20155,7 +20289,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '6.1.0';
+    const VERSION = '6.1.10';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -23540,6 +23674,16 @@
                   </button>`;
             })()}
                   ${(() => {
+              const isGrouped = getTaskLayout() === 'grouped';
+              return `<button id="menu-task-layout-btn" class="menu-row" onclick="setTaskLayout(getTaskLayout()==='grouped'?'timeline':'grouped')">
+                    <span class="menu-row-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="5" width="16" height="4" rx="1"/><rect x="4" y="15" width="16" height="4" rx="1"/><path d="M8 9v6"/></svg></span>
+                    <span class="menu-row-body"><span class="menu-row-label">Task layout</span><span id="menu-task-layout-sub" class="menu-row-sub">${isGrouped ? 'Grouped cards' : 'Timeline connectors'}</span></span>
+                    <span id="menu-task-layout-track" style="width:36px;height:20px;border-radius:10px;background:${isGrouped ? 'var(--accent)' : 'var(--border-strong)'};position:relative;transition:background 0.2s;flex-shrink:0;display:inline-block;">
+                      <span id="menu-task-layout-pill" style="position:absolute;top:2px;left:${isGrouped ? '18px' : '2px'};width:16px;height:16px;border-radius:50%;background:#fff;transition:left 0.2s;box-shadow:0 1px 4px rgba(var(--shadow-rgb),0.18);display:block;"></span>
+                    </span>
+                  </button>`;
+            })()}
+                  ${(() => {
               const lp = getLayoutPref();
               const isForceMobile = lp === 'mobile';
               const autoDesk = window.innerWidth >= 1280;
@@ -24476,6 +24620,7 @@
         state.weekData.days.forEach((_, i) => state.expandedDays.add(i));
       }
       saveUiState();
+
       render();
     }
 
@@ -24545,9 +24690,19 @@
 
     function toggleActivityDetails(actId) {
       const isExpanded = state.activitiesExpanded.has(actId);
+      let mobileSiblingActIds = [];
       if (isExpanded) {
         state.activitiesExpanded.delete(actId);
       } else {
+        if (getTaskLayout() === 'grouped' && window.matchMedia && window.matchMedia('(max-width: 1279px)').matches) {
+          const day = state.weekData?.days?.find(d => (d.activities || []).some(a => a.id === actId));
+          if (day) {
+            mobileSiblingActIds = (day.activities || [])
+              .filter(a => a.id !== actId && state.activitiesExpanded.has(a.id))
+              .map(a => a.id);
+            (day.activities || []).forEach(a => state.activitiesExpanded.delete(a.id));
+          }
+        }
         state.activitiesExpanded.add(actId);
       }
       saveUiState();
@@ -24559,6 +24714,27 @@
       const detail = card.querySelector('.activity-detail');
       const chevron = card.querySelector('.chevron');
       const nowExpanded = !isExpanded;
+
+      mobileSiblingActIds.forEach(otherId => {
+        const otherCard = document.querySelector(`.activity-card[data-act-id="${otherId}"]`);
+        if (!otherCard) return;
+        otherCard.classList.remove('expanded');
+        const otherDetail = otherCard.querySelector('.activity-detail');
+        const otherChevron = otherCard.querySelector('.chevron');
+        if (otherDetail) {
+          otherDetail.style.maxHeight = otherDetail.scrollHeight + 'px';
+          otherDetail.offsetHeight;
+          otherDetail.classList.remove('open');
+          otherDetail.style.maxHeight = '0px';
+          setTimeout(() => {
+            if (!state.activitiesExpanded.has(otherId)) {
+              otherDetail.style.display = 'none';
+              otherDetail.classList.add('hidden');
+            }
+          }, ANIM_EXPAND_MS + 20);
+        }
+        if (otherChevron) otherChevron.style.transform = 'rotate(0deg)';
+      });
 
       if (nowExpanded) {
         card.classList.add('expanded');
@@ -24582,12 +24758,16 @@
         }
         if (detail) {
           detail.style.display = 'block';
+          detail.style.maxHeight = '0px';
           // Force reflow before adding class to trigger transition
           detail.offsetHeight;
           detail.classList.remove('hidden');
           detail.classList.add('open');
-          detail.style.maxHeight = 'none'; // CRITICAL FIX: Reset max-height so content can grow freely
+          detail.style.maxHeight = detail.scrollHeight + 'px';
           detail.querySelectorAll('textarea').forEach(autoGrow);
+          setTimeout(() => {
+            if (state.activitiesExpanded.has(actId)) detail.style.maxHeight = 'none';
+          }, ANIM_EXPAND_MS + 20);
         }
         if (chevron) chevron.style.transform = 'rotate(90deg)';
         syncTimelineAnimation();
@@ -25432,7 +25612,7 @@
               </div>
             </div>
 
-            <div class="act-actions-row" style="gap:8px;border-top:1px solid var(--border);padding-top:14px;margin-top:8px;margin-left:-16px;margin-right:-16px;padding-left:16px;padding-right:16px;">
+            <div class="act-actions-row" style="gap:8px;border-top:1px solid var(--border);padding-top:14px;margin-top:8px;margin-left:-16px;margin-right:-16px;padding-left:16px;padding-right:34px;">
               ${act._draft
           ? `<button onclick="saveTaskDraft('${act.id}',${di})" class="act-action-btn act-action-note" style="flex:1;">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
@@ -25455,7 +25635,7 @@
                   Remedy
                 </button>
                 <div style="width:1px;background:var(--border);align-self:stretch;margin:0 2px;flex-shrink:0"></div>
-                <button onclick="event.stopPropagation();showConfirm('Delete task?','${escAttr(act.description || 'Unnamed')}',()=>removeActivity('${act.id}',${di}))" class="act-action-btn act-action-delete" style="flex:none;padding:0 14px" title="Delete">
+                <button onclick="event.stopPropagation();showConfirm('Delete task?','${escAttr(act.description || 'Unnamed')}',()=>removeActivity('${act.id}',${di}))" class="act-action-btn act-action-delete" style="flex:none;padding:0 14px;margin-right:10px" title="Delete">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
                 </button>`}
             </div>
@@ -34446,6 +34626,22 @@
       render();
     }
 
+    function getTaskLayout() {
+      try { return localStorage.getItem('rian_task_layout') || 'grouped'; } catch { return 'grouped'; }
+    }
+    function applyTaskLayout() {
+      const layout = getTaskLayout();
+      document.documentElement.setAttribute('data-task-layout', layout === 'timeline' ? 'timeline' : 'grouped');
+    }
+    function setTaskLayout(layout) {
+      const next = layout === 'timeline' ? 'timeline' : 'grouped';
+      try { localStorage.setItem('rian_task_layout', next); } catch { }
+      applyTaskLayout();
+      state.activitiesExpanded.clear();
+      showToast(next === 'grouped' ? 'Task layout: Grouped cards' : 'Task layout: Timeline connectors');
+      render();
+    }
+
     function toggleThemeMenu(e) {
       if (e) e.stopPropagation();
       const opening = !state.isMenuOpen;
@@ -41387,6 +41583,7 @@ Rules:
       if (typeof state !== 'undefined' && state.conflicts) state.conflicts = [];
 
       try { initTheme(); } catch (e) { console.warn('[Rian] Theme blocked by browser:', e); }
+      try { applyTaskLayout(); } catch (e) { console.warn('[Rian] Task layout blocked by browser:', e); }
 
       // v5.8.0: Re-render when crossing desktop/mobile breakpoint
       var _prevDesktop = _isDesktop();
