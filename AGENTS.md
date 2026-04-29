@@ -16,9 +16,9 @@ A Progressive Web App for field technicians — timesheets, notes (TipTap rich t
 
 ## Version
 `const VERSION = 'x.y.z'` in `app.html` (~line 18699). Bump on every change. Only location that needs updating (index.html version references are static).
-Current version: **6.1.14**
+Current version: **6.1.15**
 
-**8 themes active**: `Codex` (default light), `dark` (slate-based), `champagne`, `champagne-dark`, `apple` (macOS), `gameboy` (Game Boy), `lcd` (LCD), `retro` (Retro). Theme picker lives in ☰ menu → Display. Switcher at `setTheme(key)`, registry at `THEME_META`.
+**7 themes active**: `Codex` (default light), `dark` (slate-based), `champagne`, `champagne-dark`, `apple` (macOS), `gameboy` (Game Boy), `lcd` (LCD). Theme picker lives in ☰ menu → Display. Switcher at `setTheme(key)`, registry at `THEME_META`.
 
 **Variable system**: `:root` defines all structural tokens; `[data-theme="dark"]` overrides them. Includes RGB triples (`--accent-rgb`, `--priority-high-rgb`, `--priority-low-rgb`, `--priority-medium-rgb`, `--amber-rgb`, `--shadow-rgb`, `--shadow-brand-rgb`) so any opacity tint becomes themable via `rgba(var(--X-rgb), opacity)`.
 
@@ -331,7 +331,7 @@ Desktop Notes action bar (Active tab only) now includes two extra action buttons
 
 Both buttons only shown when `notesTab === 'notes'` (Active tab). Same guard as the existing Archive/Delete buttons.
 
-### Week History Redesign + Search (v6.0.26-v6.1.14)
+### Week History Redesign + Search (v6.0.26-v6.1.15)
 Week History has both desktop and mobile implementations in `renderHistoryView()` with a desktop branch to `_renderDesktopHistory()`.
 
 Key functions:
@@ -381,7 +381,7 @@ Firestore `onSnapshot` WebSocket can silently go stale across browsers. Added 10
 `?cleanup=1` URL parameter nukes Firestore's local IndexedDB caches (built into app since v5.1.79). Use when sync behaves inconsistently — `get({source:'server'})` can return cached data from corrupted IndexedDB even when claiming server source. Ad blockers (uBlock Origin Lite) can also interfere with Firestore network requests.
 
 ## Themes — All Done
-Active themes: Codex, dark, champagne, champagne-dark, apple, gameboy, lcd, retro. To add more: copy an existing `[data-theme="..."]` block, rename, change variable values, register in `THEME_META`.
+Active themes: Codex, dark, champagne, champagne-dark, apple, gameboy, lcd. To add more: copy an existing `[data-theme="..."]` block, rename, change variable values, register in `THEME_META`.
 
 ## About Rob (the developer)
 - Field technician who built Rian for his own use

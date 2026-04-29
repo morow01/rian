@@ -3055,183 +3055,6 @@
       border-radius: 0 !important;
     }
 
-    /* ===== RETRO THEME ===== */
-    /* Sinclair-inspired pixel art — black border, cyan/rainbow day headers, Bitcount font */
-    [data-theme="retro"] {
-      --font-body: 'Bitcount Single', 'Pixelify Sans', sans-serif;
-      --font-mono: 'Bitcount Single', monospace;
-      --bg-page: #a5d2ff;
-      --bg-header: #000000;
-      --bg-header-tab: #000000;
-      --bg-card: #f0f0f0;
-      --bg-card-alt: #f0f0f0;
-      --bg-day-header: #00d5ff;
-      --bg-day-header-we: #b0b0b0;
-      --bg-weekend: #b0b0b0;
-      --bg-section-muted: #e0e0e0;
-      --bg-input: #ffffff;
-      --bg-modal: #f0f0f0;
-      --bg-modal-search: #ffffff;
-      --bg-code-btn: rgba(255, 255, 255, 0.50);
-      --bg-code-group: #e0e0e0;
-      --bg-segment-active: #ffffff;
-      --bg-code-item: #ffffff;
-      --bg-code-item-sel: #00d5ff;
-      --bg-ot: #ffd700;
-      --summary-even: #e0e0e0;
-      --text-header: #ffffff;
-      --text-header-sub: #00d5ff;
-      --text-primary: #000000;
-      --text-secondary: #000000;
-      --text-muted: #333333;
-      --text-input: #000000;
-      --text-day: #000000;
-      --text-day-we: #000000;
-      --text-hours: #000000;
-      --text-ot: #000000;
-      --text-display: #000000;
-      --text-warm: #000000;
-      --text-slate: #333333;
-      --text-dim: #666666;
-      --text-ink: #000000;
-      --border: #000000;
-      --border-input: #000000;
-      --border-strong: #000000;
-      --border-warm: #000000;
-      --border-warm-light: #555555;
-      --border-subtle: #888888;
-      --border-medium: #000000;
-      --accent: #0000e0;
-      --accent-light: rgba(0, 0, 224, 0.10);
-      --accent-chip-bg: #00d5ff;
-      --accent-chip-text: #000000;
-      --accent-rgb: 0, 0, 224;
-      --accent-alpha-06: rgba(0, 0, 224, 0.06);
-      --accent-alpha-10: rgba(0, 0, 224, 0.10);
-      --accent-alpha-30: rgba(0, 0, 224, 0.30);
-      --btn-danger-bg: #ff0000;
-      --btn-danger-color: #ffffff;
-      --btn-danger-border: #000000;
-      --shadow-rgb: 0, 0, 0;
-      --shadow-brand-rgb: 0, 0, 0;
-      --shadow-card: inset -1px -1px 0 #000000, inset 1px 1px 0 #ffffff, inset -2px -2px 0 #808080, inset 2px 2px 0 #dfdfdf;
-      --overlay: rgba(0, 0, 0, 0.60);
-      --tab-active: #ffffff;
-      --amber-alpha-10: rgba(255, 215, 0, 0.15);
-      --amber-alpha-40: rgba(255, 215, 0, 0.40);
-      --slate-alpha-10: rgba(85, 85, 85, 0.12);
-      --slate-alpha-40: rgba(85, 85, 85, 0.40);
-      --blue-alpha-10: rgba(0, 0, 224, 0.10);
-      --blue-alpha-40: rgba(0, 0, 224, 0.40);
-      --prose-h1-color: #000000;
-      --prose-h1-ribbon: #0000e0;
-      --prose-h2-color: #0000e0;
-      --prose-h2-underline: #000000;
-      --prose-h3-color: #333333;
-      --prose-hr-color: #000000;
-      --prose-blockquote-bg: #e0e0e0;
-      --prose-blockquote-border: rgba(0, 0, 0, 0.20);
-      --prose-code-bg: #e0e0e0;
-      --prose-code-text: #000000;
-      --prose-code-block-bg: #000000;
-      --prose-code-block-text: #00d5ff;
-      --table-header-bg: #000000;
-      --table-header-text: #ffffff;
-      --table-border: #000000;
-      --table-border-light: #555555;
-      --table-row-hover-bg: #e8f8ff;
-      --tt-btn-active-bg: #00d5ff;
-      --tt-btn-active-color: #000000;
-      --tt-table-bar-bg: #e0e0e0;
-      --tt-sel-bar-border: #000000;
-      --pill-slate-bg: #e0e0e0;
-      --pill-slate-color: #000000;
-      --pill-amber-color: #0000e0;
-      --date-badge-bg: #e0e0e0;
-      --date-badge-color: #000000;
-      --task-num-bg: #f0f0f0;
-      --task-num-color: #000000;
-      --stepper-bg: #00d5ff;
-      --stepper-border: #000000;
-      --stepper-text: #000000;
-      --stepper-btn-color: #000000;
-      --ot-stepper-bg: #ffd700;
-      --ot-stepper-border: #000000;
-      --ot-stepper-text: #000000;
-      --code-text: #000000;
-      --code-del-text: #555555;
-      --code-add-text: #333333;
-      --section-divider: #000000;
-      --priority-high-rgb: 255, 0, 0;
-      --priority-low-rgb: 0, 213, 0;
-      --priority-medium-rgb: 255, 215, 0;
-      --amber-rgb: 255, 215, 0;
-      --priority-low-border: #c0ffc0;
-      --priority-low-dark: #00aa00;
-    }
-
-    [data-theme="retro"] body {
-      font-family: var(--font-body);
-      background-color: var(--bg-page);
-      font-size: 18px;
-    }
-
-    [data-theme="retro"] .font-mono,
-    [data-theme="retro"] .t-code,
-    [data-theme="retro"] .task-hours,
-    [data-theme="retro"] .val {
-      font-family: var(--font-mono) !important;
-    }
-
-    [data-theme="retro"] .day-header {
-      background: var(--bg-card);
-    }
-
-    [data-theme="retro"] * {
-      border-radius: 0 !important;
-    }
-
-    [data-theme="retro"] .act-textarea,
-    [data-theme="retro"] .act-input {
-      font-size: 18px !important;
-      border: 2px solid #000000 !important;
-    }
-
-    /* Rainbow day headers */
-    [data-theme="retro"] .day-card[data-day-idx="0"] .day-header {
-      background: #00d5ff !important;
-    }
-
-    [data-theme="retro"] .day-card[data-day-idx="1"] .day-header {
-      background: #e0e0e0 !important;
-    }
-
-    [data-theme="retro"] .day-card[data-day-idx="2"] .day-header {
-      background: #ff00ff !important;
-    }
-
-    [data-theme="retro"] .day-card[data-day-idx="3"] .day-header {
-      background: #00ff00 !important;
-      color: #000 !important;
-    }
-
-    [data-theme="retro"] .day-card[data-day-idx="4"] .day-header {
-      background: #ffff00 !important;
-    }
-
-    [data-theme="retro"] .day-card[data-day-idx="5"] .day-header {
-      background: #00d5ff !important;
-    }
-
-    [data-theme="retro"] .day-card[data-day-idx="6"] .day-header {
-      background: #0000ff !important;
-      color: #fff !important;
-    }
-
-    [data-theme="retro"] .day-card[data-day-idx="6"] .day-header * {
-      color: #ffffff !important;
-    }
-
     /* ===== APPLE (macOS) THEME ===== */
     /* macOS Sequoia — SF Pro font, dark charcoal header, subtle shadows */
     [data-theme="apple"] {
@@ -19699,7 +19522,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '6.1.14';
+    const VERSION = '6.1.15';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -22304,7 +22127,6 @@
         lcd: { hdr: '#4a6741', hdrSub: '#c8e6c0', chip: '#4a6741', chipTxt: '#d4e6c8', ord: '#3d5c36', ot: '#8b4513', totBg: '#3d5c36', totOrd: '#d4e6c8', totOT: '#c8e6c0', foot: '#c8e6c0', footTxt: '#4a6741', outerBg: '#b8d4b0', bodyBg: '#cce0c4', cardBg: '#ddeedd', border: '#8aab80', labelTxt: '#3d5c36', rowAlt: '#d4e8cc', txt: '#1a2e18' },
         gameboy: { hdr: '#0F380F', hdrSub: '#9BBC0F', chip: '#306230', chipTxt: '#9BBC0F', ord: '#306230', ot: '#0F380F', totBg: '#0F380F', totOrd: '#9BBC0F', totOT: '#8BAC0F', foot: '#8BAC0F', footTxt: '#0F380F', outerBg: '#9BBC0F', bodyBg: '#8BAC0F', cardBg: '#9BBC0F', border: '#306230', labelTxt: '#0F380F', rowAlt: '#8BAC0F', txt: '#0F380F' },
         apple: { hdr: '#1D1D1F', hdrSub: '#86868b', chip: '#007AFF', chipTxt: '#ffffff', ord: '#007AFF', ot: '#FF3B30', totBg: '#1D1D1F', totOrd: '#ffffff', totOT: '#30D158', foot: '#f5f5f7', footTxt: '#86868b', outerBg: '#f5f5f7', bodyBg: '#ffffff', cardBg: '#ffffff', border: '#d2d2d7', labelTxt: '#1D1D1F', rowAlt: '#f9f9fb', txt: '#1D1D1F' },
-        retro: { hdr: '#000000', hdrSub: '#00d5ff', chip: '#00d5ff', chipTxt: '#000000', ord: '#0000e0', ot: '#cc0000', totBg: '#000000', totOrd: '#00d5ff', totOT: '#ffff00', foot: '#a5d2ff', footTxt: '#000000', outerBg: '#a5d2ff', bodyBg: '#c8e4ff', cardBg: '#f0f0f0', border: '#000000', labelTxt: '#000000', rowAlt: '#e0e0e0', txt: '#000000' },
       };
       return map[t] || map.light;
     }
@@ -33980,7 +33802,6 @@
       apple: { label: 'macOS', metaColor: '#1D1D1F' },
       gameboy: { label: 'Game Boy', metaColor: '#0F380F' },
       lcd: { label: 'LCD', metaColor: '#1c2810' },
-      retro: { label: 'Retro', metaColor: '#000000' },
     };
     const DEFAULT_THEME = 'claude';
 
