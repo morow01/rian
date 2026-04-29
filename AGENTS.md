@@ -16,7 +16,7 @@ A Progressive Web App for field technicians — timesheets, notes (TipTap rich t
 
 ## Version
 `const VERSION = 'x.y.z'` in `app.html` (~line 18699). Bump on every change. Only location that needs updating (index.html version references are static).
-Current version: **6.1.13**
+Current version: **6.1.14**
 
 **8 themes active**: `Codex` (default light), `dark` (slate-based), `champagne`, `champagne-dark`, `apple` (macOS), `gameboy` (Game Boy), `lcd` (LCD), `retro` (Retro). Theme picker lives in ☰ menu → Display. Switcher at `setTheme(key)`, registry at `THEME_META`.
 
@@ -331,7 +331,7 @@ Desktop Notes action bar (Active tab only) now includes two extra action buttons
 
 Both buttons only shown when `notesTab === 'notes'` (Active tab). Same guard as the existing Archive/Delete buttons.
 
-### Week History Redesign + Search (v6.0.26-v6.1.13)
+### Week History Redesign + Search (v6.0.26-v6.1.14)
 Week History has both desktop and mobile implementations in `renderHistoryView()` with a desktop branch to `_renderDesktopHistory()`.
 
 Key functions:
