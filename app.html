@@ -2933,15 +2933,15 @@
     [data-theme="gameboy"] .notes-tab .tab-count.archive-count,
     [data-theme="gameboy"] .notes-tab .tab-count.bin-count,
     [data-theme="gameboy"] .dnotes-count {
-      background: var(--notes-tab-count-bg);
-      color: var(--notes-tab-count-text);
+      background: var(--notes-tab-count-bg) !important;
+      color: var(--notes-tab-count-text) !important;
     }
 
     [data-theme="gameboy"] .notes-tab.active .tab-count,
     [data-theme="gameboy"] .notes-tab.active .tab-count.archive-count,
     [data-theme="gameboy"] .notes-tab.active .tab-count.bin-count {
-      background: var(--notes-tab-count-bg);
-      color: var(--notes-tab-count-text);
+      background: var(--notes-tab-count-bg) !important;
+      color: var(--notes-tab-count-text) !important;
     }
 
     [data-theme="gameboy"] .btn-more {
@@ -2950,6 +2950,157 @@
       font-family: monospace !important;
       width: 36px;
       height: 36px;
+    }
+
+    /* ── Game Boy refinements ── */
+
+    /* Active mobile top tab — was using --text-ot which was identical to header bg, so it
+       was effectively invisible. Force the lightest-green palette colour here. */
+    [data-theme="gameboy"] header button[style*="border-bottom:2.5px solid var(--text-ot)"] {
+      color: var(--tab-active) !important;
+      border-bottom-color: var(--tab-active) !important;
+    }
+
+    /* Date-range header on the timesheet — Press Start 2P at 18px is huge */
+    [data-theme="gameboy"] .page-week-selector-range {
+      font-size: 11px !important;
+      letter-spacing: 0 !important;
+    }
+    [data-theme="gameboy"] .page-week-selector-sub {
+      font-size: 8px !important;
+    }
+
+    /* Task description text in timesheet activity rows (was 14px Press Start 2P → wall-of-text) */
+    [data-theme="gameboy"] .act-desc-txt {
+      font-size: 9px !important;
+      line-height: 1.5 !important;
+    }
+    [data-theme="gameboy"] .task-num {
+      font-size: 9px !important;
+    }
+    [data-theme="gameboy"] .wk-chev {
+      font-size: 10px !important;
+    }
+
+    /* Weekly summary block — title, badges, table cells were all 12-13px */
+    [data-theme="gameboy"] .sum-new-title {
+      font-size: 9px !important;
+      letter-spacing: 0 !important;
+    }
+    [data-theme="gameboy"] .sum-new-badge,
+    [data-theme="gameboy"] .sum-new-badge-ot {
+      font-size: 8px !important;
+    }
+    [data-theme="gameboy"] .sum-row-desc {
+      font-size: 8px !important;
+    }
+    [data-theme="gameboy"] .sum-td-num {
+      font-size: 9px !important;
+    }
+    [data-theme="gameboy"] .sum-row-code {
+      font-size: 8px !important;
+    }
+
+    /* Restore the line break in stat labels at all viewport widths so
+       "On-Call / Weeks", "Extra / Shifts" etc. stack instead of running together */
+    [data-theme="gameboy"] .oc-stat-label br {
+      display: inline !important;
+    }
+
+    /* Callouts stat block sizes (number was 18px, year picker 20px) */
+    [data-theme="gameboy"] .oc-stat-val {
+      font-size: 12px !important;
+    }
+    [data-theme="gameboy"] .oc-stat-label {
+      font-size: 7px !important;
+    }
+    [data-theme="gameboy"] .oc-year-label {
+      font-size: 12px !important;
+    }
+    [data-theme="gameboy"] .oc-month-label {
+      font-size: 7px !important;
+    }
+
+    /* Stat number colours in Callouts — override the inline #F59E0B / #8B5CF6 / priority-high
+       hardcodes so they fit the four-shade Game Boy palette */
+    [data-theme="gameboy"] .oc-stat-val[style*="F59E0B"],
+    [data-theme="gameboy"] .oc-stat-val[style*="8B5CF6"],
+    [data-theme="gameboy"] .oc-stat-val[style*="priority-high"] {
+      color: var(--text-primary) !important;
+    }
+
+    /* Callouts week rows have inline font-sizes of 14/13/14 px on the date/incident/chevron.
+       Knock those down so they match the rest of the Game Boy aesthetic. */
+    [data-theme="gameboy"] .co-page div[style*="font-size:14px"],
+    [data-theme="gameboy"] .co-page span[style*="font-size:14px"] {
+      font-size: 9px !important;
+    }
+    [data-theme="gameboy"] .co-page div[style*="font-size:13px"],
+    [data-theme="gameboy"] .co-page span[style*="font-size:13px"] {
+      font-size: 8px !important;
+    }
+    [data-theme="gameboy"] .co-page div[style*="font-size:16px"],
+    [data-theme="gameboy"] .co-page div[style*="font-size:17px"] {
+      font-size: 10px !important;
+    }
+
+    /* EXTRA SHIFT badge — reskin the cream/amber inline style to fit the palette */
+    [data-theme="gameboy"] span[style*="#FEF3C7"] {
+      background: var(--tab-active) !important;
+      color: var(--bg-header) !important;
+      border: 1px solid var(--bg-header) !important;
+    }
+
+    /* Notes — header label "Filters", chips, empty-state */
+    [data-theme="gameboy"] .nf-header-label {
+      font-size: 9px !important;
+    }
+    [data-theme="gameboy"] .notes-chip {
+      font-size: 8px !important;
+    }
+    [data-theme="gameboy"] .notes-empty {
+      font-size: 9px !important;
+    }
+
+    /* Finder Exchanges/Cabinets segment switcher container — in Game Boy this was using
+       --bg-code-group (#306230), the same colour as --bg-page, so the entire pill bar
+       blended into the background and the unselected button was effectively invisible.
+       Force the darker header shade for the container and a lighter text for inactive. */
+    [data-theme="gameboy"] .flex.p-1.rounded-xl.mb-3[style*="bg-code-group"] {
+      background: var(--bg-header) !important;
+    }
+    [data-theme="gameboy"] .flex.p-1.rounded-xl.mb-3[style*="bg-code-group"] button[style*="text-muted"] {
+      color: var(--bg-card) !important;
+    }
+
+    /* Loading…/empty-state messages with hard-coded 16px font (Routines, no-callouts, etc.) */
+    [data-theme="gameboy"] div[style*="font-size:16px"][style*="font-weight:600"] {
+      font-size: 10px !important;
+    }
+    [data-theme="gameboy"] div[style*="font-size:48px"] {
+      font-size: 24px !important;
+    }
+
+    /* Routines empty/loading state — class-based 17px/14px were huge in pixel font */
+    [data-theme="gameboy"] .rtn-empty-title {
+      font-size: 10px !important;
+    }
+    [data-theme="gameboy"] .rtn-empty-sub {
+      font-size: 8px !important;
+    }
+    [data-theme="gameboy"] .rtn-setup-btn {
+      font-size: 9px !important;
+    }
+    [data-theme="gameboy"] .rtn-empty-icon {
+      font-size: 32px !important;
+    }
+
+    /* Treat the legacy badgeBg "#FEF3C7" used on the on-call task-num badge the same way
+       as the EXTRA SHIFT span — keep palette clean. */
+    [data-theme="gameboy"] .task-num[style*="#FEF3C7"] {
+      background: var(--bg-card) !important;
+      color: var(--text-primary) !important;
+      border: 1px solid var(--border) !important;
     }
 
     /* ===== LCD THEME ===== */
@@ -19554,7 +19705,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '6.1.16';
+    const VERSION = '6.1.19';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
