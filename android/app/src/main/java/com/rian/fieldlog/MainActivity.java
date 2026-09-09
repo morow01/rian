@@ -13,6 +13,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.webkit.GeolocationPermissions;
 import android.webkit.JavascriptInterface;
 import android.webkit.MimeTypeMap;
 import android.webkit.PermissionRequest;
@@ -31,8 +32,11 @@ public class MainActivity extends BridgeActivity {
 
     private ValueCallback<Uri[]> mFilePathCallback;
     private PermissionRequest mPendingPermissionRequest;
+    private String mPendingGeoOrigin;
+    private GeolocationPermissions.Callback mPendingGeoCallback;
     private static final int FILE_CHOOSER_REQUEST_CODE = 100;
     private static final int AUDIO_PERMISSION_REQUEST_CODE = 101;
+    private static final int LOCATION_PERMISSION_REQUEST_CODE = 102;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,6 +64,10 @@ public class MainActivity extends BridgeActivity {
             // Gemini TTS which plays audio after async fetch — the original
             // tap context is lost by the time the blob is ready).
             wv.getSettings().setMediaPlaybackRequiresUserGesture(false);
+            // Needed for the Routines map's "show my location" button (navigator.geolocation
+            // via Leaflet's map.locate()) — defaults to true but set explicitly since this is
+            // easy to silently lose track of.
+            wv.getSettings().setGeolocationEnabled(true);
 
             // Expose native exit to JS — Capacitor App plugin doesn't work with remote URLs
             wv.addJavascriptInterface(new Object() {
@@ -89,6 +97,25 @@ public class MainActivity extends BridgeActivity {
                             ensureAudioPermission();
                         }
                     });
+                }
+
+                // Grant WebView geolocation requests (Routines map "show my location").
+                // Separate callback from onPermissionRequest above — geolocation isn't
+                // one of PermissionRequest's resource types, WebView asks for it through
+                // this dedicated method instead. Without this override the WebView's
+                // default behavior denies it, so navigator.geolocation silently fails
+                // (map.locate() never shows the location dot) even with the manifest
+                // permission declared and granted at the OS level.
+                @Override
+                public void onGeolocationPermissionsShowPrompt(String origin,
+                        GeolocationPermissions.Callback callback) {
+                    if (hasLocationPermission()) {
+                        callback.invoke(origin, true, false);
+                    } else {
+                        mPendingGeoOrigin = origin;
+                        mPendingGeoCallback = callback;
+                        ensureLocationPermission();
+                    }
                 }
 
                 @Override
@@ -127,6 +154,23 @@ public class MainActivity extends BridgeActivity {
     private boolean hasAudioPermission() {
         return Build.VERSION.SDK_INT < Build.VERSION_CODES.M
                 || ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO)
+                == PackageManager.PERMISSION_GRANTED;
+    }
+
+    private void ensureLocationPermission() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) return;
+        if (!hasLocationPermission()) {
+            ActivityCompat.requestPermissions(
+                this,
+                new String[] { Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION },
+                LOCATION_PERMISSION_REQUEST_CODE
+            );
+        }
+    }
+
+    private boolean hasLocationPermission() {
+        return Build.VERSION.SDK_INT < Build.VERSION_CODES.M
+                || ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED;
     }
 
@@ -212,6 +256,14 @@ public class MainActivity extends BridgeActivity {
             } else {
                 request.deny();
             }
+        }
+        if (requestCode == LOCATION_PERMISSION_REQUEST_CODE && mPendingGeoCallback != null) {
+            GeolocationPermissions.Callback callback = mPendingGeoCallback;
+            String origin = mPendingGeoOrigin;
+            mPendingGeoCallback = null;
+            mPendingGeoOrigin = null;
+            boolean granted = grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED;
+            callback.invoke(origin, granted, false);
         }
     }
 

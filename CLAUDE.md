@@ -17,7 +17,7 @@ A Progressive Web App for field technicians — timesheets, notes (TipTap rich t
 ## Version
 `const VERSION = 'x.y.z'` in `app.html` (~line 18699). Bump on every change. Only location that needs updating (index.html version references are static).
 **Patch (z) must not exceed 99.** When a bump would take it to 100, bump the minor version instead and reset patch to 0 (e.g. `6.7.99` → `6.8.0`, never `6.7.100`). 6.7.100–6.7.102 already broke this rule and were left as-is rather than rewriting pushed history — the rule applies from 6.8.0 onward.
-Current version: **6.8.14**
+Current version: **6.8.15**
 
 **12 themes active**: `claude` (default light), `dark` (slate-based), `champagne`, `champagne-dark`, `ios`, `apple` (macOS), `gray` (Grayscale), `gameboy` (Game Boy), `win31` (Win 3.1), `lcd` (LCD), `spectrum` (ZX Spectrum), `retro` (Retro). Theme picker lives in ☰ menu → Display. Switcher at `setTheme(key)`, registry at `THEME_META`.
 
@@ -456,6 +456,20 @@ Fix: a `setTimeout(..., 3000)` alongside `_preload()` — if `state.currentUser`
 
 Not reproduced live (couldn't simulate a genuinely flaky connection) — implemented from code-reading the gap, not live DOM inspection like the fixes above. If reports continue, that's the next thing to verify.
 
+### TipTap scroll/cursor position restore — extended to Callout notes & Task Templates (v6.8.15)
+`openNoteFullscreen` (task notes) and `openFieldNoteFullscreen` (standalone Notes) already saved/restored scroll+cursor position on close/reopen via `localStorage['rian_tt_pos_a_'+actId]` / `['rian_tt_pos_n_'+noteId]`, written centrally in the shared `closeNoteFullscreen()`. `openCoNoteFullscreen` (Callout notes) and `openTemplateNoteFullscreen` (Task Templates) — 2 of the 5 shared-modal editor-open sites — never had this: they always `blur()`/`focus('end')` on open with no restore attempt, and `closeNoteFullscreen`'s save logic had no branch for either, so a callout note or template note editor always opened wherever the content happened to put the cursor by default, reported as "TipTap should remember where I was."
+
+Extended the exact same pattern to both: `_coNoteFsCoId` (new module var, resolved via the existing `_coGetOrCreate()?.id`, since `openCoNoteFullscreen()` takes no id argument) keys `rian_tt_pos_co_<coId>`; `_tplNoteFsId` (already existed, used elsewhere) keys `rian_tt_pos_tpl_<tplId>`. `closeNoteFullscreen`'s `_pk` computation extended to a 4-branch check covering all of `_fnFsNoteId` / `_noteFsActId` / `_coNoteFsActive+_coNoteFsCoId` / `_tplNoteFsId`. While in there, also fixed a latent (pre-existing, now actually reachable) bug: `openCoNoteFullscreen()` never cleared `_fnFsNoteId`/`_tplNoteFsId` on open, so a stale value from a previous Field Note or Template session could hijack the position-save key on close since those checks come earlier in the ternary chain — added the missing clears.
+
+Verified live end-to-end for both (not just code-reviewed): opened, set a specific cursor offset, closed via `closeNoteFullscreen('save')`, confirmed the correct `localStorage` key held that offset, reopened, confirmed the cursor landed back at the same offset rather than the old blur/end-of-doc behavior.
+
+### TipTap image insert could hang forever on an undecodable photo (v6.8.15)
+Reported: "can't add images" — but only the Insert Photo button, not Attach File (both go through the same `<input type="file">` → Android `onShowFileChooser` path, which the Attach File report proved was working fine — so the file *picker* wasn't the problem). Root cause in `_ttHandleImageUpload()`: the compression step loads the selected file into `new Image()` via a blob URL and waits on `img.onload` to proceed — but there was no `img.onerror` handler and no timeout. If the browser's image decoder can't decode a given file for any reason (a format its codec doesn't support, a corrupt file, some HEIC/HEIF edge case), `onload` simply never fires and the `await new Promise(...)` hangs forever — no error, no toast, nothing visibly happens. Exactly matches "I can attach a file but can't add images": attaching never needs to decode the file as an image, so it always succeeded through the identical file-picker plumbing.
+
+Fixed with both an `img.onerror` handler and a 10s timeout, either of which resolves the promise to `null` (revoking the object URL either way to avoid leaking it) instead of leaving it pending; the calling loop then skips that file and shows `⚠️ Photo couldn't be read` (or "...were skipped" if only some of a multi-select batch failed) rather than silently doing nothing. If every selected file fails, the function returns before touching the editor at all.
+
+Verified live: dispatched a `change` event on the hidden file input with a deliberately-corrupt "image" file (garbage bytes, `image/jpeg` MIME) — resolved via `onerror` almost instantly (not the 10s timeout), correct toast shown, editor content unchanged. Then verified a real 1×1 PNG still inserts correctly (`<img>` tag present, no regression).
+
 ### Firestore IndexedDB Cache Corruption
 `?cleanup=1` URL parameter nukes Firestore's local IndexedDB caches (built into app since v5.1.79). Use when sync behaves inconsistently — `get({source:'server'})` can return cached data from corrupted IndexedDB even when claiming server source. Ad blockers (uBlock Origin Lite) can also interfere with Firestore network requests.
 
@@ -636,6 +650,11 @@ Two related table-editing bugs, both fixed by inspecting the live DOM in the bro
 `MainActivity.java` sets a custom `WebChromeClient` that auto-grants `onPermissionRequest` — required for mic access when loading from a remote URL. The Android manifest declares `RECORD_AUDIO`. Without the WebChromeClient override, the WebView silently blocks mic requests.
 
 Since v6.0.78, `MainActivity.java` also requests Android runtime `RECORD_AUDIO` permission on startup and again before granting a WebView permission request. This is required on modern target SDKs; the manifest permission alone is not enough. If the user previously denied the mic permission, Android may require enabling it from App info → Permissions → Microphone after installing the new APK.
+
+### WebView Geolocation Permission — Routines map "show my location" never worked in the APK (v6.8.15)
+Reported: the Routines map's location dot never appears on the APK (works fine on the PWA — real Chrome browsers prompt for and handle geolocation permission natively). Root cause was a straightforward gap, same shape as the mic permission above but never done for location: `AndroidManifest.xml` had no `ACCESS_FINE_LOCATION`/`ACCESS_COARSE_LOCATION` at all, and — separately, and just as fatal on its own — `MainActivity.java`'s `WebChromeClient` had no `onGeolocationPermissionsShowPrompt` override. Geolocation is *not* one of `onPermissionRequest`'s resource types (that one covers mic/camera/protected-media-id); the WebView asks for location through this entirely separate callback, and without overriding it the WebView's default behavior silently denies every request — `navigator.geolocation` (which is what Leaflet's `map.locate()` calls internally) just gets a `locationerror` with no native permission dialog ever shown.
+
+Fixed by mirroring the audio permission pattern exactly: manifest permissions added, `wv.getSettings().setGeolocationEnabled(true)` set explicitly (defaults to true, but easy to lose track of), and `onGeolocationPermissionsShowPrompt` added alongside `onPermissionRequest` — grants immediately if the runtime permission is already held, otherwise stores the pending origin + callback and requests `ACCESS_FINE_LOCATION`/`ACCESS_COARSE_LOCATION`, resolving the stored callback from `onRequestPermissionsResult` once the user responds (new `LOCATION_PERMISSION_REQUEST_CODE = 102`, alongside the existing `AUDIO_PERMISSION_REQUEST_CODE = 101`). Native change — requires an APK rebuild to take effect, not reachable by a web-only push.
 
 ### PWA Back Button (v5.4.10)
 On Android standalone PWA, the system back gesture exits the app if the history stack empties. The app traps `popstate` and re-pushes a history entry *before* calling `_handleBackButton()`, so the stack never runs dry. Only one seed entry is needed at init since popstate always replenishes.

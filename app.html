@@ -22325,7 +22325,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '6.8.14';
+    const VERSION = '6.8.15';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -48093,9 +48093,13 @@
 
     // Callout note fullscreen — reuses the existing note-fs-modal with TipTap
     let _coNoteFsActive = false;
+    let _coNoteFsCoId = null; // which callout — needed to key the scroll/cursor position localStorage entry
     function openCoNoteFullscreen() {
       _coNoteFsActive = true;
+      _coNoteFsCoId = _coGetOrCreate()?.id || null;
       _noteFsActId = null; _noteFsDi = null; // ensure task path is cleared
+      _fnFsNoteId = null; _fnFsSource = null; // ensure field-note path is cleared (was missing — meant a stale _fnFsNoteId could hijack the position-save key on close)
+      _tplNoteFsId = null; // ensure template path is cleared too
       const ta = document.getElementById('co-notes-ta');
       const currentValue = ta ? ta.value : '';
       const titleEl = document.getElementById('note-fs-title');
@@ -48111,8 +48115,23 @@
           _tiptapOnUpdate = null; // prevent stale handler firing during setContent below
           _ttSetContent(currentValue);
           _ttResetHistory(_ttGetHTML());
-          // Blur so cursor isn't visible at top — user taps to edit
-          if (_tiptapEditor) try { _tiptapEditor.commands.blur(); } catch (e) { }
+          // Restore last scroll + cursor position; otherwise blur so the cursor
+          // isn't visible at top and the user taps in to edit (original behavior).
+          let _restoredCo = false;
+          try {
+            const _sp = _coNoteFsCoId ? localStorage.getItem('rian_tt_pos_co_' + _coNoteFsCoId) : null;
+            if (_sp && _tiptapEditor) {
+              const { cursor, scroll } = JSON.parse(_sp);
+              const _sz = _tiptapEditor.state.doc.content.size;
+              _tiptapEditor.commands.setTextSelection(Math.min(cursor, Math.max(0, _sz - 1)));
+              requestAnimationFrame(() => {
+                const _el = document.getElementById('note-fs-editor');
+                if (_el) _el.scrollTop = scroll || 0;
+              });
+              _restoredCo = true;
+            }
+          } catch(e) {}
+          if (!_restoredCo && _tiptapEditor) try { _tiptapEditor.commands.blur(); } catch (e) { }
           _tiptapOnUpdate = (editor) => {
             _ttMarkDraftDirty();
           };
@@ -54362,12 +54381,23 @@ QUESTION: ${query}`;
 
       const srcs = [];
       let _anyUploadedToStorage = false;
+      let _anyFailed = false;
 
       for (const file of files) {
         // Compress: max 1400px, JPEG 0.75
+        // v6.8.15: img.onload had no matching onerror/timeout — if the WebView
+        // couldn't decode a given photo (e.g. a format its image codec doesn't
+        // support), the promise just hung forever with no error, no toast, and
+        // no image inserted. Looked exactly like "nothing happens" — reported as
+        // "can't add images" even though attaching a file (which never needs to
+        // decode the file as an image) worked fine through the same file picker.
+        const objectUrl = URL.createObjectURL(file);
         const dataUrl = await new Promise((resolve) => {
           const img = new window.Image();
+          const _settle = (result) => { URL.revokeObjectURL(objectUrl); resolve(result); };
+          const _timer = setTimeout(() => _settle(null), 10000);
           img.onload = () => {
+            clearTimeout(_timer);
             const MAX = 1400;
             let w = img.width, h = img.height;
             if (w > MAX || h > MAX) {
@@ -54377,10 +54407,12 @@ QUESTION: ${query}`;
             const canvas = document.createElement('canvas');
             canvas.width = w; canvas.height = h;
             canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-            resolve(canvas.toDataURL('image/jpeg', 0.75));
+            _settle(canvas.toDataURL('image/jpeg', 0.75));
           };
-          img.src = URL.createObjectURL(file);
+          img.onerror = () => { clearTimeout(_timer); _settle(null); };
+          img.src = objectUrl;
         });
+        if (dataUrl === null) { _anyFailed = true; continue; }
 
         // Upload to Firebase Storage if signed in, else fall back to base64
         let src = dataUrl;
@@ -54398,6 +54430,11 @@ QUESTION: ${query}`;
         }
         srcs.push(src);
       }
+
+      if (_anyFailed) {
+        showToast(srcs.length ? '⚠️ Some photos couldn’t be read and were skipped' : '⚠️ Photo couldn’t be read — try a different one');
+      }
+      if (!srcs.length) return;
 
       // Insert all images in one transaction so cursor positioning can't interfere
       const content = srcs.flatMap(src => [{ type: 'image', attrs: { src } }, { type: 'paragraph' }]);
@@ -55366,7 +55403,22 @@ function _ttStripDefaultTableWidths() {
           _tiptapOnUpdate = null;
           _ttSetContent(t.notes || '');
           _ttResetHistory(_ttGetHTML());
-          if (_tiptapEditor) _tiptapEditor.commands.focus('end');
+          // Restore last scroll + cursor position, or fall back to end
+          let _restoredTpl = false;
+          try {
+            const _sp = localStorage.getItem('rian_tt_pos_tpl_' + tplId);
+            if (_sp && _tiptapEditor) {
+              const { cursor, scroll } = JSON.parse(_sp);
+              const _sz = _tiptapEditor.state.doc.content.size;
+              _tiptapEditor.commands.setTextSelection(Math.min(cursor, Math.max(0, _sz - 1)));
+              requestAnimationFrame(() => {
+                const _el = document.getElementById('note-fs-editor');
+                if (_el) _el.scrollTop = scroll || 0;
+              });
+              _restoredTpl = true;
+            }
+          } catch(e) {}
+          if (!_restoredTpl && _tiptapEditor) try { _tiptapEditor.commands.focus('end'); } catch (e) { }
           _tiptapOnUpdate = () => { _ttMarkDraftDirty(); };
           _ttUpdateToolbar(_tiptapEditor);
         } catch (err) {
@@ -55383,6 +55435,8 @@ function _ttStripDefaultTableWidths() {
         try {
           const _pk = _fnFsNoteId ? 'rian_tt_pos_n_' + _fnFsNoteId
                     : _noteFsActId ? 'rian_tt_pos_a_' + _noteFsActId
+                    : (_coNoteFsActive && _coNoteFsCoId) ? 'rian_tt_pos_co_' + _coNoteFsCoId
+                    : _tplNoteFsId ? 'rian_tt_pos_tpl_' + _tplNoteFsId
                     : null;
           if (_pk) {
             const _edEl = document.getElementById('note-fs-editor');
