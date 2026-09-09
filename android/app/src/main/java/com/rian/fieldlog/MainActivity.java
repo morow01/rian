@@ -272,8 +272,26 @@ public class MainActivity extends BridgeActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == FILE_CHOOSER_REQUEST_CODE) {
             Uri[] results = null;
-            if (resultCode == Activity.RESULT_OK) {
+            if (resultCode == Activity.RESULT_OK && data != null) {
                 results = WebChromeClient.FileChooserParams.parseResult(resultCode, data);
+                // Fallback: confirmed via logcat on a real device — the system Photo Picker's
+                // multi-select "Google Photos" UI (Android 13+) returns its result via
+                // ClipData, and the deprecated parseResult() helper came back null/empty for
+                // it even though the user genuinely picked a photo (Intent itself definitely
+                // carried it — resultCode=-1/OK, clipData present). Read ClipData / getData()
+                // directly instead of relying solely on parseResult() in that case.
+                if (results == null || results.length == 0) {
+                    if (data.getClipData() != null) {
+                        int count = data.getClipData().getItemCount();
+                        Uri[] manual = new Uri[count];
+                        for (int i = 0; i < count; i++) {
+                            manual[i] = data.getClipData().getItemAt(i).getUri();
+                        }
+                        results = manual;
+                    } else if (data.getData() != null) {
+                        results = new Uri[] { data.getData() };
+                    }
+                }
             }
             if (mFilePathCallback != null) {
                 mFilePathCallback.onReceiveValue(results);
