@@ -444,6 +444,12 @@
       text-transform: uppercase;
       letter-spacing: 0.08em;
       border-bottom: 1px solid var(--border);
+      /* Without this, a real touch device shows the browser's own default
+         grey/tinted tap-highlight rectangle on tap, on top of the divider's
+         thin flanking lines — reads as a stray "weird horizontal line"
+         artifact (reported on the Copy/Move picker's copy of this element).
+         The :active rule below already gives deliberate visual feedback. */
+      -webkit-tap-highlight-color: transparent;
     }
 
     .weekend-divider:active {
@@ -22325,7 +22331,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '6.8.16';
+    const VERSION = '6.8.22';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -31269,6 +31275,7 @@
 
 
     function buildCopyPickerDaysHtml(ws, sourceDate) {
+      const todayStr = dateToStr(new Date());
       let html = '';
       for (let i = 0; i < 7; i++) {
         const d = new Date(ws + 'T00:00:00');
@@ -31277,7 +31284,7 @@
         const dayName = DAY_NAMES[i];
         const isSource = dateStr === sourceDate;
         const isSelected = copyPickerState.selectedDates.has(dateStr);
-        const isToday = dateStr === dateToStr(new Date());
+        const isToday = dateStr === todayStr;
         const cls = (isSource ? 'copy-picker-day disabled' : (isSelected ? 'copy-picker-day selected' : 'copy-picker-day'))
           + (isToday ? ' today' : '');
         const checkCls = isSelected ? 'copy-picker-day-check checked' : 'copy-picker-day-check';
@@ -31372,26 +31379,19 @@
     async function executeCopyTask() {
       if (executeCopyTask._running) return;
       executeCopyTask._running = true;
-      // Disable the copy button immediately so a stray double-tap can't re-fire mid-async
-      try {
-        var _btn = document.querySelector('#copy-picker-modal .btn-copy');
-        if (_btn) { _btn.disabled = true; _btn.style.opacity = '0.6'; _btn.innerHTML = 'Copying…'; }
-      } catch (_e) { }
       try {
         const { actId, sourceDi, selectedDates, moveMode } = copyPickerState;
-        if (!selectedDates.size) { executeCopyTask._running = false; return; }
+        if (!selectedDates.size) { return; }
         // Hard safety cap — no legitimate copy needs more than 31 days at once.
         // If selectedDates somehow exceeds this (state corruption, rogue code path),
         // abort before we can explode into a 73-task mess.
         if (selectedDates.size > 31) {
-          executeCopyTask._running = false;
           showToast('Copy cancelled — too many dates selected (' + selectedDates.size + ')');
           return;
         }
         const sourceAct = state.weekData.days[sourceDi]?.activities.find(a => a.id === actId);
-        if (!sourceAct) { executeCopyTask._running = false; return; }
+        if (!sourceAct) { return; }
         const _expectedPushes = selectedDates.size;
-        let _actualPushes = 0;
         let _currentWeekChanged = false;
 
         // Group selected dates by weekStart (Friday-based)
@@ -31425,17 +31425,10 @@
             newAct.notes = sourceAct.notes || '';
             newAct.remedyPending = !!sourceAct.remedyPending;
             state.weekData.days[dayIdx].activities.push(newAct);
-            _actualPushes++;
             _currentWeekChanged = true;
           });
-          delete datesByWeek[state.weekStart];
         }
 
-        // Move mode: delete source BEFORE the async target-week saves.
-        // This sets syncStatus='pending' immediately, blocking incoming snapshots
-        // and polls during the network round-trips below. Without this, a snapshot
-        // arriving during the await window has no pending-write protection and
-        // restores the deleted task before the save can land.
         if (moveMode) {
           _trackDeletedAct(actId);
           state.weekData.days[sourceDi].activities = state.weekData.days[sourceDi].activities.filter(a => a.id !== actId);
@@ -31446,61 +31439,92 @@
           state.weekData._updatedAt = Date.now();
           state.syncStatus = 'pending';
           updateHeaderStatus();
-          await saveWeekNow();
         }
 
-        // Copy to other weeks (load, modify, save)
-        for (const ws of Object.keys(datesByWeek)) {
-          try {
-            const local = await dbGet('weeks', ws);
-            const uid = state.currentUser?.uid || null;
-            let weekData;
-            if (local && local.userId === uid) {
-              weekData = deepCopy(local.data);
-            } else {
-              weekData = createEmptyWeek(ws);
+        // Everything above is a synchronous, in-memory change to
+        // state.weekData — safe to close the sheet and re-render right now.
+        // Persistence (IndexedDB, then fsSetWeek()'s Firestore round trips —
+        // merge fetch, write, verify read, possibly a retry of both) runs in
+        // the background instead of blocking "Moving…"/"Copying…" for
+        // however long that chain takes (reported: ~10s). Every other edit
+        // in the app already works this way — scheduleAutoSave() never
+        // blocks the UI on its Firestore write either. Local data lands
+        // first inside saveWeekNow()/dbPut below regardless of how the
+        // Firestore leg goes, so nothing is lost if the tab closes mid-sync.
+        (async () => {
+          let _actualPushes = datesByWeek[state.weekStart] ? datesByWeek[state.weekStart].length : 0;
+          delete datesByWeek[state.weekStart];
+
+          if (_currentWeekChanged) {
+            try {
+              await Promise.race([
+                saveWeekNow(),
+                new Promise((_, reject) => setTimeout(() => reject(new Error('save timed out')), 15000)),
+              ]);
+            } catch (e) {
+              console.warn('[Rian] Copy/move save timed out or failed — local data is safe, will sync when possible:', e);
             }
-            enforceCorrectDates(ws, weekData);
-
-            datesByWeek[ws].forEach(dateStr => {
-              const dayIdx = weekData.days.findIndex(d => d.date === dateStr);
-              if (dayIdx < 0) return;
-              const newAct = createActivity();
-              delete newAct._draft; // Copy/move is user-confirmed — save immediately
-              newAct.description = sourceAct.description || '';
-              newAct.location = sourceAct.location || '';
-              newAct.codes = deepCopy(sourceAct.codes || []);
-              newAct.ordinary = sourceAct.ordinary || '';
-              newAct.overtime = sourceAct.overtime || '';
-              newAct.tasks = sourceAct.tasks || '';
-              newAct.timePerTask = sourceAct.timePerTask || '';
-              newAct.otPerTask = sourceAct.otPerTask || '';
-              newAct.notes = sourceAct.notes || '';
-              newAct.remedyPending = !!sourceAct.remedyPending;
-              weekData.days[dayIdx].activities.push(newAct);
-              _actualPushes++;
-            });
-
-            weekData._updatedAt = Date.now();
-            await dbPut('weeks', { weekStart: ws, userId: uid, data: weekData, updatedAt: weekData._updatedAt });
-            if (state.currentUser) await fsSetWeek(ws, weekData).catch(e => console.warn('[Rian] copy fsSetWeek', e));
-          } catch (e) {
-            console.warn('[Rian] copy to week', ws, e);
           }
-        }
+
+          // Copy to other weeks (load, modify, save)
+          for (const ws of Object.keys(datesByWeek)) {
+            try {
+              const local = await dbGet('weeks', ws);
+              const uid = state.currentUser?.uid || null;
+              let weekData;
+              if (local && local.userId === uid) {
+                weekData = deepCopy(local.data);
+              } else {
+                weekData = createEmptyWeek(ws);
+              }
+              enforceCorrectDates(ws, weekData);
+
+              datesByWeek[ws].forEach(dateStr => {
+                const dayIdx = weekData.days.findIndex(d => d.date === dateStr);
+                if (dayIdx < 0) return;
+                const newAct = createActivity();
+                delete newAct._draft; // Copy/move is user-confirmed — save immediately
+                newAct.description = sourceAct.description || '';
+                newAct.location = sourceAct.location || '';
+                newAct.codes = deepCopy(sourceAct.codes || []);
+                newAct.ordinary = sourceAct.ordinary || '';
+                newAct.overtime = sourceAct.overtime || '';
+                newAct.tasks = sourceAct.tasks || '';
+                newAct.timePerTask = sourceAct.timePerTask || '';
+                newAct.otPerTask = sourceAct.otPerTask || '';
+                newAct.notes = sourceAct.notes || '';
+                newAct.remedyPending = !!sourceAct.remedyPending;
+                weekData.days[dayIdx].activities.push(newAct);
+                _actualPushes++;
+              });
+
+              weekData._updatedAt = Date.now();
+              await dbPut('weeks', { weekStart: ws, userId: uid, data: weekData, updatedAt: weekData._updatedAt });
+              // Same hang risk as above — .catch() alone doesn't help against
+              // a promise that never settles, only one that rejects.
+              if (state.currentUser) await Promise.race([
+                fsSetWeek(ws, weekData),
+                new Promise((_, reject) => setTimeout(() => reject(new Error('save timed out')), 15000)),
+              ]).catch(e => console.warn('[Rian] copy fsSetWeek', e));
+            } catch (e) {
+              console.warn('[Rian] copy to week', ws, e);
+            }
+          }
+
+          // Sanity check — if actual pushes differ from expected, log it.
+          // Expected = selected dates × 1 activity each. Console-only since
+          // the toast already fired optimistically above; this is a
+          // "should never happen" defensive check, not normal-flow feedback.
+          if (_actualPushes !== _expectedPushes) {
+            console.warn('[Rian] Copy-task push count mismatch: expected ' + _expectedPushes + ', actual ' + _actualPushes);
+          }
+        })().catch(e => console.warn('[Rian] Copy/move background persist failed:', e));
 
         closeCopyPicker();
         render();
-        // Sanity check — if actual pushes differ from expected, surface it loudly.
-        // Expected = selected dates × 1 activity each. If it's higher, something looped.
-        if (_actualPushes !== _expectedPushes) {
-          console.warn('[Rian] Copy-task push count mismatch: expected ' + _expectedPushes + ', actual ' + _actualPushes);
-          showToast('Copy finished with ' + _actualPushes + ' of ' + _expectedPushes + ' expected — check for duplicates');
-        } else {
-          showToast(moveMode
-            ? `Task moved to ${_actualPushes} day${_actualPushes !== 1 ? 's' : ''}`
-            : `Task copied to ${_actualPushes} day${_actualPushes !== 1 ? 's' : ''}`);
-        }
+        showToast(moveMode
+          ? `Task moved to ${_expectedPushes} day${_expectedPushes !== 1 ? 's' : ''}`
+          : `Task copied to ${_expectedPushes} day${_expectedPushes !== 1 ? 's' : ''}`);
       } finally { executeCopyTask._running = false; }
     }
 
