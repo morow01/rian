@@ -20983,6 +20983,8 @@
       justify-content: center;
       padding: 16px;
       animation: overlayIn 0.2s ease;
+      touch-action: none;
+      overscroll-behavior: contain;
     }
 
     .hist-jump-sheet {
@@ -20995,6 +20997,8 @@
       animation: rdn-pop 0.2s cubic-bezier(0.16, 1, 0.3, 1);
       max-height: calc(100vh - 32px);
       overflow-y: auto;
+      overscroll-behavior: contain;
+      touch-action: pan-y;
     }
 
     @media (min-width: 1280px) {
@@ -22436,7 +22440,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '6.8.31';
+    const VERSION = '6.8.32';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -32965,6 +32969,7 @@
     }
 
     async function setView(v) {
+      if (state.historyJumpOpen) { state.historyJumpOpen = false; document.body.style.overflow = ''; }
       if (state.view && state.view !== v) state.prevView = state.view;
       state.view = v;
       localStorage.setItem('lastView', v);
@@ -40592,7 +40597,7 @@
     // Shared jump-modal builder — centered dialog
     function _histBuildJumpHtml(isDesktop) {
       if (!state.historyJumpOpen) return '';
-      return '<div class="hist-jump-overlay" onclick="if(event.target.classList.contains(\'hist-jump-overlay\'))histCloseJump()">' +
+      return '<div class="hist-jump-overlay" onclick="if(event.target.classList.contains(\'hist-jump-overlay\'))histCloseJump()" onwheel="if(event.target.classList.contains(\'hist-jump-overlay\'))event.preventDefault()" ontouchmove="if(event.target.classList.contains(\'hist-jump-overlay\'))event.preventDefault()">' +
         '<div class="hist-jump-sheet" onclick="event.stopPropagation()">' +
         '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px">' +
         '<div>' +
@@ -41127,10 +41132,12 @@
       state.historyJumpYear = d.getFullYear();
       state.historyJumpMonth = d.getMonth();
       state.historyJumpOpen = true;
+      document.body.style.overflow = 'hidden';
       render();
     }
     function histCloseJump() {
       state.historyJumpOpen = false;
+      document.body.style.overflow = '';
       render();
     }
     function histJumpMonthStep(delta) {
