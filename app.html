@@ -16788,107 +16788,154 @@
       }
     }
 
-    /* Site picker modal */
+    /* ===== ROUTINES SITE PICKER MODAL ===== */
     #rtn-picker-modal {
-      display: none;
       position: fixed;
       inset: 0;
-      z-index: 60;
-      background: var(--bg-modal);
-      flex-direction: column;
+      z-index: 200;
+      background: rgba(0, 0, 0, 0.4);
+      backdrop-filter: blur(2px);
+      -webkit-backdrop-filter: blur(2px);
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
     }
 
     #rtn-picker-modal.open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .rtn-picker-dialog {
+      width: 100%;
+      max-height: 88vh;
       display: flex;
+      flex-direction: column;
+      transform: translateY(100%);
+      transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+    }
+
+    #rtn-picker-modal.open .rtn-picker-dialog {
+      transform: translateY(0);
+    }
+
+    .rtn-picker-card {
+      background: var(--bg-card);
+      border-radius: 20px 20px 0 0;
+      border: 1px solid var(--border);
+      border-bottom: none;
+      display: flex;
+      flex-direction: column;
+      max-height: 88vh;
+      overflow: hidden;
+      box-shadow: 0 -8px 32px rgba(var(--shadow-rgb), 0.18);
     }
 
     .rtn-picker-hdr {
-      background: var(--bg-header);
-      color: #fff;
-      padding: 14px 16px;
       display: flex;
       align-items: center;
       gap: 12px;
-    }
-
-    .rtn-picker-hdr-title {
-      flex: 1;
-      font-size: 16px;
-      font-weight: 700;
-    }
-
-    /* .rtn-picker-close-btn uses .modal-close-x.on-dark */
-
-    .rtn-picker-done-btn {
-      background: var(--accent);
-      color: #fff;
-      border: none;
-      border-radius: 20px;
-      padding: 7px 18px;
-      font-weight: 700;
-      font-size: 13px;
-      cursor: pointer;
-      transition: opacity 0.15s;
-    }
-
-    .rtn-picker-done-btn:hover {
-      opacity: 0.88;
-    }
-
-    .rtn-picker-done-btn:active {
-      opacity: 0.75;
-    }
-
-    .rtn-picker-search-wrap {
-      padding: 12px 14px;
-      background: var(--bg-modal-search);
+      padding: 18px 20px 14px;
+      background: var(--bg-card);
       border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
     }
 
-    .rtn-picker-search-wrap input {
-      width: 100%;
-      border-radius: 10px;
-      padding: 10px 14px;
-      font-size: 14px;
-      border: 1px solid var(--border-input);
+    .rtn-picker-hdr-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: var(--accent-light);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .rtn-picker-search-bar {
+      padding: 12px 20px;
+      background: var(--bg-card);
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+
+    .rtn-picker-quick-btn {
+      padding: 7px 12px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--bg-card-alt);
+      color: var(--text-secondary);
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.15s;
+      font-family: inherit;
+    }
+
+    .rtn-picker-quick-btn:hover {
       background: var(--bg-input);
       color: var(--text-primary);
-      outline: none;
+    }
+
+    .rtn-picker-list {
+      flex: 1;
+      min-height: 240px;
+      max-height: 460px;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      background: var(--bg-card);
     }
 
     .rtn-picker-section-lbl {
       font-size: 11px;
-      font-weight: 700;
+      font-weight: 800;
       color: var(--text-muted);
       text-transform: uppercase;
       letter-spacing: 0.08em;
-      padding: 10px 14px 4px;
+      padding: 10px 20px 8px;
+      background: var(--bg-card-alt);
+      border-bottom: 1px solid var(--border);
+      border-top: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 2;
+    }
+
+    .rtn-picker-section-lbl:first-child {
+      border-top: none;
     }
 
     .rtn-picker-row {
       display: flex;
       align-items: center;
       gap: 12px;
-      padding: 11px 14px;
+      padding: 11px 20px;
       border-bottom: 1px solid var(--border);
       cursor: pointer;
+      transition: background 0.12s;
       -webkit-tap-highlight-color: transparent;
+      user-select: none;
     }
 
-    .rtn-picker-row:active {
+    .rtn-picker-row:hover {
       background: var(--bg-card-alt);
     }
 
     .rtn-picker-chk {
-      width: 22px;
-      height: 22px;
+      width: 20px;
+      height: 20px;
       border-radius: 6px;
-      border: 2px solid var(--border);
+      border: 1.5px solid var(--border-input, #cbd5e1);
       display: flex;
       align-items: center;
       justify-content: center;
       flex-shrink: 0;
       transition: all 0.12s;
+      background: var(--bg-input);
     }
 
     .rtn-picker-chk.checked {
@@ -16898,13 +16945,84 @@
 
     .rtn-picker-row-name {
       font-size: 14px;
-      font-weight: 600;
+      font-weight: 700;
       color: var(--text-primary);
+      line-height: 1.25;
     }
 
     .rtn-picker-row-sub {
-      font-size: 12px;
-      color: var(--text-secondary);
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--accent);
+      background: var(--accent-light);
+      padding: 1px 6px;
+      border-radius: 5px;
+      letter-spacing: 0.04em;
+    }
+
+    .rtn-picker-footer {
+      padding: 14px 20px;
+      background: var(--bg-card);
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-shrink: 0;
+    }
+
+    .rtn-picker-save-btn {
+      flex: 1;
+      height: 42px;
+      border-radius: 12px;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: opacity 0.15s, transform 0.08s;
+      font-family: var(--font-body);
+    }
+
+    .rtn-picker-save-btn:hover {
+      opacity: 0.92;
+    }
+
+    .rtn-picker-save-btn:active {
+      transform: scale(0.98);
+      opacity: 0.85;
+    }
+
+    /* ── Desktop: Centered modal dialog matching On-Call Schedule ── */
+    @media (min-width: 768px) {
+      #rtn-picker-modal {
+        align-items: center;
+        justify-content: center;
+      }
+
+      .rtn-picker-dialog {
+        width: 500px;
+        max-width: calc(100vw - 40px);
+        max-height: calc(100vh - 80px);
+        transform: none;
+        padding: 0;
+      }
+
+      .rtn-picker-card {
+        border-radius: 18px;
+        border: 1px solid var(--border);
+        box-shadow: 0 16px 48px rgba(var(--shadow-rgb), 0.22);
+        max-height: calc(100vh - 80px);
+      }
+
+      #rtn-picker-modal.open .rtn-picker-card {
+        animation: rdn-pop 0.15s ease;
+      }
     }
 
     /* Log / detail modal */
@@ -17335,8 +17453,7 @@
     /* ── Desktop: constrain full-screen overlays to app width ── */
     @media (min-width: 768px) {
 
-      .ai-fullscreen-overlay,
-      #rtn-picker-modal {
+      .ai-fullscreen-overlay {
         left: 50%;
         right: auto;
         width: 690px;
@@ -21941,23 +22058,52 @@
   </div>
 
   <!-- ===== ROUTINES SITE PICKER MODAL ===== -->
-  <div id="rtn-picker-modal">
-    <div class="rtn-picker-hdr safe-top">
-      <button class="modal-close-x on-dark" onclick="closeRoutinesSitePicker()"><svg width="18" height="18"
-          viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"
-          stroke-linejoin="round">
-          <line x1="18" y1="6" x2="6" y2="18" />
-          <line x1="6" y1="6" x2="18" y2="18" />
-        </svg></button>
-      <span class="rtn-picker-hdr-title">Choose Sites</span>
-      <button class="rtn-picker-done-btn" onclick="saveRoutinesSites()">Save</button>
+  <div id="rtn-picker-modal" onclick="if(event.target===this)closeRoutinesSitePicker()">
+    <div class="rtn-picker-dialog" onclick="event.stopPropagation()">
+      <div class="rtn-picker-card">
+        <!-- Header -->
+        <div class="rtn-picker-hdr">
+          <div class="rtn-picker-hdr-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/>
+              <circle cx="12" cy="10" r="3"/>
+            </svg>
+          </div>
+          <div style="flex:1;min-width:0">
+            <div style="font-size:17px;font-weight:800;color:var(--text-primary);line-height:1.2">Choose Routine Sites</div>
+            <div id="rtn-picker-stat-line" style="font-size:12px;color:var(--text-muted);font-weight:500;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
+              30 sites selected
+            </div>
+          </div>
+          <button class="bulk-cancel" onclick="closeRoutinesSitePicker()" title="Close">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+
+        <!-- Search and Quick Actions -->
+        <div class="rtn-picker-search-bar">
+          <div style="display:flex;align-items:center;gap:8px">
+            <div class="dfnd-search-wrap" style="flex:1">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <input id="rtn-picker-search" type="search" placeholder="Search locations or site codes…"
+                oninput="filterRoutinesPicker(this.value)" autocomplete="off">
+            </div>
+            <button type="button" class="rtn-picker-quick-btn" onclick="rtnPickerClearAll()" title="Clear selection">Clear</button>
+          </div>
+        </div>
+
+        <!-- Scrollable Site List -->
+        <div id="rtn-picker-list" class="rtn-picker-list"></div>
+
+        <!-- Footer Action Bar -->
+        <div class="rtn-picker-footer">
+          <button class="rtn-picker-save-btn" onclick="saveRoutinesSites()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Save Sites
+          </button>
+        </div>
+      </div>
     </div>
-    <div class="rtn-picker-search-wrap">
-      <input id="rtn-picker-search" type="search" placeholder="Search locations…"
-        oninput="filterRoutinesPicker(this.value)" style="-webkit-appearance:none;appearance:none" autocomplete="off"
-        data-lpignore="true" data-form-type="other" data-1p-ignore="true">
-    </div>
-    <div id="rtn-picker-list" style="flex:1;overflow-y:auto;padding-bottom:40px;"></div>
   </div>
 
   <!-- ===== ROUTINES LOG MODAL ===== -->
@@ -22461,7 +22607,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '6.8.38';
+    const VERSION = '6.8.39';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -46387,7 +46533,7 @@
     function renderRoutinesPickerList(search) {
       const el = document.getElementById('rtn-picker-list');
       if (!el) return;
-      const q = search.trim().toLowerCase();
+      const q = (search || '').trim().toLowerCase();
 
       // Get all unique location names from TOWNS (exchanges)
       const allSites = (TOWNS || []).map(t => ({ name: t.name, code: t.code }))
@@ -46395,11 +46541,17 @@
 
       // Filter
       const filtered = q
-        ? allSites.filter(s => s.name.toLowerCase().includes(q) || s.code.toLowerCase().includes(q))
+        ? allSites.filter(s => s.name.toLowerCase().includes(q) || (s.code && s.code.toLowerCase().includes(q)))
         : allSites;
 
       const selected = [...(state.routinesPickerSites || [])].sort((a, b) => a.localeCompare(b));
       const selectedSet = new Set(selected);
+
+      // Live update header stat line
+      const statEl = document.getElementById('rtn-picker-stat-line');
+      if (statEl) {
+        statEl.textContent = `${selected.length} site${selected.length === 1 ? '' : 's'} selected · ${allSites.length} total locations`;
+      }
 
       let html = '';
 
@@ -46414,10 +46566,10 @@
       }
 
       // All / filtered sites
-      const label = q ? `Results (${filtered.length})` : 'All Locations';
+      const label = q ? `Search Results (${filtered.length})` : `All Locations (${filtered.length})`;
       html += `<div class="rtn-picker-section-lbl">${label}</div>`;
       if (filtered.length === 0) {
-        html += `<div style="padding:20px 14px;color:var(--text-muted);font-size:14px;">No locations found</div>`;
+        html += `<div style="padding:32px 20px;text-align:center;color:var(--text-muted);font-size:13.5px;font-weight:500;">No matching locations found</div>`;
       }
       filtered.forEach(s => {
         html += rtnPickerRowHtml(s.name, s.code, selectedSet.has(s.name));
@@ -46428,12 +46580,12 @@
 
     function rtnPickerRowHtml(name, sub, checked) {
       const checkHtml = checked
-        ? `<div class="rtn-picker-chk checked"><svg width="13" height="13" viewBox="0 0 13 13" fill="none"><polyline points="2,7 5,10 11,3" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>`
+        ? `<div class="rtn-picker-chk checked"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>`
         : `<div class="rtn-picker-chk"></div>`;
       const subHtml = sub ? `<span class="rtn-picker-row-sub">${esc(sub)}</span>` : '';
-      return `<div class="rtn-picker-row" onclick="toggleRoutinesSite('${esc(name)}')">
+      return `<div class="rtn-picker-row${checked ? ' is-selected' : ''}" onclick="toggleRoutinesSite('${esc(name)}')">
         ${checkHtml}
-        <div style="flex:1;min-width:0;">
+        <div style="flex:1;min-width:0;display:flex;align-items:center;gap:6px">
           <div class="rtn-picker-row-name">${esc(name)}</div>
           ${subHtml}
         </div>
@@ -46451,9 +46603,20 @@
       renderRoutinesPickerList(_rtnPickerSearch);
     }
 
+    function rtnPickerClearAll() {
+      state.routinesPickerSites = [];
+      renderRoutinesPickerList(_rtnPickerSearch);
+    }
+
+    function rtnPickerSelectAll() {
+      const allSites = (TOWNS || []).map(t => t.name);
+      state.routinesPickerSites = Array.from(new Set([...(state.routinesPickerSites || []), ...allSites]));
+      renderRoutinesPickerList(_rtnPickerSearch);
+    }
+
     async function saveRoutinesSites() {
       if (!state.routines) state.routines = { selectedSites: [], visits: {} };
-      state.routines.selectedSites = [...state.routinesPickerSites];
+      state.routines.selectedSites = [...(state.routinesPickerSites || [])];
       closeRoutinesSitePicker();
       render();
       await fsSetRoutines().catch(e => console.warn('[Rian]', e));
