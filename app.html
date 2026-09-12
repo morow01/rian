@@ -17599,7 +17599,7 @@
 
     .oc-stat-cell {
       flex: 1;
-      padding: 12px 10px;
+      padding: 12px 14px;
       text-align: center;
     }
 
@@ -17630,11 +17630,11 @@
     .oc-year-badge {
       display: inline-flex;
       align-items: center;
-      gap: 4px;
+      gap: 5px;
       background: rgba(var(--accent-rgb), 0.08);
       border: 1px solid rgba(var(--accent-rgb), 0.2);
       border-radius: 20px;
-      padding: 3px 9px 3px 11px;
+      padding: 3px 10px 3px 12px;
       font-size: 13px;
       font-weight: 700;
       color: var(--accent);
@@ -17649,7 +17649,7 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 10px 20px 4px;
+      padding: 10px 20px 8px;
       width: 100%;
     }
 
@@ -17661,66 +17661,70 @@
       letter-spacing: 0.5px;
     }
 
-    .oc-summary-bar {
-      display: flex;
-      gap: 8px;
-      padding: 6px 16px 12px;
-      justify-content: center;
-    }
-
-    .oc-summary-pill {
-      padding: 6px 14px;
-      border-radius: 20px;
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      font-size: 12px;
-      font-weight: 600;
-      color: var(--text-primary);
-    }
-
-    .oc-cal-btn {
-      height: 36px;
-      border-radius: 10px;
-      background: var(--accent);
-      border: none;
+    /* Schedule colour legend */
+    .oc-legend {
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 6px;
-      padding: 0 12px 0 10px;
-      cursor: pointer;
-      position: relative;
-      transition: transform 0.15s;
-      font-size: 13px;
-      font-weight: 600;
-      color: #fff;
+      gap: 14px;
+      flex-wrap: wrap;
+      padding: 10px 20px;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      width: 100%;
     }
 
-    .oc-cal-btn:active {
-      transform: scale(0.92);
-    }
-
-    .oc-cal-btn .oc-dot {
-      position: absolute;
-      top: 5px;
-      right: 5px;
-      width: 7px;
-      height: 7px;
-      border-radius: 50%;
-      background: var(--accent);
-      border: 1px solid var(--bg-page);
-    }
-
-    /* ===== ON-CALL SCHEDULE GRID ===== */
-    .oc-grid-row {
+    .oc-legend-item {
       display: flex;
       align-items: center;
       gap: 5px;
+      font-size: 11.5px;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .oc-lg-swatch {
+      width: 14px;
+      height: 14px;
+      border-radius: 4px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      display: inline-block;
+      flex-shrink: 0;
+    }
+
+    .oc-lg-swatch.oncall {
+      background: var(--accent);
+      border-color: var(--accent);
+    }
+
+    .oc-lg-swatch.extra {
+      background: #F59E0B;
+      border-color: #F59E0B;
+    }
+
+    .oc-lg-swatch.past {
+      opacity: 0.5;
+    }
+
+    .oc-lg-swatch.current {
+      box-shadow: 0 0 0 2.5px rgba(59, 130, 246, 0.35);
+    }
+
+    /* ===== ON-CALL SCHEDULE GRID ===== */
+    .oc-grid-wrap {
+      padding: 10px 20px;
+    }
+
+    .oc-grid-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
     }
 
     .oc-month-label {
-      width: 38px;
-      font-size: 12px;
+      width: 36px;
+      font-size: 11.5px;
       font-weight: 700;
       color: var(--text-muted);
       letter-spacing: 0.3px;
@@ -17806,54 +17810,27 @@
       outline-color: #F59E0B;
     }
 
-    /* Schedule colour legend */
-    .oc-legend {
-      display: flex;
-      justify-content: center;
-      gap: 14px;
-      flex-wrap: wrap;
-      padding: 10px 24px 0;
-      font-size: 11px;
-      font-weight: 600;
-      color: var(--text-muted);
-      width: 100%;
-    }
-
-    .oc-legend span {
-      display: flex;
-      align-items: center;
-      gap: 5px;
-    }
-
-    .oc-lg-swatch {
-      width: 13px;
-      height: 13px;
-      border-radius: 4px;
-      border: 1px solid var(--border);
-      background: var(--bg-card);
-      display: inline-block;
-      flex-shrink: 0;
-    }
-
     /* Schedule edit bar */
     .oc-edit-bar {
+      padding: 14px 20px;
+      border-top: 1px solid var(--border);
       display: flex;
       gap: 8px;
-      padding: 10px 24px 2px;
       width: 100%;
     }
 
     .oc-edit-start {
+      width: 100%;
       flex: 1;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 6px;
-      padding: 9px;
-      border-radius: 10px;
+      gap: 7px;
+      padding: 11px;
+      border-radius: 12px;
       border: 1px solid var(--accent);
       background: var(--accent);
-      font-size: 13px;
+      font-size: 14px;
       font-weight: 700;
       color: #fff;
       cursor: pointer;
@@ -17862,12 +17839,15 @@
 
     .oc-edit-save {
       flex: 1;
-      padding: 9px;
-      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 11px;
+      border-radius: 12px;
       border: 1px solid var(--accent);
       background: var(--accent);
       color: #fff;
-      font-size: 13px;
+      font-size: 14px;
       font-weight: 700;
       cursor: pointer;
       font-family: inherit;
@@ -17879,12 +17859,12 @@
     }
 
     .oc-edit-cancel {
-      padding: 9px 16px;
-      border-radius: 10px;
+      padding: 11px 18px;
+      border-radius: 12px;
       border: 1px solid var(--border);
       background: var(--bg-card);
       color: var(--text-secondary);
-      font-size: 13px;
+      font-size: 14px;
       font-weight: 700;
       cursor: pointer;
       font-family: inherit;
@@ -17895,15 +17875,6 @@
     }
 
     /* Callouts mobile stats now use the shared .stat-grid.four-col family (see line ~19574). */
-
-    .oc-legend {
-      display: flex;
-      gap: 12px;
-      margin-bottom: 10px;
-      font-size: 10px;
-      color: var(--text-muted);
-      font-weight: 600;
-    }
 
     .oc-legend-dot {
       width: 9px;
@@ -22709,7 +22680,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '6.8.52';
+    const VERSION = '6.8.53';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -48165,27 +48136,13 @@
 
       // Colour legend
       html += `<div class="oc-legend">
-        <span><span class="oc-lg-swatch" style="background:var(--accent);border-color:var(--accent)"></span>On-call</span>
-        <span><span class="oc-lg-swatch" style="background:#F59E0B;border-color:#F59E0B"></span>Extra shift</span>
-        <span><span class="oc-lg-swatch" style="opacity:0.5"></span>Past</span>
-        <span><span class="oc-lg-swatch" style="box-shadow:0 0 0 2.5px rgba(59,130,246,0.35)"></span>This week</span>
+        <div class="oc-legend-item"><div class="oc-lg-swatch oncall"></div>On-call</div>
+        <div class="oc-legend-item"><div class="oc-lg-swatch extra"></div>Extra shift</div>
+        <div class="oc-legend-item"><div class="oc-lg-swatch past"></div>Past</div>
+        <div class="oc-legend-item"><div class="oc-lg-swatch current"></div>This week</div>
       </div>`;
 
-      // Edit / Save / Cancel bar
-      if (editing) {
-        const nCh = _ocCountChanges();
-        html += `<div class="oc-edit-bar">
-          <button class="oc-edit-save" onclick="ocSaveEdit()" ${nCh === 0 ? 'disabled' : ''}>Save changes${nCh ? ' (' + nCh + ')' : ''}</button>
-          <button class="oc-edit-cancel" onclick="ocCancelEdit()">Cancel</button>
-        </div>`;
-      } else {
-        html += `<div class="oc-edit-bar">
-          <button class="oc-edit-start" onclick="ocStartEdit()">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>
-            Edit Schedule
-          </button>
-        </div>`;
-      }
+      // Grid
       const monthNames = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
       const byMonth = {};
       fridays.forEach(f => {
@@ -48194,11 +48151,11 @@
         byMonth[m].push(f);
       });
       const activeMonths = Object.keys(byMonth).map(Number).sort((a, b) => a - b);
-      html += `<div style="width:fit-content;margin:0 auto">`;
+      html += `<div class="oc-grid-wrap"><div style="width:fit-content;margin:0 auto">`;
       activeMonths.forEach((m, idx) => {
         const isLast = idx === activeMonths.length - 1;
-        html += `<div class="oc-grid-row" style="padding:12px 0${isLast ? ' 20px' : ''};margin-bottom:0;${!isLast ? 'border-bottom:1px dashed var(--border)' : ''}">`;
-        html += `<div class="oc-month-label">${monthNames[m]}</div><div style="display:flex;gap:8px;flex-wrap:wrap">`;
+        html += `<div class="oc-grid-row" style="padding:8px 0;margin-bottom:0;${!isLast ? 'border-bottom:1px dashed var(--border)' : ''}">`;
+        html += `<div class="oc-month-label">${monthNames[m]}</div><div style="display:flex;gap:6px;flex-wrap:wrap">`;
         byMonth[m].forEach(f => {
           const dayNum = strToDate(f).getDate();
           const type = onCall[f];
@@ -48214,8 +48171,26 @@
         });
         html += `</div></div>`;
       });
-      html += `</div>`;
-      html += `<div style="padding:12px 20px calc(14px + env(safe-area-inset-bottom, 0px));border-top:1px dashed var(--border);font-size:12px;color:var(--text-muted);font-style:italic;text-align:center">${editing
+      html += `</div></div>`;
+
+      // Edit / Save / Cancel bar (below Grid)
+      if (editing) {
+        const nCh = _ocCountChanges();
+        html += `<div class="oc-edit-bar">
+          <button class="oc-edit-save" onclick="ocSaveEdit()" ${nCh === 0 ? 'disabled' : ''}>Save changes${nCh ? ' (' + nCh + ')' : ''}</button>
+          <button class="oc-edit-cancel" onclick="ocCancelEdit()">Cancel</button>
+        </div>`;
+      } else {
+        html += `<div class="oc-edit-bar">
+          <button class="oc-edit-start" onclick="ocStartEdit()">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>
+            Edit Schedule
+          </button>
+        </div>`;
+      }
+
+      // Footer Hint
+      html += `<div style="padding:10px 20px calc(14px + env(safe-area-inset-bottom, 0px));border-top:1px dashed var(--border);font-size:11.5px;color:var(--text-muted);font-style:italic;text-align:center">${editing
         ? (_isDesktop() ? 'Click' : 'Tap') + ' to cycle: off → on-call → extra'
         : (_isDesktop() ? 'Click' : 'Tap') + ' "Edit Schedule" to make changes'}</div>`;
       html += `</div>`; // close oc-body
