@@ -22726,14 +22726,12 @@
       onclick="event.stopPropagation()">
       <!-- Header -->
       <div class="rtn-picker-hdr safe-top">
-        <div class="rtn-picker-hdr-icon">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"
+        <button onclick="closeLocationModal()" class="bulk-cancel" title="Back / Cancel" style="flex:none" aria-label="Cancel">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
             stroke-linecap="round" stroke-linejoin="round">
-            <path
-              d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0" />
-            <circle cx="12" cy="10" r="3" />
+            <polyline points="15 18 9 12 15 6" />
           </svg>
-        </div>
+        </button>
         <div style="flex:1;min-width:0">
           <div style="font-size:17px;font-weight:800;color:var(--text-primary);line-height:1.2">Select Location</div>
           <div
@@ -22950,14 +22948,12 @@
       <div class="rtn-picker-card">
         <!-- Header -->
         <div class="rtn-picker-hdr">
-          <div class="rtn-picker-hdr-icon">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"
+          <button class="bulk-cancel" onclick="closeRoutinesSitePicker()" title="Back / Cancel" style="flex:none" aria-label="Cancel">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
               stroke-linecap="round" stroke-linejoin="round">
-              <path
-                d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0" />
-              <circle cx="12" cy="10" r="3" />
+              <polyline points="15 18 9 12 15 6" />
             </svg>
-          </div>
+          </button>
           <div style="flex:1;min-width:0">
             <div style="font-size:17px;font-weight:800;color:var(--text-primary);line-height:1.2">Choose Routine Sites
             </div>
@@ -23616,7 +23612,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '6.8.57';
+    const VERSION = '6.8.58';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -41193,6 +41189,7 @@
       if (el.classList.contains('hidden')) return false;
       const cs = getComputedStyle(el);
       if (cs.display === 'none' || cs.visibility === 'hidden') return false;
+      if (cs.opacity === '0' || cs.pointerEvents === 'none') return false;
       if (el.style.display === 'none') return false;
       return el.offsetParent !== null || cs.position === 'fixed';
     }
@@ -42682,59 +42679,94 @@
       if (exitDlg) { exitDlg.remove(); return; }
       // 0a. Fullscreen map — exit fullscreen first
       if (_rtnMapFs) { _rtnToggleMapFs(_rtnMapInstance); return; }
-      // 0b. Task / Note / Callout fullscreen modal — use DOM check so JS state can't get stuck
-      if (_isModalShown('task-modal-overlay')) { if (typeof closeTaskModal === 'function') closeTaskModal(); return; }
-      if (_isModalShown('note-modal-overlay')) { if (typeof closeNoteModal === 'function') closeNoteModal(); return; }
-      if (_isModalShown('co-modal-overlay')) { if (typeof closeCoModal === 'function') closeCoModal(); return; }
-      // 1. Import overlays
-      if (_isModalShown('jdocx-overlay')) { closeJDocxImport(); return; }
-      if (_isModalShown('av-import-modal')) { avCloseImportDialog(); return; }
-      // 2. Any open bottom sheet / action sheet
+
+      // Universal modal stack: topmost open modal closes first
+      const modalStack = [
+        ['img-lightbox', () => typeof closeLightbox === 'function' && closeLightbox()],
+        ['tetra-crop-modal', () => typeof closeTetraCropModal === 'function' && closeTetraCropModal()],
+        ['tetra-lightbox-modal', () => typeof closeTetraLightboxModal === 'function' && closeTetraLightboxModal()],
+        ['tetra-inspection-modal', () => typeof closeTetraInspection === 'function' && closeTetraInspection()],
+        ['task-modal-overlay', () => typeof closeTaskModal === 'function' && closeTaskModal()],
+        ['note-modal-overlay', () => typeof closeNoteModal === 'function' && closeNoteModal()],
+        ['co-modal-overlay', () => typeof closeCoModal === 'function' && closeCoModal()],
+        ['battery-modal', () => typeof closeBatteryRecorder === 'function' && closeBatteryRecorder()],
+        ['note-fs-modal', () => typeof closeNoteFullscreen === 'function' && closeNoteFullscreen()],
+        ['ai-fault-modal', () => typeof closeFaultAssistant === 'function' && closeFaultAssistant()],
+        ['email-preview-modal', () => typeof closeEmailPreview === 'function' && closeEmailPreview()],
+        ['backup-modal', () => { const el = document.getElementById('backup-modal'); if (el) el.classList.add('hidden'); }],
+        ['restore-confirm-modal', () => { const el = document.getElementById('restore-confirm-modal'); if (el) el.classList.add('hidden'); }],
+        ['jdocx-overlay', () => typeof closeJDocxImport === 'function' && closeJDocxImport()],
+        ['av-import-modal', () => typeof avCloseImportDialog === 'function' && avCloseImportDialog()],
+        ['rian-dialog-overlay', () => typeof _rdnClose === 'function' && _rdnClose(null)],
+        ['code-modal', () => typeof closeCodeModal === 'function' && closeCodeModal()],
+        ['location-modal', () => typeof closeLocationModal === 'function' && closeLocationModal()],
+        ['finder-search-modal', () => typeof closeFinderModal === 'function' && closeFinderModal()],
+        ['snapshot-modal', () => typeof closeSnapshotModal === 'function' && closeSnapshotModal()],
+        ['date-modal', () => typeof closeDateModal === 'function' && closeDateModal()],
+        ['export-modal', () => { const el = document.getElementById('export-modal'); if (el) el.classList.add('hidden'); }],
+        ['import-modal', () => { const el = document.getElementById('import-modal'); if (el) el.classList.add('hidden'); }],
+        ['local-exit-modal', () => { const el = document.getElementById('local-exit-modal'); if (el) el.classList.add('hidden'); }],
+        ['local-disconnect-modal', () => { const el = document.getElementById('local-disconnect-modal'); if (el) el.classList.add('hidden'); }],
+        ['local-merge-modal', () => { const el = document.getElementById('local-merge-modal'); if (el) el.classList.add('hidden'); }],
+        ['co-move-modal', () => typeof closeCoMovePicker === 'function' && closeCoMovePicker()],
+        ['paste-ticket-modal', () => typeof closePasteTicket === 'function' && closePasteTicket()],
+        ['rtn-picker-modal', () => typeof closeRoutinesSitePicker === 'function' && closeRoutinesSitePicker()],
+        ['rtn-log-modal', () => typeof closeRoutinesLogModal === 'function' && closeRoutinesLogModal()],
+        ['voice-listen-modal', () => { const el = document.getElementById('voice-listen-modal'); if (el) el.style.display = 'none'; }],
+        ['voice-confirm-modal', () => { const el = document.getElementById('voice-confirm-modal'); if (el) el.style.display = 'none'; }],
+        ['note-voice-confirm-modal', () => { const el = document.getElementById('note-voice-confirm-modal'); if (el) el.style.display = 'none'; }],
+        ['copy-picker-modal', () => typeof closeCopyPicker === 'function' && closeCopyPicker()],
+        ['note-confirm-modal', () => typeof closeAddToNotes === 'function' && closeAddToNotes()],
+        ['task-picker-modal', () => typeof closeTaskPicker === 'function' && closeTaskPicker()],
+        ['remind-modal', () => typeof closeReminder === 'function' && closeReminder()],
+        ['confirm-modal', () => typeof closeConfirmModal === 'function' && closeConfirmModal()],
+        ['notes-modal', () => typeof closeNotesModal === 'function' && closeNotesModal()],
+      ];
+      for (let i = 0; i < modalStack.length; i++) {
+        if (_isModalShown(modalStack[i][0])) {
+          try { modalStack[i][1](); } catch (err) { console.warn('[Rian] backButton close failed for', modalStack[i][0], err); }
+          return;
+        }
+      }
+
+      // Template picker sheet — rendered inline
+      if (state && state.tplPickerDay != null) {
+        tplClosePicker();
+        return;
+      }
+      // Routines year picker overlay
+      if (state && state.routinesYearPickerOpen) {
+        closeRoutinesYearPicker();
+        return;
+      }
+
+      // Any open bottom sheet / action sheet
       const sheets = document.querySelectorAll('.btm-sheet.open, .bottom-sheet.open');
       if (sheets.length) {
         sheets.forEach(s => s.classList.remove('open'));
         return;
       }
-      // 2. Note fullscreen editor (both timesheet notes and journal pages)
-      const noteFsOpen = !document.getElementById('note-fs-modal')?.classList.contains('hidden');
-      if (noteFsOpen) {
-        closeNoteFullscreen();
-        return;
-      }
-      // 2a. TETRA Routine Inspection crop / lightbox overlays
-      const cropOpen = !document.getElementById('tetra-crop-modal')?.classList.contains('hidden');
-      if (cropOpen) {
-        closeTetraCropModal();
-        return;
-      }
-      const lightboxOpen = !document.getElementById('tetra-lightbox-modal')?.classList.contains('hidden');
-      if (lightboxOpen) {
-        closeTetraLightboxModal();
-        return;
-      }
-      // 2b. TETRA Routine Inspection fullscreen modal
-      const tetraFsOpen = !document.getElementById('tetra-inspection-modal')?.classList.contains('hidden');
-      if (tetraFsOpen) {
-        closeTetraInspection();
-        return;
-      }
-      // 3. Hamburger menu open
+
+      // Hamburger menu open
       const themeMenu = document.getElementById('themeMenu');
       if (themeMenu && !themeMenu.classList.contains('hidden')) {
         closeThemeMenu();
         return;
       }
-      // 4. On-call schedule overlay
+
+      // On-call schedule overlay
       if (state.coScheduleOpen) {
         ocCloseSchedule();
         return;
       }
-      // 5. Callouts week detail
+
+      // Callouts week detail
       if (state.view === 'callouts' && state.calloutsView === 'week') {
         coBack();
         return;
       }
-      // 6. Journal drill-down
+
+      // Journal drill-down
       if (state.view === 'journal') {
         if (state.jScreen === 'sections' || state.jScreen === 'pages') {
           navJBack();
@@ -42743,12 +42775,14 @@
         }
         return;
       }
-      // 7. Any other non-week view — go back to week
+
+      // Any other non-week view — go back to week
       if (state.view && state.view !== 'week') {
         setView(state.prevView || 'week');
         return;
       }
-      // 8. Already on week — show exit confirmation dialog
+
+      // Already on week — show exit confirmation dialog
       console.warn('[Rian] _handleBackButton: showing exit dialog, view=' + state.view);
       _showExitDialog();
     }
