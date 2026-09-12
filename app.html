@@ -17708,7 +17708,9 @@
     }
 
     .oc-lg-swatch.current {
-      box-shadow: 0 0 0 2.5px rgba(59, 130, 246, 0.35);
+      background: var(--bg-card);
+      border: 2px solid var(--accent);
+      box-shadow: 0 0 0 2px rgba(var(--accent-rgb), 0.2);
     }
 
     /* ===== ON-CALL SCHEDULE GRID ===== */
@@ -22680,7 +22682,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '6.8.53';
+    const VERSION = '6.8.54';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
