@@ -21082,15 +21082,17 @@
 
     .hist-cal-row {
       cursor: pointer;
-      transition: background 0.12s ease;
     }
 
     .hist-cal-row td {
-      padding: 6px 0;
+      padding: 7px 0;
       color: var(--text-primary);
       position: relative;
       font-weight: 600;
-      font-size: 12px;
+      font-size: 12.5px;
+      border-top: 1px solid transparent;
+      border-bottom: 1px solid transparent;
+      transition: background 0.12s ease, border-color 0.12s ease;
     }
 
     .hist-cal-row:hover td {
@@ -21098,26 +21100,30 @@
     }
 
     .hist-cal-row:hover td:first-child {
-      border-top-left-radius: 7px;
-      border-bottom-left-radius: 7px;
+      border-top-left-radius: 8px;
+      border-bottom-left-radius: 8px;
     }
     .hist-cal-row:hover td:last-child {
-      border-top-right-radius: 7px;
-      border-bottom-right-radius: 7px;
+      border-top-right-radius: 8px;
+      border-bottom-right-radius: 8px;
     }
 
     .hist-cal-row.sel td {
-      background: var(--accent-light);
+      background: rgba(var(--accent-rgb), 0.16);
       color: var(--accent);
-      font-weight: 800;
+      font-weight: 700;
+      border-top: 1px solid rgba(var(--accent-rgb), 0.35);
+      border-bottom: 1px solid rgba(var(--accent-rgb), 0.35);
     }
     .hist-cal-row.sel td:first-child {
-      border-top-left-radius: 7px;
-      border-bottom-left-radius: 7px;
+      border-left: 1px solid rgba(var(--accent-rgb), 0.35);
+      border-top-left-radius: 8px;
+      border-bottom-left-radius: 8px;
     }
     .hist-cal-row.sel td:last-child {
-      border-top-right-radius: 7px;
-      border-bottom-right-radius: 7px;
+      border-right: 1px solid rgba(var(--accent-rgb), 0.35);
+      border-top-right-radius: 8px;
+      border-bottom-right-radius: 8px;
     }
 
     .hist-today-pip {
@@ -22430,7 +22436,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '6.8.29';
+    const VERSION = '6.8.30';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
