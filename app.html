@@ -22772,21 +22772,38 @@
   </div>
 
   <!-- ===== FINDER SEARCH MODAL ===== -->
-  <div id="finder-search-modal" class="hidden fixed inset-0 z-50 flex flex-col"
-    style="background:rgba(var(--shadow-rgb), 0.45);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px)">
-    <div id="finder-modal-inner" class="flex flex-col flex-1 overflow-hidden" style="background:var(--bg-modal)">
-      <div style="background:var(--bg-header)" class="text-white px-4 py-3 flex items-center gap-3 safe-top">
-        <button onclick="closeFinderModal()" class="modal-close-x on-dark"><svg width="18" height="18"
-            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"
-            stroke-linejoin="round">
-            <line x1="18" y1="6" x2="6" y2="18" />
-            <line x1="6" y1="6" x2="18" y2="18" />
-          </svg></button>
-        <h2 class="text-base font-semibold flex-1" id="finder-modal-title">Search Exchanges</h2>
+  <div id="finder-search-modal" class="hidden fixed inset-0 flex flex-col"
+    onclick="if(event.target===this)closeFinderModal()"
+    style="background:rgba(var(--shadow-rgb), 0.45);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);z-index:10010">
+    <div id="finder-modal-inner" class="flex flex-col flex-1 overflow-hidden" style="background:var(--bg-modal)"
+      onclick="event.stopPropagation()">
+      <!-- Header -->
+      <div class="rtn-picker-hdr safe-top">
+        <button onclick="closeFinderModal()" class="bulk-cancel" title="Back / Cancel" style="flex:none" aria-label="Cancel">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+            stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="15 18 9 12 15 6" />
+          </svg>
+        </button>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:17px;font-weight:800;color:var(--text-primary);line-height:1.2" id="finder-modal-title">Search Exchanges</div>
+          <div id="finder-modal-sub"
+            style="font-size:12px;color:var(--text-muted);font-weight:500;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
+            Search exchanges or site codes
+          </div>
+        </div>
+        <button onclick="closeFinderModal()" class="rtn-picker-save-btn"
+          style="flex:none;height:34px;padding:0 16px;border-radius:9px;font-size:13px;font-weight:700">Done</button>
       </div>
-      <div class="p-3 sticky top-0 z-10"
-        style="background:var(--bg-modal-search);border-bottom:1px solid var(--border)">
+
+      <!-- Search -->
+      <div class="rtn-picker-search-bar">
         <div class="finder-search-wrap">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2.2"
+            stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-right:8px">
+            <circle cx="11" cy="11" r="8" />
+            <line x1="21" y1="21" x2="16.65" y2="16.65" />
+          </svg>
           <input id="finder-modal-search" type="search" placeholder="Name or Code…" class="finder-search-input"
             autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-lpignore="true"
             data-form-type="other" data-1p-ignore="true" oninput="filterFinderModal(this.value)">
@@ -23612,7 +23629,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '6.8.58';
+    const VERSION = '6.8.59';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -24254,6 +24271,8 @@
       finderModalMode = mode;
       const isEx = mode === 'exchanges';
       document.getElementById('finder-modal-title').textContent = isEx ? 'Search Exchanges' : 'Search Cabinets';
+      const subEl = document.getElementById('finder-modal-sub');
+      if (subEl) subEl.textContent = isEx ? 'Search exchanges or site codes' : 'Search cabinets by MDF, CCP or IPID';
       document.getElementById('finder-search-modal').classList.remove('hidden');
       const searchEl = document.getElementById('finder-modal-search');
       searchEl.placeholder = isEx ? 'Name or Code (e.g. CHL, Cashel)' : 'MDF, CCP or IPID';
