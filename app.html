@@ -22442,7 +22442,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '6.8.36';
+    const VERSION = '6.8.37';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -40972,15 +40972,20 @@
       var avgLabel = workedWeeks.length > 0 ? 'Avg ' + avgHrs + 'h / worked week' : 'No worked weeks yet';
       var searchMeta = filterLabel;
       var resultsHtml = searchQ ? _histBuildResultsHtml(searchResults, searchQ, searchScope) : _histBuildIdleResultsHtml(searchQ, searchScope);
-      var mainHtml = '<div class="hist-desk-main">' +
-        '<div class="hist-desk-head-wrap">' +
-        '<div class="hist-desk-head">' +
+      var middleHead = '<div style="flex:1;min-width:0;display:flex;align-items:center;gap:18px;padding-right:22px;border-right:1px solid var(--border)">' +
         '<button class="hist-icon-btn" onclick="setView(\'' + (state.prevView || 'week') + '\')" title="Back">' +
         '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>' +
         '</button>' +
-        '<div><h1>Week History</h1><p>Search saved tasks and callouts, or select a week</p></div>' +
-        '<div class="hist-desk-head-meta"><span>' + searchMeta + '</span><span>' + avgLabel + '</span></div>' +
+        '<div style="flex:1;min-width:0"><h1>Week History</h1><p>Search saved tasks and callouts, or select a week</p></div>' +
         '<button class="hist-icon-btn" onclick="histOpenJump()" title="Select Week">' + calSvg + '</button>' +
+        '</div>';
+      var rightHead = '<div class="hist-desk-head-meta" style="width:' + _histResultsWidth() + 'px;padding-left:22px;margin-left:0;box-sizing:border-box">' +
+        '<span>' + searchMeta + '</span><span>' + avgLabel + '</span>' +
+        '</div>';
+      var mainHtml = '<div class="hist-desk-main">' +
+        '<div class="hist-desk-head-wrap" style="padding:14px 22px">' +
+        '<div class="hist-desk-head" style="padding:0;gap:0">' +
+        middleHead + rightHead +
         '</div>' +
         '</div>' +
         '<div class="hist-desk-content' + (searchQ ? '' : ' no-search') + '">' +
