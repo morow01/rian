@@ -21304,6 +21304,17 @@
         width: calc(100% - 24px);
       }
 
+      .hist-desk-table-col {
+        flex: 1;
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+        border-right: 1px solid var(--border);
+        overflow: hidden;
+        height: 100%;
+        background: var(--bg-card);
+      }
+
       .hist-desk-main {
         flex: 1;
         display: flex;
@@ -21314,6 +21325,7 @@
 
       .hist-desk-head {
         min-height: 74px;
+        box-sizing: border-box;
         background: var(--bg-card);
         border-bottom: 1px solid var(--border);
         display: flex;
@@ -21338,7 +21350,10 @@
       }
 
       .hist-desk-head-meta {
-        margin-left: auto;
+        min-height: 74px;
+        box-sizing: border-box;
+        border-bottom: 1px solid var(--border);
+        padding: 0 22px;
         display: flex;
         align-items: center;
         gap: 18px;
@@ -21346,6 +21361,11 @@
         font-size: 12px;
         font-weight: 600;
         white-space: nowrap;
+        background: var(--bg-card);
+        position: sticky;
+        top: 0;
+        z-index: 3;
+        flex-shrink: 0;
       }
 
       .hist-desk-head-meta span {
@@ -21547,7 +21567,6 @@
 
       .hist-results-panel {
         background: var(--bg-card);
-        border-left: 1px solid var(--border);
         overflow: auto;
         flex-shrink: 0;
       }
@@ -22442,7 +22461,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '6.8.37';
+    const VERSION = '6.8.38';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -40774,8 +40793,10 @@
         '</div>';
     }
 
-    function _histBuildResultsHtml(results, q, searchScope) {
+    function _histBuildResultsHtml(results, q, searchScope, searchMeta, avgLabel) {
+      var metaHtml = searchMeta ? '<div class="hist-desk-head-meta"><span>' + searchMeta + '</span><span>' + avgLabel + '</span></div>' : '';
       var html = '<aside class="hist-results-panel" style="width:' + _histResultsWidth() + 'px">' +
+        metaHtml +
         '<div class="hist-results-head"><div class="hist-results-title">Saved Work</div>' +
         '<div class="hist-results-sub">' + results.length + ' match' + (results.length === 1 ? '' : 'es') + ' for <strong>' + esc(q) + '</strong></div>' +
         _histBuildSearchControlsHtml(q, searchScope) + '</div>';
@@ -40806,8 +40827,10 @@
       return html + '</aside>';
     }
 
-    function _histBuildIdleResultsHtml(searchQ, searchScope) {
+    function _histBuildIdleResultsHtml(searchQ, searchScope, searchMeta, avgLabel) {
+      var metaHtml = searchMeta ? '<div class="hist-desk-head-meta"><span>' + searchMeta + '</span><span>' + avgLabel + '</span></div>' : '';
       return '<aside class="hist-results-panel" style="width:' + _histResultsWidth() + 'px">' +
+        metaHtml +
         '<div class="hist-results-head"><div class="hist-results-title">Saved Work</div>' +
         _histBuildSearchControlsHtml(searchQ || '', searchScope || 'all') + '</div>' +
         '<div class="hist-results-hint">' +
@@ -40971,24 +40994,16 @@
       var filterLabel = ({ all: 'Showing all weeks', oncall: 'Showing on-call weeks', ot: 'Showing weeks with OT', callouts: 'Showing weeks with callouts' })[filter] || 'Showing all weeks';
       var avgLabel = workedWeeks.length > 0 ? 'Avg ' + avgHrs + 'h / worked week' : 'No worked weeks yet';
       var searchMeta = filterLabel;
-      var resultsHtml = searchQ ? _histBuildResultsHtml(searchResults, searchQ, searchScope) : _histBuildIdleResultsHtml(searchQ, searchScope);
-      var middleHead = '<div style="flex:1;min-width:0;display:flex;align-items:center;gap:18px;padding-right:22px;border-right:1px solid var(--border)">' +
+      var resultsHtml = searchQ ? _histBuildResultsHtml(searchResults, searchQ, searchScope, searchMeta, avgLabel) : _histBuildIdleResultsHtml(searchQ, searchScope, searchMeta, avgLabel);
+
+      var middleColHtml = '<div class="hist-desk-table-col">' +
+        '<div class="hist-desk-head">' +
         '<button class="hist-icon-btn" onclick="setView(\'' + (state.prevView || 'week') + '\')" title="Back">' +
         '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>' +
         '</button>' +
         '<div style="flex:1;min-width:0"><h1>Week History</h1><p>Search saved tasks and callouts, or select a week</p></div>' +
         '<button class="hist-icon-btn" onclick="histOpenJump()" title="Select Week">' + calSvg + '</button>' +
-        '</div>';
-      var rightHead = '<div class="hist-desk-head-meta" style="width:' + _histResultsWidth() + 'px;padding-left:22px;margin-left:0;box-sizing:border-box">' +
-        '<span>' + searchMeta + '</span><span>' + avgLabel + '</span>' +
-        '</div>';
-      var mainHtml = '<div class="hist-desk-main">' +
-        '<div class="hist-desk-head-wrap" style="padding:14px 22px">' +
-        '<div class="hist-desk-head" style="padding:0;gap:0">' +
-        middleHead + rightHead +
         '</div>' +
-        '</div>' +
-        '<div class="hist-desk-content' + (searchQ ? '' : ' no-search') + '">' +
         '<div class="hist-desk-table-wrap">' +
         '<table class="hist-desk-table">' +
         '<thead><tr>' +
@@ -41003,13 +41018,20 @@
         '</tr></thead>' +
         '<tbody>' + tableBody + '</tbody>' +
         '</table>' +
-        '</div><div class="dj-resize-handle dj-rh-invis" onmousedown="histResultsResizeStart(event)"></div>' + resultsHtml + '</div></div>';
+        '</div>' +
+        '</div>';
 
       // Jump modal (shared builder — desktop variant)
       var jumpHtml = _histBuildJumpHtml(true);
 
       return '<main>' +
-        '<div class="hist-desk-wrap">' + sidebarHtml + '<div class="dj-resize-handle dj-rh-invis" onmousedown="histSidebarResizeStart(event)"></div>' + mainHtml + '</div>' +
+        '<div class="hist-desk-wrap">' +
+        sidebarHtml +
+        '<div class="dj-resize-handle dj-rh-invis" onmousedown="histSidebarResizeStart(event)"></div>' +
+        middleColHtml +
+        '<div class="dj-resize-handle dj-rh-invis" onmousedown="histResultsResizeStart(event)"></div>' +
+        resultsHtml +
+        '</div>' +
         jumpHtml +
         '</main>';
     }

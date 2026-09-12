@@ -1,0 +1,815 @@
+const fs = require('fs');
+
+const parts = [];
+
+parts.push(`<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rian — Field Technician App</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    
+    :root {
+      --navy: #0f1c2e;
+      --navy-card: #162438;
+      --navy-border: rgba(255, 255, 255, 0.08);
+      --accent: #2d6be4;
+      --accent-light: #ebf1fd;
+      --page: #f1f5f9;
+      --card: #ffffff;
+      --border: #dbe4ee;
+      --text: #0f1c2e;
+      --muted: #475569;
+      --faint: #94a3b8;
+      --ot: #f59e0b;
+      --green: #16a34a;
+      --red: #ef4444;
+      --purple: #8b5cf6;
+      --font-mono: 'DM Mono', monospace;
+    }
+
+    body {
+      font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--page);
+      color: var(--text);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    /* ── NAVBAR ── */
+    .site-nav {
+      position: sticky; top: 0; left: 0; right: 0; z-index: 500;
+      background: var(--navy);
+      border-bottom: 1px solid var(--navy-border);
+      padding: 0 28px;
+      display: flex; align-items: center; justify-content: space-between;
+      height: 62px;
+    }
+    .nav-brand {
+      display: flex; align-items: center; gap: 10px; text-decoration: none;
+    }
+    .nav-logo-box {
+      width: 32px; height: 32px; border-radius: 8px;
+      background: linear-gradient(135deg, #2d6be4, #7c3aed);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 15px; font-weight: 800; color: #fff;
+    }
+    .nav-brand-name { font-weight: 800; font-size: 16px; color: #fff; }
+    
+    .nav-links {
+      display: flex; align-items: center; gap: 2px;
+    }
+    .nav-link {
+      padding: 6px 12px; border-radius: 6px; font-size: 13px; font-weight: 600;
+      color: rgba(255, 255, 255, 0.6); text-decoration: none; transition: all 0.15s;
+    }
+    .nav-link:hover {
+      color: #fff; background: rgba(255, 255, 255, 0.08);
+    }
+    .nav-cta {
+      display: inline-flex; align-items: center; gap: 7px;
+      background: var(--accent);
+      color: #fff; font-size: 13px; font-weight: 700;
+      padding: 8px 18px; border-radius: 8px; text-decoration: none;
+      transition: background 0.15s;
+    }
+    .nav-cta:hover {
+      background: #2458bd;
+    }
+
+    /* ── HERO ── */
+    .hero {
+      background: var(--navy);
+      color: #fff;
+      padding: 68px 24px 52px;
+      text-align: center;
+      position: relative;
+    }
+    .hero-badge {
+      display: inline-block;
+      background: rgba(45, 107, 228, 0.2);
+      border: 1px solid rgba(45, 107, 228, 0.4);
+      color: #7eb3ff; font-size: 11px; font-weight: 700;
+      letter-spacing: 0.08em; text-transform: uppercase;
+      padding: 4px 14px; border-radius: 20px; margin-bottom: 18px;
+    }
+    .hero h1 {
+      font-size: clamp(32px, 5vw, 52px);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      line-height: 1.15;
+      margin-bottom: 16px;
+    }
+    .hero h1 span { color: #7eb3ff; }
+    .hero p.lead {
+      font-size: clamp(15px, 2vw, 18px);
+      color: rgba(255, 255, 255, 0.7);
+      max-width: 640px;
+      margin: 0 auto 32px;
+      line-height: 1.6;
+    }
+    .hero-cta-group {
+      display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-bottom: 16px;
+    }
+    .btn-hero-primary {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: var(--accent); color: #fff; font-size: 15px; font-weight: 700;
+      padding: 12px 28px; border-radius: 10px; text-decoration: none;
+      transition: background 0.15s;
+    }
+    .btn-hero-primary:hover { background: #2458bd; }
+    .hero-meta {
+      font-size: 12px; color: rgba(255, 255, 255, 0.4);
+    }
+
+    /* ── SECTION STYLES ── */
+    .feature-section {
+      padding: 80px 24px;
+    }
+    .feature-section:nth-child(even) {
+      background: #ffffff;
+    }
+    .feature-inner {
+      max-width: 1080px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 64px;
+      align-items: center;
+    }
+    .feature-section.reverse .feature-text {
+      order: 2;
+    }
+    .feature-section.reverse .feature-media {
+      order: 1;
+    }
+
+    .section-number {
+      font-size: 11px; font-weight: 800; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--accent); margin-bottom: 8px;
+    }
+    .feature-text h2 {
+      font-size: clamp(24px, 3vw, 34px);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+      margin-bottom: 12px;
+    }
+    .feature-text p.lead {
+      font-size: 15.5px;
+      color: var(--muted);
+      line-height: 1.65;
+      margin-bottom: 24px;
+    }
+
+    .feature-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .feature-list li {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+    }
+    .feature-list .icon {
+      width: 32px; height: 32px; border-radius: 8px;
+      background: var(--accent-light); color: var(--accent);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; margin-top: 2px;
+    }
+    .feature-list .icon.green { background: rgba(22, 163, 74, 0.1); color: var(--green); }
+    .feature-list .icon.orange { background: rgba(245, 158, 11, 0.1); color: var(--ot); }
+    .feature-list .icon.purple { background: rgba(139, 92, 246, 0.1); color: var(--purple); }
+    .feature-list .icon.red { background: rgba(239, 68, 68, 0.08); color: var(--red); }
+
+    .feature-list li strong {
+      display: block; font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 2px;
+    }
+    .feature-list li span {
+      font-size: 13px; color: var(--muted); line-height: 1.5;
+    }
+
+    /* ── PHONE DISPLAY FRAME ── */
+    .feature-media {
+      display: flex; justify-content: center; align-items: center;
+    }
+    .phone-device {
+      width: 210px;
+      background: #1a1a2e;
+      border-radius: 34px;
+      padding: 10px;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.15);
+      flex-shrink: 0;
+    }
+    .phone-screen-img {
+      width: 100%; height: auto; border-radius: 24px; display: block;
+      background: #000;
+    }
+
+    /* ── CAROUSEL / MULTI-PHONE ── */
+    .phones-wrap {
+      display: flex; gap: 14px; justify-content: center;
+    }
+
+    /* ── LAPTOP FRAME ── */
+    .laptop-frame {
+      width: 100%; max-width: 520px;
+      background: #1a1a2e; border-radius: 12px 12px 2px 2px;
+      padding: 8px; box-shadow: 0 20px 48px rgba(0, 0, 0, 0.2);
+    }
+    .laptop-screen-img {
+      width: 100%; display: block; border-radius: 6px;
+    }
+    .laptop-base-bar {
+      height: 7px; background: linear-gradient(to bottom, #1a1a2e 0%, #0b0b16 100%);
+      margin: 5px -14px 0; border-radius: 0 0 8px 8px; position: relative;
+    }
+    .laptop-base-bar::after {
+      content: ''; position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+      width: 70px; height: 3px; background: #000; border-radius: 0 0 5px 5px;
+    }
+
+    /* ── FOOTER ── */
+    .site-footer {
+      background: var(--navy);
+      color: rgba(255, 255, 255, 0.5);
+      padding: 48px 24px 32px;
+      text-align: center;
+      font-size: 13px;
+    }
+    .footer-links {
+      display: flex; justify-content: center; gap: 18px; margin: 18px 0; flex-wrap: wrap;
+    }
+    .footer-links a {
+      color: rgba(255, 255, 255, 0.7); text-decoration: none; font-size: 13px; font-weight: 600;
+    }
+    .footer-links a:hover { color: #fff; }
+    .footer-ver {
+      font-size: 11px; color: rgba(255, 255, 255, 0.3); font-family: var(--font-mono); margin-top: 14px;
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 900px) {
+      .feature-inner { grid-template-columns: 1fr; gap: 40px; }
+      .feature-section.reverse .feature-text { order: 1; }
+      .feature-section.reverse .feature-media { order: 2; }
+      .nav-links { display: none; }
+      .phone-device { width: 195px; }
+    }
+    @media (max-width: 600px) {
+      .hero { padding: 48px 16px 36px; }
+      .feature-section { padding: 52px 16px; }
+      .phones-wrap .phone-device:nth-child(2) { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ════ NAVBAR ════ -->
+  <nav class="site-nav">
+    <a href="#" class="nav-brand">
+      <div class="nav-logo-box">R</div>
+      <span class="nav-brand-name">Rian</span>
+    </a>
+    <div class="nav-links">
+      <a href="#timesheet" class="nav-link">Timesheet</a>
+      <a href="#notes" class="nav-link">Notes</a>
+      <a href="#journal" class="nav-link">Journal</a>
+      <a href="#finder" class="nav-link">Finder</a>
+      <a href="#routines" class="nav-link">Routines</a>
+      <a href="#callouts" class="nav-link">Callouts</a>
+      <a href="#history-ai" class="nav-link">History &amp; AI</a>
+      <a href="#desktop" class="nav-link">Desktop</a>
+    </div>
+    <a href="./app.html" class="nav-cta">Launch App</a>
+  </nav>
+
+  <!-- ════ HERO ════ -->
+  <header class="hero">
+    <div class="hero-badge">Mobile · Desktop · Android · Offline-First</div>
+    <h1>Field timesheets, notes &amp; site tools<br><span>built for technicians</span></h1>
+    <p class="lead">
+      Log daily hours, maintain structured field notes, run routine visit schedules, search exchange site locations, and manage on-call records in one reliable tool.
+    </p>
+    <div class="hero-cta-group">
+      <a href="./app.html" class="btn-hero-primary">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+        Launch App
+      </a>
+    </div>
+    <div class="hero-meta">Version 6.8.34 · Offline storage in IndexedDB with Firestore sync</div>
+  </header>
+
+  <!-- ════ 01: TIMESHEET ════ -->
+  <section class="feature-section" id="timesheet">
+    <div class="feature-inner">
+      <div class="feature-text">
+        <div class="section-number">01 — Timesheet</div>
+        <h2>Log daily tasks, work codes and hours</h2>
+        <p class="lead">
+          Record ordinary and overtime hours against specific work codes and site locations for each day of the week.
+        </p>
+        <ul class="feature-list">
+          <li>
+            <div class="icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+            </div>
+            <div>
+              <strong>Day-by-day task logging</strong>
+              <span>Expand any day to enter tasks, attach work codes, select site locations, and add notes.</span>
+            </div>
+          </li>
+          <li>
+            <div class="icon orange">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+            </div>
+            <div>
+              <strong>Ordinary &amp; overtime tracking</strong>
+              <span>Separately enter ORD and OT hours per task with automatic week totals.</span>
+            </div>
+          </li>
+          <li>
+            <div class="icon green">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+            </div>
+            <div>
+              <strong>Weekly email &amp; export</strong>
+              <span>Generate a formatted summary email of your week's hours to send to supervisor or payroll.</span>
+            </div>
+          </li>
+          <li>
+            <div class="icon purple">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            </div>
+            <div>
+              <strong>Templates &amp; bulk actions</strong>
+              <span>Save recurring daily task templates, duplicate entries, or bulk copy tasks across days.</span>
+            </div>
+          </li>
+          <li>
+            <div class="icon orange">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18"/><path d="M12 3v18"/><path d="M5 5l14 14"/><path d="M19 5L5 19"/></svg>
+            </div>
+            <div>
+              <strong>Availability Planner</strong>
+              <span>Track leave, training, CTO shifts, and on-call rosters with badges visible in the timesheet header.</span>
+            </div>
+          </li>
+        </ul>
+      </div>
+      <div class="feature-media">
+        <div class="phone-device">
+          <img class="phone-screen-img" src="images/01 TimeSheet.png" alt="Timesheet Screen">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════ 02: NOTES ════ -->
+  <section class="feature-section reverse" id="notes">
+    <div class="feature-inner">
+      <div class="feature-text">
+        <div class="section-number">02 — Notes</div>
+        <h2>Site notes, reminders and follow-ups</h2>
+        <p class="lead">
+          Keep track of job details, faults, and meeting points. Group by category or custom tag, set due dates, and convert notes into timesheet tasks.
+        </p>
+        <ul class="feature-list">
+          <li>
+            <div class="icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
+            </div>
+            <div>
+              <strong>6 categories &amp; custom tags</strong>
+              <span>Organise notes under Job, Fault, Follow-up, Meeting, Personal, or Idea, plus your own custom tag list.</span>
+            </div>
+          </li>
+          <li>
+            <div class="icon red">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+            </div>
+            <div>
+              <strong>Priority flags &amp; tabs</strong>
+              <span>Filter by High, Medium, Low priority, or switch between Active, Archive, and Bin views.</span>
+            </div>
+          </li>
+          <li>
+            <div class="icon orange">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+            </div>
+            <div>
+              <strong>Due dates &amp; reminders</strong>
+              <span>Set reminder dates and receive notifications when follow-ups are due.</span>
+            </div>
+          </li>
+          <li>
+            <div class="icon purple">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0"/><line x1="12" y1="19" x2="12" y2="22"/></svg>
+            </div>
+            <div>
+              <strong>Voice dictation</strong>
+              <span>Dictate notes on site using speech-to-text when your hands are busy.</span>
+            </div>
+          </li>
+          <li>
+            <div class="icon green">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+            </div>
+            <div>
+              <strong>Convert note to timesheet task</strong>
+              <span>Create a task on your current week's timesheet directly from any note.</span>
+            </div>
+          </li>
+        </ul>
+      </div>
+      <div class="feature-media">
+        <div class="phones-wrap">
+          <div class="phone-device">
+            <img class="phone-screen-img" src="images/02 Notes.png" alt="Notes List">
+          </div>
+          <div class="phone-device">
+            <img class="phone-screen-img" src="images/03 Notes.png" alt="Note Detail">
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════ 03: JOURNAL ════ -->
+  <section class="feature-section" id="journal">
+    <div class="feature-inner">
+      <div class="feature-text">
+        <div class="section-number">03 — Journal</div>
+        <h2>Structured notebooks &amp; battery table recorder</h2>
+        <p class="lead">
+          Maintain technical documentation across Notebooks, Sections, and Pages with rich text editing, tables, Word document import, and AI-assisted voice table entry.
+        </p>
+        <ul class="feature-list">
+          <li>
+            <div class="icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+            </div>
+            <div>
+              <strong>Notebooks → Sections → Pages</strong>
+              <span>Organise long-term documentation by project, site area, and visit date.</span>
+            </div>
+          </li>
+          <li>
+            <div class="icon purple">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+            </div>
+            <div>
+              <strong>TipTap rich text editor</strong>
+              <span>Headings, bullet lists, formatting, images, and data tables built right into each page.</span>
+            </div>
+          </li>
+          <li>
+            <div class="icon red">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0"/><line x1="12" y1="19" x2="12" y2="22"/></svg>
+            </div>
+            <div>
+              <strong>Battery voice table recorder</strong>
+              <span>Dictate cell voltage readings sequentially. Gemini AI structures the numbers and inserts a clean table into your page.</span>
+            </div>
+          </li>
+          <li>
+            <div class="icon orange">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            </div>
+            <div>
+              <strong>DOCX Word import</strong>
+              <span>Import existing Word documents directly into Journal pages without retyping.</span>
+            </div>
+          </li>
+        </ul>
+      </div>
+      <div class="feature-media">
+        <div class="phones-wrap">
+          <div class="phone-device">
+            <img class="phone-screen-img" src="images/04. Journal.png" alt="Journal Notebooks">
+          </div>
+          <div class="phone-device">
+            <img class="phone-screen-img" src="images/05. Journal.png" alt="Journal Page">
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════ 04: FINDER ════ -->
+  <section class="feature-section reverse" id="finder">
+    <div class="feature-inner">
+      <div class="feature-text">
+        <div class="section-number">04 — Finder</div>
+        <h2>Site directory &amp; Google Maps navigation</h2>
+        <p class="lead">
+          Search exchanges and street cabinets by town name or site code, view address coordinates, and launch directions with one tap.
+        </p>
+        <ul class="feature-list">
+          <li>
+            <div class="icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            </div>
+            <div>
+              <strong>Instant search</strong>
+              <span>Quickly filter through exchanges and cabinets by site code or location name.</span>
+            </div>
+          </li>
+          <li>
+            <div class="icon green">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            </div>
+            <div>
+              <strong>Google Maps navigation</strong>
+              <span>Tap the location to open turn-by-turn directions straight to the site.</span>
+            </div>
+          </li>
+          <li>
+            <div class="icon orange">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
+            </div>
+            <div>
+              <strong>Exchanges &amp; Cabinets</strong>
+              <span>Dedicated search tabs for main telephone exchanges and roadside cabinets.</span>
+            </div>
+          </li>
+          <li>
+            <div class="icon purple">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/></svg>
+            </div>
+            <div>
+              <strong>Desktop two-panel layout</strong>
+              <span>Search results list on the left with site details and map preview on the right.</span>
+            </div>
+          </li>
+        </ul>
+      </div>
+      <div class="feature-media">
+        <div class="phone-device">
+          <img class="phone-screen-img" src="images/06. Finder.png" alt="Finder Screen">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════ 05: ROUTINES ════ -->
+  <section class="feature-section" id="routines">
+    <div class="feature-inner">
+      <div class="feature-text">
+        <div class="section-number">05 — Routines</div>
+        <h2>Monthly routine visit schedule</h2>
+        <p class="lead">
+          Track recurring site maintenance month by month. The app automatically detects routine visits from your timesheets so you never have to log them twice.
+        </p>
+        <ul class="feature-list">
+          <li>
+            <div class="icon green">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+            </div>
+            <div>
+              <strong>Auto-detected from timesheet</strong>
+              <span>Site visits on your timesheet automatically populate your monthly routine grid and receive an AUTO tag.</span>
+            </div>
+          </li>
+          <li>
+            <div class="icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a7 7 0 0 0-7 7c0 4.5 7 11 7 11s7-6.5 7-11a7 7 0 0 0-7-7z"/><line x1="12" y1="6" x2="12" y2="12"/><line x1="9" y1="9" x2="15" y2="9"/></svg>
+            </div>
+            <div>
+              <strong>Site selector &amp; year switcher</strong>
+              <span>Choose which sites you maintain and switch between years from the header subtitle.</span>
+            </div>
+          </li>
+          <li>
+            <div class="icon orange">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
+            </div>
+            <div>
+              <strong>Visit stats &amp; overdue alerts</strong>
+              <span>View monthly visit counts, sites overdue by 3+ months, and sites not yet visited this year.</span>
+            </div>
+          </li>
+          <li>
+            <div class="icon purple">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="21" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
+            </div>
+            <div>
+              <strong>Routine map view</strong>
+              <span>Full-width tab switcher (Grid | Stats | Map) to inspect site locations geographically.</span>
+            </div>
+          </li>
+        </ul>
+      </div>
+      <div class="feature-media">
+        <div class="phones-wrap">
+          <div class="phone-device">
+            <img class="phone-screen-img" src="images/07. Routines.png" alt="Routines Grid">
+          </div>
+          <div class="phone-device">
+            <img class="phone-screen-img" src="images/08. Routines.png" alt="Routines Stats">
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════ 06: CALLOUTS ════ -->
+  <section class="feature-section reverse" id="callouts">
+    <div class="feature-inner">
+      <div class="feature-text">
+        <div class="section-number">06 — Callouts</div>
+        <h2>On-call records &amp; Remedy ticket parsing</h2>
+        <p class="lead">
+          Record standby weeks and log emergency callout incidents with ticket numbers, site names, fault details, and actions taken.
+        </p>
+        <ul class="feature-list">
+          <li>
+            <div class="icon red">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            </div>
+            <div>
+              <strong>Paste Remedy tickets</strong>
+              <span>Paste raw fault text directly — site, fault description, and date are parsed automatically into a new callout.</span>
+            </div>
+          </li>
+          <li>
+            <div class="icon purple">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+            </div>
+            <div>
+              <strong>On-call schedule &amp; stats</strong>
+              <span>Track on-call weeks, extra shifts, total incidents, and average callouts per week.</span>
+            </div>
+          </li>
+          <li>
+            <div class="icon green">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+            </div>
+            <div>
+              <strong>Included in timesheet export</strong>
+              <span>Callout incidents for the active week automatically attach to your weekly timesheet export email.</span>
+            </div>
+          </li>
+          <li>
+            <div class="icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/></svg>
+            </div>
+            <div>
+              <strong>Desktop three-panel layout</strong>
+              <span>Weeks list on the left, callouts in the middle, and full incident form on the right.</span>
+            </div>
+          </li>
+        </ul>
+      </div>
+      <div class="feature-media">
+        <div class="phones-wrap">
+          <div class="phone-device">
+            <img class="phone-screen-img" src="images/09. OnCall.png" alt="On-Call List">
+          </div>
+          <div class="phone-device">
+            <img class="phone-screen-img" src="images/10. OnCall.png" alt="Incident Detail">
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════ 07: HISTORY & AI ════ -->
+  <section class="feature-section" id="history-ai">
+    <div class="feature-inner">
+      <div class="feature-text">
+        <div class="section-number">07 — History &amp; AI</div>
+        <h2>Search past records &amp; ask technical questions</h2>
+        <p class="lead">
+          Find old jobs across past weeks, jump to dates with the calendar picker, and ask the built-in Gemini assistant questions about your notes and records.
+        </p>
+        <ul class="feature-list">
+          <li>
+            <div class="icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            </div>
+            <div>
+              <strong>Week History search</strong>
+              <span>Search across all saved tasks and callouts with highlighted matching snippets.</span>
+            </div>
+          </li>
+          <li>
+            <div class="icon green">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/><path d="M3 12h12"/></svg>
+            </div>
+            <div>
+              <strong>Jump to exact record</strong>
+              <span>Tap any search result to open the matching day's timesheet or callout incident directly.</span>
+            </div>
+          </li>
+          <li>
+            <div class="icon purple">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="8" width="16" height="12" rx="2"/><path d="M12 8V4H8"/></svg>
+            </div>
+            <div>
+              <strong>AI Fault Assistant</strong>
+              <span>Ask questions referencing your saved notes, timesheets, and technical records.</span>
+            </div>
+          </li>
+          <li>
+            <div class="icon orange">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            </div>
+            <div>
+              <strong>Data protection &amp; backups</strong>
+              <span>Automatic weekly snapshots, offline cache in IndexedDB, and visual conflict resolution.</span>
+            </div>
+          </li>
+        </ul>
+      </div>
+      <div class="feature-media">
+        <div class="laptop-frame">
+          <img class="laptop-screen-img" src="images/11. Desktop Mode.png" alt="Desktop Three Panel">
+          <div class="laptop-base-bar"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════ 08: DESKTOP MODE ════ -->
+  <section class="feature-section reverse" id="desktop">
+    <div class="feature-inner">
+      <div class="feature-text">
+        <div class="section-number">08 — Desktop Mode</div>
+        <h2>Purpose-built three-panel layout for laptops</h2>
+        <p class="lead">
+          When opened on screens 1280px or wider, Rian switches to a dedicated desktop layout designed for fast review and typing.
+        </p>
+        <ul class="feature-list">
+          <li>
+            <div class="icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="18" rx="1"/><rect x="14" y="3" width="7" height="9" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+            </div>
+            <div>
+              <strong>Days · Tasks · Detail panels</strong>
+              <span>Select a day on the left, a task in the center, and edit details and work codes on the right.</span>
+            </div>
+          </li>
+          <li>
+            <div class="icon orange">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M4 12h10M4 17h7"/></svg>
+            </div>
+            <div>
+              <strong>Adapted desktop views across all tabs</strong>
+              <span>Timesheet, Notes, Journal, Finder, Routines, and Callouts each feature dedicated desktop layouts.</span>
+            </div>
+          </li>
+          <li>
+            <div class="icon green">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+            </div>
+            <div>
+              <strong>Custom tab pinning &amp; shortcuts</strong>
+              <span>Pin your most-used tabs directly to the header bar. Universal Escape key closes open modals.</span>
+            </div>
+          </li>
+        </ul>
+      </div>
+      <div class="feature-media">
+        <div class="laptop-frame">
+          <img class="laptop-screen-img" src="images/11. Desktop Mode.png" alt="Desktop Three Panel">
+          <div class="laptop-base-bar"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════ FOOTER ════ -->
+  <footer class="site-footer">
+    <div style="font-weight:800;color:#fff;font-size:16px;margin-bottom:6px;">Rian</div>
+    <p>Field timesheets, notes, and site tools for technicians.</p>
+    <div class="footer-links">
+      <a href="./app.html">Launch App</a>
+      <a href="#timesheet">Timesheet</a>
+      <a href="#notes">Notes</a>
+      <a href="#journal">Journal</a>
+      <a href="#finder">Finder</a>
+      <a href="#routines">Routines</a>
+      <a href="#callouts">Callouts</a>
+      <a href="privacy.html">Privacy Policy</a>
+    </div>
+    <div style="margin-top:20px;">
+      <a href="./app.html" class="nav-cta" style="padding:10px 24px;">Launch App</a>
+    </div>
+    <div class="footer-ver">
+      v6.8.34 · Offline-capable · Firestore cloud synced
+    </div>
+  </footer>
+
+</body>
+</html>`);
+
+fs.writeFileSync('landing_mockup.html', parts.join(''), 'utf8');
+console.log('landing_mockup.html created successfully!');

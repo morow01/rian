@@ -1,0 +1,1725 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="codex">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rian — Desktop Redesign Mockups (Week History & Callouts)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-page: #f8fafc;
+      --bg-header: #0f172a;
+      --bg-card: #ffffff;
+      --bg-card-alt: #f1f5f9;
+      --bg-input: #f8fafc;
+      --bg-code-group: #e2e8f0;
+      --bg-segment-active: #ffffff;
+      --border: #e2e8f0;
+      --border-input: #cbd5e1;
+      --text-primary: #0f172a;
+      --text-secondary: #475569;
+      --text-muted: #94a3b8;
+      --text-input: #0f172a;
+      --accent: #2563eb;
+      --accent-light: #eff6ff;
+      --accent-rgb: 37, 99, 235;
+      --shadow-rgb: 0, 0, 0;
+      --ot-color: #d97706;
+      --ot-bg: #fef3c7;
+      --amber-rgb: 217, 119, 6;
+      --priority-high: #dc2626;
+      --priority-high-bg: #fef2f2;
+      --priority-high-border: #fecaca;
+      --priority-low: #16a34a;
+      --priority-low-bg: #f0fdf4;
+      --font-mono: 'DM Mono', monospace;
+      --font-sans: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    [data-theme="dark"] {
+      --bg-page: #0b1120;
+      --bg-header: #070d18;
+      --bg-card: #131d31;
+      --bg-card-alt: #1a2742;
+      --bg-input: #0e1726;
+      --bg-code-group: #192338;
+      --bg-segment-active: #223252;
+      --border: #1e293b;
+      --border-input: #293952;
+      --text-primary: #f8fafc;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+      --text-input: #f8fafc;
+      --accent: #3b82f6;
+      --accent-light: rgba(59, 130, 246, 0.15);
+      --accent-rgb: 59, 130, 246;
+      --shadow-rgb: 0, 0, 0;
+      --ot-color: #f59e0b;
+      --ot-bg: rgba(245, 158, 11, 0.15);
+      --amber-rgb: 245, 158, 11;
+      --priority-high: #ef4444;
+      --priority-high-bg: rgba(239, 68, 68, 0.15);
+      --priority-high-border: rgba(239, 68, 68, 0.3);
+      --priority-low: #22c55e;
+      --priority-low-bg: rgba(34, 197, 94, 0.15);
+    }
+
+    [data-theme="champagne"] {
+      --bg-page: #fdfbf7;
+      --bg-header: #2c2523;
+      --bg-card: #ffffff;
+      --bg-card-alt: #f5efe6;
+      --bg-input: #faf6f0;
+      --bg-code-group: #ede4d8;
+      --bg-segment-active: #ffffff;
+      --border: #e6dcce;
+      --border-input: #d8cbba;
+      --text-primary: #2c2523;
+      --text-secondary: #635752;
+      --text-muted: #9c8e87;
+      --text-input: #2c2523;
+      --accent: #b45309;
+      --accent-light: #fef3c7;
+      --accent-rgb: 180, 83, 9;
+    }
+
+    [data-theme="apple"] {
+      --bg-page: #f5f5f7;
+      --bg-header: #1d1d1f;
+      --bg-card: #ffffff;
+      --bg-card-alt: #e8e8ed;
+      --bg-input: #f5f5f7;
+      --bg-code-group: #e2e2e7;
+      --bg-segment-active: #ffffff;
+      --border: #d2d2d7;
+      --border-input: #c7c7cc;
+      --text-primary: #1d1d1f;
+      --text-secondary: #515154;
+      --text-muted: #86868b;
+      --text-input: #1d1d1f;
+      --accent: #0071e3;
+      --accent-light: #e8f2ff;
+      --accent-rgb: 0, 113, 227;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: var(--font-sans);
+      background: var(--bg-page);
+      color: var(--text-primary);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* Top Switcher Bar */
+    .top-mockup-bar {
+      background: var(--bg-header);
+      color: #fff;
+      padding: 10px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      flex-shrink: 0;
+      z-index: 50;
+    }
+    .top-mockup-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .top-mockup-brand {
+      font-size: 15px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .top-mockup-brand span {
+      background: var(--accent);
+      color: #fff;
+      padding: 2px 7px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 800;
+    }
+    .mockup-tabs {
+      display: flex;
+      background: rgba(255,255,255,0.1);
+      border-radius: 10px;
+      padding: 3px;
+      gap: 3px;
+    }
+    .mockup-tab-btn {
+      background: transparent;
+      border: none;
+      color: rgba(255,255,255,0.7);
+      padding: 6px 14px;
+      border-radius: 7px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all 0.15s ease;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .mockup-tab-btn:hover {
+      color: #fff;
+    }
+    .mockup-tab-btn.active {
+      background: #fff;
+      color: #0f172a;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+    }
+    .top-mockup-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .theme-select {
+      background: rgba(255,255,255,0.15);
+      color: #fff;
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 8px;
+      padding: 4px 10px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+      outline: none;
+    }
+    .theme-select option {
+      background: #1e293b;
+      color: #fff;
+    }
+
+    /* Common Layout & Shared Components */
+    .view-container {
+      flex: 1;
+      display: none;
+      height: calc(100vh - 53px);
+      background: var(--bg-page);
+    }
+    .view-container.active {
+      display: flex;
+    }
+
+    /* Shared Three-Panel Standard */
+    .three-panel {
+      display: flex;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+    }
+    .two-panel {
+      display: flex;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+    }
+    .panel-left {
+      width: 280px;
+      background: var(--bg-card);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+      overflow: hidden;
+    }
+    .panel-mid {
+      width: 380px;
+      background: var(--bg-card);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+      overflow: hidden;
+    }
+    .panel-detail {
+      flex: 1;
+      background: var(--bg-card);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      min-width: 0;
+    }
+
+    /* Header in Panels */
+    .panel-hdr {
+      padding: 14px 16px 12px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+      background: var(--bg-card);
+    }
+    .panel-hdr-title {
+      font-size: 14px;
+      font-weight: 800;
+      color: var(--text-primary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .panel-hdr-badge {
+      font-size: 11px;
+      font-weight: 800;
+      padding: 2px 8px;
+      border-radius: 12px;
+      background: var(--accent-light);
+      color: var(--accent);
+    }
+    .panel-hdr-btn {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      padding: 6px 10px;
+      border-radius: 8px;
+      background: var(--accent-light);
+      color: var(--accent);
+      border: 1px solid transparent;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all 0.15s;
+    }
+    .panel-hdr-btn:hover {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    /* Stats 2x2 Grid */
+    .stats-2x2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      padding: 12px 14px;
+      background: var(--bg-card-alt);
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .stat-box {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px 10px;
+      display: flex;
+      flex-direction: column;
+    }
+    .stat-label {
+      font-size: 10px;
+      font-weight: 800;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      margin-bottom: 2px;
+    }
+    .stat-val {
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--text-primary);
+      font-family: var(--font-sans);
+    }
+    .stat-note {
+      font-size: 10px;
+      color: var(--text-muted);
+      margin-top: 1px;
+    }
+
+    /* Segmented filter bar */
+    .seg-bar {
+      display: flex;
+      background: var(--bg-code-group);
+      border-radius: 12px;
+      padding: 3px;
+      gap: 2px;
+      margin: 10px 14px 6px;
+      flex-shrink: 0;
+    }
+    .seg-btn {
+      flex: 1;
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      font-size: 11px;
+      font-weight: 700;
+      padding: 5px 4px;
+      border-radius: 9px;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all 0.15s;
+      text-align: center;
+    }
+    .seg-btn.active {
+      background: var(--bg-segment-active);
+      color: var(--text-primary);
+      box-shadow: 0 1px 3px rgba(var(--shadow-rgb), 0.1);
+    }
+
+    /* Search input */
+    .search-wrap {
+      position: relative;
+      margin: 6px 14px 10px;
+      flex-shrink: 0;
+    }
+    .search-input {
+      width: 100%;
+      background: var(--bg-input);
+      border: 1px solid var(--border-input);
+      border-radius: 10px;
+      padding: 7px 10px 7px 32px;
+      font-size: 12px;
+      color: var(--text-primary);
+      outline: none;
+      font-family: inherit;
+    }
+    .search-input:focus {
+      border-color: var(--accent);
+    }
+    .search-icon {
+      position: absolute;
+      left: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      pointer-events: none;
+    }
+
+    /* Scroll lists */
+    .scroll-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 4px 0 16px;
+    }
+
+    /* Section Divider in list */
+    .list-sec-hdr {
+      padding: 10px 14px 4px;
+      font-size: 10px;
+      font-weight: 800;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+    }
+
+    /* Week Item Card */
+    .week-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      margin: 2px 8px;
+      border-radius: 10px;
+      border: 1px solid transparent;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      position: relative;
+    }
+    .week-item:hover {
+      background: var(--bg-card-alt);
+    }
+    .week-item.selected {
+      background: linear-gradient(to right, rgba(var(--accent-rgb), 0.12), rgba(var(--accent-rgb), 0.03));
+      border-color: rgba(var(--accent-rgb), 0.25);
+      border-left: 3px solid var(--accent);
+    }
+    .week-icon-box {
+      width: 36px;
+      height: 36px;
+      border-radius: 9px;
+      background: var(--bg-card-alt);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-secondary);
+      flex-shrink: 0;
+    }
+    .week-item.selected .week-icon-box {
+      background: var(--accent);
+      color: #fff;
+    }
+    .week-item-info {
+      flex: 1;
+      min-width: 0;
+    }
+    .week-item-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-primary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .week-item-meta {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 2px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .week-badges {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 3px;
+      flex-shrink: 0;
+    }
+    .badge-pill {
+      font-size: 10px;
+      font-weight: 800;
+      padding: 2px 6px;
+      border-radius: 6px;
+    }
+    .badge-blue { background: var(--accent-light); color: var(--accent); }
+    .badge-amber { background: var(--ot-bg); color: var(--ot-color); }
+    .badge-red { background: var(--priority-high-bg); color: var(--priority-high); }
+    .badge-green { background: var(--priority-low-bg); color: var(--priority-low); }
+
+    /* Day Task Card */
+    .day-header-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 14px 6px;
+      font-size: 11px;
+      font-weight: 800;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      background: var(--bg-card);
+      position: sticky;
+      top: 0;
+      z-index: 5;
+    }
+    .task-card {
+      padding: 10px 14px;
+      margin: 2px 8px 6px;
+      border-radius: 10px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .task-card:hover {
+      border-color: var(--accent);
+      transform: translateY(-1px);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+    }
+    .task-card.selected {
+      border-color: var(--accent);
+      background: linear-gradient(to right, rgba(var(--accent-rgb), 0.08), rgba(var(--accent-rgb), 0.02));
+    }
+    .task-top-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .task-site {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--priority-high);
+      display: flex;
+      align-items: center;
+      gap: 3px;
+    }
+    .task-codes {
+      display: flex;
+      gap: 4px;
+    }
+    .code-chip {
+      font-size: 10px;
+      font-weight: 700;
+      font-family: var(--font-mono);
+      background: var(--bg-card-alt);
+      color: var(--text-secondary);
+      padding: 2px 6px;
+      border-radius: 5px;
+    }
+    .task-desc {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin: 5px 0 4px;
+      line-height: 1.35;
+    }
+    .task-meta-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    /* Detail View Styling */
+    .detail-head {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--bg-card);
+      flex-shrink: 0;
+    }
+    .detail-head-left h2 {
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--text-primary);
+    }
+    .detail-head-left p {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+    .detail-actions {
+      display: flex;
+      gap: 8px;
+    }
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: inherit;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s;
+    }
+    .btn-primary:hover {
+      opacity: 0.92;
+    }
+    .btn-secondary {
+      background: var(--bg-card-alt);
+      color: var(--text-primary);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: inherit;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s;
+    }
+    .btn-secondary:hover {
+      background: var(--border);
+    }
+    .detail-body-scroll {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px;
+    }
+
+    /* Grid layout for week overview cards */
+    .days-grid-7 {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .day-mini-card {
+      background: var(--bg-card-alt);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      text-align: center;
+    }
+    .day-mini-name {
+      font-size: 11px;
+      font-weight: 800;
+      color: var(--text-muted);
+      text-transform: uppercase;
+    }
+    .day-mini-date {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin: 2px 0 6px;
+    }
+    .day-mini-hrs {
+      font-size: 15px;
+      font-weight: 800;
+      color: var(--accent);
+      font-family: var(--font-mono);
+    }
+    .day-mini-tasks {
+      font-size: 10px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    /* Summary Bar & Category List */
+    .summary-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 20px;
+    }
+    .summary-card-title {
+      font-size: 13px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+      display: flex;
+      justify-content: space-between;
+    }
+    .breakdown-bar-wrap {
+      height: 10px;
+      border-radius: 5px;
+      background: var(--bg-card-alt);
+      overflow: hidden;
+      display: flex;
+      margin-bottom: 14px;
+    }
+    .bar-seg { height: 100%; }
+    .cat-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+    .cat-table th {
+      text-align: left;
+      font-weight: 700;
+      color: var(--text-muted);
+      padding: 6px 8px;
+      border-bottom: 1px solid var(--border);
+    }
+    .cat-table td {
+      padding: 8px 8px;
+      border-bottom: 1px solid var(--border);
+      color: var(--text-primary);
+    }
+    .cat-table tr:last-child td { border-bottom: none; }
+    .cat-dot {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      margin-right: 6px;
+    }
+
+    /* Callout Form Fields */
+    .form-grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px 16px;
+      margin-bottom: 16px;
+    }
+    .form-full { grid-column: 1 / -1; }
+    .form-field {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+    .field-lbl {
+      font-size: 10px;
+      font-weight: 800;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .field-input, .field-textarea {
+      background: var(--bg-input);
+      border: 1px solid var(--border-input);
+      border-radius: 10px;
+      padding: 8px 12px;
+      font-size: 13px;
+      color: var(--text-primary);
+      font-family: inherit;
+      outline: none;
+    }
+    .field-input:focus, .field-textarea:focus {
+      border-color: var(--accent);
+    }
+    .notes-preview-box {
+      background: var(--bg-input);
+      border: 1px solid var(--border-input);
+      border-radius: 10px;
+      padding: 12px 14px;
+      min-height: 120px;
+      font-size: 13px;
+      line-height: 1.5;
+      color: var(--text-primary);
+    }
+
+    /* Callout Row in List */
+    .callout-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 11px 14px;
+      margin: 2px 8px;
+      border-radius: 10px;
+      border: 1px solid transparent;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .callout-row:hover {
+      background: var(--bg-card-alt);
+    }
+    .callout-row.selected {
+      background: linear-gradient(to right, rgba(var(--accent-rgb), 0.12), rgba(var(--accent-rgb), 0.03));
+      border-color: rgba(var(--accent-rgb), 0.25);
+      border-left: 3px solid var(--accent);
+    }
+    .callout-idx-badge {
+      width: 24px;
+      height: 24px;
+      border-radius: 6px;
+      background: var(--accent-light);
+      color: var(--accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 800;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+    .callout-row.selected .callout-idx-badge {
+      background: var(--accent);
+      color: #fff;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Mockup Header Bar -->
+  <header class="top-mockup-bar">
+    <div class="top-mockup-left">
+      <div class="top-mockup-brand">
+        RIAN <span>DESKTOP MOCKUPS</span>
+      </div>
+      <div class="mockup-tabs">
+        <button class="mockup-tab-btn active" onclick="switchMockupView('hist-opt1')">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+          History: Option 1 (3-Panel Workspace)
+        </button>
+        <button class="mockup-tab-btn" onclick="switchMockupView('hist-opt2')">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+          History: Option 2 (2-Panel Dashboard)
+        </button>
+        <button class="mockup-tab-btn" onclick="switchMockupView('callouts')">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+          Modern Callouts (3-Panel Operations)
+        </button>
+      </div>
+    </div>
+    <div class="top-mockup-right">
+      <select class="theme-select" onchange="setTheme(this.value)">
+        <option value="codex">Codex (Default Light)</option>
+        <option value="dark">Dark Theme</option>
+        <option value="champagne">Champagne</option>
+        <option value="apple">Apple (macOS)</option>
+      </select>
+    </div>
+  </header>
+
+  <!-- ========================================================================= -->
+  <!-- VIEW 1: WEEK HISTORY OPTION 1 (3-PANEL WORKSPACE)                         -->
+  <!-- ========================================================================= -->
+  <div id="view-hist-opt1" class="view-container active">
+    <div class="three-panel">
+      <!-- Left: Weeks Navigator & Year Stats -->
+      <div class="panel-left">
+        <div class="panel-hdr">
+          <div class="panel-hdr-title">
+            <span>Week History</span>
+            <span class="panel-hdr-badge">2026</span>
+          </div>
+          <button class="panel-hdr-btn" title="Pick specific date">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+            Calendar
+          </button>
+        </div>
+
+        <!-- Stats 2x2 -->
+        <div class="stats-2x2">
+          <div class="stat-box">
+            <div class="stat-label">Weeks Worked</div>
+            <div class="stat-val" style="color:var(--accent)">11</div>
+            <div class="stat-note">in 2026 so far</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">Ordinary Hrs</div>
+            <div class="stat-val" style="color:var(--accent)">412.5h</div>
+            <div class="stat-note">avg 37.5h / wk</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">On-Call Shifts</div>
+            <div class="stat-val" style="color:var(--ot-color)">3</div>
+            <div class="stat-note">2 on-call + 1 extra</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">Callouts Logged</div>
+            <div class="stat-val" style="color:#818cf8">7</div>
+            <div class="stat-note">incidents handled</div>
+          </div>
+        </div>
+
+        <!-- Filter tabs -->
+        <div class="seg-bar">
+          <button class="seg-btn active">All</button>
+          <button class="seg-btn">On-Call</button>
+          <button class="seg-btn">With OT</button>
+          <button class="seg-btn">Callouts</button>
+        </div>
+
+        <!-- Search -->
+        <div class="search-wrap">
+          <svg class="search-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+          <input type="search" class="search-input" placeholder="Search tasks, sites, notes...">
+        </div>
+
+        <!-- Weeks Scroll List -->
+        <div class="scroll-list">
+          <div class="list-sec-hdr">This Week</div>
+          <div class="week-item selected">
+            <div class="week-icon-box">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+            </div>
+            <div class="week-item-info">
+              <div class="week-item-title">06 Mar – 12 Mar 2026</div>
+              <div class="week-item-meta">Current Week · 14 tasks</div>
+            </div>
+            <div class="week-badges">
+              <span class="badge-pill badge-blue">37.5h</span>
+              <span class="badge-pill badge-green">Active</span>
+            </div>
+          </div>
+
+          <div class="list-sec-hdr">Upcoming</div>
+          <div class="week-item">
+            <div class="week-icon-box">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+            </div>
+            <div class="week-item-info">
+              <div class="week-item-title">13 Mar – 19 Mar 2026</div>
+              <div class="week-item-meta">Next week · On-Call</div>
+            </div>
+            <div class="week-badges">
+              <span class="badge-pill badge-amber">On-Call</span>
+            </div>
+          </div>
+
+          <div class="list-sec-hdr">Previous Weeks</div>
+          <div class="week-item">
+            <div class="week-icon-box">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+            </div>
+            <div class="week-item-info">
+              <div class="week-item-title">27 Feb – 05 Mar 2026</div>
+              <div class="week-item-meta">16 tasks · 4 sites</div>
+            </div>
+            <div class="week-badges">
+              <span class="badge-pill badge-blue">37.5h</span>
+              <span class="badge-pill badge-amber">4.0h OT</span>
+            </div>
+          </div>
+
+          <div class="week-item">
+            <div class="week-icon-box">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+            </div>
+            <div class="week-item-info">
+              <div class="week-item-title">20 Feb – 26 Feb 2026</div>
+              <div class="week-item-meta">12 tasks · 3 callouts</div>
+            </div>
+            <div class="week-badges">
+              <span class="badge-pill badge-blue">37.5h</span>
+              <span class="badge-pill badge-red">3 Callouts</span>
+            </div>
+          </div>
+
+          <div class="week-item">
+            <div class="week-icon-box">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+            </div>
+            <div class="week-item-info">
+              <div class="week-item-title">13 Feb – 19 Feb 2026</div>
+              <div class="week-item-meta">15 tasks · 5 sites</div>
+            </div>
+            <div class="week-badges">
+              <span class="badge-pill badge-blue">37.5h</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Middle: Day-by-Day Tasks & Activities for Selected Week -->
+      <div class="panel-mid">
+        <div class="panel-hdr">
+          <div class="panel-hdr-title">
+            <span>06 Mar – 12 Mar 2026</span>
+            <span class="panel-hdr-badge">14 Tasks</span>
+          </div>
+          <button class="panel-hdr-btn" title="Open full timesheet for this week">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+            Timesheet
+          </button>
+        </div>
+
+        <div class="scroll-list">
+          <!-- Friday -->
+          <div class="day-header-bar">
+            <span>Friday 06 Mar</span>
+            <span style="color:var(--accent)">7.5h</span>
+          </div>
+          <div class="task-card selected">
+            <div class="task-top-row">
+              <div class="task-site">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 010-5 2.5 2.5 0 010 5z"/></svg>
+                Athlone Exchange
+              </div>
+              <div class="task-codes">
+                <span class="code-chip">M101</span>
+                <span class="code-chip">7.5h</span>
+              </div>
+            </div>
+            <div class="task-desc">Quarterly DC Power Plant & Battery Discharge Inspection</div>
+            <div class="task-meta-row">
+              <span>Includes 24-string battery check & rectifiers</span>
+              <span class="badge-pill badge-blue">Ord: 7.5h</span>
+            </div>
+          </div>
+
+          <div class="task-card">
+            <div class="task-top-row">
+              <div class="task-site">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 010-5 2.5 2.5 0 010 5z"/></svg>
+                Athlone Exchange
+              </div>
+              <div class="task-codes">
+                <span class="code-chip">F204</span>
+                <span class="code-chip">2.0h</span>
+              </div>
+            </div>
+            <div class="task-desc">High Temperature Fan Failure Alarm Investigation</div>
+            <div class="task-meta-row">
+              <span>Replaced extraction contactor</span>
+              <span class="badge-pill badge-amber">OT: 2.0h</span>
+            </div>
+          </div>
+
+          <!-- Monday -->
+          <div class="day-header-bar">
+            <span>Monday 09 Mar</span>
+            <span style="color:var(--accent)">7.5h</span>
+          </div>
+          <div class="task-card">
+            <div class="task-top-row">
+              <div class="task-site">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 010-5 2.5 2.5 0 010 5z"/></svg>
+                Moate Exchange
+              </div>
+              <div class="task-codes">
+                <span class="code-chip">R102</span>
+                <span class="code-chip">7.5h</span>
+              </div>
+            </div>
+            <div class="task-desc">Routine AC Maintenance & Filter Replacement</div>
+            <div class="task-meta-row">
+              <span>Main Hall unit A & B cleaned</span>
+              <span class="badge-pill badge-blue">Ord: 7.5h</span>
+            </div>
+          </div>
+
+          <!-- Tuesday -->
+          <div class="day-header-bar">
+            <span>Tuesday 10 Mar</span>
+            <span style="color:var(--accent)">7.5h</span>
+          </div>
+          <div class="task-card">
+            <div class="task-top-row">
+              <div class="task-site">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 010-5 2.5 2.5 0 010 5z"/></svg>
+                Mullingar Exchange
+              </div>
+              <div class="task-codes">
+                <span class="code-chip">G105</span>
+                <span class="code-chip">7.5h</span>
+              </div>
+            </div>
+            <div class="task-desc">Standby Diesel Generator Monthly On-Load Run</div>
+            <div class="task-meta-row">
+              <span>Fuel level: 88%, auto transfer verified</span>
+              <span class="badge-pill badge-blue">Ord: 7.5h</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: Inspection & Weekly Details -->
+      <div class="panel-detail">
+        <div class="detail-head">
+          <div class="detail-head-left">
+            <h2>Activity Details</h2>
+            <p>Athlone Exchange · Friday 06 Mar 2026</p>
+          </div>
+          <div class="detail-actions">
+            <button class="btn-secondary">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+              Export Week
+            </button>
+            <button class="btn-primary">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+              Open in Timesheet
+            </button>
+          </div>
+        </div>
+
+        <div class="detail-body-scroll">
+          <!-- 7-Day Mini Bar -->
+          <div class="days-grid-7">
+            <div class="day-mini-card" style="border-color:var(--accent);background:var(--accent-light)">
+              <div class="day-mini-name" style="color:var(--accent)">Fri</div>
+              <div class="day-mini-date">06 Mar</div>
+              <div class="day-mini-hrs">7.5h</div>
+              <div class="day-mini-tasks">2 tasks</div>
+            </div>
+            <div class="day-mini-card">
+              <div class="day-mini-name">Sat</div>
+              <div class="day-mini-date">07 Mar</div>
+              <div class="day-mini-hrs" style="color:var(--text-muted)">0.0h</div>
+              <div class="day-mini-tasks">—</div>
+            </div>
+            <div class="day-mini-card">
+              <div class="day-mini-name">Sun</div>
+              <div class="day-mini-date">08 Mar</div>
+              <div class="day-mini-hrs" style="color:var(--text-muted)">0.0h</div>
+              <div class="day-mini-tasks">—</div>
+            </div>
+            <div class="day-mini-card">
+              <div class="day-mini-name">Mon</div>
+              <div class="day-mini-date">09 Mar</div>
+              <div class="day-mini-hrs">7.5h</div>
+              <div class="day-mini-tasks">3 tasks</div>
+            </div>
+            <div class="day-mini-card">
+              <div class="day-mini-name">Tue</div>
+              <div class="day-mini-date">10 Mar</div>
+              <div class="day-mini-hrs">7.5h</div>
+              <div class="day-mini-tasks">2 tasks</div>
+            </div>
+            <div class="day-mini-card">
+              <div class="day-mini-name">Wed</div>
+              <div class="day-mini-date">11 Mar</div>
+              <div class="day-mini-hrs">7.5h</div>
+              <div class="day-mini-tasks">4 tasks</div>
+            </div>
+            <div class="day-mini-card">
+              <div class="day-mini-name">Thu</div>
+              <div class="day-mini-date">12 Mar</div>
+              <div class="day-mini-hrs">7.5h</div>
+              <div class="day-mini-tasks">3 tasks</div>
+            </div>
+          </div>
+
+          <!-- Detailed Form Breakdown -->
+          <div class="summary-card">
+            <div class="summary-card-title">
+              <span>Task Information</span>
+              <span style="color:var(--accent);font-family:var(--font-mono)">ID: #ACT-4920</span>
+            </div>
+            <div class="form-grid-2">
+              <div class="form-field">
+                <div class="field-lbl">Location</div>
+                <input class="field-input" readonly value="Athlone Exchange">
+              </div>
+              <div class="form-field">
+                <div class="field-lbl">Date & Day</div>
+                <input class="field-input" readonly value="Friday 06 Mar 2026">
+              </div>
+              <div class="form-field form-full">
+                <div class="field-lbl">Task Description</div>
+                <input class="field-input" readonly value="Quarterly DC Power Plant & Battery Discharge Inspection">
+              </div>
+              <div class="form-field">
+                <div class="field-lbl">Work Codes</div>
+                <div style="display:flex;gap:6px">
+                  <input class="field-input" style="font-family:var(--font-mono);font-weight:700" readonly value="M101 (Power Systems)">
+                </div>
+              </div>
+              <div class="form-field">
+                <div class="field-lbl">Hours Logged</div>
+                <div style="display:flex;gap:8px">
+                  <input class="field-input" style="font-family:var(--font-mono);color:var(--accent);font-weight:700" readonly value="Ord: 7.5h">
+                  <input class="field-input" style="font-family:var(--font-mono);color:var(--ot-color);font-weight:700" readonly value="OT: 0.0h">
+                </div>
+              </div>
+              <div class="form-field form-full">
+                <div class="field-lbl">Task Notes (Rich TipTap Log)</div>
+                <div class="notes-preview-box">
+                  <p><strong>Inspection Summary:</strong></p>
+                  <p>• Rectifier modules 1 through 4 load sharing balanced within 2% tolerance.</p>
+                  <p>• Float voltage verified at 54.2V across string A and string B.</p>
+                  <p>• Cell impedance check completed on 24x 2V SBS cells. All within manufacturer baseline.</p>
+                  <p>• No signs of sulfation or terminal corrosion. Cleaned enclosure intake grill.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Weekly Hours Summary -->
+          <div class="summary-card">
+            <div class="summary-card-title">
+              <span>Week 10 Breakdown (37.5h Total + 2.0h OT)</span>
+              <span>100% Target Met</span>
+            </div>
+            <div class="breakdown-bar-wrap">
+              <div class="bar-seg" style="width: 45%; background: var(--accent);" title="Power Systems (17.0h)"></div>
+              <div class="bar-seg" style="width: 30%; background: #10b981;" title="AC Maintenance (11.5h)"></div>
+              <div class="bar-seg" style="width: 15%; background: #f59e0b;" title="Generators (6.0h)"></div>
+              <div class="bar-seg" style="width: 10%; background: #8b5cf6;" title="Admin & Travel (5.0h)"></div>
+            </div>
+            <table class="cat-table">
+              <thead>
+                <tr>
+                  <th>Category / Work Code</th>
+                  <th>Sites</th>
+                  <th style="text-align:right">Ord</th>
+                  <th style="text-align:right">OT</th>
+                  <th style="text-align:right">Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><span class="cat-dot" style="background:var(--accent)"></span>M101 DC Power Systems</td>
+                  <td>Athlone, Moate</td>
+                  <td style="text-align:right;font-family:var(--font-mono)">15.0h</td>
+                  <td style="text-align:right;font-family:var(--font-mono)">2.0h</td>
+                  <td style="text-align:right;font-weight:700;font-family:var(--font-mono)">17.0h</td>
+                </tr>
+                <tr>
+                  <td><span class="cat-dot" style="background:#10b981"></span>R102 HVAC & Air Con</td>
+                  <td>Moate</td>
+                  <td style="text-align:right;font-family:var(--font-mono)">11.5h</td>
+                  <td style="text-align:right;font-family:var(--font-mono)">—</td>
+                  <td style="text-align:right;font-weight:700;font-family:var(--font-mono)">11.5h</td>
+                </tr>
+                <tr>
+                  <td><span class="cat-dot" style="background:#f59e0b"></span>G105 Standby Generators</td>
+                  <td>Mullingar</td>
+                  <td style="text-align:right;font-family:var(--font-mono)">6.0h</td>
+                  <td style="text-align:right;font-family:var(--font-mono)">—</td>
+                  <td style="text-align:right;font-weight:700;font-family:var(--font-mono)">6.0h</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- VIEW 2: WEEK HISTORY OPTION 2 (2-PANEL MASTER-DETAIL DASHBOARD)           -->
+  <!-- ========================================================================= -->
+  <div id="view-hist-opt2" class="view-container">
+    <div class="two-panel">
+      <!-- Left: Comprehensive Weeks List & Filters -->
+      <div class="panel-left" style="width: 340px;">
+        <div class="panel-hdr">
+          <div class="panel-hdr-title">
+            <span>Timesheet History</span>
+            <span class="panel-hdr-badge">2026</span>
+          </div>
+          <button class="panel-hdr-btn">Select Date</button>
+        </div>
+
+        <div class="stats-2x2">
+          <div class="stat-box">
+            <div class="stat-label">Total Worked</div>
+            <div class="stat-val" style="color:var(--accent)">412.5h</div>
+            <div class="stat-note">11 weeks in 2026</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">Total Overtime</div>
+            <div class="stat-val" style="color:var(--ot-color)">18.5h</div>
+            <div class="stat-note">in 4 weeks</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">On-Call Shifts</div>
+            <div class="stat-val" style="color:var(--accent)">3</div>
+            <div class="stat-note">2 on-call, 1 extra</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">Incidents</div>
+            <div class="stat-val" style="color:#818cf8">7</div>
+            <div class="stat-note">callouts handled</div>
+          </div>
+        </div>
+
+        <div class="seg-bar">
+          <button class="seg-btn active">All (14)</button>
+          <button class="seg-btn">On-Call (3)</button>
+          <button class="seg-btn">OT (4)</button>
+        </div>
+
+        <div class="search-wrap">
+          <svg class="search-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+          <input type="search" class="search-input" placeholder="Filter weeks by site, fault, code...">
+        </div>
+
+        <div class="scroll-list">
+          <div class="list-sec-hdr">Current Week</div>
+          <div class="week-item selected">
+            <div class="week-icon-box">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+            </div>
+            <div class="week-item-info">
+              <div class="week-item-title">06 Mar – 12 Mar 2026</div>
+              <div class="week-item-meta">14 tasks · 3 sites · Athlone, Moate</div>
+            </div>
+            <div class="week-badges">
+              <span class="badge-pill badge-blue">37.5h</span>
+              <span class="badge-pill badge-green">This Week</span>
+            </div>
+          </div>
+
+          <div class="list-sec-hdr">Previous Weeks</div>
+          <div class="week-item">
+            <div class="week-icon-box">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+            </div>
+            <div class="week-item-info">
+              <div class="week-item-title">27 Feb – 05 Mar 2026</div>
+              <div class="week-item-meta">16 tasks · 4 sites · 4.0h OT</div>
+            </div>
+            <div class="week-badges">
+              <span class="badge-pill badge-blue">37.5h</span>
+              <span class="badge-pill badge-amber">+4.0h OT</span>
+            </div>
+          </div>
+
+          <div class="week-item">
+            <div class="week-icon-box">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+            </div>
+            <div class="week-item-info">
+              <div class="week-item-title">20 Feb – 26 Feb 2026</div>
+              <div class="week-item-meta">12 tasks · 3 callout incidents</div>
+            </div>
+            <div class="week-badges">
+              <span class="badge-pill badge-blue">37.5h</span>
+              <span class="badge-pill badge-red">3 Callouts</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: Full Master Dashboard Overview -->
+      <div class="panel-detail">
+        <div class="detail-head">
+          <div class="detail-head-left">
+            <h2>Week Summary: 06 Mar – 12 Mar 2026</h2>
+            <p>14 Total Tasks Logged · 3 Sites Visited · Athlone, Moate, Mullingar</p>
+          </div>
+          <div class="detail-actions">
+            <button class="btn-secondary">Export Week (PDF/Email)</button>
+            <button class="btn-primary">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+              Open in Timesheet
+            </button>
+          </div>
+        </div>
+
+        <div class="detail-body-scroll">
+          <!-- 7-Day Card Strip -->
+          <div class="days-grid-7">
+            <div class="day-mini-card" style="border-color:var(--accent);background:var(--accent-light)">
+              <div class="day-mini-name" style="color:var(--accent)">Friday</div>
+              <div class="day-mini-date">06 Mar</div>
+              <div class="day-mini-hrs">7.5h</div>
+              <div class="day-mini-tasks">2 tasks · Athlone</div>
+            </div>
+            <div class="day-mini-card">
+              <div class="day-mini-name">Saturday</div>
+              <div class="day-mini-date">07 Mar</div>
+              <div class="day-mini-hrs" style="color:var(--text-muted)">0.0h</div>
+              <div class="day-mini-tasks">—</div>
+            </div>
+            <div class="day-mini-card">
+              <div class="day-mini-name">Sunday</div>
+              <div class="day-mini-date">08 Mar</div>
+              <div class="day-mini-hrs" style="color:var(--text-muted)">0.0h</div>
+              <div class="day-mini-tasks">—</div>
+            </div>
+            <div class="day-mini-card">
+              <div class="day-mini-name">Monday</div>
+              <div class="day-mini-date">09 Mar</div>
+              <div class="day-mini-hrs">7.5h</div>
+              <div class="day-mini-tasks">3 tasks · Moate</div>
+            </div>
+            <div class="day-mini-card">
+              <div class="day-mini-name">Tuesday</div>
+              <div class="day-mini-date">10 Mar</div>
+              <div class="day-mini-hrs">7.5h</div>
+              <div class="day-mini-tasks">2 tasks · Mullingar</div>
+            </div>
+            <div class="day-mini-card">
+              <div class="day-mini-name">Wednesday</div>
+              <div class="day-mini-date">11 Mar</div>
+              <div class="day-mini-hrs">7.5h</div>
+              <div class="day-mini-tasks">4 tasks · Athlone</div>
+            </div>
+            <div class="day-mini-card">
+              <div class="day-mini-name">Thursday</div>
+              <div class="day-mini-date">12 Mar</div>
+              <div class="day-mini-hrs">7.5h</div>
+              <div class="day-mini-tasks">3 tasks · Athlone</div>
+            </div>
+          </div>
+
+          <!-- 2-Column Content Grid: Left Day Breakdown Table, Right Work Code Distribution -->
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+            <div class="summary-card">
+              <div class="summary-card-title">Daily Activity Log</div>
+              <table class="cat-table">
+                <thead>
+                  <tr>
+                    <th>Day / Date</th>
+                    <th>Sites & Work Summary</th>
+                    <th style="text-align:right">Hours</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><strong>Fri 06 Mar</strong></td>
+                    <td>Athlone · DC Power Plant & Fan Failure</td>
+                    <td style="text-align:right;font-family:var(--font-mono);font-weight:700">7.5h</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Mon 09 Mar</strong></td>
+                    <td>Moate · HVAC Filter Maintenance</td>
+                    <td style="text-align:right;font-family:var(--font-mono);font-weight:700">7.5h</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Tue 10 Mar</strong></td>
+                    <td>Mullingar · Generator On-Load Test</td>
+                    <td style="text-align:right;font-family:var(--font-mono);font-weight:700">7.5h</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Wed 11 Mar</strong></td>
+                    <td>Athlone · Fiber ODF Cabling & Alarms</td>
+                    <td style="text-align:right;font-family:var(--font-mono);font-weight:700">7.5h</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Thu 12 Mar</strong></td>
+                    <td>Athlone · Weekly Site Handover & Admin</td>
+                    <td style="text-align:right;font-family:var(--font-mono);font-weight:700">7.5h</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="summary-card">
+              <div class="summary-card-title">Hours by Work Code</div>
+              <div class="breakdown-bar-wrap">
+                <div class="bar-seg" style="width: 45%; background: var(--accent);"></div>
+                <div class="bar-seg" style="width: 30%; background: #10b981;"></div>
+                <div class="bar-seg" style="width: 15%; background: #f59e0b;"></div>
+                <div class="bar-seg" style="width: 10%; background: #8b5cf6;"></div>
+              </div>
+              <table class="cat-table">
+                <thead>
+                  <tr>
+                    <th>Code & Description</th>
+                    <th style="text-align:right">Ord</th>
+                    <th style="text-align:right">OT</th>
+                    <th style="text-align:right">Total</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><span class="cat-dot" style="background:var(--accent)"></span>M101 DC Power Systems</td>
+                    <td style="text-align:right;font-family:var(--font-mono)">15.0h</td>
+                    <td style="text-align:right;font-family:var(--font-mono)">2.0h</td>
+                    <td style="text-align:right;font-weight:700;font-family:var(--font-mono)">17.0h</td>
+                  </tr>
+                  <tr>
+                    <td><span class="cat-dot" style="background:#10b981"></span>R102 Routine HVAC</td>
+                    <td style="text-align:right;font-family:var(--font-mono)">11.5h</td>
+                    <td style="text-align:right;font-family:var(--font-mono)">—</td>
+                    <td style="text-align:right;font-weight:700;font-family:var(--font-mono)">11.5h</td>
+                  </tr>
+                  <tr>
+                    <td><span class="cat-dot" style="background:#f59e0b"></span>G105 Standby Generators</td>
+                    <td style="text-align:right;font-family:var(--font-mono)">6.0h</td>
+                    <td style="text-align:right;font-family:var(--font-mono)">—</td>
+                    <td style="text-align:right;font-weight:700;font-family:var(--font-mono)">6.0h</td>
+                  </tr>
+                  <tr>
+                    <td><span class="cat-dot" style="background:#8b5cf6"></span>A001 Admin & Travel</td>
+                    <td style="text-align:right;font-family:var(--font-mono)">5.0h</td>
+                    <td style="text-align:right;font-family:var(--font-mono)">—</td>
+                    <td style="text-align:right;font-weight:700;font-family:var(--font-mono)">5.0h</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- VIEW 3: MODERN CALLOUTS (3-PANEL OPERATIONS CONSOLE)                      -->
+  <!-- ========================================================================= -->
+  <div id="view-callouts" class="view-container">
+    <div class="three-panel">
+      <!-- Left: On-Call Schedule & Week Incidents -->
+      <div class="panel-left">
+        <div class="panel-hdr">
+          <div class="panel-hdr-title">
+            <span>Callouts</span>
+            <span class="panel-hdr-badge">7 Total</span>
+          </div>
+          <button class="panel-hdr-btn">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            Schedule
+          </button>
+        </div>
+
+        <div class="stats-2x2">
+          <div class="stat-box">
+            <div class="stat-label">On-Call Weeks</div>
+            <div class="stat-val" style="color:var(--accent)">3</div>
+            <div class="stat-note">scheduled</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">Extra Shifts</div>
+            <div class="stat-val" style="color:var(--ot-color)">1</div>
+            <div class="stat-note">cover shift</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">Total Incidents</div>
+            <div class="stat-val" style="color:var(--text-primary)">7</div>
+            <div class="stat-note">in 2026</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">Avg / Week</div>
+            <div class="stat-val" style="color:#818cf8">2.3</div>
+            <div class="stat-note">per on-call week</div>
+          </div>
+        </div>
+
+        <div class="scroll-list">
+          <div class="list-sec-hdr">Current Week</div>
+          <div class="week-item selected">
+            <div class="week-icon-box">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+            </div>
+            <div class="week-item-info">
+              <div class="week-item-title">06 Mar – 12 Mar 2026</div>
+              <div class="week-item-meta">Current week · 2 incidents</div>
+            </div>
+            <div class="week-badges">
+              <span class="badge-pill badge-red">2 Incidents</span>
+            </div>
+          </div>
+
+          <div class="list-sec-hdr">Upcoming Scheduled</div>
+          <div class="week-item">
+            <div class="week-icon-box">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+            </div>
+            <div class="week-item-info">
+              <div class="week-item-title">13 Mar – 19 Mar 2026</div>
+              <div class="week-item-meta">On-Call Primary</div>
+            </div>
+            <div class="week-badges">
+              <span class="badge-pill badge-amber">On-Call</span>
+            </div>
+          </div>
+
+          <div class="list-sec-hdr">Previous Callouts</div>
+          <div class="week-item">
+            <div class="week-icon-box">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+            </div>
+            <div class="week-item-info">
+              <div class="week-item-title">20 Feb – 26 Feb 2026</div>
+              <div class="week-item-meta">3 incidents logged</div>
+            </div>
+            <div class="week-badges">
+              <span class="badge-pill badge-red">3 Incidents</span>
+            </div>
+          </div>
+
+          <div class="week-item">
+            <div class="week-icon-box">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+            </div>
+            <div class="week-item-info">
+              <div class="week-item-title">06 Feb – 12 Feb 2026</div>
+              <div class="week-item-meta">2 incidents · Extra shift</div>
+            </div>
+            <div class="week-badges">
+              <span class="badge-pill badge-amber">Extra (2)</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Middle: Incidents List for Selected Week -->
+      <div class="panel-mid">
+        <div class="panel-hdr">
+          <div class="panel-hdr-title">
+            <span>06 Mar – 12 Mar</span>
+            <span class="panel-hdr-badge">2 Callouts</span>
+          </div>
+          <div style="display:flex;gap:6px">
+            <button class="panel-hdr-btn" style="background:var(--accent);color:#fff">+ Add</button>
+            <button class="panel-hdr-btn">Paste</button>
+          </div>
+        </div>
+
+        <div class="scroll-list">
+          <div class="list-sec-hdr">Friday 06 Mar 2026</div>
+          <div class="callout-row selected">
+            <div class="callout-idx-badge">1</div>
+            <div style="flex:1;min-width:0">
+              <div style="font-size:13px;font-weight:700;color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">EXTERNAL ALARM: AC MAINS FAIL</div>
+              <div style="font-size:11px;color:var(--text-muted);display:flex;align-items:center;gap:6px;margin-top:3px">
+                <span style="color:var(--priority-high);font-weight:600">📍 Athlone Exchange</span>
+                <span style="font-family:var(--font-mono);background:var(--bg-card-alt);padding:1px 5px;border-radius:4px">R23901182</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="list-sec-hdr">Sunday 08 Mar 2026</div>
+          <div class="callout-row">
+            <div class="callout-idx-badge">2</div>
+            <div style="flex:1;min-width:0">
+              <div style="font-size:13px;font-weight:700;color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">HIGH TEMP STAGE 2 ALARM: 34°C</div>
+              <div style="font-size:11px;color:var(--text-muted);display:flex;align-items:center;gap:6px;margin-top:3px">
+                <span style="color:var(--priority-high);font-weight:600">📍 Moate Exchange</span>
+                <span style="font-family:var(--font-mono);background:var(--bg-card-alt);padding:1px 5px;border-radius:4px">R23901450</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: Detailed Callout Editor & Remedy Form -->
+      <div class="panel-detail">
+        <div class="detail-head">
+          <div class="detail-head-left">
+            <h2>Callout #1: EXTERNAL ALARM: AC MAINS FAIL</h2>
+            <p>Athlone Exchange · Friday 06 Mar 2026 · Ticket R23901182</p>
+          </div>
+          <div class="detail-actions">
+            <button class="btn-secondary">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+              Copy Ticket
+            </button>
+            <button class="btn-primary" style="background:var(--priority-low)">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              Saved
+            </button>
+          </div>
+        </div>
+
+        <div class="detail-body-scroll">
+          <div class="summary-card">
+            <div class="summary-card-title">Incident Details & Form</div>
+            <div class="form-grid-2">
+              <div class="form-field">
+                <div class="field-lbl">Date of Callout</div>
+                <input type="date" class="field-input" value="2026-03-06">
+              </div>
+              <div class="form-field">
+                <div class="field-lbl">Remedy Ticket Number</div>
+                <input class="field-input" style="font-family:var(--font-mono)" value="R23901182" placeholder="e.g. R23901182">
+              </div>
+              <div class="form-field form-full">
+                <div class="field-lbl">Location / Exchange</div>
+                <div style="display:flex;gap:8px">
+                  <input class="field-input" style="flex:1" value="Athlone Exchange" placeholder="Select Exchange / Site">
+                  <button class="btn-secondary" title="Open Google Maps">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 10c0 7-9 12-9 12S3 17 3 10a9 9 0 1 1 18 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+                    Map
+                  </button>
+                </div>
+              </div>
+              <div class="form-field form-full">
+                <div class="field-lbl">Fault Description</div>
+                <input class="field-input" value="EXTERNAL ALARM: AC MAINS FAIL" placeholder="Fault description from NOC / ticket">
+              </div>
+              <div class="form-field">
+                <div class="field-lbl">Engineer On Site</div>
+                <input class="field-input" value="Mark Owens (Primary)">
+              </div>
+              <div class="form-field">
+                <div class="field-lbl">Time Arrived / Cleared</div>
+                <input class="field-input" value="21:40 Arrived · 23:15 Cleared">
+              </div>
+              <div class="form-field form-full">
+                <div class="field-lbl">Incident Notes & Actions Taken (TipTap Rich Text)</div>
+                <div class="notes-preview-box">
+                  <p><strong>NOC Dispatch Note:</strong></p>
+                  <p>Mains power failed following ESB local feeder trip. Standby diesel generator started and took site load within 12 seconds.</p>
+                  <p style="margin-top:8px"><strong>On-Site Resolution:</strong></p>
+                  <p>1. Arrived on site at 21:40. Verified generator operating normally at 50.1Hz, coolant temperature 78°C.</p>
+                  <p>2. Monitored fuel consumption and phase balance.</p>
+                  <p>3. ESB restored grid supply at 22:50. ATS auto-transferred back to mains smoothly without interruption.</p>
+                  <p>4. Reset all external alarm contacts and handed back clear to NOC at 23:15.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function switchMockupView(viewKey) {
+      document.querySelectorAll('.mockup-tab-btn').forEach(btn => btn.classList.remove('active'));
+      document.querySelectorAll('.view-container').forEach(view => view.classList.remove('active'));
+
+      if (viewKey === 'hist-opt1') {
+        document.querySelector('.mockup-tabs button:nth-child(1)').classList.add('active');
+        document.getElementById('view-hist-opt1').classList.add('active');
+      } else if (viewKey === 'hist-opt2') {
+        document.querySelector('.mockup-tabs button:nth-child(2)').classList.add('active');
+        document.getElementById('view-hist-opt2').classList.add('active');
+      } else if (viewKey === 'callouts') {
+        document.querySelector('.mockup-tabs button:nth-child(3)').classList.add('active');
+        document.getElementById('view-callouts').classList.add('active');
+      }
+    }
+
+    function setTheme(theme) {
+      document.documentElement.setAttribute('data-theme', theme);
+    }
+  </script>
+</body>
+</html>
