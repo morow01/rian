@@ -8400,11 +8400,19 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 9px 12px;
+      padding: 12px 18px;
       cursor: pointer;
-      font-size: 13px;
+      font-size: 14.5px;
+      font-weight: 500;
       color: var(--text-primary);
       border-bottom: 1px solid var(--border);
+      background: var(--bg-card);
+      transition: background 0.12s;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+      width: 100%;
+      box-sizing: border-box;
+      text-align: left;
     }
 
     .town-option:last-child {
@@ -8420,6 +8428,20 @@
       box-shadow: inset 0 0 0 2px var(--accent);
       position: relative;
       z-index: 10;
+    }
+
+    .town-option-name {
+      font-size: 14.5px;
+      font-weight: 500;
+      color: var(--text-primary);
+      line-height: 1.25;
+    }
+
+    .town-option-sub {
+      font-size: 11.5px;
+      color: var(--text-muted);
+      margin-top: 2px;
+      font-weight: 400;
     }
 
     .search-results-list {
@@ -8510,17 +8532,19 @@
       }
     }
 
-    .town-option .t-code {
-      font-family: monospace;
+    .town-option .t-code,
+    .t-code {
+      display: inline-block;
+      font-family: inherit;
       font-size: 11px;
-
+      font-weight: 700;
       color: var(--accent);
-      background: var(--bg-code-btn);
-      padding: 2px 6px;
+      background: var(--accent-light);
+      padding: 2px 7px;
       border-radius: 5px;
       flex-shrink: 0;
       margin-left: 8px;
-
+      letter-spacing: 0.04em;
     }
 
     .stepper-row {
@@ -15257,11 +15281,13 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 9px 12px;
-      font-size: 13px;
+      padding: 12px 18px;
+      font-size: 14.5px;
+      font-weight: 500;
       color: var(--text-primary);
       border-bottom: 1px solid var(--border);
       cursor: pointer;
+      transition: background 0.12s;
     }
 
     .note-town-option:last-child {
@@ -16949,7 +16975,7 @@
 
     .rtn-picker-row-name {
       font-size: 14.5px;
-      font-weight: 700;
+      font-weight: 500;
       color: var(--text-primary);
       line-height: 1.25;
     }
@@ -22616,7 +22642,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '6.8.40';
+    const VERSION = '6.8.41';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -23068,10 +23094,12 @@
         return;
       }
       el.innerHTML = results.map((t, i) =>
-        `<button onclick="selectLocationFromModal(${i})" class="town-option w-full flex items-center justify-between px-4 py-3 border-b text-left" style="border-color:var(--border);background:var(--bg-code-item)">
-          <span class="text-sm" style="color:var(--text-primary)">${esc(t.name)}</span>
+        `<div onclick="selectLocationFromModal(${i})" class="town-option">
+          <div style="flex:1;min-width:0">
+            <span class="town-option-name">${esc(t.name)}</span>
+          </div>
           <span class="t-code">${esc(t.code)}</span>
-        </button>`
+        </div>`
       ).join('');
     }
 
@@ -23148,15 +23176,17 @@
           }
         }
         // Desktop notes panel location field
-        const deskLocEl = document.querySelector(`.dnotes-field-input[data-note-id="${noteId}"][data-note-field="location"]`);
-        if (deskLocEl) deskLocEl.value = val;
-      } else {
-        // Activity location — surgical DOM update, no render() to avoid triggering password manager
-        if (di === null || !actId) return;
+        if (_isDesktop()) {
+          const deskLoc = document.querySelector(`.dnotes-field-input[data-note-id="${noteId}"][data-note-field="location"]`);
+          if (deskLoc) deskLoc.value = val;
+        }
+        return;
+      }
+      if (di !== null && actId) {
         const act = state.weekData.days[di].activities.find(a => a.id === actId);
         if (!act) return;
         act.location = val;
-        if (!act._draft) scheduleAutoSave();
+        scheduleAutoSave();
         const pinSvg = `<svg width="13" height="13" viewBox="0 0 24 24" fill="#e8453c" style="display:inline-block;vertical-align:-2px;margin-right:2px;"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 010-5 2.5 2.5 0 010 5z"/></svg>`;
         const locHtml = val ? `${pinSvg}${esc(val)}` : '<span style="opacity:0.4">No location</span>';
         // Collapsed card row
@@ -23195,6 +23225,7 @@
       // the filled field disappearing as a form submission and offering to save
       const searchEl = document.getElementById('location-search');
       if (searchEl) searchEl.value = '';
+      _coSiteCallback = null;
       document.getElementById('location-modal').classList.add('hidden');
       locationModalCtx = { actId: null, dayIndex: null, noteId: null, _results: [] };
     }
@@ -23278,9 +23309,9 @@
         if (!filtered.length) { el.innerHTML = '<div class="text-center p-8" style="color:var(--text-muted)">No exchanges found</div>'; return; }
         el.innerHTML = filtered.map(ex => `
           <div class="town-option" onclick="selectFinderItem('${esc(ex.code)}', false)">
-            <div class="flex-1 min-w-0">
-              <span class="block truncate text-sm">${esc(ex.name)}</span>
-              ${ex.locality ? `<span class="text-[10px] block truncate" style="color:var(--text-muted)">${esc(ex.locality)}</span>` : ''}
+            <div style="flex:1;min-width:0">
+              <div class="town-option-name">${esc(ex.name)}</div>
+              ${ex.locality ? `<div class="town-option-sub">${esc(ex.locality)}</div>` : ''}
             </div>
             <span class="t-code">${esc(ex.code)}</span>
           </div>`).join('');
@@ -23289,8 +23320,8 @@
         if (!filtered.length) { el.innerHTML = '<div class="text-center p-8" style="color:var(--text-muted)">No cabinets found</div>'; return; }
         el.innerHTML = filtered.map(cb => `
           <div class="town-option" onclick="selectFinderItem('${esc(cb.ipid)}', true)">
-            <div class="flex-1 min-w-0">
-              <span class="block truncate text-sm">${esc(cb.mdf)} - ${esc(cb.ccp)}</span>
+            <div style="flex:1;min-width:0">
+              <div class="town-option-name">${esc(cb.mdf)} - ${esc(cb.ccp)}</div>
             </div>
             <span class="t-code">${esc(cb.ipid)}</span>
           </div>`).join('');
@@ -39523,7 +39554,7 @@
             '<div style="display:flex;align-items:center;gap:10px">' +
             '<div class="dfnd-badge">' + esc(isEx ? sel.code : sel.mdf) + '</div>' +
             '<div style="flex:1;min-width:0">' +
-            '<div style="font-size:14px;font-weight:600;color:var(--text-primary)">' + esc(itemName) + '</div>' +
+            '<div style="font-size:14px;font-weight:500;color:var(--text-primary)">' + esc(itemName) + '</div>' +
             '<div style="font-size:12px;color:var(--text-muted);margin-top:1px">' + esc(itemSub) + '</div>' +
             '</div>' +
             '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--border)" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>' +
@@ -39553,7 +39584,7 @@
           '<div style="display:flex;align-items:center;gap:10px">' +
           '<div class="dfnd-badge">' + esc(isEx ? item.code : item.mdf) + '</div>' +
           '<div style="flex:1;min-width:0">' +
-          '<div style="font-size:14px;font-weight:600;color:var(--text-primary)">' + esc(itemName) + '</div>' +
+          '<div style="font-size:14px;font-weight:500;color:var(--text-primary)">' + esc(itemName) + '</div>' +
           '<div style="font-size:12px;color:var(--text-muted);margin-top:1px">' + esc(itemSub) + '</div>' +
           '</div>' +
           '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--border)" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>' +
