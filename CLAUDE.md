@@ -17,7 +17,7 @@ A Progressive Web App for field technicians — timesheets, notes (TipTap rich t
 ## Version
 `const VERSION = 'x.y.z'` in `app.html` (~line 18699). Bump on every change. Only location that needs updating (index.html version references are static).
 **Patch (z) must not exceed 99.** When a bump would take it to 100, bump the minor version instead and reset patch to 0 (e.g. `6.7.99` → `6.8.0`, never `6.7.100`). 6.7.100–6.7.102 already broke this rule and were left as-is rather than rewriting pushed history — the rule applies from 6.8.0 onward.
-Current version: **6.8.25**
+Current version: **6.8.26**
 
 **12 themes active**: `claude` (default light), `dark` (slate-based), `champagne`, `champagne-dark`, `ios`, `apple` (macOS), `gray` (Grayscale), `gameboy` (Game Boy), `win31` (Win 3.1), `lcd` (LCD), `spectrum` (ZX Spectrum), `retro` (Retro). Theme picker lives in ☰ menu → Display. Switcher at `setTheme(key)`, registry at `THEME_META`.
 
@@ -311,6 +311,12 @@ When a note or task note has remote changes during fullscreen TipTap editing (`c
 TipTap fullscreen header buttons changed from "Cancel / Save" to "Close / Save":
 - **Save (`saveNoteFullscreen()`)**: Saves note data immediately to Firestore & local storage with "Saved!" flash feedback and toast without closing the editor, so users can save intermediate progress and keep writing.
 - **Close (`closeNoteFullscreen()`)**: Closes the editor cleanly. If there are unsaved edits since the last save, prompts with "Discard changes?"; if already saved (clean), closes immediately without prompt.
+
+### Header Icon Hover & Unified Modal Open Animations (v6.8.26+)
+- **Header Icon Buttons (`.hist-icon-btn`)**: Added smooth interactive hover & active transitions across Callouts, Week History, and Availability headers (accent glow, border tint, scale feedback).
+- **Unified Modal Animations**: Unified the opening behaviors of "On-Call Schedule" and "Week History" Select Week / Jump modals:
+  - Mobile: Both slide up smoothly from the bottom with `sheetUp` transition, backdrop blur (`backdrop-filter: blur(2px)`), and dim backdrop.
+  - Desktop: Both display as centered modal dialogs with smooth backdrop fade (`overlayIn`), pop-in scale animation (`rdn-pop`), and soft elevated box-shadows.
 
 ### goToFaultDay Desktop Selection (v5.8.90+)
 `goToFaultDay(dateStr, actId)` (used by Routines "Open day" button and AI Fault Assistant) now sets `state.deskSelectedDay` and `state.deskSelectedAct` when on desktop, so the three-panel layout drills into the right day + task instead of just landing on the week. Mobile path (`expandedDays`, `activitiesExpanded`, `notesOpen`) unchanged.
