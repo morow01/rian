@@ -840,6 +840,7 @@
     .invalid-field {
       border-color: var(--btn-danger-color) !important;
     }
+
     .hrs-stepper.invalid-field {
       outline-color: var(--btn-danger-color) !important;
     }
@@ -941,7 +942,10 @@
       scrollbar-width: none;
       -webkit-overflow-scrolling: touch;
     }
-    .act-actions-row::-webkit-scrollbar { display: none; }
+
+    .act-actions-row::-webkit-scrollbar {
+      display: none;
+    }
 
     .act-action-btn {
       flex: 1 0 auto;
@@ -1230,8 +1234,15 @@
       transition: var(--button-transition);
     }
 
-    .btn-cancel:hover:not(:disabled) { background: var(--bg-input); border-color: var(--border); }
-    .btn-cancel:disabled { opacity: .45; cursor: not-allowed; }
+    .btn-cancel:hover:not(:disabled) {
+      background: var(--bg-input);
+      border-color: var(--border);
+    }
+
+    .btn-cancel:disabled {
+      opacity: .45;
+      cursor: not-allowed;
+    }
 
     .note-confirm-actions .btn-add {
       flex: 1;
@@ -1721,8 +1732,15 @@
     }
 
     @keyframes rianUpdatePulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.55; }
+
+      0%,
+      100% {
+        opacity: 1;
+      }
+
+      50% {
+        opacity: 0.55;
+      }
     }
 
     @keyframes pulse {
@@ -1797,6 +1815,7 @@
     .activity-card.has-warning {
       box-shadow: 0 4px 12px rgba(232, 69, 60, 0.12) !important;
     }
+
     .activity-card.has-warning .task-num {
       background: var(--btn-danger-color) !important;
       color: #fff !important;
@@ -1837,11 +1856,13 @@
       text-align: center;
       margin-top: 4px;
     }
+
     .preset-pill:hover {
       border-color: var(--accent);
       color: var(--accent);
       background: rgba(var(--accent-rgb), 0.08);
     }
+
     .preset-pill:active {
       transform: scale(0.95);
     }
@@ -1861,12 +1882,14 @@
       transition: all 0.15s;
       margin-top: 4px;
     }
+
     .code-preset-chip:hover {
       background: rgba(var(--accent-rgb), 0.08);
       border-color: var(--accent);
       color: var(--accent);
       border-style: solid;
     }
+
     .code-preset-chip .code-mono {
       font-family: var(--font-mono);
       font-size: 9px;
@@ -2314,7 +2337,9 @@
       -webkit-overflow-scrolling: touch;
     }
 
-    .task-modal-actions::-webkit-scrollbar { display: none; }
+    .task-modal-actions::-webkit-scrollbar {
+      display: none;
+    }
 
     .task-modal-text-btn {
       flex: 1 0 auto;
@@ -3955,6 +3980,7 @@
       padding: 0 8px;
       flex-shrink: 0;
     }
+
     /* On-call / extra-shift pills shown beside the date range */
     .week-status-pill {
       display: inline-flex;
@@ -4493,16 +4519,18 @@
       align-items: center;
       gap: 10px;
     }
+
     .draft-warning-banner-text {
       flex: 1;
       font-size: 13px;
       font-weight: 600;
       color: #fff;
     }
+
     .draft-warning-banner-btn {
-      background: rgba(255,255,255,0.18);
+      background: rgba(255, 255, 255, 0.18);
       color: #fff;
-      border: 1px solid rgba(255,255,255,0.45);
+      border: 1px solid rgba(255, 255, 255, 0.45);
       border-radius: 6px;
       padding: 4px 12px;
       font-size: 12px;
@@ -4519,19 +4547,22 @@
       align-items: center;
       gap: 10px;
     }
+
     .save-error-banner.save-error-visible {
       display: flex;
     }
+
     .save-error-banner-text {
       flex: 1;
       font-size: 13px;
       font-weight: 600;
       color: #fff;
     }
+
     .save-error-banner-btn {
-      background: rgba(255,255,255,0.18);
+      background: rgba(255, 255, 255, 0.18);
       color: #fff;
-      border: 1px solid rgba(255,255,255,0.45);
+      border: 1px solid rgba(255, 255, 255, 0.45);
       border-radius: 6px;
       padding: 4px 12px;
       font-size: 12px;
@@ -6222,7 +6253,9 @@
       transition: background .12s, border-color .12s, color .12s;
     }
 
-    .confirm-cancel:hover { background: var(--bg-card-alt); }
+    .confirm-cancel:hover {
+      background: var(--bg-card-alt);
+    }
 
     .confirm-delete {
       flex: 1;
@@ -6237,7 +6270,9 @@
       transition: background .12s;
     }
 
-    .confirm-delete:hover { background: var(--priority-high-dark); }
+    .confirm-delete:hover {
+      background: var(--priority-high-dark);
+    }
 
     /* Legacy confirmation modal — several app flows still use this shared dialog. */
     #confirm-modal .confirm-modal-cancel,
@@ -6251,7 +6286,9 @@
     }
 
     /* The confirm colour is set dynamically, so darken the rendered colour. */
-    #confirm-modal .confirm-modal-confirm:hover { filter: brightness(.9); }
+    #confirm-modal .confirm-modal-confirm:hover {
+      filter: brightness(.9);
+    }
 
     /* ===== BASE STYLES ===== */
     * {
@@ -7554,119 +7591,467 @@
     /* ══════════════ TASK TEMPLATES ══════════════
        Reusable task presets: ☰ → Task Templates, and the "From Template"
        button beside Add Task on each day. */
-    .add-task-row { display: flex; gap: 8px; margin: 4px 14px 14px 0; width: calc(100% - 14px); }
+    .add-task-row {
+      display: flex;
+      gap: 8px;
+      margin: 4px 14px 14px 0;
+      width: calc(100% - 14px);
+    }
+
     .add-task-btn {
-      flex: 1; min-width: 0; display: flex; align-items: center; justify-content: center; gap: 6px;
-      padding: 12px; border-radius: var(--button-radius); border: 1px dashed var(--border); background: var(--bg-card);
-      font-family: inherit; font-size: 13px; font-weight: 700; color: var(--accent); cursor: pointer;
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 12px;
+      border-radius: var(--button-radius);
+      border: 1px dashed var(--border);
+      background: var(--bg-card);
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--accent);
+      cursor: pointer;
       transition: var(--button-transition);
     }
-    .add-task-btn:hover { border-color: var(--accent); background: var(--accent-light); }
+
+    .add-task-btn:hover {
+      border-color: var(--accent);
+      background: var(--accent-light);
+    }
 
     /* Templates view */
-    .tpl-page { background: var(--bg-page); min-height: 100vh; padding: 0 0 100px; }
+    .tpl-page {
+      background: var(--bg-page);
+      min-height: 100vh;
+      padding: 0 0 100px;
+    }
+
     /* Mirrors .day-activities so a template card is exactly as wide as a task:
        27px on the left, and the card keeps its own 14px right margin. */
     /* No max-width — the timesheet card spans the full container, so a cap
        here made templates narrower than tasks on anything above ~520px. */
-    .tpl-wrap { padding: 14px 0 0 27px; }
-    .tpl-top { padding-right: 14px; }
+    .tpl-wrap {
+      padding: 14px 0 0 27px;
+    }
+
+    .tpl-top {
+      padding-right: 14px;
+    }
+
     /* No timeline here, so drop the connector stub and node the task card draws */
     .tpl-wrap .activity-card::before,
-    .tpl-wrap .activity-card::after { display: none; }
-    .tpl-loc-pick { cursor: pointer; }
+    .tpl-wrap .activity-card::after {
+      display: none;
+    }
+
+    .tpl-loc-pick {
+      cursor: pointer;
+    }
+
     .pill-unsaved {
-      font-size: 10px; font-weight: 800; letter-spacing: .03em;
-      padding: 2px 7px; border-radius: 8px; white-space: nowrap;
-      background: var(--bg-ot); color: var(--ot-color); border: 1px solid var(--ot-stepper-border);
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: .03em;
+      padding: 2px 7px;
+      border-radius: 8px;
+      white-space: nowrap;
+      background: var(--bg-ot);
+      color: var(--ot-color);
+      border: 1px solid var(--ot-stepper-border);
     }
-    .tpl-add-btn { width: calc(100% - 14px); margin: 0 14px 10px 0; }
-    .tpl-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 10px; }
-    .tpl-top-t { font-size: 14px; font-weight: 800; }
-    .tpl-top-s { font-size: 11.5px; color: var(--text-muted); font-weight: 700; margin-top: 1px; }
+
+    .tpl-add-btn {
+      width: calc(100% - 14px);
+      margin: 0 14px 10px 0;
+    }
+
+    .tpl-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .tpl-top-t {
+      font-size: 14px;
+      font-weight: 800;
+    }
+
+    .tpl-top-s {
+      font-size: 11.5px;
+      color: var(--text-muted);
+      font-weight: 700;
+      margin-top: 1px;
+    }
+
     .tpl-icon {
-      width: 32px; height: 32px; border-radius: 9px; flex-shrink: 0;
-      background: rgba(var(--purple-rgb), 0.1); color: var(--purple); display: grid; place-items: center;
+      width: 32px;
+      height: 32px;
+      border-radius: 9px;
+      flex-shrink: 0;
+      background: rgba(var(--purple-rgb), 0.1);
+      color: var(--purple);
+      display: grid;
+      place-items: center;
     }
-    .tpl-body { flex: 1; min-width: 0; }
-    .tpl-name { font-size: 13.5px; font-weight: 800; }
-    .tpl-meta { display: flex; align-items: center; gap: 6px; margin-top: 3px; flex-wrap: wrap; }
-    .tpl-code { font-family: var(--font-mono); font-size: 10.5px; color: var(--text-muted); }
+
+    .tpl-body {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .tpl-name {
+      font-size: 13.5px;
+      font-weight: 800;
+    }
+
+    .tpl-meta {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 3px;
+      flex-wrap: wrap;
+    }
+
+    .tpl-code {
+      font-family: var(--font-mono);
+      font-size: 10.5px;
+      color: var(--text-muted);
+    }
+
     .tpl-chip {
-      font-size: 10.5px; font-weight: 700; padding: 2px 7px; border-radius: 7px;
-      background: var(--bg-input); border: 1px solid var(--border); color: var(--text-secondary);
+      font-size: 10.5px;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 7px;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      color: var(--text-secondary);
     }
-    .tpl-chip-dim { color: var(--text-muted); font-style: italic; }
-    .tpl-warn { font-size: 10.5px; font-weight: 800; color: var(--priority-high); }
+
+    .tpl-chip-dim {
+      color: var(--text-muted);
+      font-style: italic;
+    }
+
+    .tpl-warn {
+      font-size: 10.5px;
+      font-weight: 800;
+      color: var(--priority-high);
+    }
+
     .tpl-hrs {
-      font-size: 11.5px; font-weight: 800; color: var(--accent); background: var(--accent-light);
-      border-radius: 8px; padding: 3px 9px; flex-shrink: 0;
+      font-size: 11.5px;
+      font-weight: 800;
+      color: var(--accent);
+      background: var(--accent-light);
+      border-radius: 8px;
+      padding: 3px 9px;
+      flex-shrink: 0;
     }
-    .tpl-hrs-ot { color: var(--ot-color); background: var(--bg-ot); }
-    .tpl-blank { text-align: center; padding: 34px 20px; color: var(--text-muted); }
-    .tpl-blank-icon { color: var(--purple); opacity: .5; display: flex; justify-content: center; margin-bottom: 8px; }
-    .tpl-blank-t { font-size: 14px; font-weight: 800; color: var(--text-secondary); }
-    .tpl-blank-s { font-size: 12.5px; margin-top: 4px; line-height: 1.45; max-width: 300px; margin: 4px auto 0; }
+
+    .tpl-hrs-ot {
+      color: var(--ot-color);
+      background: var(--bg-ot);
+    }
+
+    .tpl-blank {
+      text-align: center;
+      padding: 34px 20px;
+      color: var(--text-muted);
+    }
+
+    .tpl-blank-icon {
+      color: var(--purple);
+      opacity: .5;
+      display: flex;
+      justify-content: center;
+      margin-bottom: 8px;
+    }
+
+    .tpl-blank-t {
+      font-size: 14px;
+      font-weight: 800;
+      color: var(--text-secondary);
+    }
+
+    .tpl-blank-s {
+      font-size: 12.5px;
+      margin-top: 4px;
+      line-height: 1.45;
+      max-width: 300px;
+      margin: 4px auto 0;
+    }
 
     /* Template form */
-    .tpl-form { background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px; padding: 14px; margin-bottom: 10px; }
-    .tpl-form-hd { font-size: 13.5px; font-weight: 800; margin-bottom: 12px; }
-    .tpl-field { margin-bottom: 11px; }
+    .tpl-form {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 14px;
+      margin-bottom: 10px;
+    }
+
+    .tpl-form-hd {
+      font-size: 13.5px;
+      font-weight: 800;
+      margin-bottom: 12px;
+    }
+
+    .tpl-field {
+      margin-bottom: 11px;
+    }
+
     .tpl-field label {
-      display: block; font-size: 10px; font-weight: 800; letter-spacing: 0.1em;
-      text-transform: uppercase; color: var(--text-muted); margin-bottom: 5px;
+      display: block;
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 5px;
     }
-    .tpl-opt { font-weight: 700; letter-spacing: 0; text-transform: none; opacity: .75; }
+
+    .tpl-opt {
+      font-weight: 700;
+      letter-spacing: 0;
+      text-transform: none;
+      opacity: .75;
+    }
+
     .tpl-field input {
-      width: 100%; border: 1px solid var(--border); border-radius: 10px; background: var(--bg-input);
-      padding: 10px 12px; font-family: inherit; font-size: 14px; color: var(--text-primary);
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: var(--bg-input);
+      padding: 10px 12px;
+      font-family: inherit;
+      font-size: 14px;
+      color: var(--text-primary);
     }
-    .tpl-field input:focus { outline: none; border-color: var(--accent); }
-    .tpl-field input.is-ot { background: var(--bg-ot); border-color: var(--ot-stepper-border); color: var(--ot-color); font-weight: 700; }
-    .tpl-two { display: flex; gap: 9px; }
-    .tpl-two .tpl-field { flex: 1; }
-    .tpl-hint { font-size: 11.5px; color: var(--text-muted); line-height: 1.45; margin-top: 6px; }
+
+    .tpl-field input:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+
+    .tpl-field input.is-ot {
+      background: var(--bg-ot);
+      border-color: var(--ot-stepper-border);
+      color: var(--ot-color);
+      font-weight: 700;
+    }
+
+    .tpl-two {
+      display: flex;
+      gap: 9px;
+    }
+
+    .tpl-two .tpl-field {
+      flex: 1;
+    }
+
+    .tpl-hint {
+      font-size: 11.5px;
+      color: var(--text-muted);
+      line-height: 1.45;
+      margin-top: 6px;
+    }
+
     .tpl-codes {
-      display: flex; flex-wrap: wrap; gap: 6px; align-items: center; border: 1px solid var(--border);
-      border-radius: 10px; background: var(--bg-input); padding: 9px 11px; min-height: 42px; cursor: pointer;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      align-items: center;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: var(--bg-input);
+      padding: 9px 11px;
+      min-height: 42px;
+      cursor: pointer;
     }
-    .tpl-code-chip { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 3px 8px; font-size: 12px; font-weight: 700; }
-    .tpl-codes-add { font-size: 12px; font-weight: 800; color: var(--accent); display: inline-flex; align-items: center; gap: 4px; }
-    .tpl-empty-hint { font-size: 12.5px; color: var(--text-muted); }
-    .tpl-actions-row { gap: 8px; border-top: 1px solid var(--border); padding-top: 14px; margin: 8px -16px 0; padding-left: 16px; padding-right: 16px; }
+
+    .tpl-code-chip {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 3px 8px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .tpl-codes-add {
+      font-size: 12px;
+      font-weight: 800;
+      color: var(--accent);
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .tpl-empty-hint {
+      font-size: 12.5px;
+      color: var(--text-muted);
+    }
+
+    .tpl-actions-row {
+      gap: 8px;
+      border-top: 1px solid var(--border);
+      padding-top: 14px;
+      margin: 8px -16px 0;
+      padding-left: 16px;
+      padding-right: 16px;
+    }
+
     /* Keep the template-only name first, then mirror Timesheet task field order. */
-    .tpl-editor-form { display: flex; flex-direction: column; }
-    .tpl-name-field { order: 1; }
-    .tpl-description-field { order: 2; }
-    .tpl-notes-field { order: 3; }
-    .tpl-location-field { order: 4; }
-    .tpl-codes-field { order: 5; }
-    .tpl-hours-field { order: 6; }
-    .tpl-editor-form .tpl-actions-row { order: 7; }
+    .tpl-editor-form {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .tpl-name-field {
+      order: 1;
+    }
+
+    .tpl-description-field {
+      order: 2;
+    }
+
+    .tpl-notes-field {
+      order: 3;
+    }
+
+    .tpl-location-field {
+      order: 4;
+    }
+
+    .tpl-codes-field {
+      order: 5;
+    }
+
+    .tpl-hours-field {
+      order: 6;
+    }
+
+    .tpl-editor-form .tpl-actions-row {
+      order: 7;
+    }
+
     /* .act-action-btn is border: 1px solid transparent by default, so a plain
        one reads as unbordered — give Cancel the neutral outline. */
-    .act-action-btn.tpl-btn-cancel { border-color: var(--border); color: var(--text-secondary); background: var(--bg-card); }
-    .act-action-btn.tpl-btn-cancel:hover { background: var(--bg-input); }
+    .act-action-btn.tpl-btn-cancel {
+      border-color: var(--border);
+      color: var(--text-secondary);
+      background: var(--bg-card);
+    }
+
+    .act-action-btn.tpl-btn-cancel:hover {
+      background: var(--bg-input);
+    }
 
     /* Template picker sheet */
-    .tplp-overlay { position: fixed; inset: 0; z-index: 9400; display: flex; align-items: flex-end; justify-content: center; background: rgba(var(--shadow-rgb), 0.4); touch-action: none; overscroll-behavior: contain; }
-    .tplp-sheet {
-      width: 100%; max-width: 520px; background: var(--bg-card); border-radius: 18px 18px 0 0;
-      max-height: 82vh; max-height: 82dvh; display: flex; flex-direction: column; overflow: hidden; touch-action: pan-y; overscroll-behavior: contain;
+    .tplp-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 9400;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      background: rgba(var(--shadow-rgb), 0.4);
+      touch-action: none;
+      overscroll-behavior: contain;
     }
-    .tplp-hd { padding: 14px 16px 10px; border-bottom: 1px solid var(--border-subtle); }
-    .tplp-t { font-size: 15px; font-weight: 800; }
-    .tplp-s { font-size: 12px; color: var(--text-muted); font-weight: 600; margin-top: 2px; }
-    .tplp-list { overflow-y: auto; flex: 1; min-height: 0; }
-    .tplp-row { display: flex; align-items: center; gap: 11px; padding: 12px 16px; border-bottom: 1px solid var(--border-subtle); cursor: pointer; }
-    .tplp-row:hover { background: var(--accent-light); }
-    .tplp-row:last-child { border-bottom: none; }
-    .tplp-foot { padding: 8px 12px 14px; display: flex; gap: 8px; }
-    .tplp-foot .btn-cancel { font-size: 13px; }
-    .tplp-foot .tplp-manage { color: var(--accent); display: flex; align-items: center; justify-content: center; gap: 6px; }
-    .tplp-foot .tplp-manage svg { width: 15px; height: 15px; flex: none; }
-    .tplp-foot .tplp-manage:hover { background: var(--bg-input); border-color: var(--accent); }
-    .tplp-foot .tplp-cancel:hover { background: var(--bg-input); }
+
+    .tplp-sheet {
+      width: 100%;
+      max-width: 520px;
+      background: var(--bg-card);
+      border-radius: 18px 18px 0 0;
+      max-height: 82vh;
+      max-height: 82dvh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      touch-action: pan-y;
+      overscroll-behavior: contain;
+    }
+
+    .tplp-hd {
+      padding: 14px 16px 10px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .tplp-t {
+      font-size: 15px;
+      font-weight: 800;
+    }
+
+    .tplp-s {
+      font-size: 12px;
+      color: var(--text-muted);
+      font-weight: 600;
+      margin-top: 2px;
+    }
+
+    .tplp-list {
+      overflow-y: auto;
+      flex: 1;
+      min-height: 0;
+    }
+
+    .tplp-row {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border-subtle);
+      cursor: pointer;
+    }
+
+    .tplp-row:hover {
+      background: var(--accent-light);
+    }
+
+    .tplp-row:last-child {
+      border-bottom: none;
+    }
+
+    .tplp-foot {
+      padding: 8px 12px 14px;
+      display: flex;
+      gap: 8px;
+    }
+
+    .tplp-foot .btn-cancel {
+      font-size: 13px;
+    }
+
+    .tplp-foot .tplp-manage {
+      color: var(--accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .tplp-foot .tplp-manage svg {
+      width: 15px;
+      height: 15px;
+      flex: none;
+    }
+
+    .tplp-foot .tplp-manage:hover {
+      background: var(--bg-input);
+      border-color: var(--accent);
+    }
+
+    .tplp-foot .tplp-cancel:hover {
+      background: var(--bg-input);
+    }
 
     /* ── Stats blocks (Show stats switch + per-block collapse) ── */
     .stats-block-hdr {
@@ -8788,7 +9173,11 @@
       overflow-x: auto;
       scrollbar-width: none;
     }
-    #note-fs-tt-toolbar::-webkit-scrollbar { display: none; }
+
+    #note-fs-tt-toolbar::-webkit-scrollbar {
+      display: none;
+    }
+
     @media (min-width: 768px) {
       #note-fs-tt-toolbar {
         flex-wrap: nowrap;
@@ -8832,7 +9221,8 @@
       top: calc(100% + 2px);
       left: 0;
       right: 0;
-      z-index: 22; /* above #note-fs-tt-table-bar (21) — an explicit palette
+      z-index: 22;
+      /* above #note-fs-tt-table-bar (21) — an explicit palette
                       click should win if the cursor happens to be in a table */
       border: 1px solid var(--border);
       border-radius: 0 0 10px 10px;
@@ -9045,7 +9435,8 @@
 
     #note-fs-editor .ProseMirror {
       outline: none;
-      padding: 16px 16px 40px; /* default bottom padding for desktop */
+      padding: 16px 16px 40px;
+      /* default bottom padding for desktop */
       font-size: 14px;
       line-height: 1.7;
       overflow: clip;
@@ -9177,6 +9568,7 @@
       overflow-wrap: anywhere;
       cursor: pointer;
     }
+
     /* Modern line-style attachment glyph (no emoji) */
     :is(#note-fs-editor .ProseMirror, #dj-editor-mount .ProseMirror, .tt-prose) .tt-file-chip::before,
     :is(#note-fs-editor .ProseMirror, #dj-editor-mount .ProseMirror, .tt-prose) a[href*="noteFiles"]::before {
@@ -9188,6 +9580,7 @@
       -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48'/%3E%3C/svg%3E") center/contain no-repeat;
       mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48'/%3E%3C/svg%3E") center/contain no-repeat;
     }
+
     /* Selected atomic chip (before deleting) */
     :is(#note-fs-editor .ProseMirror, #dj-editor-mount .ProseMirror) .tt-file-chip.ProseMirror-selectednode {
       outline: 2px solid var(--accent);
@@ -9626,21 +10019,27 @@
       color: var(--text);
     }
 
-    .rdn-btn-cancel:hover { background: var(--bg-input); }
+    .rdn-btn-cancel:hover {
+      background: var(--bg-input);
+    }
 
     .rdn-btn-confirm {
       background: var(--accent);
       color: #fff;
     }
 
-    .rdn-btn-confirm:hover { filter: brightness(.9); }
+    .rdn-btn-confirm:hover {
+      filter: brightness(.9);
+    }
 
     .rdn-btn-danger {
       background: var(--priority-high);
       color: #fff;
     }
 
-    .rdn-btn-danger:hover { background: var(--priority-high-dark); }
+    .rdn-btn-danger:hover {
+      background: var(--priority-high-dark);
+    }
 
     .rdn-btn-ghost {
       background: transparent;
@@ -9883,7 +10282,9 @@
     }
 
     /* Hide ProseMirror gap cursor — the horizontal blinking line between block elements */
-    .ProseMirror-gapcursor { display: none !important; }
+    .ProseMirror-gapcursor {
+      display: none !important;
+    }
 
     /* Scope col-resize cursor to table cells only — prevents it leaking to content below the table */
     #note-fs-editor .ProseMirror.resize-cursor td,
@@ -9983,6 +10384,7 @@
       border-radius: 10px;
       margin: 6px 0;
     }
+
     .tt-coll-hdr {
       display: flex;
       align-items: center;
@@ -9994,10 +10396,12 @@
       border-bottom: 1px solid transparent;
       transition: border-color 0.28s ease, border-radius 0.28s ease;
     }
+
     .tt-coll.open .tt-coll-hdr {
       border-radius: 10px 10px 0 0;
       border-bottom-color: var(--border);
     }
+
     .tt-coll-btn {
       background: none;
       border: none;
@@ -10010,8 +10414,15 @@
       border-radius: 4px;
       transition: transform 0.25s ease;
     }
-    .tt-coll-btn:hover { background: var(--bg-card-alt); }
-    .tt-coll.open .tt-coll-btn { transform: rotate(90deg); }
+
+    .tt-coll-btn:hover {
+      background: var(--bg-card-alt);
+    }
+
+    .tt-coll.open .tt-coll-btn {
+      transform: rotate(90deg);
+    }
+
     .tt-coll-del {
       background: none;
       border: none;
@@ -10025,8 +10436,16 @@
       opacity: 0;
       transition: opacity 0.15s;
     }
-    .tt-coll-hdr:hover .tt-coll-del { opacity: 1; }
-    .tt-coll-del:hover { color: var(--priority-high); background: var(--bg-card-alt); }
+
+    .tt-coll-hdr:hover .tt-coll-del {
+      opacity: 1;
+    }
+
+    .tt-coll-del:hover {
+      color: var(--priority-high);
+      background: var(--bg-card-alt);
+    }
+
     .tt-coll-lbl {
       flex: 1;
       font-weight: 600;
@@ -10043,23 +10462,44 @@
       cursor: text;
       transition: border-color 0.15s;
     }
-    .tt-coll-lbl:hover { border-bottom-color: var(--border); }
-    .tt-coll-lbl:focus { border-bottom-color: var(--accent); outline: none; }
+
+    .tt-coll-lbl:hover {
+      border-bottom-color: var(--border);
+    }
+
+    .tt-coll-lbl:focus {
+      border-bottom-color: var(--accent);
+      outline: none;
+    }
+
     .tt-coll-body {
       display: grid;
       grid-template-rows: 0fr;
       transition: grid-template-rows 0.28s ease;
     }
-    .tt-coll.open .tt-coll-body { grid-template-rows: 1fr; }
+
+    .tt-coll.open .tt-coll-body {
+      grid-template-rows: 1fr;
+    }
+
     .tt-coll-body-inner {
       overflow: hidden;
       padding: 0 14px;
       transition: padding 0.28s ease;
       border-radius: 0 0 10px 10px;
     }
-    .tt-coll.open .tt-coll-body-inner { padding: 10px 14px; }
-    .tt-coll-body-inner > *:first-child { margin-top: 0; }
-    .tt-coll-body-inner > *:last-child  { margin-bottom: 0; }
+
+    .tt-coll.open .tt-coll-body-inner {
+      padding: 10px 14px;
+    }
+
+    .tt-coll-body-inner>*:first-child {
+      margin-top: 0;
+    }
+
+    .tt-coll-body-inner>*:last-child {
+      margin-bottom: 0;
+    }
 
     /* Table context bar — overlays the editor instead of sitting in normal
        flow, so it appearing/disappearing as the cursor enters/leaves a table
@@ -10311,6 +10751,7 @@
       overflow: visible;
       touch-action: pan-y;
     }
+
     .img-resize-wrap .tt-resizable-img {
       max-width: 100%;
       border-radius: 8px;
@@ -11882,7 +12323,10 @@
       font-weight: 800;
       font-family: inherit;
     }
-    .bulk-count .n { font-size: 14px; }
+
+    .bulk-count .n {
+      font-size: 14px;
+    }
 
     /* Icon-only Cancel button for bulk-action-bar top row */
     .bulk-cancel {
@@ -11901,7 +12345,11 @@
       flex-shrink: 0;
       font-family: inherit;
     }
-    .bulk-cancel:hover, .bulk-cancel:active { color: var(--text-primary); }
+
+    .bulk-cancel:hover,
+    .bulk-cancel:active {
+      color: var(--text-primary);
+    }
 
     .notes-chip.active {
       background: var(--accent);
@@ -14654,7 +15102,10 @@
       scrollbar-width: none;
       -webkit-overflow-scrolling: touch;
     }
-    .note-bottom-actions::-webkit-scrollbar { display: none; }
+
+    .note-bottom-actions::-webkit-scrollbar {
+      display: none;
+    }
 
     .note-bottom-actions .task-modal-text-btn {
       padding: 8px 6px;
@@ -14768,10 +15219,24 @@
       flex: 2;
     }
 
-    .note-action-btn:hover { background: var(--bg-input); border-color: var(--accent); color: var(--accent); }
+    .note-action-btn:hover {
+      background: var(--bg-input);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
     .note-action-btn.success:hover,
-    .note-action-btn.save:hover { background: rgba(var(--priority-low-rgb), .16); color: var(--priority-low-dark); border-color: var(--priority-low); }
-    .note-action-btn.danger:hover { background: rgba(var(--priority-high-rgb), .16); color: var(--priority-high-dark); border-color: var(--priority-high); }
+    .note-action-btn.save:hover {
+      background: rgba(var(--priority-low-rgb), .16);
+      color: var(--priority-low-dark);
+      border-color: var(--priority-low);
+    }
+
+    .note-action-btn.danger:hover {
+      background: rgba(var(--priority-high-rgb), .16);
+      color: var(--priority-high-dark);
+      border-color: var(--priority-high);
+    }
 
     .note-action-btn.cancel {
       background: var(--bg-card);
@@ -16032,55 +16497,130 @@
     }
 
     /* ── Routines Map tab ── */
-    .rtn-map-wrap { position: relative; }
+    .rtn-map-wrap {
+      position: relative;
+    }
+
     .rtn-map-stats-bar {
-      display: flex; gap: 1px; background: var(--border);
+      display: flex;
+      gap: 1px;
+      background: var(--border);
       border-bottom: 1px solid var(--border);
     }
-    .rtn-map-stat { flex: 1; background: var(--bg-card); padding: 10px 8px; text-align: center; }
-    .rtn-map-stat-val { font-size: 20px; font-weight: 800; line-height: 1; }
+
+    .rtn-map-stat {
+      flex: 1;
+      background: var(--bg-card);
+      padding: 10px 8px;
+      text-align: center;
+    }
+
+    .rtn-map-stat-val {
+      font-size: 20px;
+      font-weight: 800;
+      line-height: 1;
+    }
+
     .rtn-map-stat-lbl {
-      font-size: 10px; font-weight: 600; color: var(--text-muted);
-      margin-top: 2px; text-transform: uppercase; letter-spacing: 0.04em;
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-top: 2px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
     }
-    #rtn-map { min-height: 300px; width: 100%; isolation: isolate; }
+
+    #rtn-map {
+      min-height: 300px;
+      width: 100%;
+      isolation: isolate;
+    }
+
     .rtn-map-legend {
-      background: var(--bg-card); border: 1px solid var(--border);
-      border-radius: 10px; padding: 9px 12px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 9px 12px;
       box-shadow: 0 4px 16px rgba(var(--shadow-rgb), 0.12);
-      font-size: 11px; pointer-events: none;
+      font-size: 11px;
+      pointer-events: none;
     }
+
     .rtn-map-legend-title {
-      font-size: 10px; font-weight: 800; text-transform: uppercase;
-      letter-spacing: 0.06em; color: var(--text-muted);
-      display: flex; align-items: center; justify-content: space-between;
-      gap: 8px; cursor: pointer; user-select: none;
+      font-size: 10px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      cursor: pointer;
+      user-select: none;
     }
-    .rtn-map-legend-title svg { flex-shrink: 0; transition: transform 0.2s; }
-    .rtn-map-legend.collapsed .rtn-map-legend-title svg { transform: rotate(-90deg); }
-    .rtn-map-legend-rows { margin-top: 6px; }
-    .rtn-map-legend.collapsed .rtn-map-legend-rows { display: none; }
+
+    .rtn-map-legend-title svg {
+      flex-shrink: 0;
+      transition: transform 0.2s;
+    }
+
+    .rtn-map-legend.collapsed .rtn-map-legend-title svg {
+      transform: rotate(-90deg);
+    }
+
+    .rtn-map-legend-rows {
+      margin-top: 6px;
+    }
+
+    .rtn-map-legend.collapsed .rtn-map-legend-rows {
+      display: none;
+    }
+
     .rtn-map-legend-row {
-      display: flex; align-items: center; gap: 6px;
-      margin-bottom: 4px; color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 4px;
+      color: var(--text-secondary);
     }
-    .rtn-map-legend-row:last-child { margin-bottom: 0; }
-    .rtn-map-legend-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+
+    .rtn-map-legend-row:last-child {
+      margin-bottom: 0;
+    }
+
+    .rtn-map-legend-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
     /* Fullscreen map */
     .rtn-map-wrap.rtn-map-fs {
       position: fixed;
       inset: 0;
       z-index: 10100;
     }
+
     .rtn-map-wrap.rtn-map-fs #rtn-map {
       height: 100% !important;
     }
+
     .rtn-map-fs-btn {
-      width: 34px; height: 34px; border-radius: 6px;
-      background: #fff; border: 2px solid rgba(0,0,0,0.2);
-      cursor: pointer; display: flex; align-items: center; justify-content: center;
-      box-shadow: 0 1px 5px rgba(0,0,0,0.25); color: #333;
+      width: 34px;
+      height: 34px;
+      border-radius: 6px;
+      background: #fff;
+      border: 2px solid rgba(0, 0, 0, 0.2);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 1px 5px rgba(0, 0, 0, 0.25);
+      color: #333;
     }
+
     /* Match Leaflet's default 10px edge spacing on all sides */
     #rtn-map .leaflet-bottom {
       padding-bottom: 10px;
@@ -16088,34 +16628,71 @@
 
     /* GPS location dot pulse */
     @keyframes rtnLocPulse {
-      0%   { box-shadow: 0 0 0 0 rgba(37,99,235,0.5); }
-      70%  { box-shadow: 0 0 0 10px rgba(37,99,235,0); }
-      100% { box-shadow: 0 0 0 0 rgba(37,99,235,0); }
+      0% {
+        box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.5);
+      }
+
+      70% {
+        box-shadow: 0 0 0 10px rgba(37, 99, 235, 0);
+      }
+
+      100% {
+        box-shadow: 0 0 0 0 rgba(37, 99, 235, 0);
+      }
     }
+
     .rtn-loc-dot {
-      width: 14px; height: 14px; border-radius: 50%;
-      background: #2563eb; border: 2.5px solid #fff;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: #2563eb;
+      border: 2.5px solid #fff;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
       animation: rtnLocPulse 2s infinite;
     }
+
     /* Locate-me button */
     .rtn-locate-btn {
-      width: 34px; height: 34px; border-radius: 6px;
-      background: #fff; border: 2px solid rgba(0,0,0,0.2);
-      cursor: pointer; display: flex; align-items: center; justify-content: center;
-      box-shadow: 0 1px 5px rgba(0,0,0,0.25); color: #2563eb;
+      width: 34px;
+      height: 34px;
+      border-radius: 6px;
+      background: #fff;
+      border: 2px solid rgba(0, 0, 0, 0.2);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 1px 5px rgba(0, 0, 0, 0.25);
+      color: #2563eb;
     }
-    .rtn-locate-btn.locating { color: #94a3b8; }
+
+    .rtn-locate-btn.locating {
+      color: #94a3b8;
+    }
+
     /* Leaflet popup overrides */
     .leaflet-popup-content-wrapper {
-      border-radius: 12px !important; padding: 0 !important; overflow: hidden;
+      border-radius: 12px !important;
+      padding: 0 !important;
+      overflow: hidden;
       box-shadow: 0 8px 24px rgba(var(--shadow-rgb), 0.18) !important;
-      border: 1px solid var(--border) !important; background: var(--bg-card) !important;
+      border: 1px solid var(--border) !important;
+      background: var(--bg-card) !important;
     }
-    .leaflet-popup-content { margin: 0 !important; width: auto !important; }
-    .leaflet-popup-tip-container { display: none !important; }
+
+    .leaflet-popup-content {
+      margin: 0 !important;
+      width: auto !important;
+    }
+
+    .leaflet-popup-tip-container {
+      display: none !important;
+    }
+
     .leaflet-control-zoom {
-      border-radius: 10px !important; overflow: hidden; border: 1px solid var(--border) !important;
+      border-radius: 10px !important;
+      overflow: hidden;
+      border: 1px solid var(--border) !important;
     }
 
     /* Grid body — horizontal scroll only */
@@ -16705,16 +17282,24 @@
       }
 
       .rtn-panel-toggle {
-        display: flex; gap: 2px;
+        display: flex;
+        gap: 2px;
         background: var(--bg-code-group);
-        border-radius: 10px; padding: 2px;
+        border-radius: 10px;
+        padding: 2px;
       }
+
       .rtn-panel-btn {
-        font-size: 11px; font-weight: 700;
-        padding: 4px 12px; border-radius: 8px;
-        color: var(--text-muted); cursor: pointer;
-        border: none; background: none;
+        font-size: 11px;
+        font-weight: 700;
+        padding: 4px 12px;
+        border-radius: 8px;
+        color: var(--text-muted);
+        cursor: pointer;
+        border: none;
+        background: none;
       }
+
       .rtn-panel-btn.active {
         background: var(--bg-segment-active);
         color: var(--accent);
@@ -17164,16 +17749,19 @@
     #tetra-inspection-modal {
       transition: opacity 0.15s ease-in-out;
     }
+
     #tetra-inspection-modal.hidden {
       display: none !important;
     }
+
     #tetra-inspection-modal .workspace {
       height: calc(100vh - 58px);
     }
+
     #tetra-inspection-modal .hotspot {
       position: absolute;
-      border: 2px solid rgba(255,255,255,0.95);
-      background: rgba(219,0,117,0.28);
+      border: 2px solid rgba(255, 255, 255, 0.95);
+      background: rgba(219, 0, 117, 0.28);
       border-radius: 12px;
       cursor: pointer;
       outline: none;
@@ -17183,50 +17771,125 @@
       align-items: center;
       justify-content: center;
     }
+
     #tetra-inspection-modal .hotspot:hover,
     #tetra-inspection-modal .hotspot.active {
       transform: scale(1.02);
-      background: rgba(255,255,255,0.18);
+      background: rgba(255, 255, 255, 0.18);
       border: 2px solid #fff;
-      box-shadow: 0 0 0 3px rgba(255,255,255,0.55), 0 0 14px 4px rgba(255,255,255,0.25);
+      box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.55), 0 0 14px 4px rgba(255, 255, 255, 0.25);
     }
+
     #tetra-inspection-modal .hotspots-hidden .hotspot {
       opacity: 0;
       pointer-events: none;
     }
+
     #tetra-inspection-modal .hotspot span {
       background: #101d31;
       color: #fff;
-      border: 1px solid rgba(255,255,255,0.18);
+      border: 1px solid rgba(255, 255, 255, 0.18);
       border-radius: 999px;
       padding: 4px 8px;
       font-size: 10px;
       font-weight: 700;
       white-space: nowrap;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.25);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
       pointer-events: none;
     }
+
     #tetra-inspection-modal .h-mts span {
       position: absolute;
       top: 100%;
       left: 50%;
       transform: translate(-50%, 4px);
     }
-    #tetra-inspection-modal .h-preselector-a { left: 12.5%; top: 4.7%; width: 13.0%; height: 13.3%; background: rgba(34, 197, 94, 0.24); }
-    #tetra-inspection-modal .h-preselector-b { left: 33.0%; top: 4.7%; width: 13.0%; height: 13.3%; background: rgba(34, 197, 94, 0.24); }
-    #tetra-inspection-modal .h-duplexer { left: 53.5%; top: 4.7%; width: 13.0%; height: 26.6%; background: rgba(59, 130, 246, 0.24); }
-    #tetra-inspection-modal .h-br1 { left: 9.6%; top: 38.8%; width: 26.2%; height: 36.7%; background: rgba(234, 179, 8, 0.24); }
-    #tetra-inspection-modal .h-psu { left: 38.0%; top: 38.8%; width: 16.6%; height: 36.7%; background: rgba(234, 179, 8, 0.24); }
-    #tetra-inspection-modal .h-tsc { left: 79.0%; top: 38.8%; width: 12.8%; height: 36.7%; background: rgba(234, 179, 8, 0.24); }
-    #tetra-inspection-modal .h-fans-1 { left: 9.6%; top: 76.2%; width: 26.2%; height: 6.4%; background: rgba(168, 85, 247, 0.24); }
-    #tetra-inspection-modal .h-fans-2 { left: 38.0%; top: 76.2%; width: 26.2%; height: 6.4%; background: rgba(168, 85, 247, 0.24); }
-    #tetra-inspection-modal .h-fans-3 { left: 66.2%; top: 76.2%; width: 26.2%; height: 6.4%; background: rgba(168, 85, 247, 0.24); }
-    #tetra-inspection-modal .h-mts { left: 44.0%; top: 88.5%; width: 10.2%; height: 2.0%; background: rgba(236, 72, 153, 0.24); }
-    
+
+    #tetra-inspection-modal .h-preselector-a {
+      left: 12.5%;
+      top: 4.7%;
+      width: 13.0%;
+      height: 13.3%;
+      background: rgba(34, 197, 94, 0.24);
+    }
+
+    #tetra-inspection-modal .h-preselector-b {
+      left: 33.0%;
+      top: 4.7%;
+      width: 13.0%;
+      height: 13.3%;
+      background: rgba(34, 197, 94, 0.24);
+    }
+
+    #tetra-inspection-modal .h-duplexer {
+      left: 53.5%;
+      top: 4.7%;
+      width: 13.0%;
+      height: 26.6%;
+      background: rgba(59, 130, 246, 0.24);
+    }
+
+    #tetra-inspection-modal .h-br1 {
+      left: 9.6%;
+      top: 38.8%;
+      width: 26.2%;
+      height: 36.7%;
+      background: rgba(234, 179, 8, 0.24);
+    }
+
+    #tetra-inspection-modal .h-psu {
+      left: 38.0%;
+      top: 38.8%;
+      width: 16.6%;
+      height: 36.7%;
+      background: rgba(234, 179, 8, 0.24);
+    }
+
+    #tetra-inspection-modal .h-tsc {
+      left: 79.0%;
+      top: 38.8%;
+      width: 12.8%;
+      height: 36.7%;
+      background: rgba(234, 179, 8, 0.24);
+    }
+
+    #tetra-inspection-modal .h-fans-1 {
+      left: 9.6%;
+      top: 76.2%;
+      width: 26.2%;
+      height: 6.4%;
+      background: rgba(168, 85, 247, 0.24);
+    }
+
+    #tetra-inspection-modal .h-fans-2 {
+      left: 38.0%;
+      top: 76.2%;
+      width: 26.2%;
+      height: 6.4%;
+      background: rgba(168, 85, 247, 0.24);
+    }
+
+    #tetra-inspection-modal .h-fans-3 {
+      left: 66.2%;
+      top: 76.2%;
+      width: 26.2%;
+      height: 6.4%;
+      background: rgba(168, 85, 247, 0.24);
+    }
+
+    #tetra-inspection-modal .h-mts {
+      left: 44.0%;
+      top: 88.5%;
+      width: 10.2%;
+      height: 2.0%;
+      background: rgba(236, 72, 153, 0.24);
+    }
+
     #tetra-inspection-modal .component-list {
       max-height: calc(100vh - 180px);
       overflow-y: auto;
     }
+
     #tetra-inspection-modal .component {
       border: 1px solid var(--border);
       border-radius: 10px;
@@ -17234,10 +17897,12 @@
       overflow: hidden;
       margin-bottom: 10px;
     }
+
     #tetra-inspection-modal .component.active {
       border-color: rgba(var(--accent-rgb), 0.6);
       box-shadow: 0 0 0 3px rgba(var(--accent-rgb), 0.12);
     }
+
     #tetra-inspection-modal .component-top {
       padding: 12px;
       display: grid;
@@ -17246,6 +17911,7 @@
       align-items: center;
       cursor: pointer;
     }
+
     #tetra-inspection-modal .badge {
       width: 34px;
       height: 34px;
@@ -17256,20 +17922,34 @@
       font-size: 12px;
       font-weight: 900;
     }
-    #tetra-inspection-modal .badge.pink { background: #db0075; }
-    #tetra-inspection-modal .badge.orange { background: #f97316; }
-    #tetra-inspection-modal .badge.teal { background: #188c98; }
-    #tetra-inspection-modal .badge.red { background: #b91c1c; }
-    
+
+    #tetra-inspection-modal .badge.pink {
+      background: #db0075;
+    }
+
+    #tetra-inspection-modal .badge.orange {
+      background: #f97316;
+    }
+
+    #tetra-inspection-modal .badge.teal {
+      background: #188c98;
+    }
+
+    #tetra-inspection-modal .badge.red {
+      background: #b91c1c;
+    }
+
     #tetra-inspection-modal .comp-title {
       min-width: 0;
     }
+
     #tetra-inspection-modal .comp-title strong {
       display: block;
       font-size: 14px;
       line-height: 1.15;
       color: var(--text-primary);
     }
+
     #tetra-inspection-modal .comp-title span {
       display: block;
       color: var(--text-secondary);
@@ -17279,6 +17959,7 @@
       overflow: hidden;
       text-overflow: ellipsis;
     }
+
     #tetra-inspection-modal .status {
       border-radius: 999px;
       padding: 5px 8px;
@@ -17289,9 +17970,17 @@
       background: var(--bg-card-alt);
       color: var(--text-secondary);
     }
-    #tetra-inspection-modal .status.review { background: #fff7ed; color: #d97706; }
-    #tetra-inspection-modal .status.done { background: #dcfce7; color: #16a34a; }
-    
+
+    #tetra-inspection-modal .status.review {
+      background: #fff7ed;
+      color: #d97706;
+    }
+
+    #tetra-inspection-modal .status.done {
+      background: #dcfce7;
+      color: #16a34a;
+    }
+
     #tetra-inspection-modal .component-body {
       border-top: 1px solid var(--border);
       padding: 12px;
@@ -17299,13 +17988,16 @@
       gap: 10px;
       background: var(--bg-card-alt);
     }
+
     #tetra-inspection-modal .component.active .component-body {
       display: grid;
     }
+
     #tetra-inspection-modal .field {
       display: grid;
       gap: 5px;
     }
+
     #tetra-inspection-modal .field label {
       font-size: 10px;
       font-weight: 900;
@@ -17313,7 +18005,9 @@
       text-transform: uppercase;
       color: var(--text-secondary);
     }
-    #tetra-inspection-modal .field input, #tetra-inspection-modal .field textarea {
+
+    #tetra-inspection-modal .field input,
+    #tetra-inspection-modal .field textarea {
       width: 100%;
       border: 1px solid var(--border);
       border-radius: 9px;
@@ -17323,6 +18017,7 @@
       outline: none;
       min-width: 0;
     }
+
     #tetra-inspection-modal .photo-box {
       border: 1px dashed var(--border);
       border-radius: 9px;
@@ -17331,16 +18026,19 @@
       display: grid;
       gap: 8px;
     }
+
     #tetra-inspection-modal .photo-row {
       display: flex;
       gap: 8px;
       flex-wrap: wrap;
     }
+
     #tetra-inspection-modal .ocr-hint {
       color: var(--text-secondary);
       font-size: 12px;
       line-height: 1.4;
     }
+
     #tetra-inspection-modal .btn {
       border: 0;
       background: var(--accent);
@@ -17355,29 +18053,33 @@
       justify-content: center;
       gap: 6px;
     }
+
     #tetra-inspection-modal .btn.secondary {
       background: var(--bg-card);
       color: var(--text-primary);
       border: 1px solid var(--border);
     }
+
     #tetra-inspection-modal .btn.ok {
       background: #16a34a;
     }
-    
+
     @media (max-width: 1100px) {
       #tetra-inspection-modal .workspace {
         grid-template-columns: 1fr;
         overflow-y: auto;
         height: calc(100vh - 58px);
       }
+
       #tetra-inspection-modal .component-list {
         max-height: none;
         overflow: visible;
       }
     }
-    
+
     /* Crop & Lightbox Modals */
-    .tetra-crop-modal, .tetra-lightbox-modal {
+    .tetra-crop-modal,
+    .tetra-lightbox-modal {
       position: fixed;
       inset: 0;
       z-index: 11000;
@@ -17386,9 +18088,12 @@
       flex-direction: column;
       padding: 16px;
     }
-    .tetra-crop-modal.hidden, .tetra-lightbox-modal.hidden {
+
+    .tetra-crop-modal.hidden,
+    .tetra-lightbox-modal.hidden {
       display: none !important;
     }
+
     .tetra-crop-container {
       flex: 1;
       position: relative;
@@ -17401,6 +18106,7 @@
       border: 1px solid var(--border);
       touch-action: none;
     }
+
     .tetra-crop-img {
       max-width: 100%;
       max-height: 100%;
@@ -17409,10 +18115,11 @@
       -webkit-user-drag: none;
       pointer-events: none;
     }
+
     .tetra-crop-box {
       position: absolute;
       border: 2px dashed var(--accent);
-      box-shadow: 0 0 0 9999px rgba(0,0,0,0.5);
+      box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.5);
       display: none;
       pointer-events: none;
     }
@@ -17426,7 +18133,7 @@
     }
 
     /* Callouts weeks-list page: title header should scroll away normally, not stick */
-    .co-page > .hist-hdr {
+    .co-page>.hist-hdr {
       position: static;
     }
 
@@ -17463,6 +18170,7 @@
     .co-card .co-chevron {
       transition: transform 0.22s ease;
     }
+
     .co-card.expanded .co-chevron {
       transform: rotate(90deg);
     }
@@ -17603,7 +18311,7 @@
       text-align: center;
     }
 
-    .oc-stat-cell + .oc-stat-cell {
+    .oc-stat-cell+.oc-stat-cell {
       border-left: 1px solid var(--border);
     }
 
@@ -17614,8 +18322,13 @@
       line-height: 1;
     }
 
-    .oc-stat-num.accent { color: var(--accent); }
-    .oc-stat-num.amber  { color: #F59E0B; }
+    .oc-stat-num.accent {
+      color: var(--accent);
+    }
+
+    .oc-stat-num.amber {
+      color: #F59E0B;
+    }
 
     .oc-stat-lbl {
       font-size: 10px;
@@ -17642,7 +18355,9 @@
       font-family: inherit;
     }
 
-    .oc-year-badge:active { opacity: 0.7; }
+    .oc-year-badge:active {
+      opacity: 0.7;
+    }
 
     /* ── Sub-header: "SCHEDULE" label + year badge ── */
     .oc-subhdr {
@@ -17721,7 +18436,7 @@
     .oc-grid-row {
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 12px;
     }
 
     .oc-month-label {
@@ -18705,7 +19420,7 @@
         gap: 1px;
       }
 
-      .desk-week-stat + .desk-week-stat {
+      .desk-week-stat+.desk-week-stat {
         border-left: 1px solid var(--border);
       }
 
@@ -19603,7 +20318,7 @@
         align-items: center;
         justify-content: center;
         border-radius: 4px;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
         z-index: 10;
       }
 
@@ -20173,7 +20888,8 @@
         font-size: 14px;
         line-height: 1.7;
         color: var(--text-primary);
-        padding-bottom: 40px; /* default bottom padding for desktop */
+        padding-bottom: 40px;
+        /* default bottom padding for desktop */
       }
 
       @media (max-width: 1279px) {
@@ -20252,7 +20968,8 @@
         justify-content: flex-start !important;
         padding-left: 4px !important;
       }
-      #main-tab-bar > button {
+
+      #main-tab-bar>button {
         flex: 0 0 auto !important;
         white-space: nowrap !important;
       }
@@ -20308,8 +21025,9 @@
         overflow-y: auto;
         flex-shrink: 0;
       }
+
       /* Keep header/stats/rows at natural height so the panel scrolls instead of squashing the stats grid */
-      .dco-panel-weeks > * {
+      .dco-panel-weeks>* {
         flex-shrink: 0;
       }
 
@@ -20339,6 +21057,7 @@
         justify-content: center;
         flex-shrink: 0;
       }
+
       .dco-check.checked {
         background: var(--accent);
         border-color: var(--accent);
@@ -20758,14 +21477,22 @@
       margin-bottom: 14px;
       box-shadow: 0 1px 4px rgba(var(--shadow-rgb), 0.06);
     }
+
     .stat-cell {
       min-height: 74px;
       background: var(--bg-card);
       padding: 12px;
       border-bottom: 1px solid var(--border);
     }
-    .stat-cell:nth-child(odd) { border-right: 1px solid var(--border); }
-    .stat-cell:nth-child(n+3) { border-bottom: 0; }
+
+    .stat-cell:nth-child(odd) {
+      border-right: 1px solid var(--border);
+    }
+
+    .stat-cell:nth-child(n+3) {
+      border-bottom: 0;
+    }
+
     .stat-cell-label {
       font-size: 10px;
       font-weight: 800;
@@ -20773,6 +21500,7 @@
       text-transform: uppercase;
       letter-spacing: 0.08em;
     }
+
     .stat-cell-value {
       font-size: 22px;
       font-weight: 800;
@@ -20780,25 +21508,38 @@
       line-height: 1;
       margin-top: 6px;
     }
+
     .stat-cell-note {
       font-size: 11px;
       color: var(--text-muted);
       margin-top: 4px;
     }
+
     /* Single-row 3/4-column variants for narrow panels. Cells stack side-by-side. */
-    .stat-grid.four-col { grid-template-columns: repeat(4, 1fr); }
-    .stat-grid.three-col { grid-template-columns: repeat(3, 1fr); }
+    .stat-grid.four-col {
+      grid-template-columns: repeat(4, 1fr);
+    }
+
+    .stat-grid.three-col {
+      grid-template-columns: repeat(3, 1fr);
+    }
+
     .stat-grid.four-col .stat-cell,
     .stat-grid.three-col .stat-cell {
       min-height: 0;
       border-bottom: 0;
       border-right: 1px solid var(--border);
     }
+
     .stat-grid.four-col .stat-cell:last-child,
-    .stat-grid.three-col .stat-cell:last-child { border-right: 0; }
+    .stat-grid.three-col .stat-cell:last-child {
+      border-right: 0;
+    }
 
     /* Availability Planner panel is edge-to-edge — inset the card like .av-card */
-    .av-stat-grid { margin: 0 16px 14px; }
+    .av-stat-grid {
+      margin: 0 16px 14px;
+    }
 
     .hist-chips {
       display: flex;
@@ -21295,6 +22036,7 @@
       border-top-left-radius: 8px;
       border-bottom-left-radius: 8px;
     }
+
     .hist-cal-row:hover td:last-child {
       border-top-right-radius: 8px;
       border-bottom-right-radius: 8px;
@@ -21307,11 +22049,13 @@
       border-top: 1px solid rgba(var(--accent-rgb), 0.35);
       border-bottom: 1px solid rgba(var(--accent-rgb), 0.35);
     }
+
     .hist-cal-row.sel td:first-child {
       border-left: 1px solid rgba(var(--accent-rgb), 0.35);
       border-top-left-radius: 8px;
       border-bottom-left-radius: 8px;
     }
+
     .hist-cal-row.sel td:last-child {
       border-right: 1px solid rgba(var(--accent-rgb), 0.35);
       border-top-right-radius: 8px;
@@ -21868,23 +22612,79 @@
     }
 
     /* ── Tailwind utility class fallbacks for offline/Local Mode ── */
-    .fixed { position: fixed !important; }
-    .inset-0 { top: 0 !important; right: 0 !important; bottom: 0 !important; left: 0 !important; }
-    .flex { display: flex !important; }
-    .flex-col { flex-direction: column !important; }
-    .items-center { align-items: center !important; }
-    .justify-center { justify-content: center !important; }
-    .items-end { align-items: flex-end !important; }
-    .flex-1 { flex: 1 1 0% !important; }
-    .overflow-hidden { overflow: hidden !important; }
-    .w-full { width: 100% !important; }
-    .mx-auto { margin-left: auto !important; margin-right: auto !important; }
-    .text-white { color: #fff !important; }
-    .px-4 { padding-left: 16px !important; padding-right: 16px !important; }
-    .py-3 { padding-top: 12px !important; padding-bottom: 12px !important; }
-    .p-1 { padding: 4px !important; }
-    .gap-3 { gap: 12px !important; }
-    .hidden { display: none !important; }
+    .fixed {
+      position: fixed !important;
+    }
+
+    .inset-0 {
+      top: 0 !important;
+      right: 0 !important;
+      bottom: 0 !important;
+      left: 0 !important;
+    }
+
+    .flex {
+      display: flex !important;
+    }
+
+    .flex-col {
+      flex-direction: column !important;
+    }
+
+    .items-center {
+      align-items: center !important;
+    }
+
+    .justify-center {
+      justify-content: center !important;
+    }
+
+    .items-end {
+      align-items: flex-end !important;
+    }
+
+    .flex-1 {
+      flex: 1 1 0% !important;
+    }
+
+    .overflow-hidden {
+      overflow: hidden !important;
+    }
+
+    .w-full {
+      width: 100% !important;
+    }
+
+    .mx-auto {
+      margin-left: auto !important;
+      margin-right: auto !important;
+    }
+
+    .text-white {
+      color: #fff !important;
+    }
+
+    .px-4 {
+      padding-left: 16px !important;
+      padding-right: 16px !important;
+    }
+
+    .py-3 {
+      padding-top: 12px !important;
+      padding-bottom: 12px !important;
+    }
+
+    .p-1 {
+      padding: 4px !important;
+    }
+
+    .gap-3 {
+      gap: 12px !important;
+    }
+
+    .hidden {
+      display: none !important;
+    }
   </style>
 </head>
 
@@ -21919,33 +22719,43 @@
   </div>
 
   <!-- ===== LOCATION SEARCH MODAL ===== -->
-  <div id="location-modal" class="hidden fixed inset-0 flex flex-col" onclick="if(event.target===this)closeLocationModal()"
+  <div id="location-modal" class="hidden fixed inset-0 flex flex-col"
+    onclick="if(event.target===this)closeLocationModal()"
     style="background:rgba(var(--shadow-rgb), 0.45);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);z-index:10010">
-    <div id="location-modal-inner" class="flex flex-col flex-1 overflow-hidden" style="background:var(--bg-modal)" onclick="event.stopPropagation()">
+    <div id="location-modal-inner" class="flex flex-col flex-1 overflow-hidden" style="background:var(--bg-modal)"
+      onclick="event.stopPropagation()">
       <!-- Header -->
       <div class="rtn-picker-hdr safe-top">
         <div class="rtn-picker-hdr-icon">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/>
-            <circle cx="12" cy="10" r="3"/>
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path
+              d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0" />
+            <circle cx="12" cy="10" r="3" />
           </svg>
         </div>
         <div style="flex:1;min-width:0">
           <div style="font-size:17px;font-weight:800;color:var(--text-primary);line-height:1.2">Select Location</div>
-          <div style="font-size:12px;color:var(--text-muted);font-weight:500;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
+          <div
+            style="font-size:12px;color:var(--text-muted);font-weight:500;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
             Search locations or site codes
           </div>
         </div>
-        <button onclick="confirmLocationModal()" class="rtn-picker-save-btn" style="flex:none;height:34px;padding:0 16px;border-radius:9px;font-size:13px;font-weight:700">Done</button>
+        <button onclick="confirmLocationModal()" class="rtn-picker-save-btn"
+          style="flex:none;height:34px;padding:0 16px;border-radius:9px;font-size:13px;font-weight:700">Done</button>
       </div>
 
       <!-- Search -->
       <div class="rtn-picker-search-bar">
         <div class="finder-search-wrap">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-right:8px"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-          <input id="location-search" type="search" placeholder="Search locations or site codes…" class="finder-search-input"
-            autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-lpignore="true"
-            data-form-type="other" data-1p-ignore="true" oninput="filterLocations(this.value)">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2.2"
+            stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-right:8px">
+            <circle cx="11" cy="11" r="8" />
+            <line x1="21" y1="21" x2="16.65" y2="16.65" />
+          </svg>
+          <input id="location-search" type="search" placeholder="Search locations or site codes…"
+            class="finder-search-input" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+            data-lpignore="true" data-form-type="other" data-1p-ignore="true" oninput="filterLocations(this.value)">
           <div class="finder-v-separator"></div>
           <div class="finder-mic-btn-inline" id="location-mic-btn" onclick="startLocationVoice()" title="Voice search">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
@@ -22141,29 +22951,42 @@
         <!-- Header -->
         <div class="rtn-picker-hdr">
           <div class="rtn-picker-hdr-icon">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/>
-              <circle cx="12" cy="10" r="3"/>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path
+                d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0" />
+              <circle cx="12" cy="10" r="3" />
             </svg>
           </div>
           <div style="flex:1;min-width:0">
-            <div style="font-size:17px;font-weight:800;color:var(--text-primary);line-height:1.2">Choose Routine Sites</div>
-            <div id="rtn-picker-stat-line" style="font-size:12px;color:var(--text-muted);font-weight:500;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
+            <div style="font-size:17px;font-weight:800;color:var(--text-primary);line-height:1.2">Choose Routine Sites
+            </div>
+            <div id="rtn-picker-stat-line"
+              style="font-size:12px;color:var(--text-muted);font-weight:500;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
               30 sites selected
             </div>
           </div>
           <button class="bulk-cancel" onclick="closeRoutinesSitePicker()" title="Close">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+              stroke-linecap="round">
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
           </button>
         </div>
 
         <!-- Search -->
         <div class="rtn-picker-search-bar">
           <div class="finder-search-wrap">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-right:8px"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-            <input id="rtn-picker-search" type="search" placeholder="Search locations or site codes…" class="finder-search-input"
-              autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-lpignore="true"
-              data-form-type="other" data-1p-ignore="true" oninput="filterRoutinesPicker(this.value)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2.2"
+              stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-right:8px">
+              <circle cx="11" cy="11" r="8" />
+              <line x1="21" y1="21" x2="16.65" y2="16.65" />
+            </svg>
+            <input id="rtn-picker-search" type="search" placeholder="Search locations or site codes…"
+              class="finder-search-input" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+              data-lpignore="true" data-form-type="other" data-1p-ignore="true"
+              oninput="filterRoutinesPicker(this.value)">
           </div>
         </div>
 
@@ -22173,7 +22996,10 @@
         <!-- Footer Action Bar -->
         <div class="rtn-picker-footer">
           <button class="rtn-picker-save-btn" onclick="saveRoutinesSites()">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+              stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12" />
+            </svg>
             Save Sites
           </button>
         </div>
@@ -22196,86 +23022,141 @@
   </div>
 
   <!-- ===== TETRA ROUTINE INSPECTION MODAL ===== -->
-  <div id="tetra-inspection-modal" class="hidden" style="position: fixed; inset: 0; z-index: 80; background: var(--bg-page); display: flex; flex-direction: column;">
+  <div id="tetra-inspection-modal" class="hidden"
+    style="position: fixed; inset: 0; z-index: 80; background: var(--bg-page); display: flex; flex-direction: column;">
     <!-- Topbar -->
-    <header class="topbar" style="background: var(--bg-header, #0F1C2E); color: var(--text-header, #fff); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 16px; height: 58px; flex-shrink: 0;">
+    <header class="topbar"
+      style="background: var(--bg-header, #0F1C2E); color: var(--text-header, #fff); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 16px; height: 58px; flex-shrink: 0;">
       <div class="brand" style="display: flex; align-items: center; gap: 10px; min-width: 0;">
-        <button onclick="closeTetraInspection()" style="background: transparent; border: none; color: inherit; cursor: pointer; padding: 4px; display: grid; place-items: center;">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        <button onclick="closeTetraInspection()"
+          style="background: transparent; border: none; color: inherit; cursor: pointer; padding: 4px; display: grid; place-items: center;">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+            stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
+          </svg>
         </button>
         <div class="title" style="min-width: 0;">
-          <strong id="tetra-modal-title" style="display: block; font-size: 15px; line-height: 1.1; display: flex; align-items: center; gap: 6px;">TETRA Routine Inspection</strong>
-          <span id="tetra-modal-subtitle" style="display: block; color: var(--text-header-sub, rgba(255,255,255,0.55)); font-size: 12px; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Mountmellick Tetra</span>
+          <strong id="tetra-modal-title"
+            style="display: block; font-size: 15px; line-height: 1.1; display: flex; align-items: center; gap: 6px;">TETRA
+            Routine Inspection</strong>
+          <span id="tetra-modal-subtitle"
+            style="display: block; color: var(--text-header-sub, rgba(255,255,255,0.55)); font-size: 12px; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Mountmellick
+            Tetra</span>
         </div>
       </div>
       <div style="display: flex; align-items: center; gap: 8px;">
-        <div id="tetra-keyIndicator" style="display: flex; align-items: center; gap: 5px; font-size: 11px; padding: 5px 10px; border-radius: 6px; background: rgba(22, 163, 74, 0.15); border: 1px solid rgba(22, 163, 74, 0.3); color: #4ade80;">
-          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="display: inline-block; vertical-align: -1px; margin-right: 3px;"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.778-7.778zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5l-3-3"/></svg>
+        <div id="tetra-keyIndicator"
+          style="display: flex; align-items: center; gap: 5px; font-size: 11px; padding: 5px 10px; border-radius: 6px; background: rgba(22, 163, 74, 0.15); border: 1px solid rgba(22, 163, 74, 0.3); color: #4ade80;">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+            style="display: inline-block; vertical-align: -1px; margin-right: 3px;">
+            <path
+              d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.778-7.778zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5l-3-3" />
+          </svg>
           AI Active
         </div>
-        <button class="btn ok" onclick="saveTetraInspection()" style="font-size:12px; padding: 6px 12px; font-weight:700;">Save & Close</button>
+        <button class="btn ok" onclick="saveTetraInspection()"
+          style="font-size:12px; padding: 6px 12px; font-weight:700;">Save & Close</button>
       </div>
     </header>
 
     <!-- Main Workspace -->
-    <div class="workspace" style="width: 100%; max-width: 100%; margin: 0; padding: 16px; display: grid; grid-template-columns: minmax(0, 1.18fr) 420px; gap: 16px; flex: 1; overflow: hidden; background: var(--bg-page);">
+    <div class="workspace"
+      style="width: 100%; max-width: 100%; margin: 0; padding: 16px; display: grid; grid-template-columns: minmax(0, 1.18fr) 420px; gap: 16px; flex: 1; overflow: hidden; background: var(--bg-page);">
       <!-- Left Panel: Visual Guide -->
-      <section class="panel" style="background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; display: flex; flex-direction: column; overflow: hidden;">
-        <div class="panel-head" style="padding: 12px 16px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; background: var(--bg-card);">
+      <section class="panel"
+        style="background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; display: flex; flex-direction: column; overflow: hidden;">
+        <div class="panel-head"
+          style="padding: 12px 16px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; background: var(--bg-card);">
           <div>
-            <div class="panel-kicker" style="color: var(--text-muted); font-size: 11px; font-weight: 800; letter-spacing: 0.09em; text-transform: uppercase;">Visual Guide</div>
-            <h1 style="margin: 2px 0 0; font-size: 16px; font-weight: 700; color: var(--text-primary);">Cabinet Hotspots</h1>
+            <div class="panel-kicker"
+              style="color: var(--text-muted); font-size: 11px; font-weight: 800; letter-spacing: 0.09em; text-transform: uppercase;">
+              Visual Guide</div>
+            <h1 style="margin: 2px 0 0; font-size: 16px; font-weight: 700; color: var(--text-primary);">Cabinet Hotspots
+            </h1>
           </div>
-          <div class="seg" aria-label="Guide image mode" style="display: flex; align-items: center; gap: 3px; padding: 3px; border-radius: 10px; background: var(--bg-card-alt); border: 1px solid var(--border);">
-            <button id="tetra-btnClean" class="active" onclick="setTetraGuideMode('clean')" style="border: 0; background: transparent; color: var(--text-secondary); border-radius: 7px; padding: 5px 8px; cursor: pointer; font-size: 11px; font-weight: 700;">Clean</button>
-            <button id="tetra-btnLabels" onclick="setTetraGuideMode('labels')" style="border: 0; background: transparent; color: var(--text-secondary); border-radius: 7px; padding: 5px 8px; cursor: pointer; font-size: 11px; font-weight: 700;">Labels</button>
+          <div class="seg" aria-label="Guide image mode"
+            style="display: flex; align-items: center; gap: 3px; padding: 3px; border-radius: 10px; background: var(--bg-card-alt); border: 1px solid var(--border);">
+            <button id="tetra-btnClean" class="active" onclick="setTetraGuideMode('clean')"
+              style="border: 0; background: transparent; color: var(--text-secondary); border-radius: 7px; padding: 5px 8px; cursor: pointer; font-size: 11px; font-weight: 700;">Clean</button>
+            <button id="tetra-btnLabels" onclick="setTetraGuideMode('labels')"
+              style="border: 0; background: transparent; color: var(--text-secondary); border-radius: 7px; padding: 5px 8px; cursor: pointer; font-size: 11px; font-weight: 700;">Labels</button>
           </div>
         </div>
-        
-        <div style="flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 16px; align-items: center; justify-content: center;">
-          <div id="tetra-img-wrap" class="image-frame" style="background: #111827; border-radius: 10px; overflow: hidden; position: relative; width: 100%; max-width: 560px; aspect-ratio: 2432/3128; display: grid; place-items: center; isolation: isolate;">
-            <img id="tetra-guideImg" src="tetra-layout-no-labels.jpg" alt="Tetra cabinet visual guide" style="width: 100%; display: block;">
+
+        <div
+          style="flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 16px; align-items: center; justify-content: center;">
+          <div id="tetra-img-wrap" class="image-frame"
+            style="background: #111827; border-radius: 10px; overflow: hidden; position: relative; width: 100%; max-width: 560px; aspect-ratio: 2432/3128; display: grid; place-items: center; isolation: isolate;">
+            <img id="tetra-guideImg" src="tetra-layout-no-labels.jpg" alt="Tetra cabinet visual guide"
+              style="width: 100%; display: block;">
             <!-- Hotspots -->
-            <button class="hotspot h-preselector-a active" data-target="preselector-a" onclick="selectTetraComponent('preselector-a')"><span>Preselector 1</span></button>
-            <button class="hotspot h-preselector-b" data-target="preselector-b" onclick="selectTetraComponent('preselector-b')"><span>Preselector 2</span></button>
-            <button class="hotspot h-duplexer" data-target="duplexer" onclick="selectTetraComponent('duplexer')"><span>Duplexer</span></button>
-            <button class="hotspot h-br1" data-target="br1" onclick="selectTetraComponent('br1')"><span>BR1</span></button>
-            <button class="hotspot h-psu" data-target="psu" onclick="selectTetraComponent('psu')"><span>PSU</span></button>
-            <button class="hotspot h-tsc" data-target="tsc" onclick="selectTetraComponent('tsc')"><span>TSC</span></button>
-            <button class="hotspot h-fans-1" data-target="fans" onclick="selectTetraComponent('fans')"><span>Fan 1</span></button>
-            <button class="hotspot h-fans-2" data-target="fans" onclick="selectTetraComponent('fans')"><span>Fan 2</span></button>
-            <button class="hotspot h-fans-3" data-target="fans" onclick="selectTetraComponent('fans')"><span>Fan 3</span></button>
-            <button class="hotspot h-mts" data-target="mts" onclick="selectTetraComponent('mts')"><span>MTS</span></button>
+            <button class="hotspot h-preselector-a active" data-target="preselector-a"
+              onclick="selectTetraComponent('preselector-a')"><span>Preselector 1</span></button>
+            <button class="hotspot h-preselector-b" data-target="preselector-b"
+              onclick="selectTetraComponent('preselector-b')"><span>Preselector 2</span></button>
+            <button class="hotspot h-duplexer" data-target="duplexer"
+              onclick="selectTetraComponent('duplexer')"><span>Duplexer</span></button>
+            <button class="hotspot h-br1" data-target="br1"
+              onclick="selectTetraComponent('br1')"><span>BR1</span></button>
+            <button class="hotspot h-psu" data-target="psu"
+              onclick="selectTetraComponent('psu')"><span>PSU</span></button>
+            <button class="hotspot h-tsc" data-target="tsc"
+              onclick="selectTetraComponent('tsc')"><span>TSC</span></button>
+            <button class="hotspot h-fans-1" data-target="fans" onclick="selectTetraComponent('fans')"><span>Fan
+                1</span></button>
+            <button class="hotspot h-fans-2" data-target="fans" onclick="selectTetraComponent('fans')"><span>Fan
+                2</span></button>
+            <button class="hotspot h-fans-3" data-target="fans" onclick="selectTetraComponent('fans')"><span>Fan
+                3</span></button>
+            <button class="hotspot h-mts" data-target="mts"
+              onclick="selectTetraComponent('mts')"><span>MTS</span></button>
           </div>
         </div>
       </section>
 
       <!-- Right Panel: Capture Checklist -->
-      <section class="panel" style="background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; display: flex; flex-direction: column; overflow: hidden;">
-        <div class="panel-head" style="padding: 12px 16px; border-bottom: 1px solid var(--border); background: var(--bg-card);">
+      <section class="panel"
+        style="background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; display: flex; flex-direction: column; overflow: hidden;">
+        <div class="panel-head"
+          style="padding: 12px 16px; border-bottom: 1px solid var(--border); background: var(--bg-card);">
           <div>
-            <div class="panel-kicker" style="color: var(--text-muted); font-size: 11px; font-weight: 800; letter-spacing: 0.09em; text-transform: uppercase;">Checklist</div>
-            <h2 style="margin: 2px 0 0; font-size: 16px; font-weight: 700; color: var(--text-primary);">Modules Checklist</h2>
+            <div class="panel-kicker"
+              style="color: var(--text-muted); font-size: 11px; font-weight: 800; letter-spacing: 0.09em; text-transform: uppercase;">
+              Checklist</div>
+            <h2 style="margin: 2px 0 0; font-size: 16px; font-weight: 700; color: var(--text-primary);">Modules
+              Checklist</h2>
           </div>
         </div>
-        
-        <div class="component-list" id="tetra-componentList" style="flex: 1; overflow-y: auto; padding: 12px; display: flex; flex-direction: column; gap: 10px;">
+
+        <div class="component-list" id="tetra-componentList"
+          style="flex: 1; overflow-y: auto; padding: 12px; display: flex; flex-direction: column; gap: 10px;">
           <!-- Rendered dynamically -->
         </div>
-        
+
         <!-- Summary Bar -->
-        <div class="summary-bar" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 12px; border-top: 1px solid var(--border); background: var(--bg-card-alt);">
-          <div class="summary" style="border: 1px solid var(--border); background: var(--bg-card); border-radius: 8px; padding: 8px; text-align: center;">
-            <span style="display: block; color: var(--text-muted); font-size: 10px; font-weight: 800; text-transform: uppercase;">Confirmed</span>
-            <strong id="tetra-sumCaptured" style="display: block; font-size: 18px; margin-top: 2px; color: var(--text-primary);">0</strong>
+        <div class="summary-bar"
+          style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 12px; border-top: 1px solid var(--border); background: var(--bg-card-alt);">
+          <div class="summary"
+            style="border: 1px solid var(--border); background: var(--bg-card); border-radius: 8px; padding: 8px; text-align: center;">
+            <span
+              style="display: block; color: var(--text-muted); font-size: 10px; font-weight: 800; text-transform: uppercase;">Confirmed</span>
+            <strong id="tetra-sumCaptured"
+              style="display: block; font-size: 18px; margin-top: 2px; color: var(--text-primary);">0</strong>
           </div>
-          <div class="summary" style="border: 1px solid var(--border); background: var(--bg-card); border-radius: 8px; padding: 8px; text-align: center;">
-            <span style="display: block; color: var(--text-muted); font-size: 10px; font-weight: 800; text-transform: uppercase;">Review</span>
-            <strong id="tetra-sumReview" style="display: block; font-size: 18px; margin-top: 2px; color: var(--text-primary);">0</strong>
+          <div class="summary"
+            style="border: 1px solid var(--border); background: var(--bg-card); border-radius: 8px; padding: 8px; text-align: center;">
+            <span
+              style="display: block; color: var(--text-muted); font-size: 10px; font-weight: 800; text-transform: uppercase;">Review</span>
+            <strong id="tetra-sumReview"
+              style="display: block; font-size: 18px; margin-top: 2px; color: var(--text-primary);">0</strong>
           </div>
-          <div class="summary" style="border: 1px solid var(--border); background: var(--bg-card); border-radius: 8px; padding: 8px; text-align: center;">
-            <span style="display: block; color: var(--text-muted); font-size: 10px; font-weight: 800; text-transform: uppercase;">Missing</span>
-            <strong id="tetra-sumMissing" style="display: block; font-size: 18px; margin-top: 2px; color: var(--text-primary);">8</strong>
+          <div class="summary"
+            style="border: 1px solid var(--border); background: var(--bg-card); border-radius: 8px; padding: 8px; text-align: center;">
+            <span
+              style="display: block; color: var(--text-muted); font-size: 10px; font-weight: 800; text-transform: uppercase;">Missing</span>
+            <strong id="tetra-sumMissing"
+              style="display: block; font-size: 18px; margin-top: 2px; color: var(--text-primary);">8</strong>
           </div>
         </div>
       </section>
@@ -22286,8 +23167,12 @@
   <div id="tetra-crop-modal" class="tetra-crop-modal hidden">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
       <h3 style="margin: 0; color: #fff; font-size: 16px; font-weight: 700;">Crop Label Photo</h3>
-      <button onclick="closeTetraCropModal()" style="background: none; border: none; color: var(--text-muted); cursor: pointer; padding: 4px; display: flex; align-items: center; justify-content: center;">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+      <button onclick="closeTetraCropModal()"
+        style="background: none; border: none; color: var(--text-muted); cursor: pointer; padding: 4px; display: flex; align-items: center; justify-content: center;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
       </button>
     </div>
     <div style="color: #cbd5e1; font-size: 13px; margin-bottom: 12px; text-align: center;">
@@ -22297,15 +23182,22 @@
       <img id="tetra-crop-img" class="tetra-crop-img">
       <div id="tetra-crop-box" class="tetra-crop-box"></div>
     </div>
-    <div style="display: flex; gap: 10px; margin-top: 16px; justify-content: center; align-items: center; flex-wrap: wrap;">
-      <button class="btn secondary" onclick="rotateTetraCropImage()" style="display: flex; align-items: center; gap: 6px; padding: 8px 16px; font-size: 13px; cursor: pointer; border-radius: 9px;">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display: inline-block; vertical-align: middle;"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+    <div
+      style="display: flex; gap: 10px; margin-top: 16px; justify-content: center; align-items: center; flex-wrap: wrap;">
+      <button class="btn secondary" onclick="rotateTetraCropImage()"
+        style="display: flex; align-items: center; gap: 6px; padding: 8px 16px; font-size: 13px; cursor: pointer; border-radius: 9px;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          style="display: inline-block; vertical-align: middle;">
+          <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67" />
+        </svg>
         Rotate 90°
       </button>
-      <button class="btn secondary" onclick="resetTetraCrop()" style="padding: 8px 16px; font-size: 13px; cursor: pointer; border-radius: 9px;">
+      <button class="btn secondary" onclick="resetTetraCrop()"
+        style="padding: 8px 16px; font-size: 13px; cursor: pointer; border-radius: 9px;">
         Reset Selection
       </button>
-      <button class="btn ok" onclick="submitTetraCrop()" style="padding: 8px 20px; font-size: 13px; background: var(--accent); color: #fff; border: none; cursor: pointer; border-radius: 9px;">
+      <button class="btn ok" onclick="submitTetraCrop()"
+        style="padding: 8px 20px; font-size: 13px; background: var(--accent); color: #fff; border: none; cursor: pointer; border-radius: 9px;">
         Crop & Analyze
       </button>
     </div>
@@ -22315,15 +23207,20 @@
   <div id="tetra-lightbox-modal" class="tetra-lightbox-modal hidden">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
       <h3 id="tetra-lightbox-title" style="margin: 0; color: #fff; font-size: 16px; font-weight: 700;">Label Photo</h3>
-      <button onclick="closeTetraLightboxModal()" style="background: none; border: none; color: var(--text-muted); cursor: pointer; padding: 4px; display: flex; align-items: center; justify-content: center;">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+      <button onclick="closeTetraLightboxModal()"
+        style="background: none; border: none; color: var(--text-muted); cursor: pointer; padding: 4px; display: flex; align-items: center; justify-content: center;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
       </button>
     </div>
     <div class="tetra-crop-container">
       <img id="tetra-lightbox-img" class="tetra-crop-img" style="pointer-events: auto;">
     </div>
     <div style="display: flex; justify-content: center; margin-top: 16px;">
-      <button class="btn ok" onclick="closeTetraLightboxModal()" style="padding: 8px 24px; font-size: 13px; background: var(--accent); color: #fff; border: none; cursor: pointer; border-radius: 9px;">Close</button>
+      <button class="btn ok" onclick="closeTetraLightboxModal()"
+        style="padding: 8px 24px; font-size: 13px; background: var(--accent); color: #fff; border: none; cursor: pointer; border-radius: 9px;">Close</button>
     </div>
   </div>
 
@@ -22409,16 +23306,20 @@
       style="background:var(--bg-modal);border-radius:16px 16px 0 0;padding:20px 24px 24px">
       <h2 class="text-lg font-bold" style="color:var(--text-primary);margin:0 0 4px">Merge Offline Data?</h2>
       <p class="text-sm" style="color:var(--text-secondary);margin:0 0 16px">
-        We found timesheets and notes from your offline Local Mode session. Would you like to merge them into your Google Account?
+        We found timesheets and notes from your offline Local Mode session. Would you like to merge them into your
+        Google Account?
       </p>
       <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:20px">
-        <button onclick="commitLocalMerge()" class="w-full py-3 rounded-xl font-bold text-white" style="background:var(--accent)">
+        <button onclick="commitLocalMerge()" class="w-full py-3 rounded-xl font-bold text-white"
+          style="background:var(--accent)">
           Merge Data (Recommended)
         </button>
-        <button onclick="discardLocalMerge()" class="w-full py-3 rounded-xl font-medium" style="border:1px solid var(--border);color:var(--priority-high);background:transparent;">
+        <button onclick="discardLocalMerge()" class="w-full py-3 rounded-xl font-medium"
+          style="border:1px solid var(--border);color:var(--priority-high);background:transparent;">
           Discard Offline Data
         </button>
-        <button onclick="cancelLocalMerge()" class="w-full py-3 rounded-xl font-medium" style="border:1px solid var(--border);color:var(--text-secondary);background:transparent;">
+        <button onclick="cancelLocalMerge()" class="w-full py-3 rounded-xl font-medium"
+          style="border:1px solid var(--border);color:var(--text-secondary);background:transparent;">
           Cancel & Sign Out
         </button>
       </div>
@@ -22435,26 +23336,30 @@
         Choose what to do with your offline data before returning to the login screen:
       </p>
       <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:20px">
-        <label style="display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:10px;background:var(--bg-card);border:1px solid var(--border);cursor:pointer;">
+        <label
+          style="display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:10px;background:var(--bg-card);border:1px solid var(--border);cursor:pointer;">
           <input type="radio" name="exit-data-choice" id="exit-keep-data" checked style="accent-color:var(--accent);">
           <div>
             <div style="font-size:13.5px;font-weight:600;color:var(--text-primary);">Keep my offline data</div>
-            <div style="font-size:11px;color:var(--text-secondary);margin-top:2px;">Saves data in IndexedDB for the next Local Mode session</div>
+            <div style="font-size:11px;color:var(--text-secondary);margin-top:2px;">Saves data in IndexedDB for the next
+              Local Mode session</div>
           </div>
         </label>
-        <label style="display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:10px;background:var(--bg-card);border:1px solid var(--border);cursor:pointer;">
+        <label
+          style="display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:10px;background:var(--bg-card);border:1px solid var(--border);cursor:pointer;">
           <input type="radio" name="exit-data-choice" id="exit-wipe-data" style="accent-color:var(--accent);">
           <div>
             <div style="font-size:13.5px;font-weight:600;color:var(--text-primary);">Wipe all offline data</div>
-            <div style="font-size:11px;color:var(--text-secondary);margin-top:2px;">Deletes all local timesheets, notes, and routines from this browser</div>
+            <div style="font-size:11px;color:var(--text-secondary);margin-top:2px;">Deletes all local timesheets, notes,
+              and routines from this browser</div>
           </div>
         </label>
       </div>
       <div class="flex gap-3">
-        <button onclick="cancelExitLocalMode()"
-          class="flex-1 py-3 rounded-xl font-medium"
+        <button onclick="cancelExitLocalMode()" class="flex-1 py-3 rounded-xl font-medium"
           style="border:1px solid var(--border);color:var(--text-secondary)">Cancel</button>
-        <button onclick="commitExitLocalMode(document.getElementById('exit-keep-data').checked)" class="flex-1 py-3 bg-red-600 text-white rounded-xl font-bold">
+        <button onclick="commitExitLocalMode(document.getElementById('exit-keep-data').checked)"
+          class="flex-1 py-3 bg-red-600 text-white rounded-xl font-bold">
           Exit Local Mode
         </button>
       </div>
@@ -22471,26 +23376,34 @@
         Your Google account session will end and you will switch to Local Mode.
       </p>
       <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:20px">
-        <label style="display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:10px;background:var(--bg-card);border:1px solid var(--border);cursor:pointer;">
-          <input type="radio" name="disconnect-data-choice" id="disconnect-keep-data" checked style="accent-color:var(--accent);">
+        <label
+          style="display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:10px;background:var(--bg-card);border:1px solid var(--border);cursor:pointer;">
+          <input type="radio" name="disconnect-data-choice" id="disconnect-keep-data" checked
+            style="accent-color:var(--accent);">
           <div>
-            <div style="font-size:13.5px;font-weight:600;color:var(--text-primary);">Keep a copy offline (Recommended)</div>
-            <div style="font-size:11px;color:var(--text-secondary);margin-top:2px;">Copies your current cloud timesheets and notes to your offline session</div>
+            <div style="font-size:13.5px;font-weight:600;color:var(--text-primary);">Keep a copy offline (Recommended)
+            </div>
+            <div style="font-size:11px;color:var(--text-secondary);margin-top:2px;">Copies your current cloud timesheets
+              and notes to your offline session</div>
           </div>
         </label>
-        <label style="display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:10px;background:var(--bg-card);border:1px solid var(--border);cursor:pointer;">
-          <input type="radio" name="disconnect-data-choice" id="disconnect-wipe-data" style="accent-color:var(--accent);">
+        <label
+          style="display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:10px;background:var(--bg-card);border:1px solid var(--border);cursor:pointer;">
+          <input type="radio" name="disconnect-data-choice" id="disconnect-wipe-data"
+            style="accent-color:var(--accent);">
           <div>
-            <div style="font-size:13.5px;font-weight:600;color:var(--text-primary);">Start with a clean slate offline</div>
-            <div style="font-size:11px;color:var(--text-secondary);margin-top:2px;">Goes offline without copying any of your current data</div>
+            <div style="font-size:13.5px;font-weight:600;color:var(--text-primary);">Start with a clean slate offline
+            </div>
+            <div style="font-size:11px;color:var(--text-secondary);margin-top:2px;">Goes offline without copying any of
+              your current data</div>
           </div>
         </label>
       </div>
       <div class="flex gap-3">
-        <button onclick="cancelDisconnect()"
-          class="flex-1 py-3 rounded-xl font-medium"
+        <button onclick="cancelDisconnect()" class="flex-1 py-3 rounded-xl font-medium"
           style="border:1px solid var(--border);color:var(--text-secondary)">Cancel</button>
-        <button onclick="commitDisconnect(document.getElementById('disconnect-keep-data').checked)" class="flex-1 py-3 rounded-xl font-bold text-white" style="background:var(--accent)">
+        <button onclick="commitDisconnect(document.getElementById('disconnect-keep-data').checked)"
+          class="flex-1 py-3 rounded-xl font-bold text-white" style="background:var(--accent)">
           Go Offline
         </button>
       </div>
@@ -22498,33 +23411,46 @@
   </div>
 
   <!-- Availability Import dialog -->
-  <div id="av-import-modal" class="hidden fixed inset-0 flex items-center justify-center p-4" style="z-index:9999;background:rgba(var(--shadow-rgb),0.55)">
-    <div style="background:var(--bg-modal);border-radius:18px;padding:22px 22px 20px;width:100%;max-width:360px;box-shadow:0 20px 60px rgba(0,0,0,0.22)">
+  <div id="av-import-modal" class="hidden fixed inset-0 flex items-center justify-center p-4"
+    style="z-index:9999;background:rgba(var(--shadow-rgb),0.55)">
+    <div
+      style="background:var(--bg-modal);border-radius:18px;padding:22px 22px 20px;width:100%;max-width:360px;box-shadow:0 20px 60px rgba(0,0,0,0.22)">
       <h2 style="font-size:17px;font-weight:800;color:var(--text-primary);margin:0 0 16px">Import CTO Tracker</h2>
 
       <!-- File picker -->
       <div id="av-import-file-area" onclick="document.getElementById('av-import-file').click()"
         style="border:2px dashed var(--border);border-radius:12px;padding:16px 14px;text-align:center;cursor:pointer;margin-bottom:12px;transition:border-color .15s">
         <div style="font-size:22px;margin-bottom:5px">📂</div>
-        <div id="av-import-file-label" style="font-size:13px;font-weight:600;color:var(--text-secondary)">Choose Excel file (.xlsx)</div>
+        <div id="av-import-file-label" style="font-size:13px;font-weight:600;color:var(--text-secondary)">Choose Excel
+          file (.xlsx)</div>
         <div style="font-size:11px;color:var(--text-muted);margin-top:2px">CTO Resource Availability Tracker</div>
       </div>
-      <input id="av-import-file" type="file" accept=".xlsx,.xls" style="display:none" onchange="avHandleImportFile(this)">
+      <input id="av-import-file" type="file" accept=".xlsx,.xls" style="display:none"
+        onchange="avHandleImportFile(this)">
 
       <!-- Status / result message -->
-      <div id="av-import-status" style="display:none;font-size:12px;line-height:1.5;margin-bottom:12px;padding:9px 12px;border-radius:10px"></div>
+      <div id="av-import-status"
+        style="display:none;font-size:12px;line-height:1.5;margin-bottom:12px;padding:9px 12px;border-radius:10px">
+      </div>
 
       <!-- Name picker — shown after successful parse -->
       <div id="av-import-name-row" style="display:none;margin-bottom:14px">
-        <label style="display:block;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.09em;color:var(--text-muted);margin-bottom:6px">Select your name</label>
-        <select id="av-import-name-select" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:10px;background:var(--bg-input);color:var(--text-primary);font-family:inherit;font-size:14px;font-weight:500"></select>
+        <label
+          style="display:block;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.09em;color:var(--text-muted);margin-bottom:6px">Select
+          your name</label>
+        <select id="av-import-name-select"
+          style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:10px;background:var(--bg-input);color:var(--text-primary);font-family:inherit;font-size:14px;font-weight:500"></select>
       </div>
 
       <div style="display:flex;gap:10px">
-        <button onclick="avCloseImportDialog()" style="flex:1;padding:11px;border-radius:12px;border:1px solid var(--border);background:transparent;color:var(--text-secondary);font-family:inherit;font-size:14px;font-weight:600;cursor:pointer">Cancel</button>
-        <button id="av-import-confirm-btn" onclick="avConfirmImport()" disabled style="flex:1;padding:11px;border-radius:12px;border:none;background:var(--accent);color:#fff;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;opacity:0.45">Import</button>
+        <button onclick="avCloseImportDialog()"
+          style="flex:1;padding:11px;border-radius:12px;border:1px solid var(--border);background:transparent;color:var(--text-secondary);font-family:inherit;font-size:14px;font-weight:600;cursor:pointer">Cancel</button>
+        <button id="av-import-confirm-btn" onclick="avConfirmImport()" disabled
+          style="flex:1;padding:11px;border-radius:12px;border:none;background:var(--accent);color:#fff;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;opacity:0.45">Import</button>
       </div>
-      <button onclick="avConfirmImportBuiltin()" style="width:100%;margin-top:10px;padding:9px;border-radius:12px;border:1px solid var(--border);background:transparent;color:var(--text-muted);font-family:inherit;font-size:13px;cursor:pointer">Use built-in 2026 data instead</button>
+      <button onclick="avConfirmImportBuiltin()"
+        style="width:100%;margin-top:10px;padding:9px;border-radius:12px;border:1px solid var(--border);background:transparent;color:var(--text-muted);font-family:inherit;font-size:13px;cursor:pointer">Use
+        built-in 2026 data instead</button>
     </div>
   </div>
 
@@ -22594,6 +23520,7 @@
     #paste-ticket-modal {
       align-items: flex-end;
     }
+
     .pt-modal-inner {
       background: var(--bg-modal);
       padding: 20px 24px 24px;
@@ -22603,17 +23530,20 @@
       height: 95%;
       max-height: 95vh;
     }
+
     /* Mobile: textarea fills available space and scrolls internally so buttons stay visible */
     .pt-input {
       flex: 1;
       min-height: 0;
       overflow-y: auto;
     }
+
     @media (min-width: 640px) {
       #paste-ticket-modal {
         align-items: center;
         padding: 16px;
       }
+
       /* Give the card a comfortable size that can never exceed the viewport.
          dvh (with a vh fallback) matters on Android, where vh ignores the
          browser chrome. Previously the card was capped at 85vh while the
@@ -22626,6 +23556,7 @@
         max-height: none;
         border-radius: 16px;
       }
+
       /* Fill whatever the heading and buttons leave, scroll internally —
          same rule as mobile, so the buttons always stay on the card. */
       .pt-input {
@@ -22637,13 +23568,14 @@
   </style>
 
   <!-- Paste Ticket modal -->
-  <div id="paste-ticket-modal" class="hidden fixed inset-0 z-50 flex justify-center"
-    style="background:var(--overlay)">
+  <div id="paste-ticket-modal" class="hidden fixed inset-0 z-50 flex justify-center" style="background:var(--overlay)">
     <div class="w-full max-w-2xl shadow-2xl pt-modal-inner">
       <div id="paste-ticket-step1" style="display:flex;flex-direction:column;flex:1;min-height:0">
         <h2 class="text-lg font-bold" style="color:var(--text-primary);margin:0 0 4px">Paste Ticket Email</h2>
-        <p class="text-sm" style="color:var(--text-secondary);margin:0 0 12px">Copy the email body from Gmail and paste it below.</p>
-        <textarea id="paste-ticket-input" placeholder="Paste email text here…" oninput="_ptAutoGrow(this)" class="pt-input"
+        <p class="text-sm" style="color:var(--text-secondary);margin:0 0 12px">Copy the email body from Gmail and paste
+          it below.</p>
+        <textarea id="paste-ticket-input" placeholder="Paste email text here…" oninput="_ptAutoGrow(this)"
+          class="pt-input"
           style="width:100%;border:1px solid var(--border);border-radius:10px;padding:12px;font-size:14px;resize:none;background:var(--bg-card);color:var(--text-primary);font-family:inherit;margin-bottom:16px"></textarea>
         <div class="flex gap-3" style="margin-top:auto">
           <button onclick="closePasteTicket()" class="flex-1 py-3 rounded-xl font-medium"
@@ -22654,7 +23586,9 @@
       </div>
       <div id="paste-ticket-step2" style="display:none;flex-direction:column;flex:1;min-height:0">
         <h2 class="text-lg font-bold" style="color:var(--text-primary);margin:0 0 12px">Confirm Details</h2>
-        <div id="paste-ticket-preview" style="display:flex;flex-direction:column;gap:10px;flex:1;overflow-y:auto;margin-bottom:16px;padding-right:4px;"></div>
+        <div id="paste-ticket-preview"
+          style="display:flex;flex-direction:column;gap:10px;flex:1;overflow-y:auto;margin-bottom:16px;padding-right:4px;">
+        </div>
         <div class="flex gap-3" style="margin-top:auto">
           <button onclick="pasteTicketBack()" class="flex-1 py-3 rounded-xl font-medium"
             style="border:1px solid var(--border);color:var(--text-secondary);background:none">Back</button>
@@ -22682,7 +23616,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '6.8.54';
+    const VERSION = '6.8.55';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -22720,7 +23654,7 @@
             return ['week', ...filtered];
           }
         }
-      } catch (e) {}
+      } catch (e) { }
       return ['week', 'notes', 'journal', 'exchanges'];
     }
 
@@ -22838,17 +23772,17 @@
     if (typeof firebase === 'undefined' || !firebase.initializeApp || !firebase.auth || !firebase.firestore || !firebase.storage) {
       firebaseMockActive = true;
       const mockFirebase = {
-        initializeApp: () => {},
-        auth: function() {
+        initializeApp: () => { },
+        auth: function () {
           return {
-            onAuthStateChanged: function(callback) {
+            onAuthStateChanged: function (callback) {
               setTimeout(() => {
                 if (localStorage.getItem('rian_local_only') !== '0') {
                   localStorage.setItem('rian_local_only', '1');
                 }
                 callback(null);
               }, 100);
-              return () => {};
+              return () => { };
             },
             signOut: async () => {
               localStorage.removeItem('rian_local_only');
@@ -22870,41 +23804,41 @@
             }
           };
         },
-        firestore: function() {
+        firestore: function () {
           return {
             doc: () => ({
-              set: async () => {},
+              set: async () => { },
               get: async () => ({ exists: false, data: () => ({}) }),
-              delete: async () => {},
-              update: async () => {},
-              onSnapshot: () => () => {},
+              delete: async () => { },
+              update: async () => { },
+              onSnapshot: () => () => { },
               collection: () => ({
                 get: async () => ({ size: 0, docs: [] }),
-                doc: () => ({ set: async () => {}, get: async () => ({ exists: false, data: () => ({}) }) })
+                doc: () => ({ set: async () => { }, get: async () => ({ exists: false, data: () => ({}) }) })
               })
             }),
             collection: () => ({
               get: async () => ({ size: 0, docs: [] }),
               doc: () => ({
-                set: async () => {},
+                set: async () => { },
                 get: async () => ({ exists: false, data: () => ({}) }),
-                delete: async () => {},
-                update: async () => {},
+                delete: async () => { },
+                update: async () => { },
                 collection: () => ({
                   get: async () => ({ size: 0, docs: [] }),
-                  doc: () => ({ set: async () => {}, get: async () => ({ exists: false, data: () => ({}) }) })
+                  doc: () => ({ set: async () => { }, get: async () => ({ exists: false, data: () => ({}) }) })
                 })
               })
             }),
             batch: () => ({
-              set: () => {},
-              delete: () => {},
-              commit: async () => {}
+              set: () => { },
+              delete: () => { },
+              commit: async () => { }
             }),
-            enablePersistence: function() { return Promise.resolve(); }
+            enablePersistence: function () { return Promise.resolve(); }
           };
         },
-        storage: function() {
+        storage: function () {
           return {
             ref: () => ({
               child: () => ({
@@ -22931,51 +23865,51 @@
       firebase.initializeApp(firebaseConfig);
       const real_db_fs = firebase.firestore();
       db_fs = new Proxy(real_db_fs, {
-        get: function(target, prop) {
+        get: function (target, prop) {
           if (localStorage.getItem('rian_local_only') === '1') {
             if (prop === 'collection') {
-              return function(path) {
+              return function (path) {
                 return {
                   get: async () => ({ size: 0, docs: [] }),
-                  doc: function() {
+                  doc: function () {
                     return {
-                      set: async () => {},
+                      set: async () => { },
                       get: async () => ({ exists: false, data: () => ({}) }),
-                      delete: async () => {},
-                      update: async () => {},
+                      delete: async () => { },
+                      update: async () => { },
                       collection: () => ({
                         get: async () => ({ size: 0, docs: [] }),
-                        doc: () => ({ set: async () => {}, get: async () => ({ exists: false, data: () => ({}) }) })
+                        doc: () => ({ set: async () => { }, get: async () => ({ exists: false, data: () => ({}) }) })
                       })
                     };
                   },
-                  orderBy: function() { return this; },
-                  limit: function() { return this; },
+                  orderBy: function () { return this; },
+                  limit: function () { return this; },
                   add: async () => ({ id: 'mock-id' })
                 };
               };
             }
             if (prop === 'doc') {
-              return function(path) {
+              return function (path) {
                 return {
-                  set: async () => {},
+                  set: async () => { },
                   get: async () => ({ exists: false, data: () => ({}) }),
-                  delete: async () => {},
-                  update: async () => {},
-                  onSnapshot: () => () => {},
+                  delete: async () => { },
+                  update: async () => { },
+                  onSnapshot: () => () => { },
                   collection: () => ({
                     get: async () => ({ size: 0, docs: [] }),
-                    doc: () => ({ set: async () => {}, get: async () => ({ exists: false, data: () => ({}) }) })
+                    doc: () => ({ set: async () => { }, get: async () => ({ exists: false, data: () => ({}) }) })
                   })
                 };
               };
             }
             if (prop === 'batch') {
-              return function() {
+              return function () {
                 return {
-                  set: () => {},
-                  delete: () => {},
-                  commit: async () => {}
+                  set: () => { },
+                  delete: () => { },
+                  commit: async () => { }
                 };
               };
             }
@@ -24733,8 +25667,8 @@
     async function startLocalMode() {
       try {
         localStorage.setItem('rian_local_only', '1');
-      } catch (e) {}
-      
+      } catch (e) { }
+
       const mockUser = {
         uid: 'local_technician',
         email: 'local@technician.offline',
@@ -24742,30 +25676,30 @@
         photoURL: '',
         isLocalOnly: true
       };
-      
+
       state.currentUser = mockUser;
       localStorage.setItem('rian_last_uid', mockUser.uid);
       localStorage.setItem('rian_user_name', mockUser.displayName);
       localStorage.setItem('rian_user_email', mockUser.email);
       localStorage.setItem('rian_user_photo', mockUser.photoURL);
-      
+
       // Load local data and render
       const friday = getCurrentFriday();
       const ws = dateToStr(friday);
-      
+
       await loadWeek(ws);
-      
+
       const storedNotes = await dbGet('notes', 'notes_all');
       if (storedNotes && storedNotes.data && (!storedNotes.userId || storedNotes.userId === mockUser.uid)) {
         state.notes = storedNotes.data;
       }
-      
+
       await loadNotes();
       await loadCallouts();
       await loadJournal();
       await loadAvailability();
       await loadRoutines();
-      
+
       render();
       showToast('✓ Local Mode active');
     }
@@ -24795,7 +25729,7 @@
       state.historySearch = '';
       state.historySearchScope = 'all';
       state.historyFilter = 'all';
-      
+
       if (weekUnsubscribe) { weekUnsubscribe(); weekUnsubscribe = null; }
       if (notesUnsubscribe) { notesUnsubscribe(); notesUnsubscribe = null; }
       if (remindersUnsubscribe) { remindersUnsubscribe(); remindersUnsubscribe = null; }
@@ -24804,7 +25738,7 @@
       if (_jUnsubNb) { _jUnsubNb(); _jUnsubNb = null; }
       if (_jUnsubSec) { _jUnsubSec(); _jUnsubSec = null; }
       if (_jUnsubPg) { _jUnsubPg(); _jUnsubPg = null; }
-      
+
       if (_reminderPollId) { clearInterval(_reminderPollId); _reminderPollId = null; }
     }
 
@@ -24812,12 +25746,12 @@
       document.getElementById('local-exit-modal').classList.add('hidden');
       try {
         localStorage.removeItem('rian_local_only');
-      } catch (e) {}
-      
+      } catch (e) { }
+
       if (!keepData) {
         await Promise.allSettled([dbClear('weeks'), dbClear('notes')]);
       }
-      
+
       resetAppState();
       renderLogin();
     }
@@ -24848,15 +25782,15 @@
           await dbPut('notes', { id: 'notes_all', userId: state.currentUser.uid, data: state.notes, updatedAt: ts });
           await fsSetNotes(state.notes).catch(e => console.warn('[Rian]', e));
         }
-        
+
         const cloudUid = state.currentUser.uid;
-        
+
         if (copyData) {
           await migrateCloudToLocal(cloudUid);
         } else {
           await Promise.allSettled([dbClear('weeks'), dbClear('notes')]);
         }
-        
+
         localStorage.setItem('rian_local_only', '1');
         resetAppState();
         await auth_fb.signOut();
@@ -24891,13 +25825,13 @@
 
     let _pendingCloudUid = null;
     let _pendingLocalUid = null;
-    
+
     function promptMergeLocalToCloud(cloudUid, localUid) {
       _pendingCloudUid = cloudUid;
       _pendingLocalUid = localUid;
       document.getElementById('local-merge-modal').classList.remove('hidden');
     }
-    
+
     async function commitLocalMerge() {
       if (!_pendingCloudUid || !_pendingLocalUid) return;
       document.getElementById('local-merge-modal').classList.add('hidden');
@@ -24919,7 +25853,7 @@
         _pendingLocalUid = null;
       }
     }
-    
+
     function discardLocalMerge() {
       if (!_pendingLocalUid) return;
       showConfirm(
@@ -24951,7 +25885,7 @@
     async function cancelLocalMerge() {
       try {
         localStorage.setItem('rian_local_only', '1');
-      } catch (e) {}
+      } catch (e) { }
       document.getElementById('local-merge-modal').classList.add('hidden');
       if (weekUnsubscribe) { weekUnsubscribe(); weekUnsubscribe = null; }
       if (notesUnsubscribe) { notesUnsubscribe(); notesUnsubscribe = null; }
@@ -24986,7 +25920,7 @@
             updatedAt: n.updatedAt || Date.now()
           };
           await dbPut('notes', updatedNote);
-          
+
           try {
             if (n.id === 'notes_all' && n.data) {
               await fsSetNotes(n.data);
@@ -25027,11 +25961,11 @@
       if (state.currentUser.isLocalOnly) {
         return {
           get: async () => ({ exists: false, data: () => ({}) }),
-          set: async () => {},
-          update: async () => {},
-          delete: async () => {},
+          set: async () => { },
+          update: async () => { },
+          delete: async () => { },
           onSnapshot: () => {
-            return () => {}; // dummy unsubscribe function
+            return () => { }; // dummy unsubscribe function
           }
         };
       }
@@ -25665,7 +26599,7 @@
       return dt.getFullYear() + '-' + String(dt.getMonth() + 1).padStart(2, '0') + '-' + String(dt.getDate()).padStart(2, '0');
     }
 
-    var _AV_CODES = new Set(['SD','SA','OC','50','A/L','BH','WTT','S/L','Sp/L','UWU','off','R','D','L','D1','D2','L1','L2']);
+    var _AV_CODES = new Set(['SD', 'SA', 'OC', '50', 'A/L', 'BH', 'WTT', 'S/L', 'Sp/L', 'UWU', 'off', 'R', 'D', 'L', 'D1', 'D2', 'L1', 'L2']);
 
     // "All Days" sheet: Date | Day | Week | Code | Meaning (header on row 0)
     function _avParseAllDaysSheet(rows) {
@@ -25995,13 +26929,13 @@
 
     // Persist/restore expanded note cards (global, not week-specific)
     function saveNotesUiState() {
-      try { localStorage.setItem('rian_ui_notes', JSON.stringify([...state.expandedNotes])); } catch (e) {}
+      try { localStorage.setItem('rian_ui_notes', JSON.stringify([...state.expandedNotes])); } catch (e) { }
     }
     function loadNotesUiState() {
       try {
         const saved = JSON.parse(localStorage.getItem('rian_ui_notes'));
         if (Array.isArray(saved)) state.expandedNotes = new Set(saved);
-      } catch (e) {}
+      } catch (e) { }
     }
 
     function autoExpandToday() {
@@ -28294,42 +29228,42 @@
     </div>
   </header>
   ${(() => {
-    const visibleTabs = getVisibleTabs();
-    const visibleList = visibleTabs.filter(id => ALL_TOP_TABS.some(t => t.id === id));
-    const isScrollable = visibleList.length >= 5;
-    const isDesk = _isDesktop();
+          const visibleTabs = getVisibleTabs();
+          const visibleList = visibleTabs.filter(id => ALL_TOP_TABS.some(t => t.id === id));
+          const isScrollable = visibleList.length >= 5;
+          const isDesk = _isDesktop();
 
-    const containerStyle = isDesk
-      ? 'background:var(--bg-header-tab);display:flex;align-items:center;justify-content:flex-start;width:100%;padding-left:4px;'
-      : (isScrollable
-          ? 'background:var(--bg-header-tab);overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;display:flex;align-items:center;width:100%;'
-          : 'background:var(--bg-header-tab);width:100%;');
+          const containerStyle = isDesk
+            ? 'background:var(--bg-header-tab);display:flex;align-items:center;justify-content:flex-start;width:100%;padding-left:4px;'
+            : (isScrollable
+              ? 'background:var(--bg-header-tab);overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;display:flex;align-items:center;width:100%;'
+              : 'background:var(--bg-header-tab);width:100%;');
 
-    return `<div id="main-tab-bar" class="flex" style="${containerStyle}">
+          return `<div id="main-tab-bar" class="flex" style="${containerStyle}">
     ${visibleList.map((tabId, idx) => {
-      const tabObj = ALL_TOP_TABS.find(t => t.id === tabId);
-      if (!tabObj) return '';
-      const isActive = state.view === tabId;
-      const isFirst = idx === 0;
-      const syncDot = (tabId === 'notes' && { pending: 'var(--priority-medium)', syncing: 'var(--accent)', error: 'var(--priority-high)' }[state.notesSyncStatus])
-        ? `<span class="notes-sync-dot" style="background:${{ pending: 'var(--priority-medium)', syncing: 'var(--accent)', error: 'var(--priority-high)' }[state.notesSyncStatus]}"></span>`
-        : '';
+            const tabObj = ALL_TOP_TABS.find(t => t.id === tabId);
+            if (!tabObj) return '';
+            const isActive = state.view === tabId;
+            const isFirst = idx === 0;
+            const syncDot = (tabId === 'notes' && { pending: 'var(--priority-medium)', syncing: 'var(--accent)', error: 'var(--priority-high)' }[state.notesSyncStatus])
+              ? `<span class="notes-sync-dot" style="background:${{ pending: 'var(--priority-medium)', syncing: 'var(--accent)', error: 'var(--priority-high)' }[state.notesSyncStatus]}"></span>`
+              : '';
 
-      const btnClass = (isDesk || isScrollable)
-        ? 'py-2.5 text-[11px] font-bold tracking-widest uppercase relative'
-        : 'flex-1 py-2.5 text-[11px] font-bold tracking-widest uppercase relative';
+            const btnClass = (isDesk || isScrollable)
+              ? 'py-2.5 text-[11px] font-bold tracking-widest uppercase relative'
+              : 'flex-1 py-2.5 text-[11px] font-bold tracking-widest uppercase relative';
 
-      const btnStyle = (isDesk || isScrollable)
-        ? `flex:0 0 auto;white-space:nowrap;padding-top:10px;padding-bottom:10px;padding-left:${isFirst ? '18px' : '14px'};padding-right:${isFirst ? '18px' : '14px'};color:${isActive ? 'var(--tab-active)' : 'var(--text-header-sub)'};${isActive ? 'border-bottom:3px solid var(--tab-active)' : ''}`
-        : `${isFirst ? 'padding-left:14px;padding-right:14px;' : ''}color:${isActive ? 'var(--tab-active)' : 'var(--text-header-sub)'};${isActive ? 'border-bottom:3px solid var(--tab-active)' : ''}`;
+            const btnStyle = (isDesk || isScrollable)
+              ? `flex:0 0 auto;white-space:nowrap;padding-top:10px;padding-bottom:10px;padding-left:${isFirst ? '18px' : '14px'};padding-right:${isFirst ? '18px' : '14px'};color:${isActive ? 'var(--tab-active)' : 'var(--text-header-sub)'};${isActive ? 'border-bottom:3px solid var(--tab-active)' : ''}`
+              : `${isFirst ? 'padding-left:14px;padding-right:14px;' : ''}color:${isActive ? 'var(--tab-active)' : 'var(--text-header-sub)'};${isActive ? 'border-bottom:3px solid var(--tab-active)' : ''}`;
 
-      return `<button onclick="setView('${tabId}')" class="${btnClass}" style="${btnStyle}">
+            return `<button onclick="setView('${tabId}')" class="${btnClass}" style="${btnStyle}">
         <span style="display:inline-flex;align-items:center;gap:4px;">${tabObj.icon}${esc(tabObj.label)}</span>
         ${syncDot}
       </button>`;
-    }).join('')}
+          }).join('')}
   </div>`;
-  })()}`;
+        })()}`;
     }
 
     function updateHeaderStatus() {
@@ -29010,20 +29944,20 @@
           <div class="dj-resize-handle dj-rh-invis ew3-rh" onmousedown="ew3ResizeStart(event,2)"></div>
           <aside class="ew3-desk-codes">
             <div class="ew3-desk-hdr"><span>Callouts</span>${calloutEntries.length
-              ? `<span style="display:inline-flex;align-items:center;gap:8px"><span>${calloutEntries.length}${calloutEntries.length === 1 ? ' incident' : ' incidents'}</span><button class="ew3-copy-all" onclick="ew3CopyCallouts(this)" title="Copy the whole table" aria-label="Copy the whole callouts table"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button></span>`
-              : '<span>None</span>'}</div>
+            ? `<span style="display:inline-flex;align-items:center;gap:8px"><span>${calloutEntries.length}${calloutEntries.length === 1 ? ' incident' : ' incidents'}</span><button class="ew3-copy-all" onclick="ew3CopyCallouts(this)" title="Copy the whole table" aria-label="Copy the whole callouts table"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button></span>`
+            : '<span>None</span>'}</div>
             <div class="ew3-desk-scroll">
               ${calloutEntries.length ? `
               <table class="ew3-table ew3-callout-table"><colgroup><col style="width:10%"><col style="width:26%"><col style="width:32%"><col style="width:32%"></colgroup><thead><tr><th class="ew3-c">#</th><th>Date</th><th>Ticket Number</th><th>Location</th></tr></thead><tbody>${calloutRows}</tbody><tfoot><tr><td colspan="4" style="text-align:left;"><span class="ew3-callout-total-inline">Total Callouts: <strong>${calloutEntries.length}</strong></span></td></tr></tfoot></table>`
-              : `
+            : `
               <div class="ew3-callouts-empty">
                 <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
                 <div class="ew3-ce-title">No callouts this week</div>
                 <div class="ew3-ce-sub">${ocStatus === 'oncall'
-                  ? 'You were on-call — nothing came in.'
-                  : ocStatus === 'extra'
-                    ? 'Extra shift week — no incidents logged.'
-                    : 'You were not on call this week.'}</div>
+              ? 'You were on-call — nothing came in.'
+              : ocStatus === 'extra'
+                ? 'Extra shift week — no incidents logged.'
+                : 'You were not on call this week.'}</div>
               </div>`}
             </div>
           </aside>
@@ -29147,18 +30081,18 @@
       if (!el || el.classList.contains('ew3-empty')) return;
       const key = el.getAttribute('data-key');
       const value = el.getAttribute('data-value') || el.textContent.trim();
-      
+
       // Remove active class from any previously active copy element(s)
       document.querySelectorAll('.ew3-copy.ew3-active').forEach(x => {
         x.classList.remove('ew3-active');
       });
-      
+
       // Add active class and copied class to the currently clicked item(s)
       document.querySelectorAll('.ew3-copy[data-key="' + key + '"]').forEach(x => {
         x.classList.add('ew3-active');
         x.classList.add('copied');
       });
-      
+
       if (navigator.clipboard && navigator.clipboard.writeText) {
         navigator.clipboard.writeText(value).then(() => showToast('Copied: ' + value, 1200)).catch(() => { legacyCopy(value); showToast('Copied: ' + value, 1200); });
       } else {
@@ -29309,15 +30243,15 @@
         '<span class="pws-stat-val' + (tOt > 0 ? ' is-ot' : '') + '">' + (tOt > 0 ? '+' + fmtN(tOt) + ' OT' : '\u2014') + '</span>' +
         '</div>' +
         (coCount > 0 ? '<div class="pws-stat-col">' +
-        '<span class="pws-stat-lbl">CALLOUTS</span>' +
-        '<span class="pws-stat-val is-callout">' + coCount + '</span>' +
-        '</div>' : '') +
+          '<span class="pws-stat-lbl">CALLOUTS</span>' +
+          '<span class="pws-stat-val is-callout">' + coCount + '</span>' +
+          '</div>' : '') +
         '</div>';
       // Back banner — only shown when not on current week
       const backBanner = !isCurrentWeek
         ? '<div class="pws-action-banner" onclick="goToCurrentWeek()">' +
-          '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>' +
-          'Back to the current week</div>'
+        '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>' +
+        'Back to the current week</div>'
         : '';
       return '<div class="desk-week-nav-hdr">' +
         '<button onclick="prevWeek()" class="desk-week-nav-btn" title="Previous week"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>' +
@@ -29677,7 +30611,7 @@
       var escId = act.id.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
       var escDesc = (act.description || 'Unnamed').replace(/\\/g, '\\\\').replace(/'/g, "\\'");
 
-      var totalActCount = day.activities.filter(function(a) { return a.description || a.codes.length || parseFloat(a.ordinary) > 0 || parseFloat(a.overtime) > 0; }).length;
+      var totalActCount = day.activities.filter(function (a) { return a.description || a.codes.length || parseFloat(a.ordinary) > 0 || parseFloat(a.overtime) > 0; }).length;
       var taskCounterSub = totalActCount > 0 ? 'Task ' + (actIndex + 1) + ' of ' + totalActCount : 'Task Details';
 
       return '<div class="desk-panel-2hdr"><div class="desk-panel-hdr-label">Task Details</div><div class="desk-panel-hdr-sub">' + taskCounterSub + '</div></div>' +
@@ -29919,8 +30853,8 @@
             var msgEl = warnWrap.querySelector('.act-warning-banner-messages');
             if (msgEl) {
               msgEl.innerHTML = (isMissingLocation ? '• Location is empty.<br>' : '') +
-                                (isMissingCode ? '• Needs a work code assigned.<br>' : '') +
-                                (isMissingHours ? (act.codes.length > 0 ? '• Work code assigned, but hours are 0.<br>' : '• Hours are 0.<br>') : '');
+                (isMissingCode ? '• Needs a work code assigned.<br>' : '') +
+                (isMissingHours ? (act.codes.length > 0 ? '• Work code assigned, but hours are 0.<br>' : '• Hours are 0.<br>') : '');
             }
           } else {
             warnWrap.style.display = 'none';
@@ -29942,7 +30876,7 @@
         });
 
       }
-      
+
       // 3. Update task modal warnings if open
       if (_taskModalState && _taskModalState.actId === actId) {
         var ov = document.getElementById('task-modal-overlay');
@@ -29959,7 +30893,7 @@
           modalHrsSteppers.forEach(function (stepper) {
             stepper.classList.toggle('invalid-field', !!isMissingHours);
           });
-          
+
           // Also update the status pills row in modal header
           var pillRow = ov.querySelector('.task-modal-header .act-pill-row');
           if (pillRow) {
@@ -30207,8 +31141,8 @@
               const msgEl = warnWrap.querySelector('.act-warning-banner-messages');
               if (msgEl) {
                 msgEl.innerHTML = (isMissingLocation ? '• Location is empty.<br>' : '') +
-                                  (isMissingCode ? '• Needs a work code assigned.<br>' : '') +
-                                  (isMissingHours ? (act.codes.length > 0 ? '• Work code assigned, but hours are 0.<br>' : '• Hours are 0.<br>') : '');
+                  (isMissingCode ? '• Needs a work code assigned.<br>' : '') +
+                  (isMissingHours ? (act.codes.length > 0 ? '• Work code assigned, but hours are 0.<br>' : '• Hours are 0.<br>') : '');
               }
             } else {
               warnWrap.style.display = 'none';
@@ -31064,8 +31998,8 @@
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
               <div class="act-warning-banner-messages" style="flex:1">
                 ${(isMissingLocation ? '• Location is empty.<br>' : '') +
-                  (isMissingCode ? '• Needs a work code assigned.<br>' : '') +
-                  (isMissingHours ? (act.codes.length > 0 ? '• Work code assigned, but hours are 0.<br>' : '• Hours are 0.<br>') : '')}
+        (isMissingCode ? '• Needs a work code assigned.<br>' : '') +
+        (isMissingHours ? (act.codes.length > 0 ? '• Work code assigned, but hours are 0.<br>' : '• Hours are 0.<br>') : '')}
               </div>
             </div>
 
@@ -31933,7 +32867,7 @@
       if (_noteFsActId === actId && _tiptapEditor) _syncOpenActivityNoteDraft(_ttGetHTML());
       // Snapshot current field values — Firestore snapshots during the dialog could overwrite state
       noteConfirmState = { actId, di, desc: act.description, loc: act.location, notes: act.notes };
-      saveWeekNow().catch(() => {});
+      saveWeekNow().catch(() => { });
       noteConfirmPriority = 'medium';
       const desc = act.description || 'Unnamed';
       const loc = act.location || '';
@@ -32034,7 +32968,7 @@
     function openNoteToTask(noteId) {
       const note = state.notes.find(n => n.id === noteId);
       if (!note) return;
-      saveNotesNow().catch(() => {});
+      saveNotesNow().catch(() => { });
       taskPickerState.noteId = noteId;
       taskPickerState.viewingWeekStart = state.weekStart;
       taskPickerState.selectedDate = null;
@@ -37135,7 +38069,7 @@
             const el2 = document.getElementById('notes-search-input');
             if (el2) {
               el2.focus();
-              if (_mobileSearchPos !== null) try { el2.setSelectionRange(_mobileSearchPos, _mobileSearchPos); } catch (e) {}
+              if (_mobileSearchPos !== null) try { el2.setSelectionRange(_mobileSearchPos, _mobileSearchPos); } catch (e) { }
             }
           });
         }
@@ -38049,7 +38983,7 @@
               });
               _restored = true;
             }
-          } catch(e) {}
+          } catch (e) { }
           if (!_restored && _tiptapEditor) try { _tiptapEditor.commands.focus('end'); } catch (e) { }
           _tiptapLastSaveAt = Date.now(); // keep echo protection active from moment of open
           _tiptapLastSavedNoteId = noteId;
@@ -41656,7 +42590,7 @@
             var localKeys = new Set((localDay.activities || []).map(_activityDedupeKey).filter(Boolean));
             remoteDay.activities.forEach(function (ra) {
               if (ra.id && !localIds[ra.id] && !localKeys.has(_activityDedupeKey(ra)) &&
-                  !_isRecentlyDeleted(ra.id) && !_tombHas(_pollTombs, ra.id)) {
+                !_isRecentlyDeleted(ra.id) && !_tombHas(_pollTombs, ra.id)) {
                 if ((ra.description || '').trim() || (ra.location || '').trim() ||
                   (parseFloat(ra.ordinary) || 0) > 0 || (parseFloat(ra.overtime) || 0) > 0 ||
                   (ra.codes && ra.codes.length > 0)) {
@@ -41751,7 +42685,7 @@
       // 0b. Task / Note / Callout fullscreen modal — use DOM check so JS state can't get stuck
       if (_isModalShown('task-modal-overlay')) { if (typeof closeTaskModal === 'function') closeTaskModal(); return; }
       if (_isModalShown('note-modal-overlay')) { if (typeof closeNoteModal === 'function') closeNoteModal(); return; }
-      if (_isModalShown('co-modal-overlay'))   { if (typeof closeCoModal  === 'function') closeCoModal();  return; }
+      if (_isModalShown('co-modal-overlay')) { if (typeof closeCoModal === 'function') closeCoModal(); return; }
       // 1. Import overlays
       if (_isModalShown('jdocx-overlay')) { closeJDocxImport(); return; }
       if (_isModalShown('av-import-modal')) { avCloseImportDialog(); return; }
@@ -42244,7 +43178,7 @@
       // saved, so their draft state is tracked by tplDraftId/_tplDraft.
       const anyDraftTemplate = !!(state.tplDraftId && window._tplDraft?.id === state.tplDraftId);
       const hasDormantDraftTemplate = anyDraftTemplate && !_tplIsOpen(state.tplDraftId);
-      
+
       if (!anyDraftTask && !anyDraftNote && !anyDraftTemplate) return '';
 
       // Match Timesheet drafts: the warning appears once the draft is
@@ -42337,8 +43271,8 @@
       const notesErr = state.notesSyncStatus === 'error';
       const hasError = taskErr || notesErr;
       const msg = (taskErr && notesErr) ? 'Timesheet and notes could not be saved'
-                : taskErr ? 'Timesheet changes could not be saved'
-                : 'Note could not be saved';
+        : taskErr ? 'Timesheet changes could not be saved'
+          : 'Note could not be saved';
       return `<div class="save-error-banner${hasError ? ' save-error-visible' : ''}" id="save-error-banner">
         <span style="display:flex;align-items:center;flex-shrink:0;color:#fff">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
@@ -42361,8 +43295,8 @@
       if (hasError) {
         const textEl = banner.querySelector('.save-error-banner-text');
         if (textEl) textEl.textContent = (taskErr && notesErr) ? 'Timesheet and notes could not be saved'
-                                        : taskErr ? 'Timesheet changes could not be saved'
-                                        : 'Note could not be saved';
+          : taskErr ? 'Timesheet changes could not be saved'
+            : 'Note could not be saved';
       }
     }
 
@@ -42443,8 +43377,8 @@
           <div class="tpl-field tpl-codes-field">
             <label>Work Codes</label>
             <div class="act-codes-wrap tpl-codes" onclick="tplPickCodes('${t.id}')" style="cursor:pointer;min-height:42px">${(t.codes || []).length
-              ? t.codes.map(c => `<div class="act-code-chip" style="pointer-events:none">${esc(c.d || c.c)}<span class="act-code-mono">${esc(c.c)}</span></div>`).join('')
-              : `<span style="color:var(--text-muted);font-size:13px;display:flex;align-items:center;gap:6px">${_TPL_PLUS} Choose work codes</span>`}</div>
+          ? t.codes.map(c => `<div class="act-code-chip" style="pointer-events:none">${esc(c.d || c.c)}<span class="act-code-mono">${esc(c.c)}</span></div>`).join('')
+          : `<span style="color:var(--text-muted);font-size:13px;display:flex;align-items:center;gap:6px">${_TPL_PLUS} Choose work codes</span>`}</div>
           </div>
           <div class="flex gap-3 tpl-hours-field">
             <div class="hrs-box flex-1">
@@ -42502,8 +43436,8 @@
               <div class="act-desc-txt">${esc(t.name || t.description) || `<span style="opacity:0.4;font-weight:400;font-style:italic">${isNew ? 'New template' : 'Untitled template'}</span>`}</div>
               <div class="act-row2">
                 <div class="act-loc-txt">${t.location
-                  ? `<svg width="13" height="13" viewBox="0 0 24 24" fill="#e8453c" style="display:inline-block;vertical-align:-2px;margin-right:2px;"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 0 1 0-5 2.5 2.5 0 0 1 0 5z"/></svg>${esc(t.location)}`
-                  : '<span style="opacity:0.55;font-style:italic">Location set per task</span>'}</div>
+            ? `<svg width="13" height="13" viewBox="0 0 24 24" fill="#e8453c" style="display:inline-block;vertical-align:-2px;margin-right:2px;"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 0 1 0-5 2.5 2.5 0 0 1 0 5z"/></svg>${esc(t.location)}`
+            : '<span style="opacity:0.55;font-style:italic">Location set per task</span>'}</div>
                 <div class="act-pill-row">
                   ${ord > 0 ? `<span class="pill-hrs">${ord}h</span>` : ''}
                   ${ot > 0 ? `<span class="pill-ot">+${ot} OT</span>` : ''}
@@ -44853,7 +45787,7 @@
         try {
           const allWeeks = await dbGetAll('weeks');
           weekCount = allWeeks.filter(w => w.userId === uid).length;
-        } catch (e) {}
+        } catch (e) { }
       } else {
         try {
           const [weeksSnap, notesDoc, remDoc, coDoc, rtnDoc, catsDoc, jpDoc] = await Promise.all([
@@ -45638,7 +46572,7 @@
           const ref = userDoc('data/routines');
           if (ref) await ref.set({ ...data.routines, _updatedAt: Date.now() });
           state.routines = { ...data.routines };
-          await dbPut('notes', { id: 'routines_all', userId: uid, data: state.routines, updatedAt: Date.now() }).catch(() => {});
+          await dbPut('notes', { id: 'routines_all', userId: uid, data: state.routines, updatedAt: Date.now() }).catch(() => { });
           parts.push(data.routines.selectedSites.length + ' routine sites');
           render();
         }
@@ -45648,7 +46582,7 @@
           if (ref) await ref.set({ ...data.categories, _updatedAt: Date.now() });
           state.customCategories = data.categories.categories;
           state.disabledCats = data.categories.disabledCats || [];
-          await dbPut('notes', { id: 'categories_custom', userId: uid, data: { categories: state.customCategories, disabledCats: state.disabledCats }, updatedAt: Date.now() }).catch(() => {});
+          await dbPut('notes', { id: 'categories_custom', userId: uid, data: { categories: state.customCategories, disabledCats: state.disabledCats }, updatedAt: Date.now() }).catch(() => { });
           parts.push(data.categories.categories.length + ' tags');
         }
         // 5c. Import notebooks (jNotebooks/jSections/jPages)
@@ -46061,7 +46995,7 @@
 
       // Up-to-date / overdue counts (using same logic as map marker colours)
       var cntUpToDate = 0, cntOverdue = 0;
-      sortedSites.forEach(function(site) {
+      sortedSites.forEach(function (site) {
         var lv = _rtnLastVisit(site);
         var ma = _rtnMonthsAgo(lv);
         if (ma === null) return; // never visited — neither up-to-date nor overdue
@@ -46227,7 +47161,7 @@
       if (_rtnDeskPanel === id) return;
       // Cleanup stale Leaflet instance before switching away from map
       if (id === 'grid' && _rtnMapInstance) {
-        try { _rtnMapInstance.remove(); } catch(e) {}
+        try { _rtnMapInstance.remove(); } catch (e) { }
         _rtnMapInstance = null;
       }
       _rtnDeskPanel = id;
@@ -46238,7 +47172,7 @@
     // Unified "switch to grid" used by map popup button — works on both desktop and mobile
     function _rtnSwitchToGrid() {
       if (_isDesktop()) {
-        if (_rtnMapInstance) try { _rtnMapInstance.closePopup(); } catch(e) {}
+        if (_rtnMapInstance) try { _rtnMapInstance.closePopup(); } catch (e) { }
         rtnDeskPanel('grid');
       } else {
         var _b = document.querySelector('.rtn-tab-btn');
@@ -46257,20 +47191,20 @@
       if (icon) icon.innerHTML = _rtnMapFs
         ? '<polyline points="4 14 10 14 10 20"/><polyline points="20 10 14 10 14 4"/><line x1="10" y1="14" x2="3" y2="21"/><line x1="21" y1="3" x2="14" y2="10"/>'
         : '<polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/>';
-      setTimeout(function() { if (map) map.invalidateSize(); }, 50);
+      setTimeout(function () { if (map) map.invalidateSize(); }, 50);
     }
 
     var _rtnLeafletLoaded = false;
     var _rtnMapInstance = null;
     var _rtnMapLastView = null; // { center: L.LatLng, zoom: number } — survives the map being torn down/rebuilt by render()
-    var _RTN_MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    var _RTN_MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
     function _rtnSiteCoords(name) {
-      var exch = (TOWNS || state.exchanges || []).find(function(e) { return e.name === name; });
+      var exch = (TOWNS || state.exchanges || []).find(function (e) { return e.name === name; });
       if (!exch || !exch.link) return null;
       var p = exch.link.split(',');
       if (p.length < 2) return null;
-      return { lat: parseFloat(p[0]), lng: parseFloat(p[1]), code: exch.code || name.slice(0,3).toUpperCase() };
+      return { lat: parseFloat(p[0]), lng: parseFloat(p[1]), code: exch.code || name.slice(0, 3).toUpperCase() };
     }
 
     function _rtnLastVisit(site) {
@@ -46302,8 +47236,8 @@
 
     function _rtnMarkerColor(monthsAgo) {
       if (monthsAgo === null) return '#94a3b8';
-      if (monthsAgo <= 1)    return '#16a34a';
-      if (monthsAgo <= 3)    return '#f59e0b';
+      if (monthsAgo <= 1) return '#16a34a';
+      if (monthsAgo <= 3) return '#f59e0b';
       return '#ef4444';
     }
 
@@ -46317,7 +47251,7 @@
         link.rel = 'stylesheet';
         link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
         document.head.appendChild(link);
-        await new Promise(function(resolve, reject) {
+        await new Promise(function (resolve, reject) {
           var s = document.createElement('script');
           s.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
           s.onload = resolve; s.onerror = reject;
@@ -46340,13 +47274,13 @@
           // without this, every re-render (e.g. returning from the note editor) snaps
           // back to the default Ireland-wide view, losing whatever zoom/pan the user had.
           _rtnMapLastView = { center: _rtnMapInstance.getCenter(), zoom: _rtnMapInstance.getZoom() };
-        } catch(e) {}
+        } catch (e) { }
         try {
           // Only call remove() if the old container is still in the document;
           // if render() already replaced it, skip remove() to avoid Leaflet errors
           var _oldContainer = _rtnMapInstance.getContainer ? _rtnMapInstance.getContainer() : null;
           if (_oldContainer && document.body.contains(_oldContainer)) _rtnMapInstance.remove();
-        } catch(e) {}
+        } catch (e) { }
         _rtnMapInstance = null;
       }
 
@@ -46359,7 +47293,7 @@
         ? window.L.map('rtn-map', { zoomControl: false }).setView(_rtnMapLastView.center, _rtnMapLastView.zoom)
         : window.L.map('rtn-map', { zoomControl: false }).setView([53.0, -8.0], 7);
       _rtnMapInstance = map;
-      map.on('moveend', function() { _rtnMapLastView = { center: map.getCenter(), zoom: map.getZoom() }; });
+      map.on('moveend', function () { _rtnMapLastView = { center: map.getCenter(), zoom: map.getZoom() }; });
 
       window.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
@@ -46370,7 +47304,7 @@
 
       // Legend — collapsible, starts collapsed on mobile
       var legendCtrl = window.L.control({ position: 'bottomleft' });
-      legendCtrl.onAdd = function() {
+      legendCtrl.onAdd = function () {
         var div = window.L.DomUtil.create('div', 'rtn-map-legend' + (_isDesktop() ? '' : ' collapsed'));
         var chevron = '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>';
         div.innerHTML = '<div class="rtn-map-legend-title">Last Visit ' + chevron + '</div>'
@@ -46380,7 +47314,7 @@
           + '<div class="rtn-map-legend-row"><div class="rtn-map-legend-dot" style="background:#ef4444"></div>Over 3 months</div>'
           + '<div class="rtn-map-legend-row"><div class="rtn-map-legend-dot" style="background:#94a3b8"></div>Never visited</div>'
           + '</div>';
-        div.querySelector('.rtn-map-legend-title').addEventListener('click', function() {
+        div.querySelector('.rtn-map-legend-title').addEventListener('click', function () {
           div.classList.toggle('collapsed');
         });
         window.L.DomEvent.disableClickPropagation(div);
@@ -46390,12 +47324,12 @@
 
       // Fullscreen toggle control
       var fsCtrl = window.L.control({ position: 'topleft' });
-      fsCtrl.onAdd = function() {
+      fsCtrl.onAdd = function () {
         var btn = window.L.DomUtil.create('button', 'rtn-map-fs-btn');
         btn.title = 'Toggle fullscreen';
         btn.innerHTML = '<svg id="rtn-map-fs-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>';
         window.L.DomEvent.disableClickPropagation(btn);
-        window.L.DomEvent.on(btn, 'click', function() { _rtnToggleMapFs(map); });
+        window.L.DomEvent.on(btn, 'click', function () { _rtnToggleMapFs(map); });
         return btn;
       };
       fsCtrl.addTo(map);
@@ -46405,12 +47339,12 @@
 
       // Locate-me button (top-left, below fullscreen)
       var locCtrl = window.L.control({ position: 'topleft' });
-      locCtrl.onAdd = function() {
+      locCtrl.onAdd = function () {
         var btn = window.L.DomUtil.create('button', 'rtn-locate-btn');
         btn.title = 'Show my location';
         btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/><path d="M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8z"/></svg>';
         window.L.DomEvent.disableClickPropagation(btn);
-        window.L.DomEvent.on(btn, 'click', function() {
+        window.L.DomEvent.on(btn, 'click', function () {
           if (_locMarker) {
             map.setView(_locMarker.getLatLng(), Math.max(map.getZoom(), 13));
           } else {
@@ -46422,10 +47356,10 @@
       };
       locCtrl.addTo(map);
 
-      map.on('locationfound', function(e) {
+      map.on('locationfound', function (e) {
         var locBtn = document.querySelector('.rtn-locate-btn');
         if (locBtn) locBtn.classList.remove('locating');
-        var dot = window.L.divIcon({ className: '', html: '<div class="rtn-loc-dot"></div>', iconSize: [14,14], iconAnchor: [7,7] });
+        var dot = window.L.divIcon({ className: '', html: '<div class="rtn-loc-dot"></div>', iconSize: [14, 14], iconAnchor: [7, 7] });
         if (!_locMarker) {
           _locMarker = window.L.marker(e.latlng, { icon: dot, zIndexOffset: 1000 })
             .bindTooltip('You are here', { permanent: false, direction: 'top' })
@@ -46436,7 +47370,7 @@
           _locCircle.setLatLng(e.latlng).setRadius(e.accuracy);
         }
       });
-      map.on('locationerror', function() {
+      map.on('locationerror', function () {
         var locBtn = document.querySelector('.rtn-locate-btn');
         if (locBtn) locBtn.classList.remove('locating');
       });
@@ -46448,7 +47382,7 @@
       var cntGreen = 0, cntAmber = 0, cntRed = 0, cntGray = 0;
       var bounds = [];
 
-      sites.forEach(function(site) {
+      sites.forEach(function (site) {
         var coords = _rtnSiteCoords(site);
         if (!coords) return;
 
@@ -46472,13 +47406,13 @@
         }
         var statusText = monthsAgo === null ? 'Never visited'
           : monthsAgo <= 1 ? '✓ Up to date'
-          : monthsAgo <= 3 ? '⚠ Due soon'
-          : '✕ Overdue';
+            : monthsAgo <= 3 ? '⚠ Due soon'
+              : '✕ Overdue';
 
         var icon = window.L.divIcon({
           className: '',
           html: '<div style="width:32px;height:32px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);background:' + color + ';border:2.5px solid rgba(255,255,255,0.9);box-shadow:0 2px 8px rgba(0,0,0,0.28);display:flex;align-items:center;justify-content:center;">'
-            + '<span style="transform:rotate(45deg);font-size:8px;font-weight:800;color:#fff;line-height:1">' + coords.code.slice(0,3) + '</span>'
+            + '<span style="transform:rotate(45deg);font-size:8px;font-weight:800;color:#fff;line-height:1">' + coords.code.slice(0, 3) + '</span>'
             + '</div>',
           iconSize: [32, 32], iconAnchor: [16, 32], popupAnchor: [0, -36]
         });
@@ -46504,7 +47438,7 @@
           + '<div style="margin-top:8px;padding:6px 10px;border-radius:8px;font-size:11px;font-weight:700;background:' + color + '18;color:' + color + '">' + statusText + '</div>'
           + '</div>'
           + '<div style="display:flex;gap:6px;padding:8px 16px 14px;">'
-          + '<button onclick="if(_rtnMapInstance)_rtnMapInstance.closePopup();openRoutinesLogModal(\'' + esc(site).replace(/'/g,"\\'") + '\',' + state.routinesYear + ',' + (new Date().getMonth()+1) + ')" style="flex:1;padding:7px;border-radius:8px;border:none;font-size:12px;font-weight:700;cursor:pointer;background:var(--accent,#2D6BE4);color:#fff;font-family:inherit;">Log Visit</button>'
+          + '<button onclick="if(_rtnMapInstance)_rtnMapInstance.closePopup();openRoutinesLogModal(\'' + esc(site).replace(/'/g, "\\'") + '\',' + state.routinesYear + ',' + (new Date().getMonth() + 1) + ')" style="flex:1;padding:7px;border-radius:8px;border:none;font-size:12px;font-weight:700;cursor:pointer;background:var(--accent,#2D6BE4);color:#fff;font-family:inherit;">Log Visit</button>'
           + '<button onclick="_openUrl(\'' + _mapsUrl + '\')" style="flex:1;padding:7px;border-radius:8px;border:none;font-size:12px;font-weight:700;cursor:pointer;background:#34a853;color:#fff;font-family:inherit;white-space:nowrap;">Open Map</button>'
           + '</div>'
           + '</div>';
@@ -46520,7 +47454,7 @@
       // view to restore). Otherwise this runs on every rebuild (any re-render while the
       // map tab is active, not just navigation) and stomps the user's zoom/pan every time.
       if (bounds.length > 0 && !_rtnUsedRestoredView) {
-        try { map.fitBounds(bounds, { padding: [40, 40], maxZoom: 11 }); } catch(e) {}
+        try { map.fitBounds(bounds, { padding: [40, 40], maxZoom: 11 }); } catch (e) { }
       }
 
     }
@@ -46865,7 +47799,7 @@
 
     function openTetraInspection() {
       if (!_rtnLogCtx) return;
-      
+
       const titleEl = document.getElementById('tetra-modal-title');
       const subEl = document.getElementById('tetra-modal-subtitle');
       if (titleEl) {
@@ -46919,17 +47853,17 @@
 
       _tetraActiveCompId = 'preselector-a';
       _tetraGuideMode = 'clean';
-      
+
       const btnClean = document.getElementById('tetra-btnClean');
       const btnLabels = document.getElementById('tetra-btnLabels');
       if (btnClean) btnClean.classList.add('active');
       if (btnLabels) btnLabels.classList.remove('active');
-      
+
       const img = document.getElementById('tetra-guideImg');
       if (img) img.src = 'tetra-layout-no-labels.jpg';
 
       renderTetraComponents();
-      
+
       const modal = document.getElementById('tetra-inspection-modal');
       if (modal) modal.classList.remove('hidden');
     }
@@ -46937,7 +47871,7 @@
     async function saveTetraInspection() {
       if (!_rtnLogCtx || !state.routines) return;
       const { key, site, year, month } = _rtnLogCtx;
-      
+
       const dateEl = document.getElementById('rtn-log-date');
       let day = 1;
       if (dateEl && dateEl.value) {
@@ -46957,7 +47891,7 @@
       closeTetraInspection();
       closeRoutinesLogModal();
       render();
-      
+
       await fsSetRoutines().catch(e => console.warn('[Rian]', e));
     }
 
@@ -46988,7 +47922,7 @@
 
     function selectTetraComponent(id) {
       _tetraActiveCompId = id;
-      
+
       const hotspots = document.querySelectorAll('.hotspot');
       hotspots.forEach(el => {
         if (el.classList.contains('h-' + id) || el.getAttribute('data-target') === id) {
@@ -46999,7 +47933,7 @@
       });
 
       renderTetraComponents();
-      
+
       setTimeout(() => {
         const activeCard = document.querySelector(`.checklist-card[data-id="${id}"]`);
         if (activeCard) {
@@ -47150,7 +48084,7 @@
 
     function rotateBase64(base64, mime, callback) {
       const img = new Image();
-      img.onload = function() {
+      img.onload = function () {
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d');
         canvas.width = img.naturalHeight;
@@ -47203,7 +48137,7 @@
         const y = Math.min(startY, pos.y);
         const w = Math.abs(startX - pos.x);
         const h = Math.abs(startY - pos.y);
-        
+
         box.style.left = x + 'px';
         box.style.top = y + 'px';
         box.style.width = w + 'px';
@@ -47283,14 +48217,14 @@
       const container = document.getElementById('tetra-crop-container');
       const compId = _cropState.compId;
       const comp = _tetraComponents.find(c => c.id === compId);
-      
+
       if (!comp) {
         closeTetraCropModal();
         return;
       }
 
       const boxVisible = box && box.style.display !== 'none' && parseInt(box.style.width) > 10;
-      
+
       if (boxVisible && container) {
         const rect = container.getBoundingClientRect();
         const boxLeft = parseInt(box.style.left) || 0;
@@ -47306,22 +48240,22 @@
         };
 
         const img = new Image();
-        img.onload = function() {
+        img.onload = function () {
           const canvas = document.createElement('canvas');
           const ctx = canvas.getContext('2d');
-          
+
           const cw = norm.w * img.naturalWidth;
           const ch = norm.h * img.naturalHeight;
           const cx = norm.x * img.naturalWidth;
           const cy = norm.y * img.naturalHeight;
-          
+
           canvas.width = cw;
           canvas.height = ch;
           ctx.drawImage(img, cx, cy, cw, ch, 0, 0, cw, ch);
-          
+
           const croppedBase64 = canvas.toDataURL(comp.photoMime || 'image/jpeg').split(',')[1];
           comp.photoData = croppedBase64;
-          
+
           closeTetraCropModal();
           runTetraOcr(compId);
           uploadTetraPhotoToFirebase(compId);
@@ -47362,10 +48296,10 @@
       if (!comp || !comp.photoData) return;
 
       if (!state.currentUser) return;
-      
+
       const uid = state.currentUser.uid;
       const weekStart = state.weekData?.weekStart || 'unknown-week';
-      
+
       try {
         const byteCharacters = atob(comp.photoData);
         const byteNumbers = new Array(byteCharacters.length);
@@ -47374,14 +48308,14 @@
         }
         const byteArray = new Uint8Array(byteNumbers);
         const fileBlob = new Blob([byteArray], { type: comp.photoMime || 'image/jpeg' });
-        
+
         const activeSiteId = window._tetraActiveSiteId || 'unknown-site';
         const storagePath = `routines/${uid}/${weekStart}/${activeSiteId}/${id}.jpg`;
-        
+
         const storageRef = firebase.storage().ref(storagePath);
         const uploadTask = await storageRef.put(fileBlob);
         const downloadUrl = await uploadTask.ref.getDownloadURL();
-        
+
         comp.photoUrl = downloadUrl;
         console.log(`[Rian] Uploaded TETRA label photo successfully to ${storagePath}. URL:`, downloadUrl);
       } catch (err) {
@@ -47484,14 +48418,14 @@
           try {
             const errObj = JSON.parse(errText);
             msg = errObj.error?.message || msg;
-          } catch(e) {}
+          } catch (e) { }
           throw new Error(msg);
         }
 
         const data = await response.json();
         const extracted = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
         const cleaned = extracted.trim().replace(/`/g, '');
-        
+
         if (cleaned.includes('NOT_FOUND')) {
           comp.ocrError = 'Serial number not detected in photo. Please type it manually.';
         } else {
@@ -48157,7 +49091,7 @@
       activeMonths.forEach((m, idx) => {
         const isLast = idx === activeMonths.length - 1;
         html += `<div class="oc-grid-row" style="padding:8px 0;margin-bottom:0;${!isLast ? 'border-bottom:1px dashed var(--border)' : ''}">`;
-        html += `<div class="oc-month-label">${monthNames[m]}</div><div style="display:flex;gap:6px;flex-wrap:wrap">`;
+        html += `<div class="oc-month-label">${monthNames[m]}</div><div style="display:flex;gap:12px;flex-wrap:wrap">`;
         byMonth[m].forEach(f => {
           const dayNum = strToDate(f).getDate();
           const type = onCall[f];
@@ -48898,7 +49832,7 @@
               });
               _restoredCo = true;
             }
-          } catch(e) {}
+          } catch (e) { }
           if (!_restoredCo && _tiptapEditor) try { _tiptapEditor.commands.blur(); } catch (e) { }
           _tiptapOnUpdate = (editor) => {
             _ttMarkDraftDirty();
@@ -49139,7 +50073,7 @@
       if (!years.includes(curY)) years.push(curY);
       years.sort((a, b) => a - b);
       let rowsHtml = '';
-      years.forEach(function(y) {
+      years.forEach(function (y) {
         const isSel = (y === curY);
         const isThisYear = (y === thisYear);
         const label = y + (isThisYear ? ' (Current)' : '');
@@ -49585,26 +50519,26 @@
             '<div class="' + checkCls + '">' + checkSvg + '</div>' +
             '<div class="task-picker-day-name">' + esc(formatWeekRange(wk)) + nextBadge + '</div>' +
             '<div class="task-picker-day-date">' + (isExtra ? 'Extra shift' : 'On-call') + '</div>' +
-          '</div>';
+            '</div>';
         }).join('');
       }
 
       const hasSel = !!target;
       modal.innerHTML = '<div class="task-picker-overlay" style="z-index:2000" onclick="if(event.target===this)closeCoMovePicker()">' +
         '<div class="task-picker-sheet">' +
-          '<div class="task-picker-handle"></div>' +
-          '<div class="task-picker-title">Move ' + count + ' callout' + (count !== 1 ? 's' : '') + '</div>' +
-          '<div class="task-picker-sub">Choose an on-call week to move to.</div>' +
-          '<div style="padding:0 12px 4px;"><span style="font-size:11px;font-weight:800;color:var(--text-dim);text-transform:uppercase;">Select Week</span></div>' +
-          '<div class="task-picker-days">' + rowsHtml + '</div>' +
-          '<div class="task-picker-actions">' +
-            '<button class="btn-cancel" onclick="closeCoMovePicker()">Cancel</button>' +
-            '<button class="btn-add-task" ' + (hasSel ? '' : 'disabled') + ' onclick="executeCoMove()">' +
-              '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg> Move' +
-            '</button>' +
-          '</div>' +
+        '<div class="task-picker-handle"></div>' +
+        '<div class="task-picker-title">Move ' + count + ' callout' + (count !== 1 ? 's' : '') + '</div>' +
+        '<div class="task-picker-sub">Choose an on-call week to move to.</div>' +
+        '<div style="padding:0 12px 4px;"><span style="font-size:11px;font-weight:800;color:var(--text-dim);text-transform:uppercase;">Select Week</span></div>' +
+        '<div class="task-picker-days">' + rowsHtml + '</div>' +
+        '<div class="task-picker-actions">' +
+        '<button class="btn-cancel" onclick="closeCoMovePicker()">Cancel</button>' +
+        '<button class="btn-add-task" ' + (hasSel ? '' : 'disabled') + ' onclick="executeCoMove()">' +
+        '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg> Move' +
+        '</button>' +
         '</div>' +
-      '</div>';
+        '</div>' +
+        '</div>';
       modal.classList.remove('hidden');
     }
 
@@ -49764,7 +50698,7 @@
       // Engineer / assigned by
       const engMatch = t.match(/\/\/(\w+)\s*$/m);
       if (engMatch) notesParts.push('Assigned by: ' + engMatch[1]);
-      
+
       const headerNotes = notesParts.join('\n');
       result.notes = headerNotes ? (headerNotes + '\n\n' + t) : t;
 
@@ -51123,7 +52057,7 @@ Rules:
         document.addEventListener('visibilitychange', function () {
           if (document.visibilityState !== 'visible') return;
           navigator.serviceWorker.getRegistration().then(function (reg) {
-            if (reg) reg.update().catch(function () {});
+            if (reg) reg.update().catch(function () { });
           });
         });
         // Network-first strategy: always serves latest when online,
@@ -51251,7 +52185,7 @@ Rules:
             dbGet('notes', 'task_templates').catch(() => null)
           ]);
           if (cachedTemplates?.data?.templates &&
-              (!cachedTemplates.userId || cachedTemplates.userId === cachedUid)) {
+            (!cachedTemplates.userId || cachedTemplates.userId === cachedUid)) {
             state.taskTemplates = cachedTemplates.data.templates;
           }
           if (local && local.userId === cachedUid && local.data) {
@@ -51327,7 +52261,7 @@ Rules:
         // -- BYPASS: Proxy the anonymous session to look like the real test account --
         if (sessionStorage.getItem('_rian_bypass_active') && user && user.isAnonymous) {
           user = new Proxy(user, {
-            get: function(target, prop) {
+            get: function (target, prop) {
               if (prop === 'uid') return 'UXZIDzLCQEU3EVKXjW6NK4FPKuz1';
               if (prop === 'email') return 'rianfieldlog@gmail.com';
               if (prop === 'displayName') return 'Rian Test Account';
@@ -51339,7 +52273,7 @@ Rules:
           });
 
           // Show dev banner for the bypass session
-          setTimeout(function() {
+          setTimeout(function () {
             if (document.getElementById('_rian_bypass_banner')) return;
             var _b = document.createElement('div');
             _b.id = '_rian_bypass_banner';
@@ -52714,7 +53648,7 @@ QUESTION: ${query}`;
                 return true;
               },
               stopEvent(e) { return e.target === lbl || e.target === btn || e.target === del; },
-              destroy() {},
+              destroy() { },
             };
           };
         },
@@ -52768,7 +53702,7 @@ QUESTION: ${query}`;
                 },
               },
             })];
-          } catch(e) { return []; }
+          } catch (e) { return []; }
         },
       });
 
@@ -53402,7 +54336,7 @@ QUESTION: ${query}`;
                 container.focus({ preventScroll: true });
                 window.scrollTo(sx, sy);
               },
-              deselectNode() { 
+              deselectNode() {
                 container.classList.remove('selected');
                 presets.style.opacity = '0';
                 presets.style.pointerEvents = 'none';
@@ -53411,13 +54345,13 @@ QUESTION: ${query}`;
                   container._imgOnScroll = null;
                 }
               },
-              destroy() { 
+              destroy() {
                 if (container._imgOnScroll) {
                   window.removeEventListener('scroll', container._imgOnScroll, { capture: true });
                 }
                 // Remove toolbar from body since it no longer lives in the ProseMirror DOM
                 if (presets.parentNode) presets.parentNode.removeChild(presets);
-                container._imgGetPos = null; 
+                container._imgGetPos = null;
               },
             };
           };
@@ -55837,11 +56771,11 @@ QUESTION: ${query}`;
         if (state.selection.empty && firstChild && firstChild.type.name === 'table') {
           var $f = state.selection.$from;
           if ($f.depth >= 3 &&
-              $f.node(1).type.name === 'table' &&
-              $f.before(1) === 0 &&
-              $f.before(2) === $f.start(1) &&
-              $f.before(3) === $f.start(2) &&
-              $f.parentOffset === 0) {
+            $f.node(1).type.name === 'table' &&
+            $f.before(1) === 0 &&
+            $f.before(2) === $f.start(1) &&
+            $f.before(3) === $f.start(2) &&
+            $f.parentOffset === 0) {
             editor.view.dispatch(state.tr.insert(0, state.schema.nodes.paragraph.create()));
             editor.commands.setTextSelection(1);
             event.preventDefault();
@@ -55902,7 +56836,7 @@ QUESTION: ${query}`;
           var tableNode = editor.state.doc.nodeAt(tablePos);
           if (tableNode) {
             var tr = editor.state.tr.setMeta('addToHistory', false);
-            tableNode.descendants(function(node, offset) {
+            tableNode.descendants(function (node, offset) {
               if ((node.type.name === 'tableCell' || node.type.name === 'tableHeader') && node.attrs.colwidth) {
                 tr.setNodeMarkup(tablePos + 1 + offset, undefined, Object.assign({}, node.attrs, { colwidth: null }));
               }
@@ -55916,13 +56850,13 @@ QUESTION: ${query}`;
         if (domNode && domNode.nodeType === 3) domNode = domNode.parentElement;
         while (domNode && domNode.nodeName !== 'TABLE') domNode = domNode.parentElement;
         if (domNode) {
-          domNode.querySelectorAll('col').forEach(function(col) { col.style.width = ''; });
+          domNode.querySelectorAll('col').forEach(function (col) { col.style.width = ''; });
           domNode.style.minWidth = '';
         }
-      } catch(ex) {}
+      } catch (ex) { }
     }
 
-var _ttEnsureTrailingGuard = false;
+    var _ttEnsureTrailingGuard = false;
     function _ttEnsureTrailingParagraph(editor) {
       if (_ttEnsureTrailingGuard) return;
       var doc = editor.state.doc;
@@ -55937,11 +56871,11 @@ var _ttEnsureTrailingGuard = false;
             .insert(doc.content.size, editor.state.schema.nodes.paragraph.create())
             .setMeta('addToHistory', false)
         );
-      } catch(e) {}
+      } catch (e) { }
       _ttEnsureTrailingGuard = false;
     }
 
-function _ttStripDefaultTableWidths() {
+    function _ttStripDefaultTableWidths() {
       var tables = document.querySelectorAll('#note-fs-editor .ProseMirror table, #dj-editor-mount .ProseMirror table');
       for (var i = 0; i < tables.length; i++) {
         var t = tables[i];
@@ -56172,7 +57106,7 @@ function _ttStripDefaultTableWidths() {
               });
               _restoredAct = true;
             }
-          } catch(e) {}
+          } catch (e) { }
           if (!_restoredAct && _tiptapEditor) try { _tiptapEditor.commands.focus('end'); } catch (e) { }
           _tiptapOnUpdate = (editor) => {
             _ttMarkDraftDirty();
@@ -56251,7 +57185,7 @@ function _ttStripDefaultTableWidths() {
               });
               _restoredTpl = true;
             }
-          } catch(e) {}
+          } catch (e) { }
           if (!_restoredTpl && _tiptapEditor) try { _tiptapEditor.commands.focus('end'); } catch (e) { }
           _tiptapOnUpdate = () => { _ttMarkDraftDirty(); };
           _ttUpdateToolbar(_tiptapEditor);
@@ -56268,10 +57202,10 @@ function _ttStripDefaultTableWidths() {
       if (_tiptapEditor) {
         try {
           const _pk = _fnFsNoteId ? 'rian_tt_pos_n_' + _fnFsNoteId
-                    : _noteFsActId ? 'rian_tt_pos_a_' + _noteFsActId
-                    : (_coNoteFsActive && _coNoteFsCoId) ? 'rian_tt_pos_co_' + _coNoteFsCoId
-                    : _tplNoteFsId ? 'rian_tt_pos_tpl_' + _tplNoteFsId
-                    : null;
+            : _noteFsActId ? 'rian_tt_pos_a_' + _noteFsActId
+              : (_coNoteFsActive && _coNoteFsCoId) ? 'rian_tt_pos_co_' + _coNoteFsCoId
+                : _tplNoteFsId ? 'rian_tt_pos_tpl_' + _tplNoteFsId
+                  : null;
           if (_pk) {
             const _edEl = document.getElementById('note-fs-editor');
             localStorage.setItem(_pk, JSON.stringify({
@@ -56279,7 +57213,7 @@ function _ttStripDefaultTableWidths() {
               scroll: _edEl ? _edEl.scrollTop : 0
             }));
           }
-        } catch(e) {}
+        } catch (e) { }
       }
 
       // If user has unsaved edits, warn before discarding
@@ -57886,11 +58820,12 @@ The state block is invisible to the user.`;
             </div>
           </div>
           <button class="tt-btn" id="tt-collapsible" title="Wrap selection in collapsible (or insert new)">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-              <rect x="3" y="3" width="18" height="7" rx="2"/>
-              <polyline points="8 6.5 12 10 16 6.5"/>
-              <line x1="3" y1="14" x2="21" y2="14"/>
-              <line x1="3" y1="18" x2="15" y2="18"/>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+              stroke-linejoin="round">
+              <rect x="3" y="3" width="18" height="7" rx="2" />
+              <polyline points="8 6.5 12 10 16 6.5" />
+              <line x1="3" y1="14" x2="21" y2="14" />
+              <line x1="3" y1="18" x2="15" y2="18" />
             </svg>
           </button>
           <button class="tt-btn" id="tt-image" title="Insert photo">
@@ -57902,8 +58837,13 @@ The state block is invisible to the user.`;
             </svg>
           </button>
           <!-- Attach file -->
-          <button class="tt-btn" id="tt-attach" title="Attach file" style="color:var(--accent)" onclick="_ttAttach('note');event.preventDefault();event.stopPropagation();">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48" /></svg>
+          <button class="tt-btn" id="tt-attach" title="Attach file" style="color:var(--accent)"
+            onclick="_ttAttach('note');event.preventDefault();event.stopPropagation();">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"
+              stroke-linejoin="round">
+              <path
+                d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48" />
+            </svg>
           </button>
           <div class="tt-sep"></div>
           <!-- Clear formatting -->
@@ -57941,135 +58881,135 @@ The state block is invisible to the user.`;
             </svg>
           </button>
           <div id="note-fs-tt-table-bar-content">
-          <span class="tt-tbl-label">Table</span>
-          <!-- Row operations -->
-          <button class="tt-btn" id="tt-row-before" title="Add row above">
-            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
-              stroke-linejoin="round">
-              <rect x="2" y="9" width="16" height="9" rx="1.5" />
-              <line x1="10" y1="2" x2="10" y2="7" />
-              <line x1="7" y1="4.5" x2="13" y2="4.5" />
-            </svg>
-          </button>
-          <button class="tt-btn" id="tt-row-after" title="Add row below">
-            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
-              stroke-linejoin="round">
-              <rect x="2" y="2" width="16" height="9" rx="1.5" />
-              <line x1="10" y1="13" x2="10" y2="18" />
-              <line x1="7" y1="15.5" x2="13" y2="15.5" />
-            </svg>
-          </button>
-          <button class="tt-btn" id="tt-row-del" title="Delete row" style="color:var(--priority-high)">
-            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
-              stroke-linejoin="round">
-              <rect x="2" y="6" width="16" height="8" rx="1.5" />
-              <line x1="7.5" y1="9.5" x2="12.5" y2="10.5" />
-              <line x1="12.5" y1="9.5" x2="7.5" y2="10.5" />
-            </svg>
-          </button>
-          <div class="tt-sep"></div>
-          <!-- Column operations -->
-          <button class="tt-btn" id="tt-col-before" title="Add column left">
-            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
-              stroke-linejoin="round">
-              <rect x="9" y="2" width="9" height="16" rx="1.5" />
-              <line x1="2" y1="10" x2="7" y2="10" />
-              <line x1="4.5" y1="7" x2="4.5" y2="13" />
-            </svg>
-          </button>
-          <button class="tt-btn" id="tt-col-after" title="Add column right">
-            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
-              stroke-linejoin="round">
-              <rect x="2" y="2" width="9" height="16" rx="1.5" />
-              <line x1="13" y1="10" x2="18" y2="10" />
-              <line x1="15.5" y1="7" x2="15.5" y2="13" />
-            </svg>
-          </button>
-          <button class="tt-btn" id="tt-col-del" title="Delete column" style="color:var(--priority-high)">
-            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
-              stroke-linejoin="round">
-              <rect x="6" y="2" width="8" height="16" rx="1.5" />
-              <line x1="9" y1="8.5" x2="11" y2="11.5" />
-              <line x1="11" y1="8.5" x2="9" y2="11.5" />
-            </svg>
-          </button>
-          <div class="tt-sep"></div>
-          <!-- Column width (touch-friendly resize) -->
-          <button class="tt-btn" id="tt-col-narrow" title="Narrower column">
-            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
-              stroke-linejoin="round">
-              <line x1="10" y1="3" x2="10" y2="17" />
-              <polyline points="3,7 6,10 3,13" />
-              <polyline points="17,7 14,10 17,13" />
-            </svg>
-          </button>
-          <button class="tt-btn" id="tt-col-wide" title="Wider column">
-            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
-              stroke-linejoin="round">
-              <line x1="10" y1="3" x2="10" y2="17" />
-              <polyline points="6,7 3,10 6,13" />
-              <polyline points="14,7 17,10 14,13" />
-            </svg>
-          </button>
-          <button class="tt-btn" id="tt-col-fit" title="Fit columns to content">
-            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
-              stroke-linejoin="round">
-              <rect x="2" y="2" width="16" height="16" rx="1.5" />
-              <line x1="7.3" y1="2" x2="7.3" y2="18" />
-              <line x1="12.6" y1="2" x2="12.6" y2="18" />
-            </svg>
-          </button>
-          <div class="tt-sep"></div>
-          <!-- Merge / Split -->
-          <button class="tt-btn" id="tt-merge-cells" title="Merge selected cells (select cells first)">
-            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
-              stroke-linejoin="round">
-              <rect x="2" y="2" width="16" height="16" rx="1.5" />
-              <line x1="10" y1="2" x2="10" y2="18" />
-              <line x1="2" y1="10" x2="10" y2="10" />
-              <polyline points="12,7 17,10 12,13" />
-            </svg>
-          </button>
-          <button class="tt-btn" id="tt-split-cell" title="Split merged cell">
-            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
-              stroke-linejoin="round">
-              <rect x="2" y="2" width="16" height="16" rx="1.5" />
-              <line x1="10" y1="2" x2="10" y2="18" />
-              <line x1="2" y1="10" x2="10" y2="10" />
-              <polyline points="15,7 10,10 15,13" />
-            </svg>
-          </button>
-          <div class="tt-sep"></div>
-          <!-- Toggle header row -->
-          <button class="tt-btn" id="tt-thr" title="Toggle header row">
-            <span style="font-size:10px;font-weight:700;font-family:var(--font-mono);letter-spacing:-0.5px">TH</span>
-          </button>
-          <div class="tt-sep"></div>
-          <!-- Cell background colour -->
-          <span class="tt-tbl-label" style="font-size:10px;opacity:0.7;">Cell</span>
-          <button class="tt-swatch" id="tt-cell-bg-none" style="background:var(--bg-page);border-color:var(--border)"
-            title="No fill"></button>
-          <button class="tt-swatch" id="tt-cell-bg-white" style="background:#ffffff;border-color:var(--border-strong)"
-            title="White"></button>
-          <button class="tt-swatch" id="tt-cell-bg-blue" style="background:#dbeafe" title="Blue"></button>
-          <button class="tt-swatch" id="tt-cell-bg-green" style="background:#dcfce7" title="Green"></button>
-          <button class="tt-swatch" id="tt-cell-bg-yellow" style="background:#fef9c3" title="Yellow"></button>
-          <button class="tt-swatch" id="tt-cell-bg-red" style="background:#fee2e2" title="Red"></button>
-          <button class="tt-swatch" id="tt-cell-bg-purple" style="background:#ede9fe" title="Purple"></button>
-          <button class="tt-swatch" id="tt-cell-bg-gray" style="background:#f1f5f9" title="Gray"></button>
-          <div class="tt-sep"></div>
-          <button class="tt-btn" id="tt-table-del" title="Delete table" style="color:var(--priority-high)">
-            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
-              stroke-linejoin="round">
-              <rect x="2" y="2" width="16" height="16" rx="1.5" />
-              <line x1="2" y1="7" x2="18" y2="7" />
-              <line x1="2" y1="13" x2="18" y2="13" />
-              <line x1="7" y1="2" x2="7" y2="18" />
-              <line x1="13" y1="2" x2="13" y2="18" />
-              <line x1="5" y1="5" x2="15" y2="15" />
-              <line x1="15" y1="5" x2="5" y2="15" />
-            </svg>
-          </button>
+            <span class="tt-tbl-label">Table</span>
+            <!-- Row operations -->
+            <button class="tt-btn" id="tt-row-before" title="Add row above">
+              <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+                stroke-linejoin="round">
+                <rect x="2" y="9" width="16" height="9" rx="1.5" />
+                <line x1="10" y1="2" x2="10" y2="7" />
+                <line x1="7" y1="4.5" x2="13" y2="4.5" />
+              </svg>
+            </button>
+            <button class="tt-btn" id="tt-row-after" title="Add row below">
+              <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+                stroke-linejoin="round">
+                <rect x="2" y="2" width="16" height="9" rx="1.5" />
+                <line x1="10" y1="13" x2="10" y2="18" />
+                <line x1="7" y1="15.5" x2="13" y2="15.5" />
+              </svg>
+            </button>
+            <button class="tt-btn" id="tt-row-del" title="Delete row" style="color:var(--priority-high)">
+              <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+                stroke-linejoin="round">
+                <rect x="2" y="6" width="16" height="8" rx="1.5" />
+                <line x1="7.5" y1="9.5" x2="12.5" y2="10.5" />
+                <line x1="12.5" y1="9.5" x2="7.5" y2="10.5" />
+              </svg>
+            </button>
+            <div class="tt-sep"></div>
+            <!-- Column operations -->
+            <button class="tt-btn" id="tt-col-before" title="Add column left">
+              <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+                stroke-linejoin="round">
+                <rect x="9" y="2" width="9" height="16" rx="1.5" />
+                <line x1="2" y1="10" x2="7" y2="10" />
+                <line x1="4.5" y1="7" x2="4.5" y2="13" />
+              </svg>
+            </button>
+            <button class="tt-btn" id="tt-col-after" title="Add column right">
+              <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+                stroke-linejoin="round">
+                <rect x="2" y="2" width="9" height="16" rx="1.5" />
+                <line x1="13" y1="10" x2="18" y2="10" />
+                <line x1="15.5" y1="7" x2="15.5" y2="13" />
+              </svg>
+            </button>
+            <button class="tt-btn" id="tt-col-del" title="Delete column" style="color:var(--priority-high)">
+              <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+                stroke-linejoin="round">
+                <rect x="6" y="2" width="8" height="16" rx="1.5" />
+                <line x1="9" y1="8.5" x2="11" y2="11.5" />
+                <line x1="11" y1="8.5" x2="9" y2="11.5" />
+              </svg>
+            </button>
+            <div class="tt-sep"></div>
+            <!-- Column width (touch-friendly resize) -->
+            <button class="tt-btn" id="tt-col-narrow" title="Narrower column">
+              <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+                stroke-linejoin="round">
+                <line x1="10" y1="3" x2="10" y2="17" />
+                <polyline points="3,7 6,10 3,13" />
+                <polyline points="17,7 14,10 17,13" />
+              </svg>
+            </button>
+            <button class="tt-btn" id="tt-col-wide" title="Wider column">
+              <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+                stroke-linejoin="round">
+                <line x1="10" y1="3" x2="10" y2="17" />
+                <polyline points="6,7 3,10 6,13" />
+                <polyline points="14,7 17,10 14,13" />
+              </svg>
+            </button>
+            <button class="tt-btn" id="tt-col-fit" title="Fit columns to content">
+              <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+                stroke-linejoin="round">
+                <rect x="2" y="2" width="16" height="16" rx="1.5" />
+                <line x1="7.3" y1="2" x2="7.3" y2="18" />
+                <line x1="12.6" y1="2" x2="12.6" y2="18" />
+              </svg>
+            </button>
+            <div class="tt-sep"></div>
+            <!-- Merge / Split -->
+            <button class="tt-btn" id="tt-merge-cells" title="Merge selected cells (select cells first)">
+              <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+                stroke-linejoin="round">
+                <rect x="2" y="2" width="16" height="16" rx="1.5" />
+                <line x1="10" y1="2" x2="10" y2="18" />
+                <line x1="2" y1="10" x2="10" y2="10" />
+                <polyline points="12,7 17,10 12,13" />
+              </svg>
+            </button>
+            <button class="tt-btn" id="tt-split-cell" title="Split merged cell">
+              <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+                stroke-linejoin="round">
+                <rect x="2" y="2" width="16" height="16" rx="1.5" />
+                <line x1="10" y1="2" x2="10" y2="18" />
+                <line x1="2" y1="10" x2="10" y2="10" />
+                <polyline points="15,7 10,10 15,13" />
+              </svg>
+            </button>
+            <div class="tt-sep"></div>
+            <!-- Toggle header row -->
+            <button class="tt-btn" id="tt-thr" title="Toggle header row">
+              <span style="font-size:10px;font-weight:700;font-family:var(--font-mono);letter-spacing:-0.5px">TH</span>
+            </button>
+            <div class="tt-sep"></div>
+            <!-- Cell background colour -->
+            <span class="tt-tbl-label" style="font-size:10px;opacity:0.7;">Cell</span>
+            <button class="tt-swatch" id="tt-cell-bg-none" style="background:var(--bg-page);border-color:var(--border)"
+              title="No fill"></button>
+            <button class="tt-swatch" id="tt-cell-bg-white" style="background:#ffffff;border-color:var(--border-strong)"
+              title="White"></button>
+            <button class="tt-swatch" id="tt-cell-bg-blue" style="background:#dbeafe" title="Blue"></button>
+            <button class="tt-swatch" id="tt-cell-bg-green" style="background:#dcfce7" title="Green"></button>
+            <button class="tt-swatch" id="tt-cell-bg-yellow" style="background:#fef9c3" title="Yellow"></button>
+            <button class="tt-swatch" id="tt-cell-bg-red" style="background:#fee2e2" title="Red"></button>
+            <button class="tt-swatch" id="tt-cell-bg-purple" style="background:#ede9fe" title="Purple"></button>
+            <button class="tt-swatch" id="tt-cell-bg-gray" style="background:#f1f5f9" title="Gray"></button>
+            <div class="tt-sep"></div>
+            <button class="tt-btn" id="tt-table-del" title="Delete table" style="color:var(--priority-high)">
+              <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+                stroke-linejoin="round">
+                <rect x="2" y="2" width="16" height="16" rx="1.5" />
+                <line x1="2" y1="7" x2="18" y2="7" />
+                <line x1="2" y1="13" x2="18" y2="13" />
+                <line x1="7" y1="2" x2="7" y2="18" />
+                <line x1="13" y1="2" x2="13" y2="18" />
+                <line x1="5" y1="5" x2="15" y2="15" />
+                <line x1="15" y1="5" x2="5" y2="15" />
+              </svg>
+            </button>
           </div>
         </div>
         <!-- Floating cell action trigger -->
@@ -58196,7 +59136,8 @@ The state block is invisible to the user.`;
           </div>
         </div>
         <!-- Hidden image file inputs -->
-        <input type="file" id="tt-image-input" accept="image/*" multiple style="display:none">        <input type="file" id="dj-image-input" accept="image/*" multiple style="display:none">
+        <input type="file" id="tt-image-input" accept="image/*" multiple style="display:none"> <input type="file"
+          id="dj-image-input" accept="image/*" multiple style="display:none">
         <!-- TipTap colour picker (inside wrapper for absolute positioning) -->
         <div id="note-fs-tt-colors">
           <span class="tt-colors-label">A</span>
@@ -58252,7 +59193,9 @@ The state block is invisible to the user.`;
             <button onclick="_ttApplyCase('sentence')">Sentence case</button>
           </div>
         </div>
-        <span id="tt-sel-bar-hint" onclick="_ttExpandSelection()" style="font-size:12px;color:var(--text-muted);margin-left:4px;cursor:pointer;-webkit-tap-highlight-color:transparent;">tap to expand</span>
+        <span id="tt-sel-bar-hint" onclick="_ttExpandSelection()"
+          style="font-size:12px;color:var(--text-muted);margin-left:4px;cursor:pointer;-webkit-tap-highlight-color:transparent;">tap
+          to expand</span>
       </div>
       <!-- AI rephrase preview panel (hidden until AI returns a suggestion) -->
       <div id="tt-ai-preview" style="display:none;">
