@@ -22642,7 +22642,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '6.8.41';
+    const VERSION = '6.8.42';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -23024,7 +23024,9 @@
       const di = input.dataset.day;
       dd.innerHTML = results.map((t, i) =>
         `<div class="town-option" onmousedown="selectTown('${actId}','${di}',${i})">
-          <span>${esc(t.name)}</span>
+          <div style="flex:1;min-width:0">
+            <span class="town-option-name">${esc(t.name)}</span>
+          </div>
           <span class="t-code">${esc(t.code)}</span>
         </div>`
       ).join('');
@@ -39398,7 +39400,12 @@
       _noteTownResults[id] = results;
       if (!results.length) { dd.style.display = 'none'; return; }
       dd.innerHTML = results.map((t, i) =>
-        `<div class="note-town-option" onmousedown="selectNoteLocation('${id}',${i})"><span>${esc(t.name)}</span><span class="t-code">${esc(t.code)}</span></div>`
+        `<div class="note-town-option" onmousedown="selectNoteLocation('${id}',${i})">
+          <div style="flex:1;min-width:0">
+            <span class="town-option-name">${esc(t.name)}</span>
+          </div>
+          <span class="t-code">${esc(t.code)}</span>
+        </div>`
       ).join('');
       dd.style.display = 'block';
     }
@@ -40050,9 +40057,9 @@
 
       return filtered.map((ex, idx) => `
         <div class="town-option ${state.searchHighlightIndex === idx ? 'highlighted' : ''}" onclick="setSelectedExchange('${esc(ex.code)}')">
-          <div class="flex-1 min-w-0">
-            <span class="block truncate">${esc(ex.name)}</span>
-            ${ex.locality ? `<span class="text-[10px] text-muted block truncate">${esc(ex.locality)}</span>` : ''}
+          <div style="flex:1;min-width:0">
+            <div class="town-option-name">${esc(ex.name)}</div>
+            ${ex.locality ? `<div class="town-option-sub">${esc(ex.locality)}</div>` : ''}
           </div>
           <span class="t-code">${esc(ex.code)}</span>
         </div>
@@ -40070,9 +40077,9 @@
 
       return filtered.map((cb, idx) => `
         <div class="town-option ${state.searchHighlightIndex === idx ? 'highlighted' : ''}" onclick="setSelectedCabinet('${esc(cb.ipid)}')">
-          <div class="flex-1 min-w-0">
-            <span class="block truncate">${esc(cb.mdf)} - ${esc(cb.ccp)}</span>
-            <span class="text-[10px] text-muted block truncate">Cabinet</span>
+          <div style="flex:1;min-width:0">
+            <div class="town-option-name">${esc(cb.mdf)} - ${esc(cb.ccp)}</div>
+            <div class="town-option-sub">Cabinet</div>
           </div>
           <span class="t-code">${esc(cb.ipid)}</span>
         </div>
