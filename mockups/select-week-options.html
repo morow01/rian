@@ -1,0 +1,986 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rian — Select Week Redesign (Upcoming + Smart Calendar)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --font-body: 'DM Sans', sans-serif;
+      --font-mono: 'DM Mono', monospace;
+      --bg-page: #0f172a;
+      --bg-header: #1e293b;
+      --text-header: #f8fafc;
+      --bg-card: #ffffff;
+      --bg-card-alt: #f8fafc;
+      --bg-input: #f1f5f9;
+      --border: #e2e8f0;
+      --border-focus: #3b82f6;
+      --text-primary: #0f172a;
+      --text-secondary: #475569;
+      --text-muted: #94a3b8;
+      --accent: #2563eb;
+      --accent-rgb: 37, 99, 235;
+      --accent-light: #eff6ff;
+      --accent-hover: #1d4ed8;
+      --success: #10b981;
+      --success-light: #ecfdf5;
+      --amber: #f59e0b;
+      --amber-light: #fffbeb;
+      --shadow-rgb: 15, 23, 42;
+    }
+
+    [data-theme="dark"] {
+      --bg-page: #090e17;
+      --bg-header: #0f1624;
+      --text-header: #f8fafc;
+      --bg-card: #1e293b;
+      --bg-card-alt: #273449;
+      --bg-input: #151e2e;
+      --border: #334155;
+      --border-focus: #60a5fa;
+      --text-primary: #f8fafc;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+      --accent: #3b82f6;
+      --accent-rgb: 59, 130, 246;
+      --accent-light: rgba(59, 130, 246, 0.15);
+      --accent-hover: #60a5fa;
+      --success: #10b981;
+      --success-light: rgba(16, 185, 129, 0.15);
+      --amber: #f59e0b;
+      --amber-light: rgba(245, 158, 11, 0.15);
+      --shadow-rgb: 0, 0, 0;
+    }
+
+    [data-theme="champagne"] {
+      --bg-page: #fbf9f5;
+      --bg-header: #2e261f;
+      --text-header: #fdfbf7;
+      --bg-card: #ffffff;
+      --bg-card-alt: #f6f2eb;
+      --bg-input: #f3eee5;
+      --border: #e3dacf;
+      --border-focus: #c28847;
+      --text-primary: #2e261f;
+      --text-secondary: #6e5e4f;
+      --text-muted: #a49382;
+      --accent: #b47835;
+      --accent-rgb: 180, 120, 53;
+      --accent-light: #fbf3e8;
+      --accent-hover: #966127;
+      --success: #15803d;
+      --success-light: #f0fdf4;
+      --amber: #b45309;
+      --amber-light: #fef3c7;
+      --shadow-rgb: 46, 38, 31;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: var(--font-body);
+      background: var(--bg-page);
+      color: #e2e8f0;
+      padding: 24px;
+      min-height: 100vh;
+    }
+
+    .top-bar {
+      max-width: 1240px;
+      margin: 0 auto 28px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .top-title h1 {
+      font-size: 24px;
+      font-weight: 800;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .top-title p {
+      font-size: 13px;
+      color: #94a3b8;
+      margin-top: 4px;
+    }
+
+    .control-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .pill-switch {
+      display: inline-flex;
+      background: rgba(255, 255, 255, 0.08);
+      padding: 4px;
+      border-radius: 12px;
+      gap: 4px;
+    }
+
+    .pill-btn {
+      background: none;
+      border: none;
+      color: #94a3b8;
+      padding: 6px 14px;
+      font-size: 12px;
+      font-weight: 700;
+      border-radius: 8px;
+      cursor: pointer;
+      font-family: var(--font-body);
+      transition: all 0.15s ease;
+    }
+
+    .pill-btn.active {
+      background: #3b82f6;
+      color: #fff;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    }
+
+    .tabs-nav {
+      max-width: 1240px;
+      margin: 0 auto 24px;
+      display: flex;
+      gap: 10px;
+      overflow-x: auto;
+      padding-bottom: 6px;
+    }
+
+    .tab-item {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: #cbd5e1;
+      padding: 10px 18px;
+      border-radius: 12px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.15s ease;
+      white-space: nowrap;
+    }
+
+    .tab-item:hover {
+      background: rgba(255, 255, 255, 0.12);
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .tab-item.active {
+      background: #2563eb;
+      border-color: #3b82f6;
+      color: #fff;
+      box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35);
+    }
+
+    .tab-badge {
+      font-size: 10px;
+      background: rgba(255, 255, 255, 0.2);
+      padding: 2px 6px;
+      border-radius: 6px;
+    }
+
+    .main-grid {
+      max-width: 1240px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: minmax(360px, 470px) 1fr;
+      gap: 32px;
+      align-items: start;
+    }
+
+    @media (max-width: 900px) {
+      .main-grid { grid-template-columns: 1fr; }
+    }
+
+    .preview-box {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 24px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .frame-label {
+      font-size: 12px;
+      font-weight: 800;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 16px;
+      align-self: flex-start;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .modal-container {
+      width: 100%;
+      max-width: 440px;
+      background: var(--bg-card);
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      box-shadow: 0 20px 50px rgba(var(--shadow-rgb), 0.25);
+      padding: 18px 18px 16px;
+      color: var(--text-primary);
+      position: relative;
+      transition: all 0.2s ease;
+    }
+
+    .sheet-handle {
+      width: 38px;
+      height: 4px;
+      border-radius: 2px;
+      background: var(--border);
+      margin: 0 auto 12px;
+    }
+
+    .modal-hdr {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 14px;
+    }
+
+    .modal-title {
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--text-primary);
+    }
+
+    .modal-sub {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .modal-close {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      border: none;
+      background: var(--bg-card-alt);
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+
+    .modal-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .btn-act {
+      height: 44px;
+      border-radius: 12px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: var(--font-body);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.15s ease;
+    }
+
+    .btn-cancel {
+      border: 1px solid var(--border);
+      background: var(--bg-card);
+      color: var(--text-secondary);
+    }
+
+    .btn-cancel:hover { background: var(--bg-card-alt); }
+
+    .btn-go {
+      border: none;
+      background: var(--accent);
+      color: #fff;
+      box-shadow: 0 2px 8px rgba(var(--accent-rgb), 0.3);
+    }
+
+    .btn-go:hover { filter: brightness(1.08); transform: translateY(-1px); }
+
+    .info-col {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 24px;
+      padding: 24px;
+    }
+
+    .info-hdr {
+      font-size: 20px;
+      font-weight: 800;
+      color: #fff;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .info-badge {
+      font-size: 11px;
+      font-weight: 800;
+      background: #2563eb;
+      color: #fff;
+      padding: 3px 8px;
+      border-radius: 6px;
+      letter-spacing: 0.05em;
+    }
+
+    .info-desc {
+      font-size: 14px;
+      line-height: 1.6;
+      color: #cbd5e1;
+      margin-bottom: 20px;
+    }
+
+    .feature-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .feature-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      font-size: 13px;
+      color: #94a3b8;
+      line-height: 1.5;
+    }
+
+    .feature-icon {
+      width: 20px;
+      height: 20px;
+      border-radius: 6px;
+      background: rgba(37, 99, 235, 0.2);
+      color: #60a5fa;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    /* Segmented Switcher (Callouts Style) */
+    .callout-seg {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      background: var(--bg-card-alt);
+      padding: 4px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      gap: 4px;
+      margin-bottom: 14px;
+    }
+
+    .callout-seg-btn {
+      border: none;
+      background: none;
+      color: var(--text-secondary);
+      font-size: 12px;
+      font-weight: 700;
+      padding: 8px 10px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      font-family: var(--font-body);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .callout-seg-btn.active {
+      background: var(--bg-card);
+      color: var(--accent);
+      box-shadow: 0 2px 8px rgba(var(--shadow-rgb), 0.08);
+    }
+
+    .callout-badge {
+      font-size: 10px;
+      font-weight: 800;
+      padding: 2px 6px;
+      border-radius: 10px;
+      background: var(--bg-input);
+      color: var(--text-muted);
+    }
+
+    .callout-seg-btn.active .callout-badge {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    /* Stream Rows */
+    .week-stream-list {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+      max-height: 260px;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+
+    .week-stream-list::-webkit-scrollbar { width: 4px; }
+    .week-stream-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+    .stream-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: var(--bg-card);
+      cursor: pointer;
+      transition: all 0.12s ease;
+    }
+
+    .stream-row:hover {
+      border-color: rgba(var(--accent-rgb), 0.45);
+      background: var(--bg-card-alt);
+    }
+
+    .stream-row.sel {
+      border-color: var(--accent);
+      background: var(--accent-light);
+    }
+
+    .stream-row.current {
+      border-left: 3px solid var(--success);
+    }
+
+    .stream-row.future {
+      border-left: 3px solid var(--accent);
+    }
+
+    .stream-row-left {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .stream-label {
+      font-size: 10px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .stream-tag-curr {
+      background: var(--success);
+      color: #fff;
+      font-size: 8px;
+      font-weight: 800;
+      padding: 1px 5px;
+      border-radius: 4px;
+    }
+
+    .stream-date {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .stream-badge {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-secondary);
+      background: var(--bg-input);
+      padding: 3px 8px;
+      border-radius: 6px;
+    }
+
+    .stream-row.sel .stream-badge {
+      background: rgba(var(--accent-rgb), 0.2);
+      color: var(--accent);
+    }
+
+    /* Month Calendar Grid */
+    .cal-box {
+      border: 1px solid var(--border);
+      background: var(--bg-card-alt);
+      border-radius: 14px;
+      padding: 12px;
+    }
+
+    .cal-hdr-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+
+    .cal-month-title {
+      font-size: 14px;
+      font-weight: 800;
+      color: var(--text-primary);
+    }
+
+    .cal-nav-group {
+      display: flex;
+      gap: 4px;
+    }
+
+    .cal-btn {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--bg-card);
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-weight: 800;
+    }
+
+    .cal-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .cal-grid-table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0 3px;
+      font-size: 12px;
+      text-align: center;
+    }
+
+    .cal-grid-table th {
+      font-size: 10px;
+      font-weight: 800;
+      color: var(--text-muted);
+      padding: 4px 0;
+      text-transform: uppercase;
+    }
+
+    .cal-week-row {
+      cursor: pointer;
+      transition: background 0.12s ease;
+    }
+
+    .cal-week-row td {
+      padding: 6px 0;
+      color: var(--text-primary);
+      position: relative;
+    }
+
+    .cal-week-row:hover td {
+      background: rgba(var(--accent-rgb), 0.08);
+    }
+
+    .cal-week-row:hover td:first-child {
+      border-top-left-radius: 7px;
+      border-bottom-left-radius: 7px;
+    }
+
+    .cal-week-row:hover td:last-child {
+      border-top-right-radius: 7px;
+      border-bottom-right-radius: 7px;
+    }
+
+    .cal-week-row.sel td {
+      background: var(--accent-light);
+      color: var(--accent);
+      font-weight: 800;
+    }
+
+    .cal-week-row.sel td:first-child {
+      border-top-left-radius: 7px;
+      border-bottom-left-radius: 7px;
+    }
+
+    .cal-week-row.sel td:last-child {
+      border-top-right-radius: 7px;
+      border-bottom-right-radius: 7px;
+    }
+
+    .today-pip {
+      width: 4px;
+      height: 4px;
+      background: var(--accent);
+      border-radius: 50%;
+      position: absolute;
+      bottom: 2px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    .cal-muted-day {
+      color: var(--text-muted) !important;
+      opacity: 0.45;
+    }
+
+    .cal-feedback-card {
+      margin-top: 10px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 8px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .toast-preview {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: #1e293b;
+      border: 1px solid #334155;
+      color: #f8fafc;
+      padding: 12px 18px;
+      border-radius: 12px;
+      font-size: 13px;
+      font-weight: 600;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      display: none;
+      align-items: center;
+      gap: 8px;
+      z-index: 1000;
+      animation: popIn 0.2s ease;
+    }
+
+    @keyframes popIn {
+      from { transform: translateY(10px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Bar -->
+  <div class="top-bar">
+    <div class="top-title">
+      <h1>
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="2.2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+        Select Week Redesign (Upcoming + Smart Calendar)
+      </h1>
+      <p>Seamlessly jumps to near future weeks or navigates months ahead with Friday-start week logic</p>
+    </div>
+
+    <div class="control-row">
+      <div class="pill-switch">
+        <button class="pill-btn active" onclick="setTheme('')">Codex Light</button>
+        <button class="pill-btn" onclick="setTheme('dark')">Slate Dark</button>
+        <button class="pill-btn" onclick="setTheme('champagne')">Champagne</button>
+      </div>
+
+      <div class="pill-switch">
+        <button class="pill-btn active" id="vp-mobile" onclick="setViewport('mobile')">Mobile Sheet</button>
+        <button class="pill-btn" id="vp-desktop" onclick="setViewport('desktop')">Desktop Modal</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Container -->
+  <div class="main-grid">
+    <div class="preview-box">
+      <div class="frame-label">
+        <span id="frame-type-lbl">📱 Mobile Bottom Sheet Preview</span>
+      </div>
+
+      <!-- MAIN PROPOSED MODAL -->
+      <div class="modal-container">
+        <div class="sheet-handle"></div>
+        <div class="modal-hdr">
+          <div>
+            <div class="modal-title">Select Week</div>
+            <div class="modal-sub">Plan upcoming events or jump to future dates</div>
+          </div>
+          <button class="modal-close" onclick="mockToast('Closed')">✕</button>
+        </div>
+
+        <!-- Segmented Tab Bar (Callouts Pattern) -->
+        <div class="callout-seg">
+          <button class="callout-seg-btn active" id="tab-btn-upcoming" onclick="switchSeg('upcoming')">
+            <span>Upcoming</span>
+            <span class="callout-badge">6</span>
+          </button>
+          <button class="callout-seg-btn" id="tab-btn-cal" onclick="switchSeg('cal')">
+            <span>Calendar</span>
+            <span class="callout-badge">🗓️</span>
+          </button>
+        </div>
+
+        <!-- VIEW 1: UPCOMING WEEKS LIST (Next 6 Weeks) -->
+        <div id="view-upcoming" class="week-stream-list">
+          <!-- Active Current Week -->
+          <div class="stream-row current sel" onclick="selectWeek(this, '11 Sep – 17 Sep 2026', 'This Week')">
+            <div class="stream-row-left">
+              <span class="stream-label">This Week <span class="stream-tag-curr">ACTIVE</span></span>
+              <span class="stream-date">11 Sep – 17 Sep</span>
+            </div>
+            <span class="stream-badge" style="background:var(--success-light); color:var(--success);">Current</span>
+          </div>
+
+          <!-- Future Week Rows -->
+          <div class="stream-row future" onclick="selectWeek(this, '18 Sep – 24 Sep 2026', 'Next Week')">
+            <div class="stream-row-left">
+              <span class="stream-label">Next Week</span>
+              <span class="stream-date">18 Sep – 24 Sep</span>
+            </div>
+            <span class="stream-badge">Plan +</span>
+          </div>
+
+          <div class="stream-row future" onclick="selectWeek(this, '25 Sep – 1 Oct 2026', 'In 2 Weeks')">
+            <div class="stream-row-left">
+              <span class="stream-label">In 2 Weeks</span>
+              <span class="stream-date">25 Sep – 1 Oct</span>
+            </div>
+            <span class="stream-badge">Plan +</span>
+          </div>
+
+          <div class="stream-row future" onclick="selectWeek(this, '2 Oct – 8 Oct 2026', 'In 3 Weeks')">
+            <div class="stream-row-left">
+              <span class="stream-label">In 3 Weeks</span>
+              <span class="stream-date">2 Oct – 8 Oct</span>
+            </div>
+            <span class="stream-badge">Plan +</span>
+          </div>
+
+          <div class="stream-row future" onclick="selectWeek(this, '9 Oct – 15 Oct 2026', 'In 4 Weeks')">
+            <div class="stream-row-left">
+              <span class="stream-label">In 4 Weeks</span>
+              <span class="stream-date">9 Oct – 15 Oct</span>
+            </div>
+            <span class="stream-badge">Plan +</span>
+          </div>
+
+          <div class="stream-row future" onclick="selectWeek(this, '16 Oct – 22 Oct 2026', 'In 5 Weeks')">
+            <div class="stream-row-left">
+              <span class="stream-label">In 5 Weeks</span>
+              <span class="stream-date">16 Oct – 22 Oct</span>
+            </div>
+            <span class="stream-badge">Plan +</span>
+          </div>
+        </div>
+
+        <!-- VIEW 2: FRIDAY-START MONTH CALENDAR -->
+        <div id="view-cal" class="cal-box" style="display:none;">
+          <div class="cal-hdr-row">
+            <span class="cal-month-title" id="cal-month-lbl">September 2026</span>
+            <div class="cal-nav-group">
+              <button class="cal-btn" title="Previous Month" onclick="changeMonth(-1)">‹</button>
+              <button class="cal-btn" title="Next Month" onclick="changeMonth(1)">›</button>
+            </div>
+          </div>
+
+          <table class="cal-grid-table">
+            <thead>
+              <tr>
+                <th style="color:var(--accent);">Fri</th>
+                <th>Sat</th>
+                <th>Sun</th>
+                <th>Mon</th>
+                <th>Tue</th>
+                <th>Wed</th>
+                <th>Thu</th>
+              </tr>
+            </thead>
+            <tbody id="cal-tbody">
+              <!-- Dynamically rendered calendar weeks -->
+            </tbody>
+          </table>
+
+          <div class="cal-feedback-card">
+            <div>
+              <span style="font-size:9px; color:var(--text-muted); text-transform:uppercase; font-weight:800; display:block;">Selected Timesheet Week</span>
+              <span style="font-size:12px; font-weight:800; color:var(--text-primary);" id="cal-feedback-text">11 Sep – 17 Sep 2026</span>
+            </div>
+            <span style="font-size:10px; font-weight:800; background:var(--accent); color:#fff; padding:2px 7px; border-radius:6px;">Friday Start</span>
+          </div>
+        </div>
+
+        <!-- Bottom Action Buttons -->
+        <div class="modal-actions">
+          <button class="btn-act btn-cancel" onclick="mockToast('Cancelled')">Cancel</button>
+          <button class="btn-act btn-go" id="main-go-btn" onclick="mockToast('Opening: ' + currentSelectedRange)">Open Week</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Explanations Column -->
+    <div class="info-col">
+      <div class="info-hdr">
+        <span>Why this solves the exact challenge</span>
+        <span class="info-badge">Perfect Synergy</span>
+      </div>
+      <p class="info-desc">
+        Since past weeks are already in the main Week History page, this design cleanly addresses the two distinct future use cases:
+      </p>
+
+      <ul class="feature-list">
+        <li class="feature-item">
+          <div class="feature-icon">1</div>
+          <div>
+            <strong>Near Future (1–6 Weeks) via "Upcoming" Tab:</strong>
+            <br>
+            When entering upcoming events next week or 2–4 weeks out, a list is the fastest: 1 tap without thinking about days or months.
+          </div>
+        </li>
+        <li class="feature-item">
+          <div class="feature-icon">2</div>
+          <div>
+            <strong>Far Future (2–12 Months Ahead) via "Calendar" Tab:</strong>
+            <br>
+            A stream cannot realistically list 52 weeks without endless scrolling. The Month Calendar allows jumping to November, December, or next year in seconds.
+          </div>
+        </li>
+        <li class="feature-item">
+          <div class="feature-icon">3</div>
+          <div>
+            <strong>True Friday–Thursday Boundary:</strong>
+            <br>
+            Instead of a standard picker where selecting a Tuesday is confusing, tapping any day highlights the whole Friday-to-Thursday timesheet block so you always know which timesheet week you are opening.
+          </div>
+        </li>
+        <li class="feature-item">
+          <div class="feature-icon">4</div>
+          <div>
+            <strong>Reuses Existing Callouts Component Pattern:</strong>
+            <br>
+            Matches the <code>Upcoming</code> | <code>Previous</code> segmented tab look already in Rian's Callouts header.
+          </div>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <div id="toast" class="toast-preview">
+    <span id="toast-text">Feedback</span>
+  </div>
+
+  <script>
+    let currentSelectedRange = '11 Sep – 17 Sep 2026';
+    let currentMonthOffset = 0; // 0 = Sep 2026
+
+    const months = [
+      { name: 'September 2026', weeks: [
+        { label: '28 Aug – 3 Sep 2026', days: ['28','29','30','31','1','2','3'], muted: [0,1,2,3] },
+        { label: '4 Sep – 10 Sep 2026', days: ['4','5','6','7','8','9','10'], muted: [] },
+        { label: '11 Sep – 17 Sep 2026', days: ['11','12','13','14','15','16','17'], muted: [], active: true, today: 5 },
+        { label: '18 Sep – 24 Sep 2026', days: ['18','19','20','21','22','23','24'], muted: [] },
+        { label: '25 Sep – 1 Oct 2026', days: ['25','26','27','28','29','30','1'], muted: [6] }
+      ]},
+      { name: 'October 2026', weeks: [
+        { label: '25 Sep – 1 Oct 2026', days: ['25','26','27','28','29','30','1'], muted: [0,1,2,3,4,5] },
+        { label: '2 Oct – 8 Oct 2026', days: ['2','3','4','5','6','7','8'], muted: [] },
+        { label: '9 Oct – 15 Oct 2026', days: ['9','10','11','12','13','14','15'], muted: [] },
+        { label: '16 Oct – 22 Oct 2026', days: ['16','17','18','19','20','21','22'], muted: [] },
+        { label: '23 Oct – 29 Oct 2026', days: ['23','24','25','26','27','28','29'], muted: [] },
+        { label: '30 Oct – 5 Nov 2026', days: ['30','31','1','2','3','4','5'], muted: [2,3,4,5,6] }
+      ]},
+      { name: 'November 2026', weeks: [
+        { label: '30 Oct – 5 Nov 2026', days: ['30','31','1','2','3','4','5'], muted: [0,1] },
+        { label: '6 Nov – 12 Nov 2026', days: ['6','7','8','9','10','11','12'], muted: [] },
+        { label: '13 Nov – 19 Nov 2026', days: ['13','14','15','16','17','18','19'], muted: [] },
+        { label: '20 Nov – 26 Nov 2026', days: ['20','21','22','23','24','25','26'], muted: [] },
+        { label: '27 Nov – 3 Dec 2026', days: ['27','28','29','30','1','2','3'], muted: [4,5,6] }
+      ]}
+    ];
+
+    function renderCal() {
+      const m = months[currentMonthOffset];
+      document.getElementById('cal-month-lbl').innerText = m.name;
+      const tbody = document.getElementById('cal-tbody');
+      tbody.innerHTML = m.weeks.map(w => {
+        const isSel = (w.label === currentSelectedRange);
+        return `<tr class="cal-week-row ${isSel ? 'sel' : ''}" onclick="selectWeek(this, '${w.label}', 'Week')">` +
+          w.days.map((d, i) => {
+            const isMuted = w.muted.includes(i);
+            const isToday = (w.today === i);
+            return `<td class="${isMuted ? 'cal-muted-day' : ''}">${d}${isToday ? ' <span class="today-pip"></span>' : ''}</td>`;
+          }).join('') +
+          `</tr>`;
+      }).join('');
+    }
+
+    function changeMonth(delta) {
+      currentMonthOffset = Math.max(0, Math.min(months.length - 1, currentMonthOffset + delta));
+      renderCal();
+    }
+
+    function switchSeg(tab) {
+      document.getElementById('tab-btn-upcoming').classList.toggle('active', tab === 'upcoming');
+      document.getElementById('tab-btn-cal').classList.toggle('active', tab === 'cal');
+      document.getElementById('view-upcoming').style.display = (tab === 'upcoming') ? 'flex' : 'none';
+      document.getElementById('view-cal').style.display = (tab === 'cal') ? 'block' : 'none';
+    }
+
+    function selectWeek(el, range, label) {
+      currentSelectedRange = range;
+      document.querySelectorAll('.stream-row, .cal-week-row').forEach(r => r.classList.remove('sel'));
+      el.classList.add('sel');
+      
+      const shortRange = range.split(' 202')[0];
+      document.getElementById('main-go-btn').innerText = 'Open ' + shortRange;
+      document.getElementById('cal-feedback-text').innerText = range;
+      mockToast('Selected: ' + range);
+    }
+
+    function setTheme(theme) {
+      if (theme) document.documentElement.setAttribute('data-theme', theme);
+      else document.documentElement.removeAttribute('data-theme');
+      
+      document.querySelectorAll('.pill-switch .pill-btn').forEach(b => {
+        if (b.innerText.toLowerCase().includes(theme || 'codex')) b.classList.add('active');
+        else if (!theme && b.innerText.includes('Codex')) b.classList.add('active');
+        else if (theme && (b.innerText.includes('Dark') && theme === 'dark' || b.innerText.includes('Champagne') && theme === 'champagne')) b.classList.add('active');
+        else if (b.innerText.includes('Codex') || b.innerText.includes('Dark') || b.innerText.includes('Champagne')) b.classList.remove('active');
+      });
+    }
+
+    function setViewport(mode) {
+      document.getElementById('vp-mobile').classList.toggle('active', mode === 'mobile');
+      document.getElementById('vp-desktop').classList.toggle('active', mode === 'desktop');
+      document.getElementById('frame-type-lbl').innerText = mode === 'mobile' ? '📱 Mobile Bottom Sheet Preview' : '💻 Desktop Centered Modal Preview';
+      document.querySelectorAll('.sheet-handle').forEach(h => {
+        h.style.display = mode === 'mobile' ? 'block' : 'none';
+      });
+    }
+
+    let toastTimer = null;
+    function mockToast(text) {
+      const toast = document.getElementById('toast');
+      const label = document.getElementById('toast-text');
+      label.innerText = text;
+      toast.style.display = 'flex';
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => { toast.style.display = 'none'; }, 2000);
+    }
+
+    renderCal();
+  </script>
+</body>
+</html>

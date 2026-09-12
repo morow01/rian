@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Table toolbar collapse — mockup options</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tabler-icons/3.46.0/tabler-icons.min.css">
+<style>
+  :root {
+    --border: #e2e2df;
+    --border-strong: #c9c9c4;
+    --surface-1: #f1efe8;
+    --text-primary: #1a1a18;
+    --text-secondary: #5f5e5a;
+    --text-muted: #888780;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --border: #3a3a37;
+      --border-strong: #52514c;
+      --surface-1: #2c2c2a;
+      --text-primary: #f1efe8;
+      --text-secondary: #b4b2a9;
+      --text-muted: #888780;
+    }
+  }
+  body {
+    margin: 0;
+    padding: 40px 16px;
+    background: var(--surface-1);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    color: var(--text-primary);
+  }
+  .bar-icon { width:26px; height:26px; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:15px; color:#3c3489; border-radius:6px; }
+</style>
+</head>
+<body>
+
+<h2 style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);">Three mockup options for collapsing the TipTap table toolbar to the left edge, switchable via tabs, each with a working collapse/expand demo</h2>
+
+<div style="max-width:420px;margin:0 auto">
+  <div style="display:flex;gap:6px;margin-bottom:16px" id="tabs">
+    <button data-opt="a" class="opt-tab active" style="flex:1;padding:8px 4px;border-radius:8px;border:0.5px solid var(--border);background:var(--surface-1);font-size:13px;font-weight:500;cursor:pointer;color:var(--text-primary)">A. Edge tab</button>
+    <button data-opt="b" class="opt-tab" style="flex:1;padding:8px 4px;border-radius:8px;border:0.5px solid var(--border);background:transparent;font-size:13px;font-weight:500;cursor:pointer;color:var(--text-secondary)">B. Shrink</button>
+    <button data-opt="c" class="opt-tab" style="flex:1;padding:8px 4px;border-radius:8px;border:0.5px solid var(--border);background:transparent;font-size:13px;font-weight:500;cursor:pointer;color:var(--text-secondary)">C. Icon rail</button>
+  </div>
+
+  <div style="border:0.5px solid var(--border);border-radius:12px;overflow:hidden;background:#fff">
+    <div style="background:#0f1a2e;color:#fff;padding:10px 12px;font-size:13px;font-weight:500;display:flex;justify-content:space-between">
+      <span>Edit note</span><span style="opacity:0.6">Save</span>
+    </div>
+    <div style="position:relative;height:120px;background:#fff">
+      <div id="bar" style="position:absolute;top:0;left:0;height:100%;display:flex;align-items:center;gap:2px;background:#eef0fc;border-bottom:0.5px solid var(--border);padding:0 8px;transition:all .22s ease;width:100%">
+        <button id="collapse-btn" style="width:24px;height:24px;flex-shrink:0;border:none;background:transparent;border-radius:6px;cursor:pointer;color:#534ab7;display:flex;align-items:center;justify-content:center"><i class="ti ti-chevron-left" style="font-size:16px" aria-hidden="true"></i></button>
+        <div id="bar-icons" style="display:flex;align-items:center;gap:2px;overflow:hidden">
+          <i class="ti ti-row-insert-bottom bar-icon" aria-hidden="true"></i>
+          <i class="ti ti-column-insert-right bar-icon" aria-hidden="true"></i>
+          <i class="ti ti-trash bar-icon" data-core aria-hidden="true"></i>
+          <i class="ti ti-table-off bar-icon" aria-hidden="true"></i>
+          <i class="ti ti-arrows-horizontal bar-icon" aria-hidden="true"></i>
+          <i class="ti ti-square-letter-t bar-icon" data-core aria-hidden="true"></i>
+          <i class="ti ti-palette bar-icon" aria-hidden="true"></i>
+        </div>
+      </div>
+      <div style="position:absolute;top:0;right:12px;bottom:0;display:flex;align-items:center;font-size:12px;color:var(--text-muted)">table content &rsaquo;</div>
+    </div>
+  </div>
+
+  <p id="caption" style="font-size:13px;color:var(--text-secondary);margin:12px 2px 0">Tap the chevron to collapse the bar into a small tab at the left edge. Tap it again to bring the full bar back.</p>
+</div>
+
+<script>
+const opts = {
+  a: {caption:"Tap the chevron to collapse the bar down to just itself — every icon hides, only the re-open chevron stays."},
+  b: {caption:"Tap the chevron to shrink the bar — it keeps 2 core icons (delete, toggle header) visible and hides the rest, a middle ground between A and C."},
+  c: {caption:"Tap the chevron to fold every icon into a slim vertical rail down the left edge, scrollable if it runs out of height, instead of hiding any of them."}
+};
+let opt = 'a';
+let collapsed = false;
+const bar = document.getElementById('bar');
+const icons = document.getElementById('bar-icons');
+const allIcons = document.querySelectorAll('.bar-icon');
+const btn = document.getElementById('collapse-btn');
+const caption = document.getElementById('caption');
+const tabs = document.querySelectorAll('.opt-tab');
+
+function render(){
+  tabs.forEach(t => {
+    const active = t.dataset.opt === opt;
+    t.classList.toggle('active', active);
+    t.style.background = active ? 'var(--surface-1)' : 'transparent';
+    t.style.color = active ? 'var(--text-primary)' : 'var(--text-secondary)';
+    t.style.borderColor = active ? 'var(--border-strong)' : 'var(--border)';
+  });
+  caption.textContent = opts[opt].caption;
+  btn.querySelector('i').className = 'ti ti-chevron-' + (collapsed ? 'right' : 'left');
+  bar.style.flexDirection = 'row';
+  bar.style.paddingTop = '0';
+  icons.style.overflowY = 'visible';
+  icons.style.maxHeight = 'none';
+
+  if(opt === 'a'){
+    bar.style.width = collapsed ? '34px' : '100%';
+    bar.style.borderRadius = collapsed ? '0 10px 10px 0' : '0';
+    bar.style.boxShadow = collapsed ? '2px 0 8px rgba(0,0,0,0.08)' : 'none';
+    icons.style.display = collapsed ? 'none' : 'flex';
+    allIcons.forEach(i => i.style.display = '');
+  } else if(opt === 'b'){
+    bar.style.width = collapsed ? '96px' : '100%';
+    bar.style.borderRadius = collapsed ? '0 10px 10px 0' : '0';
+    bar.style.boxShadow = collapsed ? '2px 0 8px rgba(0,0,0,0.08)' : 'none';
+    icons.style.display = 'flex';
+    allIcons.forEach(i => { i.style.display = (collapsed && !i.hasAttribute('data-core')) ? 'none' : ''; });
+  } else {
+    bar.style.width = collapsed ? '34px' : '100%';
+    bar.style.borderRadius = '0';
+    bar.style.boxShadow = 'none';
+    bar.style.flexDirection = collapsed ? 'column' : 'row';
+    bar.style.alignItems = 'center';
+    bar.style.paddingTop = collapsed ? '6px' : '0';
+    icons.style.display = 'flex';
+    allIcons.forEach(i => i.style.display = '');
+    icons.style.flexDirection = collapsed ? 'column' : 'row';
+    icons.style.marginTop = collapsed ? '4px' : '0';
+    icons.style.overflowY = collapsed ? 'auto' : 'visible';
+    icons.style.maxHeight = collapsed ? 'calc(100% - 34px)' : 'none';
+    icons.style.scrollbarWidth = 'none';
+  }
+}
+
+tabs.forEach(t => t.addEventListener('click', () => { opt = t.dataset.opt; collapsed = false; render(); }));
+btn.addEventListener('click', () => { collapsed = !collapsed; render(); });
+render();
+</script>
+</body>
+</html>

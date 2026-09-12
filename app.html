@@ -20975,43 +20975,37 @@
       position: fixed;
       inset: 0;
       z-index: 200;
-      background: rgba(0, 0, 0, 0.4);
-      backdrop-filter: blur(2px);
-      -webkit-backdrop-filter: blur(2px);
+      background: rgba(0, 0, 0, 0.45);
+      backdrop-filter: blur(3px);
+      -webkit-backdrop-filter: blur(3px);
       display: flex;
-      align-items: flex-end;
+      align-items: center;
       justify-content: center;
-      padding: 12px;
+      padding: 16px;
       animation: overlayIn 0.2s ease;
     }
 
     .hist-jump-sheet {
-      width: min(100%, 480px);
+      width: min(100%, 460px);
       background: var(--bg-card);
-      border-radius: 20px 20px 16px 16px;
-      padding: 16px;
-      box-shadow: 0 16px 48px rgba(var(--shadow-rgb), 0.22);
-      animation: sheetUp 0.28s cubic-bezier(0.32, 0.72, 0, 1);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 18px 18px 16px;
+      box-shadow: 0 20px 50px rgba(var(--shadow-rgb), 0.28);
+      animation: rdn-pop 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      max-height: calc(100vh - 32px);
+      overflow-y: auto;
     }
 
     @media (min-width: 1280px) {
-      .hist-jump-overlay {
-        align-items: center;
-        padding: 20px;
-      }
-
       .hist-jump-sheet {
-        border-radius: 18px;
-        animation: rdn-pop 0.15s ease;
+        width: 460px;
+        border-radius: 20px;
       }
     }
 
     .hist-jump-handle {
-      width: 38px;
-      height: 4px;
-      border-radius: 2px;
-      background: var(--border);
-      margin: 0 auto 14px;
+      display: none;
     }
 
     .hist-jump-title {
@@ -21027,91 +21021,137 @@
       margin-bottom: 14px;
     }
 
-    .hist-quick-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
-      gap: 8px;
-      margin-bottom: 14px;
-    }
-
-    .hist-quick-btn {
+    .hist-cal-box {
       border: 1px solid var(--border);
-      border-radius: 11px;
+      background: var(--bg-card-alt);
+      border-radius: 14px;
+      padding: 12px;
+      margin: 10px 0;
+    }
+
+    .hist-cal-hdr {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+
+    .hist-cal-month-title {
+      font-size: 14px;
+      font-weight: 800;
+      color: var(--text-primary);
+    }
+
+    .hist-cal-btn {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
       background: var(--bg-card);
-      padding: 10px;
-      text-align: left;
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
       cursor: pointer;
-      transition: border-color 0.12s, background 0.12s;
-      font-family: var(--font-body);
+      font-weight: 800;
+      font-size: 14px;
+      transition: all 0.12s ease;
     }
 
-    .hist-quick-btn.sel {
-      border-color: rgba(var(--accent-rgb), 0.5);
-      background: var(--accent-light);
+    .hist-cal-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
     }
 
-    .hist-quick-label {
+    .hist-cal-table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0 3px;
+      font-size: 12px;
+      text-align: center;
+    }
+
+    .hist-cal-table th {
       font-size: 10px;
       font-weight: 800;
       color: var(--text-muted);
+      padding: 4px 0;
       text-transform: uppercase;
-      letter-spacing: 0.06em;
-      display: block;
+      letter-spacing: 0.05em;
     }
 
-    .hist-quick-date {
-      font-size: 12px;
-      font-weight: 700;
-      color: var(--text-primary);
-      margin-top: 4px;
-      display: block;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .hist-date-wrap {
-      position: relative;
-      margin-bottom: 12px;
-    }
-
-    .hist-date-wrap input {
-      width: 100%;
-      height: 48px;
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      background: var(--bg-input);
-      color: var(--text-primary);
-      padding: 0 44px 0 14px;
-      font-size: 15px;
-      outline: none;
-      font-family: var(--font-body);
-    }
-
-    .hist-date-wrap input:focus {
-      border-color: var(--accent);
-    }
-
-    /* Hide Chrome's built-in picker icon — desktop showed it alongside the
-       custom icon below (Android never renders it, hence the mismatch). */
-    .hist-date-wrap input::-webkit-calendar-picker-indicator {
-      display: none;
-      -webkit-appearance: none;
-    }
-
-    .hist-date-wrap svg {
-      position: absolute;
-      right: 14px;
-      top: 50%;
-      transform: translateY(-50%);
-      color: var(--text-muted);
+    .hist-cal-row {
       cursor: pointer;
+      transition: background 0.12s ease;
+    }
+
+    .hist-cal-row td {
+      padding: 6px 0;
+      color: var(--text-primary);
+      position: relative;
+      font-weight: 600;
+      font-size: 12px;
+    }
+
+    .hist-cal-row:hover td {
+      background: rgba(var(--accent-rgb), 0.08);
+    }
+
+    .hist-cal-row:hover td:first-child {
+      border-top-left-radius: 7px;
+      border-bottom-left-radius: 7px;
+    }
+    .hist-cal-row:hover td:last-child {
+      border-top-right-radius: 7px;
+      border-bottom-right-radius: 7px;
+    }
+
+    .hist-cal-row.sel td {
+      background: var(--accent-light);
+      color: var(--accent);
+      font-weight: 800;
+    }
+    .hist-cal-row.sel td:first-child {
+      border-top-left-radius: 7px;
+      border-bottom-left-radius: 7px;
+    }
+    .hist-cal-row.sel td:last-child {
+      border-top-right-radius: 7px;
+      border-bottom-right-radius: 7px;
+    }
+
+    .hist-today-pip {
+      width: 4px;
+      height: 4px;
+      background: var(--accent);
+      border-radius: 50%;
+      position: absolute;
+      bottom: 2px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    .hist-cal-muted {
+      color: var(--text-muted) !important;
+      opacity: 0.45;
+    }
+
+    .hist-cal-summary {
+      margin-top: 12px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 9px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
     }
 
     .hist-jump-actions {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 10px;
+      margin-top: 18px;
     }
 
     .hist-jump-btn {
@@ -22390,7 +22430,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '6.8.26';
+    const VERSION = '6.8.29';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -40322,13 +40362,19 @@
       const curYear = new Date().getFullYear();
       const searchQ = (state.historySearch || '').trim();
       const searchScope = state.historySearchScope || 'all';
+      const activeTab = state.historyTab || 'previous';
 
-      // Future weeks — next 3 after current
-      const futureWeeks = [
-        _histAddWeeks(curWeekStart, 1),
-        _histAddWeeks(curWeekStart, 2),
-        _histAddWeeks(curWeekStart, 3),
-      ];
+      // Future weeks — 12 rolling upcoming weeks (approx 3 months ahead)
+      var futureWeeks = [];
+      for (var fi = 1; fi <= 12; fi++) {
+        futureWeeks.push(_histAddWeeks(curWeekStart, fi));
+      }
+      weeks.forEach(function (w) {
+        if (w.weekStart > curWeekStart && futureWeeks.indexOf(w.weekStart) === -1) {
+          futureWeeks.push(w.weekStart);
+        }
+      });
+      futureWeeks.sort();
 
       // Year summary
       const curYearWeeks = weeks.filter(function (w) { return w.weekStart.startsWith(String(curYear)); });
@@ -40357,10 +40403,13 @@
         var isCurrent = type === 'current';
 
         var badges = '';
-        if (!isFuture) {
+        if (isCurrent || (!isFuture && (ord > 0 || ot > 0 || tasks > 0))) {
           if (ord > 0 || ot > 0 || isCurrent) badges += '<span class="hist-badge blue">' + Math.round(ord) + 'h</span>';
           else badges += '<span class="hist-badge muted">0h</span>';
           if (ot > 0) badges += '<span class="hist-badge amber">' + Math.round(ot) + ' OT</span>';
+          if (coCount > 0) badges += '<span class="hist-badge red">' + phoneSvg + ' ' + coCount + '</span>';
+        } else if (isFuture) {
+          if (tasks > 0) badges += '<span class="hist-badge blue">' + tasks + ' task' + (tasks !== 1 ? 's' : '') + '</span>';
           if (coCount > 0) badges += '<span class="hist-badge red">' + phoneSvg + ' ' + coCount + '</span>';
         }
 
@@ -40370,7 +40419,8 @@
 
         var meta = '';
         if (isFuture) {
-          meta = 'Week ' + (isOnCall || isExtra ? tags : '');
+          var rel = (ws === futureWeeks[0]) ? 'Next week' : (ws === futureWeeks[1] ? 'In 2 weeks' : (ws === futureWeeks[2] ? 'In 3 weeks' : 'Upcoming'));
+          meta = rel + (tasks > 0 ? ' · ' + tasks + ' task' + (tasks !== 1 ? 's' : '') : '') + tags;
         } else if (isCurrent) {
           meta = (tasks > 0 ? tasks + ' task' + (tasks !== 1 ? 's' : '') + ' · ' : '') + 'This week' + tags;
         } else {
@@ -40394,19 +40444,37 @@
       if (filter === 'ot') pastWeeks = pastWeeks.filter(function (w) { return w.totalOT > 0; });
       if (filter === 'callouts') pastWeeks = pastWeeks.filter(function (w) { return ((coWeeks[w.weekStart] && coWeeks[w.weekStart].callouts) || []).length > 0; });
 
-      // Build list
-      var listHtml = '';
-      listHtml += '<div class="hist-section-hdr">Upcoming</div>';
-      futureWeeks.forEach(function (ws) { listHtml += weekRow(ws, 'future'); });
-      listHtml += '<div class="hist-now-divider"><span class="hist-now-pill">This Week</span></div>';
-      listHtml += weekRow(curWeekStart, 'current');
-      listHtml += '<div class="hist-section-hdr">History</div>';
-      if (isLoading) {
-        listHtml += '<div style="text-align:center;padding:32px;color:var(--text-muted);font-size:14px">Loading…</div>';
-      } else if (pastWeeks.length === 0) {
-        listHtml += '<div style="text-align:center;padding:32px;color:var(--text-muted);font-size:14px">No weeks found</div>';
+      // Build Previous / Upcoming content
+      var listContent = '';
+      if (activeTab === 'upcoming') {
+        listContent += '<div class="hist-week-list" style="display:flex;flex-direction:column;gap:8px">';
+        futureWeeks.forEach(function (ws) { listContent += weekRow(ws, 'future'); });
+        listContent += '</div>';
       } else {
-        pastWeeks.forEach(function (w) { listHtml += weekRow(w.weekStart, 'past'); });
+        // Stats
+        var statsHtml = _statsBlock('history', curYear + ' Summary', '<div class="stat-grid">' +
+          '<div class="stat-cell"><div class="stat-cell-label">' + curYear + ' so far</div><div class="stat-cell-value">' + (isLoading ? '…' : workedWeeks.length) + '</div><div class="stat-cell-note">Weeks worked</div></div>' +
+          '<div class="stat-cell"><div class="stat-cell-label">Ordinary hrs</div><div class="stat-cell-value">' + (isLoading ? '…' : yearOrd) + 'h</div><div class="stat-cell-note">' + (isLoading ? '…' : (yearOT > 0 ? yearOT + 'h OT' : 'No OT') + ' · avg ' + avgHrs + 'h/wk') + '</div></div>' +
+          '<div class="stat-cell"><div class="stat-cell-label">On-call wks</div><div class="stat-cell-value">' + yearOnCall + '</div><div class="stat-cell-note">On-call / extra</div></div>' +
+          '<div class="stat-cell"><div class="stat-cell-label">Callouts</div><div class="stat-cell-value">' + yearCallouts + '</div><div class="stat-cell-note">incidents</div></div>' +
+          '</div>');
+
+        // Filter chips
+        var chipsHtml = '<div class="hist-chips">' +
+          [['all', 'All'], ['oncall', 'On-call'], ['ot', 'With OT'], ['callouts', 'With Callouts']].map(function (c) {
+            return '<button class="hist-chip' + (filter === c[0] ? ' active' : '') + '" onclick="historyFilter(\'' + c[0] + '\')">' + c[1] + '</button>';
+          }).join('') + '</div>';
+
+        listContent += statsHtml + chipsHtml;
+        if (isLoading) {
+          listContent += '<div style="text-align:center;padding:32px;color:var(--text-muted);font-size:14px">Loading…</div>';
+        } else if (pastWeeks.length === 0) {
+          listContent += '<div style="text-align:center;padding:32px;color:var(--text-muted);font-size:14px">No weeks found</div>';
+        } else {
+          listContent += '<div class="hist-week-list" style="display:flex;flex-direction:column;gap:8px">';
+          pastWeeks.forEach(function (w) { listContent += weekRow(w.weekStart, 'past'); });
+          listContent += '</div>';
+        }
       }
 
       // Search
@@ -40424,19 +40492,18 @@
         '<div class="hist-mobile-scope seg-bar">' + scopeButtons + '</div>' +
         '</div>';
 
-      // Stats
-      var statsHtml = _statsBlock('history', curYear + ' Summary', '<div class="stat-grid">' +
-        '<div class="stat-cell"><div class="stat-cell-label">' + curYear + ' so far</div><div class="stat-cell-value">' + (isLoading ? '…' : workedWeeks.length) + '</div><div class="stat-cell-note">Weeks worked</div></div>' +
-        '<div class="stat-cell"><div class="stat-cell-label">Ordinary hrs</div><div class="stat-cell-value">' + (isLoading ? '…' : yearOrd) + 'h</div><div class="stat-cell-note">' + (isLoading ? '…' : (yearOT > 0 ? yearOT + 'h OT' : 'No OT') + ' · avg ' + avgHrs + 'h/wk') + '</div></div>' +
-        '<div class="stat-cell"><div class="stat-cell-label">On-call wks</div><div class="stat-cell-value">' + yearOnCall + '</div><div class="stat-cell-note">On-call / extra</div></div>' +
-        '<div class="stat-cell"><div class="stat-cell-label">Callouts</div><div class="stat-cell-value">' + yearCallouts + '</div><div class="stat-cell-note">incidents</div></div>' +
-        '</div>');
+      // Segmented Tab bar (Previous vs Upcoming)
+      var tabSwitcherHtml = '<div class="seg-bar" style="margin:18px 0 12px">' +
+        '<button class="seg-btn' + (activeTab === 'previous' ? ' active' : '') + '" onclick="histSwitchTab(\'previous\')">' +
+        '<span>Previous</span> <span class="hist-tab-badge" style="font-size:10px;font-weight:800;padding:2px 7px;border-radius:10px;margin-left:4px;background:' + (activeTab === 'previous' ? 'var(--accent)' : 'var(--bg-card-alt)') + ';color:' + (activeTab === 'previous' ? '#fff' : 'var(--text-muted)') + '">' + pastWeeks.length + '</span>' +
+        '</button>' +
+        '<button class="seg-btn' + (activeTab === 'upcoming' ? ' active' : '') + '" onclick="histSwitchTab(\'upcoming\')">' +
+        '<span>Upcoming</span> <span class="hist-tab-badge" style="font-size:10px;font-weight:800;padding:2px 7px;border-radius:10px;margin-left:4px;background:' + (activeTab === 'upcoming' ? 'var(--accent)' : 'var(--bg-card-alt)') + ';color:' + (activeTab === 'upcoming' ? '#fff' : 'var(--text-muted)') + '">' + futureWeeks.length + '</span>' +
+        '</button>' +
+        '</div>';
 
-      // Filter chips
-      var chipsHtml = '<div class="hist-chips">' +
-        [['all', 'All'], ['oncall', 'On-call'], ['ot', 'With OT'], ['callouts', 'With Callouts']].map(function (c) {
-          return '<button class="hist-chip' + (filter === c[0] ? ' active' : '') + '" onclick="historyFilter(\'' + c[0] + '\')">' + c[1] + '</button>';
-        }).join('') + '</div>';
+      var currentSectionHtml = '<div class="hist-now-divider"><span class="hist-now-pill">This Week</span></div>' +
+        weekRow(curWeekStart, 'current');
 
       // Jump modal (shared builder — mobile variant)
       var jumpHtml = _histBuildJumpHtml(false);
@@ -40449,38 +40516,87 @@
         '<div style="flex:1;min-width:0"><h2>Week History</h2><p>' + (searchQ ? (searchResults.length + ' result' + (searchResults.length === 1 ? '' : 's') + ' for ' + esc(searchQ)) : 'Search saved tasks and callouts') + '</p></div>' +
         '<button class="hist-icon-btn" onclick="histOpenJump()" title="Select week">' + calSvg + '</button>' +
         '</div>' +
-        '<div class="hist-body">' + searchHtml + (searchQ ? _histBuildMobileResultsHtml(searchResults, searchQ) : (statsHtml + chipsHtml + listHtml)) + '</div>' +
+        '<div class="hist-body">' + searchHtml + (searchQ ? _histBuildMobileResultsHtml(searchResults, searchQ) : (currentSectionHtml + tabSwitcherHtml + listContent)) + '</div>' +
         jumpHtml +
         '</div>';
     }
 
-    // Shared jump-modal builder — mobile and desktop only differ in a drag handle
-    // and the sheet's border-radius. See item 8 in TODO-week-history.md.
+    function _histRenderCalInnerHtml() {
+      var monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+      var curY = state.historyJumpYear != null ? state.historyJumpYear : new Date().getFullYear();
+      var curM = state.historyJumpMonth != null ? state.historyJumpMonth : new Date().getMonth();
+      var selectedWs = state.historyJumpDate ? getNearestFriday(state.historyJumpDate) : dateToStr(getCurrentFriday());
+      var todayStr = dateToStr(new Date());
+
+      var firstOfMonth = new Date(curY, curM, 1);
+      var dow = firstOfMonth.getDay(); // Sun=0, Mon=1, Tue=2, Wed=3, Thu=4, Fri=5, Sat=6
+      var colOffset = (dow + 2) % 7; // Fri=0, Sat=1, Sun=2, Mon=3, Tue=4, Wed=5, Thu=6
+
+      var calRowsHtml = '';
+      var dPointer = new Date(curY, curM, 1 - colOffset);
+
+      for (var w = 0; w < 6; w++) {
+        var rowStart = new Date(dPointer.getTime());
+        var rowWs = dateToStr(rowStart);
+        if (w >= 4 && rowStart.getMonth() !== curM && rowStart.getFullYear() >= curY) {
+          var rowEnd = new Date(rowStart.getTime() + 6 * 86400000);
+          if (rowEnd.getMonth() !== curM) break;
+        }
+        var isSel = (rowWs === selectedWs);
+        var cellsHtml = '';
+        for (var c = 0; c < 7; c++) {
+          var cellDate = new Date(rowStart.getTime() + c * 86400000);
+          var cellDateStr = dateToStr(cellDate);
+          var isMuted = cellDate.getMonth() !== curM;
+          var isToday = (cellDateStr === todayStr);
+          var dayNum = cellDate.getDate();
+          cellsHtml += '<td class="' + (isMuted ? 'hist-cal-muted' : '') + '">' +
+            dayNum +
+            (isToday ? '<span class="hist-today-pip"></span>' : '') +
+            '</td>';
+        }
+        calRowsHtml += '<tr class="hist-cal-row' + (isSel ? ' sel' : '') + '" onclick="histSelectJumpWeek(\'' + rowWs + '\')">' +
+          cellsHtml +
+          '</tr>';
+        dPointer.setDate(dPointer.getDate() + 7);
+      }
+
+      var monthTitle = monthNames[curM] + ' ' + curY;
+      var selRangeLabel = esc(formatWeekRange(selectedWs));
+
+      return '<div class="hist-cal-box">' +
+        '<div class="hist-cal-hdr">' +
+        '<span class="hist-cal-month-title">' + esc(monthTitle) + '</span>' +
+        '<div style="display:flex;gap:4px">' +
+        '<button class="hist-cal-btn" onclick="histJumpMonthStep(-1)">‹</button>' +
+        '<button class="hist-cal-btn" onclick="histJumpMonthStep(1)">›</button>' +
+        '</div>' +
+        '</div>' +
+        '<table class="hist-cal-table">' +
+        '<thead><tr><th style="color:var(--accent)">Fri</th><th>Sat</th><th>Sun</th><th>Mon</th><th>Tue</th><th>Wed</th><th>Thu</th></tr></thead>' +
+        '<tbody>' + calRowsHtml + '</tbody>' +
+        '</table>' +
+        '</div>' +
+        '<div class="hist-cal-summary">' +
+        '<span style="font-size:12px;color:var(--text-muted)">Selected week:</span>' +
+        '<span style="font-size:12px;font-weight:700;color:var(--text-primary)">' + selRangeLabel + '</span>' +
+        '</div>';
+    }
+
+    // Shared jump-modal builder — centered dialog
     function _histBuildJumpHtml(isDesktop) {
       if (!state.historyJumpOpen) return '';
-      var curWeekStart = dateToStr(getCurrentFriday());
-      var qw = [curWeekStart, _histAddWeeks(curWeekStart, 1), _histAddWeeks(curWeekStart, 2)];
-      var qLabels = ['This week', 'Next week', 'Week after'];
-      var selQ = state.historyJumpQuick != null ? state.historyJumpQuick : 1;
-      var jumpDate = state.historyJumpDate || qw[selQ];
-      var handle = isDesktop ? '' : '<div class="hist-jump-handle"></div>';
-      var sheetStyle = isDesktop ? ' style="border-radius:18px"' : '';
       return '<div class="hist-jump-overlay" onclick="if(event.target.classList.contains(\'hist-jump-overlay\'))histCloseJump()">' +
-        '<div class="hist-jump-sheet" onclick="event.stopPropagation()"' + sheetStyle + '>' +
-        handle +
+        '<div class="hist-jump-sheet" onclick="event.stopPropagation()">' +
+        '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px">' +
+        '<div>' +
         '<div class="hist-jump-title">Select Week</div>' +
-        '<div class="hist-jump-sub">Choose a week to view tasks or add new ones</div>' +
-        '<div class="hist-quick-grid">' +
-        qw.map(function (ws, i) {
-          return '<button class="hist-quick-btn' + (selQ === i ? ' sel' : '') + '" onclick="histSetQuick(' + i + ',\'' + ws + '\')">' +
-            '<span class="hist-quick-label">' + qLabels[i] + '</span>' +
-            '<span class="hist-quick-date">' + esc(formatWeekRange(ws)) + '</span>' +
-            '</button>';
-        }).join('') +
+        '<div class="hist-jump-sub">Choose any Friday–Thursday timesheet week</div>' +
         '</div>' +
-        '<div class="hist-date-wrap">' +
-        '<input type="date" id="hist-date-input" value="' + esc(jumpDate) + '" oninput="histDateChange(this.value)">' +
-        '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" onclick="_histOpenDatePicker()"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>' +
+        '<button class="hist-cal-btn" onclick="histCloseJump()" style="width:28px;height:28px;border-radius:8px">✕</button>' +
+        '</div>' +
+        '<div id="hist-cal-inner-wrap">' +
+        _histRenderCalInnerHtml() +
         '</div>' +
         '<div class="hist-jump-actions">' +
         '<button class="hist-jump-btn cancel" onclick="histCloseJump()">Cancel</button>' +
@@ -40993,22 +41109,48 @@
         }, 120);
       }
     }
-    function histOpenJump() { state.historyJumpOpen = true; render(); }
-    function histCloseJump() { state.historyJumpOpen = false; render(); }
-    function histSetQuick(idx, ws) { state.historyJumpQuick = idx; state.historyJumpDate = ws; render(); }
-    function histDateChange(val) { state.historyJumpDate = val; state.historyJumpQuick = -1; }
-    // The custom calendar icon opens the native picker (Chrome's own indicator
-    // is hidden so only one icon shows).
-    function _histOpenDatePicker() {
-      var i = document.getElementById('hist-date-input');
-      if (!i) return;
-      if (typeof i.showPicker === 'function') {
-        try { i.showPicker(); return; } catch (e) { /* fall through to focus */ }
+    function histSwitchTab(tab) {
+      state.historyTab = tab;
+      render();
+    }
+    function histOpenJump() {
+      var cur = state.historyJumpDate || (state.weekData && state.weekData.weekStart) || dateToStr(getCurrentFriday());
+      var d = new Date(cur + 'T00:00:00');
+      if (isNaN(d.getTime())) d = new Date();
+      state.historyJumpDate = cur;
+      state.historyJumpYear = d.getFullYear();
+      state.historyJumpMonth = d.getMonth();
+      state.historyJumpOpen = true;
+      render();
+    }
+    function histCloseJump() {
+      state.historyJumpOpen = false;
+      render();
+    }
+    function histJumpMonthStep(delta) {
+      var y = state.historyJumpYear != null ? state.historyJumpYear : new Date().getFullYear();
+      var m = state.historyJumpMonth != null ? state.historyJumpMonth : new Date().getMonth();
+      var d = new Date(y, m + delta, 1);
+      state.historyJumpYear = d.getFullYear();
+      state.historyJumpMonth = d.getMonth();
+      var wrap = document.getElementById('hist-cal-inner-wrap');
+      if (wrap) {
+        wrap.innerHTML = _histRenderCalInnerHtml();
+      } else {
+        render();
       }
-      i.focus();
+    }
+    function histSelectJumpWeek(ws) {
+      state.historyJumpDate = ws;
+      var wrap = document.getElementById('hist-cal-inner-wrap');
+      if (wrap) {
+        wrap.innerHTML = _histRenderCalInnerHtml();
+      } else {
+        render();
+      }
     }
     function histJumpGo() {
-      var val = state.historyJumpDate || (document.getElementById('hist-date-input') && document.getElementById('hist-date-input').value);
+      var val = state.historyJumpDate || dateToStr(getCurrentFriday());
       if (!val) return;
       var friday = getNearestFriday(val);
       histCloseJump();

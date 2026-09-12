@@ -16,7 +16,7 @@ A Progressive Web App for field technicians — timesheets, notes (TipTap rich t
 
 ## Version
 `const VERSION = 'x.y.z'` in `app.html` (~line 18699). Bump on every change. Only location that needs updating (index.html version references are static).
-Current version: **6.8.26**
+Current version: **6.8.29**
 
 **Top Menu Tabs Configuration (v6.7.28+)**:
 - Registry `ALL_TOP_TABS` defines available header tabs: `week` (Timesheet, pinned), `notes` (Notes), `journal` (Journal), `exchanges` (Finder), `callouts` (Callouts), `routines` (Routines), `history` (Week History), `email-week-v3` (Email / Export Week), `availability` (Availability Planner), `tags-full` (Notes Tag Manager), `ai` (AI Assistant).
