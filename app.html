@@ -15813,41 +15813,59 @@
       margin-bottom: 0;
     }
 
-    .rtn-head-year {
-      height: 34px;
-      min-width: 124px;
-      border: none;
-      background: transparent;
-      border-radius: 0;
-      display: grid;
-      grid-template-columns: 34px 1fr 34px;
+    .rtn-year-sub-btn {
+      display: inline-flex;
       align-items: center;
-      gap: 8px;
-      align-self: center;
+      gap: 3px;
+      padding: 1px 7px;
+      border-radius: 6px;
+      background: var(--accent-light);
+      color: var(--accent);
+      border: 1px solid rgba(var(--accent-rgb), 0.15);
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      line-height: 1.35;
+      vertical-align: baseline;
+      transition: background 0.15s ease, border-color 0.15s ease;
+      font-family: inherit;
     }
 
-    .rtn-head-year button {
-      height: 100%;
-      border: 1px solid var(--border-subtle);
-      border-radius: 10px;
-      background: var(--bg-code-group);
-      color: var(--accent);
-      cursor: pointer;
-      line-height: 1;
-      font-size: 16px;
-      font-weight: 800;
+    .rtn-year-sub-btn:hover {
+      background: rgba(var(--accent-rgb), 0.18);
+      border-color: rgba(var(--accent-rgb), 0.35);
+    }
+
+    .rtn-year-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-top: 10px;
+    }
+
+    .rtn-year-row {
       display: flex;
       align-items: center;
-      justify-content: center;
+      justify-content: space-between;
+      padding: 11px 14px;
+      border-radius: 12px;
+      background: var(--bg-card-alt);
+      border: 1px solid var(--border);
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-primary);
+      cursor: pointer;
+      transition: all 0.15s ease;
     }
 
-    .rtn-head-year span {
-      text-align: center;
-      color: var(--text-primary);
-      font-size: 20px;
-      font-weight: 800;
-      letter-spacing: 0;
-      line-height: 1;
+    .rtn-year-row:hover {
+      background: var(--bg-input);
+    }
+
+    .rtn-year-row.sel {
+      background: var(--accent-light);
+      border-color: rgba(var(--accent-rgb), 0.35);
+      color: var(--accent);
     }
 
     .rtn-top-bar {
@@ -15934,19 +15952,7 @@
       padding: 0;
     }
 
-    @media (max-width: 430px) {
-      .rtn-head-year {
-        min-width: 120px;
-        height: 34px;
-        grid-template-columns: 34px 1fr 34px;
-        gap: 7px;
-      }
 
-      .rtn-head-year span {
-        font-size: 19px;
-      }
-
-    }
 
     /* Empty state */
     .rtn-empty {
@@ -16580,11 +16586,7 @@
         padding-right: 46px;
       }
 
-      .rtn-head-year {
-        height: 36px;
-        min-width: 132px;
-        grid-template-columns: 36px 1fr 36px;
-      }
+
 
       .rtn-top-bar {
         padding: 16px 0;
@@ -22440,7 +22442,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '6.8.32';
+    const VERSION = '6.8.33';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -28334,13 +28336,14 @@
       return window.innerWidth >= 1280;
     }
 
-    function renderSecondaryPageHeader(title, subtitle, actionHtml, backOnclick) {
+    function renderSecondaryPageHeader(title, subtitle, actionHtml, backOnclick, rawSubtitle) {
       const backSvg = '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>';
       const backAction = backOnclick || ("setView('" + (state.prevView || 'week') + "')");
       const backBtn = '<button class="hist-icon-btn" onclick="' + backAction + '" title="Back">' + backSvg + '</button>';
-      const body = '<div style="flex:1;min-width:0"><h2>' + esc(title) + '</h2><p>' + esc(subtitle) + '</p></div>';
+      const subHtml = rawSubtitle ? subtitle : esc(subtitle);
+      const body = '<div style="flex:1;min-width:0"><h2>' + esc(title) + '</h2><p>' + subHtml + '</p></div>';
       if (_isDesktop()) {
-        return '<div class="hist-desk-head">' + backBtn + '<div><h1>' + esc(title) + '</h1><p>' + esc(subtitle) + '</p></div>' + (actionHtml ? '<div style="margin-left:auto">' + actionHtml + '</div>' : '') + '</div>';
+        return '<div class="hist-desk-head">' + backBtn + '<div><h1>' + esc(title) + '</h1><p>' + subHtml + '</p></div>' + (actionHtml ? '<div style="margin-left:auto">' + actionHtml + '</div>' : '') + '</div>';
       }
       return '<div class="hist-hdr">' + backBtn + body + (actionHtml || '') + '</div>';
     }
@@ -32970,6 +32973,7 @@
 
     async function setView(v) {
       if (state.historyJumpOpen) { state.historyJumpOpen = false; document.body.style.overflow = ''; }
+      if (state.routinesYearPickerOpen) { state.routinesYearPickerOpen = false; document.body.style.overflow = ''; }
       if (state.view && state.view !== v) state.prevView = state.view;
       state.view = v;
       localStorage.setItem('lastView', v);
@@ -40068,6 +40072,18 @@
         tplClosePicker();
         return;
       }
+      // Routines year picker overlay
+      if (state && state.routinesYearPickerOpen) {
+        e.preventDefault();
+        closeRoutinesYearPicker();
+        return;
+      }
+      // History calendar jump overlay
+      if (state && state.historyJumpOpen) {
+        e.preventDefault();
+        if (typeof histCloseJump === 'function') histCloseJump();
+        return;
+      }
       // Overlays not using id-based hidden class
       const ocOv = document.getElementById('oc-schedule-overlay');
       if (ocOv && ocOv.classList.contains('open')) {
@@ -45652,12 +45668,10 @@
     }
 
     function renderRoutinesPageHeader(year) {
-      const yearControl = '<div class="rtn-head-year" aria-label="Routine year">' +
-        '<button onclick="event.stopPropagation();routinesChangeYear(-1)" title="Previous year"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>' +
-        '<span>' + year + '</span>' +
-        '<button onclick="event.stopPropagation();routinesChangeYear(1)" title="Next year"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></button>' +
-        '</div>';
-      return renderSecondaryPageHeader('Routines', 'Track monthly site visits', yearControl);
+      const editSvg = '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>';
+      const siteBtn = '<button class="hist-icon-btn" onclick="openRoutinesSitePicker()" title="Choose sites">' + editSvg + '</button>';
+      const yearSubBtn = 'Track monthly visits · <button type="button" class="rtn-year-sub-btn" onclick="openRoutinesYearPicker()" title="Select year">' + year + ' ▾</button>';
+      return renderSecondaryPageHeader('Routines', yearSubBtn, siteBtn, null, true);
     }
 
     // Render the Routines view
@@ -45665,7 +45679,7 @@
       const r = state.routines;
       const year = state.routinesYear;
       const routinesHeader = renderRoutinesPageHeader(year);
-      if (!r) return `<div class="rtn-page">${routinesHeader}<div class="rtn-empty"><div class="rtn-empty-title">Loading...</div></div></div>`;
+      if (!r) return `<div class="rtn-page">${routinesHeader}<div class="rtn-empty"><div class="rtn-empty-title">Loading...</div></div>${_rtnBuildYearModalHtml()}</div>`;
 
       if (!r.selectedSites || r.selectedSites.length === 0) {
         return `
@@ -45677,6 +45691,7 @@
               <div class="rtn-empty-sub">Choose the sites you visit regularly and track them month by month.</div>
               <button class="rtn-setup-btn" onclick="openRoutinesSitePicker()">Choose my sites</button>
             </div>
+            ${_rtnBuildYearModalHtml()}
           </div>`;
       }
 
@@ -45831,10 +45846,6 @@
         }
 
         return '<div class="rtn-page">' + routinesHeader
-          + '<div class="rtn-tools-row rtn-desktop-tools"><div class="rtn-tool-actions">'
-          + '<button class="rtn-edit-btn rtn-tool-icon" onclick="refreshRoutines()" title="Refresh data"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg></button>'
-          + '<button class="rtn-edit-btn" onclick="openRoutinesSitePicker()">Edit Sites</button>'
-          + '</div></div>'
           // Dashboard grid
           + '<div class="rtn-dash">'
           // Main panel card (Grid or Map)
@@ -45845,7 +45856,7 @@
           + '<button class="rtn-panel-btn' + (_rtnDeskPanel === 'grid' ? ' active' : '') + '" onclick="rtnDeskPanel(\'grid\')">Grid</button>'
           + '<button class="rtn-panel-btn' + (_rtnDeskPanel === 'map' ? ' active' : '') + '" onclick="rtnDeskPanel(\'map\')">Map</button>'
           + '</div>'
-          + '<span class="rtn-card-title-actions"><button class="rtn-edit-btn rtn-tool-icon" onclick="refreshRoutines()" title="Refresh data"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg></button><button class="rtn-edit-btn" onclick="openRoutinesSitePicker()">Edit Sites</button></span>'
+          + '<span class="rtn-card-title-actions"><button class="rtn-edit-btn" onclick="openRoutinesSitePicker()">Edit Sites</button></span>'
           + '</div></div>'
           + (_rtnDeskPanel === 'map'
             ? '<div class="rtn-map-wrap"><div id="rtn-map" style="min-height:400px"></div></div>'
@@ -45867,7 +45878,9 @@
           + '<div class="rtn-dash-card"><div class="rtn-dash-card-hdr">Due Visits <span class="rtn-dash-badge" style="background:rgba(245,158,11,0.1);color:#f59e0b">' + dueVisits.length + '</span></div><div class="rtn-due-scroll">' + dueHtml + '</div></div>'
           + '<div class="rtn-dash-card rtn-recent-card"><div class="rtn-dash-card-hdr">Recent Visits <span class="rtn-dash-badge" style="background:rgba(34,197,94,0.1);color:#15803d">Latest</span></div><div class="rtn-recent-scroll">' + recentHtml + '</div></div>'
           + '</div>'
-          + '</div></div>';
+          + '</div>'
+          + _rtnBuildYearModalHtml()
+          + '</div>';
       }
 
       // ── Mobile layout with tab switcher ──
@@ -45889,16 +45902,13 @@
 
       return '<div class="rtn-page">' + routinesHeader
         + '<div class="rtn-tools-row">'
-        // Tab bar
-        + '<div class="rtn-tab-bar">'
+        // Tab bar — full width
+        + '<div class="rtn-tab-bar" style="width:100%">'
         + '<button class="rtn-tab-btn' + (state.rtnMobTab === 'grid' || !state.rtnMobTab ? ' active' : '') + '" onclick="rtnMobTab(\'grid\',this)">Grid</button>'
         + '<button class="rtn-tab-btn' + (state.rtnMobTab === 'stats' ? ' active' : '') + '" onclick="rtnMobTab(\'stats\',this)">Stats' + (dueVisits.length > 0 ? ' <span class="rtn-tab-badge">' + dueVisits.length + '</span>' : '') + '</button>'
         + '<button class="rtn-tab-btn' + (state.rtnMobTab === 'map' ? ' active' : '') + '" onclick="rtnMobTab(\'map\',this)">Map</button>'
         + '</div>'
-        + '<div class="rtn-tool-actions">'
-        + '<button class="rtn-edit-btn rtn-tool-icon" onclick="refreshRoutines()" title="Refresh data"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg></button>'
-        + '<button class="rtn-edit-btn rtn-tool-icon" onclick="openRoutinesSitePicker()" title="Edit sites"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></button>'
-        + '</div></div>'
+        + '</div>'
         // Tab: Grid
         + '<div class="rtn-tab-content' + (state.rtnMobTab === 'grid' || !state.rtnMobTab ? ' active' : '') + '" id="rtn-tab-grid">'
         + '<div class="rtn-sticky-hdr" id="rtn-sticky-hdr"><table class="rtn-table"><thead><tr>' + headCells + '</tr></thead></table></div>'
@@ -45924,6 +45934,7 @@
         + '<div id="rtn-map"></div>'
         + '</div>'
         + '</div>'
+        + _rtnBuildYearModalHtml()
         + '</div>';
     }
 
@@ -46273,6 +46284,55 @@
     function routinesChangeYear(delta) {
       state.routinesYear += delta;
       render();
+    }
+
+    function openRoutinesYearPicker() {
+      state.routinesYearPickerOpen = true;
+      document.body.style.overflow = 'hidden';
+      render();
+    }
+
+    function closeRoutinesYearPicker() {
+      state.routinesYearPickerOpen = false;
+      document.body.style.overflow = '';
+      render();
+    }
+
+    function routinesSetYear(y) {
+      state.routinesYear = parseInt(y, 10);
+      closeRoutinesYearPicker();
+      showToast('Switched to ' + state.routinesYear);
+    }
+
+    function _rtnBuildYearModalHtml() {
+      if (!state.routinesYearPickerOpen) return '';
+      const curY = state.routinesYear || new Date().getFullYear();
+      const thisYear = new Date().getFullYear();
+      const years = [];
+      for (let y = thisYear - 3; y <= thisYear + 1; y++) { years.push(y); }
+      if (!years.includes(curY)) years.push(curY);
+      years.sort((a, b) => a - b);
+      let rowsHtml = '';
+      years.forEach(function (y) {
+        const isSel = (y === curY);
+        const isThisYear = (y === thisYear);
+        const label = y + (isThisYear ? ' (Current)' : '');
+        const checkHtml = isSel ? '<span style="color:var(--accent);font-weight:800">✓</span>' : '';
+        rowsHtml += '<div class="rtn-year-row' + (isSel ? ' sel' : '') + '" onclick="routinesSetYear(' + y + ')">' +
+          '<span>' + label + '</span>' + checkHtml +
+          '</div>';
+      });
+      return '<div class="hist-jump-overlay" onclick="if(event.target.classList.contains(\'hist-jump-overlay\'))closeRoutinesYearPicker()" onwheel="if(event.target.classList.contains(\'hist-jump-overlay\'))event.preventDefault()" ontouchmove="if(event.target.classList.contains(\'hist-jump-overlay\'))event.preventDefault()">' +
+        '<div class="hist-jump-sheet" style="max-width:380px" onclick="event.stopPropagation()">' +
+        '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px">' +
+        '<div>' +
+        '<div class="hist-jump-title">Select Routine Year</div>' +
+        '<div class="hist-jump-sub">View site visits for selected year</div>' +
+        '</div>' +
+        '<button class="hist-cal-btn" onclick="closeRoutinesYearPicker()" style="width:28px;height:28px;border-radius:8px">✕</button>' +
+        '</div>' +
+        '<div class="rtn-year-list">' + rowsHtml + '</div>' +
+        '</div></div>';
     }
 
     // ── Site picker ──────────────────────────────────────────────
