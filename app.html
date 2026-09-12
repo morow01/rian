@@ -16793,12 +16793,9 @@
       position: fixed;
       inset: 0;
       z-index: 200;
-      background: rgba(0, 0, 0, 0.4);
-      backdrop-filter: blur(2px);
-      -webkit-backdrop-filter: blur(2px);
+      background: var(--bg-card);
       display: flex;
-      align-items: flex-end;
-      justify-content: center;
+      flex-direction: column;
       opacity: 0;
       pointer-events: none;
       transition: opacity 0.2s ease;
@@ -16811,42 +16808,36 @@
 
     .rtn-picker-dialog {
       width: 100%;
-      max-height: 88vh;
+      height: 100%;
+      flex: 1;
       display: flex;
       flex-direction: column;
-      transform: translateY(100%);
-      transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1);
-    }
-
-    #rtn-picker-modal.open .rtn-picker-dialog {
-      transform: translateY(0);
+      overflow: hidden;
     }
 
     .rtn-picker-card {
       background: var(--bg-card);
-      border-radius: 20px 20px 0 0;
-      border: 1px solid var(--border);
-      border-bottom: none;
+      width: 100%;
+      height: 100%;
+      flex: 1;
       display: flex;
       flex-direction: column;
-      max-height: 88vh;
       overflow: hidden;
-      box-shadow: 0 -8px 32px rgba(var(--shadow-rgb), 0.18);
     }
 
     .rtn-picker-hdr {
       display: flex;
       align-items: center;
       gap: 12px;
-      padding: 18px 20px 14px;
+      padding: 14px 18px;
       background: var(--bg-card);
       border-bottom: 1px solid var(--border);
       flex-shrink: 0;
     }
 
     .rtn-picker-hdr-icon {
-      width: 44px;
-      height: 44px;
+      width: 42px;
+      height: 42px;
       border-radius: 12px;
       background: var(--accent-light);
       display: flex;
@@ -16856,35 +16847,48 @@
     }
 
     .rtn-picker-search-bar {
-      padding: 12px 20px;
+      padding: 12px 18px;
       background: var(--bg-card);
       border-bottom: 1px solid var(--border);
       flex-shrink: 0;
     }
 
-    .rtn-picker-quick-btn {
-      padding: 7px 12px;
-      border-radius: 8px;
+    .rtn-picker-search-bar .finder-search-wrap {
+      background: var(--bg-input);
       border: 1px solid var(--border);
-      background: var(--bg-card-alt);
-      color: var(--text-secondary);
-      font-size: 12px;
-      font-weight: 700;
-      cursor: pointer;
-      white-space: nowrap;
-      transition: all 0.15s;
+      border-radius: 12px;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      padding: 0 12px;
+      transition: all 0.2s ease;
+    }
+
+    .rtn-picker-search-bar .finder-search-wrap:focus-within {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(var(--accent-rgb), 0.12);
+    }
+
+    .rtn-picker-search-bar .finder-search-input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      outline: none;
+      padding: 6px 0;
+      font-size: 14.5px;
+      color: var(--text-primary);
       font-family: inherit;
     }
 
-    .rtn-picker-quick-btn:hover {
-      background: var(--bg-input);
-      color: var(--text-primary);
+    .rtn-picker-search-bar .finder-search-input::placeholder {
+      color: var(--text-muted);
+      font-size: 14.5px;
+      font-weight: 400;
     }
 
     .rtn-picker-list {
       flex: 1;
-      min-height: 240px;
-      max-height: 460px;
+      min-height: 0;
       overflow-y: auto;
       -webkit-overflow-scrolling: touch;
       background: var(--bg-card);
@@ -16896,7 +16900,7 @@
       color: var(--text-muted);
       text-transform: uppercase;
       letter-spacing: 0.08em;
-      padding: 10px 20px 8px;
+      padding: 10px 18px 8px;
       background: var(--bg-card-alt);
       border-bottom: 1px solid var(--border);
       border-top: 1px solid var(--border);
@@ -16913,7 +16917,7 @@
       display: flex;
       align-items: center;
       gap: 12px;
-      padding: 11px 20px;
+      padding: 12px 18px;
       border-bottom: 1px solid var(--border);
       cursor: pointer;
       transition: background 0.12s;
@@ -16929,7 +16933,7 @@
       width: 20px;
       height: 20px;
       border-radius: 6px;
-      border: 1.5px solid var(--border-input, #cbd5e1);
+      border: 1px solid var(--border-input, #cbd5e1);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -16944,7 +16948,7 @@
     }
 
     .rtn-picker-row-name {
-      font-size: 14px;
+      font-size: 14.5px;
       font-weight: 700;
       color: var(--text-primary);
       line-height: 1.25;
@@ -16956,13 +16960,13 @@
       font-weight: 700;
       color: var(--accent);
       background: var(--accent-light);
-      padding: 1px 6px;
+      padding: 2px 7px;
       border-radius: 5px;
       letter-spacing: 0.04em;
     }
 
     .rtn-picker-footer {
-      padding: 14px 20px;
+      padding: 14px 18px calc(14px + env(safe-area-inset-bottom, 0px));
       background: var(--bg-card);
       border-top: 1px solid var(--border);
       display: flex;
@@ -16973,7 +16977,7 @@
 
     .rtn-picker-save-btn {
       flex: 1;
-      height: 42px;
+      height: 44px;
       border-radius: 12px;
       background: var(--accent);
       color: #fff;
@@ -16998,26 +17002,33 @@
       opacity: 0.85;
     }
 
-    /* ── Desktop: Centered modal dialog matching On-Call Schedule ── */
+    /* ── Desktop: Modal dialog matching On-Call Schedule with full-height comfort ── */
     @media (min-width: 768px) {
       #rtn-picker-modal {
+        background: rgba(0, 0, 0, 0.45);
+        backdrop-filter: blur(3px);
+        -webkit-backdrop-filter: blur(3px);
         align-items: center;
         justify-content: center;
+        padding: 24px;
       }
 
       .rtn-picker-dialog {
-        width: 500px;
-        max-width: calc(100vw - 40px);
-        max-height: calc(100vh - 80px);
+        width: 660px;
+        max-width: 100%;
+        height: calc(100vh - 48px);
+        max-height: 920px;
         transform: none;
-        padding: 0;
       }
 
       .rtn-picker-card {
         border-radius: 18px;
         border: 1px solid var(--border);
         box-shadow: 0 16px 48px rgba(var(--shadow-rgb), 0.22);
-        max-height: calc(100vh - 80px);
+      }
+
+      .rtn-picker-footer {
+        padding: 14px 20px;
       }
 
       #rtn-picker-modal.open .rtn-picker-card {
@@ -22080,15 +22091,13 @@
           </button>
         </div>
 
-        <!-- Search and Quick Actions -->
+        <!-- Search -->
         <div class="rtn-picker-search-bar">
-          <div style="display:flex;align-items:center;gap:8px">
-            <div class="dfnd-search-wrap" style="flex:1">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-              <input id="rtn-picker-search" type="search" placeholder="Search locations or site codes…"
-                oninput="filterRoutinesPicker(this.value)" autocomplete="off">
-            </div>
-            <button type="button" class="rtn-picker-quick-btn" onclick="rtnPickerClearAll()" title="Clear selection">Clear</button>
+          <div class="finder-search-wrap">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-right:8px"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input id="rtn-picker-search" type="search" placeholder="Search locations or site codes…" class="finder-search-input"
+              autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-lpignore="true"
+              data-form-type="other" data-1p-ignore="true" oninput="filterRoutinesPicker(this.value)">
           </div>
         </div>
 
@@ -22607,7 +22616,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '6.8.39';
+    const VERSION = '6.8.40';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
