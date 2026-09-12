@@ -1516,6 +1516,12 @@
       flex: 1;
     }
 
+    .copy-picker-days .weekend-divider {
+      margin: 4px 0 8px;
+      border-bottom: none;
+      padding: 6px 4px;
+    }
+
     .copy-picker-day {
       display: flex;
       align-items: center;
@@ -1528,14 +1534,31 @@
       transition: all 0.15s;
     }
 
-    .copy-picker-day:hover {
+    .copy-picker-day.weekend {
+      background: var(--bg-day-header-we);
+      border-color: var(--border-subtle, var(--border));
+    }
+
+    .copy-picker-day.weekend .copy-picker-day-name {
+      color: var(--text-day-we, var(--text-muted));
+      font-weight: 600;
+    }
+
+    .copy-picker-day:hover,
+    .copy-picker-day.weekend:hover {
       background: rgba(var(--accent-rgb), 0.06);
       border-color: rgba(var(--accent-rgb), 0.4);
     }
 
-    .copy-picker-day.selected {
+    .copy-picker-day.selected,
+    .copy-picker-day.weekend.selected {
       background: rgba(var(--accent-rgb), 0.15);
       border-color: var(--accent);
+    }
+
+    .copy-picker-day.weekend.selected .copy-picker-day-name {
+      color: var(--text-ink);
+      font-weight: 700;
     }
 
     .copy-picker-day.disabled {
@@ -1573,7 +1596,7 @@
     }
 
     .copy-picker-day-date {
-      font-size: 11px;
+      font-size: 13px;
       color: var(--text-dim);
     }
 
@@ -22331,7 +22354,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '6.8.22';
+    const VERSION = '6.8.25';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -31211,7 +31234,7 @@
     });
     // ─────────────────────────────────────────────────────────────
 
-    const copyPickerState = { actId: null, sourceDi: null, viewingWeekStart: null, selectedDates: new Set(), moveMode: false };
+    const copyPickerState = { actId: null, sourceDi: null, viewingWeekStart: null, selectedDates: new Set(), moveMode: false, weekendOpen: false };
 
     function openCopyPicker(actId, di, moveMode = false) {
       const act = state.weekData.days[di]?.activities.find(a => a.id === actId);
@@ -31221,6 +31244,7 @@
       copyPickerState.viewingWeekStart = state.weekStart;
       copyPickerState.selectedDates = new Set();
       copyPickerState.moveMode = !!moveMode;
+      copyPickerState.weekendOpen = false;
       renderCopyPicker(true);
     }
 
@@ -31264,6 +31288,18 @@
       renderCopyPicker();
     }
 
+    function toggleCopyPickerWeekend() {
+      copyPickerState.weekendOpen = !copyPickerState.weekendOpen;
+      const wrap = document.getElementById('cp-wk-collapse-wrap');
+      const divider = document.getElementById('cp-weekend-divider');
+      if (wrap && divider) {
+        wrap.classList.toggle('open', copyPickerState.weekendOpen);
+        divider.classList.toggle('open', copyPickerState.weekendOpen);
+      } else {
+        renderCopyPicker(false);
+      }
+    }
+
     function toggleCopyDay(dateStr) {
       if (copyPickerState.selectedDates.has(dateStr)) {
         copyPickerState.selectedDates.delete(dateStr);
@@ -31276,6 +31312,12 @@
 
     function buildCopyPickerDaysHtml(ws, sourceDate) {
       const todayStr = dateToStr(new Date());
+      const satD = new Date(ws + 'T00:00:00'); satD.setDate(satD.getDate() + 1); const satDate = dateToStr(satD);
+      const sunD = new Date(ws + 'T00:00:00'); sunD.setDate(sunD.getDate() + 2); const sunDate = dateToStr(sunD);
+      const weekendHasSelection = copyPickerState.selectedDates.has(satDate) || copyPickerState.selectedDates.has(sunDate);
+      const weekendHasSource = sourceDate === satDate || sourceDate === sunDate;
+      const weekendOpen = copyPickerState.weekendOpen || weekendHasSelection || weekendHasSource;
+
       let html = '';
       for (let i = 0; i < 7; i++) {
         const d = new Date(ws + 'T00:00:00');
@@ -31285,17 +31327,29 @@
         const isSource = dateStr === sourceDate;
         const isSelected = copyPickerState.selectedDates.has(dateStr);
         const isToday = dateStr === todayStr;
+        const isWeekend = (i === 1 || i === 2);
         const cls = (isSource ? 'copy-picker-day disabled' : (isSelected ? 'copy-picker-day selected' : 'copy-picker-day'))
+          + (isWeekend ? ' weekend' : '')
           + (isToday ? ' today' : '');
         const checkCls = isSelected ? 'copy-picker-day-check checked' : 'copy-picker-day-check';
         const checkSvg = isSelected ? '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>' : '';
         const tag = t => ` <span style="font-weight:400;color:var(--text-dim);">— ${t}</span>`;
         const label = isSource ? `${dayName}${tag('source')}` : (isToday ? `${dayName}${tag('today')}` : dayName);
+
+        if (i === 1) {
+          html += `<div class="weekend-divider cp-weekend-divider${weekendOpen ? ' open' : ''}" id="cp-weekend-divider" onclick="toggleCopyPickerWeekend()"><span class="wk-chev">›</span> Weekend</div>`;
+          html += `<div class="wk-collapse cp-wk-collapse${weekendOpen ? ' open' : ''}" id="cp-wk-collapse-wrap"><div class="wk-collapse-inner">`;
+        }
+
         html += `<div class="${cls}" onclick="toggleCopyDay('${dateStr}')">
           <div class="${checkCls}">${checkSvg}</div>
           <div class="copy-picker-day-name">${label}</div>
           <div class="copy-picker-day-date">${formatDate(dateStr)}</div>
         </div>`;
+
+        if (i === 2) {
+          html += `</div></div>`;
+        }
       }
       return html;
     }
@@ -37427,7 +37481,7 @@
       window._tiptapNoteEdited = true;
       window._actNoteDirty = true;
       const saveBtn = document.getElementById('note-fs-save-btn');
-      if (saveBtn) { saveBtn.disabled = false; saveBtn.style.opacity = '1'; }
+      if (saveBtn) { saveBtn.disabled = false; saveBtn.style.opacity = '1'; saveBtn.textContent = 'Save'; }
     }
 
     function _ttResetDraftState() {
@@ -37435,21 +37489,153 @@
       window._tiptapNoteEdited = false;
       window._actNoteDirty = false;
       const saveBtn = document.getElementById('note-fs-save-btn');
-      if (saveBtn) { saveBtn.disabled = false; saveBtn.style.opacity = '1'; saveBtn.textContent = 'Save'; }
+      if (saveBtn) { saveBtn.disabled = false; saveBtn.style.opacity = '.55'; saveBtn.textContent = 'Save'; }
     }
 
     async function saveNoteFullscreen() {
+      if (!_tiptapEditor) return;
       const saveBtn = document.getElementById('note-fs-save-btn');
       if (saveBtn) { saveBtn.disabled = true; saveBtn.style.opacity = '.75'; saveBtn.textContent = 'Saving...'; }
       try {
-        await closeNoteFullscreen('save');
+        const html = _ttGetHTML();
+
+        if (_fnFsNoteId) {
+          const _closeArr = _fnFsSource === 'jpage' ? state.jPages
+            : _fnFsSource === 'journal' ? state.journal
+              : state.notes;
+          const n = _closeArr ? _closeArr.find(x => x.id === _fnFsNoteId) : null;
+
+          var _contentChangedRemotely = n && (n.noteContent || '') !== (window._tiptapNoteOpenContent || '') && (n.noteContent || '') !== html;
+          if (_contentChangedRemotely && !_activityNoteContainsRemote(html, n.noteContent || '')) {
+            const conflictChoice = await showRianDialog({
+              title: 'Note changed elsewhere',
+              message: 'This note was updated on another device while you were editing. Save your version anyway?',
+              confirmText: 'Save mine',
+              cancelText: 'Keep cloud version',
+              cancelValue: 'keep_cloud',
+              danger: true,
+              extraBtns: [
+                { label: 'Return to editor', value: 'return' }
+              ]
+            });
+            if (conflictChoice !== true) {
+              if (conflictChoice === 'keep_cloud') {
+                if (n) {
+                  _tiptapOnUpdate = null;
+                  _ttSetContent(n.noteContent || '');
+                  _ttResetHistory(_ttGetHTML());
+                  _tiptapOnUpdate = () => { _ttMarkDraftDirty(); };
+                  window._tiptapNoteOpenContent = n.noteContent || '';
+                  _ttResetDraftState();
+                  showToast('Loaded cloud version');
+                }
+              }
+              if (saveBtn) { saveBtn.disabled = false; saveBtn.textContent = 'Save'; saveBtn.style.opacity = window._ttFsDirty ? '1' : '.55'; }
+              return;
+            }
+          }
+
+          if (n) { n.noteContent = html; n.updatedAt = Date.now(); }
+          if (_fnFsSource === 'notes') {
+            const _inEl = document.querySelector(`[data-fn-inline="${_fnFsNoteId}"]`);
+            if (_inEl && _inEl.parentNode) {
+              const _w = document.createElement('div');
+              _w.innerHTML = renderNoteInline(html, `openFieldNoteFullscreen('${_fnFsNoteId}')`, `data-fn-inline="${_fnFsNoteId}"`);
+              if (_w.firstElementChild) _inEl.parentNode.replaceChild(_w.firstElementChild, _inEl);
+            }
+            if (typeof _setNoteHWMExplicit === 'function') _setNoteHWMExplicit(_fnFsNoteId, (html || '').length);
+          }
+          _tiptapLastSavedNoteId = _fnFsNoteId;
+          _tiptapLastSaveAt = Date.now();
+          window._tiptapNoteOpenContent = html;
+
+          if (_fnFsSource === 'jpage') await saveJNow();
+          else if (_fnFsSource === 'journal') scheduleJournalSave();
+          else await saveNotesNow();
+        } else if (_noteFsActId != null) {
+          const mirroredAct = _syncOpenActivityNoteDraft(html);
+          const foundAct = _findActivityById(_noteFsActId);
+          const _clAct = mirroredAct || foundAct?.act;
+          if (foundAct) _noteFsDi = foundAct.di;
+          if (_clAct) {
+            const remoteNote = _clAct.notes || '';
+            const openTs = window._actNoteOpenTs || 0;
+            const localTs = state.weekData._updatedAt || 0;
+            if (openTs > 0 && localTs > openTs + 2000 && remoteNote !== html && !_activityNoteContainsRemote(html, remoteNote)) {
+              const conflictChoice = await showRianDialog({
+                title: 'Note changed elsewhere',
+                message: 'This task note was updated on another device while you were editing. Save your version anyway?',
+                confirmText: 'Save mine',
+                cancelText: 'Keep cloud version',
+                cancelValue: 'keep_cloud',
+                danger: true,
+                extraBtns: [
+                  { label: 'Return to editor', value: 'return' }
+                ]
+              });
+              if (conflictChoice !== true) {
+                if (conflictChoice === 'keep_cloud') {
+                  _tiptapOnUpdate = null;
+                  _ttSetContent(remoteNote);
+                  _ttResetHistory(_ttGetHTML());
+                  _tiptapOnUpdate = () => { _ttMarkDraftDirty(); };
+                  window._actNoteOpenContent = remoteNote;
+                  _ttResetDraftState();
+                  showToast('Loaded cloud version');
+                }
+                if (saveBtn) { saveBtn.disabled = false; saveBtn.textContent = 'Save'; saveBtn.style.opacity = window._ttFsDirty ? '1' : '.55'; }
+                return;
+              }
+            }
+            _clAct.notes = _stripVisibleActivityNoteRecovery(html);
+            _stampActivityNotes(_clAct, window._actNoteBaseUpdatedAt || 0, window._actNoteBaseHash || _noteContentHash(window._actNoteOpenContent || ''));
+            window._actNoteOpenContent = html;
+            await saveWeekNow({ forceActivityNoteId: _noteFsActId });
+          }
+        } else if (_coNoteFsActive) {
+          const coTa = document.getElementById('co-notes-ta');
+          const preview = document.querySelector('[data-co-notes-preview]');
+          if (coTa) {
+            coTa.value = html;
+            coAutoSave();
+            await _coSaveNow();
+          }
+          if (coTa && preview) {
+            preview.innerHTML = coTa.value && coTa.value.trim()
+              ? (coTa.value.trim().startsWith('<') ? sanitizeHtml(coTa.value) : esc(coTa.value).replace(/\n/g, '<br>'))
+              : '<span class="notes-rich-placeholder">Tap to add a note…</span>';
+          }
+        } else if (_tplNoteFsId) {
+          const tplId = _tplNoteFsId;
+          const t = typeof _tplById === 'function' ? _tplById(tplId) : null;
+          if (t) {
+            t.notes = html;
+            t.updatedAt = Date.now();
+            _tplSaveEditedTemplate(tplId);
+            window._tplPatchCardId = tplId;
+          }
+          window._actNoteOpenContent = html;
+        }
+
+        _ttResetDraftState();
+        if (saveBtn) {
+          saveBtn.textContent = 'Saved!';
+          saveBtn.style.opacity = '1';
+          setTimeout(() => {
+            if (saveBtn && !window._ttFsDirty) {
+              saveBtn.textContent = 'Save';
+              saveBtn.style.opacity = '.55';
+            }
+          }, 1200);
+        }
+        showToast('Note saved');
       } catch (e) {
         if (saveBtn) { saveBtn.disabled = false; saveBtn.style.opacity = '1'; saveBtn.textContent = 'Save'; }
         console.warn('[Rian] TipTap save failed:', e);
         showToast('Save failed — try again');
       }
     }
-    function cancelNoteFullscreen() { closeNoteFullscreen('cancel'); }
+    function cancelNoteFullscreen() { closeNoteFullscreen(); }
 
     function toggleFieldNotePanel(noteId) {
       const wrap = document.querySelector(`[data-fn-wrap="${noteId}"]`);
@@ -54285,7 +54471,7 @@ QUESTION: ${query}`;
     let _rdnResolve = null;
 
     function showRianDialog({ title = '', message = '', inputType = null, defaultValue = '', placeholder = '',
-      confirmText = 'OK', cancelText = 'Cancel', danger = false, extraBtns = [] } = {}) {
+      confirmText = 'OK', cancelText = 'Cancel', cancelValue = null, danger = false, extraBtns = [] } = {}) {
       return new Promise(resolve => {
         _rdnResolve = resolve;
         document.getElementById('rdn-title').textContent = title;
@@ -54304,20 +54490,25 @@ QUESTION: ${query}`;
         actions.innerHTML = '';
         for (const btn of (extraBtns || [])) {
           const b = document.createElement('button');
-          b.className = 'rdn-btn rdn-btn-ghost' + (btn.danger ? ' red' : '');
+          b.className = 'rdn-btn ' + (btn.className || ('rdn-btn-ghost' + (btn.danger ? ' red' : '')));
           b.textContent = btn.label;
           b.onmousedown = (ev) => ev.preventDefault();
-          b.onclick = () => { _rdnClose(undefined); btn.action(); };
+          b.onclick = () => {
+            _rdnClose(btn.value !== undefined ? btn.value : undefined);
+            if (typeof btn.action === 'function') btn.action();
+          };
           actions.appendChild(b);
         }
         const spacer = document.createElement('div'); spacer.className = 'rdn-spacer';
         actions.appendChild(spacer);
-        const cancelBtn = document.createElement('button');
-        cancelBtn.className = 'rdn-btn rdn-btn-cancel';
-        cancelBtn.textContent = cancelText;
-        cancelBtn.onmousedown = (ev) => ev.preventDefault();
-        cancelBtn.onclick = () => _rdnClose(null);
-        actions.appendChild(cancelBtn);
+        if (cancelText) {
+          const cancelBtn = document.createElement('button');
+          cancelBtn.className = 'rdn-btn rdn-btn-cancel';
+          cancelBtn.textContent = cancelText;
+          cancelBtn.onmousedown = (ev) => ev.preventDefault();
+          cancelBtn.onclick = () => _rdnClose(cancelValue);
+          actions.appendChild(cancelBtn);
+        }
         const confirmBtn = document.createElement('button');
         confirmBtn.className = 'rdn-btn ' + (danger ? 'rdn-btn-danger' : 'rdn-btn-confirm');
         confirmBtn.textContent = confirmText;
@@ -55453,7 +55644,7 @@ function _ttStripDefaultTableWidths() {
       }, 80);
     }
 
-    async function closeNoteFullscreen(action) {
+    async function closeNoteFullscreen() {
       // Persist scroll + cursor so the next open restores position
       if (_tiptapEditor) {
         try {
@@ -55471,8 +55662,9 @@ function _ttStripDefaultTableWidths() {
           }
         } catch(e) {}
       }
-      const shouldSave = action === 'save';
-      if (!shouldSave && _tiptapEditor && window._ttFsDirty) {
+
+      // If user has unsaved edits, warn before discarding
+      if (_tiptapEditor && window._ttFsDirty) {
         const discard = await showRianDialog({
           title: 'Discard changes?',
           message: 'Your edits have not been saved. Cancel will keep you in the editor.',
@@ -55482,6 +55674,7 @@ function _ttStripDefaultTableWidths() {
         });
         if (!discard) return;
       }
+
       // Stop any active dictation
       if (_fsDictRecognition) { _fsDictRecognition.stop(); _fsDictRecognition = null; }
       const micBtn = document.getElementById('fs-mic-btn');
@@ -55495,46 +55688,22 @@ function _ttStripDefaultTableWidths() {
       const _aiP = document.getElementById('tt-ai-preview');
       if (_aiP) _aiP.style.display = 'none';
       const _fsMod = document.getElementById('note-fs-modal');
-      _fsMod.classList.add('hidden');
+      if (_fsMod) _fsMod.classList.add('hidden');
       document.body.style.overflow = ''; // restore body scroll
       if (window._edZoomReset) window._edZoomReset(); // reset content-only zoom
       // Clear any keyboard-offset padding so next open starts clean
       const _edReset = document.getElementById('note-fs-editor');
       if (_edReset) _edReset.style.paddingBottom = '';
-      // If we were editing a callout note, update preview
+
       if (_coNoteFsActive) {
         _coNoteFsActive = false;
-        const html = _tiptapEditor ? _ttGetHTML() : '';
-        const coTa = document.getElementById('co-notes-ta');
-        const preview = document.querySelector('[data-co-notes-preview]');
-        if (shouldSave && coTa) {
-          coTa.value = html;
-          coAutoSave();
-          await _coSaveNow();
-        }
-        if (coTa && preview) {
-          preview.innerHTML = coTa.value && coTa.value.trim()
-            ? (coTa.value.trim().startsWith('<') ? sanitizeHtml(coTa.value) : esc(coTa.value).replace(/\n/g, '<br>'))
-            : '<span class="notes-rich-placeholder">Tap to add a note…</span>';
-        }
         if (_tiptapEditor) { _tiptapEditor.destroy(); _tiptapEditor = null; }
         window._ttFsDirty = false;
         _ttResetDraftState();
         return;
       }
-      // Task Template note — write only when the fullscreen editor is saved.
+
       if (_tplNoteFsId) {
-        const tplId = _tplNoteFsId;
-        const t = _tplById(tplId);
-        if (shouldSave && _tiptapEditor && t) {
-          const html = _ttGetHTML();
-          if (html !== (window._actNoteOpenContent || '')) {
-            t.notes = html;
-            t.updatedAt = Date.now();
-            _tplSaveEditedTemplate(tplId);
-            window._tplPatchCardId = tplId;
-          }
-        }
         _tplNoteFsId = null;
         if (_tiptapEditor) { _tiptapEditor.destroy(); _tiptapEditor = null; }
         window._ttFsDirty = false;
@@ -55542,154 +55711,28 @@ function _ttStripDefaultTableWidths() {
         render();
         return;
       }
-      // If we were editing a field note's noteContent, flush final content + re-render
+
       if (_fnFsNoteId) {
-        // Only Save writes the draft back. Cancel/ESC/back discard editor-only changes.
-        if (shouldSave && _tiptapEditor) {
-          const html = _ttGetHTML();
-          const noteChanged = window._tiptapNoteEdited || html !== (window._tiptapNoteOpenContent || '');
-          if (!noteChanged) {
-            // Save was tapped but the editor content is unchanged.
-          } else {
-            const _closeArr = _fnFsSource === 'jpage' ? state.jPages
-              : _fnFsSource === 'journal' ? state.journal
-                : state.notes;
-            const n = _closeArr.find(x => x.id === _fnFsNoteId);
-            // v5.8.14: Stale-editor guard — only warn if the note's CONTENT actually
-            // changed while TipTap was open (not just updatedAt from local field edits).
-            var _contentChangedRemotely = n && (n.noteContent || '') !== (window._tiptapNoteOpenContent || '') && (n.noteContent || '') !== html;
-            if (_contentChangedRemotely && !_activityNoteContainsRemote(html, n.noteContent || '')) {
-              // Remote content change arrived after we opened the editor
-              const keepLocal = await showRianDialog({
-                title: 'Note changed elsewhere',
-                message: 'This note was updated on another device while you were editing. Save your version anyway?',
-                confirmText: 'Save mine',
-                cancelText: 'Keep cloud version',
-                danger: true
-              });
-              if (!keepLocal) {
-                // Discard local — don't save, keep remote content
-                window._tiptapNoteEdited = false;
-                const _discardNoteId = _fnFsNoteId;
-                _fnFsNoteId = null;
-                if (_tiptapEditor) { _tiptapEditor.destroy(); _tiptapEditor = null; }
-                if (_noteModalState && _noteModalState === _discardNoteId) {
-                  _showNoteModal(true);
-                } else {
-                  saveNotesUiState();
-                  render();
-                }
-                _noteFsActId = null; _noteFsDi = null;
-                _ttResetDraftState();
-                return;
-              }
-            }
-            if (n) { n.noteContent = html; n.updatedAt = Date.now(); }
-            // Surgical inline preview update — do this before the async save so a Firestore
-            // snapshot mid-await can't race render() and show stale content / collapse card
-            if (_fnFsSource === 'notes') {
-              // Restore the card's expansion state to what it was before TipTap opened.
-              // If the user accessed the note via modal (card was collapsed), don't force expansion.
-              const _wasExp = !!window._fnFsWasExpanded;
-              if (_wasExp) {
-                state.expandedNotes.add(_fnFsNoteId);
-              } else {
-                state.expandedNotes.delete(_fnFsNoteId);
-              }
-              saveNotesUiState();
-              // Surgical inline preview update before async save
-              const _inEl = document.querySelector(`[data-fn-inline="${_fnFsNoteId}"]`);
-              if (_inEl && _inEl.parentNode) {
-                const _w = document.createElement('div');
-                _w.innerHTML = renderNoteInline(html, `openFieldNoteFullscreen('${_fnFsNoteId}')`, `data-fn-inline="${_fnFsNoteId}"`);
-                if (_w.firstElementChild) _inEl.parentNode.replaceChild(_w.firstElementChild, _inEl);
-              }
-              const _card = document.querySelector(`.note-card[data-note-id="${_fnFsNoteId}"]`);
-              if (_card) {
-                _card.classList.toggle('expanded', _wasExp);
-                const _arr = _card.querySelector('.note-expand-arrow');
-                if (_arr) _arr.classList.toggle('open', _wasExp);
-              }
-            }
-            // User explicitly saved — allow intentional shrinkage on THIS device
-            if (_fnFsSource === 'notes') _setNoteHWMExplicit(_fnFsNoteId, (html || '').length);
-            _tiptapLastSavedNoteId = _fnFsNoteId;
-            _tiptapLastSaveAt = Date.now();
-            if (_fnFsSource === 'jpage') await saveJNow();
-            else if (_fnFsSource === 'journal') scheduleJournalSave();
-            else await saveNotesNow();
-          }
-        }
         window._tiptapNoteEdited = false;
         window._ttFsDirty = false;
         const _closedNoteId = _fnFsNoteId;
         _fnFsNoteId = null;
         if (_tiptapEditor) { _tiptapEditor.destroy(); _tiptapEditor = null; }
-        // Refresh note modal (modal mode) or notes view (card/timeline mode)
         if (_noteModalState && _noteModalState === _closedNoteId) {
           _showNoteModal(true);
         } else {
-          saveNotesUiState(); // persist expanded state before render() reloads it from localStorage
+          saveNotesUiState();
           render();
         }
       } else if (_noteFsActId != null) {
-        // Activity inline note (timesheet) — flush final TipTap content
         if (_tiptapEditor) {
-          if (shouldSave) {
-            const html = _ttGetHTML();
-            const mirroredAct = _syncOpenActivityNoteDraft(html);
-            const noteChanged = window._actNoteDirty || html !== (window._actNoteOpenContent || '');
-            if (!noteChanged) {
-              if (_tiptapEditor) { _tiptapEditor.destroy(); _tiptapEditor = null; }
-            } else {
-              const foundAct = _findActivityById(_noteFsActId);
-              const _clAct = mirroredAct || foundAct?.act;
-              if (foundAct) _noteFsDi = foundAct.di;
-              if (_clAct) {
-                // Stale-editor guard: if the activity's note was updated remotely
-                // while TipTap was open, warn the user before overwriting
-                const remoteNote = _clAct.notes || '';
-                const openTs = window._actNoteOpenTs || 0;
-                const localTs = state.weekData._updatedAt || 0;
-                if (openTs > 0 && localTs > openTs + 2000 && remoteNote !== html && !_activityNoteContainsRemote(html, remoteNote)) {
-                  const keepLocal = await showRianDialog({
-                    title: 'Note changed elsewhere',
-                    message: 'This task note was updated on another device while you were editing. Save your version anyway?',
-                    confirmText: 'Save mine',
-                    cancelText: 'Keep cloud version',
-                    danger: true
-                  });
-                  if (!keepLocal) {
-                    if (_tiptapEditor) { _tiptapEditor.destroy(); _tiptapEditor = null; }
-                    window._actNoteOpenTs = 0;
-                    window._actNoteDirty = false;
-                    render();
-                    _noteFsActId = null; _noteFsDi = null;
-                    _ttResetDraftState();
-                    return;
-                  }
-                }
-                _clAct.notes = _stripVisibleActivityNoteRecovery(html);
-                _stampActivityNotes(_clAct, window._actNoteBaseUpdatedAt || 0, window._actNoteBaseHash || _noteContentHash(window._actNoteOpenContent || ''));
-                await saveWeekNow({ forceActivityNoteId: _noteFsActId });
-              }
-            }
-          } else {
-            // CANCEL — revert in-memory state and editor content back to original.
-            // Do NOT destroy the editor: TipTap is a long-lived singleton mounted on
-            // a static DOM element. Calling destroy() removes its ProseMirror child
-            // from the DOM, leaving the host element empty so the next open silently
-            // fails to mount and the editor appears broken.
-            const foundAct = _findActivityById(_noteFsActId);
-            if (foundAct && foundAct.act) {
-              foundAct.act.notes = window._actNoteOpenContent || '';
-            }
-            // Reset editor display silently — null out onUpdate first so the content
-            // restore doesn't trigger a dirty-flag re-set or a spurious auto-save.
-            _tiptapOnUpdate = null;
-            _ttSetContent(window._actNoteOpenContent || '');
+          // Revert in-memory activity note to last saved if user discarded unsaved edits
+          const foundAct = _findActivityById(_noteFsActId);
+          if (foundAct && foundAct.act) {
+            foundAct.act.notes = window._actNoteOpenContent || '';
           }
-          if (_tiptapEditor) { _tiptapEditor.destroy(); _tiptapEditor = null; }
+          _tiptapEditor.destroy();
+          _tiptapEditor = null;
         }
         window._actNoteOpenTs = 0;
         window._actNoteOpenContent = '';
@@ -55698,7 +55741,6 @@ function _ttStripDefaultTableWidths() {
         window._actNoteDirty = false;
         window._ttFsDirty = false;
         render();
-        // Refresh task modal if it's open for this activity (card style mode)
         if (_taskModalState && _taskModalState.actId === _noteFsActId) _showTaskModal(true);
       } else {
         if (_tiptapEditor) { _tiptapEditor.destroy(); _tiptapEditor = null; }
@@ -57017,7 +57059,7 @@ The state block is invisible to the user.`;
           </svg>
         </button>
         <button onclick="cancelNoteFullscreen()"
-          style="font-size:13px;color:#fff;padding:5px 12px;border-radius:8px;background:rgba(255,255,255,0.16);border:1px solid rgba(255,255,255,0.28);cursor:pointer;font-weight:700;flex-shrink:0;">Cancel</button>
+          style="font-size:13px;color:#fff;padding:5px 12px;border-radius:8px;background:rgba(255,255,255,0.16);border:1px solid rgba(255,255,255,0.28);cursor:pointer;font-weight:700;flex-shrink:0;">Close</button>
         <button id="note-fs-save-btn" onclick="saveNoteFullscreen()"
           style="font-size:13px;color:#fff;padding:5px 14px;border-radius:8px;background:var(--accent);border:none;cursor:pointer;font-weight:800;flex-shrink:0;opacity:.55">Save</button>
       </div>
