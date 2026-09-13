@@ -23629,7 +23629,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '6.8.59';
+    const VERSION = '6.8.60';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -53483,7 +53483,13 @@ QUESTION: ${query}`;
         'https://esm.sh/@tiptap/extension-superscript@2.4.0',
         'https://esm.sh/@tiptap/extension-image@2.4.0',
       ]);
-      // Extend TableCell to support per-cell background colour
+      // Extend TableCell to support per-cell background colour & vertical alignment
+      function _cellStyleAttrs(attrs) {
+        const styles = [];
+        if (attrs.background) styles.push(`background-color:${attrs.background}`);
+        if (attrs.verticalAlign) styles.push(`vertical-align:${attrs.verticalAlign}`);
+        return styles.length ? { style: styles.join(';') } : {};
+      }
       const TableCellWithBg = TableCell.extend({
         addAttributes() {
           return {
@@ -53491,7 +53497,12 @@ QUESTION: ${query}`;
             background: {
               default: null,
               parseHTML: el => el.style.backgroundColor || null,
-              renderHTML: attrs => attrs.background ? { style: `background-color:${attrs.background}` } : {},
+              renderHTML: attrs => _cellStyleAttrs(attrs),
+            },
+            verticalAlign: {
+              default: null,
+              parseHTML: el => el.style.verticalAlign || null,
+              renderHTML: attrs => _cellStyleAttrs(attrs),
             },
           };
         },
@@ -53503,7 +53514,12 @@ QUESTION: ${query}`;
             background: {
               default: null,
               parseHTML: el => el.style.backgroundColor || null,
-              renderHTML: attrs => attrs.background ? { style: `background-color:${attrs.background}` } : {},
+              renderHTML: attrs => _cellStyleAttrs(attrs),
+            },
+            verticalAlign: {
+              default: null,
+              parseHTML: el => el.style.verticalAlign || null,
+              renderHTML: attrs => _cellStyleAttrs(attrs),
             },
           };
         },
@@ -55131,6 +55147,10 @@ QUESTION: ${query}`;
         if (!ok) showToast('Place cursor in a merged cell to split it');
       });
       on('tt-table-del', () => e.chain().focus().deleteTable().run());
+      // Vertical alignment
+      on('tt-valign-top', () => _ttSetCellVAlign(e, 'top'));
+      on('tt-valign-middle', () => _ttSetCellVAlign(e, 'middle'));
+      on('tt-valign-bottom', () => _ttSetCellVAlign(e, 'bottom'));
       // Cell background colours
       const _setCellBg = color => e.chain().focus().setCellAttribute('background', color).run();
       on('tt-cell-bg-none', () => _setCellBg(null));
@@ -55523,6 +55543,10 @@ QUESTION: ${query}`;
         // Mark TH button active when cursor is in a header row
         const thrBtn = document.getElementById('tcp-thr-btn');
         if (thrBtn) thrBtn.classList.toggle('tt-active', editor.isActive('tableHeader'));
+        const vAlign = _ttGetActiveCellAttr(editor, 'verticalAlign') || 'top';
+        document.getElementById('tt-valign-top')?.classList.toggle('tt-active', vAlign === 'top');
+        document.getElementById('tt-valign-middle')?.classList.toggle('tt-active', vAlign === 'middle');
+        document.getElementById('tt-valign-bottom')?.classList.toggle('tt-active', vAlign === 'bottom');
         _ttUpdateCellTrigger(editor);
         _ttRevealCaretBelowTableBar(editor, tableBar);
       } else {
@@ -55660,6 +55684,56 @@ QUESTION: ${query}`;
     }
 
 
+    function _ttGetActiveCellAttr(editor, attrName) {
+      if (!editor || !editor.state) return null;
+      const { selection } = editor.state;
+      let cellNode = null;
+      if (selection.$anchorCell) {
+        cellNode = selection.$anchorCell.nodeAfter;
+      } else {
+        const $from = selection.$from;
+        for (let d = $from.depth; d > 0; d--) {
+          const node = $from.node(d);
+          if (node.type.name === 'tableCell' || node.type.name === 'tableHeader') {
+            cellNode = node;
+            break;
+          }
+        }
+      }
+      return cellNode?.attrs?.[attrName] || null;
+    }
+
+    function _ttSetCellVAlign(editor, align, $h) {
+      if (!editor) return;
+      if (editor.state.selection.$anchorCell) {
+        editor.chain().focus().setCellAttribute('verticalAlign', align).run();
+        if (typeof _ttUpdateToolbar === 'function') _ttUpdateToolbar(editor);
+        if (typeof scheduleNotesSave === 'function') scheduleNotesSave();
+        return;
+      }
+      const targetHead = $h || (typeof _resolvedHead === 'function' ? _resolvedHead() : null);
+      if (targetHead) {
+        let depth = -1;
+        for (let d = targetHead.depth; d > 0; d--) {
+          const r = targetHead.node(d).type.spec.tableRole;
+          if (r === 'cell' || r === 'header_cell') { depth = d; break; }
+        }
+        if (depth > 0) {
+          const pos = targetHead.before(depth);
+          const cellNode = targetHead.node(depth);
+          const tr = editor.state.tr;
+          tr.setNodeMarkup(pos, undefined, { ...cellNode.attrs, verticalAlign: align });
+          editor.view.dispatch(tr);
+          if (typeof _ttUpdateToolbar === 'function') _ttUpdateToolbar(editor);
+          if (typeof scheduleNotesSave === 'function') scheduleNotesSave();
+          return;
+        }
+      }
+      editor.chain().focus().setCellAttribute('verticalAlign', align).run();
+      if (typeof _ttUpdateToolbar === 'function') _ttUpdateToolbar(editor);
+      if (typeof scheduleNotesSave === 'function') scheduleNotesSave();
+    }
+
     function _ttCellAct(action) {
       const e = _tiptapEditor;
       document.getElementById('tt-cell-popup').style.display = 'none';
@@ -55699,6 +55773,9 @@ QUESTION: ${query}`;
       else if (action === 'col-del') { showRianDialog({ title: 'Delete Column', message: 'Delete this column and all its content?', confirmText: 'Delete', danger: true }).then(ok => { if (ok) e.chain().focus().deleteColumn().run(); }); }
       else if (action === 'table-del') { e.chain().focus().deleteTable().run(); }
       else if (action === 'thr') { _ttToggleRowHeader(e, _resolvedHead()); }
+      else if (action === 'valign-top') { _ttSetCellVAlign(e, 'top', _resolvedHead()); }
+      else if (action === 'valign-middle') { _ttSetCellVAlign(e, 'middle', _resolvedHead()); }
+      else if (action === 'valign-bottom') { _ttSetCellVAlign(e, 'bottom', _resolvedHead()); }
       else if (action === 'fit-content') {
         // Walk ProseMirror doc and null out every colwidth attr in the
         // table that contains the cursor.  This is safe — no HTML round-trip,
@@ -59038,6 +59115,29 @@ The state block is invisible to the user.`;
               <span style="font-size:10px;font-weight:700;font-family:var(--font-mono);letter-spacing:-0.5px">TH</span>
             </button>
             <div class="tt-sep"></div>
+            <!-- Vertical alignment -->
+            <button class="tt-btn" id="tt-valign-top" title="Align top">
+              <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+                stroke-linejoin="round">
+                <line x1="3" y1="3" x2="17" y2="3" />
+                <rect x="6" y="6" width="8" height="9" rx="1" />
+              </svg>
+            </button>
+            <button class="tt-btn" id="tt-valign-middle" title="Align middle">
+              <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+                stroke-linejoin="round">
+                <line x1="3" y1="10" x2="17" y2="10" stroke-dasharray="2 2" />
+                <rect x="6" y="5.5" width="8" height="9" rx="1" />
+              </svg>
+            </button>
+            <button class="tt-btn" id="tt-valign-bottom" title="Align bottom">
+              <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+                stroke-linejoin="round">
+                <line x1="3" y1="17" x2="17" y2="17" />
+                <rect x="6" y="5" width="8" height="9" rx="1" />
+              </svg>
+            </button>
+            <div class="tt-sep"></div>
             <!-- Cell background colour -->
             <span class="tt-tbl-label" style="font-size:10px;opacity:0.7;">Cell</span>
             <button class="tt-swatch" id="tt-cell-bg-none" style="background:var(--bg-page);border-color:var(--border)"
@@ -59125,6 +59225,28 @@ The state block is invisible to the user.`;
                 <line x1="9" y1="8.5" x2="11" y2="11.5" />
                 <line x1="11" y1="8.5" x2="9" y2="11.5" />
               </svg>Delete</button>
+          </div>
+          <div class="tcp-sep"></div>
+          <div class="tcp-section">Vertical Align</div>
+          <div class="tcp-grid">
+            <button class="tcp-btn" onmousedown="event.preventDefault()" onclick="_ttCellAct('valign-top')"><svg
+                viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+                stroke-linejoin="round">
+                <line x1="3" y1="3" x2="17" y2="3" />
+                <rect x="6" y="6" width="8" height="9" rx="1" />
+              </svg>Top</button>
+            <button class="tcp-btn" onmousedown="event.preventDefault()" onclick="_ttCellAct('valign-middle')"><svg
+                viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+                stroke-linejoin="round">
+                <line x1="3" y1="10" x2="17" y2="10" stroke-dasharray="2 2" />
+                <rect x="6" y="5.5" width="8" height="9" rx="1" />
+              </svg>Middle</button>
+            <button class="tcp-btn" onmousedown="event.preventDefault()" onclick="_ttCellAct('valign-bottom')"><svg
+                viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+                stroke-linejoin="round">
+                <line x1="3" y1="17" x2="17" y2="17" />
+                <rect x="6" y="5" width="8" height="9" rx="1" />
+              </svg>Bottom</button>
           </div>
           <div class="tcp-sep"></div>
           <div class="tcp-section">Merge &amp; Split</div>
