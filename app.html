@@ -23629,7 +23629,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '6.8.60';
+    const VERSION = '6.8.61';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -55100,6 +55100,7 @@ QUESTION: ${query}`;
       on('tt-col-narrow', () => _ttAdjustColWidth(e, -20));
       on('tt-col-wide', () => _ttAdjustColWidth(e, 20));
       on('tt-col-fit', () => _ttResetColWidths(e));
+      on('tt-table-reset', () => _ttResetTableStyle(e));
       _ttBindTouchColResize(e);
       on('tt-col-del', async () => {
         const ok = await showRianDialog({ title: 'Delete Column', message: 'Delete this column and all its content?', confirmText: 'Delete', danger: true });
@@ -55734,6 +55735,63 @@ QUESTION: ${query}`;
       if (typeof scheduleNotesSave === 'function') scheduleNotesSave();
     }
 
+    function _ttResetTableStyle(editor, optHead) {
+      if (!editor || !editor.state) return;
+      let $h = optHead || editor.state.selection.$head;
+      let tablePos = null;
+      let tableDepth = -1;
+      if ($h) {
+        for (let d = $h.depth; d > 0; d--) {
+          if ($h.node(d).type.name === 'table') { tableDepth = d; tablePos = $h.before(d); break; }
+        }
+      }
+      if (tablePos == null && window._ttSavedCellFrom != null) {
+        try {
+          const $s = editor.state.doc.resolve(window._ttSavedCellFrom);
+          for (let d = $s.depth; d > 0; d--) {
+            if ($s.node(d).type.name === 'table') { tableDepth = d; tablePos = $s.before(d); break; }
+          }
+        } catch (_) {}
+      }
+      if (tablePos == null) {
+        showToast('Place cursor in a table first');
+        return;
+      }
+
+      const tableNode = editor.state.doc.nodeAt(tablePos);
+      if (!tableNode) return;
+
+      const tr = editor.state.tr;
+      tableNode.descendants((node, offset) => {
+        const nodePos = tablePos + 1 + offset;
+        if (node.type.name === 'tableCell' || node.type.name === 'tableHeader') {
+          tr.setNodeMarkup(nodePos, undefined, {
+            ...node.attrs,
+            background: null,
+            colwidth: null,
+            verticalAlign: null
+          });
+        } else if (node.type.name === 'paragraph' && node.attrs && node.attrs.textAlign) {
+          tr.setNodeMarkup(nodePos, undefined, {
+            ...node.attrs,
+            textAlign: null
+          });
+        } else if (node.isText && node.marks && node.marks.length > 0) {
+          node.marks.forEach(m => {
+            if (m.type.name !== 'link') {
+              tr.removeMark(nodePos, nodePos + node.nodeSize, m.type);
+            }
+          });
+        }
+      });
+
+      if (tr.docChanged) editor.view.dispatch(tr);
+      requestAnimationFrame(_ttStripDefaultTableWidths);
+      if (typeof _ttUpdateToolbar === 'function') _ttUpdateToolbar(editor);
+      if (typeof scheduleNotesSave === 'function') scheduleNotesSave();
+      showToast('Table style reset to default');
+    }
+
     function _ttCellAct(action) {
       const e = _tiptapEditor;
       document.getElementById('tt-cell-popup').style.display = 'none';
@@ -55776,6 +55834,7 @@ QUESTION: ${query}`;
       else if (action === 'valign-top') { _ttSetCellVAlign(e, 'top', _resolvedHead()); }
       else if (action === 'valign-middle') { _ttSetCellVAlign(e, 'middle', _resolvedHead()); }
       else if (action === 'valign-bottom') { _ttSetCellVAlign(e, 'bottom', _resolvedHead()); }
+      else if (action === 'reset-style') { _ttResetTableStyle(e, _resolvedHead()); }
       else if (action === 'fit-content') {
         // Walk ProseMirror doc and null out every colwidth attr in the
         // table that contains the cursor.  This is safe — no HTML round-trip,
@@ -59089,6 +59148,15 @@ The state block is invisible to the user.`;
                 <line x1="12.6" y1="2" x2="12.6" y2="18" />
               </svg>
             </button>
+            <button class="tt-btn" id="tt-table-reset" title="Reset table style (clean formatting, colors &amp; widths)">
+              <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+                stroke-linejoin="round">
+                <path d="M3.5 9A6.5 6.5 0 1 1 5.4 14" />
+                <polyline points="2.5,14 6,14 6,10.5" />
+                <line x1="9" y1="8" x2="15" y2="8" />
+                <line x1="9" y1="12" x2="13" y2="12" />
+              </svg>
+            </button>
             <div class="tt-sep"></div>
             <!-- Merge / Split -->
             <button class="tt-btn" id="tt-merge-cells" title="Merge selected cells (select cells first)">
@@ -59289,6 +59357,17 @@ The state block is invisible to the user.`;
                 <polyline points="3,7 6,10 3,13" />
                 <polyline points="17,7 14,10 17,13" />
               </svg>Fit to content</button>
+          </div>
+          <!-- Reset table style -->
+          <div class="tcp-grid" style="grid-template-columns:1fr;margin-top:5px">
+            <button class="tcp-btn" style="justify-content:center" onmousedown="event.preventDefault()"
+              onclick="_ttCellAct('reset-style')"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor"
+                stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3.5 9A6.5 6.5 0 1 1 5.4 14" />
+                <polyline points="2.5,14 6,14 6,10.5" />
+                <line x1="9" y1="8" x2="15" y2="8" />
+                <line x1="9" y1="12" x2="13" y2="12" />
+              </svg>Reset table style</button>
           </div>
           <!-- Split + Delete always visible, side by side -->
           <div class="tcp-grid" style="grid-template-columns:1fr 1fr;margin-top:5px">
