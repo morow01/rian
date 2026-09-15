@@ -23629,7 +23629,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '6.8.64';
+    const VERSION = '6.8.65';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -24694,26 +24694,50 @@
     // while the deleted task was back on the server — leaving nothing to stop
     // merge-on-save "recovering" it as a remote-only activity. The 5-minute
     // TTL is unchanged; only the lifetime across a reload is fixed.
-    var _DELETED_ACT_KEY = 'rian_deleted_act_ids';
+    // v6.8.65: Scoped strictly per weekStart so a deletion in one week can
+    // NEVER suppress or delete an activity in another week, even if two
+    // weeks shared an activity ID. Also cleans up legacy flat tombstones.
+    var _DELETED_ACT_KEY = 'rian_deleted_act_ids_v2';
     var _DELETED_ACT_TTL = 300000; // 5 minutes
     var _deletedActIds = (function () {
-      try { return JSON.parse(localStorage.getItem(_DELETED_ACT_KEY)) || {}; }
-      catch (e) { return {}; }
+      try {
+        localStorage.removeItem('rian_deleted_act_ids'); // clean up legacy flat tombstones
+        return JSON.parse(localStorage.getItem(_DELETED_ACT_KEY)) || {};
+      } catch (e) { return {}; }
     })();
     function _persistDeletedIds() {
       try { localStorage.setItem(_DELETED_ACT_KEY, JSON.stringify(_deletedActIds)); } catch (e) { }
     }
-    function _trackDeletedAct(id) {
-      _deletedActIds[id] = Date.now();
-      _persistDeletedIds();
+    function _trackDeletedAct(id, weekStart) {
+      if (!id) return;
+      var ws = weekStart || state.weekStart;
+      if (ws) {
+        if (!_deletedActIds[ws]) _deletedActIds[ws] = {};
+        _deletedActIds[ws][id] = Date.now();
+        _persistDeletedIds();
+      }
       _tombAdd(state.weekData, id); // also record in the cloud copy — see below
     }
-    function _isRecentlyDeleted(id) { return _deletedActIds[id] && (Date.now() - _deletedActIds[id] < _DELETED_ACT_TTL); }
-    function _pruneDeletedIds() {
+    function _isRecentlyDeleted(id, weekStart) {
+      if (!id) return false;
+      var ws = weekStart || state.weekStart;
+      if (!ws || !_deletedActIds[ws]) return false;
+      var ts = _deletedActIds[ws][id];
+      return !!(ts && (Date.now() - ts < _DELETED_ACT_TTL));
+    }
+    function _pruneDeletedIds(weekStart) {
       var cutoff = Date.now() - _DELETED_ACT_TTL;
       var changed = false;
-      Object.keys(_deletedActIds).forEach(function (k) {
-        if (_deletedActIds[k] < cutoff) { delete _deletedActIds[k]; changed = true; }
+      var wsList = weekStart ? [weekStart] : Object.keys(_deletedActIds);
+      wsList.forEach(function (ws) {
+        if (!_deletedActIds[ws]) return;
+        Object.keys(_deletedActIds[ws]).forEach(function (k) {
+          if (_deletedActIds[ws][k] < cutoff) { delete _deletedActIds[ws][k]; changed = true; }
+        });
+        if (Object.keys(_deletedActIds[ws]).length === 0) {
+          delete _deletedActIds[ws];
+          changed = true;
+        }
       });
       if (changed) _persistDeletedIds();
     }
@@ -26038,9 +26062,9 @@
               // Add remote-only activities (created on another browser, missed by snapshot).
               // _tombHas is the durable, cross-device check; _isRecentlyDeleted
               // is the older local-only one, kept as a belt-and-braces guard.
-              _pruneDeletedIds();
+              _pruneDeletedIds(weekStart);
               Object.keys(remoteMap).forEach(function (rid) {
-                if (!localMap[rid] && !_isRecentlyDeleted(rid) && !_tombHas(merged._deletedIds, rid)) {
+                if (!localMap[rid] && !_isRecentlyDeleted(rid, weekStart) && !_tombHas(merged._deletedIds, rid)) {
                   // Activity exists only in remote — another browser added it
                   // Only include if it has actual content (not a ghost)
                   var ra = remoteMap[rid];
@@ -27725,6 +27749,19 @@
         _tombApply(state.weekData, state.weekData._deletedIds);
         // Auto-dedup local cache (fixes local draft/copy multiplication)
         _dedupeWeekActivities(state.weekData);
+        // v6.8.65: Decouple any cloned activities on week 18 Sep that shared IDs with 11 Sep
+        _ttMigrateOnce('rian_decouple_18_sep_v1',
+          () => weekStart === '2026-09-18' && Array.isArray(state.weekData?.days) && state.weekData.days.length > 0,
+          () => {
+            let regenerated = false;
+            (state.weekData.days || []).forEach(d => {
+              (d.activities || []).forEach(a => {
+                if (a && a.id) { a.id = uid(); regenerated = true; }
+              });
+            });
+            if (regenerated) scheduleAutoSave();
+            return regenerated;
+          });
         // v6.7.87/88: one-time-ever cleanup of leftover table colwidths (see
         // _ttMigrateOnce) — local-only, not saved here; next edit persists it.
         _ttMigrateOnce('rian_colw_mig_week_v1',
@@ -27841,7 +27878,7 @@
           // from another device and lost (v6.7.79 fix — an offline-created
           // task was silently wiped here because only _draft items were
           // protected against the wholesale state.weekData overwrite below).
-          _pruneDeletedIds();
+          _pruneDeletedIds(weekStart);
           const _draftsPerDay = {};
           if (state.weekData?.days) {
             state.weekData.days.forEach((d, i) => {
@@ -27850,7 +27887,7 @@
               const unsynced = (d.activities || []).filter(a => {
                 if (a._draft) return true; // always protect in-progress drafts
                 if (!a.id || remoteIds.has(a.id)) return false; // already on server
-                if (_isRecentlyDeleted(a.id)) return false; // user deliberately deleted it
+                if (_isRecentlyDeleted(a.id, weekStart)) return false; // user deliberately deleted it
                 return (a.description || '').trim() || (a.location || '').trim() ||
                   (parseFloat(a.ordinary) || 0) > 0 || (parseFloat(a.overtime) || 0) > 0 ||
                   (a.codes && a.codes.length > 0) || (a.notes || '').trim();
@@ -27866,11 +27903,11 @@
 
           // Remove recently-deleted activities that the snapshot brought back
           // (snapshot arrives from server/cache before our delete-save lands)
-          _pruneDeletedIds();
-          if (Object.keys(_deletedActIds).length > 0) {
+          _pruneDeletedIds(weekStart);
+          if (_deletedActIds[weekStart] && Object.keys(_deletedActIds[weekStart]).length > 0) {
             state.weekData.days.forEach(function (d) {
               d.activities = (d.activities || []).filter(function (a) {
-                return !a.id || !_isRecentlyDeleted(a.id);
+                return !a.id || !_isRecentlyDeleted(a.id, weekStart);
               });
             });
           }
@@ -32445,7 +32482,7 @@
     }
 
     function removeActivity(actId, di) {
-      _trackDeletedAct(actId); // prevent merge-on-save from resurrecting
+      _trackDeletedAct(actId, state.weekStart); // prevent merge-on-save from resurrecting in this week
       const day = state.weekData.days[di];
       day.activities = day.activities.filter(a => a.id !== actId);
       state.activitiesExpanded.delete(actId);
@@ -32770,7 +32807,7 @@
         }
 
         if (moveMode) {
-          _trackDeletedAct(actId);
+          _trackDeletedAct(actId, state.weekStart);
           state.weekData.days[sourceDi].activities = state.weekData.days[sourceDi].activities.filter(a => a.id !== actId);
           _currentWeekChanged = true;
         }
@@ -42483,7 +42520,8 @@
       var noteModal = document.getElementById('note-fs-modal');
       if (_noteFsActId != null && noteModal && !noteModal.classList.contains('hidden')) return; // Save/Cancel owns open task notes
       if (!state.weekStart || !state.weekData) return;
-      var ref = userDoc('weeks/' + state.weekStart);
+      var weekStart = state.weekStart;
+      var ref = userDoc('weeks/' + weekStart);
       if (!ref) return;
       _fsPollBusy = true;
       ref.get({ source: 'server' }).then(function (snap) {
@@ -42523,7 +42561,7 @@
           // activities (same wipe risk as the onSnapshot handler — see v6.7.79
           // fix note there). Anything with real content that isn't in the
           // incoming remote and wasn't deliberately deleted survives.
-          _pruneDeletedIds();
+          _pruneDeletedIds(weekStart);
           var _draftsPerDay = {};
           if (state.weekData.days) {
             state.weekData.days.forEach(function (d, i) {
@@ -42532,7 +42570,7 @@
               var unsynced = (d.activities || []).filter(function (a) {
                 if (a._draft) return true;
                 if (!a.id || remoteIds.has(a.id)) return false;
-                if (_isRecentlyDeleted(a.id)) return false;
+                if (_isRecentlyDeleted(a.id, weekStart)) return false;
                 return (a.description || '').trim() || (a.location || '').trim() ||
                   (parseFloat(a.ordinary) || 0) > 0 || (parseFloat(a.overtime) || 0) > 0 ||
                   (a.codes && a.codes.length > 0) || (a.notes || '').trim();
@@ -42543,11 +42581,11 @@
           state.weekData = deepCopy(remote);
           state.weekData._updatedAt = remoteTs;
           // Strip recently-deleted activities
-          _pruneDeletedIds();
-          if (Object.keys(_deletedActIds).length > 0) {
+          _pruneDeletedIds(weekStart);
+          if (_deletedActIds[weekStart] && Object.keys(_deletedActIds[weekStart]).length > 0) {
             state.weekData.days.forEach(function (d) {
               d.activities = (d.activities || []).filter(function (a) {
-                return !a.id || !_isRecentlyDeleted(a.id);
+                return !a.id || !_isRecentlyDeleted(a.id, weekStart);
               });
             });
           }
@@ -42586,7 +42624,7 @@
           // But if remote has activities we don't (added by another browser
           // whose save had an older timestamp), merge them in.
           var merged = false;
-          _pruneDeletedIds();
+          _pruneDeletedIds(weekStart);
           // This is the "deleted on the phone, still showing on desktop" path:
           // local looks newer, so the remote copy is not adopted wholesale and
           // the other device's deletion would never be seen. Deletion markers
@@ -42606,7 +42644,7 @@
             var localKeys = new Set((localDay.activities || []).map(_activityDedupeKey).filter(Boolean));
             remoteDay.activities.forEach(function (ra) {
               if (ra.id && !localIds[ra.id] && !localKeys.has(_activityDedupeKey(ra)) &&
-                !_isRecentlyDeleted(ra.id) && !_tombHas(_pollTombs, ra.id)) {
+                !_isRecentlyDeleted(ra.id, weekStart) && !_tombHas(_pollTombs, ra.id)) {
                 if ((ra.description || '').trim() || (ra.location || '').trim() ||
                   (parseFloat(ra.ordinary) || 0) > 0 || (parseFloat(ra.overtime) || 0) > 0 ||
                   (ra.codes && ra.codes.length > 0)) {
