@@ -23629,7 +23629,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '6.8.65';
+    const VERSION = '6.8.66';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -54259,12 +54259,31 @@ QUESTION: ${query}`;
             handle.classList.add('img-resize-handle');
             let _rzActive = false, _rzStartX = 0, _rzStartY = 0, _rzStartW = 0, _rzAspect = 1;
 
+            const _getParentWidth = () => {
+              // If inside a table cell (td/th), use the cell's available content width.
+              // Otherwise, use the closest ProseMirror editor width.
+              const cell = container.closest('td, th');
+              if (cell) {
+                const cs = window.getComputedStyle(cell);
+                const pad = (parseFloat(cs.paddingLeft) || 0) + (parseFloat(cs.paddingRight) || 0);
+                return Math.max(50, cell.clientWidth - pad);
+              }
+              const pm = container.closest('.ProseMirror');
+              if (pm) {
+                const cs = window.getComputedStyle(pm);
+                const pad = (parseFloat(cs.paddingLeft) || 0) + (parseFloat(cs.paddingRight) || 0);
+                return Math.max(100, pm.clientWidth - pad);
+              }
+              const parent = container.parentElement;
+              return parent ? Math.max(100, parent.clientWidth) : 300;
+            };
+
             const _rzCalcW = (ex, ey) => {
               // Use the larger of horizontal or diagonal delta so dragging in any direction resizes
               const dx = ex - _rzStartX;
               const dy = ey - _rzStartY;
               const delta = Math.abs(dx) >= Math.abs(dy) ? dx : dy * _rzAspect;
-              return Math.max(60, _rzStartW + delta);
+              return Math.max(40, _rzStartW + delta);
             };
 
             handle.addEventListener('pointerdown', (e) => {
@@ -54277,34 +54296,47 @@ QUESTION: ${query}`;
               const rect = img.getBoundingClientRect();
               _rzStartW = rect.width;
               _rzAspect = rect.width / (rect.height || 1); // w/h ratio for vertical drag
+              document.body.style.userSelect = 'none';
+              document.body.style.webkitUserSelect = 'none';
             });
 
             handle.addEventListener('pointermove', (e) => {
               if (!_rzActive) return;
-              const pm = container.closest('.ProseMirror');
-              const edW = pm ? pm.offsetWidth : 300;
+              e.preventDefault();
+              e.stopPropagation();
+              const parentW = _getParentWidth();
               const newW = _rzCalcW(e.clientX, e.clientY);
-              const pct = Math.min(100, Math.max(10, Math.round(newW / edW * 100)));
+              const pct = Math.min(100, Math.max(10, Math.round(newW / parentW * 100)));
               // Wrapper holds the width in both float and no-wrap modes
               // so the resize handle stays anchored to the image corner.
               container.style.width = pct + '%';
             });
 
-            handle.addEventListener('pointerup', (e) => {
+            const _rzEnd = (e) => {
               if (!_rzActive) return;
               _rzActive = false;
-              const pm = container.closest('.ProseMirror');
-              const edW = pm ? pm.offsetWidth : 300;
+              document.body.style.userSelect = '';
+              document.body.style.webkitUserSelect = '';
+              const parentW = _getParentWidth();
               const newW = _rzCalcW(e.clientX, e.clientY);
-              const pct = Math.min(100, Math.max(10, Math.round(newW / edW * 100)));
+              const pct = Math.min(100, Math.max(10, Math.round(newW / parentW * 100)));
               const pos = getPos();
-              editor.chain().command(({ tr }) => {
-                tr.setNodeMarkup(pos, undefined, { ...currentAttrs, width: pct + '%' });
-                return true;
-              }).run();
-            });
+              if (typeof pos === 'number') {
+                editor.chain().command(({ tr }) => {
+                  tr.setNodeMarkup(pos, undefined, { ...currentAttrs, width: pct + '%' });
+                  return true;
+                }).run();
+              }
+            };
 
-            handle.addEventListener('pointercancel', () => { _rzActive = false; });
+            handle.addEventListener('pointerup', _rzEnd);
+            handle.addEventListener('pointercancel', () => {
+              if (_rzActive) {
+                _rzActive = false;
+                document.body.style.userSelect = '';
+                document.body.style.webkitUserSelect = '';
+              }
+            });
 
             container.addEventListener('touchstart', (e) => {
               if (e.target.closest('.img-resize-presets') || e.target.closest('.img-resize-handle')) return;
