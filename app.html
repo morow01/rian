@@ -10281,9 +10281,40 @@
       cursor: col-resize;
     }
 
-    /* Hide ProseMirror gap cursor — the horizontal blinking line between block elements */
+    /* ProseMirror gap cursor — horizontal indicator between block elements (tables, images, etc.) */
     .ProseMirror-gapcursor {
-      display: none !important;
+      display: none;
+      pointer-events: none;
+      position: absolute;
+      left: 0;
+      right: 0;
+      height: 0;
+      z-index: 10;
+    }
+
+    .ProseMirror-gapcursor::after {
+      content: "";
+      display: block;
+      position: absolute;
+      top: -1px;
+      left: 0;
+      width: 100%;
+      max-width: 100%;
+      height: 2px;
+      background: var(--accent);
+      border-radius: 1px;
+      box-shadow: 0 0 4px rgba(var(--accent-rgb), 0.5);
+      animation: ProseMirror-cursor-blink 1.1s steps(2, start) infinite;
+    }
+
+    @keyframes ProseMirror-cursor-blink {
+      to {
+        visibility: hidden;
+      }
+    }
+
+    .ProseMirror-focused .ProseMirror-gapcursor {
+      display: block;
     }
 
     /* Scope col-resize cursor to table cells only — prevents it leaking to content below the table */
@@ -23629,7 +23660,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '6.8.67';
+    const VERSION = '6.8.68';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -38019,7 +38050,7 @@
         _djTiptapEditor = new mods.Editor({
           element: _djTiptapWrap,
           extensions: [
-            mods.StarterKit.configure({ history: { depth: 20, newGroupDelay: 300 }, gapcursor: false }),
+            mods.StarterKit.configure({ history: { depth: 20, newGroupDelay: 300 } }),
             mods.Underline,
             mods.TextStyle,
             mods.Color,
@@ -38066,6 +38097,9 @@
               beforeinput: function (view, event) {
                 if (event.inputType !== 'deleteContentBackward' && event.inputType !== 'deleteContentForward') return false;
                 return _ttTableKeyDown(_djTiptapEditor, event);
+              },
+              click: function (view, event) {
+                return _ttHandleEditorClick(view, event, _djTiptapEditor);
               },
             },
           },
@@ -54501,7 +54535,7 @@ QUESTION: ${query}`;
       _tiptapEditor = new Editor({
         element: document.getElementById('note-fs-editor'),
         extensions: [
-          StarterKit.configure({ history: { depth: 20, newGroupDelay: 300 }, gapcursor: false }),
+          StarterKit.configure({ history: { depth: 20, newGroupDelay: 300 } }),
           Underline,
           TextStyle,
           Color,
@@ -54539,6 +54573,9 @@ QUESTION: ${query}`;
               setTimeout(_ttRecordHistoryNow, 0);
               if (event.inputType !== 'deleteContentBackward' && event.inputType !== 'deleteContentForward') return false;
               return _ttTableKeyDown(_tiptapEditor, event);
+            },
+            click(view, event) {
+              return _ttHandleEditorClick(view, event, _tiptapEditor);
             },
           },
           transformPastedHTML(html) {
@@ -55171,6 +55208,8 @@ QUESTION: ${query}`;
       on('tt-col-wide', () => _ttAdjustColWidth(e, 20));
       on('tt-col-fit', () => _ttResetColWidths(e));
       on('tt-table-reset', () => _ttResetTableStyle(e));
+      on('tt-insert-p-before', () => _ttInsertParagraphBeforeTable(e));
+      on('tt-insert-p-after', () => _ttInsertParagraphAfterTable(e));
       _ttBindTouchColResize(e);
       on('tt-col-del', async () => {
         const ok = await showRianDialog({ title: 'Delete Column', message: 'Delete this column and all its content?', confirmText: 'Delete', danger: true });
@@ -55899,6 +55938,8 @@ QUESTION: ${query}`;
       else if (action === 'col-before') { e.chain().focus().addColumnBefore().run(); }
       else if (action === 'col-after') { e.chain().focus().addColumnAfter().run(); }
       else if (action === 'col-del') { showRianDialog({ title: 'Delete Column', message: 'Delete this column and all its content?', confirmText: 'Delete', danger: true }).then(ok => { if (ok) e.chain().focus().deleteColumn().run(); }); }
+      else if (action === 'insert-p-before') { _ttInsertParagraphBeforeTable(e, _resolvedHead()); }
+      else if (action === 'insert-p-after') { _ttInsertParagraphAfterTable(e, _resolvedHead()); }
       else if (action === 'table-del') { e.chain().focus().deleteTable().run(); }
       else if (action === 'thr') { _ttToggleRowHeader(e, _resolvedHead()); }
       else if (action === 'valign-top') { _ttSetCellVAlign(e, 'top', _resolvedHead()); }
@@ -56976,11 +57017,161 @@ QUESTION: ${query}`;
       if (tr.docChanged) editor.view.dispatch(tr);
     }
 
+    function _ttInsertParagraphBeforeTable(editor, $head) {
+      editor = editor || _tiptapEditor || _djTiptapEditor;
+      if (!editor || !editor.view) return;
+      var state = editor.state;
+      var $from = $head || state.selection.$from;
+      var tablePos = null;
+      if ($from) {
+        for (var d = $from.depth; d > 0; d--) {
+          if ($from.node(d).type.name === 'table') {
+            tablePos = $from.before(d);
+            break;
+          }
+        }
+      }
+      if (tablePos === null) {
+        if (state.selection.node && state.selection.node.type.name === 'table') {
+          tablePos = state.selection.from;
+        } else if ($from && $from.nodeAfter && $from.nodeAfter.type.name === 'table') {
+          tablePos = $from.pos;
+        }
+      }
+      if (tablePos === null && window._ttSavedCellFrom != null) {
+        try {
+          var $res = state.doc.resolve(window._ttSavedCellFrom);
+          for (var d2 = $res.depth; d2 > 0; d2--) {
+            if ($res.node(d2).type.name === 'table') {
+              tablePos = $res.before(d2);
+              break;
+            }
+          }
+        } catch (_) { }
+      }
+      if (tablePos === null) {
+        if (typeof showToast === 'function') showToast('Place cursor in a table first');
+        return;
+      }
+      var p = state.schema.nodes.paragraph.create();
+      var tr = state.tr.insert(tablePos, p);
+      editor.view.dispatch(tr);
+      editor.commands.setTextSelection(tablePos + 1);
+      editor.commands.focus();
+      if (typeof scheduleNotesSave === 'function') scheduleNotesSave();
+      if (typeof scheduleJSave === 'function' && typeof _djTtPageId !== 'undefined' && _djTtPageId) scheduleJSave();
+    }
+
+    function _ttInsertParagraphAfterTable(editor, $head) {
+      editor = editor || _tiptapEditor || _djTiptapEditor;
+      if (!editor || !editor.view) return;
+      var state = editor.state;
+      var $from = $head || state.selection.$from;
+      var tableAfterPos = null;
+      if ($from) {
+        for (var d = $from.depth; d > 0; d--) {
+          if ($from.node(d).type.name === 'table') {
+            tableAfterPos = $from.after(d);
+            break;
+          }
+        }
+      }
+      if (tableAfterPos === null) {
+        if (state.selection.node && state.selection.node.type.name === 'table') {
+          tableAfterPos = state.selection.to;
+        } else if ($from && $from.nodeBefore && $from.nodeBefore.type.name === 'table') {
+          tableAfterPos = $from.pos;
+        }
+      }
+      if (tableAfterPos === null && window._ttSavedCellFrom != null) {
+        try {
+          var $res2 = state.doc.resolve(window._ttSavedCellFrom);
+          for (var d3 = $res2.depth; d3 > 0; d3--) {
+            if ($res2.node(d3).type.name === 'table') {
+              tableAfterPos = $res2.after(d3);
+              break;
+            }
+          }
+        } catch (_) { }
+      }
+      if (tableAfterPos === null) {
+        if (typeof showToast === 'function') showToast('Place cursor in a table first');
+        return;
+      }
+      var p = state.schema.nodes.paragraph.create();
+      var tr = state.tr.insert(tableAfterPos, p);
+      editor.view.dispatch(tr);
+      editor.commands.setTextSelection(tableAfterPos + 1);
+      editor.commands.focus();
+      if (typeof scheduleNotesSave === 'function') scheduleNotesSave();
+      if (typeof scheduleJSave === 'function' && typeof _djTtPageId !== 'undefined' && _djTtPageId) scheduleJSave();
+    }
+
+    function _ttHandleEditorClick(view, event, editor) {
+      if (!view || !editor) return false;
+      var target = event.target;
+      if (!target) return false;
+
+      // Don't intercept clicks inside actual cells, inputs, buttons, etc.
+      if (target.closest && (target.closest('td') || target.closest('th') || target.closest('button') || target.closest('input') || target.closest('.collapsible-header') || target.closest('.task-item-handle'))) {
+        return false;
+      }
+
+      var tw = target.closest ? target.closest('.tableWrapper') : null;
+      var isEditorWrap = target.classList && (target.classList.contains('ProseMirror') || target.classList.contains('dj-tt-editor-wrap'));
+      if (tw || isEditorWrap) {
+        var pos = null;
+        try {
+          var coords = view.posAtCoords({ left: event.clientX, top: event.clientY });
+          if (coords && coords.pos != null) pos = coords.pos;
+        } catch (_) { }
+
+        if (pos != null) {
+          var state = view.state;
+          var $pos = state.doc.resolve(pos);
+          var isBeforeTable = $pos.nodeAfter && $pos.nodeAfter.type.name === 'table';
+          var isAfterTable = $pos.nodeBefore && $pos.nodeBefore.type.name === 'table';
+
+          if (isBeforeTable && isAfterTable) {
+            // Adjacent tables with no block between them — insert a clean paragraph and focus
+            var tr = state.tr.insert(pos, state.schema.nodes.paragraph.create());
+            view.dispatch(tr);
+            editor.commands.setTextSelection(pos + 1);
+            editor.commands.focus();
+            event.preventDefault();
+            return true;
+          }
+        }
+      }
+      return false;
+    }
+
     // Shared TipTap table keyboard handler — wired into both editors via editorProps.handleKeyDown
     var _ttDeletePending = null; // 'row' | 'col' — set after Phase 1 clears content
 
     function _ttTableKeyDown(editor, event) {
       var kc = event.keyCode || event.which || 0;
+
+      // Mod+Enter (Ctrl+Enter or Cmd+Enter) in a table → insert paragraph after table
+      // Shift+Mod+Enter in a table → insert paragraph before table
+      if ((event.key === 'Enter' || kc === 13) && (event.ctrlKey || event.metaKey)) {
+        var $h = editor.state.selection.$head || editor.state.selection.$from;
+        var inTable = false;
+        if ($h) {
+          for (var d = $h.depth; d > 0; d--) {
+            if ($h.node(d).type.name === 'table') { inTable = true; break; }
+          }
+        }
+        if (inTable) {
+          if (event.shiftKey) {
+            _ttInsertParagraphBeforeTable(editor, $h);
+          } else {
+            _ttInsertParagraphAfterTable(editor, $h);
+          }
+          event.preventDefault();
+          return true;
+        }
+      }
 
       // ArrowUp on a block image at the top of the document → insert paragraph above
       if ((event.key === 'ArrowUp' || kc === 38) && !event.shiftKey && !event.ctrlKey && !event.metaKey) {
@@ -59225,6 +59416,22 @@ The state block is invisible to the user.`;
                 <path d="M3 3v5h5" />
               </svg>
             </button>
+            <button class="tt-btn" id="tt-insert-p-before" title="Insert line above table">
+              <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+                stroke-linejoin="round">
+                <line x1="3" y1="4" x2="17" y2="4" stroke-width="2" />
+                <rect x="3" y="8" width="14" height="9" rx="1.5" />
+                <line x1="3" y1="12.5" x2="17" y2="12.5" />
+              </svg>
+            </button>
+            <button class="tt-btn" id="tt-insert-p-after" title="Insert line below table">
+              <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+                stroke-linejoin="round">
+                <rect x="3" y="3" width="14" height="9" rx="1.5" />
+                <line x1="3" y1="7.5" x2="17" y2="7.5" />
+                <line x1="3" y1="16" x2="17" y2="16" stroke-width="2" />
+              </svg>
+            </button>
             <div class="tt-sep"></div>
             <!-- Merge / Split -->
             <button class="tt-btn" id="tt-merge-cells" title="Merge selected cells (select cells first)">
@@ -59413,6 +59620,24 @@ The state block is invisible to the user.`;
                 <line x1="8" y1="10" x2="12" y2="10" />
                 <polyline points="9.5,7.5 12,10 9.5,12.5" />
               </svg>Merge cells</button>
+          </div>
+          <div class="tcp-sep"></div>
+          <div class="tcp-section">Insert Line</div>
+          <div class="tcp-grid">
+            <button class="tcp-btn" onmousedown="event.preventDefault()" onclick="_ttCellAct('insert-p-before')"><svg
+                viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+                stroke-linejoin="round">
+                <line x1="3" y1="4" x2="17" y2="4" stroke-width="2" />
+                <rect x="3" y="8" width="14" height="9" rx="1.5" />
+                <line x1="3" y1="12.5" x2="17" y2="12.5" />
+              </svg>Above table</button>
+            <button class="tcp-btn" onmousedown="event.preventDefault()" onclick="_ttCellAct('insert-p-after')"><svg
+                viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+                stroke-linejoin="round">
+                <rect x="3" y="3" width="14" height="9" rx="1.5" />
+                <line x1="3" y1="7.5" x2="17" y2="7.5" />
+                <line x1="3" y1="16" x2="17" y2="16" stroke-width="2" />
+              </svg>Below table</button>
           </div>
           <!-- Fit to content -->
           <div class="tcp-grid" style="grid-template-columns:1fr;margin-top:5px">
