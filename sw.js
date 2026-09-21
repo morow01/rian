@@ -17,7 +17,7 @@ self.addEventListener('push', (event) => {
   try { data = event.data ? event.data.json() : {}; } catch (e) { /* ignore */ }
   console.log('[Rian SW] push received:', data);
 
-  const title = data.title || 'Rian Reminder';
+  const title = data.title || 'FieldLog Reminder';
   const options = {
     body: data.body || '',
     icon: BASE + 'icon-192.png',

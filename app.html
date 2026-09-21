@@ -7,8 +7,8 @@
   <meta name="theme-color" content="#1e3a8a" id="meta-theme">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="Rian">
-  <title>Rian</title>
+  <meta name="apple-mobile-web-app-title" content="FieldLog">
+  <title>FieldLog</title>
   <link rel="manifest" href="manifest.json">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -23660,7 +23660,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '6.8.68';
+    const VERSION = '6.8.69';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -23806,9 +23806,9 @@
       };
       _cuReq.onsuccess = () => _cuDone('Done');
       _cuReq.onerror = () => _cuDone('Delete error (continuing)');
-      _cuReq.onblocked = () => _cuDone('Delete blocked (close other Rian tabs first, retrying)');
+      _cuReq.onblocked = () => _cuDone('Delete blocked (close other FieldLog tabs first, retrying)');
       // Don't initialize Firebase — wait for redirect
-      throw new Error('Rian cleanup mode active');
+      throw new Error('FieldLog cleanup mode active');
     }
 
     let db_fs, auth_fb, storage_fb;
@@ -26810,7 +26810,7 @@
       var sched = _avEnsureSchedule();
       if (!code) delete sched.days[dateStr];
       else sched.days[dateStr] = code;
-      sched.source = sched.source || 'Edited in Rian Availability Planner';
+      sched.source = sched.source || 'Edited in FieldLog Availability Planner';
       sched._updatedAt = Date.now();
       state.availabilitySelectedDate = dateStr;
       scheduleAvailabilitySave();
@@ -26846,7 +26846,7 @@
           else delete sched.days[dateStr];
         }
       });
-      sched.source = sched.source || 'Edited in Rian Availability Planner';
+      sched.source = sched.source || 'Edited in FieldLog Availability Planner';
       sched._updatedAt = Date.now();
       scheduleAvailabilitySave();
       render();
@@ -28376,7 +28376,7 @@
         '</td></tr>' +
         calloutsHtml +
         '<tr><td style="padding:16px 4px 0;text-align:center;font-size:12px;line-height:1.45;color:' + C.label + ';">Hours auto-calculated. Per-day cap: Mon-Thu 8h · Fri 7h · Sat/Sun 0h. Anything over goes to OT.</td></tr>' +
-        '<tr><td style="padding:12px 4px 0;text-align:center;font-size:11px;color:' + C.footTxt + ';">Rian &mdash; v' + esc(VERSION) + '</td></tr>' +
+        '<tr><td style="padding:12px 4px 0;text-align:center;font-size:11px;color:' + C.footTxt + ';">FieldLog &mdash; v' + esc(VERSION) + '</td></tr>' +
         '</table>' +
         '</td></tr></table>' +
         '</body></html>';
@@ -29293,7 +29293,7 @@
               </div>
 
               <div class="menu-spacer"></div>
-              <div class="menu-version">Rian v${VERSION} &middot; ${IS_NATIVE ? 'App' : 'PWA'}</div>
+              <div class="menu-version">FieldLog v${VERSION} &middot; ${IS_NATIVE ? 'App' : 'PWA'}</div>
             `;
         })()}
         </div>
@@ -33855,7 +33855,7 @@
                   // Cross-device reminder fired — showing local notification
                   if ('Notification' in window && Notification.permission === 'granted') {
                     try {
-                      new Notification('Rian Reminder', {
+                      new Notification('FieldLog Reminder', {
                         body: r.description || 'Reminder',
                         icon: location.pathname.replace(/app\.html$/, '') + 'icon-192.png',
                         tag: 'rian-xdevice-' + r.id,
@@ -34016,7 +34016,7 @@
       const ics = [
         'BEGIN:VCALENDAR',
         'VERSION:2.0',
-        'PRODID:-//Rian PWA//EN',
+        'PRODID:-//FieldLog PWA//EN',
         'BEGIN:VEVENT',
         `UID:${uid}`,
         `DTSTAMP:${stamp}`,
@@ -42745,7 +42745,7 @@
       overlay.id = 'exit-dialog';
       overlay.style.cssText = 'position:fixed;inset:0;z-index:10200;background:rgba(var(--shadow-rgb), 0.5);display:flex;align-items:center;justify-content:center;padding:24px;animation:fadeIn 0.15s ease';
       overlay.innerHTML = '<div style="background:var(--bg-card);border-radius:16px;padding:24px;width:100%;max-width:320px;box-shadow:0 16px 48px rgba(var(--shadow-rgb),0.3);">'
-        + '<div style="font-size:17px;font-weight:700;color:var(--text-primary);margin-bottom:8px;">Exit Rian?</div>'
+        + '<div style="font-size:17px;font-weight:700;color:var(--text-primary);margin-bottom:8px;">Exit FieldLog?</div>'
         + '<div style="font-size:13px;color:var(--text-secondary);line-height:1.5;margin-bottom:20px;">Are you sure you want to close the app?</div>'
         + '<div style="display:flex;gap:10px;justify-content:flex-end;">'
         + '<button onclick="document.getElementById(\'exit-dialog\').remove()" style="padding:10px 20px;border-radius:10px;border:1px solid var(--border);background:transparent;color:var(--text-secondary);font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;">Cancel</button>'
@@ -43109,7 +43109,7 @@
         <div style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--bg-page);">
           <div style="background:var(--bg-card);border-radius:16px;padding:40px 32px;text-align:center;max-width:340px;width:90%;box-shadow:0 4px 24px rgba(var(--shadow-rgb),0.10);border:1px solid var(--border);">
             <div style="font-size:2.5rem;margin-bottom:12px;color:var(--accent);"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin: 0 auto;"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
-            <h1 style="font-size:1.4rem;font-weight:800;color:var(--text-primary);margin-bottom:6px;">Rian</h1>
+            <h1 style="font-size:1.4rem;font-weight:800;color:var(--text-primary);margin-bottom:6px;">FieldLog</h1>
             <p style="color:var(--text-secondary);margin-bottom:28px;font-size:0.88rem;">Sign in to sync your timesheet across all devices.</p>
             
             ${firebaseMockActive ? `
@@ -46061,7 +46061,7 @@
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `rian-export-${new Date().toISOString().slice(0, 10)}.json`;
+        a.download = `fieldlog-export-${new Date().toISOString().slice(0, 10)}.json`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
@@ -46526,7 +46526,7 @@
           const text = await file.text();
           const data = JSON.parse(text);
           if (data._format !== 'rian-export-v1' && data._format !== 'rian-backup-v1') {
-            showToast('Invalid file — not a Rian export or backup.');
+            showToast('Invalid file — not a FieldLog export or backup.');
             return;
           }
           _importParsedData = data;
@@ -48505,7 +48505,7 @@
 
       const key = localStorage.getItem('geminiKey') || '';
       if (!key) {
-        comp.ocrError = 'Gemini API key missing. Please save it in Rian\'s settings.';
+        comp.ocrError = 'Gemini API key missing. Please save it in FieldLog\'s settings.';
         comp.ocrRunning = false;
         renderTetraComponents();
         return;
@@ -52389,7 +52389,7 @@ Rules:
             get: function (target, prop) {
               if (prop === 'uid') return 'UXZIDzLCQEU3EVKXjW6NK4FPKuz1';
               if (prop === 'email') return 'rianfieldlog@gmail.com';
-              if (prop === 'displayName') return 'Rian Test Account';
+              if (prop === 'displayName') return 'FieldLog Test Account';
               if (prop === 'isAnonymous') return false; // mock as non-anonymous
               var val = target[prop];
               if (typeof val === 'function') return val.bind(target);

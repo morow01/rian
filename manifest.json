@@ -1,6 +1,6 @@
 {
-  "name": "Rian",
-  "short_name": "Rian",
+  "name": "FieldLog",
+  "short_name": "FieldLog",
   "description": "Weekly timesheet tracker",
   "start_url": "/rian/app.html",
   "display": "standalone",

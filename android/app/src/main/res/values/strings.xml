@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">Rian</string>
-    <string name="title_activity_main">Rian</string>
+    <string name="app_name">FieldLog</string>
+    <string name="title_activity_main">FieldLog</string>
     <string name="package_name">com.rian.fieldlog</string>
     <string name="custom_url_scheme">com.rian.fieldlog</string>
 </resources>

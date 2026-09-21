@@ -1,6 +1,16 @@
-# Rian — Project Context for Claude
+# FieldLog (formerly Rian) — Project Context for Claude
 
-## What is Rian
+## Rename: Rian → FieldLog (v6.8.69)
+The app's visible name is now **FieldLog**, with a new logo (cyan "F" + tick; source SVGs in `images/fieldlog-{icon,favicon,glyph}.svg`, originals in the untracked `mockups/svgs/`). Changed: `<title>`/menu footer/login screen/exit dialog/reminder notifications/email footer/export filename in `app.html`, `manifest.json` name + short_name, `index.html`, `privacy.html`, Android `strings.xml` (`app_name`, `title_activity_main`), `capacitor.config.ts` `appName`, `sw.js` + `functions/index.js` default reminder title, PWA icons (`icon-192.png`/`icon-512.png`) and all Android launcher icons (`mipmap-*/ic_launcher*.png`, adaptive background `#101826`).
+
+**Deliberately NOT renamed — do not "finish the job" without asking:**
+- Android/Capacitor `appId` and package `com.rian.fieldlog` (changing it makes Android treat it as a different app: no in-place updates, Firebase/Google sign-in config must be redone).
+- The `Rian-Android` user-agent string (`capacitor.config.ts` `appendUserAgent` ↔ `IS_NATIVE` check in `app.html`; they must stay in sync) and the `RianNative` JS bridge (`MainActivity.java`).
+- All `rian_*` localStorage keys, `rian-v*` cache names, `rian-export-v1`/`rian-backup-v1` file formats (old exports must still import), the `[Rian]` console prefixes (diagnostic recipes in this file quote them), `showRianDialog` and other internal identifiers.
+- The GitHub repo name and the hosting path `morow01.github.io/rian/` — GitHub Pages does not redirect, so renaming the repo would break every installed APK/PWA (`server.url` and `start_url` point there). If a nicer address is wanted later, use a custom domain instead.
+- `functions/index.js` title change only takes effect after `firebase deploy --only functions`.
+
+## What is FieldLog
 A Progressive Web App for field technicians — timesheets, notes (TipTap rich text), site finder, routines, callouts/on-call scheduling, and AI assistant. Single-file architecture (`app.html`, ~32,000 lines) with Firestore sync, IndexedDB offline cache, and Google Apps Script backend.
 
 ## Key Files
@@ -17,7 +27,7 @@ A Progressive Web App for field technicians — timesheets, notes (TipTap rich t
 ## Version
 `const VERSION = 'x.y.z'` in `app.html` (~line 18699). Bump on every change. Only location that needs updating (index.html version references are static).
 **Patch (z) must not exceed 99.** When a bump would take it to 100, bump the minor version instead and reset patch to 0 (e.g. `6.7.99` → `6.8.0`, never `6.7.100`). 6.7.100–6.7.102 already broke this rule and were left as-is rather than rewriting pushed history — the rule applies from 6.8.0 onward.
-Current version: **6.8.42**
+Current version: **6.8.69**
 
 **12 themes active**: `claude` (default light), `dark` (slate-based), `champagne`, `champagne-dark`, `ios`, `apple` (macOS), `gray` (Grayscale), `gameboy` (Game Boy), `win31` (Win 3.1), `lcd` (LCD), `spectrum` (ZX Spectrum), `retro` (Retro). Theme picker lives in ☰ menu → Display. Switcher at `setTheme(key)`, registry at `THEME_META`.
 

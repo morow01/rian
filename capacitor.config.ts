@@ -2,7 +2,7 @@ import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
   appId: 'com.rian.fieldlog',
-  appName: 'Rian',
+  appName: 'FieldLog',
   webDir: 'www',
   // Load the app from the local web assets (no server needed)
   server: {

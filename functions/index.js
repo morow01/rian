@@ -86,7 +86,7 @@ exports.checkReminders = onSchedule(
     for (const r of dueReminders) {
       const body = r.description + (r.location ? " — " + r.location : "");
       const payload = JSON.stringify({
-        title: "Rian Reminder",
+        title: "FieldLog Reminder",
         body: body,
         reminderId: r.id || "",
         noteId: r.noteId || "",
