@@ -10,7 +10,7 @@ The app's visible name is now **FieldLog**, with a new logo (cyan "F" + tick; so
 - The GitHub repo name and the hosting path `morow01.github.io/rian/` — GitHub Pages does not redirect, so renaming the repo would break every installed APK/PWA (`server.url` and `start_url` point there). If a nicer address is wanted later, use a custom domain instead.
 - `functions/index.js` title change only takes effect after `firebase deploy --only functions`.
 
-**Menu account block + header logo (v6.8.70):** the ☰ menu's tall centred account section (avatar, "Signed in as", name, email, full-width Sign Out — ~195px) is now one compact row, `.menu-header-block` (~64px): avatar · name/email (ellipsised) · sign-out icon (`.menu-hdr-signout`) · close X. Sign-out goes through `confirmSignOut()` (a `showRianDialog` confirm) since the icon sits next to the close button. Local Mode keeps its two actions ("Connect Google" / "Exit Local Mode") in a second row (`.menu-local-actions`). The main header shows the glyph logo (`images/fieldlog-glyph.svg`, 22px, precached in `sw.js` `ASSETS`) before the sync status text.
+**Menu account block + header logo (v6.8.70):** the ☰ menu's tall centred account section (avatar, "Signed in as", name, email, full-width Sign Out — ~195px) is now one compact row, `.menu-header-block` (~64px): avatar · name/email (ellipsised) · sign-out icon (`.menu-hdr-signout`) · close X. Sign-out goes through `confirmSignOut()` (a `showRianDialog` confirm) since the icon sits next to the close button. Local Mode keeps its two actions ("Connect Google" / "Exit Local Mode") in a second row (`.menu-local-actions`). The main header shows the glyph logo (`images/fieldlog-glyph.svg`, 15px, precached in `sw.js` `ASSETS`) before the sync status text.
 
 ## What is FieldLog
 A Progressive Web App for field technicians — timesheets, notes (TipTap rich text), site finder, routines, callouts/on-call scheduling, and AI assistant. Single-file architecture (`app.html`, ~32,000 lines) with Firestore sync, IndexedDB offline cache, and Google Apps Script backend.
@@ -29,7 +29,7 @@ A Progressive Web App for field technicians — timesheets, notes (TipTap rich t
 ## Version
 `const VERSION = 'x.y.z'` in `app.html` (~line 18699). Bump on every change. Only location that needs updating (index.html version references are static).
 **Patch (z) must not exceed 99.** When a bump would take it to 100, bump the minor version instead and reset patch to 0 (e.g. `6.7.99` → `6.8.0`, never `6.7.100`). 6.7.100–6.7.102 already broke this rule and were left as-is rather than rewriting pushed history — the rule applies from 6.8.0 onward.
-Current version: **6.8.70**
+Current version: **6.8.71**
 
 **12 themes active**: `claude` (default light), `dark` (slate-based), `champagne`, `champagne-dark`, `ios`, `apple` (macOS), `gray` (Grayscale), `gameboy` (Game Boy), `win31` (Win 3.1), `lcd` (LCD), `spectrum` (ZX Spectrum), `retro` (Retro). Theme picker lives in ☰ menu → Display. Switcher at `setTheme(key)`, registry at `THEME_META`.
 
