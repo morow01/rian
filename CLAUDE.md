@@ -10,6 +10,8 @@ The app's visible name is now **FieldLog**, with a new logo (cyan "F" + tick; so
 - The GitHub repo name and the hosting path `morow01.github.io/rian/` — GitHub Pages does not redirect, so renaming the repo would break every installed APK/PWA (`server.url` and `start_url` point there). If a nicer address is wanted later, use a custom domain instead.
 - `functions/index.js` title change only takes effect after `firebase deploy --only functions`.
 
+**Menu header — Option A (v6.8.73):** `.menu-header-block` is now a column (~130px): a brand row (`.menu-brand-row`: 32px glyph `images/fieldlog-glyph.svg` (precached in `sw.js`) · "FieldLog" wordmark · close X) above a hairline-separated account row (`.menu-acct-row`: 48px avatar · name/email · 38px sign-out icon). Local Mode keeps the same brand row + account row, with the Connect Google / Exit Local Mode buttons underneath. Superseded the compact one-row layout below (kept for history).
+
 **Menu account block + header logo (v6.8.70):** the ☰ menu's tall centred account section (avatar, "Signed in as", name, email, full-width Sign Out — ~195px) is now one compact row, `.menu-header-block` (~64px): avatar · name/email (ellipsised) · sign-out icon (`.menu-hdr-signout`) · close X. Sign-out goes through `confirmSignOut()` (a `showRianDialog` confirm) since the icon sits next to the close button. Local Mode keeps its two actions ("Connect Google" / "Exit Local Mode") in a second row (`.menu-local-actions`). (A small glyph logo was briefly shown before the sync status in the main header in v6.8.70–71 and removed again in v6.8.72 at the user's request — the main header carries no logo.)
 
 ## What is FieldLog
@@ -29,7 +31,7 @@ A Progressive Web App for field technicians — timesheets, notes (TipTap rich t
 ## Version
 `const VERSION = 'x.y.z'` in `app.html` (~line 18699). Bump on every change. Only location that needs updating (index.html version references are static).
 **Patch (z) must not exceed 99.** When a bump would take it to 100, bump the minor version instead and reset patch to 0 (e.g. `6.7.99` → `6.8.0`, never `6.7.100`). 6.7.100–6.7.102 already broke this rule and were left as-is rather than rewriting pushed history — the rule applies from 6.8.0 onward.
-Current version: **6.8.72**
+Current version: **6.8.73**
 
 **12 themes active**: `claude` (default light), `dark` (slate-based), `champagne`, `champagne-dark`, `ios`, `apple` (macOS), `gray` (Grayscale), `gameboy` (Game Boy), `win31` (Win 3.1), `lcd` (LCD), `spectrum` (ZX Spectrum), `retro` (Retro). Theme picker lives in ☰ menu → Display. Switcher at `setTheme(key)`, registry at `THEME_META`.
 
