@@ -1,0 +1,1066 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FieldLog — Field Technician App</title>
+  <link rel="icon" type="image/svg+xml" href="images/fieldlog-favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    html{scroll-behavior:smooth;}
+    :root{
+      --navy:#0F1C2E;--navy2:#162438;--accent:#2D6BE4;--accent-light:#EBF1FD;
+      --page:#E8EEF5;--card:#FFFFFF;--border:#D4E0EC;--text:#0F1C2E;
+      --muted:#4A6580;--faint:#8BA5BE;--ot:#F5A623;--green:#16a34a;--red:#ef4444;
+    }
+    body{font-family:'DM Sans',sans-serif;background:var(--page);color:var(--text);line-height:1.6;overflow-x:hidden;}
+
+
+    /* ── STICKY NAVBAR ── */
+    .site-nav{
+      position:sticky;top:0;left:0;right:0;z-index:200;
+      background:var(--navy);border-bottom:1px solid rgba(255,255,255,0.06);
+      padding:0 28px;display:flex;align-items:center;height:62px;gap:16px;
+    }
+    .nav-brand{display:flex;align-items:center;gap:10px;flex-shrink:0;text-decoration:none;}
+    .nav-logo{display:block;width:25px;height:25px;flex-shrink:0;}
+    .nav-logo-box{
+      width:32px;height:32px;border-radius:8px;
+      background:linear-gradient(135deg,#2D6BE4,#7c73e6);
+      display:flex;align-items:center;justify-content:center;
+      font-size:14px;font-weight:800;color:#fff;flex-shrink:0;
+    }
+    .nav-brand-text{display:flex;flex-direction:column;line-height:1.2;}
+    .nav-brand-name{font-weight:800;font-size:15px;color:#fff;}
+    .nav-links{flex:1;display:flex;align-items:center;justify-content:center;gap:4px;}
+    .nav-link{
+      padding:7px 16px;border-radius:8px;font-size:13px;font-weight:600;
+      color:rgba(255,255,255,0.45);background:transparent;text-decoration:none;
+      cursor:pointer;transition:all 0.15s;border:none;white-space:nowrap;
+    }
+    .nav-link.active{color:#fff;background:rgba(45,107,228,0.22);}
+    .nav-cta{
+      display:flex;align-items:center;gap:7px;background:var(--accent);color:#fff;
+      font-size:13px;font-weight:700;padding:9px 20px;border-radius:10px;
+      text-decoration:none;border:none;cursor:pointer;flex-shrink:0;
+      box-shadow:0 3px 12px rgba(45,107,228,0.45);transition:background 0.15s,transform 0.1s;
+    }
+
+    /* ── HERO ── */
+    .hero{
+      background:var(--navy);color:#fff;text-align:center;
+      padding:60px 24px 20px;position:relative;overflow:hidden;
+    }
+    .hero::before{
+      content:'';position:absolute;inset:0;
+      background:radial-gradient(ellipse at 60% 0%,rgba(45,107,228,0.25) 0%,transparent 70%);
+      pointer-events:none;
+    }
+    .hero-badge{
+      display:inline-block;background:rgba(45,107,228,0.2);border:1px solid rgba(45,107,228,0.4);
+      color:#7EB3FF;font-size:11px;font-weight:700;letter-spacing:0.1em;
+      text-transform:uppercase;padding:5px 14px;border-radius:20px;margin-bottom:20px;
+    }
+    .hero h1{font-size:clamp(36px,6vw,60px);font-weight:800;letter-spacing:-0.02em;margin-bottom:16px;line-height:1.1;}
+    .hero h1 span{color:#7EB3FF;}
+    .hero p{font-size:clamp(16px,2vw,19px);color:rgba(255,255,255,0.6);max-width:520px;margin:0 auto 36px;}
+    .hero-cta{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;}
+    .btn-launch{
+      display:inline-flex;align-items:center;gap:8px;background:var(--accent);color:#fff;
+      font-family:'DM Sans',sans-serif;font-size:15px;font-weight:700;
+      padding:13px 28px;border-radius:12px;text-decoration:none;border:none;cursor:pointer;
+      transition:background 0.15s,transform 0.15s;box-shadow:0 4px 16px rgba(45,107,228,0.4);
+    }
+
+    /* ── SECTION LAYOUT ── */
+    .feature-section{padding:80px 24px;overflow:hidden;}
+    .feature-section:nth-child(even){background:#fff;}
+    .feature-inner{
+      max-width:1080px;margin:0 auto;display:grid;
+      grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:64px;align-items:center;
+    }
+    .feature-section:nth-child(odd) .feature-inner{direction:rtl;}
+    .feature-section:nth-child(odd) .feature-inner>*{direction:ltr;}
+    .section-number{
+      font-size:11px;font-weight:800;letter-spacing:0.12em;
+      text-transform:uppercase;color:var(--accent);margin-bottom:8px;
+    }
+    .feature-text{min-width:0;}
+    .feature-text h2{font-size:clamp(26px,3vw,38px);font-weight:800;letter-spacing:-0.02em;line-height:1.15;margin-bottom:14px;overflow-wrap:break-word;word-break:break-word;}
+    .feature-text .lead{font-size:16px;color:var(--muted);margin-bottom:28px;line-height:1.7;overflow-wrap:break-word;}
+    .feature-list{list-style:none;display:flex;flex-direction:column;gap:14px;}
+    .feature-list li{display:flex;gap:12px;align-items:flex-start;min-width:0;}
+    .feature-list li > div{min-width:0;overflow-wrap:break-word;word-break:break-word;}
+    .feature-list li .icon{
+      width:32px;height:32px;border-radius:8px;background:var(--accent-light);
+      display:flex;align-items:center;justify-content:center;
+      flex-shrink:0;color:var(--accent);margin-top:1px;
+      min-width:32px;
+    }
+    .feature-list li .icon.green{background:rgba(22,163,74,0.1);color:var(--green);}
+    .feature-list li .icon.orange{background:rgba(245,166,35,0.1);color:var(--ot);}
+    .feature-list li .icon.red{background:rgba(239,68,68,0.08);color:var(--red);}
+    .feature-list li .icon.purple{background:rgba(139,92,246,0.1);color:#8b5cf6;}
+    .feature-list li strong{display:block;font-size:14px;font-weight:700;margin-bottom:2px;}
+    .feature-list li span{font-size:13px;color:var(--muted);}
+
+    /* ── PHONE FRAME ── */
+    .phones{display:flex;gap:20px;justify-content:center;align-items:flex-start;}
+    .phone{
+      width:195px;background:#1a1a2e;border-radius:36px;padding:12px;
+      box-shadow:0 24px 64px rgba(0,0,0,0.22),0 0 0 1px rgba(255,255,255,0.06);
+      flex-shrink:0;
+    }
+    .phone.secondary{margin-top:32px;}
+    .phone-screen{background:var(--page);border-radius:26px;overflow:hidden;min-height:360px;}
+    .phone-notch{width:60px;height:6px;background:#1a1a2e;border-radius:3px;margin:0 auto 8px;}
+    .app-header{background:var(--navy);padding:10px 12px 8px;color:#fff;}
+    .app-header-row{display:flex;align-items:center;justify-content:space-between;}
+    .app-week{font-size:9px;font-weight:700;text-align:center;flex:1;}
+    .app-week-sub{font-size:7px;color:rgba(255,255,255,0.45);text-align:center;margin-top:1px;}
+    .app-nav-btn{width:16px;height:16px;display:flex;align-items:center;justify-content:center;opacity:0.4;}
+    .app-tabs{display:flex;background:var(--navy2);}
+    .app-tab{
+      flex:1;text-align:center;font-size:7px;font-weight:700;
+      letter-spacing:0.08em;text-transform:uppercase;padding:5px 0;color:rgba(255,255,255,0.4);
+    }
+    .app-tab.active{color:var(--ot);border-bottom:2px solid var(--ot);}
+
+    /* ── NOTES MOCKUP — NEW UI ── */
+    .notes-body{padding:6px;display:flex;flex-direction:column;gap:4px;}
+
+    /* Search bar */
+    .notes-search{
+      background:var(--card);border:1px solid var(--border);border-radius:8px;
+      padding:5px 7px;font-size:7px;color:var(--faint);
+      display:flex;align-items:center;gap:4px;margin-bottom:2px;
+    }
+
+    /* Filter bar wrapper */
+    .nf-wrap{
+      background:var(--card);border-radius:10px;border:1px solid var(--border);
+      overflow:hidden;margin-bottom:2px;
+    }
+    .nf-header{
+      display:flex;align-items:center;justify-content:space-between;
+      padding:5px 8px;gap:4px;
+    }
+    .nf-header-left{display:flex;align-items:center;gap:4px;flex:1;min-width:0;flex-wrap:wrap;gap:3px;}
+    .nf-label{font-size:7px;font-weight:700;color:var(--text);}
+    .nf-summary-pill{
+      display:inline-flex;align-items:center;gap:2px;
+      font-size:6px;font-weight:700;padding:1.5px 5px;border-radius:20px;color:#fff;
+    }
+    .nf-chevron-mini{color:var(--faint);}
+    .nf-panel{border-top:1px solid var(--border);padding:5px 7px 7px;}
+    .nf-group-label{
+      font-size:6px;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;
+      color:var(--faint);margin-bottom:4px;
+    }
+    .nf-chips{display:flex;flex-wrap:wrap;gap:2px;margin-bottom:4px;}
+    .nf-chip{
+      font-size:6.5px;font-weight:600;padding:1.5px 5px;border-radius:20px;
+      border:1px solid;display:inline-flex;align-items:center;gap:1px;
+    }
+    .nf-divider{border-top:1px solid var(--border);margin:4px 0;}
+
+    /* Note cards */
+    .note-card{
+      background:var(--card);border-radius:8px;
+      border:1px solid var(--border);overflow:hidden;
+    }
+    .note-row{display:flex;align-items:flex-start;gap:6px;padding:7px 8px;}
+    .note-title{font-size:7.5px;font-weight:700;flex:1;line-height:1.3;}
+    .note-cat-badge{
+      font-size:6px;font-weight:700;padding:1.5px 5px;border-radius:10px;
+      color:#fff;display:inline-flex;align-items:center;gap:2px;white-space:nowrap;flex-shrink:0;
+    }
+    .note-meta{display:flex;align-items:center;gap:5px;margin-top:3px;}
+    .note-meta-loc{font-size:6px;color:var(--faint);display:flex;align-items:center;gap:1px;}
+    .note-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
+    .note-dot.high{background:#ef4444;}
+    .note-dot.med{background:#f97316;}
+    .note-dot.low{background:#22c55e;}
+    .note-arrow{color:var(--faint);margin-left:auto;flex-shrink:0;}
+
+    /* Expanded note detail */
+    .note-detail{border-top:1px solid var(--border);padding:6px 8px;}
+    .note-detail-section{margin-bottom:6px;}
+    .nd-label{font-size:6px;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;color:#94a3b8;margin-bottom:3px;}
+    .nd-field{
+      background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;
+      padding:4px 6px;font-size:7px;color:var(--text);
+    }
+    .nd-field.placeholder{color:var(--faint);}
+    .nd-note-panel{background:#fff;border:1px solid #e2e8f0;border-radius:6px;overflow:hidden;}
+    .nd-note-header{
+      display:flex;align-items:center;gap:4px;padding:4px 6px;
+      font-size:7px;color:var(--faint);
+    }
+    .nd-note-body{border-top:1px solid #ebebea;padding:4px 6px;font-size:6.5px;color:var(--muted);}
+    .nd-cats{display:flex;flex-wrap:wrap;gap:2px;}
+    .nd-cat{
+      font-size:6px;font-weight:600;padding:1.5px 5px;border-radius:20px;
+      border:1px solid;display:inline-flex;align-items:center;gap:1px;
+    }
+    .nd-reminder{
+      display:flex;align-items:center;gap:4px;
+      background:#f0fdf4;border:1px solid #bbf7d0;border-radius:6px;padding:4px 6px;
+      font-size:6.5px;color:var(--green);font-weight:600;
+    }
+    .add-note-dashed{
+      border:1.5px dashed var(--border);border-radius:8px;padding:8px;
+      text-align:center;font-size:7.5px;color:var(--faint);
+    }
+
+    /* ── TIMESHEET MOCKUP (reused from original) ── */
+    .ts-week-body{padding:6px;display:flex;flex-direction:column;gap:4px;}
+    .ts-day{background:var(--card);border-radius:8px;overflow:hidden;}
+    .ts-day-header{display:flex;align-items:center;padding:6px 8px;gap:6px;}
+    .ts-day-name{font-size:8px;font-weight:700;flex:1;}
+    .ts-day-date{font-size:7px;color:var(--faint);}
+    .ts-day-hours{font-size:8px;font-weight:700;color:var(--accent);font-family:'DM Mono',monospace;}
+    .ts-chevron{width:10px;height:10px;border-right:1.5px solid var(--faint);border-bottom:1.5px solid var(--faint);transform:rotate(45deg);margin-left:2px;}
+    .ts-activities{padding:0 8px 8px;display:flex;flex-direction:column;gap:4px;}
+    .ts-activity{background:var(--page);border-radius:6px;padding:5px 7px;}
+    .ts-act-desc{font-size:8px;font-weight:600;margin-bottom:2px;}
+    .ts-act-row{display:flex;gap:4px;align-items:center;}
+    .ts-code{font-size:6.5px;font-family:'DM Mono',monospace;background:var(--accent-light);color:var(--accent);padding:1px 4px;border-radius:3px;font-weight:500;}
+    .ts-hrs{font-size:7px;font-family:'DM Mono',monospace;color:var(--accent);font-weight:700;margin-left:auto;}
+    .ts-ot{color:var(--ot);}
+    .ts-add-btn{margin:0 8px 6px;border:1.5px dashed var(--border);border-radius:6px;padding:4px;text-align:center;font-size:7.5px;color:var(--faint);}
+    .ts-day.collapsed .ts-activities{display:none;}
+    .ts-day.collapsed .ts-add-btn{display:none;}
+    .ts-summary{background:var(--card);border-radius:8px;margin:0 6px 6px;padding:7px 8px;}
+    .ts-sum-title{font-size:7.5px;font-weight:700;margin-bottom:5px;}
+    .ts-sum-row{display:flex;justify-content:space-between;font-size:7px;padding:2px 0;border-bottom:1px solid var(--border);}
+    .ts-sum-row:last-child{border:none;}
+    .ts-sum-row span:last-child{font-weight:600;font-family:'DM Mono',monospace;}
+
+    /* ── FINDER MOCKUP ── */
+    .finder-body{padding:6px;}
+    .finder-tabs{display:flex;gap:3px;margin-bottom:6px;}
+    .finder-tab{flex:1;text-align:center;padding:4px;border-radius:7px;font-size:7px;font-weight:700;background:var(--card);color:var(--faint);}
+    .finder-tab.active{background:var(--accent);color:#fff;}
+    .finder-search{background:var(--card);border:1px solid var(--border);border-radius:7px;padding:5px 8px;font-size:7.5px;color:var(--faint);margin-bottom:6px;display:flex;align-items:center;gap:5px;}
+    .finder-item{background:var(--card);border-radius:7px;padding:6px 8px;margin-bottom:4px;display:flex;align-items:center;gap:7px;}
+    .finder-icon{width:24px;height:24px;background:var(--accent-light);border-radius:6px;display:flex;align-items:center;justify-content:center;color:var(--accent);flex-shrink:0;}
+    .finder-name{font-size:8px;font-weight:600;}
+    .finder-sub{font-size:6.5px;color:var(--faint);margin-top:1px;}
+    .finder-detail{background:var(--card);border-radius:8px;overflow:hidden;margin-top:6px;}
+    .finder-detail-header{background:var(--navy);padding:8px 8px 6px;color:#fff;}
+    .finder-detail-name{font-size:9px;font-weight:700;}
+    .finder-detail-code{font-size:7px;font-family:'DM Mono',monospace;color:rgba(255,255,255,0.5);margin-top:1px;}
+    .finder-detail-row{display:flex;padding:5px 8px;border-bottom:1px solid var(--border);align-items:center;gap:6px;}
+    .finder-detail-row:last-child{border:none;}
+    .finder-detail-label{font-size:7px;color:var(--faint);width:55px;flex-shrink:0;}
+    .finder-detail-val{font-size:7.5px;font-weight:500;}
+
+    /* ── WEEKLY SUMMARY MOCKUP ── */
+    .ws-screen{background:var(--page);}
+    .ws-card{background:#fff;border-radius:10px;margin:6px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,0.07);position:relative;}
+    .ws-header{display:flex;align-items:center;gap:5px;padding:7px 8px 6px;border-bottom:1px solid var(--border);}
+    .ws-icon{width:18px;height:18px;border-radius:4px;background:rgba(45,107,228,0.1);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+    .ws-title{font-size:8px;font-weight:800;flex:1;color:var(--text);}
+    .ws-badge{border-radius:10px;padding:1.5px 6px;font-size:6.5px;font-weight:800;white-space:nowrap;}
+    .ws-badge.ord{background:rgba(45,107,228,0.12);color:var(--accent);}
+    .ws-badge.ot{background:rgba(245,166,35,0.15);color:var(--ot);}
+    .ws-chevron{font-size:8px;color:var(--faint);margin-left:2px;}
+    .ws-col-row{display:grid;grid-template-columns:1fr 22px 22px;padding:4px 8px 3px;background:rgba(232,238,245,0.6);border-bottom:1px solid var(--border);}
+    .ws-col-lbl{font-size:6px;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;color:var(--faint);}
+    .ws-col-lbl.right{text-align:right;}
+    .ws-row{display:grid;grid-template-columns:1fr 22px 22px;align-items:center;padding:5px 8px 4px;border-bottom:1px solid var(--border);gap:3px;}
+    .ws-row:last-child{border:none;}
+    .ws-code{font-size:6.5px;font-weight:800;color:var(--accent);font-family:'DM Mono',monospace;letter-spacing:0.02em;}
+    .ws-desc{font-size:6.5px;color:var(--text);margin:1px 0 3px;line-height:1.3;}
+    .ws-bar-track{height:3px;background:var(--border);border-radius:2px;}
+    .ws-bar-fill{height:100%;border-radius:2px;background:var(--accent);}
+    .ws-bar-fill.ot-bar{background:var(--ot);}
+    .ws-bar-fill.mixed{background:linear-gradient(90deg,var(--accent) 70%,var(--ot) 70%);}
+    .ws-num{font-size:7.5px;font-weight:700;text-align:right;font-family:'DM Mono',monospace;color:var(--text);}
+    .ws-num.ot{color:var(--ot);}
+    .ws-dash{font-size:8px;text-align:right;color:var(--faint);}
+    .ws-fade{position:absolute;bottom:38px;left:0;right:0;height:22px;background:linear-gradient(to bottom,rgba(255,255,255,0) 0%,rgba(255,255,255,0.95) 100%);pointer-events:none;}
+    .ws-footer{display:grid;grid-template-columns:1fr auto auto;gap:12px;padding:6px 8px;border-top:1px solid var(--border);background:rgba(232,238,245,0.5);}
+    .ws-footer-lbl{font-size:6px;font-weight:800;letter-spacing:0.07em;text-transform:uppercase;color:var(--faint);align-self:center;}
+    .ws-footer-group{text-align:right;}
+    .ws-footer-sub{font-size:5.5px;color:var(--faint);text-transform:uppercase;letter-spacing:0.06em;}
+    .ws-footer-val{font-size:10px;font-weight:800;font-family:'DM Mono',monospace;}
+    .ws-footer-val.ord{color:var(--text);}
+    .ws-footer-val.ot{color:var(--ot);}
+
+    /* ── UPDATED BADGE ── */
+    .updated-badge{
+      display:inline-block;background:rgba(34,197,94,0.12);border:1px solid rgba(34,197,94,0.3);
+      color:#16a34a;font-size:10px;font-weight:700;letter-spacing:0.08em;
+      text-transform:uppercase;padding:3px 10px;border-radius:20px;margin-left:10px;
+      vertical-align:middle;
+    }
+
+    /* ── FOOTER ── */
+    .footer{background:var(--navy);color:rgba(255,255,255,0.4);text-align:center;padding:40px 24px;font-size:13px;}
+    .footer strong{color:#fff;}
+
+    /* ── DESKTOP MOCKUP (laptop frame + three-panel) ── */
+    .laptop{
+      width:100%;max-width:560px;background:#1a1a2e;border-radius:14px 14px 4px 4px;
+      padding:10px 10px 8px;box-shadow:0 24px 64px rgba(0,0,0,0.22),0 0 0 1px rgba(255,255,255,0.06);
+      margin:0 auto;overflow:hidden;
+    }
+    .laptop-screen{background:var(--page);border-radius:8px;overflow:hidden;}
+    .laptop-base{
+      height:8px;background:linear-gradient(to bottom,#1a1a2e 0%,#0b0b16 100%);
+      margin:6px -22px 0;border-radius:0 0 8px 8px;position:relative;
+    }
+    .laptop-base::after{
+      content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);
+      width:80px;height:3px;background:#000;border-radius:0 0 6px 6px;
+    }
+    .desk-topbar{background:var(--navy);padding:8px 12px;display:flex;align-items:center;gap:10px;}
+    .desk-brand{font-size:11px;font-weight:800;color:#fff;letter-spacing:0.02em;}
+    .desk-tabs{display:flex;gap:3px;flex:1;}
+    .desk-tab{font-size:8px;font-weight:700;padding:4px 8px;border-radius:5px;color:rgba(255,255,255,0.45);}
+    .desk-tab.active{color:#fff;background:rgba(45,107,228,0.25);}
+    .desk-panels{display:grid;grid-template-columns:90px 150px 1fr;gap:0;min-height:240px;}
+    .desk-panel{background:var(--card);border-right:1px solid var(--border);padding:6px;overflow:hidden;}
+    .desk-panel:last-child{border-right:none;}
+    .desk-panel-hdr{
+      font-size:6px;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;
+      color:var(--faint);padding:3px 4px 6px;border-bottom:1px solid var(--border);margin-bottom:5px;
+    }
+    .desk-day-row{
+      padding:5px 6px;border-radius:5px;margin-bottom:3px;font-size:7.5px;color:var(--text);
+      border-left:3px solid transparent;
+    }
+    .desk-day-row.sel{background:rgba(45,107,228,0.08);border-left-color:var(--accent);}
+    .desk-day-row .d-name{font-weight:700;}
+    .desk-day-row .d-date{color:var(--faint);font-size:6.5px;margin-top:1px;}
+    .desk-day-row .d-hrs{font-family:'DM Mono',monospace;color:var(--accent);font-size:6.5px;margin-top:1px;font-weight:700;}
+    .desk-task-row{
+      background:var(--page);border-radius:5px;padding:5px 6px;margin-bottom:3px;
+      font-size:7px;border-left:3px solid transparent;
+    }
+    .desk-task-row.sel{background:rgba(45,107,228,0.08);border-left-color:var(--accent);}
+    .desk-task-row .t-desc{font-weight:600;color:var(--text);}
+    .desk-task-row .t-meta{display:flex;gap:4px;align-items:center;margin-top:2px;}
+    .desk-task-row .t-code{font-family:'DM Mono',monospace;background:var(--accent-light);color:var(--accent);padding:0.5px 3px;border-radius:2px;font-size:6px;}
+    .desk-task-row .t-hrs{font-family:'DM Mono',monospace;color:var(--accent);font-size:6.5px;font-weight:700;margin-left:auto;}
+    .desk-detail-field{margin-bottom:7px;}
+    .desk-detail-lbl{font-size:6px;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;color:var(--faint);margin-bottom:3px;}
+    .desk-detail-val{background:var(--page);border:1px solid var(--border);border-radius:5px;padding:5px 7px;font-size:7px;color:var(--text);}
+    .desk-add-dashed{
+      border:1.5px dashed var(--border);border-radius:5px;padding:6px;text-align:center;
+      font-size:7px;color:var(--faint);font-weight:600;margin-top:4px;
+    }
+
+    /* ── SAMSUNG PHONE MOCKUP ── */
+    /* ── PHONE CAROUSEL ── */
+    .samsung-col{display:flex;flex-direction:column;align-items:center;gap:12px;}
+    .samsung-wrap{
+      display:flex;
+      overflow-x:auto;
+      scroll-snap-type:x mandatory;
+      -webkit-overflow-scrolling:touch;
+      scrollbar-width:none;
+      width:290px;
+      max-width:100%;
+    }
+    .samsung-wrap::-webkit-scrollbar{display:none;}
+    .samsung-slide{
+      width:290px;
+      max-width:100%;
+      flex-shrink:0;
+      scroll-snap-align:start;
+      display:flex;
+      justify-content:center;
+      padding:20px 40px 52px;
+    }
+    .samsung-nav{display:none;align-items:center;gap:10px;}
+    .samsung-nav-btn{
+      width:28px;height:28px;border-radius:50%;border:1px solid var(--border);
+      background:var(--card);cursor:pointer;display:flex;align-items:center;justify-content:center;
+      color:var(--muted);font-size:18px;line-height:1;padding:0;
+      transition:background 0.15s,border-color 0.15s,color 0.15s;
+    }
+    .samsung-nav-btn:hover{background:var(--accent);border-color:var(--accent);color:#fff;}
+    .samsung-frame{
+      width:210px;flex-shrink:0;
+      background:linear-gradient(145deg,#2a2a2a,#111);
+      border-radius:30px;
+      padding:8px;
+      box-shadow:
+        0 10px 28px rgba(0,0,0,0.32),
+        0 0 0 1px rgba(255,255,255,0.07),
+        inset 0 1px 0 rgba(255,255,255,0.08),
+        inset 0 0 0 1px rgba(255,255,255,0.03);
+      position:relative;
+    }
+    /* Volume buttons */
+    .samsung-frame::before{
+      content:'';position:absolute;left:-3px;top:80px;
+      width:3px;height:24px;background:#2a2a2a;border-radius:2px 0 0 2px;
+      box-shadow:0 32px 0 #2a2a2a;
+    }
+    /* Power button */
+    .samsung-frame::after{
+      content:'';position:absolute;right:-3px;top:100px;
+      width:3px;height:36px;background:#2a2a2a;border-radius:0 2px 2px 0;
+    }
+    .samsung-screen{
+      background:#000;border-radius:23px;overflow:hidden;position:relative;
+      height:424px;
+    }
+    .samsung-camera{
+      position:absolute;top:10px;left:50%;transform:translateX(-50%);
+      width:10px;height:10px;background:#0d0d0d;border-radius:50%;
+      box-shadow:0 0 0 1.5px rgba(255,255,255,0.08);z-index:2;
+    }
+    .samsung-screen img{width:100%;display:block;object-fit:cover;object-position:top;height:100%;}
+
+    /* ── CAROUSEL DOTS ── */
+    .samsung-dots{display:flex;justify-content:center;gap:7px;}
+    .samsung-dot{width:7px;height:7px;border-radius:50%;background:var(--border);transition:background 0.2s,transform 0.2s;cursor:pointer;}
+    .samsung-dot.active{background:var(--accent);transform:scale(1.25);}
+
+    /* ── RESPONSIVE ── */
+    @media(max-width:900px){
+      .feature-inner{grid-template-columns:minmax(0,1fr);gap:36px;}
+      .feature-section:nth-child(odd) .feature-inner{direction:ltr;}
+      .feature-section{padding:56px 20px;}
+      .phone.secondary{display:none;}
+      .desk-panels{grid-template-columns:70px 120px 1fr;}
+      .laptop{max-width:100%;}
+      .laptop-base{margin:6px -10px 0;}
+    }
+    @media(max-width:600px){
+      .samsung-wrap{width:100%;}
+      .samsung-slide{width:100%;padding:20px 12px 52px;}
+      .feature-section{padding:44px 16px;}
+      .site-nav{padding:0 16px;}
+      .nav-links{display:none;}
+      .nav-cta{margin-left:auto;}
+      .feature-text h2{font-size:22px;letter-spacing:-0.025em;}
+      .feature-text .lead{font-size:15px;}
+      .feature-list li span{font-size:13px;line-height:1.5;}
+    }
+    @media(max-width:420px){
+      .feature-section{padding:40px 14px;}
+      .feature-text h2{font-size:20px;}
+      .feature-text .lead{font-size:14.5px;line-height:1.55;}
+      .feature-list li strong{font-size:13.5px;}
+      .feature-list li span{font-size:12.5px;}
+      .feature-list li{gap:10px;}
+      .hero h1{font-size:30px;}
+      .hero p{font-size:14.5px;}
+    }
+  </style>
+</head>
+<body>
+
+<!-- ════ STICKY NAVBAR ════ -->
+<nav class="site-nav">
+  <a href="#" class="nav-brand">
+    <img class="nav-logo" src="images/fieldlog-glyph.svg" alt="" width="25" height="25">
+    <div class="nav-brand-text">
+      <span class="nav-brand-name">FieldLog</span>
+    </div>
+  </a>
+  <div class="nav-links">
+    <a href="#timesheet" class="nav-link active">Timesheet</a>
+    <a href="#notes" class="nav-link">Notes</a>
+    <a href="#journal" class="nav-link">Journal</a>
+    <a href="#finder" class="nav-link">Finder</a>
+    <a href="#routines" class="nav-link">Routines</a>
+    <a href="#callout" class="nav-link">Callout</a>
+    <a href="#history-ai" class="nav-link">History &amp; AI</a>
+    <a href="#desktop" class="nav-link">Desktop</a>
+  </div>
+  <a href="./app.html" class="nav-cta">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+    Launch App
+  </a>
+</nav>
+
+<!-- ════ HERO ════ -->
+<section class="hero">
+  <div class="hero-badge">Mobile · Desktop · Android · Cloud Synced</div>
+  <h1>Your whole job<br><span>in one pocket</span></h1>
+  <p>Timesheets, field notes, journal, site finder, routines, on-call tracking, week history, and AI assistance &mdash; all in one fast app built for technicians on the tools.</p>
+  <div class="hero-cta">
+    <a href="./app.html" class="btn-launch">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+      Launch App
+    </a>
+  </div>
+  <p style="margin-top:10px;font-size:11px;color:rgba(255,255,255,0.25);letter-spacing:0.05em;">v6.8.69</p>
+</section>
+
+<!-- ════ SECTION 1 — TIMESHEET ════ -->
+<section class="feature-section" id="timesheet">
+  <div class="feature-inner">
+    <div class="feature-text">
+      <div class="section-number">01 — Timesheet</div>
+      <h2>Track every hour, every day</h2>
+      <p class="lead">Log your ordinary and overtime hours against work codes for each day of the week. Everything stays organised and ready to export.</p>
+      <ul class="feature-list">
+        <li>
+          <div class="icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></div>
+          <div><strong>Weekly overview</strong><span>See your full week at a glance — tap any day to expand and add tasks.</span></div>
+        </li>
+        <li>
+          <div class="icon orange"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></div>
+          <div><strong>Ordinary &amp; overtime hours</strong><span>Log both hour types per task. Overtime is highlighted automatically.</span></div>
+        </li>
+        <li>
+          <div class="icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M4 12h10M4 17h7"/></svg></div>
+          <div><strong>Work codes &amp; locations</strong><span>Attach job codes and site locations to each task for accurate reporting.</span></div>
+        </li>
+        <li>
+          <div class="icon green"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></div>
+          <div><strong>Email &amp; export</strong><span>Send a formatted weekly summary directly from the app in one tap.</span></div>
+        </li>
+        <li>
+          <div class="icon" style="background:rgba(22,163,74,0.1);color:var(--green);"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"/><line x1="12" y1="2" x2="12" y2="12"/></svg></div>
+          <div><strong>Offline-First &amp; Cloud Sync</strong><span>Work fully offline in the field without any connection. Your logs save instantly to IndexedDB and sync automatically when you're back online.</span></div>
+        </li>
+        <li>
+          <div class="icon purple"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></div>
+          <div><strong>Desktop three-panel layout</strong><span>On screens wider than 1280px, the timesheet opens into Days → Tasks → Detail panels with a built-in Weekly Summary sidebar.</span></div>
+        </li>
+        <li>
+          <div class="icon orange"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18"/><path d="M12 3v18"/><path d="M5 5l14 14"/><path d="M19 5L5 19"/></svg></div>
+          <div><strong>Availability Planner</strong><span>Track leave, training, service desk, on-call and other CTO schedule codes, with week badges shown directly in the timesheet header.</span></div>
+        </li>
+      </ul>
+    </div>
+    <div class="samsung-col">
+      <div class="samsung-wrap">
+        <div class="samsung-slide">
+          <div class="samsung-frame">
+            <div class="samsung-screen">
+              <div class="samsung-camera"></div>
+              <img src="images/01 TimeSheet.png" alt="Timesheet view">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════ SECTION 02 — NOTES ════ -->
+<section class="feature-section" id="notes">
+  <div class="feature-inner">
+
+    <!-- Text -->
+    <div class="feature-text">
+      <div class="section-number">02 — Notes</div>
+      <h2>Notes that work as hard as you do</h2>
+      <p class="lead">Capture faults, follow-ups, meeting outcomes, and job reminders — all categorised, filtered, and searchable. Nothing falls through the cracks.</p>
+      <ul class="feature-list">
+        <li>
+          <div class="icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/><line x1="12" y1="12" x2="12" y2="16"/><line x1="10" y1="14" x2="14" y2="14"/></svg>
+          </div>
+          <div>
+            <strong>6 colour-coded categories</strong>
+            <span>Job, Fault, Follow-up, Meeting, Personal, Idea — each with its own icon and colour so you know at a glance what every note is about.</span>
+          </div>
+        </li>
+        <li>
+          <div class="icon red">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+          </div>
+          <div>
+            <strong>Smart filter bar</strong>
+            <span>Filter by category and priority at the same time. Active filters show as dismissible pills in the collapsed header. High (4) · Med (5) · Low (3) · Done (6).</span>
+          </div>
+        </li>
+        <li>
+          <div class="icon orange">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+          </div>
+          <div>
+            <strong>Reminders &amp; push notifications</strong>
+            <span>Set a reminder on any note and get a push notification when it's due — even when the app is closed.</span>
+          </div>
+        </li>
+        <li>
+          <div class="icon purple">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="8" y1="22" x2="16" y2="22"/></svg>
+          </div>
+          <div>
+            <strong>Voice dictation</strong>
+            <span>Hands full on site? Dictate your note directly. Speech-to-text fills the note field without you typing a word.</span>
+          </div>
+        </li>
+        <li>
+          <div class="icon green">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          </div>
+          <div>
+            <strong>Search, bulk actions &amp; custom tags</strong>
+            <span>Full-text search across all notes. Long-press to select multiples — mark done or delete in one go. Create your own tags with the Tag Manager.</span>
+          </div>
+        </li>
+        <li>
+          <div class="icon" style="background:rgba(45,107,228,0.1);color:#2D6BE4;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+          </div>
+          <div>
+            <strong>Desktop editor panel</strong>
+            <span>On desktop, notes open with a sidebar (Active · Archive · Bin · Tags), a scrollable list, and a full editor pane — just like the mobile view but roomier.</span>
+          </div>
+        </li>
+        <li>
+          <div class="icon orange">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="9" x2="20" y2="9"/><line x1="4" y1="15" x2="20" y2="15"/><line x1="10" y1="3" x2="8" y2="21"/><line x1="16" y1="3" x2="14" y2="21"/></svg>
+          </div>
+          <div>
+            <strong>Grouped desktop list &amp; quick actions</strong>
+            <span>The desktop notes list auto-groups into Overdue, Pinned and Open bands so priorities surface first. One-click <em>Convert to Task</em> or <em>Add to Calendar</em> from the action bar — no menus to dig through.</span>
+          </div>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Samsung mockups -->
+    <div class="samsung-col">
+      <div class="samsung-wrap">
+        <div class="samsung-slide">
+          <div class="samsung-frame">
+            <div class="samsung-screen">
+              <div class="samsung-camera"></div>
+              <img src="images/02 Notes.png" alt="Notes list view">
+            </div>
+          </div>
+        </div>
+        <div class="samsung-slide">
+          <div class="samsung-frame">
+            <div class="samsung-screen">
+              <div class="samsung-camera"></div>
+              <img src="images/03 Notes.png" alt="Notes detail view">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ════ SECTION 03 — JOURNAL ★ NEW ★ ════ -->
+<section class="feature-section" id="journal">
+  <div class="feature-inner">
+    <div class="feature-text">
+      <div class="section-number">03 — Journal <span class="updated-badge">New</span></div>
+      <h2>Your digital field notebook</h2>
+      <p class="lead">Organise site visits, voltage readings, ticket tables and photos into notebooks, sections and pages — structured the way you think, with rich text editing powered by TipTap.</p>
+      <ul class="feature-list">
+        <li>
+          <div class="icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+          </div>
+          <div>
+            <strong>Notebooks → Sections → Pages</strong>
+            <span>Three-level hierarchy mirrors how you organise work — one notebook per project, sections for areas, pages for individual visits.</span>
+          </div>
+        </li>
+        <li>
+          <div class="icon purple">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+          </div>
+          <div>
+            <strong>Rich text editor</strong>
+            <span>Headings, bold, lists, tables, images, code blocks — a full TipTap editor so your field notes look professional.</span>
+          </div>
+        </li>
+        <li>
+          <div class="icon green">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          </div>
+          <div>
+            <strong>Cloud sync</strong>
+            <span>Every page syncs to Firestore in real time. Start a note on your phone, finish it on your tablet — it's always up to date.</span>
+          </div>
+        </li>
+        <li>
+          <div class="icon orange">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+          </div>
+          <div>
+            <strong>Colour-coded sections</strong>
+            <span>Assign colours to sections so you can tell areas apart at a glance. Copy or move pages between sections easily.</span>
+          </div>
+        </li>
+        <li>
+          <div class="icon red">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0"/><line x1="12" y1="19" x2="12" y2="22"/></svg>
+          </div>
+          <div>
+            <strong>Voice-to-table recorder</strong>
+            <span>Tap the battery icon and dictate readings like "24 cells, cell 1 is 12.4 volts…" — the AI walks you through each value and inserts a formatted table straight into your page.</span>
+          </div>
+        </li>
+        <li>
+          <div class="icon" style="background:rgba(45,107,228,0.1);color:#2D6BE4;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
+          </div>
+          <div>
+            <strong>Desktop sidebar &amp; context menus</strong>
+            <span>Right-click any notebook, section or page for rename, recolour, change date, copy/move or delete — no digging through menus. Clicking a notebook highlights it so you can add a section before any pages exist. Rename and colour pickers open as centred modals instead of mobile sheets.</span>
+          </div>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Samsung mockups -->
+    <div class="samsung-col">
+      <div class="samsung-wrap">
+        <div class="samsung-slide">
+          <div class="samsung-frame">
+            <div class="samsung-screen">
+              <div class="samsung-camera"></div>
+              <img src="images/04. Journal.png" alt="Journal notebooks view">
+            </div>
+          </div>
+        </div>
+        <div class="samsung-slide">
+          <div class="samsung-frame">
+            <div class="samsung-screen">
+              <div class="samsung-camera"></div>
+              <img src="images/05. Journal.png" alt="Journal page view">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ════ SECTION 04 — FINDER ════ -->
+<section class="feature-section" id="finder">
+  <div class="feature-inner">
+    <div class="feature-text">
+      <div class="section-number">04 — Finder</div>
+      <h2>Find any site, exchange or cabinet</h2>
+      <p class="lead">Search your full database of exchanges and cabinets instantly. Get address, location coordinates, power supply, and security details — all in one place.</p>
+      <ul class="feature-list">
+        <li>
+          <div class="icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>
+          <div><strong>Instant search</strong><span>Search by name or code across all exchanges and cabinets at once.</span></div>
+        </li>
+        <li>
+          <div class="icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></div>
+          <div><strong>Location &amp; address</strong><span>Full address details and coordinates for every site in your database.</span></div>
+        </li>
+        <li>
+          <div class="icon orange"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg></div>
+          <div><strong>Exchanges &amp; Cabinets</strong><span>Separate tabs for exchanges and cabinets, each with their own search.</span></div>
+        </li>
+        <li>
+          <div class="icon green"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="8" rx="2"/><rect x="2" y="14" width="20" height="8" rx="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg></div>
+          <div><strong>Full site details</strong><span>Security info, power supply, emergency contacts — everything in one place.</span></div>
+        </li>
+        <li>
+          <div class="icon purple"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/></svg></div>
+          <div><strong>Desktop map view</strong><span>Two-panel desktop layout — results list on the left, full details and embedded Google Map on the right.</span></div>
+        </li>
+      </ul>
+    </div>
+    <div class="samsung-col">
+      <div class="samsung-wrap">
+        <div class="samsung-slide">
+          <div class="samsung-frame">
+            <div class="samsung-screen">
+              <div class="samsung-camera"></div>
+              <img src="images/06. Finder.png" alt="Finder view">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════ SECTION 05 — ROUTINES ════ -->
+<section class="feature-section" id="routines">
+  <div class="feature-inner">
+    <div class="feature-text">
+      <div class="section-number">05 — Routines</div>
+      <h2>Track every routine visit, month by month</h2>
+      <p class="lead">See your full year of routine site visits in one grid. Choose the sites you maintain regularly and the app fills in each month automatically from your timesheet — no double entry.</p>
+      <ul class="feature-list">
+        <li>
+          <div class="icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></div>
+          <div><strong>Monthly visit grid</strong><span>Sites as rows, months as columns — one glance tells you exactly what's been done and what's overdue.</span></div>
+        </li>
+        <li>
+          <div class="icon green"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></div>
+          <div><strong>Auto-detected from timesheet</strong><span>Routine visits already on your timesheet are picked up automatically and marked with an AUTO badge.</span></div>
+        </li>
+        <li>
+          <div class="icon orange"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></div>
+          <div><strong>One-tap navigation</strong><span>Tap any site name to open Google Maps directions straight to the exchange or cabinet.</span></div>
+        </li>
+        <li>
+          <div class="icon" style="background:rgba(45,107,228,0.1);color:#2D6BE4;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></div>
+          <div><strong>Manual log override</strong><span>Visit done but not on the timesheet? Log it manually against any month with a tap.</span></div>
+        </li>
+        <li>
+          <div class="icon purple"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
+          <div><strong>Stats, Due &amp; Never Visited</strong><span>Mobile tab switcher (Grid · Stats · Due) shows visits per month, coverage, sites never visited, and sites overdue by 3+ months. Tap Open Day to jump straight to the timesheet entry.</span></div>
+        </li>
+        <li>
+          <div class="icon green"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/></svg></div>
+          <div><strong>Desktop dashboard</strong><span>On desktop, Routines opens as a full dashboard — stats grid, monthly bar chart, Due Visits, Never Visited, and Recent Visits list, all side-by-side.</span></div>
+        </li>
+      </ul>
+    </div>
+    <div class="samsung-col">
+      <div class="samsung-wrap">
+        <div class="samsung-slide">
+          <div class="samsung-frame">
+            <div class="samsung-screen">
+              <div class="samsung-camera"></div>
+              <img src="images/07. Routines.png" alt="Routines grid view">
+            </div>
+          </div>
+        </div>
+        <div class="samsung-slide">
+          <div class="samsung-frame">
+            <div class="samsung-screen">
+              <div class="samsung-camera"></div>
+              <img src="images/08. Routines.png" alt="Routines stats view">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════ SECTION 06 — CALLOUT ════ -->
+<section class="feature-section" id="callout">
+  <div class="feature-inner">
+    <div class="feature-text">
+      <div class="section-number">06 — Callout</div>
+      <h2>Your on-call record, always accurate</h2>
+      <p class="lead">Track every on-call week, log each incident against it, and see your stats build over time. Everything your supervisor or payroll team needs — organised by week, ready to share.</p>
+      <ul class="feature-list">
+        <li>
+          <div class="icon" style="background:rgba(45,107,228,0.1);color:#2D6BE4;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></div>
+          <div><strong>On-call schedule</strong><span>Mark which weeks you're on call or doing extra shifts so your callout history is always in context.</span></div>
+        </li>
+        <li>
+          <div class="icon red"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
+          <div><strong>Log callout incidents</strong><span>Record each fault call against its week — time, site, fault description, and actions taken.</span></div>
+        </li>
+        <li>
+          <div class="icon purple"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg></div>
+          <div><strong>Stats at a glance</strong><span>See your total on-call weeks, extra shifts, incidents logged, and average incidents per week — all in one bar.</span></div>
+        </li>
+        <li>
+          <div class="icon green"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></div>
+          <div><strong>Included in weekly export</strong><span>When you email your weekly timesheet, callout entries for that week are automatically included — no extra steps.</span></div>
+        </li>
+        <li>
+          <div class="icon orange"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/></svg></div>
+          <div><strong>Paste Ticket</strong><span>Paste a fault ticket straight from Remedy — site, fault, and date are parsed automatically and a new callout is created for you.</span></div>
+        </li>
+        <li>
+          <div class="icon" style="background:rgba(45,107,228,0.1);color:#2D6BE4;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/></svg></div>
+          <div><strong>Desktop three-panel</strong><span>Weeks → Callouts → Detail layout on desktop, with stats panel and draft Save/Discard buttons for every new entry.</span></div>
+        </li>
+      </ul>
+    </div>
+    <div class="samsung-col">
+      <div class="samsung-wrap">
+        <div class="samsung-slide">
+          <div class="samsung-frame">
+            <div class="samsung-screen">
+              <div class="samsung-camera"></div>
+              <img src="images/09. OnCall.png" alt="On-call callout view">
+            </div>
+          </div>
+        </div>
+        <div class="samsung-slide">
+          <div class="samsung-frame">
+            <div class="samsung-screen">
+              <div class="samsung-camera"></div>
+              <img src="images/10. OnCall.png" alt="On-call incident detail">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════ SECTION 07 — DESKTOP MODE ★ NEW ★ ════ -->
+<!-- SECTION 07 - HISTORY & AI -->
+<section class="feature-section" id="history-ai">
+  <div class="feature-inner">
+    <div class="feature-text">
+      <div class="section-number">07 - History &amp; AI <span class="updated-badge">New</span></div>
+      <h2>Search the past and ask better questions</h2>
+      <p class="lead">FieldLog now keeps older work easier to find. Search saved weeks, tasks and callouts, then open the exact record. When you need help, the Gemini-powered assistant can reason across your timesheet and notes.</p>
+      <ul class="feature-list">
+        <li>
+          <div class="icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>
+          <div><strong>Week History search</strong><span>Search across saved tasks and callouts with highlighted matches, snippets and filters for All, Tasks or Callouts.</span></div>
+        </li>
+        <li>
+          <div class="icon green"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/><path d="M3 12h12"/></svg></div>
+          <div><strong>Open exact results</strong><span>Tap a result to jump straight to the matching task in Timesheet or the matching incident in Callouts.</span></div>
+        </li>
+        <li>
+          <div class="icon purple"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="8" width="16" height="12" rx="2"/><path d="M12 8V4H8"/><path d="M2 14h2M20 14h2"/><path d="M9 13v2M15 13v2"/></svg></div>
+          <div><strong>AI Fault Assistant</strong><span>Ask questions across saved notes, task notes and timesheets, with voice input and scoped search controls.</span></div>
+        </li>
+        <li>
+          <div class="icon orange"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v18"/><path d="M5 8h14"/><path d="M7 16h10"/></svg></div>
+          <div><strong>Voice entry everywhere</strong><span>Create timesheet tasks, notes and rich tables by speaking, with text fallback when speech recognition is unavailable.</span></div>
+        </li>
+        <li>
+          <div class="icon red"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4"/><path d="M12 17h.01"/><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg></div>
+          <div><strong>Conflict and restore tools</strong><span>Cloud backups, weekly snapshots, import/export, and conflict views help recover work when sync or devices disagree.</span></div>
+        </li>
+      </ul>
+    </div>
+    <div class="feature-text">
+      <div class="section-number">Built for real field records</div>
+      <h2>From today's job to last month's fault</h2>
+      <p class="lead">The landing page now reflects the newer operational tools in the app: history search, AI assistant, voice capture, availability planning, and recovery workflows.</p>
+      <ul class="feature-list">
+        <li>
+          <div class="icon" style="background:rgba(45,107,228,0.1);color:#2D6BE4;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M8 2v4M16 2v4M3 10h18"/></svg></div>
+          <div><strong>Desktop history workspace</strong><span>Resizable sidebar, table and results panel make older weeks much easier to scan on a wide screen.</span></div>
+        </li>
+        <li>
+          <div class="icon green"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16v16H4z"/><path d="M8 8h8M8 12h8M8 16h5"/></svg></div>
+          <div><strong>Mobile grouped results</strong><span>On phone, search results group by week so the right job is still easy to recognise and open.</span></div>
+        </li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section class="feature-section" id="desktop">
+  <div class="feature-inner">
+    <div class="feature-text">
+      <div class="section-number">08 - Desktop Mode <span class="updated-badge">New</span></div>
+      <h2>A full desktop layout, not just a big phone</h2>
+      <p class="lead">When the screen is wide enough, FieldLog switches to a purpose-built desktop layout with dedicated panels for navigation, lists, and detail editing. No cramped phone UI stretched across a monitor.</p>
+      <ul class="feature-list">
+        <li>
+          <div class="icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="18" rx="1"/><rect x="14" y="3" width="7" height="9" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></div>
+          <div><strong>Three-panel timesheet</strong><span>Days · Tasks · Detail — select a day on the left, a task in the middle, and edit description, hours, and work codes on the right.</span></div>
+        </li>
+        <li>
+          <div class="icon purple"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></div>
+          <div><strong>Weekly Summary sidebar</strong><span>Collapsible summary with percentage bars and ORD/OT columns — always visible while you log hours. Weekend days auto-collapse when empty.</span></div>
+        </li>
+        <li>
+          <div class="icon orange"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M4 12h10M4 17h7"/></svg></div>
+          <div><strong>Every view reimagined</strong><span>Notes, Callouts, Finder and Routines each get their own desktop layout — sidebar navigation, wide editors, and live Google Maps in Finder.</span></div>
+        </li>
+        <li>
+          <div class="icon green"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></div>
+          <div><strong>Synced with mobile</strong><span>Same data, same state — collapse a section on desktop and it's collapsed on your phone too. Universal ESC key closes whichever modal is open.</span></div>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Desktop laptop mockup -->
+    <div>
+      <div class="laptop">
+        <div class="laptop-screen">
+          <img src="images/11. Desktop Mode.png" alt="Desktop mode" style="width:100%;display:block;">
+        </div>
+        <div class="laptop-base"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════ FOOTER ════ -->
+<footer class="footer">
+  <p><strong>FieldLog</strong> · Built for field technicians</p>
+  <p style="margin-top:6px">Mobile · Desktop · Android · Offline-capable · Cloud synced</p>
+  <p style="margin-top:6px;font-size:11px;opacity:0.45">v6.8.69</p>
+  <div style="margin-top:24px">
+    <a href="./app.html" class="btn-launch" style="font-size:14px;padding:11px 24px;">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+      Launch App
+    </a>
+  </div>
+  <p style="margin-top:24px;font-size:12px;opacity:0.5"><a href="privacy.html" style="color:inherit;text-decoration:underline;">Privacy Policy</a></p>
+</footer>
+
+<script>
+// Carousel for two-phone sections: prev/next arrows + clickable dots + touch scroll
+document.querySelectorAll('.samsung-col').forEach(function(col){
+  var wrap = col.querySelector('.samsung-wrap');
+  if(!wrap) return;
+  var slides = wrap.querySelectorAll('.samsung-slide');
+  if(slides.length < 2) return;
+
+  // Nav row: < dots >
+  var nav = document.createElement('div');
+  nav.className = 'samsung-nav';
+  nav.style.display = 'flex';
+
+  var prev = document.createElement('button');
+  prev.className = 'samsung-nav-btn';
+  prev.innerHTML = '&#8249;';
+  prev.setAttribute('aria-label','Previous');
+
+  var dotsEl = document.createElement('div');
+  dotsEl.className = 'samsung-dots';
+  slides.forEach(function(_,i){
+    var d = document.createElement('div');
+    d.className = 'samsung-dot' + (i === 0 ? ' active' : '');
+    dotsEl.appendChild(d);
+  });
+
+  var next = document.createElement('button');
+  next.className = 'samsung-nav-btn';
+  next.innerHTML = '&#8250;';
+  next.setAttribute('aria-label','Next');
+
+  nav.appendChild(prev);
+  nav.appendChild(dotsEl);
+  nav.appendChild(next);
+  col.appendChild(nav);
+
+  function goTo(idx){
+    wrap.scrollTo({left: idx * wrap.offsetWidth, behavior:'smooth'});
+  }
+
+  function currentIdx(){
+    return Math.round(wrap.scrollLeft / wrap.offsetWidth);
+  }
+
+  prev.addEventListener('click', function(){ goTo(Math.max(0, currentIdx()-1)); });
+  next.addEventListener('click', function(){ goTo(Math.min(slides.length-1, currentIdx()+1)); });
+
+  // Clickable dots
+  dotsEl.querySelectorAll('.samsung-dot').forEach(function(d,i){
+    d.addEventListener('click', function(){ goTo(i); });
+  });
+
+  // Sync dots on scroll
+  wrap.addEventListener('scroll', function(){
+    var idx = currentIdx();
+    dotsEl.querySelectorAll('.samsung-dot').forEach(function(d,i){
+      d.classList.toggle('active', i === idx);
+    });
+  }, {passive:true});
+});
+</script>
+</body>
+</html>

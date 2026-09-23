@@ -532,6 +532,8 @@ All planned themes are implemented: claude, dark, champagne, champagne-dark, ios
 
 ## Landing Page (index.html)
 
+**New landing page + privacy page (v6.8.73):** `index.html` is now the themed, scroll-story design (sticky phone follows steps, theme picker, disabled "Android app — coming soon" button, back-to-top). The old carousel page is kept as `index-classic.html` (still reachable, not linked). `privacy.html` uses the same tokens/header/footer and honours the visitor's saved landing-page theme (`localStorage fieldlog-lp-theme`); policy wording unchanged. Design source: untracked `mockups/Landing Page Mockup Claude 2.html`; map screenshot is `images/routines-map.webp`. **The carousel notes below describe `index-classic.html`, not the live page.** Footer/version strings in both pages are static — update by hand.
+
 The production landing page at `https://morow01.github.io/rian/` is a separate static file — not part of `app.html`. Edit `index.html` directly; it has its own self-contained CSS and JS.
 
 ### Screenshot Phone Frames (2026-04-22)
