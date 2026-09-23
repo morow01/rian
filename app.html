@@ -4282,10 +4282,6 @@
       padding: 8px 12px !important;
     }
 
-    .menu-row.menu-row-compact .menu-row-label {
-      font-weight: 600;
-    }
-
     .menu-acc {
       background: var(--bg-card);
       border-radius: 12px;
@@ -4322,13 +4318,33 @@
       transform: rotate(180deg);
     }
 
+    /* Animated open/close: grid rows 0fr -> 1fr lets the height transition without measuring it. */
     .menu-acc-bd {
-      display: none;
-      border-top: 1px solid var(--border);
+      display: grid;
+      grid-template-rows: 0fr;
+      border-top: 1px solid transparent;
+      transition: grid-template-rows 0.3s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.3s;
     }
 
     .menu-acc.open .menu-acc-bd {
-      display: block;
+      grid-template-rows: 1fr;
+      border-top-color: var(--border);
+    }
+
+    .menu-acc-in {
+      overflow: hidden;
+      min-height: 0;
+      visibility: hidden;
+      transition: visibility 0s 0.3s;
+    }
+
+    .menu-acc.open .menu-acc-in {
+      visibility: visible;
+      transition-delay: 0s;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .menu-acc-bd, .menu-acc-in, .menu-acc-ch { transition: none; }
     }
 
     .menu-acc-sub {
@@ -23937,7 +23953,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '6.8.74';
+    const VERSION = '6.8.75';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -29450,7 +29466,7 @@
                   <span class="menu-row-body"><span class="menu-row-label">${title}</span><span class="menu-row-sub">${sub}</span></span>
                   <span class="menu-acc-ch">${_mIcon(_MI.chevd, 18)}</span>
                 </button>
-                <div class="menu-acc-bd">${bodyHtml}</div>
+                <div class="menu-acc-bd"><div class="menu-acc-in">${bodyHtml}</div></div>
               </div>`;
     }
     function toggleMenuAcc(id) {
