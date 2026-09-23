@@ -23976,7 +23976,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '6.8.77';
+    const VERSION = '6.8.78';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -24004,9 +24004,13 @@
       { id: 'templates', label: 'Templates', pinned: false, icon: '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>' }
     ];
 
+    // Pinned top tabs are remembered separately for desktop and mobile layouts (v6.8.78) —
+    // desktop has room for all of them, a phone tab bar would need lots of scrolling.
+    // Desktop falls back to the shared/mobile list until it is first changed there.
+    function _visibleTabsKey() { return _isDesktop() ? 'rian_visible_tabs_desk' : 'rian_visible_tabs'; }
     function getVisibleTabs() {
       try {
-        const raw = localStorage.getItem('rian_visible_tabs');
+        const raw = localStorage.getItem(_visibleTabsKey()) || localStorage.getItem('rian_visible_tabs');
         if (raw) {
           const parsed = JSON.parse(raw);
           if (Array.isArray(parsed) && parsed.length > 0) {
@@ -24027,7 +24031,7 @@
       } else {
         vis.push(tabId);
       }
-      localStorage.setItem('rian_visible_tabs', JSON.stringify(vis));
+      localStorage.setItem(_visibleTabsKey(), JSON.stringify(vis));
       if (typeof updateHeaderStatus === 'function') updateHeaderStatus();
       if (typeof render === 'function') render();
     }
