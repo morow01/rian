@@ -4242,6 +4242,29 @@
       transform: translateX(0);
     }
 
+    /* ── Desktop (>=1280): the app is a centred column (#app max-width 1409px), so a drawer glued to the
+       screen edge sits far from the ☰ button. Align it to the column's left edge, size it to its
+       content, and fade/slide a few px instead of sweeping in from off-screen. ── */
+    @media (min-width: 1280px) {
+      .theme-dropdown {
+        left: max(0px, calc((100vw - 1409px) / 2));
+        bottom: auto;
+        max-height: 100vh;
+        border-radius: 0 0 16px 0;
+        transform: translateX(-24px);
+        opacity: 0;
+        visibility: hidden;
+        transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.25s, visibility 0s 0.25s;
+      }
+
+      .theme-dropdown.open {
+        transform: translateX(0);
+        opacity: 1;
+        visibility: visible;
+        transition-delay: 0s;
+      }
+    }
+
     /* ── Desktop: compact dropdown card ── */
     @media (min-width: 768px) {
       .theme-dropdown {
@@ -23953,7 +23976,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '6.8.76';
+    const VERSION = '6.8.77';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||

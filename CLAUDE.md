@@ -17,6 +17,7 @@ The app's visible name is now **FieldLog**, with a new logo (cyan "F" + tick; so
 - **One copy of the settings rows at a time.** `_menuSettingsPieces(dlg)` builds every settings row; toggle rows keep their original ids (`menu-mic-fab-*`, `menu-card-style-*`, `menu-task-layout-*`, `menu-stats-*`, `menu-gemini-key`, `menu-gemini-status`) because `toggleMicFab()` etc. update them by id — so the accordion (mobile) and dialog (desktop) must never both be in the DOM. In dialog mode, rows that open another screen are prefixed with `closeSettingsDialog();`.
 - The dialog lives on `document.body` (not inside `#app`, and NOT inside `.theme-dropdown` — its `transform` would trap `position:fixed`). `render()` rebuilds `#app`, so `_renderNow()` calls `_settingsDlgRefresh()` after each render (re-renders the dialog, preserving pane scroll and any typed Gemini key). Toggles like Show stats / theme call `render()`, which is why.
 - Side fix: `updateHeaderStatus()` used `document.querySelector('header')`, which could grab the header of the hidden Tetra inspection modal (it has its own `<header class="topbar">`) when `#app` had no header yet, overwriting it with the full app header (duplicate menu + duplicate ids). Now `#app > header`.
+- **Desktop drawer placement (v6.8.77):** `#app` is a centred column (max-width 1409px), so a drawer glued to the screen edge sat far from the ☰ button on wide monitors. At >=1280px `.theme-dropdown` is aligned to the column's left edge (`left:max(0px,calc((100vw - 1409px)/2))`), sized to its content (`bottom:auto`, rounded bottom-right) and fades/slides 24px instead of sweeping from off-screen (`visibility:hidden` when closed).
 - Design source: untracked `mockups/Menu Layout Options.html` (mobile) and `mockups/Menu Desktop Options.html` (desktop, option D1 chosen; D2 dropdown-under-☰ was the alternative).
 
 **Menu header — Option A (v6.8.73):** `.menu-header-block` is now a column (~130px): a brand row (`.menu-brand-row`: 32px glyph `images/fieldlog-glyph.svg` (precached in `sw.js`) · "FieldLog" wordmark · close X) above a hairline-separated account row (`.menu-acct-row`: 48px avatar · name/email · 38px sign-out icon). Local Mode keeps the same brand row + account row, with the Connect Google / Exit Local Mode buttons underneath. Superseded the compact one-row layout below (kept for history).
@@ -40,7 +41,7 @@ A Progressive Web App for field technicians — timesheets, notes (TipTap rich t
 ## Version
 `const VERSION = 'x.y.z'` in `app.html` (~line 18699). Bump on every change. Only location that needs updating (index.html version references are static).
 **Patch (z) must not exceed 99.** When a bump would take it to 100, bump the minor version instead and reset patch to 0 (e.g. `6.7.99` → `6.8.0`, never `6.7.100`). 6.7.100–6.7.102 already broke this rule and were left as-is rather than rewriting pushed history — the rule applies from 6.8.0 onward.
-Current version: **6.8.76**
+Current version: **6.8.77**
 
 **12 themes active**: `claude` (default light), `dark` (slate-based), `champagne`, `champagne-dark`, `ios`, `apple` (macOS), `gray` (Grayscale), `gameboy` (Game Boy), `win31` (Win 3.1), `lcd` (LCD), `spectrum` (ZX Spectrum), `retro` (Retro). Theme picker lives in ☰ menu → Display. Switcher at `setTheme(key)`, registry at `THEME_META`.
 
