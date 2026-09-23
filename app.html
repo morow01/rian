@@ -23709,7 +23709,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '6.8.71';
+    const VERSION = '6.8.72';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -29355,7 +29355,6 @@
       </div>
       <div class="flex-1 text-center" style="min-width:0">
         <div class="text-xs flex items-center justify-center gap-2" style="color:var(--text-header-sub);min-height:18px">
-          <img src="images/fieldlog-glyph.svg" alt="FieldLog" width="15" height="15" style="display:block;flex-shrink:0">
           <span title="${syncStatusTitle}" style="color:${syncStatusColor}">${syncStatusLabel}</span>
           <span style="color:var(--text-header-sub);opacity:0.85" class="text-xs">v${VERSION} &middot; ${IS_NATIVE ? 'App' : 'PWA'}</span>
           ${_rianUpdateAvailable ? `<button onclick="_rianDoRefresh()" title="Update ready — tap to refresh" aria-label="Update ready — tap to refresh" style="display:flex;align-items:center;justify-content:center;width:18px;height:18px;padding:0;border:none;border-radius:50%;background:rgba(var(--accent-rgb),0.18);color:var(--accent);cursor:pointer;flex-shrink:0;animation:rianUpdatePulse 1.8s ease-in-out infinite">
