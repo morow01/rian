@@ -4277,6 +4277,227 @@
 
     }
 
+    /* ── v6.8.74: compact destination rows, collapsible settings groups ── */
+    .menu-row.menu-row-compact {
+      padding: 8px 12px !important;
+    }
+
+    .menu-row.menu-row-compact .menu-row-label {
+      font-weight: 600;
+    }
+
+    .menu-acc {
+      background: var(--bg-card);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 1px 4px rgba(var(--shadow-rgb), 0.06);
+      margin-bottom: 10px;
+    }
+
+    .menu-acc-hd {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      width: 100%;
+      padding: 13px 14px;
+      border: none;
+      background: none;
+      cursor: pointer;
+      color: var(--text-primary);
+      text-align: left;
+      font-family: inherit;
+    }
+
+    .menu-acc-hd:hover {
+      background: var(--bg-card-alt);
+    }
+
+    .menu-acc-ch {
+      color: var(--text-muted);
+      display: flex;
+      transition: transform 0.25s;
+    }
+
+    .menu-acc.open .menu-acc-ch {
+      transform: rotate(180deg);
+    }
+
+    .menu-acc-bd {
+      display: none;
+      border-top: 1px solid var(--border);
+    }
+
+    .menu-acc.open .menu-acc-bd {
+      display: block;
+    }
+
+    .menu-acc-sub {
+      padding: 12px 14px 4px;
+      font-size: 10px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.09em;
+      color: var(--text-muted);
+    }
+
+    .menu-acc-sub.danger {
+      color: rgba(var(--priority-high-rgb), 0.7);
+    }
+
+    .menu-acc-bd .menu-row+.menu-row {
+      border-top: 1px solid var(--border);
+    }
+
+    /* ── v6.8.74: desktop Settings dialog ── */
+    #settings-dlg {
+      position: fixed;
+      inset: 0;
+      z-index: 10050;
+      display: grid;
+      place-items: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.22s;
+    }
+
+    #settings-dlg.open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .sd-back {
+      position: absolute;
+      inset: 0;
+      background: rgba(var(--shadow-rgb), 0.5);
+      backdrop-filter: blur(2px);
+      -webkit-backdrop-filter: blur(2px);
+    }
+
+    .sd {
+      position: relative;
+      width: min(780px, calc(100vw - 48px));
+      height: min(560px, calc(100vh - 48px));
+      background: var(--bg-page);
+      border-radius: 16px;
+      overflow: hidden;
+      display: grid;
+      grid-template-columns: 210px 1fr;
+      grid-template-rows: auto 1fr;
+      box-shadow: 0 40px 80px -20px rgba(0, 0, 0, 0.55);
+      transform: scale(0.96);
+      transition: transform 0.22s;
+    }
+
+    #settings-dlg.open .sd {
+      transform: scale(1);
+    }
+
+    .sd-h {
+      grid-column: 1 / -1;
+      display: flex;
+      align-items: center;
+      padding: 14px 18px;
+      background: var(--bg-header);
+      color: #fff;
+    }
+
+    .sd-h b {
+      flex: 1;
+      font-size: 17px;
+      font-weight: 800;
+    }
+
+    .sd-esc {
+      font-size: 11px;
+      opacity: 0.55;
+      margin-right: 12px;
+      font-family: var(--font-mono, monospace);
+    }
+
+    .sd-x {
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      border: none;
+      cursor: pointer;
+      background: rgba(255, 255, 255, 0.1);
+      color: rgba(255, 255, 255, 0.75);
+      display: grid;
+      place-items: center;
+    }
+
+    .sd-x:hover {
+      background: rgba(255, 255, 255, 0.18);
+    }
+
+    .sd-rail {
+      background: var(--bg-code-group);
+      padding: 12px 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .sd-rail button {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      border: none;
+      background: none;
+      text-align: left;
+      font-family: inherit;
+      font-size: 13.5px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      padding: 10px 12px;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+
+    .sd-rail button:hover {
+      background: rgba(var(--accent-rgb), 0.08);
+    }
+
+    .sd-rail button.on {
+      background: var(--bg-card);
+      color: var(--text-primary);
+      box-shadow: 0 1px 4px rgba(var(--shadow-rgb), 0.08);
+    }
+
+    .sd-rail button.dz {
+      color: var(--priority-high);
+    }
+
+    .sd-pane {
+      overflow-y: auto;
+      padding: 20px 24px;
+    }
+
+    .sd-pane h3 {
+      font-size: 18px;
+      font-weight: 800;
+      letter-spacing: -0.01em;
+      color: var(--text-primary);
+    }
+
+    .sd-lead {
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin: 2px 0 16px;
+    }
+
+    .sd-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .sd-stack {
+      display: grid;
+      gap: 10px;
+    }
+
+
     /* ── Dark header block ── */
     /* v6.8.73: brand bar (logo · FieldLog · close) above an account row
        (avatar · name/email · sign-out), separated by a hairline. */
@@ -23716,7 +23937,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '6.8.73';
+    const VERSION = '6.8.74';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -28843,6 +29064,7 @@
       const _preScroll = window.scrollY || window.pageYOffset || 0;
       app.innerHTML = renderHeader() + _renderConflictBanner() + '<div id="draft-warning-banner-container">' + _renderDraftWarningBanner() + '</div>' + _renderSaveErrorBanner() + viewBody + _renderTemplatePicker();
       // Restore menu scroll position after DOM rebuild
+      if (typeof _settingsDlgRefresh === 'function') _settingsDlgRefresh();
       if (_menuWasOpen && _menuScroll > 0) {
         const _newMenuEl = document.getElementById('theme-dropdown');
         if (_newMenuEl) _newMenuEl.scrollTop = _menuScroll;
@@ -29032,6 +29254,310 @@
       }
     }
 
+    // ============================================================
+    // MENU CONTENT (v6.8.74) — destinations first, settings tucked away.
+    // Mobile: collapsible groups under the destination list (Option B).
+    // Desktop (>=1280): the drawer is navigation only; Settings opens a dialog (Option D1).
+    // Toggle rows keep their original element ids (menu-mic-fab-*, menu-card-style-*, …) —
+    // toggleMicFab() etc. update them by id — so only ONE copy may be in the DOM at a time:
+    // the accordion (mobile) or the dialog (desktop), never both.
+    // ============================================================
+    function _mIcon(paths, size) {
+      const s = size || 20;
+      return `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${paths}</svg>`;
+    }
+    const _MI = {
+      week: '<rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>',
+      notes: '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/>',
+      journal: '<path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>',
+      exchanges: '<circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>',
+      routines: '<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M9 9h6M9 13h6M9 17h4"/><circle cx="6" cy="9" r="1.2" fill="currentColor"/><circle cx="6" cy="13" r="1.2" fill="currentColor"/><circle cx="6" cy="17" r="1.2" fill="currentColor"/>',
+      callouts: '<path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/>',
+      history: '<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>',
+      email: '<path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/>',
+      availability: '<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/><path d="M8 15h3M13 15h3M8 19h3"/>',
+      tags: '<path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/>',
+      templates: '<polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/>',
+      ai: '<path d="M12 8V4H8"/><rect x="4" y="8" width="16" height="12" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/>',
+      gear: '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>',
+      display: '<rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/>',
+      key: '<path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3m-3-3l-4-4"/>',
+      data: '<ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/>',
+      trash: '<polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/>',
+      chev: '<polyline points="9 18 15 12 9 6"/>',
+      chevd: '<polyline points="6 9 12 15 18 9"/>',
+      x: '<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>'
+    };
+
+    function _menuPinBtn(tabId, isPinnedAlways) {
+      const pinSvg = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 17v5"/><path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V17h14v-1.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7h1V5H8v2h1v3.76z"/></svg>`;
+      const pinFilledSvg = `<svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" stroke="none"><line x1="12" y1="17" x2="12" y2="22" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V17h14v-1.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7h1V5H8v2h1v3.76z"/></svg>`;
+      const lockSvg = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>`;
+      if (isPinnedAlways) {
+        return `<span style="width:32px;height:32px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;background:rgba(255,255,255,0.04);color:var(--text-muted);opacity:0.6;margin-left:auto;flex-shrink:0;" title="Pinned by default">${lockSvg}</span>`;
+      }
+      const isPinned = getVisibleTabs().includes(tabId);
+      const btnStyle = isPinned
+        ? `width:32px;height:32px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;background:rgba(var(--accent-rgb),0.16);border:1px solid rgba(var(--accent-rgb),0.3);color:var(--accent);cursor:pointer;margin-left:auto;flex-shrink:0;transition:all 0.15s;`
+        : `width:32px;height:32px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;background:transparent;border:1px solid transparent;color:var(--text-muted);cursor:pointer;margin-left:auto;flex-shrink:0;transition:all 0.15s;`;
+      return `<button type="button" onclick="event.stopPropagation();toggleTopTabVisibility('${tabId}')" style="${btnStyle}" title="${isPinned ? 'Pinned to top menu — tap to unpin' : 'Tap to pin to top menu'}">${isPinned ? pinFilledSvg : pinSvg}</button>`;
+    }
+
+    // One-line destination rows (no descriptions, no chevrons) — the daily-use list.
+    function _menuNavHtml() {
+      const nav = [
+        ['week', 'Timesheet', "setView('week');closeThemeMenu()"],
+        ['notes', 'Notes', "setView('notes');closeThemeMenu()"],
+        ['journal', 'Journal', "setView('journal');closeThemeMenu()"],
+        ['exchanges', 'Finder', "setView('exchanges');closeThemeMenu()"],
+        ['routines', 'Routines', "setView('routines');closeThemeMenu()"],
+        ['callouts', 'Callouts', "setView('callouts');closeThemeMenu()"],
+        ['history', 'Week History', 'openHistoryView()'],
+        ['email-week-v3', 'Email / Export Week', "setView('email-week-v3');closeThemeMenu()", 'email'],
+        ['availability', 'Availability Planner', "setView('availability');closeThemeMenu()"],
+        ['ai', 'AI Assistant', "setView('ai');closeThemeMenu()"]
+      ];
+      return nav.map(n => `<div class="menu-row menu-row-compact" role="button" onclick="${n[2]}">
+                    <span class="menu-row-icon">${_mIcon(_MI[n[3] || n[0]])}</span>
+                    <span class="menu-row-body"><span class="menu-row-label">${n[1]}</span></span>
+                    ${_menuPinBtn(n[0], n[0] === 'week')}
+                  </div>`).join('');
+    }
+
+    const _menuTogTrack = (on, ids) => `<span ${ids ? 'id="' + ids + '-track"' : ''} style="width:36px;height:20px;border-radius:10px;background:${on ? 'var(--accent)' : 'var(--border-strong)'};position:relative;transition:background 0.2s;flex-shrink:0;display:inline-block;">
+                      <span ${ids ? 'id="' + ids + '-pill"' : ''} style="position:absolute;top:2px;left:${on ? '18px' : '2px'};width:16px;height:16px;border-radius:50%;background:#fff;transition:left 0.2s;box-shadow:0 1px 4px rgba(var(--shadow-rgb),0.18);display:block;"></span>
+                    </span>`;
+
+    // All settings rows, grouped. `dlg` = rendering inside the desktop dialog, where
+    // rows that open another screen close the dialog first.
+    function _menuSettingsPieces(dlg) {
+      const chev = `<span class="menu-row-chevron"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>`;
+      const pre = dlg ? 'closeSettingsDialog();' : '';
+      const local = !!state.currentUser?.isLocalOnly;
+      const row = (icon, label, sub, onclick, o) => `<button class="menu-row${o && o.danger ? ' danger' : ''}" onclick="${onclick}">
+                    <span class="menu-row-icon"${o && o.iconStyle ? ' style="' + o.iconStyle + '"' : ''}>${_mIcon(_MI[icon])}</span>
+                    <span class="menu-row-body"><span class="menu-row-label">${label}</span>${sub ? '<span class="menu-row-sub">' + sub + '</span>' : ''}</span>
+                    ${chev}
+                  </button>`;
+
+      // Manage — set-up screens. Notes Tag Manager is hidden on desktop (lives in the Notes sidebar).
+      const manage = [];
+      if (!_isDesktop()) {
+        manage.push(`<div class="menu-row" role="button" onclick="${pre}setView('tags-full');closeThemeMenu()">
+                    <span class="menu-row-icon">${_mIcon(_MI.tags)}</span>
+                    <span class="menu-row-body"><span class="menu-row-label">Notes Tag Manager</span><span class="menu-row-sub">Create, edit &amp; toggle tags for Notes only</span></span>
+                    ${_menuPinBtn('tags-full')}
+                    ${chev}
+                  </div>`);
+      }
+      manage.push(`<div class="menu-row" role="button" onclick="${pre}setView('templates');closeThemeMenu()">
+                    <span class="menu-row-icon">${_mIcon(_MI.templates)}</span>
+                    <span class="menu-row-body"><span class="menu-row-label">Task Templates</span><span class="menu-row-sub">${(state.taskTemplates || []).length} saved &middot; reusable work codes &amp; hours</span></span>
+                    ${_menuPinBtn('templates')}
+                    ${chev}
+                  </div>`);
+
+      // Display — switches + theme
+      const isModal = getTaskStyle() === 'modal';
+      const isGrouped = getTaskLayout() === 'grouped';
+      const statsOn = _statsVisible();
+      const lp = getLayoutPref();
+      const isForceMobile = lp === 'mobile';
+      const autoDesk = window.innerWidth >= 1280;
+      const layoutSub = isForceMobile ? 'Forced mobile' : (autoDesk ? 'Auto — Desktop' : 'Auto — Mobile');
+      const display = [
+        `<button id="menu-mic-fab-btn" class="menu-row" onclick="toggleMicFab()">
+                    <span class="menu-row-icon">${_mIcon('<rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="8" y1="22" x2="16" y2="22"/>')}</span>
+                    <span class="menu-row-body"><span class="menu-row-label">Voice button</span><span id="menu-mic-fab-sub" class="menu-row-sub">${state.micFabHidden ? 'Hidden — tap to show' : 'Visible — tap to hide'}</span></span>
+                    ${_menuTogTrack(!state.micFabHidden, 'menu-mic-fab')}
+                  </button>`,
+        `<button id="menu-card-style-btn" class="menu-row" onclick="setTaskStyle(getTaskStyle()==='modal'?'expand':'modal')">
+                    <span class="menu-row-icon">${_mIcon(_MI.display)}</span>
+                    <span class="menu-row-body"><span class="menu-row-label">Card style</span><span id="menu-card-style-sub" class="menu-row-sub">${isModal ? 'Fullscreen modal' : 'Expand in place'}</span></span>
+                    ${_menuTogTrack(isModal, 'menu-card-style')}
+                  </button>`,
+        `<button id="menu-task-layout-btn" class="menu-row" onclick="setTaskLayout(getTaskLayout()==='grouped'?'timeline':'grouped')">
+                    <span class="menu-row-icon">${_mIcon('<rect x="4" y="5" width="16" height="4" rx="1"/><rect x="4" y="15" width="16" height="4" rx="1"/><path d="M8 9v6"/>')}</span>
+                    <span class="menu-row-body"><span class="menu-row-label">Task layout</span><span id="menu-task-layout-sub" class="menu-row-sub">${isGrouped ? 'Grouped cards' : 'Timeline connectors'}</span></span>
+                    ${_menuTogTrack(isGrouped, 'menu-task-layout')}
+                  </button>`,
+        `<button id="menu-stats-btn" class="menu-row" onclick="toggleStatsVisible()">
+                    <span class="menu-row-icon">${_mIcon('<line x1="6" y1="20" x2="6" y2="13"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="18" y1="20" x2="18" y2="9"/>')}</span>
+                    <span class="menu-row-body"><span class="menu-row-label">Show stats</span><span id="menu-stats-sub" class="menu-row-sub">${statsOn ? 'Shown — tap a heading to collapse' : 'Hidden everywhere'}</span></span>
+                    ${_menuTogTrack(statsOn, 'menu-stats')}
+                  </button>`,
+        `<button class="menu-row" onclick="setLayoutPref(getLayoutPref()==='mobile'?'auto':'mobile')">
+                    <span class="menu-row-icon">${_mIcon('<rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/>')}</span>
+                    <span class="menu-row-body"><span class="menu-row-label">Force mobile layout</span><span class="menu-row-sub">${layoutSub}</span></span>
+                    ${_menuTogTrack(isForceMobile, '')}
+                  </button>`
+      ];
+      const curTheme = getSavedTheme();
+      const theme = `<div class="menu-row menu-theme-row" style="display:block;padding:12px 14px;cursor:default;">
+                      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+                        <span class="menu-row-icon">${_mIcon('<circle cx="12" cy="12" r="10"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10"/><path d="M12 2a15.3 15.3 0 0 0-4 10 15.3 15.3 0 0 0 4 10"/><line x1="2" y1="12" x2="22" y2="12"/>')}</span>
+                        <span class="menu-row-body" style="flex:1;"><span class="menu-row-label">Theme</span><span class="menu-row-sub">${esc(THEME_META[curTheme].label)}</span></span>
+                      </div>
+                      <div style="display:flex;flex-wrap:wrap;gap:6px;">
+                        ${Object.keys(THEME_META).map(k => `<button type="button" onclick="setTheme('${k}')" style="padding:6px 12px;border-radius:999px;border:1px solid ${curTheme === k ? 'var(--accent)' : 'var(--border)'};background:${curTheme === k ? 'var(--accent)' : 'var(--bg-card)'};color:${curTheme === k ? '#fff' : 'var(--text-primary)'};font-size:12px;font-weight:600;cursor:pointer;">${esc(THEME_META[k].label)}</button>`).join('')}
+                      </div>
+                    </div>`;
+
+      // AI key
+      const ai = `<div class="menu-ai-key-row">
+                    <div class="menu-ai-key-hint">Gemini API key — used for voice entry &amp; Fault Assistant. Get a free key at <a href="https://aistudio.google.com" target="_blank">aistudio.google.com</a></div>
+                    <div class="menu-ai-key-wrap">
+                      <input class="menu-ai-key-input" id="menu-gemini-key" type="text" placeholder="AIza…" value="${esc(state.geminiKey || '')}" autocomplete="nope" spellcheck="false" style="-webkit-text-security:disc;text-security:disc;">
+                      <button class="menu-ai-key-eye" type="button" onclick="toggleKeyVisibility()" title="Show / hide key">
+                        <svg id="menu-key-eye-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+                        </svg>
+                      </button>
+                    </div>
+                    <div class="menu-ai-key-btns">
+                      <button class="menu-ai-key-save" onclick="saveGeminiKey()">Save Key</button>
+                      <button class="menu-ai-key-test" onclick="testGeminiKey()">Test</button>
+                    </div>
+                    <div class="menu-ai-key-status" id="menu-gemini-status">${state.geminiKey ? '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:text-bottom;margin-right:4px;"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3m-3-3l-4-4"/></svg>Key saved' : ''}</div>
+                  </div>`;
+
+      // Data & backups
+      const data = [];
+      if (!local) {
+        data.push(row('data', 'Snapshots / Recover', 'Browse and restore saved versions', pre + 'openSnapshotModal()'));
+        data.push(row('data', 'Cloud Backups', 'View &amp; restore daily snapshots', pre + 'openBackupsModal();closeThemeMenu()'));
+        data.push(row('gear', 'Disconnect Cloud (Go Offline)', 'Switch to local-only offline mode', pre + 'disconnectCloudGoOffline();closeThemeMenu()', { iconStyle: 'color:var(--text-ot)' }));
+      }
+      data.push(row('data', 'Export All Data', 'Download as JSON', pre + 'exportAllData();closeThemeMenu()'));
+      data.push(row('data', 'Import Data', 'Load JSON into this account', pre + 'importAllData();closeThemeMenu()'));
+
+      // Danger zone
+      const danger = [
+        row('trash', 'Clear This Week', '', pre + 'clearCurrentWeek();closeThemeMenu()', { danger: true }),
+        row('trash', 'Clear All My Data', '', pre + 'clearAllData();closeThemeMenu()', { danger: true })
+      ];
+      if (!local) danger.push(row('trash', 'Delete Account', 'Permanently removes all data', pre + 'deleteAccount();closeThemeMenu()', { danger: true }));
+
+      return { manage, display, theme, ai, data, danger };
+    }
+
+    // ── Mobile: collapsible groups ──
+    function _menuAcc(id, title, sub, icon, bodyHtml) {
+      const open = !!(state.menuAcc && state.menuAcc[id]);
+      return `<div class="menu-acc${open ? ' open' : ''}" data-acc="${id}">
+                <button type="button" class="menu-acc-hd" onclick="toggleMenuAcc('${id}')" aria-expanded="${open}">
+                  <span class="menu-row-icon">${_mIcon(_MI[icon])}</span>
+                  <span class="menu-row-body"><span class="menu-row-label">${title}</span><span class="menu-row-sub">${sub}</span></span>
+                  <span class="menu-acc-ch">${_mIcon(_MI.chevd, 18)}</span>
+                </button>
+                <div class="menu-acc-bd">${bodyHtml}</div>
+              </div>`;
+    }
+    function toggleMenuAcc(id) {
+      state.menuAcc = state.menuAcc || {};
+      state.menuAcc[id] = !state.menuAcc[id];
+      const el = document.querySelector('.menu-acc[data-acc="' + id + '"]');
+      if (el) {
+        el.classList.toggle('open', !!state.menuAcc[id]);
+        const b = el.querySelector('.menu-acc-hd');
+        if (b) b.setAttribute('aria-expanded', state.menuAcc[id] ? 'true' : 'false');
+      }
+    }
+    function _menuSettingsAccordions() {
+      const p = _menuSettingsPieces(false);
+      return `<div class="menu-section-wrap">
+                <div class="menu-section-label">Settings</div>
+                ${_menuAcc('manage', 'Manage', 'Task templates' + (_isDesktop() ? '' : ' &amp; note tags'), 'templates', p.manage.join(''))}
+                ${_menuAcc('display', 'Display', 'Switches &amp; theme', 'display', p.display.join('') + p.theme)}
+                ${_menuAcc('ai', 'AI key', 'Gemini · voice &amp; Fault Assistant', 'key', p.ai)}
+                ${_menuAcc('data', 'Data &amp; backups', 'Snapshots, export, import', 'data', p.data.join('') + '<div class="menu-acc-sub danger">Danger zone</div>' + p.danger.join(''))}
+              </div>`;
+    }
+
+    // ── Desktop: launcher row in the drawer + the dialog itself ──
+    function _menuSettingsLauncher() {
+      return `<div class="menu-section-wrap">
+                <div class="menu-card">
+                  <div class="menu-row" role="button" onclick="openSettingsDialog()">
+                    <span class="menu-row-icon">${_mIcon(_MI.gear)}</span>
+                    <span class="menu-row-body"><span class="menu-row-label">Settings</span><span class="menu-row-sub">Display · AI key · Data &amp; backups</span></span>
+                    <span class="menu-row-chevron">${_mIcon(_MI.chev, 14)}</span>
+                  </div>
+                </div>
+              </div>`;
+    }
+
+    const _SD_CATS = [
+      ['manage', 'templates', 'Manage'],
+      ['display', 'display', 'Display'],
+      ['ai', 'key', 'AI key'],
+      ['data', 'data', 'Data & backups'],
+      ['danger', 'trash', 'Danger zone']
+    ];
+    function _settingsDlgHtml() {
+      const p = _menuSettingsPieces(true);
+      const cat = state.settingsCat || 'display';
+      const card = inner => `<div class="menu-card">${inner}</div>`;
+      let pane = '';
+      if (cat === 'manage') {
+        pane = '<h3>Manage</h3><p class="sd-lead">Set-up screens you use now and then.</p><div class="sd-stack">' + p.manage.map(card).join('') + '</div>';
+      } else if (cat === 'display') {
+        pane = '<h3>Display</h3><p class="sd-lead">How the app looks and behaves on this device.</p><div class="sd-grid">' + p.display.map(card).join('') + '</div><div class="sd-stack" style="margin-top:10px">' + card(p.theme) + '</div>';
+      } else if (cat === 'ai') {
+        pane = '<h3>AI key</h3><p class="sd-lead">Used for voice entry and the Fault Assistant.</p>' + card(p.ai);
+      } else if (cat === 'data') {
+        pane = '<h3>Data &amp; backups</h3><p class="sd-lead">Your data lives in the cloud and on this device.</p>' + card(p.data.join(''));
+      } else {
+        pane = '<h3 style="color:var(--priority-high)">Danger zone</h3><p class="sd-lead">These can\'t be undone. Each one asks you to confirm first.</p>' + card(p.danger.join(''));
+      }
+      return `<div class="sd-back" onclick="closeSettingsDialog()"></div>
+        <div class="sd" role="dialog" aria-label="Settings">
+          <div class="sd-h"><b>Settings</b><span class="sd-esc">ESC to close</span><button type="button" class="sd-x" onclick="closeSettingsDialog()" aria-label="Close settings">${_mIcon(_MI.x, 15)}</button></div>
+          <div class="sd-rail">${_SD_CATS.map(c => `<button type="button" class="${cat === c[0] ? 'on' : ''}${c[0] === 'danger' ? ' dz' : ''}" onclick="settingsDlgCat('${c[0]}')">${_mIcon(_MI[c[1]], 18)}${c[2]}</button>`).join('')}</div>
+          <div class="sd-pane">${pane}</div>
+        </div>`;
+    }
+    function openSettingsDialog() {
+      closeThemeMenu();
+      let el = document.getElementById('settings-dlg');
+      if (!el) {
+        el = document.createElement('div');
+        el.id = 'settings-dlg';
+        document.body.appendChild(el);
+      }
+      state.settingsDlgOpen = true;
+      el.innerHTML = _settingsDlgHtml();
+      requestAnimationFrame(() => el.classList.add('open'));
+    }
+    function closeSettingsDialog() {
+      state.settingsDlgOpen = false;
+      const el = document.getElementById('settings-dlg');
+      if (!el) return;
+      el.classList.remove('open');
+      setTimeout(() => { if (!state.settingsDlgOpen) el.remove(); }, 220);
+    }
+    function settingsDlgCat(c) {
+      state.settingsCat = c;
+      _settingsDlgRefresh();
+    }
+    // Called after every render() (the toggles re-render the app) so the dialog reflects new state.
+    function _settingsDlgRefresh() {
+      if (!state.settingsDlgOpen) return;
+      const el = document.getElementById('settings-dlg');
+      if (!el) return;
+      const keyEl = document.getElementById('menu-gemini-key');
+      const keyVal = keyEl ? keyEl.value : null;
+      const pane = el.querySelector('.sd-pane');
+      const scroll = pane ? pane.scrollTop : 0;
+      el.innerHTML = _settingsDlgHtml();
+      const k2 = document.getElementById('menu-gemini-key');
+      if (k2 && keyVal !== null) k2.value = keyVal;
+      const p2 = el.querySelector('.sd-pane');
+      if (p2) p2.scrollTop = scroll;
+    }
+    // A resize across the desktop breakpoint would leave a dialog for a layout that no longer has one.
+    window.addEventListener('resize', () => { if (state.settingsDlgOpen && !_isDesktop()) closeSettingsDialog(); });
+
     function renderHeader() {
       const syncIcons = {
         idle: '',
@@ -29072,23 +29598,6 @@
           const avatarHtml = photoURL
             ? `<img src="${esc(photoURL)}" class="menu-avatar-img" alt="User avatar" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="menu-avatar-initials" style="display:none">${initial}</div>`
             : `<div class="menu-avatar-initials">${initial}</div>`;
-          const chev = `<span class="menu-row-chevron"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>`;
-          const vis = getVisibleTabs();
-          const _makePinBtn = (tabId, isPinnedAlways) => {
-            const pinSvg = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 17v5"/><path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V17h14v-1.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7h1V5H8v2h1v3.76z"/></svg>`;
-            const pinFilledSvg = `<svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" stroke="none"><line x1="12" y1="17" x2="12" y2="22" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V17h14v-1.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7h1V5H8v2h1v3.76z"/></svg>`;
-            const lockSvg = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>`;
-
-            if (isPinnedAlways) {
-              return `<span style="width:32px;height:32px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;background:rgba(255,255,255,0.04);color:var(--text-muted);opacity:0.6;margin-left:auto;flex-shrink:0;" title="Pinned by default">${lockSvg}</span>`;
-            }
-            const isPinned = vis.includes(tabId);
-            const btnStyle = isPinned
-              ? `width:32px;height:32px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;background:rgba(var(--accent-rgb),0.16);border:1px solid rgba(var(--accent-rgb),0.3);color:var(--accent);cursor:pointer;margin-left:auto;flex-shrink:0;transition:all 0.15s;`
-              : `width:32px;height:32px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;background:transparent;border:1px solid transparent;color:var(--text-muted);cursor:pointer;margin-left:auto;flex-shrink:0;transition:all 0.15s;`;
-
-            return `<button type="button" onclick="event.stopPropagation();toggleTopTabVisibility('${tabId}')" style="${btnStyle}" title="${isPinned ? 'Pinned to top menu — tap to unpin' : 'Tap to pin to top menu'}">${isPinned ? pinFilledSvg : pinSvg}</button>`;
-          };
           return `
               <!-- Dark header block -->
               <div class="menu-header-block">
@@ -29127,234 +29636,23 @@
                 `}
               </div>
 
-              <!-- Navigation section -->
+              <!-- Destinations (v6.8.74: one line each) -->
               <div class="menu-section-wrap">
-                <div class="menu-section-label">Navigation</div>
+                <div class="menu-section-label">Go to</div>
                 <div class="menu-card">
                   ${state.conflicts.length > 0 ? `
                   <div class="menu-row" role="button" onclick="setView('conflicts');closeThemeMenu()" style="background:var(--bg-ot)">
                     <span class="menu-row-icon" style="color:var(--pill-amber-color)">${_cIcons.warning}</span>
                     <span class="menu-row-body"><span class="menu-row-label" style="color:var(--pill-amber-color)">Sync Conflicts</span><span class="menu-row-sub">${state.conflicts.length} item${state.conflicts.length > 1 ? 's' : ''} need attention</span></span>
                     <span style="background:var(--priority-high);color:#fff;border-radius:10px;padding:2px 8px;font-size:12px;font-weight:800;margin-right:4px">${state.conflicts.length}</span>
-                    ${chev}
+                    <span class="menu-row-chevron"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
                   </div>` : ''}
-                  <div class="menu-row" role="button" onclick="setView('week');closeThemeMenu()">
-                    <span class="menu-row-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span>
-                    <span class="menu-row-body"><span class="menu-row-label">Timesheet</span><span class="menu-row-sub">Weekly hours &amp; activity logging</span></span>
-                    ${_makePinBtn('week', true)}
-                    ${chev}
-                  </div>
-                  <div class="menu-row" role="button" onclick="setView('notes');closeThemeMenu()">
-                    <span class="menu-row-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg></span>
-                    <span class="menu-row-body"><span class="menu-row-label">Notes</span><span class="menu-row-sub">TipTap rich notes &amp; scratchpad</span></span>
-                    ${_makePinBtn('notes')}
-                    ${chev}
-                  </div>
-                  <div class="menu-row" role="button" onclick="setView('journal');closeThemeMenu()">
-                    <span class="menu-row-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></span>
-                    <span class="menu-row-body"><span class="menu-row-label">Journal</span><span class="menu-row-sub">Notebooks, sections &amp; pages</span></span>
-                    ${_makePinBtn('journal')}
-                    ${chev}
-                  </div>
-                  <div class="menu-row" role="button" onclick="setView('exchanges');closeThemeMenu()">
-                    <span class="menu-row-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
-                    <span class="menu-row-body"><span class="menu-row-label">Finder</span><span class="menu-row-sub">Exchanges &amp; cabinets directory</span></span>
-                    ${_makePinBtn('exchanges')}
-                    ${chev}
-                  </div>
-                  <div class="menu-row" role="button" onclick="setView('routines');closeThemeMenu()">
-                    <span class="menu-row-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M9 9h6M9 13h6M9 17h4"/><circle cx="6" cy="9" r="1.2" fill="currentColor"/><circle cx="6" cy="13" r="1.2" fill="currentColor"/><circle cx="6" cy="17" r="1.2" fill="currentColor"/></svg></span>
-                    <span class="menu-row-body"><span class="menu-row-label">Routines</span><span class="menu-row-sub">Track monthly site visits</span></span>
-                    ${_makePinBtn('routines')}
-                    ${chev}
-                  </div>
-                  <div class="menu-row" role="button" onclick="setView('callouts');closeThemeMenu()">
-                    <span class="menu-row-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg></span>
-                    <span class="menu-row-body"><span class="menu-row-label">Callouts</span><span class="menu-row-sub">On-call incident log</span></span>
-                    ${_makePinBtn('callouts')}
-                    ${chev}
-                  </div>
-                  <div class="menu-row" role="button" onclick="openHistoryView()">
-                    <span class="menu-row-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></span>
-                    <span class="menu-row-body"><span class="menu-row-label">Week History</span><span class="menu-row-sub">Jump to any week · review past work</span></span>
-                    ${_makePinBtn('history')}
-                    ${chev}
-                  </div>
-                  <div class="menu-row" role="button" onclick="setView('email-week-v3');closeThemeMenu()">
-                    <span class="menu-row-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></span>
-                    <span class="menu-row-body"><span class="menu-row-label">Email / Export Week</span><span class="menu-row-sub">Preview &amp; copy, or send email</span></span>
-                    ${_makePinBtn('email-week-v3')}
-                    ${chev}
-                  </div>
-                  <div class="menu-row" role="button" onclick="setView('availability');closeThemeMenu()">
-                    <span class="menu-row-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/><path d="M8 15h3M13 15h3M8 19h3"/></svg></span>
-                    <span class="menu-row-body"><span class="menu-row-label">Availability Planner</span><span class="menu-row-sub">Leave, training &amp; CTO service week badges</span></span>
-                    ${_makePinBtn('availability')}
-                    ${chev}
-                  </div>
-                  ${_isDesktop() ? '' : `<div class="menu-row" role="button" onclick="setView('tags-full');closeThemeMenu()">
-                    <span class="menu-row-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg></span>
-                    <span class="menu-row-body"><span class="menu-row-label">Notes Tag Manager</span><span class="menu-row-sub">Create, edit &amp; toggle tags for Notes only</span></span>
-                    ${_makePinBtn('tags-full')}
-                    ${chev}
-                  </div>`}
-                  <div class="menu-row" role="button" onclick="setView('templates');closeThemeMenu()">
-                    <span class="menu-row-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg></span>
-                    <span class="menu-row-body"><span class="menu-row-label">Task Templates</span><span class="menu-row-sub">${(state.taskTemplates || []).length} saved &middot; reusable work codes &amp; hours</span></span>
-                    ${_makePinBtn('templates')}
-                    ${chev}
-                  </div>
+                  ${_menuNavHtml()}
                 </div>
               </div>
 
-              <!-- Data Management section -->
-              <div class="menu-section-wrap">
-                <div class="menu-section-label">AI Settings</div>
-                <div class="menu-card">
-                  <div class="menu-row" role="button" onclick="setView('ai');closeThemeMenu()">
-                    <span class="menu-row-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8V4H8"/><rect x="4" y="8" width="16" height="12" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></svg></span>
-                    <span class="menu-row-body"><span class="menu-row-label">AI Assistant</span><span class="menu-row-sub">Ask about hours, faults, sites &amp; more</span></span>
-                    ${_makePinBtn('ai')}
-                    ${chev}
-                  </div>
-                  <div class="menu-ai-key-row">
-                    <div class="menu-ai-key-hint">Gemini API key — used for voice entry &amp; Fault Assistant. Get a free key at <a href="https://aistudio.google.com" target="_blank">aistudio.google.com</a></div>
-                    <div class="menu-ai-key-wrap">
-                      <input class="menu-ai-key-input" id="menu-gemini-key" type="text" placeholder="AIza…" value="${esc(state.geminiKey || '')}" autocomplete="nope" spellcheck="false" style="-webkit-text-security:disc;text-security:disc;">
-                      <button class="menu-ai-key-eye" type="button" onclick="toggleKeyVisibility()" title="Show / hide key">
-                        <svg id="menu-key-eye-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
-                        </svg>
-                      </button>
-                    </div>
-                    <div class="menu-ai-key-btns">
-                      <button class="menu-ai-key-save" onclick="saveGeminiKey()">Save Key</button>
-                      <button class="menu-ai-key-test" onclick="testGeminiKey()">Test</button>
-                    </div>
-                    <div class="menu-ai-key-status" id="menu-gemini-status">${state.geminiKey ? '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:text-bottom;margin-right:4px;"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3m-3-3l-4-4"/></svg>Key saved' : ''}</div>
-                  </div>
-                </div>
-              </div>
-
-              <div class="menu-section-wrap">
-                <div class="menu-section-label">Display</div>
-                <div class="menu-card">
-                  <button id="menu-mic-fab-btn" class="menu-row" onclick="toggleMicFab()">
-                    <span class="menu-row-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="8" y1="22" x2="16" y2="22"/></svg></span>
-                    <span class="menu-row-body"><span class="menu-row-label">Voice button</span><span id="menu-mic-fab-sub" class="menu-row-sub">${state.micFabHidden ? 'Hidden — tap to show' : 'Visible — tap to hide'}</span></span>
-                    <span id="menu-mic-fab-track" style="width:36px;height:20px;border-radius:10px;background:${state.micFabHidden ? 'var(--border-strong)' : 'var(--accent)'};position:relative;transition:background 0.2s;flex-shrink:0;display:inline-block;">
-                      <span id="menu-mic-fab-pill" style="position:absolute;top:2px;left:${state.micFabHidden ? '2px' : '18px'};width:16px;height:16px;border-radius:50%;background:#fff;transition:left 0.2s;box-shadow:0 1px 4px rgba(var(--shadow-rgb),0.18);display:block;"></span>
-                    </span>
-                  </button>
-                  ${(() => {
-              const isModal = getTaskStyle() === 'modal';
-              return `<button id="menu-card-style-btn" class="menu-row" onclick="setTaskStyle(getTaskStyle()==='modal'?'expand':'modal')">
-                    <span class="menu-row-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></span>
-                    <span class="menu-row-body"><span class="menu-row-label">Card style</span><span id="menu-card-style-sub" class="menu-row-sub">${isModal ? 'Fullscreen modal' : 'Expand in place'}</span></span>
-                    <span id="menu-card-style-track" style="width:36px;height:20px;border-radius:10px;background:${isModal ? 'var(--accent)' : 'var(--border-strong)'};position:relative;transition:background 0.2s;flex-shrink:0;display:inline-block;">
-                      <span id="menu-card-style-pill" style="position:absolute;top:2px;left:${isModal ? '18px' : '2px'};width:16px;height:16px;border-radius:50%;background:#fff;transition:left 0.2s;box-shadow:0 1px 4px rgba(var(--shadow-rgb),0.18);display:block;"></span>
-                    </span>
-                  </button>`;
-            })()}
-                  ${(() => {
-              const isGrouped = getTaskLayout() === 'grouped';
-              return `<button id="menu-task-layout-btn" class="menu-row" onclick="setTaskLayout(getTaskLayout()==='grouped'?'timeline':'grouped')">
-                    <span class="menu-row-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="5" width="16" height="4" rx="1"/><rect x="4" y="15" width="16" height="4" rx="1"/><path d="M8 9v6"/></svg></span>
-                    <span class="menu-row-body"><span class="menu-row-label">Task layout</span><span id="menu-task-layout-sub" class="menu-row-sub">${isGrouped ? 'Grouped cards' : 'Timeline connectors'}</span></span>
-                    <span id="menu-task-layout-track" style="width:36px;height:20px;border-radius:10px;background:${isGrouped ? 'var(--accent)' : 'var(--border-strong)'};position:relative;transition:background 0.2s;flex-shrink:0;display:inline-block;">
-                      <span id="menu-task-layout-pill" style="position:absolute;top:2px;left:${isGrouped ? '18px' : '2px'};width:16px;height:16px;border-radius:50%;background:#fff;transition:left 0.2s;box-shadow:0 1px 4px rgba(var(--shadow-rgb),0.18);display:block;"></span>
-                    </span>
-                  </button>`;
-            })()}
-                  ${(() => {
-              const statsOn = _statsVisible();
-              return `<button id="menu-stats-btn" class="menu-row" onclick="toggleStatsVisible()">
-                    <span class="menu-row-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="6" y1="20" x2="6" y2="13"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="18" y1="20" x2="18" y2="9"/></svg></span>
-                    <span class="menu-row-body"><span class="menu-row-label">Show stats</span><span id="menu-stats-sub" class="menu-row-sub">${statsOn ? 'Shown — tap a heading to collapse' : 'Hidden everywhere'}</span></span>
-                    <span id="menu-stats-track" style="width:36px;height:20px;border-radius:10px;background:${statsOn ? 'var(--accent)' : 'var(--border-strong)'};position:relative;transition:background 0.2s;flex-shrink:0;display:inline-block;">
-                      <span id="menu-stats-pill" style="position:absolute;top:2px;left:${statsOn ? '18px' : '2px'};width:16px;height:16px;border-radius:50%;background:#fff;transition:left 0.2s;box-shadow:0 1px 4px rgba(var(--shadow-rgb),0.18);display:block;"></span>
-                    </span>
-                  </button>`;
-            })()}
-                  ${(() => {
-              const lp = getLayoutPref();
-              const isForceMobile = lp === 'mobile';
-              const autoDesk = window.innerWidth >= 1280;
-              const sub = isForceMobile ? 'Forced mobile' : (autoDesk ? 'Auto — Desktop' : 'Auto — Mobile');
-              return `<button class="menu-row" onclick="setLayoutPref(getLayoutPref()==='mobile'?'auto':'mobile')">
-                    <span class="menu-row-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg></span>
-                    <span class="menu-row-body"><span class="menu-row-label">Force mobile layout</span><span class="menu-row-sub">${sub}</span></span>
-                    <span style="width:36px;height:20px;border-radius:10px;background:${isForceMobile ? 'var(--accent)' : 'var(--border-strong)'};position:relative;transition:background 0.2s;flex-shrink:0;display:inline-block;">
-                      <span style="position:absolute;top:2px;left:${isForceMobile ? '18px' : '2px'};width:16px;height:16px;border-radius:50%;background:#fff;transition:left 0.2s;box-shadow:0 1px 4px rgba(var(--shadow-rgb),0.18);display:block;"></span>
-                    </span>
-                  </button>`;
-            })()}
-                  ${(() => {
-              const cur = getSavedTheme();
-              const keys = Object.keys(THEME_META);
-              return `
-                    <div class="menu-row" style="display:block;padding:12px 14px;">
-                      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
-                        <span class="menu-row-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10"/><path d="M12 2a15.3 15.3 0 0 0-4 10 15.3 15.3 0 0 0 4 10"/><line x1="2" y1="12" x2="22" y2="12"/></svg></span>
-                        <span class="menu-row-body" style="flex:1;"><span class="menu-row-label">Theme</span><span class="menu-row-sub">${esc(THEME_META[cur].label)}</span></span>
-                      </div>
-                      <div style="display:flex;flex-wrap:wrap;gap:6px;">
-                        ${keys.map(k => `<button type="button" onclick="setTheme('${k}')" style="padding:6px 12px;border-radius:999px;border:1px solid ${cur === k ? 'var(--accent)' : 'var(--border)'};background:${cur === k ? 'var(--accent)' : 'var(--bg-card)'};color:${cur === k ? '#fff' : 'var(--text-primary)'};font-size:12px;font-weight:600;cursor:pointer;">${esc(THEME_META[k].label)}</button>`).join('')}
-                      </div>
-                    </div>`;
-            })()}
-                </div>
-              </div>
-
-              <div class="menu-section-wrap">
-                <div class="menu-section-label">Data Management</div>
-                <div class="menu-card">
-                  ${!state.currentUser?.isLocalOnly ? `
-                  <button class="menu-row" onclick="openSnapshotModal()">
-                    <span class="menu-row-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8v4l3 3"/><circle cx="12" cy="12" r="9"/></svg></span>
-                    <span class="menu-row-body"><span class="menu-row-label">Snapshots / Recover</span><span class="menu-row-sub">Browse and restore saved versions</span></span>
-                    ${chev}
-                  </button>
-                  <button class="menu-row" onclick="openBackupsModal();closeThemeMenu()">
-                    <span class="menu-row-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg></span>
-                    <span class="menu-row-body"><span class="menu-row-label">Cloud Backups</span><span class="menu-row-sub">View &amp; restore daily snapshots</span></span>
-                    ${chev}
-                  </button>
-                  <button class="menu-row" onclick="disconnectCloudGoOffline();closeThemeMenu()">
-                    <span class="menu-row-icon" style="color:var(--text-ot)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"/><line x1="12" y1="2" x2="12" y2="12"/></svg></span>
-                    <span class="menu-row-body"><span class="menu-row-label">Disconnect Cloud (Go Offline)</span><span class="menu-row-sub">Switch to local-only offline mode</span></span>
-                    ${chev}
-                  </button>
-                  ` : ''}
-                  <button class="menu-row" onclick="exportAllData();closeThemeMenu()">
-                    <span class="menu-row-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></span>
-                    <span class="menu-row-body"><span class="menu-row-label">Export All Data</span><span class="menu-row-sub">Download as JSON</span></span>
-                    ${chev}
-                  </button>
-                  <button class="menu-row" onclick="importAllData();closeThemeMenu()">
-                    <span class="menu-row-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></span>
-                    <span class="menu-row-body"><span class="menu-row-label">Import Data</span><span class="menu-row-sub">Load JSON into this account</span></span>
-                    ${chev}
-                  </button>
-                  <button class="menu-row danger" onclick="clearCurrentWeek();closeThemeMenu()">
-                    <span class="menu-row-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg></span>
-                    <span class="menu-row-body"><span class="menu-row-label">Clear This Week</span></span>
-                    ${chev}
-                  </button>
-                  <button class="menu-row danger" onclick="clearAllData();closeThemeMenu()">
-                    <span class="menu-row-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg></span>
-                    <span class="menu-row-body"><span class="menu-row-label">Clear All My Data</span></span>
-                    ${chev}
-                  </button>
-                  ${!state.currentUser?.isLocalOnly ? `
-                  <button class="menu-row danger" onclick="deleteAccount();closeThemeMenu()">
-                    <span class="menu-row-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/><line x1="17" y1="11" x2="23" y2="17"/><line x1="23" y1="11" x2="17" y2="17"/></svg></span>
-                    <span class="menu-row-body"><span class="menu-row-label">Delete Account</span><span class="menu-row-sub">Permanently removes all data</span></span>
-                    ${chev}
-                  </button>
-                  ` : ''}
-                </div>
-              </div>
+              <!-- Settings: collapsible groups on mobile, a dialog on desktop -->
+              ${_isDesktop() ? _menuSettingsLauncher() : _menuSettingsAccordions()}
 
               <div class="menu-spacer"></div>
               <div class="menu-version">FieldLog v${VERSION} &middot; ${IS_NATIVE ? 'App' : 'PWA'}</div>
@@ -29414,7 +29712,7 @@
     }
 
     function updateHeaderStatus() {
-      const el = document.querySelector('header');
+      const el = document.querySelector('#app > header');
       if (!el) return;
       const oldTabBar = document.getElementById('main-tab-bar');
       // Preserve focus & selection — replacing outerHTML can blur inputs on some platforms
@@ -41374,6 +41672,7 @@
         ['jdocx-overlay', () => typeof closeJDocxImport === 'function' && closeJDocxImport()],
         ['av-import-modal', () => typeof avCloseImportDialog === 'function' && avCloseImportDialog()],
         ['rian-dialog-overlay', () => typeof _rdnClose === 'function' && _rdnClose(null)],
+        ['settings-dlg', () => typeof closeSettingsDialog === 'function' && closeSettingsDialog()],
         ['code-modal', () => typeof closeCodeModal === 'function' && closeCodeModal()],
         ['location-modal', () => typeof closeLocationModal === 'function' && closeLocationModal()],
         ['finder-search-modal', () => typeof closeFinderModal === 'function' && closeFinderModal()],
@@ -42853,6 +43152,7 @@
         ['jdocx-overlay', () => typeof closeJDocxImport === 'function' && closeJDocxImport()],
         ['av-import-modal', () => typeof avCloseImportDialog === 'function' && avCloseImportDialog()],
         ['rian-dialog-overlay', () => typeof _rdnClose === 'function' && _rdnClose(null)],
+        ['settings-dlg', () => typeof closeSettingsDialog === 'function' && closeSettingsDialog()],
         ['code-modal', () => typeof closeCodeModal === 'function' && closeCodeModal()],
         ['location-modal', () => typeof closeLocationModal === 'function' && closeLocationModal()],
         ['finder-search-modal', () => typeof closeFinderModal === 'function' && closeFinderModal()],
