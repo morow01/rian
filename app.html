@@ -23976,7 +23976,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '6.8.79';
+    const VERSION = '6.8.80';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -29329,6 +29329,7 @@
       trash: '<polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/>',
       chev: '<polyline points="9 18 15 12 9 6"/>',
       chevd: '<polyline points="6 9 12 15 18 9"/>',
+      compass: '<circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/>',
       x: '<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>'
     };
 
@@ -29485,8 +29486,8 @@
     }
 
     // ── Mobile: collapsible groups ──
-    function _menuAcc(id, title, sub, icon, bodyHtml) {
-      const open = !!(state.menuAcc && state.menuAcc[id]);
+    function _menuAcc(id, title, sub, icon, bodyHtml, defaultOpen) {
+      const open = (state.menuAcc && id in state.menuAcc) ? !!state.menuAcc[id] : !!defaultOpen;
       return `<div class="menu-acc${open ? ' open' : ''}" data-acc="${id}">
                 <button type="button" class="menu-acc-hd" onclick="toggleMenuAcc('${id}')" aria-expanded="${open}">
                   <span class="menu-row-icon">${_mIcon(_MI[icon])}</span>
@@ -29498,12 +29499,14 @@
     }
     function toggleMenuAcc(id) {
       state.menuAcc = state.menuAcc || {};
-      state.menuAcc[id] = !state.menuAcc[id];
       const el = document.querySelector('.menu-acc[data-acc="' + id + '"]');
+      // Read the current state from the DOM — groups can default to open, so an unset entry isn't "closed".
+      const nowOpen = el ? !el.classList.contains('open') : !state.menuAcc[id];
+      state.menuAcc[id] = nowOpen;
       if (el) {
-        el.classList.toggle('open', !!state.menuAcc[id]);
+        el.classList.toggle('open', nowOpen);
         const b = el.querySelector('.menu-acc-hd');
-        if (b) b.setAttribute('aria-expanded', state.menuAcc[id] ? 'true' : 'false');
+        if (b) b.setAttribute('aria-expanded', nowOpen ? 'true' : 'false');
       }
     }
     function _menuSettingsAccordions() {
@@ -29679,19 +29682,16 @@
                 `}
               </div>
 
-              <!-- Destinations (v6.8.74: one line each) -->
+              <!-- Navigation: collapsible group, open by default (v6.8.80) -->
               <div class="menu-section-wrap">
-                <div class="menu-section-label">Navigation</div>
-                <div class="menu-card">
-                  ${state.conflicts.length > 0 ? `
+                ${state.conflicts.length > 0 ? `<div class="menu-card" style="margin-bottom:10px">
                   <div class="menu-row" role="button" onclick="setView('conflicts');closeThemeMenu()" style="background:var(--bg-ot)">
                     <span class="menu-row-icon" style="color:var(--pill-amber-color)">${_cIcons.warning}</span>
                     <span class="menu-row-body"><span class="menu-row-label" style="color:var(--pill-amber-color)">Sync Conflicts</span><span class="menu-row-sub">${state.conflicts.length} item${state.conflicts.length > 1 ? 's' : ''} need attention</span></span>
                     <span style="background:var(--priority-high);color:#fff;border-radius:10px;padding:2px 8px;font-size:12px;font-weight:800;margin-right:4px">${state.conflicts.length}</span>
                     <span class="menu-row-chevron"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
-                  </div>` : ''}
-                  ${_menuNavHtml()}
-                </div>
+                  </div></div>` : ''}
+                ${_menuAcc('nav', 'Navigation', 'Places &amp; pinned tabs', 'compass', _menuNavHtml(), true)}
               </div>
 
               <!-- Settings: collapsible groups on mobile, a dialog on desktop -->
