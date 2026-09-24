@@ -1731,7 +1731,7 @@
       animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
     }
 
-    @keyframes rianUpdatePulse {
+    @keyframes appUpdatePulse {
 
       0%,
       100% {
@@ -10237,8 +10237,8 @@
       -webkit-backdrop-filter: blur(3px);
     }
 
-    /* ── Rian custom dialog ── */
-    #rian-dialog-overlay {
+    /* ── FieldLog custom dialog ── */
+    #app-dialog-overlay {
       display: none;
       position: fixed;
       inset: 0;
@@ -10250,11 +10250,11 @@
       padding: 16px;
     }
 
-    #rian-dialog-overlay.rdn-open {
+    #app-dialog-overlay.rdn-open {
       display: flex;
     }
 
-    #rian-dialog {
+    #app-dialog {
       background: var(--bg-card, #fff);
       border-radius: 20px;
       padding: 24px 20px 18px;
@@ -23980,7 +23980,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '6.8.84';
+    const VERSION = '6.8.85';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -24294,7 +24294,7 @@
       // IndexedDB persistence without localStorage coordination (which caused
       // QuotaExceededError in v5.1.79). No more "exclusive access" errors
       // when multiple tabs are open.
-      db_fs.enablePersistence({ experimentalForceOwningTab: true }).catch(e => console.warn('[Rian]', e));
+      db_fs.enablePersistence({ experimentalForceOwningTab: true }).catch(e => console.warn('[FieldLog]', e));
     } catch (firebaseErr) {
       console.error("Firebase init failed (likely blocked by Brave Shields):", firebaseErr);
       document.body.innerHTML = '<div style="margin: 40px auto; max-width: 600px; padding: 20px; background: #fee2e2; border: 1px solid var(--priority-high); border-radius: 8px; font-family: sans-serif; text-align: center;"><h2>⚠️ App Blocked by Brave Shields</h2><p>Your browser is blocking IndexedDB or essential scripts needed to run this application. Please click the <strong>Lion icon</strong> (Brave Shields) in your address bar and turn Shields <strong>OFF</strong> for localhost, then refresh the page.</p></div>';
@@ -25478,7 +25478,7 @@
     async function _compressNotesForFs(notes) {
       var totalSize = JSON.stringify(notes).length;
       if (totalSize < 800000) return { notes: notes, didCompress: false, compressedIds: [] };
-      console.log('[Rian] Notes doc ' + totalSize + ' bytes — compressing images for Firestore');
+      console.log('[FieldLog] Notes doc ' + totalSize + ' bytes — compressing images for Firestore');
       var now = Date.now();
       var out = []; var compressedIds = [];
       for (var i = 0; i < notes.length; i++) {
@@ -25550,7 +25550,7 @@
         editor.chain().focus(at).insertContent({ type: 'fileChip', attrs: { href: res.url, name: res.name || 'file' } }).insertContent(' ').run();
         showToast('📎 Attached ' + file.name);
       } catch (e) {
-        console.error('[Rian] File attach failed', e);
+        console.error('[FieldLog] File attach failed', e);
         const msg = (e && (e.code || e.message)) ? (e.code || e.message) : 'Attach failed';
         showToast('⚠️ ' + msg + (uploadedUrl ? ' (uploaded, insert failed)' : ''));
       }
@@ -25752,7 +25752,7 @@
       if (remoteNotes === localNotes) return _stripActivityNoteMergeMeta(localAct);
       const noLossMerge = _mergeActivityNotesNoLoss(localAct, remoteAct, remoteWeekUpdatedAt, 'merge-on-save');
       if (noLossMerge) {
-        console.warn('[Rian] Merge-on-save preserved both activity note versions for', remoteAct.id);
+        console.warn('[FieldLog] Merge-on-save preserved both activity note versions for', remoteAct.id);
         return _stripActivityNoteMergeMeta(noLossMerge);
       }
 
@@ -25763,7 +25763,7 @@
       const remoteNoteTs = remoteAct._notesUpdatedAt || remoteWeekUpdatedAt || 0;
       const remoteWhileOpenTs = localAct._notesRemoteWhileOpenUpdatedAt || 0;
       if (remoteAct._notesUpdatedAt && localNoteTs && remoteAct._notesUpdatedAt > localNoteTs) {
-        console.warn('[Rian] Merge-on-save kept newer remote activity note for', remoteAct.id);
+        console.warn('[FieldLog] Merge-on-save kept newer remote activity note for', remoteAct.id);
         return _stripActivityNoteMergeMeta(Object.assign({}, localAct, {
           notes: remoteNotes,
           _notesUpdatedAt: remoteAct._notesUpdatedAt,
@@ -25775,7 +25775,7 @@
         (remoteWhileOpenTs && remoteWhileOpenTs >= baseTs && localAct._notesRemoteWhileOpenHash === remoteHash);
       if (remoteChangedAfterOpen) {
         if (_activityNoteContainsRemote(localNotes, remoteNotes)) {
-          console.info('[Rian] Merge-on-save accepted activity note that includes newer remote content for', remoteAct.id);
+          console.info('[FieldLog] Merge-on-save accepted activity note that includes newer remote content for', remoteAct.id);
           return _stripActivityNoteMergeMeta(localAct);
         }
         const out = Object.assign({}, localAct, {
@@ -25789,7 +25789,7 @@
           backups.push({ at: Date.now(), reason: 'stale-editor-save-blocked', html: localNotes });
           out._notesConflictBackups = backups;
         }
-        console.warn('[Rian] Merge-on-save blocked stale activity note overwrite for', remoteAct.id);
+        console.warn('[FieldLog] Merge-on-save blocked stale activity note overwrite for', remoteAct.id);
         return _stripActivityNoteMergeMeta(out);
       }
 
@@ -25802,7 +25802,7 @@
       const remoteLooksRicher = remoteImgs > localImgs || remoteNotes.length > localNotes.length + 1000;
       const localIsInlineOnly = localDataImgs > 0 && remoteDataImgs === 0 && remoteImgs >= localImgs;
       if (remoteLooksRicher && !localIsInlineOnly) {
-        console.warn('[Rian] Merge-on-save protected richer remote notes for activity', remoteAct.id);
+        console.warn('[FieldLog] Merge-on-save protected richer remote notes for activity', remoteAct.id);
         return _stripActivityNoteMergeMeta(Object.assign({}, localAct, { notes: remoteNotes, _notesUpdatedAt: remoteAct._notesUpdatedAt || remoteNoteTs, _notesProtectedAt: Date.now() }));
       }
       return _stripActivityNoteMergeMeta(localAct);
@@ -25829,7 +25829,7 @@
               changed = true;
               migrated++;
             } catch (e) {
-              console.warn('[Rian] Activity note image upload failed for activity', act.id, e);
+              console.warn('[FieldLog] Activity note image upload failed for activity', act.id, e);
             }
           }
           if (changed) {
@@ -25866,7 +25866,7 @@
         const list = await folder.listAll();
         await Promise.all(list.items.map(item => item.delete()));
       } catch (e) {
-        console.warn('[Rian] Storage cleanup failed for note', noteId, e);
+        console.warn('[FieldLog] Storage cleanup failed for note', noteId, e);
       }
     }
 
@@ -25887,7 +25887,7 @@
             imgs[j].src = await _uploadNoteImage(compressed, note.id);
             changed = true; migrated++;
           } catch (e) {
-            console.warn('[Rian] Migration upload failed for note', note.id, e);
+            console.warn('[FieldLog] Migration upload failed for note', note.id, e);
           }
         }
         if (changed) {
@@ -25921,7 +25921,7 @@
           if (n > 0) showToast('✅ ' + n + ' image' + (n !== 1 ? 's' : '') + ' moved to Storage');
         }
       } catch (e) {
-        console.warn('[Rian] Storage migration error:', e);
+        console.warn('[FieldLog] Storage migration error:', e);
         showToast('⚠️ Image migration incomplete — will retry next session');
       }
     }
@@ -25943,7 +25943,7 @@
           if (!d.objectStoreNames.contains('weekBackups')) d.createObjectStore('weekBackups', { keyPath: 'id' });
         };
         req.onsuccess = e => { db = e.target.result; res(); };
-        req.onblocked = () => { console.warn('[Rian] IDB upgrade blocked — reloading'); window.location.reload(); };
+        req.onblocked = () => { console.warn('[FieldLog] IDB upgrade blocked — reloading'); window.location.reload(); };
         req.onerror = rej;
       });
     }
@@ -25962,9 +25962,9 @@
           const tx = db.transaction(store, 'readonly');
           const req = tx.objectStore(store).get(key);
           req.onsuccess = () => res(req.result);
-          req.onerror = () => { console.warn('[Rian] Local cache read failed for', store, '— using cloud data'); res(null); };
+          req.onerror = () => { console.warn('[FieldLog] Local cache read failed for', store, '— using cloud data'); res(null); };
         } catch (e) {
-          console.warn('[Rian] Local cache unavailable (' + e.name + ') — using cloud data');
+          console.warn('[FieldLog] Local cache unavailable (' + e.name + ') — using cloud data');
           res(null);
         }
       });
@@ -25980,9 +25980,9 @@
           const tx = db.transaction(store, 'readwrite');
           const req = tx.objectStore(store).put(val);
           req.onsuccess = res;
-          req.onerror = () => { console.warn('[Rian] Local cache write failed for', store, '— cloud save unaffected'); res(); };
+          req.onerror = () => { console.warn('[FieldLog] Local cache write failed for', store, '— cloud save unaffected'); res(); };
         } catch (e) {
-          console.warn('[Rian] Local cache unavailable for write (' + e.name + ') — cloud save unaffected');
+          console.warn('[FieldLog] Local cache unavailable for write (' + e.name + ') — cloud save unaffected');
           res();
         }
       });
@@ -25995,9 +25995,9 @@
           const tx = db.transaction(store, 'readonly');
           const req = tx.objectStore(store).getAll();
           req.onsuccess = () => res(req.result);
-          req.onerror = () => { console.warn('[Rian] Local cache read failed for', store, '— using cloud data'); res([]); };
+          req.onerror = () => { console.warn('[FieldLog] Local cache read failed for', store, '— using cloud data'); res([]); };
         } catch (e) {
-          console.warn('[Rian] Local cache unavailable (' + e.name + ') — using cloud data');
+          console.warn('[FieldLog] Local cache unavailable (' + e.name + ') — using cloud data');
           res([]);
         }
       });
@@ -26051,7 +26051,7 @@
           });
         }
       } catch (e) {
-        console.warn('[Rian] Local week backup failed:', e);
+        console.warn('[FieldLog] Local week backup failed:', e);
       }
     }
 
@@ -26167,14 +26167,14 @@
           clearTimeout(saveTimer);
           saveTimer = null;
           await dbPut('weeks', { weekStart: state.weekStart, userId: state.currentUser.uid, data: state.weekData, updatedAt: state.weekData._updatedAt || Date.now() });
-          await fsSetWeek(state.weekStart, state.weekData).catch(e => console.warn('[Rian]', e));
+          await fsSetWeek(state.weekStart, state.weekData).catch(e => console.warn('[FieldLog]', e));
         }
         if (notesSaveTimer && state.notes && state.currentUser) {
           clearTimeout(notesSaveTimer);
           notesSaveTimer = null;
           const ts = Date.now();
           await dbPut('notes', { id: 'notes_all', userId: state.currentUser.uid, data: state.notes, updatedAt: ts });
-          await fsSetNotes(state.notes).catch(e => console.warn('[Rian]', e));
+          await fsSetNotes(state.notes).catch(e => console.warn('[FieldLog]', e));
         }
 
         const cloudUid = state.currentUser.uid;
@@ -26301,7 +26301,7 @@
           };
           await dbPut('weeks', updatedWeek);
           if (updatedWeek.data) {
-            await fsSetWeek(w.weekStart, updatedWeek.data).catch(e => console.warn('[Rian] Merge upload failed for week ' + w.weekStart, e));
+            await fsSetWeek(w.weekStart, updatedWeek.data).catch(e => console.warn('[FieldLog] Merge upload failed for week ' + w.weekStart, e));
           }
         }
       }
@@ -26336,7 +26336,7 @@
               if (ref) await ref.set({ categories: n.data, disabledCats: state.disabledCats || [], _updatedAt: Date.now() });
             }
           } catch (e) {
-            console.warn('[Rian] Merge upload failed for notes key ' + n.id, e);
+            console.warn('[FieldLog] Merge upload failed for notes key ' + n.id, e);
           }
         }
       }
@@ -26392,7 +26392,7 @@
           // deleted disappears from this screen instead of lingering until a
           // refresh (this is the "deleted on the phone, still on desktop" case).
           if (_tombApply(state.weekStart === weekStart ? state.weekData : null, merged._deletedIds)) {
-            console.info('[Rian] Removed task(s) deleted on another device');
+            console.info('[FieldLog] Removed task(s) deleted on another device');
           }
 
           if (remote.days && merged.days && remote.days.length === merged.days.length) {
@@ -26428,7 +26428,7 @@
                     (ra.codes && ra.codes.length > 0) ||
                     (ra.notes || '').trim()) {
                     mergedActs.push(ra);
-                    console.info('[Rian] Merge-on-save: recovered remote activity "' +
+                    console.info('[FieldLog] Merge-on-save: recovered remote activity "' +
                       (ra.description || '').substring(0, 30) + '" on day ' + di);
                   }
                 }
@@ -26436,12 +26436,12 @@
 
               return { ...localDay, activities: mergedActs };
             });
-            console.info('[Rian] Merge-on-save: merged with remote (local acts preserved, remote-only recovered)');
+            console.info('[FieldLog] Merge-on-save: merged with remote (local acts preserved, remote-only recovered)');
           }
         }
       } catch (e) {
         // If server fetch fails (offline, etc.), save local data as-is
-        console.warn('[Rian] Merge-on-save: server fetch failed, saving local only —', e.message);
+        console.warn('[FieldLog] Merge-on-save: server fetch failed, saving local only —', e.message);
       }
 
       // Final enforcement: nothing marked deleted may be written back, no
@@ -26471,7 +26471,7 @@
 
       const payloadBytes = _jsonBytes(merged);
       if (payloadBytes > 900000) {
-        console.warn('[Rian] Week document is large after image migration:', payloadBytes, 'bytes');
+        console.warn('[FieldLog] Week document is large after image migration:', payloadBytes, 'bytes');
         showToast('This week is large. Images are being protected, but cloud sync may be slower.');
       }
       const expectedFingerprint = _weekContentFingerprint(merged);
@@ -26490,13 +26490,13 @@
           var _mTotal = 0;
           merged.days.forEach(function (d) { _mTotal += (d.activities || []).length; });
           if (_vTotal < _mTotal) {
-            console.warn('[Rian] Write verification: server has fewer activities (' + _vTotal + ' vs ' + _mTotal + ') — retrying write');
+            console.warn('[FieldLog] Write verification: server has fewer activities (' + _vTotal + ' vs ' + _mTotal + ') — retrying write');
             await ref.set(merged);
           } else {
-            console.info('[Rian] Write verified on server (' + _vTotal + ' activities)');
+            console.info('[FieldLog] Write verified on server (' + _vTotal + ' activities)');
           }
           if (_weekContentFingerprint(_vData) !== expectedFingerprint) {
-            console.warn('[Rian] Write verification: server content fingerprint mismatch — retrying write');
+            console.warn('[FieldLog] Write verification: server content fingerprint mismatch — retrying write');
             await ref.set(merged);
             var _verify2 = await ref.get({ source: 'server' });
             if (!_verify2.exists || _weekContentFingerprint(_verify2.data()) !== expectedFingerprint) {
@@ -26505,7 +26505,7 @@
           }
         }
       } catch (_ve) {
-        console.warn('[Rian] Write verification failed —', _ve.message);
+        console.warn('[FieldLog] Write verification failed —', _ve.message);
         throw _ve;
       }
       // Also update local state with the merged data so it reflects recovered activities
@@ -26518,7 +26518,7 @@
           render();
         }
       }
-      maybeTakeAutoSnapshot(weekStart, merged).catch(e => console.warn('[Rian]', e));
+      maybeTakeAutoSnapshot(weekStart, merged).catch(e => console.warn('[FieldLog]', e));
     }
 
     async function fsSetNotes(notes) {
@@ -26598,7 +26598,7 @@
         if (!snap.exists) {
           // No callouts on server yet — push local if we have data
           if (state.callouts && Object.keys(state.callouts.weeks).length > 0) {
-            fsSetCallouts(state.callouts).catch(e => console.warn('[Rian]', e));
+            fsSetCallouts(state.callouts).catch(e => console.warn('[FieldLog]', e));
           }
           return;
         }
@@ -26637,7 +26637,7 @@
         if (state.view === 'callouts' && !state.calloutsExpandedId) render();
         else if (state.view === 'week') render();
       }, () => {
-        console.warn('[Rian] callouts onSnapshot error');
+        console.warn('[FieldLog] callouts onSnapshot error');
       });
     }
 
@@ -26777,7 +26777,7 @@
           await dbPut('notes', { id: 'availability_all', userId: state.currentUser.uid, data: state.schedule, updatedAt: state.schedule._updatedAt });
           await fsSetAvailability(state.schedule);
         } catch (e) {
-          console.warn('[Rian] availability save failed', e);
+          console.warn('[FieldLog] availability save failed', e);
           showToast('Availability save failed');
         } finally {
           _avSavePending = false;
@@ -26807,7 +26807,7 @@
           if (state.view === 'availability' || state.view === 'week') render();
         }
       }, function () {
-        console.warn('[Rian] availability onSnapshot error');
+        console.warn('[FieldLog] availability onSnapshot error');
       });
     }
 
@@ -27192,7 +27192,7 @@
         const ref = userDoc('data/notes_backup');
         if (!ref) return;
         await ref.set({ notes, _updatedAt: Date.now(), _count: notes.length });
-      } catch (e) { console.warn('[Rian] notes backup failed:', e); }
+      } catch (e) { console.warn('[FieldLog] notes backup failed:', e); }
     }
 
     // ============================================================
@@ -28073,7 +28073,7 @@
           }
           const flushTs = flushData._updatedAt || Date.now();
           await dbPut('weeks', { weekStart: state.weekStart, userId: state.currentUser?.uid || null, data: flushData, updatedAt: flushTs });
-          if (state.currentUser) await fsSetWeek(state.weekStart, flushData).catch(e => console.warn('[Rian]', e));
+          if (state.currentUser) await fsSetWeek(state.weekStart, flushData).catch(e => console.warn('[FieldLog]', e));
         }
 
         // Unsubscribe from previous week listener
@@ -28140,7 +28140,7 @@
           window._firstSnapReceived[weekStart] = false;
           setTimeout(() => {
             if (window._firstSnapReceived[weekStart] === false) {
-              console.warn('[Rian] First-snapshot gate timeout for week', weekStart, '— releasing');
+              console.warn('[FieldLog] First-snapshot gate timeout for week', weekStart, '— releasing');
               window._firstSnapReceived[weekStart] = true;
             }
           }, 60000);
@@ -28164,7 +28164,7 @@
           // Without this guard, the remote snapshot overwrites state.weekData
           // before the debounce timer fires, silently losing the user's edit.
           if (state.syncStatus === 'pending') {
-            console.info('[Rian] Snapshot deferred — local save pending');
+            console.info('[FieldLog] Snapshot deferred — local save pending');
             return;
           }
 
@@ -28203,7 +28203,7 @@
           // No remote write-back is triggered here to avoid infinite snapshot→write loops;
           // any newer local edits will naturally save to the cloud on the next user action.
           if (remoteTs > 0 && localTs > 0 && remoteTs < localTs) {
-            console.info('[Rian] Remote snapshot is older than local (' + Math.round((localTs - remoteTs) / 1000) + 's) — accepting');
+            console.info('[FieldLog] Remote snapshot is older than local (' + Math.round((localTs - remoteTs) / 1000) + 's) — accepting');
           }
 
           // Raise the HWM as we accept this remote data
@@ -28286,13 +28286,13 @@
           });
           // Push cleaned data back to Firestore to fix permanently
           if (_ghostsRemoved) {
-            console.log('[Rian] Stripped ghost tasks locally (not writing back — will save on next edit)');
+            console.log('[FieldLog] Stripped ghost tasks locally (not writing back — will save on next edit)');
           }
 
           // Auto-dedup: remove duplicate activities with identical content.
           let _dupsRemoved = _dedupeWeekActivities(state.weekData);
           if (_dupsRemoved) {
-            console.log('[Rian] Auto-deduped activities locally (will save on next edit)');
+            console.log('[FieldLog] Auto-deduped activities locally (will save on next edit)');
           }
           // v6.7.87/88: one-time-ever cleanup of leftover table colwidths — local
           // only, not saved here; next edit persists it (see _ttMigrateOnce).
@@ -28317,7 +28317,7 @@
           }
           _dedupeWeekActivities(state.weekData);
           if (_recoveredUnsyncedCount > 0) {
-            console.warn('[Rian] Recovered ' + _recoveredUnsyncedCount + ' locally-created activity/activities that were missing from an incoming snapshot — re-queuing for cloud save');
+            console.warn('[FieldLog] Recovered ' + _recoveredUnsyncedCount + ' locally-created activity/activities that were missing from an incoming snapshot — re-queuing for cloud save');
           }
 
           // Apply cross-device deletion markers. Runs AFTER the draft/unsynced
@@ -28325,7 +28325,7 @@
           // put back by that recovery step.
           state.weekData._deletedIds = _tombPrune(_tombMerge(remote._deletedIds, state.weekData._deletedIds));
           if (_tombApply(state.weekData, state.weekData._deletedIds)) {
-            console.info('[Rian] Removed task(s) deleted on another device');
+            console.info('[FieldLog] Removed task(s) deleted on another device');
           }
 
           // Restore the value the user is currently typing (prevent echo truncation)
@@ -28358,7 +28358,7 @@
                   window._actNoteOpenContent = remoteNoteHtml;
                   window._actNoteBaseUpdatedAt = remoteNoteTs;
                   window._actNoteBaseHash = _noteContentHash(remoteNoteHtml);
-                  console.info('[Rian] Refreshed open activity note from cloud');
+                  console.info('[FieldLog] Refreshed open activity note from cloud');
                 }
 
                 act.notes = activityNoteHtml;
@@ -28439,7 +28439,7 @@
         // The edit is still saved to IDB above and will be pushed naturally
         // on the next edit after the gate releases (or after the 5s timeout).
         if (window._firstSnapReceived && window._firstSnapReceived[capturedWeekStart] === false) {
-          console.warn('[Rian] Skipping fsSetWeek — first snapshot not received yet for', capturedWeekStart);
+          console.warn('[FieldLog] Skipping fsSetWeek — first snapshot not received yet for', capturedWeekStart);
           state.syncStatus = 'pending';
           updateHeaderStatus();
           return;
@@ -28915,7 +28915,7 @@
       if (!state.weekData) { showToast('No week data to send.'); return; }
       if (!state.currentUser) { showToast('Please sign in to send email.'); return; }
       if (state.currentUser.isLocalOnly) { showToast('Email requires a connected Google Account.'); return; }
-      const _email = state.currentUser.email || state.currentUser._rian_email || localStorage.getItem('rian_user_email') || '';
+      const _email = state.currentUser.email || state.currentUser._app_email || localStorage.getItem('rian_user_email') || '';
       if (!_email) { showToast('No email address on this account — sign out and sign in with your Google account.'); return; }
       showConfirm(
         'Email weekly timesheet?',
@@ -28977,25 +28977,25 @@
     // v6.8.10/12: Update-available indicator. First shipped as an action toast; user
     // feedback was that a toast popping up mid-task felt intrusive, so it's now a small
     // pulsing refresh icon next to the version number in the header instead — visible but
-    // passive, no interruption. _rianUpdateAvailable is read directly by the header
+    // passive, no interruption. _appUpdateAvailable is read directly by the header
     // template in render(); top-level (not nested in init()) so both render() and the
     // onclick handler (which executes in global scope) can reach it.
-    var _rianUpdateAvailable = null;
-    function _rianDoRefresh() {
+    var _appUpdateAvailable = null;
+    function _appDoRefresh() {
       location.href = location.pathname + '?_r=' + Date.now();
     }
-    function _rianShowUpdateToast(newVersion) {
-      if (_rianUpdateAvailable) return; // already showing
-      _rianUpdateAvailable = newVersion || true;
+    function _appShowUpdateToast(newVersion) {
+      if (_appUpdateAvailable) return; // already showing
+      _appUpdateAvailable = newVersion || true;
       render();
     }
-    function _rianCheckForUpdate() {
-      if (_rianUpdateAvailable) return;
+    function _appCheckForUpdate() {
+      if (_appUpdateAvailable) return;
       fetch('app.html?_v=' + Date.now(), { cache: 'no-store' })
         .then(function (r) { return r.text(); })
         .then(function (t) {
           var m = t.match(/const VERSION = '([^']*)'/);
-          if (m && m[1] && m[1] !== VERSION) _rianShowUpdateToast(m[1]);
+          if (m && m[1] && m[1] !== VERSION) _appShowUpdateToast(m[1]);
         })
         .catch(function () { /* offline, or blocked — silently retry on next foreground */ });
     }
@@ -29640,10 +29640,10 @@
         <div class="theme-dropdown ${state.isMenuOpen ? 'open' : ''}" id="theme-dropdown" onclick="event.stopPropagation()">
           ${(() => {
           const u = state.currentUser;
-          const _rName = u ? (u.displayName || u._rian_displayName || localStorage.getItem('rian_user_name') || '') : '';
-          const _rEmail = u ? (u.email || u._rian_email || localStorage.getItem('rian_user_email') || '') : '';
+          const _rName = u ? (u.displayName || u._app_displayName || localStorage.getItem('rian_user_name') || '') : '';
+          const _rEmail = u ? (u.email || u._app_email || localStorage.getItem('rian_user_email') || '') : '';
           const displayName = _rName || (_rEmail ? _rEmail.split('@')[0] : 'there');
-          const photoURL = u ? (u.photoURL || u._rian_photoURL || localStorage.getItem('rian_user_photo') || '') : '';
+          const photoURL = u ? (u.photoURL || u._app_photoURL || localStorage.getItem('rian_user_photo') || '') : '';
           const initial = displayName[0].toUpperCase();
           const avatarHtml = photoURL
             ? `<img src="${esc(photoURL)}" class="menu-avatar-img" alt="User avatar" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="menu-avatar-initials" style="display:none">${initial}</div>`
@@ -29711,7 +29711,7 @@
         <div class="text-xs flex items-center justify-center gap-2" style="color:var(--text-header-sub);min-height:18px">
           <span title="${syncStatusTitle}" style="color:${syncStatusColor}">${syncStatusLabel}</span>
           <span style="color:var(--text-header-sub);opacity:0.85" class="text-xs">v${VERSION} &middot; ${IS_NATIVE ? 'App' : 'PWA'}</span>
-          ${_rianUpdateAvailable ? `<button onclick="_rianDoRefresh()" title="Update ready — tap to refresh" aria-label="Update ready — tap to refresh" style="display:flex;align-items:center;justify-content:center;width:18px;height:18px;padding:0;border:none;border-radius:50%;background:rgba(var(--accent-rgb),0.18);color:var(--accent);cursor:pointer;flex-shrink:0;animation:rianUpdatePulse 1.8s ease-in-out infinite">
+          ${_appUpdateAvailable ? `<button onclick="_appDoRefresh()" title="Update ready — tap to refresh" aria-label="Update ready — tap to refresh" style="display:flex;align-items:center;justify-content:center;width:18px;height:18px;padding:0;border:none;border-radius:50%;background:rgba(var(--accent-rgb),0.18);color:var(--accent);cursor:pointer;flex-shrink:0;animation:appUpdatePulse 1.8s ease-in-out infinite">
             <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><polyline points="21 3 21 9 15 9"/></svg>
           </button>` : ''}
         </div>
@@ -32907,7 +32907,7 @@
       const act = day.activities.find(a => a.id === actId);
       if (!act || !act._draft) return;
       const name = (act.description || '').trim() || 'this task';
-      const ok = await showRianDialog({
+      const ok = await showAppDialog({
         title: 'Discard task draft?',
         message: '"' + name + '" has not been saved and will be lost.',
         confirmText: 'Discard',
@@ -33279,7 +33279,7 @@
                 new Promise((_, reject) => setTimeout(() => reject(new Error('save timed out')), 15000)),
               ]);
             } catch (e) {
-              console.warn('[Rian] Copy/move save timed out or failed — local data is safe, will sync when possible:', e);
+              console.warn('[FieldLog] Copy/move save timed out or failed — local data is safe, will sync when possible:', e);
             }
           }
 
@@ -33322,9 +33322,9 @@
               if (state.currentUser) await Promise.race([
                 fsSetWeek(ws, weekData),
                 new Promise((_, reject) => setTimeout(() => reject(new Error('save timed out')), 15000)),
-              ]).catch(e => console.warn('[Rian] copy fsSetWeek', e));
+              ]).catch(e => console.warn('[FieldLog] copy fsSetWeek', e));
             } catch (e) {
-              console.warn('[Rian] copy to week', ws, e);
+              console.warn('[FieldLog] copy to week', ws, e);
             }
           }
 
@@ -33333,9 +33333,9 @@
           // the toast already fired optimistically above; this is a
           // "should never happen" defensive check, not normal-flow feedback.
           if (_actualPushes !== _expectedPushes) {
-            console.warn('[Rian] Copy-task push count mismatch: expected ' + _expectedPushes + ', actual ' + _actualPushes);
+            console.warn('[FieldLog] Copy-task push count mismatch: expected ' + _expectedPushes + ', actual ' + _actualPushes);
           }
-        })().catch(e => console.warn('[Rian] Copy/move background persist failed:', e));
+        })().catch(e => console.warn('[FieldLog] Copy/move background persist failed:', e));
 
         closeCopyPicker();
         render();
@@ -33648,10 +33648,10 @@
             weekData.days[dayIdx].activities.push(newAct);
             weekData._updatedAt = Date.now();
             await dbPut('weeks', { weekStart: targetWeekStart, userId, data: weekData, updatedAt: weekData._updatedAt });
-            if (state.currentUser) await fsSetWeek(targetWeekStart, weekData).catch(e => console.warn('[Rian] note-to-task fsSetWeek', e));
+            if (state.currentUser) await fsSetWeek(targetWeekStart, weekData).catch(e => console.warn('[FieldLog] note-to-task fsSetWeek', e));
           }
         } catch (e) {
-          console.warn('[Rian] note-to-task other week', targetWeekStart, e);
+          console.warn('[FieldLog] note-to-task other week', targetWeekStart, e);
         }
       }
 
@@ -33693,9 +33693,9 @@
             applicationServerKey: keyArr
           });
           isNew = true;
-          console.log('[Rian Push] New push subscription created');
+          console.log('[FieldLog Push] New push subscription created');
         } else {
-          console.log('[Rian Push] Reusing existing push subscription');
+          console.log('[FieldLog Push] Reusing existing push subscription');
         }
 
         // Extract subscription data for server-side sending
@@ -33719,18 +33719,18 @@
         const fp = new firebase.firestore.FieldPath('subs', deviceKey);
         try {
           await ref.update(fp, pushData, '_updatedAt', Date.now());
-          console.log('[Rian Push]', isNew ? 'Saved new' : 'Refreshed', 'subscription for', deviceKey);
+          console.log('[FieldLog Push]', isNew ? 'Saved new' : 'Refreshed', 'subscription for', deviceKey);
         } catch (updateErr) {
           // Document doesn't exist yet — create it
           const subsObj = {};
           subsObj[deviceKey] = pushData;
           await ref.set({ subs: subsObj, _updatedAt: Date.now() });
-          console.log('[Rian Push] Created new doc for', deviceKey);
+          console.log('[FieldLog Push] Created new doc for', deviceKey);
         }
-        console.log('[Rian Push] subscription saved for', deviceKey);
+        console.log('[FieldLog Push] subscription saved for', deviceKey);
       } catch (e) {
         // Push registration can fail in Brave (Shields) or Firefox — not critical, data sync is unaffected
-        console.warn('[Rian Push] registration failed (push notifications unavailable):', e.message || e);
+        console.warn('[FieldLog Push] registration failed (push notifications unavailable):', e.message || e);
       }
     }
 
@@ -33798,7 +33798,7 @@
             navigateToNote(data.noteId);
           }
         }
-      } catch (e) { console.warn('[Rian] checkNoteDeepLink:', e); }
+      } catch (e) { console.warn('[FieldLog] checkNoteDeepLink:', e); }
     }
 
     // ============================================================
@@ -33820,7 +33820,7 @@
       // Persist to IDB
       dbPut('notes', { id: 'reminders_all', userId: state.currentUser?.uid || null, data: arr, updatedAt: Date.now() }).catch(() => { });
       // Persist to Firestore
-      if (state.currentUser) fsSetReminders(arr).catch(e => console.warn('[Rian] fsSetReminders', e));
+      if (state.currentUser) fsSetReminders(arr).catch(e => console.warn('[FieldLog] fsSetReminders', e));
     }
 
     function hasActiveReminder(noteId) {
@@ -34215,7 +34215,7 @@
             saveReminders(remindersData);
             localStorage.removeItem('rian_reminders');
           }
-        } catch (e) { console.warn('[Rian] reminder migration:', e); }
+        } catch (e) { console.warn('[FieldLog] reminder migration:', e); }
       }
 
       // Clean up old fired reminders (older than 7 days)
@@ -34242,7 +34242,7 @@
             if (!snap.exists) {
               // No reminders on server — push local only if we have data
               if (remindersData.length > 0) {
-                fsSetReminders(remindersData).catch(e => console.warn('[Rian]', e));
+                fsSetReminders(remindersData).catch(e => console.warn('[FieldLog]', e));
               }
               return;
             }
@@ -34267,10 +34267,10 @@
                       new Notification('FieldLog Reminder', {
                         body: r.description || 'Reminder',
                         icon: location.pathname.replace(/app\.html$/, '') + 'icon-192.png',
-                        tag: 'rian-xdevice-' + r.id,
+                        tag: 'fieldlog-xdevice-' + r.id,
                         requireInteraction: true
                       });
-                    } catch (e) { console.warn('[Rian] Cross-device notification failed:', e); }
+                    } catch (e) { console.warn('[FieldLog] Cross-device notification failed:', e); }
                   }
                   showToast('⏰ ' + (r.description || 'Reminder'));
                 }
@@ -34734,7 +34734,7 @@
                 await dbPut('notes', { id: 'notes_all', userId: state.currentUser?.uid || null, data: state.notes, updatedAt: ts });
                 _notesToFs = state.notes;
                 showToast('📦 Images compressed — notes syncing');
-                console.log('[Rian] Notes after compression:', JSON.stringify(_notesToFs).length, 'bytes');
+                console.log('[FieldLog] Notes after compression:', JSON.stringify(_notesToFs).length, 'bytes');
               }
             }
             // Explicit save: lower HWM to current sizes so intentional deletions
@@ -34790,7 +34790,7 @@
               _notesToFs = state.notes.filter(n => !n._draft);
               await dbPut('notes', { id: 'notes_all', userId: state.currentUser?.uid || null, data: _notesToFs, updatedAt: ts });
               showToast('📦 Images compressed — notes syncing');
-              console.log('[Rian] Notes after compression:', JSON.stringify(_notesToFs).length, 'bytes');
+              console.log('[FieldLog] Notes after compression:', JSON.stringify(_notesToFs).length, 'bytes');
             }
           }
           for (const _n of _notesToFs) {
@@ -34909,7 +34909,7 @@
                   }
                   allKeys.sort();
                   while (allKeys.length > 5) { localStorage.removeItem(allKeys.shift()); }
-                  console.log('[Rian] Pre-merge snapshot saved:', key, reason);
+                  console.log('[FieldLog] Pre-merge snapshot saved:', key, reason);
                 } catch (e) { /* localStorage full — non-critical */ }
               };
               const _merged = _timerRemote.notes.map(rn => {
@@ -34922,7 +34922,7 @@
                   const _localEmpty = !(ln.noteContent || '').trim();
                   const _remoteHasContent = !!(rn.noteContent || '').trim();
                   if (_localEmpty && _remoteHasContent) {
-                    console.warn('[Rian] PROTECTED: local was empty but remote has content for note', rn.id, '— taking remote');
+                    console.warn('[FieldLog] PROTECTED: local was empty but remote has content for note', rn.id, '— taking remote');
                     showActionToast('⚠ Empty note replaced by content from another device', 'OK', null, 5000);
                     _mergeChanged = true; return deepCopy(rn);
                   }
@@ -34936,7 +34936,7 @@
                 const _lnEmpty = !(ln?.noteContent || '').trim();
                 const _rnHasContent = !!(rn.noteContent || '').trim();
                 if (ln && _lnEmpty && _rnHasContent) {
-                  console.warn('[Rian] PROTECTED: local note', rn.id, 'was empty, remote has content — taking remote');
+                  console.warn('[FieldLog] PROTECTED: local note', rn.id, 'was empty, remote has content — taking remote');
                   showActionToast('⚠ Synced content from another device (local was empty)', 'OK', null, 5000);
                   _mergeChanged = true; return deepCopy(rn);
                 }
@@ -34967,7 +34967,7 @@
         if (!snap.exists) {
           // No notes on server yet — push local only if we actually have data
           if (state.notes.length > 0) {
-            fsSetNotes(state.notes).catch(e => console.warn('[Rian]', e));
+            fsSetNotes(state.notes).catch(e => console.warn('[FieldLog]', e));
           }
           state.notesSyncStatus = 'synced';
           updateHeaderStatus();
@@ -34979,8 +34979,8 @@
 
         // CRITICAL SAFETY: never overwrite local notes with empty remote
         if (remote.notes.length === 0 && state.notes.length > 0) {
-          console.warn('[Rian] BLOCKED: remote has 0 notes but local has', state.notes.length, '— keeping local and pushing to server');
-          fsSetNotes(state.notes).catch(e => console.warn('[Rian]', e));
+          console.warn('[FieldLog] BLOCKED: remote has 0 notes but local has', state.notes.length, '— keeping local and pushing to server');
+          fsSetNotes(state.notes).catch(e => console.warn('[FieldLog]', e));
           return;
         }
 
@@ -35109,7 +35109,7 @@
             state.jSyncStatus = 'synced';
           } catch (e) {
             state.jSyncStatus = 'error';
-            console.warn('[Rian] jSave error:', e);
+            console.warn('[FieldLog] jSave error:', e);
           }
         } else {
           state.jSyncStatus = 'synced';
@@ -35435,7 +35435,7 @@
         } catch (e) {
           _jDocxFiles[i].status = 'error';
           _jDocxFiles[i].error = e.message;
-          console.warn('[Rian] DOCX import error:', e);
+          console.warn('[FieldLog] DOCX import error:', e);
         }
         _jDocxRenderList();
       }
@@ -38009,7 +38009,7 @@
         dnMem: _deskNotesTabMemory
       };
       db_fs.doc('users/' + state.currentUser.uid).set({ navState: nav }, { merge: true })
-        .catch(function (e) { console.warn('[Rian] navState save failed:', e); });
+        .catch(function (e) { console.warn('[FieldLog] navState save failed:', e); });
     }
     function _scheduleNavSave() {
       clearTimeout(_navSaveTimer);
@@ -39275,7 +39275,7 @@
 
           var _contentChangedRemotely = n && (n.noteContent || '') !== (window._tiptapNoteOpenContent || '') && (n.noteContent || '') !== html;
           if (_contentChangedRemotely && !_activityNoteContainsRemote(html, n.noteContent || '')) {
-            const conflictChoice = await showRianDialog({
+            const conflictChoice = await showAppDialog({
               title: 'Note changed elsewhere',
               message: 'This note was updated on another device while you were editing. Save your version anyway?',
               confirmText: 'Save mine',
@@ -39330,7 +39330,7 @@
             const openTs = window._actNoteOpenTs || 0;
             const localTs = state.weekData._updatedAt || 0;
             if (openTs > 0 && localTs > openTs + 2000 && remoteNote !== html && !_activityNoteContainsRemote(html, remoteNote)) {
-              const conflictChoice = await showRianDialog({
+              const conflictChoice = await showAppDialog({
                 title: 'Note changed elsewhere',
                 message: 'This task note was updated on another device while you were editing. Save your version anyway?',
                 confirmText: 'Save mine',
@@ -39399,7 +39399,7 @@
         showToast('Note saved');
       } catch (e) {
         if (saveBtn) { saveBtn.disabled = false; saveBtn.style.opacity = '1'; saveBtn.textContent = 'Save'; }
-        console.warn('[Rian] TipTap save failed:', e);
+        console.warn('[FieldLog] TipTap save failed:', e);
         showToast('Save failed — try again');
       }
     }
@@ -39866,7 +39866,7 @@
       const payload = { categories: state.customCategories, disabledCats: state.disabledCats || [], _updatedAt: now };
       await dbPut('notes', { id: 'categories_custom', userId: uid, data: payload, updatedAt: now }).catch(() => { });
       const ref = userDoc('data/categories');
-      if (ref) await ref.set(payload).catch(e => console.warn('[Rian]', e));
+      if (ref) await ref.set(payload).catch(e => console.warn('[FieldLog]', e));
     }
 
     async function loadCustomCategories() {
@@ -39891,7 +39891,7 @@
             await dbPut('notes', { id: 'categories_custom', userId: uid, data: payload, updatedAt: payload._updatedAt }).catch(() => { });
           }
         }
-      } catch (e) { console.warn('[Rian] loadCustomCategories:', e); }
+      } catch (e) { console.warn('[FieldLog] loadCustomCategories:', e); }
       render();
     }
 
@@ -39903,7 +39903,7 @@
       const payload = { templates: state.taskTemplates || [], _updatedAt: now };
       await dbPut('notes', { id: 'task_templates', userId: uid, data: payload, updatedAt: now }).catch(() => { });
       const ref = userDoc('data/taskTemplates');
-      if (ref) await ref.set(payload).catch(e => console.warn('[Rian]', e));
+      if (ref) await ref.set(payload).catch(e => console.warn('[FieldLog]', e));
     }
 
     let taskTemplatesSaveTimer = null;
@@ -39933,7 +39933,7 @@
           () => Array.isArray(state.taskTemplates) && state.taskTemplates.length > 0,
           () => _ttMigrateColwidths(state.taskTemplates, 'notes'));
         if (_tplColwMigrated) scheduleTaskTemplatesSave();
-      } catch (e) { console.warn('[Rian] loadTaskTemplates:', e); }
+      } catch (e) { console.warn('[FieldLog] loadTaskTemplates:', e); }
       render();
     }
 
@@ -40079,7 +40079,7 @@
       if (isNew || _tplIsDirty(id)) {
         const draft = _tplById(id);
         const draftName = ((draft?.name || draft?.description || '').trim() || 'This template');
-        const ok = await showRianDialog({
+        const ok = await showAppDialog({
           title: isNew ? 'Discard new template?' : 'Discard changes?',
           message: isNew
             ? '"' + draftName + '" has not been saved and will be lost.'
@@ -40216,7 +40216,7 @@
 
     async function tplDelete(id) {
       const t = (state.taskTemplates || []).find(x => x.id === id);
-      const ok = await showRianDialog({
+      const ok = await showAppDialog({
         title: 'Delete template',
         message: '"' + ((t && (t.name || t.description)) || 'This template') + '" will be removed. Tasks already created from it are not affected.',
         confirmText: 'Delete', danger: true
@@ -40724,7 +40724,7 @@
         return true;
       });
       if (pruned.length < remindersData.length) {
-        console.log('[Rian] Pruned', remindersData.length - pruned.length, 'orphaned/deleted note reminder(s)');
+        console.log('[FieldLog] Pruned', remindersData.length - pruned.length, 'orphaned/deleted note reminder(s)');
         saveReminders(pruned);
       }
     }
@@ -41718,7 +41718,7 @@
         ['restore-confirm-modal', () => { const el = document.getElementById('restore-confirm-modal'); if (el) el.classList.add('hidden'); }],
         ['jdocx-overlay', () => typeof closeJDocxImport === 'function' && closeJDocxImport()],
         ['av-import-modal', () => typeof avCloseImportDialog === 'function' && avCloseImportDialog()],
-        ['rian-dialog-overlay', () => typeof _rdnClose === 'function' && _rdnClose(null)],
+        ['app-dialog-overlay', () => typeof _rdnClose === 'function' && _rdnClose(null)],
         ['settings-dlg', () => typeof closeSettingsDialog === 'function' && closeSettingsDialog()],
         ['code-modal', () => typeof closeCodeModal === 'function' && closeCodeModal()],
         ['location-modal', () => typeof closeLocationModal === 'function' && closeLocationModal()],
@@ -41746,7 +41746,7 @@
       for (let i = 0; i < stack.length; i++) {
         if (_isModalShown(stack[i][0])) {
           e.preventDefault();
-          try { stack[i][1](); } catch (err) { console.warn('[Rian] ESC close failed for', stack[i][0], err); }
+          try { stack[i][1](); } catch (err) { console.warn('[FieldLog] ESC close failed for', stack[i][0], err); }
           return;
         }
       }
@@ -42021,7 +42021,7 @@
             }
           }
         } catch (e) {
-          console.warn('[Rian] Failed to load local weeks for history:', e);
+          console.warn('[FieldLog] Failed to load local weeks for history:', e);
         }
       } else {
         const snap = await db_fs.collection('users/' + uid + '/weeks').get().catch(() => null);
@@ -42923,14 +42923,14 @@
           _dedupeWeekActivities(toSave);
         }
         await dbPut('weeks', { weekStart: state.weekStart, userId: state.currentUser.uid, data: toSave, updatedAt: toSave._updatedAt || Date.now() });
-        await fsSetWeek(state.weekStart, toSave).catch(e => console.warn('[Rian]', e));
+        await fsSetWeek(state.weekStart, toSave).catch(e => console.warn('[FieldLog]', e));
       }
       if (flushNotes) {
         clearTimeout(notesSaveTimer);
         notesSaveTimer = null;
         const ts = Date.now();
         await dbPut('notes', { id: 'notes_all', userId: state.currentUser.uid, data: state.notes, updatedAt: ts });
-        await fsSetNotes(state.notes).catch(e => console.warn('[Rian]', e));
+        await fsSetNotes(state.notes).catch(e => console.warn('[FieldLog]', e));
       }
     }
 
@@ -42998,7 +42998,7 @@
         // immediately followed by "server data differs (remote: T local: T)
         // — accepting server version", after which the task was back.
         if (remoteTs > localTs) {
-          console.info('[Rian] Poll sync: server data differs (remote:', remoteTs, 'local:', localTs, ') — accepting server version');
+          console.info('[FieldLog] Poll sync: server data differs (remote:', remoteTs, 'local:', localTs, ') — accepting server version');
           remote = _mergeWeekActivityNotesNoLoss(remote, state.weekData, localTs, 'poll-remote-newer');
           // Preserve local-only activities before overwriting: in-progress
           // drafts (_draft:true) AND committed-but-not-yet-confirmed-synced
@@ -43052,12 +43052,12 @@
           // fingerprint reflects what we actually keep.
           state.weekData._deletedIds = _tombPrune(_tombMerge(remote._deletedIds, state.weekData._deletedIds));
           if (_tombApply(state.weekData, state.weekData._deletedIds)) {
-            console.info('[Rian] Poll sync: removed task(s) deleted on another device');
+            console.info('[FieldLog] Poll sync: removed task(s) deleted on another device');
           }
           _fsPollFingerprint = _weekFingerprint(state.weekData);
           render();
           if (_recoveredUnsyncedCount > 0) {
-            console.warn('[Rian] Poll sync recovered ' + _recoveredUnsyncedCount + ' locally-created activity/activities missing from server — re-queuing for cloud save');
+            console.warn('[FieldLog] Poll sync recovered ' + _recoveredUnsyncedCount + ' locally-created activity/activities missing from server — re-queuing for cloud save');
             scheduleAutoSave();
           } else {
             state.syncStatus = 'synced';
@@ -43076,7 +43076,7 @@
           var _pollTombs = _tombPrune(_tombMerge(remote._deletedIds, state.weekData._deletedIds));
           state.weekData._deletedIds = _pollTombs;
           if (_tombApply(state.weekData, _pollTombs)) {
-            console.info('[Rian] Poll sync: removed task(s) deleted on another device');
+            console.info('[FieldLog] Poll sync: removed task(s) deleted on another device');
             merged = true;
             scheduleAutoSave(); // persist the removal so it is not re-pushed
           }
@@ -43095,7 +43095,7 @@
                   localDay.activities.push(ra);
                   localKeys.add(_activityDedupeKey(ra));
                   merged = true;
-                  console.info('[Rian] Poll sync: recovered "' + (ra.description || '').substring(0, 30) + '" on day ' + di);
+                  console.info('[FieldLog] Poll sync: recovered "' + (ra.description || '').substring(0, 30) + '" on day ' + di);
                 }
               }
             });
@@ -43141,7 +43141,7 @@
       // so undo that trap for just this one confirmed exit and let the real
       // history-exhausted-closes-the-app behavior do the job instead.
       try {
-        window._rianExitConfirmed = true;
+        window._appExitConfirmed = true;
         history.back();
         return;
       } catch (e) { }
@@ -43173,7 +43173,7 @@
       var _now = Date.now();
       if (_now - _backButtonLastMs < 400) return;
       _backButtonLastMs = _now;
-      console.warn('[Rian] _handleBackButton fired, view=' + state.view);
+      console.warn('[FieldLog] _handleBackButton fired, view=' + state.view);
 
       // 0. Exit dialog open — dismiss it
       var exitDlg = document.getElementById('exit-dialog');
@@ -43198,7 +43198,7 @@
         ['restore-confirm-modal', () => { const el = document.getElementById('restore-confirm-modal'); if (el) el.classList.add('hidden'); }],
         ['jdocx-overlay', () => typeof closeJDocxImport === 'function' && closeJDocxImport()],
         ['av-import-modal', () => typeof avCloseImportDialog === 'function' && avCloseImportDialog()],
-        ['rian-dialog-overlay', () => typeof _rdnClose === 'function' && _rdnClose(null)],
+        ['app-dialog-overlay', () => typeof _rdnClose === 'function' && _rdnClose(null)],
         ['settings-dlg', () => typeof closeSettingsDialog === 'function' && closeSettingsDialog()],
         ['code-modal', () => typeof closeCodeModal === 'function' && closeCodeModal()],
         ['location-modal', () => typeof closeLocationModal === 'function' && closeLocationModal()],
@@ -43226,7 +43226,7 @@
       ];
       for (let i = 0; i < modalStack.length; i++) {
         if (_isModalShown(modalStack[i][0])) {
-          try { modalStack[i][1](); } catch (err) { console.warn('[Rian] backButton close failed for', modalStack[i][0], err); }
+          try { modalStack[i][1](); } catch (err) { console.warn('[FieldLog] backButton close failed for', modalStack[i][0], err); }
           return;
         }
       }
@@ -43285,7 +43285,7 @@
       }
 
       // Already on week — show exit confirmation dialog
-      console.warn('[Rian] _handleBackButton: showing exit dialog, view=' + state.view);
+      console.warn('[FieldLog] _handleBackButton: showing exit dialog, view=' + state.view);
       _showExitDialog();
     }
 
@@ -43295,23 +43295,23 @@
       try {
         if (window.Capacitor?.Plugins?.App?.addListener) {
           window.Capacitor.Plugins.App.addListener('backButton', () => _handleBackButton());
-          console.log('[Rian] backButton: Capacitor App plugin registered');
+          console.log('[FieldLog] backButton: Capacitor App plugin registered');
         }
-      } catch (e) { console.warn('[Rian] Capacitor App plugin failed:', e); }
+      } catch (e) { console.warn('[FieldLog] Capacitor App plugin failed:', e); }
 
       // Method 2: document 'backbutton' event (Capacitor/Cordova compatible)
       document.addEventListener('backbutton', (e) => {
         e.preventDefault();
         _handleBackButton();
       }, false);
-      console.log('[Rian] backButton: document backbutton listener registered');
+      console.log('[FieldLog] backButton: document backbutton listener registered');
 
       // Method 3: delayed registration in case bridge isn't ready yet
       setTimeout(() => {
         try {
           if (window.Capacitor?.Plugins?.App?.addListener) {
             window.Capacitor.Plugins.App.addListener('backButton', () => _handleBackButton());
-            console.log('[Rian] backButton: delayed Capacitor App plugin registered');
+            console.log('[FieldLog] backButton: delayed Capacitor App plugin registered');
           }
         } catch (e) { }
       }, 2000);
@@ -43327,7 +43327,7 @@
       // needed) through so history can actually run out, which is what closes
       // an Android PWA. Confirming exit from the dialog is the only way this
       // flag gets set.
-      if (window._rianExitConfirmed) return;
+      if (window._appExitConfirmed) return;
       // Re-push FIRST so we can never run out of history
       history.pushState({ rian: true }, '');
       _handleBackButton();
@@ -43341,12 +43341,12 @@
       if (state.syncStatus === 'error' && state.weekStart && state.weekData && state.currentUser) {
         fsSetWeek(state.weekStart, state.weekData)
           .then(() => { state.syncStatus = 'synced'; updateHeaderStatus(); })
-          .catch(e => console.warn('[Rian]', e));
+          .catch(e => console.warn('[FieldLog]', e));
       }
       if (state.notesSyncStatus === 'error' && state.notes && state.currentUser) {
         fsSetNotes(state.notes)
           .then(() => { state.notesSyncStatus = 'synced'; updateHeaderStatus(); })
-          .catch(e => console.warn('[Rian]', e));
+          .catch(e => console.warn('[FieldLog]', e));
       }
       updateHeaderStatus();
     });
@@ -43494,7 +43494,7 @@
     }
 
     function renderLogin() {
-      if (sessionStorage.getItem('_rian_bypass_active')) {
+      if (sessionStorage.getItem('_app_bypass_active')) {
         document.getElementById('app').innerHTML = `
           <div style="min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--bg-page);color:var(--text-primary);font-family:sans-serif;">
             <svg style="margin-bottom: 20px; animation: spin 1s linear infinite;" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -43571,7 +43571,7 @@
     // SYNC CONFLICT SYSTEM
     // ══════════════════════════════════════════════════════════════════════════
 
-    // Flat SVG icons for the conflict UI (stroke-based, matches Rian style)
+    // Flat SVG icons for the conflict UI (stroke-based, matches FieldLog style)
     const _cPageContentStore = {}; // keyed by generated ID — stores { html, title, versionLabel } for fullscreen content view
     const _conflictGroupsOpen = new Set(); // tracks which group IDs are expanded — survives render()
 
@@ -43602,7 +43602,7 @@
       conflict.detectedAt = conflict.detectedAt || Date.now();
       state.conflicts.push(conflict);
       render();
-      console.warn('[Rian] Conflict registered:', conflict.section, conflict.description);
+      console.warn('[FieldLog] Conflict registered:', conflict.section, conflict.description);
     }
 
     // Resolve a conflict — either keep local (already pushed back) or apply cloud.
@@ -43631,21 +43631,21 @@
             window._hwmAllowOutbound = window._hwmAllowOutbound || {};
             window._hwmAllowOutbound[state.weekStart] = true;
             _setHWM(state.weekStart, _weekTotalHours(state.weekData));
-            await fsSetWeek(state.weekStart, state.weekData).catch(e => console.warn('[Rian]', e));
+            await fsSetWeek(state.weekStart, state.weekData).catch(e => console.warn('[FieldLog]', e));
           } else if (conflict.section === 'Notes' && conflict.remoteData) {
             state.notes = deepCopy(conflict.remoteData);
-            await fsSetNotes(state.notes).catch(e => console.warn('[Rian]', e));
+            await fsSetNotes(state.notes).catch(e => console.warn('[FieldLog]', e));
           } else if (conflict.section === 'Notebooks' && conflict.remoteData) {
             state.jNotebooks = deepCopy(conflict.remoteData.notebooks || conflict.remoteData);
-            await fsSetJNotebooks(state.jNotebooks).catch(e => console.warn('[Rian]', e));
+            await fsSetJNotebooks(state.jNotebooks).catch(e => console.warn('[FieldLog]', e));
           } else if (conflict.section === 'Callouts' && conflict.remoteData) {
             state.callouts = deepCopy(conflict.remoteData);
-            await fsSetCallouts(state.callouts).catch(e => console.warn('[Rian]', e));
+            await fsSetCallouts(state.callouts).catch(e => console.warn('[FieldLog]', e));
           } else if (conflict.section === 'Note Tags' && conflict.remoteData) {
             state.customCategories = deepCopy(conflict.remoteData.categories || []);
             state.disabledCats = deepCopy(conflict.remoteData.disabledCats || []);
             const _tagPayload = { categories: state.customCategories, disabledCats: state.disabledCats, _updatedAt: Date.now() };
-            await userDoc('data/categories')?.set(_tagPayload).catch(e => console.warn('[Rian]', e));
+            await userDoc('data/categories')?.set(_tagPayload).catch(e => console.warn('[FieldLog]', e));
           }
           showToast('Cloud version restored.');
         } catch (e) { showToast('Failed to apply cloud version: ' + (e.message || e)); return; }
@@ -43679,21 +43679,21 @@
               window._hwmAllowOutbound = window._hwmAllowOutbound || {};
               window._hwmAllowOutbound[state.weekStart] = true;
               _setHWM(state.weekStart, _weekTotalHours(state.weekData));
-              await fsSetWeek(state.weekStart, state.weekData).catch(e => console.warn('[Rian]', e));
+              await fsSetWeek(state.weekStart, state.weekData).catch(e => console.warn('[FieldLog]', e));
             } else if (conflict.section === 'Notes' && conflict.remoteData) {
               state.notes = deepCopy(conflict.remoteData);
-              await fsSetNotes(state.notes).catch(e => console.warn('[Rian]', e));
+              await fsSetNotes(state.notes).catch(e => console.warn('[FieldLog]', e));
             } else if (conflict.section === 'Notebooks' && conflict.remoteData) {
               state.jNotebooks = deepCopy(conflict.remoteData.notebooks || conflict.remoteData);
-              await fsSetJNotebooks(state.jNotebooks).catch(e => console.warn('[Rian]', e));
+              await fsSetJNotebooks(state.jNotebooks).catch(e => console.warn('[FieldLog]', e));
             } else if (conflict.section === 'Callouts' && conflict.remoteData) {
               state.callouts = deepCopy(conflict.remoteData);
-              await fsSetCallouts(state.callouts).catch(e => console.warn('[Rian]', e));
+              await fsSetCallouts(state.callouts).catch(e => console.warn('[FieldLog]', e));
             } else if (conflict.section === 'Note Tags' && conflict.remoteData) {
               state.customCategories = deepCopy(conflict.remoteData.categories || []);
               state.disabledCats = deepCopy(conflict.remoteData.disabledCats || []);
               const _tagPayload = { categories: state.customCategories, disabledCats: state.disabledCats, _updatedAt: Date.now() };
-              await userDoc('data/categories')?.set(_tagPayload).catch(e => console.warn('[Rian]', e));
+              await userDoc('data/categories')?.set(_tagPayload).catch(e => console.warn('[FieldLog]', e));
             }
           }
           unresolved.forEach(c => { c.resolved = true; c.resolvedChoice = 'cloud'; });
@@ -45773,7 +45773,7 @@
         try {
           await auth_fb.signInWithPopup(provider);
         } catch (e) {
-          console.warn('[Rian] Sign-in error:', e.code, e.message);
+          console.warn('[FieldLog] Sign-in error:', e.code, e.message);
           if (e.code === 'auth/popup-closed-by-user' || e.code === 'auth/cancelled-popup-request') {
             return;
           }
@@ -45787,7 +45787,7 @@
           throw e;
         }
       } catch (e) {
-        console.warn('[Rian] Sign-in error:', e.code, e.message);
+        console.warn('[FieldLog] Sign-in error:', e.code, e.message);
         const errEl = document.getElementById('login-error-msg');
         if (errEl) {
           errEl.textContent = (e.code || 'error') + ': ' + (e.message || 'Unknown error');
@@ -45883,7 +45883,7 @@
         clearTimeout(saveTimer);
         saveTimer = null;
         await dbPut('weeks', { weekStart: state.weekStart, userId: state.currentUser.uid, data: state.weekData, updatedAt: state.weekData._updatedAt || Date.now() });
-        await fsSetWeek(state.weekStart, state.weekData).catch(e => console.warn('[Rian]', e));
+        await fsSetWeek(state.weekStart, state.weekData).catch(e => console.warn('[FieldLog]', e));
       }
       await _writeSnapshot(state.weekStart, state.weekData, 'manual');
       showToast('Snapshot saved.');
@@ -45913,9 +45913,9 @@
             _cachedGpsCoords = { lat, lon };
             _gpsLastFetch = Date.now();
             // GPS town resolved
-          } catch (e) { console.warn('[Rian] GPS reverse geocode failed', e); }
+          } catch (e) { console.warn('[FieldLog] GPS reverse geocode failed', e); }
         },
-        err => console.warn('[Rian] Geolocation error:', err.code, err.message),
+        err => console.warn('[FieldLog] Geolocation error:', err.code, err.message),
         { enableHighAccuracy: false, timeout: 15000, maximumAge: 300000 }
       );
     }
@@ -46151,7 +46151,7 @@
             if (snapData._notes && Array.isArray(snapData._notes) && snapData._notes.length > 0) {
               state.notes = deepCopy(snapData._notes);
               await dbPut('notes', { id: 'notes_all', userId: uid, data: state.notes, updatedAt: Date.now() });
-              await fsSetNotes(state.notes).catch(e => console.warn('[Rian]', e));
+              await fsSetNotes(state.notes).catch(e => console.warn('[FieldLog]', e));
             }
             // Also restore reminders if included
             if (snapData._reminders && Array.isArray(snapData._reminders)) {
@@ -46172,23 +46172,23 @@
             if (snapData._jNotebooks && snapData._jNotebooks.length > 0) {
               state.jNotebooks = deepCopy(snapData._jNotebooks);
               await dbPut('notes', { id: 'j_notebooks', userId: uid, data: state.jNotebooks, updatedAt: Date.now() });
-              await fsSetJNotebooks(state.jNotebooks).catch(e => console.warn('[Rian]', e));
+              await fsSetJNotebooks(state.jNotebooks).catch(e => console.warn('[FieldLog]', e));
               _journalRestored = true;
             }
             if (snapData._jSections && snapData._jSections.length > 0) {
               state.jSections = deepCopy(snapData._jSections);
               await dbPut('notes', { id: 'j_sections', userId: uid, data: state.jSections, updatedAt: Date.now() });
-              await fsSetJSections(state.jSections).catch(e => console.warn('[Rian]', e));
+              await fsSetJSections(state.jSections).catch(e => console.warn('[FieldLog]', e));
             }
             if (snapData._jPages && snapData._jPages.length > 0) {
               state.jPages = deepCopy(snapData._jPages);
               await dbPut('notes', { id: 'j_pages', userId: uid, data: state.jPages, updatedAt: Date.now() });
-              await fsSetJPages(state.jPages).catch(e => console.warn('[Rian]', e));
+              await fsSetJPages(state.jPages).catch(e => console.warn('[FieldLog]', e));
             }
             // Restore routines if included
             if (snapData._routines) {
               state.routines = deepCopy(snapData._routines);
-              await userDoc('data/routines')?.set({ ...state.routines, _updatedAt: Date.now() }).catch(e => console.warn('[Rian]', e));
+              await userDoc('data/routines')?.set({ ...state.routines, _updatedAt: Date.now() }).catch(e => console.warn('[FieldLog]', e));
             }
             // Restore note tags (categories) if included
             if (snapData._categories) {
@@ -46282,11 +46282,11 @@
             batch.delete(d.ref);
           }
         });
-        await batch.commit().catch(e => console.warn('[Rian]', e));
+        await batch.commit().catch(e => console.warn('[FieldLog]', e));
       }
       // Delete notes and user profile
-      await userDoc('data/notes').delete().catch(e => console.warn('[Rian]', e));
-      await db_fs.doc(`users/${uid}`).delete().catch(e => console.warn('[Rian]', e));
+      await userDoc('data/notes').delete().catch(e => console.warn('[FieldLog]', e));
+      await db_fs.doc(`users/${uid}`).delete().catch(e => console.warn('[FieldLog]', e));
     }
 
     // ============================================================
@@ -46395,7 +46395,7 @@
           _format: 'rian-export-v1',
           _exportedAt: new Date().toISOString(),
           _sourceUid: uid,
-          _sourceEmail: state.currentUser.email || state.currentUser._rian_email || localStorage.getItem('rian_user_email') || '',
+          _sourceEmail: state.currentUser.email || state.currentUser._app_email || localStorage.getItem('rian_user_email') || '',
           _version: VERSION
         };
         if (state.currentUser.isLocalOnly) {
@@ -46526,9 +46526,9 @@
         try {
           await _runBackupWrite(uid, today, false);
           localStorage.setItem(_backupThrottleKey(uid), today);
-          console.log('[Rian Backup] Auto daily backup complete for', today);
+          console.log('[FieldLog Backup] Auto daily backup complete for', today);
         } catch (e) {
-          console.warn('[Rian Backup] Auto daily backup failed:', e.message || e);
+          console.warn('[FieldLog Backup] Auto daily backup failed:', e.message || e);
         }
       }, 8000);
     }
@@ -46647,7 +46647,7 @@
       });
       const verify = await backupRef.get({ source: 'server' }).catch(() => null);
       if (!verify?.exists) throw new Error('backup index write not confirmed');
-      console.log('[Rian Backup] Wrote ' + Math.round(sizeBytes / 1024) + 'kb to Storage for ' + dateKey);
+      console.log('[FieldLog Backup] Wrote ' + Math.round(sizeBytes / 1024) + 'kb to Storage for ' + dateKey);
       // Prune: keep only the 30 most recent backups (index doc + payload)
       try {
         const allSnap = await db_fs.collection(`users/${uid}/backups`).orderBy('_backedUpAt', 'asc').get();
@@ -46838,7 +46838,7 @@
         const restoredNotes = b.notes?.notes ? deepCopy(b.notes.notes) : [];
         state.notes = restoredNotes;
         await dbPut('notes', { id: 'notes_all', userId: uid, data: state.notes, updatedAt: now });
-        await fsSetNotes(state.notes).catch(e => console.warn('[Rian]', e));
+        await fsSetNotes(state.notes).catch(e => console.warn('[FieldLog]', e));
 
         // 4. Reminders — same as confirmRestoreSnapshot
         const restoredReminders = b.reminders?.reminders ? deepCopy(b.reminders.reminders) : [];
@@ -46872,17 +46872,17 @@
         if (b.jNotebooks?.notebooks) {
           state.jNotebooks = deepCopy(b.jNotebooks.notebooks);
           await dbPut('notes', { id: 'j_notebooks', userId: uid, data: state.jNotebooks, updatedAt: now });
-          await fsSetJNotebooks(state.jNotebooks).catch(e => console.warn('[Rian]', e));
+          await fsSetJNotebooks(state.jNotebooks).catch(e => console.warn('[FieldLog]', e));
         }
         if (b.jSections?.sections) {
           state.jSections = deepCopy(b.jSections.sections);
           await dbPut('notes', { id: 'j_sections', userId: uid, data: state.jSections, updatedAt: now });
-          await fsSetJSections(state.jSections).catch(e => console.warn('[Rian]', e));
+          await fsSetJSections(state.jSections).catch(e => console.warn('[FieldLog]', e));
         }
         if (b.jPages?.pages) {
           state.jPages = deepCopy(b.jPages.pages);
           await dbPut('notes', { id: 'j_pages', userId: uid, data: state.jPages, updatedAt: now });
-          await fsSetJPages(state.jPages).catch(e => console.warn('[Rian]', e));
+          await fsSetJPages(state.jPages).catch(e => console.warn('[FieldLog]', e));
         }
 
         // 9. Settings
@@ -46905,7 +46905,7 @@
         showToast('✓ Restored: ' + _dbgNoteCount + ' notes, ' + _dbgCoCount + ' callouts');
       } catch (e) {
         showToast('Restore failed: ' + (e.message || e));
-        console.error('[Rian Backup] Restore error:', e);
+        console.error('[FieldLog Backup] Restore error:', e);
         // Re-subscribe listeners even on failure so app keeps working
         try { loadWeek(state.weekStart); } catch (_) { }
         try { loadNotes(); } catch (_) { }
@@ -47237,7 +47237,7 @@
     // v6.8.70: the menu's sign-out is now a small icon button sitting next to the close
     // button, so ask before acting — a mis-tap shouldn't sign anyone out.
     async function confirmSignOut() {
-      const ok = await showRianDialog({
+      const ok = await showAppDialog({
         title: 'Sign out?',
         message: 'Your data stays safely in the cloud. You\'ll need to sign in again to sync on this device.',
         confirmText: 'Sign out',
@@ -47248,8 +47248,8 @@
     }
 
     async function signOutUser() {
-      sessionStorage.removeItem('_rian_bypass_active');
-      sessionStorage.removeItem('_rian_bypass_hint');
+      sessionStorage.removeItem('_app_bypass_active');
+      sessionStorage.removeItem('_app_bypass_hint');
       // Flush any pending saves to Firestore BEFORE clearing state or signing out.
       // Cancelling the timers without flushing first would permanently lose any
       // edits that hadn't yet been written (this was the confirmed data-loss bug).
@@ -47257,7 +47257,7 @@
         clearTimeout(saveTimer);
         saveTimer = null;
         await dbPut('weeks', { weekStart: state.weekStart, userId: state.currentUser.uid, data: state.weekData, updatedAt: state.weekData._updatedAt || Date.now() });
-        await fsSetWeek(state.weekStart, state.weekData).catch(e => console.warn('[Rian]', e));
+        await fsSetWeek(state.weekStart, state.weekData).catch(e => console.warn('[FieldLog]', e));
       } else if (saveTimer) {
         clearTimeout(saveTimer);
         saveTimer = null;
@@ -47267,7 +47267,7 @@
         notesSaveTimer = null;
         const ts = Date.now();
         await dbPut('notes', { id: 'notes_all', userId: state.currentUser.uid, data: state.notes, updatedAt: ts });
-        await fsSetNotes(state.notes).catch(e => console.warn('[Rian]', e));
+        await fsSetNotes(state.notes).catch(e => console.warn('[FieldLog]', e));
       } else if (notesSaveTimer) {
         clearTimeout(notesSaveTimer);
         notesSaveTimer = null;
@@ -47321,7 +47321,7 @@
           state.routines = { selectedSites: [], visits: {} };
         }
         render();
-        scanWeeksForRoutines().catch(e => console.warn('[Rian]', e));
+        scanWeeksForRoutines().catch(e => console.warn('[FieldLog]', e));
         return;
       }
       const ref = userDoc('data/routines');
@@ -47336,7 +47336,7 @@
           state.routines = { selectedSites: [], visits: {} };
         }
       } catch (e) {
-        console.warn('[Rian] loadRoutines server fetch failed, trying cache:', e.message);
+        console.warn('[FieldLog] loadRoutines server fetch failed, trying cache:', e.message);
         // Fallback: try cache if server fetch failed (offline)
         try {
           const snap = await ref.get({ source: 'cache' });
@@ -47354,7 +47354,7 @@
       render();
       if (forceServer) showToast('Data refreshed');
       // Scan timesheet weeks in background for auto-visits
-      scanWeeksForRoutines().catch(e => console.warn('[Rian]', e));
+      scanWeeksForRoutines().catch(e => console.warn('[FieldLog]', e));
     }
 
     function refreshRoutines() {
@@ -48196,7 +48196,7 @@
       state.routines.selectedSites = [...(state.routinesPickerSites || [])];
       closeRoutinesSitePicker();
       render();
-      await fsSetRoutines().catch(e => console.warn('[Rian]', e));
+      await fsSetRoutines().catch(e => console.warn('[FieldLog]', e));
     }
 
     // ── Log / Detail modal ────────────────────────────────────────
@@ -48318,7 +48318,7 @@
       state.routines.visits[key] = { day };
       closeRoutinesLogModal();
       render();
-      await fsSetRoutines().catch(e => console.warn('[Rian]', e));
+      await fsSetRoutines().catch(e => console.warn('[FieldLog]', e));
     }
 
     async function removeRoutinesVisit() {
@@ -48327,7 +48327,7 @@
       if (state.routines.visits) delete state.routines.visits[key];
       closeRoutinesLogModal();
       render();
-      await fsSetRoutines().catch(e => console.warn('[Rian]', e));
+      await fsSetRoutines().catch(e => console.warn('[FieldLog]', e));
     }
 
     // ── TETRA Visual Inspection Checklist Controller ────────────────
@@ -48441,7 +48441,7 @@
       closeRoutinesLogModal();
       render();
 
-      await fsSetRoutines().catch(e => console.warn('[Rian]', e));
+      await fsSetRoutines().catch(e => console.warn('[FieldLog]', e));
     }
 
     function closeTetraInspection() {
@@ -48866,9 +48866,9 @@
         const downloadUrl = await uploadTask.ref.getDownloadURL();
 
         comp.photoUrl = downloadUrl;
-        console.log(`[Rian] Uploaded TETRA label photo successfully to ${storagePath}. URL:`, downloadUrl);
+        console.log(`[FieldLog] Uploaded TETRA label photo successfully to ${storagePath}. URL:`, downloadUrl);
       } catch (err) {
-        console.error('[Rian] Failed to upload TETRA photo to Firebase Storage:', err);
+        console.error('[FieldLog] Failed to upload TETRA photo to Firebase Storage:', err);
       }
     }
 
@@ -52572,14 +52572,14 @@ Rules:
         if (!localStorage.getItem('rian_hwm_reset_v5697')) {
           Object.keys(localStorage).filter(k => k.startsWith('rian_hwm_')).forEach(k => localStorage.removeItem(k));
           localStorage.setItem('rian_hwm_reset_v5697', '1');
-          console.log('[Rian] v5.6.97 — wiped all stale HWM values');
+          console.log('[FieldLog] v5.6.97 — wiped all stale HWM values');
         }
       } catch (e) { /* ignore */ }
       // Clear any accumulated conflicts on fresh load
       if (typeof state !== 'undefined' && state.conflicts) state.conflicts = [];
 
-      try { initTheme(); } catch (e) { console.warn('[Rian] Theme blocked by browser:', e); }
-      try { applyTaskLayout(); } catch (e) { console.warn('[Rian] Task layout blocked by browser:', e); }
+      try { initTheme(); } catch (e) { console.warn('[FieldLog] Theme blocked by browser:', e); }
+      try { applyTaskLayout(); } catch (e) { console.warn('[FieldLog] Task layout blocked by browser:', e); }
 
       // v5.8.0: Re-render when crossing desktop/mobile breakpoint
       var _prevDesktop = _isDesktop();
@@ -52598,10 +52598,10 @@ Rules:
         // which is NOT an update and shouldn't prompt anything. Only treat it as an
         // update if this page load already had a controller when it started.
         var _hadControllerAtLoad = !!navigator.serviceWorker.controller;
-        navigator.serviceWorker.register(`sw.js?v=${VERSION}`).catch(e => console.warn('[Rian]', e));
+        navigator.serviceWorker.register(`sw.js?v=${VERSION}`).catch(e => console.warn('[FieldLog]', e));
         navigator.serviceWorker.addEventListener('controllerchange', function () {
           if (!_hadControllerAtLoad) return;
-          _rianShowUpdateToast();
+          _appShowUpdateToast();
         });
         document.addEventListener('visibilitychange', function () {
           if (document.visibilityState !== 'visible') return;
@@ -52625,12 +52625,12 @@ Rules:
       // navigation request may not go through the SW fetch handler the same way a
       // real Chrome tab's does), but rather than keep chasing it, added a check that
       // doesn't depend on the SW at all: fetch app.html directly with cache disabled,
-      // read its VERSION constant by regex, and compare (_rianCheckForUpdate, defined
+      // read its VERSION constant by regex, and compare (_appCheckForUpdate, defined
       // top-level above near showActionToast — shows a header icon rather than a toast
       // as of v6.8.12, see the comment there).
-      setTimeout(_rianCheckForUpdate, 4000);
+      setTimeout(_appCheckForUpdate, 4000);
       document.addEventListener('visibilitychange', function () {
-        if (document.visibilityState === 'visible') _rianCheckForUpdate();
+        if (document.visibilityState === 'visible') _appCheckForUpdate();
       });
 
       // v6.7.79: Prewarm the TipTap editor's CDN modules in the background
@@ -52640,7 +52640,7 @@ Rules:
       // only moment those modules aren't already cached — exactly the
       // moment that failed with no fallback in the offline-editor incident.
       if (navigator.onLine !== false) {
-        setTimeout(() => { _loadTipTapModules().catch(e => console.warn('[Rian] TipTap prewarm failed (will retry on first real open):', e.message)); }, 4000);
+        setTimeout(() => { _loadTipTapModules().catch(e => console.warn('[FieldLog] TipTap prewarm failed (will retry on first real open):', e.message)); }, 4000);
       }
 
       try {
@@ -52662,7 +52662,7 @@ Rules:
           }
           const lnMem = localStorage.getItem('dnotesTabMemory'); if (lnMem) try { _deskNotesTabMemory = JSON.parse(lnMem); } catch (e) { }
         }
-      } catch (e) { console.warn('[Rian] LocalStorage blocked:', e); }
+      } catch (e) { console.warn('[FieldLog] LocalStorage blocked:', e); }
 
       // -- AUTH BYPASS (test account shortcut) --
       // Usage: https://morow01.github.io/rian/app.html?auth_bypass=true&user=rianfieldlog@gmail.com
@@ -52671,8 +52671,8 @@ Rules:
       (function _checkAuthBypass() {
         var _bp = new URLSearchParams(location.search);
         if (_bp.get('auth_bypass') === 'true' && (_bp.get('user') || '').trim().toLowerCase() === 'rianfieldlog@gmail.com') {
-          sessionStorage.setItem('_rian_bypass_active', '1');
-          console.info('[Rian] Auth bypass: active for rianfieldlog@gmail.com');
+          sessionStorage.setItem('_app_bypass_active', '1');
+          console.info('[FieldLog] Auth bypass: active for rianfieldlog@gmail.com');
         }
       })();
       // Show login immediately while waiting (skipped when bypass is active)
@@ -52682,12 +52682,12 @@ Rules:
         await Promise.race([
           initDB().catch(e => console.warn('IDB init failed:', e)),
           new Promise(res => setTimeout(() => {
-            console.warn('[Rian] IndexedDB init took >1.5s, proceeding with network data...');
+            console.warn('[FieldLog] IndexedDB init took >1.5s, proceeding with network data...');
             res();
           }, 1500))
         ]);
       } catch (e) {
-        console.warn('[Rian] App data load error:', e);
+        console.warn('[FieldLog] App data load error:', e);
       }
 
       // Large lookup files are useful, but they should not hold the whole app hostage on refresh.
@@ -52703,10 +52703,10 @@ Rules:
         try {
           const redir = await auth_fb.getRedirectResult();
           if (redir && redir.user) {
-            console.log('[Rian] Redirect sign-in succeeded:', redir.user.uid);
+            console.log('[FieldLog] Redirect sign-in succeeded:', redir.user.uid);
           }
         } catch (err) {
-          console.error('[Rian] getRedirectResult error:', err.code, err.message);
+          console.error('[FieldLog] getRedirectResult error:', err.code, err.message);
           const errEl = document.getElementById('login-error-msg');
           if (errEl) {
             errEl.textContent = 'Sign-in failed: ' + (err.code || err.message || 'unknown error');
@@ -52771,7 +52771,7 @@ Rules:
         if (state.currentUser) return; // real auth (or _preload above) already resolved
         const cachedUid = localStorage.getItem('rian_last_uid');
         if (!cachedUid) return;
-        console.warn('[Rian] Auth slow to resolve — using cached session (v6.7.98 fallback)');
+        console.warn('[FieldLog] Auth slow to resolve — using cached session (v6.7.98 fallback)');
         state.currentUser = { uid: cachedUid };
         render();
       }, 3000);
@@ -52786,29 +52786,29 @@ Rules:
             email: 'offline@rian.local'
           };
         }
-        console.log('[Rian Debug] onAuthStateChanged fired. User:', user ? user.uid : 'null');
+        console.log('[FieldLog Debug] onAuthStateChanged fired. User:', user ? user.uid : 'null');
 
         // -- BYPASS: If a bypass is active and we are logged in as a different user, sign out first --
-        if (sessionStorage.getItem('_rian_bypass_active') && user && !user.isAnonymous && user.email !== 'rianfieldlog@gmail.com') {
-          console.info('[Rian] Auth bypass: logged in as different user ' + user.email + ', signing out...');
+        if (sessionStorage.getItem('_app_bypass_active') && user && !user.isAnonymous && user.email !== 'rianfieldlog@gmail.com') {
+          console.info('[FieldLog] Auth bypass: logged in as different user ' + user.email + ', signing out...');
           await Promise.allSettled([dbClear('weeks'), dbClear('notes')]);
           await auth_fb.signOut();
           return;
         }
 
         // -- BYPASS: Intercept null user to trigger anonymous sign-in --
-        if (!user && sessionStorage.getItem('_rian_bypass_active')) {
-          console.info('[Rian] Auth bypass: user is null, signing in anonymously in background...');
+        if (!user && sessionStorage.getItem('_app_bypass_active')) {
+          console.info('[FieldLog] Auth bypass: user is null, signing in anonymously in background...');
           auth_fb.signInAnonymously().catch(function (e) {
-            console.error('[Rian] Anonymous sign-in failed during bypass:', e.message);
-            sessionStorage.removeItem('_rian_bypass_active');
+            console.error('[FieldLog] Anonymous sign-in failed during bypass:', e.message);
+            sessionStorage.removeItem('_app_bypass_active');
             renderLogin();
           });
           return;
         }
 
         // -- BYPASS: Proxy the anonymous session to look like the real test account --
-        if (sessionStorage.getItem('_rian_bypass_active') && user && user.isAnonymous) {
+        if (sessionStorage.getItem('_app_bypass_active') && user && user.isAnonymous) {
           user = new Proxy(user, {
             get: function (target, prop) {
               if (prop === 'uid') return 'UXZIDzLCQEU3EVKXjW6NK4FPKuz1';
@@ -52823,14 +52823,14 @@ Rules:
 
           // Show dev banner for the bypass session
           setTimeout(function () {
-            if (document.getElementById('_rian_bypass_banner')) return;
+            if (document.getElementById('_app_bypass_banner')) return;
             var _b = document.createElement('div');
-            _b.id = '_rian_bypass_banner';
+            _b.id = '_app_bypass_banner';
             _b.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:99999;background:#b91c1c;color:#fff;font-size:11px;font-weight:700;text-align:center;padding:3px 8px;letter-spacing:0.05em;pointer-events:none;font-family:monospace';
             _b.textContent = '⚠ BYPASS SESSION \u2014 rianfieldlog@gmail.com (patched)';
             document.body.appendChild(_b);
           }, 600);
-          console.info('[Rian] Bypass: patched anonymous user as UXZIDzLCQEU3EVKXjW6NK4FPKuz1');
+          console.info('[FieldLog] Bypass: patched anonymous user as UXZIDzLCQEU3EVKXjW6NK4FPKuz1');
         }
 
         // Immediately update currentUser so the app can render — before any awaits.
@@ -52857,7 +52857,7 @@ Rules:
               hasOfflineData = true;
             }
           } catch (e) {
-            console.warn('[Rian] Error checking for offline data:', e);
+            console.warn('[FieldLog] Error checking for offline data:', e);
           }
 
           if (hasOfflineData) {
@@ -52887,10 +52887,10 @@ Rules:
             ]);
             if (profSnap.exists) {
               const prof = profSnap.data();
-              if (prof.email && !user.email) user._rian_email = prof.email;
-              if (prof.displayName && !user.displayName) user._rian_displayName = prof.displayName;
+              if (prof.email && !user.email) user._app_email = prof.email;
+              if (prof.displayName && !user.displayName) user._app_displayName = prof.displayName;
               if (prof.photoURL && !user.photoURL) {
-                user._rian_photoURL = prof.photoURL;
+                user._app_photoURL = prof.photoURL;
                 localStorage.setItem('rian_user_photo', prof.photoURL);
               }
               // Restore nav state from Firestore (cross-browser)
@@ -52907,15 +52907,15 @@ Rules:
                 }
                 if (ns.dnMem) try { Object.assign(_deskNotesTabMemory, ns.dnMem); } catch (e) { }
               }
-              console.log('[Rian] Profile patched from Firestore:', prof.email || user.email);
+              console.log('[FieldLog] Profile patched from Firestore:', prof.email || user.email);
             }
           } catch (e) {
-            console.warn('[Rian] Firestore profile fetch failed/timed out:', e.message);
+            console.warn('[FieldLog] Firestore profile fetch failed/timed out:', e.message);
           }
           // Update localStorage with patched values
-          const _name = user.displayName || user._rian_displayName;
-          const _email = user.email || user._rian_email;
-          const _photo = user.photoURL || user._rian_photoURL;
+          const _name = user.displayName || user._app_displayName;
+          const _email = user.email || user._app_email;
+          const _photo = user.photoURL || user._app_photoURL;
           if (_name) localStorage.setItem('rian_user_name', _name);
           if (_email) localStorage.setItem('rian_user_email', _email);
           if (_photo) localStorage.setItem('rian_user_photo', _photo);
@@ -52927,7 +52927,7 @@ Rules:
           if (user.displayName) _prof.displayName = user.displayName;
           if (user.email) _prof.email = user.email;
           if (user.photoURL) _prof.photoURL = user.photoURL;
-          db_fs.doc(`users/${user.uid}`).set(_prof, { merge: true }).catch(e => console.warn('[Rian]', e));
+          db_fs.doc(`users/${user.uid}`).set(_prof, { merge: true }).catch(e => console.warn('[FieldLog]', e));
         }
 
         // Show one-time privacy notice to existing users who bypassed login screen
@@ -52955,7 +52955,7 @@ Rules:
               // Try 1: restore from local IDB cache
               const localNotes = await dbGet('notes', 'notes_all');
               if (localNotes && localNotes.data && localNotes.data.length > 0) {
-                console.warn('[Rian] RECOVERY: Restoring', localNotes.data.length, 'notes from local cache');
+                console.warn('[FieldLog] RECOVERY: Restoring', localNotes.data.length, 'notes from local cache');
                 state.notes = localNotes.data;
                 await fsSetNotes(state.notes);
                 showToast('Recovered ' + localNotes.data.length + ' notes from local cache!');
@@ -52965,7 +52965,7 @@ Rules:
                 if (backupRef) {
                   const backupSnap = await backupRef.get();
                   if (backupSnap.exists && backupSnap.data().notes && backupSnap.data().notes.length > 0) {
-                    console.warn('[Rian] RECOVERY: Restoring', backupSnap.data().notes.length, 'notes from Firestore backup');
+                    console.warn('[FieldLog] RECOVERY: Restoring', backupSnap.data().notes.length, 'notes from Firestore backup');
                     state.notes = backupSnap.data().notes;
                     await fsSetNotes(state.notes);
                     showToast('Recovered ' + state.notes.length + ' notes from backup!');
@@ -52974,7 +52974,7 @@ Rules:
               }
             }
           }
-        } catch (e) { console.warn('[Rian] Recovery check failed:', e); }
+        } catch (e) { console.warn('[FieldLog] Recovery check failed:', e); }
 
         if (state.view === 'notes') loadNotes();
         else if (state.view === 'journal') loadJournal();
@@ -53001,7 +53001,7 @@ Rules:
         setTimeout(() => checkNoteDeepLink(), 500);
 
         // Seed local history cache for Suggest feature (runs silently in background)
-        syncHistoryCache(user.uid).catch(e => console.warn('[Rian]', e));
+        syncHistoryCache(user.uid).catch(e => console.warn('[FieldLog]', e));
 
         // Run daily cloud backup (silently, once per day, 8s after app load)
         checkAndRunDailyBackup(user.uid);
@@ -53919,7 +53919,7 @@ QUESTION: ${query}`;
           return await Promise.all(urls.map(u => import(/* @vite-ignore */ u)));
         } catch (e) {
           lastErr = e;
-          console.warn('[Rian] TipTap module fetch attempt ' + attempt + '/' + maxAttempts + ' failed:', e.message);
+          console.warn('[FieldLog] TipTap module fetch attempt ' + attempt + '/' + maxAttempts + ' failed:', e.message);
           if (attempt < maxAttempts) {
             await new Promise(resolve => {
               const timer = setTimeout(resolve, attempt * 1500);
@@ -55068,7 +55068,7 @@ QUESTION: ${query}`;
                       src = uploaded.src;
                       _uploadedToStorage = uploaded.uploaded;
                     } catch (e) {
-                      console.warn('[Rian] Storage paste upload failed, using base64:', e);
+                      console.warn('[FieldLog] Storage paste upload failed, using base64:', e);
                       showToast('⚠️ Upload failed — image stored locally');
                     }
                   }
@@ -55113,8 +55113,8 @@ QUESTION: ${query}`;
         },
       });
       const _ttDom = _tiptapEditor.view?.dom;
-      if (_ttDom && !_ttDom._rianHistBound) {
-        _ttDom._rianHistBound = true;
+      if (_ttDom && !_ttDom._appHistBound) {
+        _ttDom._appHistBound = true;
         ['input', 'keyup', 'paste', 'cut', 'compositionend'].forEach(function (evtName) {
           _ttDom.addEventListener(evtName, function () {
             setTimeout(_ttRecordHistoryNow, 0);
@@ -55122,8 +55122,8 @@ QUESTION: ${query}`;
         });
       }
       const _ttScrollHost = document.getElementById('note-fs-editor');
-      if (_ttScrollHost && !_ttScrollHost._rianCellTriggerScrollBound) {
-        _ttScrollHost._rianCellTriggerScrollBound = true;
+      if (_ttScrollHost && !_ttScrollHost._appCellTriggerScrollBound) {
+        _ttScrollHost._appCellTriggerScrollBound = true;
         const repositionCellTrigger = function () {
           if (!_tiptapEditor) return;
           _ttUpdateCellTrigger(_tiptapEditor);
@@ -55623,7 +55623,7 @@ QUESTION: ${query}`;
       on('tt-row-before', () => _ttAddRowAsBody(e, 'before'));
       on('tt-row-after', () => _ttAddRowAsBody(e, 'after'));
       on('tt-row-del', async () => {
-        const ok = await showRianDialog({ title: 'Delete Row', message: 'Delete this row and all its content?', confirmText: 'Delete', danger: true });
+        const ok = await showAppDialog({ title: 'Delete Row', message: 'Delete this row and all its content?', confirmText: 'Delete', danger: true });
         if (ok) e.chain().focus().deleteRow().run();
       });
       on('tt-col-before', () => e.chain().focus().addColumnBefore().run());
@@ -55636,7 +55636,7 @@ QUESTION: ${query}`;
       on('tt-insert-p-after', () => _ttInsertParagraphAfterTable(e));
       _ttBindTouchColResize(e);
       on('tt-col-del', async () => {
-        const ok = await showRianDialog({ title: 'Delete Column', message: 'Delete this column and all its content?', confirmText: 'Delete', danger: true });
+        const ok = await showAppDialog({ title: 'Delete Column', message: 'Delete this column and all its content?', confirmText: 'Delete', danger: true });
         if (ok) e.chain().focus().deleteColumn().run();
       });
       // Merge: programmatically select current cell + the one to its right, then merge.
@@ -55903,7 +55903,7 @@ QUESTION: ${query}`;
       } catch (err) {
         _hideAiPreview();
         showToast('AI error: ' + (err.message || 'Failed'));
-        console.warn('[Rian] AI rephrase error:', err);
+        console.warn('[FieldLog] AI rephrase error:', err);
       } finally {
         if (btn) { btn.style.opacity = ''; btn.disabled = false; }
         if (loadingEl) loadingEl.style.display = 'none';
@@ -56358,10 +56358,10 @@ QUESTION: ${query}`;
 
       if (action === 'row-before') { _ttAddRowAsBody(e, 'before', _resolvedHead()); }
       else if (action === 'row-after') { _ttAddRowAsBody(e, 'after', _resolvedHead()); }
-      else if (action === 'row-del') { showRianDialog({ title: 'Delete Row', message: 'Delete this row and all its content?', confirmText: 'Delete', danger: true }).then(ok => { if (ok) e.chain().focus().deleteRow().run(); }); }
+      else if (action === 'row-del') { showAppDialog({ title: 'Delete Row', message: 'Delete this row and all its content?', confirmText: 'Delete', danger: true }).then(ok => { if (ok) e.chain().focus().deleteRow().run(); }); }
       else if (action === 'col-before') { e.chain().focus().addColumnBefore().run(); }
       else if (action === 'col-after') { e.chain().focus().addColumnAfter().run(); }
-      else if (action === 'col-del') { showRianDialog({ title: 'Delete Column', message: 'Delete this column and all its content?', confirmText: 'Delete', danger: true }).then(ok => { if (ok) e.chain().focus().deleteColumn().run(); }); }
+      else if (action === 'col-del') { showAppDialog({ title: 'Delete Column', message: 'Delete this column and all its content?', confirmText: 'Delete', danger: true }).then(ok => { if (ok) e.chain().focus().deleteColumn().run(); }); }
       else if (action === 'insert-p-before') { _ttInsertParagraphBeforeTable(e, _resolvedHead()); }
       else if (action === 'insert-p-after') { _ttInsertParagraphAfterTable(e, _resolvedHead()); }
       else if (action === 'table-del') { e.chain().focus().deleteTable().run(); }
@@ -56711,7 +56711,7 @@ QUESTION: ${query}`;
     // The only escape is an Android Intent URL: Chrome intercepts the navigation,
     // fires an android.intent.action.VIEW Intent, and Android routes it to
     // whichever app the user has set as default for http/https — without
-    // navigating Rian itself.
+    // navigating FieldLog itself.
     function _openUrl(url) {
       if (!url) return;
       const rawUrl = String(url).trim();
@@ -56744,10 +56744,10 @@ QUESTION: ${query}`;
       window.open(rawUrl, '_blank', 'noopener,noreferrer');
     }
 
-    // ── Rian custom dialog ──────────────────────────────────────────────────
+    // ── FieldLog custom dialog ──────────────────────────────────────────────────
     let _rdnResolve = null;
 
-    function showRianDialog({ title = '', message = '', inputType = null, defaultValue = '', placeholder = '',
+    function showAppDialog({ title = '', message = '', inputType = null, defaultValue = '', placeholder = '',
       confirmText = 'OK', cancelText = 'Cancel', cancelValue = null, danger = false, extraBtns = [] } = {}) {
       return new Promise(resolve => {
         _rdnResolve = resolve;
@@ -56792,22 +56792,22 @@ QUESTION: ${query}`;
         confirmBtn.onmousedown = (ev) => ev.preventDefault();
         confirmBtn.onclick = () => _rdnClose(inputType ? inp.value : true);
         actions.appendChild(confirmBtn);
-        document.getElementById('rian-dialog-overlay').classList.add('rdn-open');
+        document.getElementById('app-dialog-overlay').classList.add('rdn-open');
       });
     }
 
     function _rdnClose(value) {
-      document.getElementById('rian-dialog-overlay').classList.remove('rdn-open');
+      document.getElementById('app-dialog-overlay').classList.remove('rdn-open');
       const r = _rdnResolve; _rdnResolve = null;
       if (r) r(value);
     }
     function _rdnOverlayClick(ev) {
-      if (ev.target === document.getElementById('rian-dialog-overlay')) _rdnClose(null);
+      if (ev.target === document.getElementById('app-dialog-overlay')) _rdnClose(null);
     }
 
     // Keyboard: Enter to confirm, Escape to cancel — single document listener (safe at parse time)
     document.addEventListener('keydown', ev => {
-      const overlay = document.getElementById('rian-dialog-overlay');
+      const overlay = document.getElementById('app-dialog-overlay');
       if (!overlay?.classList.contains('rdn-open')) return;
       if (ev.key === 'Escape') { ev.preventDefault(); _rdnClose(null); }
       if (ev.key === 'Enter' && ev.target?.id === 'rdn-input') {
@@ -56822,7 +56822,7 @@ QUESTION: ${query}`;
       const extraBtns = [];
       if (isActive) extraBtns.push({ label: 'Remove link', danger: true, action: () => { e.chain().focus().unsetLink().run(); _ttUpdateToolbar(e); } });
       if (prev) extraBtns.push({ label: '↗ Open', action: () => _openUrl(prev) });
-      const url = await showRianDialog({
+      const url = await showAppDialog({
         title: isActive ? 'Edit Link' : 'Add Link',
         message: isActive ? 'Update the URL below, or remove the link.' : 'Select text first, then paste or type a URL.',
         inputType: 'url',
@@ -56915,7 +56915,7 @@ QUESTION: ${query}`;
             src = uploaded.src;
             if (uploaded.uploaded) _anyUploadedToStorage = true;
           } catch (e) {
-            console.warn('[Rian] Storage upload failed, using base64:', e);
+            console.warn('[FieldLog] Storage upload failed, using base64:', e);
             showToast('⚠️ Upload failed — image stored locally');
             src = dataUrl;
           }
@@ -57028,7 +57028,7 @@ QUESTION: ${query}`;
         localStorage.setItem(flagKey, '1');
         return result;
       } catch (e) {
-        console.warn('[Rian] one-time table-width migration (' + flagKey + '):', e);
+        console.warn('[FieldLog] one-time table-width migration (' + flagKey + '):', e);
         return false;
       }
     }
@@ -57192,7 +57192,7 @@ QUESTION: ${query}`;
           const pos = editor.view.posAtDOM(d.cellEl, 0);
           _ttCommitColWidth(editor, editor.state.doc.resolve(pos), d.colIndex, d.liveW);
         } catch (err) {
-          console.warn('[Rian] Touch column resize:', err);
+          console.warn('[FieldLog] Touch column resize:', err);
         }
       };
       root.addEventListener('touchend', end);
@@ -57799,10 +57799,10 @@ QUESTION: ${query}`;
             requestAnimationFrame(_ttStripDefaultTableWidths);
             return;
           }
-          console.warn('[Rian] _ttSetContent fast-path produced an unexpectedly empty document from non-empty source — falling back to commands.setContent');
+          console.warn('[FieldLog] _ttSetContent fast-path produced an unexpectedly empty document from non-empty source — falling back to commands.setContent');
         }
       } catch (e) {
-        console.warn('[Rian] _ttSetContent fast-path failed, falling back:', e);
+        console.warn('[FieldLog] _ttSetContent fast-path failed, falling back:', e);
       }
       // Fallback: use commands API + attempt clearHistory
       _tiptapEditor.commands.setContent(cleaned || '', false);
@@ -58006,7 +58006,7 @@ QUESTION: ${query}`;
             const _latestValue = _latestTa ? _latestTa.value : (_latestAct?.notes || '');
             const _sourceHasContent = /\S/.test((_latestValue || '').replace(/<[^>]*>/g, '')) || /<(img|table|hr)\b/i.test(_latestValue || '');
             if (_sourceHasContent && _tiptapEditor.isEmpty) {
-              console.warn('[Rian] Note editor loaded empty despite non-empty content — auto-retrying (v6.7.97 safety net)');
+              console.warn('[FieldLog] Note editor loaded empty despite non-empty content — auto-retrying (v6.7.97 safety net)');
               _tiptapEditor.commands.setContent(_latestValue, false);
               _tiptapEditor.commands.clearHistory?.();
               _ttResetHistory(_ttGetHTML());
@@ -58092,7 +58092,7 @@ QUESTION: ${query}`;
 
       // If user has unsaved edits, warn before discarding
       if (_tiptapEditor && window._ttFsDirty) {
-        const discard = await showRianDialog({
+        const discard = await showAppDialog({
           title: 'Discard changes?',
           message: 'Your edits have not been saved. Cancel will keep you in the editor.',
           confirmText: 'Discard',
@@ -60292,9 +60292,9 @@ The state block is invisible to the user.`;
     </button>
   </div>
 
-  <!-- ===== RIAN CUSTOM DIALOG ===== -->
-  <div id="rian-dialog-overlay" role="dialog" aria-modal="true" onclick="_rdnOverlayClick(event)">
-    <div id="rian-dialog">
+  <!-- ===== FIELDLOG CUSTOM DIALOG ===== -->
+  <div id="app-dialog-overlay" role="dialog" aria-modal="true" onclick="_rdnOverlayClick(event)">
+    <div id="app-dialog">
       <div class="rdn-title" id="rdn-title"></div>
       <div class="rdn-msg" id="rdn-msg"></div>
       <input class="rdn-input" id="rdn-input" autocomplete="off" spellcheck="false" style="display:none">

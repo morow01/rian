@@ -21,7 +21,7 @@ const config: CapacitorConfig = {
     // Use Android WebView dark mode to match the app's theme
     backgroundColor: '#0f1e2e',
     allowMixedContent: true,
-    // Append Rian identifier to WebView user-agent
+    // Append app identifier to WebView user-agent (must match IS_NATIVE in app.html)
     appendUserAgent: 'Rian-Android',
   },
   plugins: {
@@ -34,7 +34,7 @@ const config: CapacitorConfig = {
       splashImmersive: true,
     },
     Keyboard: {
-      // Don't resize the webview when keyboard opens — Rian handles this itself
+      // Don't resize the webview when keyboard opens — the app handles this itself
       resize: 'none',
     },
     StatusBar: {

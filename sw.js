@@ -1,6 +1,6 @@
 // Version auto-read from ?v= query param set by app.html registration
 const _swVer = new URL(self.location).searchParams.get('v') || '4.28.0';
-const CACHE = 'rian-v' + _swVer;
+const CACHE = 'fieldlog-v' + _swVer;
 const BASE = self.location.pathname.replace(/sw\.js$/, '');
 const ASSETS = [
   BASE,
@@ -16,14 +16,14 @@ const ASSETS = [
 self.addEventListener('push', (event) => {
   let data = {};
   try { data = event.data ? event.data.json() : {}; } catch (e) { /* ignore */ }
-  console.log('[Rian SW] push received:', data);
+  console.log('[FieldLog SW] push received:', data);
 
   const title = data.title || 'FieldLog Reminder';
   const options = {
     body: data.body || '',
     icon: BASE + 'icon-192.png',
     badge: BASE + 'badge-bell.png',
-    tag: 'rian-remind-' + (data.reminderId || Date.now()),
+    tag: 'fieldlog-remind-' + (data.reminderId || Date.now()),
     vibrate: [200, 100, 200],
     requireInteraction: true,
     data: data

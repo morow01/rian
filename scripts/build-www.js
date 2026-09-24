@@ -2,7 +2,7 @@
 /**
  * build-www.js — Copy web assets into www/ for Capacitor.
  *
- * Rian is a single-file PWA (app.html) with a few static assets.
+ * FieldLog is a single-file PWA (app.html) with a few static assets.
  * This script copies everything Capacitor needs into the www/ directory.
  *
  * Usage:  node scripts/build-www.js
