@@ -4563,6 +4563,10 @@
       flex-shrink: 0;
     }
 
+    .menu-brand-log {
+      color: #5B9BFF;
+    }
+
     .menu-brand-name {
       flex: 1;
       font-size: 19px;
@@ -23976,7 +23980,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '6.8.82';
+    const VERSION = '6.8.83';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -29647,7 +29651,7 @@
           return `
               <!-- Dark header block -->
               <div class="menu-header-block">
-                <div class="menu-brand-row"><img class="menu-brand-logo" src="images/fieldlog-glyph.svg?v=logo2" alt="" width="32" height="32"><span class="menu-brand-name">FieldLog</span><button class="menu-close-btn" onclick="closeThemeMenu()" aria-label="Close menu">
+                <div class="menu-brand-row"><img class="menu-brand-logo" src="images/fieldlog-glyph.svg?v=logo2" alt="" width="32" height="32"><span class="menu-brand-name">Field<span class="menu-brand-log">Log</span></span><button class="menu-close-btn" onclick="closeThemeMenu()" aria-label="Close menu">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
                 </button></div>
                 ${u && u.isLocalOnly ? `
