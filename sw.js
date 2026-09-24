@@ -9,7 +9,7 @@ const ASSETS = [
   BASE + 'codes.json',
   BASE + 'exchanges.json',
   BASE + 'cabinets.json',
-  BASE + 'images/fieldlog-glyph.svg',
+  BASE + 'images/fieldlog-glyph.svg?v=logo2',
 ];
 
 // Handle push notifications (raw Web Push, no Firebase SDK needed)
