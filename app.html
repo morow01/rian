@@ -3960,16 +3960,18 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 8px;
+      flex-wrap: wrap;
+      gap: 5px 8px;
       min-width: 0;
     }
 
-    /* Ellipsis lives on the text itself now that the row is a flex container */
+    /* The date never truncates: with several pills (on-call + SD + AL) they wrap to a second line instead */
     .pws-range-text {
       white-space: nowrap;
+      flex-shrink: 0;
+      max-width: 100%;
       overflow: hidden;
       text-overflow: ellipsis;
-      min-width: 0;
     }
 
     /* Equal height for both pill families so they read as one set */
@@ -3998,9 +4000,14 @@
       line-height: 1.4;
     }
 
+    /* Same look as the callout-count badge (.hist-badge.red): soft rounded rectangle, sentence case */
     .week-status-pill.is-oncall {
-      background: var(--pill-oncall-bg);
-      color: var(--pill-oncall-text);
+      background: var(--pill-callout-bg);
+      color: var(--pill-callout-text);
+      border-radius: 7px;
+      font-size: 12px;
+      letter-spacing: 0;
+      text-transform: none;
     }
 
     .week-status-pill.is-extra {
@@ -23993,7 +24000,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '6.8.88';
+    const VERSION = '6.8.90';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -26762,10 +26769,17 @@
 
     // Week-role pill (SD / SA / R / D / L…) exactly as the Timesheet week selector shows it:
     // on-call weeks (OC / 50) are shown by the On-Call tag instead, so they are skipped here.
+    function _avWeekAlPillHtml(weekStart) {
+      var n = _avWeekDates(weekStart).filter(function (d) { return _avGetCode(d) === 'A/L'; }).length;
+      if (!n) return '';
+      return '<span class="av-pill av-al" title="Annual leave · ' + n + ' day' + (n === 1 ? '' : 's') + '">AL</span>';
+    }
+
     function _avWeekPillHtml(weekStart) {
       var role = _avWeekRole(weekStart);
-      if (!role || role === 'OC' || role === '50') return '';
-      return '<span class="av-pill ' + _avClass(role) + '" title="' + esc(_avLabel(role)) + '">' + esc(role) + '</span>';
+      var rolePill = (!role || role === 'OC' || role === '50') ? ''
+        : '<span class="av-pill ' + _avClass(role) + '" title="' + esc(_avLabel(role)) + '">' + esc(role) + '</span>';
+      return rolePill + _avWeekAlPillHtml(weekStart);
     }
 
     function _avDayBadgesHtml(dateStr, compact) {
@@ -30723,7 +30737,7 @@
         <div class="pws-top-row">
           <button onclick="prevWeek()" class="page-week-selector-btn" title="Previous week"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
           <div class="page-week-selector-main" onclick="${dateAction}" title="View Timesheet History">
-            <div class="page-week-selector-range"><span class="pws-range-text">${esc(range)}</span>${statusPill}${avStatusPill}</div>
+            <div class="page-week-selector-range"><span class="pws-range-text">${esc(range)}</span>${statusPill}${avStatusPill}${_avWeekAlPillHtml(weekStart)}</div>
           </div>
           <button onclick="nextWeek()" class="page-week-selector-btn" title="Next week"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></button>
         </div>
@@ -30791,7 +30805,7 @@
       return '<div class="desk-week-nav-hdr">' +
         '<button onclick="prevWeek()" class="desk-week-nav-btn" title="Previous week"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>' +
         '<div class="desk-week-nav-main" style="cursor:default">' +
-        '<div class="desk-week-nav-range"><span class="pws-range-text">' + esc(range) + '</span>' + statusPill + avStatusPill + '</div>' +
+        '<div class="desk-week-nav-range"><span class="pws-range-text">' + esc(range) + '</span>' + statusPill + avStatusPill + _avWeekAlPillHtml(weekStart) + '</div>' +
         '</div>' +
         '<button onclick="nextWeek()" class="desk-week-nav-btn" title="Next week"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></button>' +
         '</div>' + statsBar + backBanner + '<div class="desk-week-days-subhdr">Week Days</div>';
