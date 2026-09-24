@@ -4246,6 +4246,10 @@
        screen edge sits far from the ☰ button. Align it to the column's left edge, size it to its
        content, and fade/slide a few px instead of sweeping in from off-screen. ── */
     @media (min-width: 1280px) {
+      #app {
+        padding-bottom: 0 !important;
+      }
+
       .theme-dropdown {
         left: max(0px, calc((100vw - 1409px) / 2));
         bottom: auto;
@@ -23980,7 +23984,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '6.8.86';
+    const VERSION = '6.8.87';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -29112,6 +29116,7 @@
       app.innerHTML = renderHeader() + _renderConflictBanner() + '<div id="draft-warning-banner-container">' + _renderDraftWarningBanner() + '</div>' + _renderSaveErrorBanner() + viewBody + _renderTemplatePicker();
       // Restore menu scroll position after DOM rebuild
       if (typeof _settingsDlgRefresh === 'function') _settingsDlgRefresh();
+      _fitDeskPanels();
       if (_menuWasOpen && _menuScroll > 0) {
         const _newMenuEl = document.getElementById('theme-dropdown');
         if (_newMenuEl) _newMenuEl.scrollTop = _menuScroll;
@@ -29608,6 +29613,26 @@
     // A resize across the desktop breakpoint would leave a dialog for a layout that no longer has one.
     window.addEventListener('resize', () => { if (state.settingsDlgOpen && !_isDesktop()) closeSettingsDialog(); });
 
+    // ── Desktop panel height fit (v6.8.87) ──
+    // The desktop panels were sized with hard-coded calc(100vh - Npx) offsets, which assume a
+    // fixed header height. On a real screen with a different header/tab-bar height (Tab S8+, other
+    // browsers) that left a grey band under the app. Measure instead: fill from the panel's own
+    // top edge to the bottom of the viewport. The CSS calc() values stay as the pre-JS fallback.
+    const _DESK_FIT_SEL = '.desk-three-panel, .dnotes-wrap, .dj-wrap, .dco-wrap, .dfnd-wrap, .hist-desk-wrap';
+    function _fitDeskPanels() {
+      if (!_isDesktop()) {
+        document.querySelectorAll(_DESK_FIT_SEL).forEach(el => { el.style.height = ''; });
+        return;
+      }
+      document.querySelectorAll(_DESK_FIT_SEL).forEach(el => {
+        el.style.height = '';
+        const top = el.getBoundingClientRect().top + (window.scrollY || 0);
+        el.style.height = Math.max(420, Math.floor(window.innerHeight - top)) + 'px';
+      });
+    }
+    window.addEventListener('resize', _fitDeskPanels);
+    window.addEventListener('orientationchange', () => setTimeout(_fitDeskPanels, 250));
+
     function renderHeader() {
       const syncIcons = {
         idle: '',
@@ -29779,6 +29804,7 @@
         });
       }
       _syncSaveErrorBanner();
+      _fitDeskPanels();
     }
 
     // ============================================================
