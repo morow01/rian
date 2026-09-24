@@ -6675,6 +6675,15 @@
       letter-spacing: 0.02em;
     }
 
+    /* week-role pill inside Week History rows */
+    .hist-week-range .av-pill,
+    .hdt-range .av-pill {
+      margin-left: 8px;
+      padding: 2px 7px;
+      font-size: 10px;
+      vertical-align: middle;
+    }
+
     .av-code {
       min-width: 42px;
       border-radius: 7px;
@@ -23984,7 +23993,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '6.8.87';
+    const VERSION = '6.8.88';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -26749,6 +26758,14 @@
     function _avPill(code, labelOverride) {
       if (!code) return '';
       return '<span class="av-pill ' + _avClass(code) + '">' + esc(labelOverride || _avLabel(code)) + '</span>';
+    }
+
+    // Week-role pill (SD / SA / R / D / L…) exactly as the Timesheet week selector shows it:
+    // on-call weeks (OC / 50) are shown by the On-Call tag instead, so they are skipped here.
+    function _avWeekPillHtml(weekStart) {
+      var role = _avWeekRole(weekStart);
+      if (!role || role === 'OC' || role === '50') return '';
+      return '<span class="av-pill ' + _avClass(role) + '" title="' + esc(_avLabel(role)) + '">' + esc(role) + '</span>';
     }
 
     function _avDayBadgesHtml(dateStr, compact) {
@@ -42173,7 +42190,7 @@
         return '<div class="hist-week-row ' + (isFuture ? 'future' : isCurrent ? 'current' : '') + '" onclick="histGoToWeek(\'' + ws + '\')">' +
           '<div class="hist-week-icon ' + (isFuture ? 'future' : isCurrent ? 'current' : 'past') + '">' + calSvg + '</div>' +
           '<div class="hist-week-info">' +
-          '<div class="hist-week-range' + (isFuture ? ' future' : '') + '">' + esc(formatWeekRange(ws)) + '</div>' +
+          '<div class="hist-week-range' + (isFuture ? ' future' : '') + '">' + esc(formatWeekRange(ws)) + _avWeekPillHtml(ws) + '</div>' +
           '<div class="hist-week-meta">' + meta + '</div>' +
           '</div>' +
           '<div class="hist-badges">' + badges + '</div>' +
@@ -42654,7 +42671,7 @@
         if (matches > 0) subText += ' · ' + matches + ' match' + (matches === 1 ? '' : 'es');
 
         return '<tr class="' + trClass + '" onclick="histGoToWeek(\'' + ws + '\')">' +
-          '<td><div class="hdt-range' + (isFuture ? ' dim' : '') + '">' + esc(formatWeekRange(ws)) + '</div><div class="hdt-sub">' + esc(subText) + '</div></td>' +
+          '<td><div class="hdt-range' + (isFuture ? ' dim' : '') + '">' + esc(formatWeekRange(ws)) + _avWeekPillHtml(ws) + '</div><div class="hdt-sub">' + esc(subText) + '</div></td>' +
           '<td style="text-align:right"><div class="hdt-h">' + ordCell + '</div></td>' +
           '<td style="text-align:right"><div class="hdt-ot">' + otCell + '</div></td>' +
           '<td style="text-align:right"><div class="hdt-h">' + totalCell + '</div></td>' +
