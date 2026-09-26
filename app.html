@@ -22143,6 +22143,13 @@
       color: var(--accent);
     }
 
+    /* On-call is a callout state throughout the app, so it uses the same
+       red treatment as the Timesheet header pill and callout count badges. */
+    .hist-tag.red {
+      background: var(--pill-callout-bg);
+      color: var(--pill-callout-text);
+    }
+
     .hist-tag.amber {
       background: var(--bg-ot);
       color: var(--ot-color);
@@ -24000,7 +24007,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '6.8.90';
+    const VERSION = '6.8.92';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -25003,6 +25010,7 @@
       exchangeDetailTab: 'location', // 'location'|'details'|'address'|'security'|'power'|'emergency'|'additional'
       menuView: 'main', // 'main' | 'themes'
       isMenuOpen: false,
+      menuAcc: _loadMenuAcc(),
       // Routines
       routines: null,           // { selectedSites:[], visits:{} } loaded from Firestore
       routinesAutoVisits: {},   // { key: { day, weekStart, location } } scanned from timesheet
@@ -29526,6 +29534,17 @@
     }
 
     // ── Mobile: collapsible groups ──
+    function _loadMenuAcc() {
+      try {
+        const saved = JSON.parse(localStorage.getItem('rian_menu_accordions') || '{}');
+        const result = {};
+        for (const id of ['nav', 'manage', 'display', 'ai', 'data']) {
+          if (saved && typeof saved[id] === 'boolean') result[id] = saved[id];
+        }
+        return result;
+      } catch (e) { return {}; }
+    }
+
     function _menuAcc(id, title, sub, icon, bodyHtml, defaultOpen) {
       const open = (state.menuAcc && id in state.menuAcc) ? !!state.menuAcc[id] : !!defaultOpen;
       return `<div class="menu-acc${open ? ' open' : ''}" data-acc="${id}">
@@ -29543,6 +29562,7 @@
       // Read the current state from the DOM — groups can default to open, so an unset entry isn't "closed".
       const nowOpen = el ? !el.classList.contains('open') : !state.menuAcc[id];
       state.menuAcc[id] = nowOpen;
+      try { localStorage.setItem('rian_menu_accordions', JSON.stringify(state.menuAcc)); } catch (e) { }
       if (el) {
         el.classList.toggle('open', nowOpen);
         const b = el.querySelector('.menu-acc-hd');
@@ -42188,7 +42208,7 @@
         }
 
         var tags = '';
-        if (isOnCall) tags += ' <span class="hist-tag blue">On-Call</span>';
+        if (isOnCall) tags += ' <span class="hist-tag red">On-Call</span>';
         if (isExtra) tags += ' <span class="hist-tag amber">Extra</span>';
 
         var meta = '';
@@ -42671,7 +42691,7 @@
         var trClass = isFuture ? 'hdt-future' : (isCurrent ? 'hdt-current' : '');
 
         var onCallCell = '';
-        if (isOnCall) onCallCell = '<span class="hdt-status"><span class="hist-badge blue">On-Call</span></span>';
+        if (isOnCall) onCallCell = '<span class="hdt-status"><span class="hist-badge red">On-Call</span></span>';
         else if (isExtra) onCallCell = '<span class="hdt-status"><span class="hist-badge amber">Extra</span></span>';
 
         var coCell = coCount > 0 ? '<span class="hist-badge red">' + phoneSvg + ' ' + coCount + '</span>' : '';
