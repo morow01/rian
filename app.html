@@ -4227,6 +4227,12 @@
       pointer-events: auto;
     }
 
+    body.menu-scroll-locked {
+      position: fixed;
+      width: 100%;
+      overflow: hidden;
+    }
+
     /* ── Menu panel — mobile: slide-in from right ── */
     .theme-dropdown {
       position: fixed;
@@ -24094,7 +24100,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '6.9.11';
+    const VERSION = '6.9.12';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -43599,6 +43605,24 @@
       render();
     }
 
+    let _menuScrollLocked = false;
+    let _menuScrollY = 0;
+    function _lockMenuPageScroll() {
+      if (_menuScrollLocked) return;
+      _menuScrollY = window.scrollY || window.pageYOffset || 0;
+      _menuScrollLocked = true;
+      document.body.style.top = '-' + _menuScrollY + 'px';
+      document.body.classList.add('menu-scroll-locked');
+    }
+    function _unlockMenuPageScroll() {
+      if (!_menuScrollLocked) return;
+      const y = _menuScrollY;
+      _menuScrollLocked = false;
+      document.body.classList.remove('menu-scroll-locked');
+      document.body.style.top = '';
+      window.scrollTo(0, y);
+    }
+
     function toggleThemeMenu(e) {
       if (e) e.stopPropagation();
       const opening = !state.isMenuOpen;
@@ -43608,6 +43632,7 @@
       }
       state.isMenuOpen = !state.isMenuOpen;
       if (state.isMenuOpen) state.menuView = 'main';
+      if (state.isMenuOpen) _lockMenuPageScroll(); else _unlockMenuPageScroll();
       // Directly toggle classes so CSS transition fires (re-rendering destroys the element)
       const panel = document.getElementById('theme-dropdown');
       const backdrop = document.querySelector('.menu-backdrop');
@@ -43619,6 +43644,7 @@
       if (e) e.stopPropagation();
       state.menuView = v;
       state.isMenuOpen = true;
+      _lockMenuPageScroll();
       const panel = document.getElementById('theme-dropdown');
       const backdrop = document.querySelector('.menu-backdrop');
       if (panel) panel.classList.add('open');
@@ -43632,6 +43658,7 @@
         const backdrop = document.querySelector('.menu-backdrop');
         if (panel) panel.classList.remove('open');
         if (backdrop) backdrop.classList.remove('show');
+        _unlockMenuPageScroll();
       }
     }
 
