@@ -4825,6 +4825,92 @@
       color: rgba(var(--priority-high-rgb), 0.25);
     }
 
+    /* Theme picker — Aura Swatches (v6.9.7) */
+    .menu-theme-row { display: block; padding: 12px 14px; cursor: default; }
+    .menu-theme-head { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+    .menu-theme-swatches {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+    }
+    .menu-theme-token {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 5px;
+      padding: 7px 3px 6px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: var(--bg-card);
+      color: var(--text-primary);
+      cursor: pointer;
+      font-family: inherit;
+      outline: none;
+      position: relative;
+      transition: background .15s, border-color .15s, transform .15s, box-shadow .15s;
+    }
+    .menu-theme-token:hover {
+      background: var(--bg-card-alt);
+      transform: translateY(-1px);
+    }
+    .menu-theme-token.active {
+      border-color: var(--accent);
+      background: rgba(var(--accent-rgb), 0.08);
+      box-shadow: 0 0 0 1px var(--accent), 0 2px 8px rgba(var(--accent-rgb), 0.18);
+    }
+    .menu-theme-aura-ring {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+      border: 1px solid rgba(0, 0, 0, 0.12);
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+    [data-theme="dark"] .menu-theme-aura-ring,
+    [data-theme="champagne-dark"] .menu-theme-aura-ring {
+      border-color: rgba(255, 255, 255, 0.15);
+    }
+    .menu-theme-aura-half {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, var(--th-page) 50%, var(--th-card) 50%);
+    }
+    .menu-theme-aura-core {
+      position: relative;
+      z-index: 2;
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: var(--th-accent);
+      box-shadow: 0 0 6px var(--th-glow);
+    }
+    .menu-theme-token .menu-theme-label {
+      font-size: 11px;
+      font-weight: 500;
+      line-height: 1.2;
+      text-align: center;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      max-width: 100%;
+    }
+    .menu-theme-token.active .menu-theme-label {
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    .menu-theme-token.claude { --th-page: #E8EEF5; --th-card: #FFFFFF; --th-accent: #2D6BE4; --th-glow: rgba(45, 107, 228, 0.55); }
+    .menu-theme-token.dark { --th-page: #0F1624; --th-card: #1E293B; --th-accent: #4D94FF; --th-glow: rgba(77, 148, 255, 0.65); }
+    .menu-theme-token.champagne { --th-page: #FBF4E8; --th-card: #FFFAF2; --th-accent: #B78439; --th-glow: rgba(183, 132, 57, 0.55); }
+    .menu-theme-token.champagne-dark { --th-page: #201C16; --th-card: #31291E; --th-accent: #D6AA5A; --th-glow: rgba(214, 170, 90, 0.65); }
+    .menu-theme-token.apple { --th-page: #F5F5F7; --th-card: #FFFFFF; --th-accent: #007AFF; --th-glow: rgba(0, 122, 255, 0.55); }
+    .menu-theme-token.lcd { --th-page: #728C52; --th-card: #91A96D; --th-accent: #1C2810; --th-glow: rgba(28, 40, 16, 0.55); }
+
     /* ── Sync Conflict UI ─────────────────────────────────── */
     .conflict-menu-badge {
       position: absolute;
@@ -24007,7 +24093,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '6.8.92';
+    const VERSION = '6.9.7';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -29485,13 +29571,13 @@
                   </button>`
       ];
       const curTheme = getSavedTheme();
-      const theme = `<div class="menu-row menu-theme-row" style="display:block;padding:12px 14px;cursor:default;">
-                      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+      const theme = `<div class="menu-row menu-theme-row">
+                      <div class="menu-theme-head">
                         <span class="menu-row-icon">${_mIcon('<circle cx="12" cy="12" r="10"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10"/><path d="M12 2a15.3 15.3 0 0 0-4 10 15.3 15.3 0 0 0 4 10"/><line x1="2" y1="12" x2="22" y2="12"/>')}</span>
-                        <span class="menu-row-body" style="flex:1;"><span class="menu-row-label">Theme</span><span class="menu-row-sub">${esc(THEME_META[curTheme].label)}</span></span>
+                        <span class="menu-row-body"><span class="menu-row-label">Theme</span><span class="menu-row-sub">${esc(THEME_META[curTheme].label)}</span></span>
                       </div>
-                      <div style="display:flex;flex-wrap:wrap;gap:6px;">
-                        ${Object.keys(THEME_META).map(k => `<button type="button" onclick="setTheme('${k}')" style="padding:6px 12px;border-radius:999px;border:1px solid ${curTheme === k ? 'var(--accent)' : 'var(--border)'};background:${curTheme === k ? 'var(--accent)' : 'var(--bg-card)'};color:${curTheme === k ? '#fff' : 'var(--text-primary)'};font-size:12px;font-weight:600;cursor:pointer;">${esc(THEME_META[k].label)}</button>`).join('')}
+                      <div class="menu-theme-swatches">
+                        ${Object.keys(THEME_META).map(k => `<button type="button" class="menu-theme-token ${k}${curTheme === k ? ' active' : ''}" onclick="setTheme('${k}')" aria-pressed="${curTheme === k ? 'true' : 'false'}" title="${esc(THEME_META[k].label)}"><div class="menu-theme-aura-ring"><div class="menu-theme-aura-half"></div><div class="menu-theme-aura-core"></div></div><span class="menu-theme-label">${esc(THEME_META[k].label)}</span></button>`).join('')}
                       </div>
                     </div>`;
 

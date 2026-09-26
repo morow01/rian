@@ -1,0 +1,1154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FieldLog — Antigravity Theme Chooser Concepts</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800;1,9..40,400&family=DM+Mono:wght@400;500&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #090E17;
+      --card: #131C2E;
+      --card-alt: #1B273F;
+      --border: #233352;
+      --text: #F1F5F9;
+      --text-muted: #8EA0BD;
+      --accent: #38BDF8;
+      --accent-rgb: 56, 189, 248;
+    }
+
+    [data-canvas="light"] {
+      --bg: #EEF2F6;
+      --card: #FFFFFF;
+      --card-alt: #F8FAFC;
+      --border: #CBD5E1;
+      --text: #0F172A;
+      --text-muted: #64748B;
+      --accent: #2563EB;
+      --accent-rgb: 37, 99, 235;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 36px 20px 80px;
+      transition: background 0.25s, color 0.25s;
+    }
+
+    .shell {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    /* Header */
+    .top-banner {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+    .top-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 14px;
+      background: rgba(var(--accent-rgb), 0.12);
+      border: 1px solid rgba(var(--accent-rgb), 0.25);
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 12px;
+    }
+    .top-title {
+      font-size: 34px;
+      font-weight: 800;
+      letter-spacing: -0.8px;
+      margin-bottom: 8px;
+    }
+    .top-subtitle {
+      color: var(--text-muted);
+      font-size: 15px;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    /* Master Nav Bar */
+    .concept-nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 10px 14px;
+      margin-bottom: 36px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+    }
+    .concept-tabs {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .concept-tab-btn {
+      background: transparent;
+      border: 1px solid transparent;
+      color: var(--text-muted);
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 700;
+      padding: 8px 16px;
+      border-radius: 10px;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.15s;
+    }
+    .concept-tab-btn:hover {
+      color: var(--text);
+      background: rgba(255,255,255,0.05);
+    }
+    .concept-tab-btn.active {
+      background: var(--accent);
+      color: #FFFFFF;
+      box-shadow: 0 2px 10px rgba(var(--accent-rgb), 0.4);
+    }
+
+    .canvas-toggle {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--card-alt);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 6px 12px;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-muted);
+      cursor: pointer;
+    }
+    .canvas-toggle:hover { color: var(--text); }
+
+    /* Concept Stage */
+    .stage-section {
+      display: none;
+      animation: fadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    .stage-section.active {
+      display: grid;
+      grid-template-columns: 350px 1fr;
+      gap: 32px;
+      align-items: start;
+    }
+    @media (max-width: 920px) {
+      .stage-section.active {
+        grid-template-columns: 1fr;
+      }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Drawer Phone Wrapper */
+    .phone-drawer {
+      background: #FFFFFF;
+      border: 1px solid #D4E0EC;
+      border-radius: 24px;
+      overflow: hidden;
+      box-shadow: 0 20px 45px rgba(15, 28, 46, 0.3);
+      color: #0F1C2E;
+      position: sticky;
+      top: 24px;
+      transition: background 0.3s, color 0.3s, border-color 0.3s;
+    }
+    .phone-drawer.theme-dark {
+      background: #1E293B;
+      border-color: #334155;
+      color: #F1F5F9;
+    }
+    .phone-drawer.theme-champagne {
+      background: #FFFAF2;
+      border-color: #E8DCCE;
+      color: #2D271D;
+    }
+    .phone-drawer.theme-champagne-dark {
+      background: #201C16;
+      border-color: #3D3326;
+      color: #F4EBE1;
+    }
+    .phone-drawer.theme-apple {
+      background: #FFFFFF;
+      border-color: #E5E5EA;
+      color: #1D1D1F;
+    }
+    .phone-drawer.theme-lcd {
+      background: #91A96D;
+      border-color: #5A7240;
+      color: #1C2810;
+    }
+
+    .drawer-top-bar {
+      padding: 16px 18px 12px;
+      border-bottom: 1px solid rgba(0,0,0,0.08);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .theme-dark .drawer-top-bar, .theme-champagne-dark .drawer-top-bar {
+      border-bottom-color: rgba(255,255,255,0.08);
+    }
+    .drawer-top-title {
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      opacity: 0.6;
+    }
+
+    .drawer-content {
+      padding: 16px 14px;
+    }
+    .dummy-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 12px;
+      border-radius: 10px;
+      font-size: 12.5px;
+      font-weight: 600;
+      opacity: 0.7;
+      margin-bottom: 6px;
+    }
+
+    /* Explanation Card */
+    .explain-panel {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 30px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+    }
+    .explain-pill {
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: var(--accent);
+      margin-bottom: 8px;
+    }
+    .explain-heading {
+      font-size: 24px;
+      font-weight: 800;
+      margin-bottom: 10px;
+      letter-spacing: -0.4px;
+    }
+    .explain-body {
+      color: var(--text-muted);
+      font-size: 14.5px;
+      line-height: 1.6;
+      margin-bottom: 24px;
+    }
+
+    .pros-card-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    @media (max-width: 600px) {
+      .pros-card-grid { grid-template-columns: 1fr; }
+    }
+    .feature-box {
+      background: var(--card-alt);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px;
+    }
+    .feature-box h4 {
+      font-size: 13px;
+      font-weight: 800;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .feature-box ul {
+      list-style: none;
+      font-size: 13px;
+      color: var(--text-muted);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .feature-box li::before {
+      content: "→";
+      display: inline-block;
+      width: 16px;
+      color: var(--accent);
+      font-weight: 800;
+    }
+
+    /* =========================================================================
+       CONCEPT 1: "Aura Swatches" (Dynamic Glowing Rings + Live Canvas)
+       ========================================================================= */
+    .c1-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .c1-swatches {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+    .c1-token {
+      background: rgba(0,0,0,0.02);
+      border: 1.5px solid rgba(0,0,0,0.1);
+      border-radius: 14px;
+      padding: 10px 8px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 7px;
+      cursor: pointer;
+      font-family: inherit;
+      color: inherit;
+      transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+      outline: none;
+      position: relative;
+    }
+    .theme-dark .c1-token, .theme-champagne-dark .c1-token {
+      border-color: rgba(255,255,255,0.1);
+      background: rgba(255,255,255,0.02);
+    }
+    .c1-token:hover {
+      transform: translateY(-2px);
+    }
+    .c1-token.active {
+      border-color: #2D6BE4;
+      background: rgba(45, 107, 228, 0.07);
+      box-shadow: 0 4px 14px rgba(45, 107, 228, 0.2);
+    }
+    .theme-dark .c1-token.active {
+      border-color: #4D94FF;
+      background: rgba(77, 148, 255, 0.1);
+      box-shadow: 0 4px 14px rgba(77, 148, 255, 0.25);
+    }
+    .theme-champagne .c1-token.active {
+      border-color: #B78439;
+      background: rgba(183, 132, 57, 0.08);
+    }
+    .theme-lcd .c1-token.active {
+      border-color: #1C2810;
+      background: rgba(28, 40, 16, 0.12);
+    }
+
+    .c1-orb-ring {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+      border: 1px solid rgba(0,0,0,0.12);
+      overflow: hidden;
+    }
+    .c1-orb-half {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, var(--c-page) 50%, var(--c-card) 50%);
+    }
+    .c1-orb-center {
+      position: relative;
+      z-index: 2;
+      width: 13px;
+      height: 13px;
+      border-radius: 50%;
+      background: var(--c-accent);
+      box-shadow: 0 0 8px var(--c-glow);
+    }
+    .c1-label {
+      font-size: 11px;
+      font-weight: 700;
+      text-align: center;
+    }
+    .c1-token.active .c1-label {
+      font-weight: 800;
+      color: #2D6BE4;
+    }
+    .theme-dark .c1-token.active .c1-label { color: #4D94FF; }
+    .theme-champagne .c1-token.active .c1-label { color: #B78439; }
+    .theme-lcd .c1-token.active .c1-label { color: #1C2810; }
+
+    /* =========================================================================
+       CONCEPT 2: "Split-Prism Cards" (Geometric 45° Facets)
+       ========================================================================= */
+    .c2-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+    }
+    .c2-card {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 7px 10px;
+      background: rgba(0,0,0,0.02);
+      border: 1px solid rgba(0,0,0,0.1);
+      border-radius: 12px;
+      cursor: pointer;
+      font-family: inherit;
+      color: inherit;
+      text-align: left;
+      transition: all 0.15s;
+    }
+    .theme-dark .c2-card, .theme-champagne-dark .c2-card {
+      border-color: rgba(255,255,255,0.1);
+      background: rgba(255,255,255,0.02);
+    }
+    .c2-card.active {
+      border-color: #2D6BE4;
+      background: rgba(45, 107, 228, 0.08);
+    }
+    .theme-dark .c2-card.active {
+      border-color: #4D94FF;
+      background: rgba(77, 148, 255, 0.12);
+    }
+    .theme-champagne .c2-card.active {
+      border-color: #B78439;
+      background: rgba(183, 132, 57, 0.09);
+    }
+    .theme-lcd .c2-card.active {
+      border-color: #1C2810;
+      background: rgba(28, 40, 16, 0.12);
+    }
+
+    .c2-prism {
+      width: 32px;
+      height: 24px;
+      border-radius: 7px;
+      overflow: hidden;
+      position: relative;
+      border: 1px solid rgba(0,0,0,0.15);
+      flex-shrink: 0;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    }
+    .c2-prism-facet {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(120deg, var(--c-page) 50%, var(--c-card) 50%);
+    }
+    .c2-prism-accent {
+      position: absolute;
+      bottom: 3px;
+      right: 3px;
+      width: 12px;
+      height: 6px;
+      border-radius: 3px;
+      background: var(--c-accent);
+      box-shadow: 0 1px 2px rgba(0,0,0,0.3);
+    }
+
+    .c2-info {
+      flex: 1;
+      min-width: 0;
+    }
+    .c2-name {
+      font-size: 12px;
+      font-weight: 700;
+      display: block;
+    }
+    .c2-tag {
+      font-size: 10px;
+      opacity: 0.6;
+      display: block;
+    }
+
+    /* =========================================================================
+       CONCEPT 3: "Atmosphere Dial" (Fluid Horizontal Card Carousel)
+       ========================================================================= */
+    .c3-carousel {
+      display: flex;
+      gap: 10px;
+      overflow-x: auto;
+      padding: 6px 2px 14px;
+      scrollbar-width: none;
+      scroll-snap-type: x mandatory;
+    }
+    .c3-item {
+      flex: 0 0 92px;
+      scroll-snap-align: start;
+      background: rgba(0,0,0,0.03);
+      border: 1.5px solid rgba(0,0,0,0.1);
+      border-radius: 14px;
+      padding: 8px 6px;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      font-family: inherit;
+      color: inherit;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .theme-dark .c3-item, .theme-champagne-dark .c3-item {
+      border-color: rgba(255,255,255,0.1);
+    }
+    .c3-item.active {
+      transform: scale(1.05);
+      border-color: #2D6BE4;
+      background: #FFFFFF;
+      box-shadow: 0 6px 18px rgba(45, 107, 228, 0.25);
+    }
+    .theme-dark .c3-item.active {
+      border-color: #4D94FF;
+      background: #273449;
+      box-shadow: 0 6px 18px rgba(77, 148, 255, 0.3);
+    }
+    .theme-champagne .c3-item.active {
+      border-color: #B78439;
+      background: #FFFFFF;
+    }
+    .theme-lcd .c3-item.active {
+      border-color: #1C2810;
+      background: #728C52;
+    }
+
+    .c3-mini-window {
+      width: 100%;
+      height: 48px;
+      border-radius: 7px;
+      overflow: hidden;
+      border: 1px solid rgba(0,0,0,0.12);
+      display: flex;
+      flex-direction: column;
+    }
+    .c3-win-hdr {
+      height: 12px;
+      padding: 0 4px;
+      display: flex;
+      align-items: center;
+      gap: 2px;
+    }
+    .c3-win-dot { width: 3px; height: 3px; border-radius: 50%; background: rgba(255,255,255,0.4); }
+    .c3-win-body {
+      flex: 1;
+      padding: 4px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .c3-win-card {
+      border-radius: 3px;
+      padding: 3px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .c3-win-btn {
+      width: 16px;
+      height: 5px;
+      border-radius: 2px;
+    }
+
+    /* =========================================================================
+       CONCEPT 4: "Tactile Deck" (2-Row Wide Pills with Accent Glow Pip)
+       ========================================================================= */
+    .c4-deck {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+    }
+    .c4-pill-btn {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 9px 12px;
+      background: rgba(0,0,0,0.02);
+      border: 1px solid rgba(0,0,0,0.1);
+      border-radius: 12px;
+      cursor: pointer;
+      font-family: inherit;
+      color: inherit;
+      transition: all 0.15s;
+    }
+    .theme-dark .c4-pill-btn, .theme-champagne-dark .c4-pill-btn {
+      border-color: rgba(255,255,255,0.1);
+    }
+    .c4-pill-btn.active {
+      border-color: #2D6BE4;
+      background: rgba(45, 107, 228, 0.08);
+      font-weight: 700;
+    }
+    .theme-dark .c4-pill-btn.active {
+      border-color: #4D94FF;
+      background: rgba(77, 148, 255, 0.12);
+    }
+    .theme-champagne .c4-pill-btn.active {
+      border-color: #B78439;
+      background: rgba(183, 132, 57, 0.1);
+    }
+    .theme-lcd .c4-pill-btn.active {
+      border-color: #1C2810;
+      background: rgba(28, 40, 16, 0.15);
+    }
+
+    .c4-pip {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      position: relative;
+      box-shadow: 0 0 6px var(--c-glow);
+    }
+    .c4-pip::after {
+      content: '';
+      position: absolute;
+      inset: 2px;
+      border-radius: 50%;
+      background: #FFFFFF;
+      opacity: 0.7;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="shell">
+    <header class="top-banner">
+      <div class="top-pill">Antigravity Design Lab</div>
+      <h1 class="top-title">FieldLog Theme Chooser Concepts</h1>
+      <p class="top-subtitle">Interactive prototypes engineered to replace the 2-column flag buttons with high-end ergonomics, zero pixel-rounding artifacts, and instant visual clarity.</p>
+    </header>
+
+    <!-- Master Nav Bar -->
+    <div class="concept-nav">
+      <div class="concept-tabs">
+        <button class="concept-tab-btn active" onclick="showConcept(1)">1 · Aura Swatches</button>
+        <button class="concept-tab-btn" onclick="showConcept(2)">2 · Split-Prism Cards</button>
+        <button class="concept-tab-btn" onclick="showConcept(3)">3 · Atmosphere Carousel</button>
+        <button class="concept-tab-btn" onclick="showConcept(4)">4 · Tactile Deck</button>
+      </div>
+      <button class="canvas-toggle" onclick="toggleCanvasMode()">
+        <span id="canvas-icon">☀️</span> <span id="canvas-label">Light Canvas View</span>
+      </button>
+    </div>
+
+    <!-- =========================================================================
+         STAGE 1: AURA SWATCHES
+         ========================================================================= -->
+    <div id="stage-1" class="stage-section active">
+      <!-- Drawer Simulator -->
+      <div class="phone-drawer" id="drawer-c1">
+        <div class="drawer-top-bar">
+          <span class="drawer-top-title">DISPLAY & THEME</span>
+          <span style="font-size: 11px; font-weight: 800; opacity: 0.6;">☰ Menu</span>
+        </div>
+        <div class="drawer-content">
+          <div class="dummy-row"><span>📅</span> Week layout: Grouped</div>
+          <div class="dummy-row"><span>📊</span> Show stats: On</div>
+
+          <div style="margin-top: 14px; padding-top: 14px; border-top: 1px solid rgba(0,0,0,0.08);">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 12px;">
+              <span style="font-size: 13px; font-weight: 800; display:flex; align-items:center; gap:6px;">
+                <span>✨</span> Color Theme
+              </span>
+              <span id="c1-cur-label" style="font-size: 11px; font-weight: 700; opacity: 0.7;">Light</span>
+            </div>
+
+            <!-- 3x2 Grid of Aura Swatches -->
+            <div class="c1-swatches">
+              <!-- Light -->
+              <button class="c1-token active" onclick="applyTheme('claude', 1)">
+                <div class="c1-orb-ring" style="--c-page:#E8EEF5; --c-card:#FFFFFF; --c-accent:#2D6BE4; --c-glow:rgba(45,107,228,0.5);">
+                  <div class="c1-orb-half"></div>
+                  <div class="c1-orb-center"></div>
+                </div>
+                <span class="c1-label">Light</span>
+              </button>
+
+              <!-- Dark -->
+              <button class="c1-token" onclick="applyTheme('dark', 1)">
+                <div class="c1-orb-ring" style="--c-page:#0F1624; --c-card:#1E293B; --c-accent:#4D94FF; --c-glow:rgba(77,148,255,0.6);">
+                  <div class="c1-orb-half"></div>
+                  <div class="c1-orb-center"></div>
+                </div>
+                <span class="c1-label">Dark</span>
+              </button>
+
+              <!-- Champagne -->
+              <button class="c1-token" onclick="applyTheme('champagne', 1)">
+                <div class="c1-orb-ring" style="--c-page:#FBF4E8; --c-card:#FFFAF2; --c-accent:#B78439; --c-glow:rgba(183,132,57,0.5);">
+                  <div class="c1-orb-half"></div>
+                  <div class="c1-orb-center"></div>
+                </div>
+                <span class="c1-label">Champagne</span>
+              </button>
+
+              <!-- Champ. Dark -->
+              <button class="c1-token" onclick="applyTheme('champagne-dark', 1)">
+                <div class="c1-orb-ring" style="--c-page:#201C16; --c-card:#31291E; --c-accent:#D6AA5A; --c-glow:rgba(214,170,90,0.6);">
+                  <div class="c1-orb-half"></div>
+                  <div class="c1-orb-center"></div>
+                </div>
+                <span class="c1-label">Ch. Dark</span>
+              </button>
+
+              <!-- macOS -->
+              <button class="c1-token" onclick="applyTheme('apple', 1)">
+                <div class="c1-orb-ring" style="--c-page:#F5F5F7; --c-card:#FFFFFF; --c-accent:#007AFF; --c-glow:rgba(0,122,255,0.5);">
+                  <div class="c1-orb-half"></div>
+                  <div class="c1-orb-center"></div>
+                </div>
+                <span class="c1-label">macOS</span>
+              </button>
+
+              <!-- LCD -->
+              <button class="c1-token" onclick="applyTheme('lcd', 1)">
+                <div class="c1-orb-ring" style="--c-page:#728C52; --c-card:#91A96D; --c-accent:#1C2810; --c-glow:rgba(28,40,16,0.5);">
+                  <div class="c1-orb-half"></div>
+                  <div class="c1-orb-center"></div>
+                </div>
+                <span class="c1-label">LCD</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Description -->
+      <div class="explain-panel">
+        <div class="explain-pill">Antigravity Concept 1</div>
+        <h2 class="explain-heading">Aura Swatches</h2>
+        <p class="explain-body">
+          A compact 3×2 grid of tactile tokens. Each token features a dual-tone circular disk (showing the canvas & card relationship) centered with a glowing accent diode.
+        </p>
+
+        <div class="pros-card-grid">
+          <div class="feature-box">
+            <h4>✓ Highlights</h4>
+            <ul>
+              <li>Ultra-clean 3×2 layout that takes minimal vertical height.</li>
+              <li>Zero border clipping or awkward stripe seams.</li>
+              <li>Concentric circular diodes feel like precision hardware switches.</li>
+            </ul>
+          </div>
+          <div class="feature-box">
+            <h4>💡 Ergonomics</h4>
+            <ul>
+              <li>Large, accessible tap targets (48px+ touch area).</li>
+              <li>Instantly previews page canvas, card tone, and accent highlight.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- =========================================================================
+         STAGE 2: SPLIT-PRISM CARDS
+         ========================================================================= -->
+    <div id="stage-2" class="stage-section">
+      <!-- Drawer Simulator -->
+      <div class="phone-drawer" id="drawer-c2">
+        <div class="drawer-top-bar">
+          <span class="drawer-top-title">DISPLAY & THEME</span>
+          <span style="font-size: 11px; font-weight: 800; opacity: 0.6;">☰ Menu</span>
+        </div>
+        <div class="drawer-content">
+          <div class="dummy-row"><span>📅</span> Week layout: Grouped</div>
+          <div class="dummy-row"><span>📊</span> Show stats: On</div>
+
+          <div style="margin-top: 14px; padding-top: 14px; border-top: 1px solid rgba(0,0,0,0.08);">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 12px;">
+              <span style="font-size: 13px; font-weight: 800; display:flex; align-items:center; gap:6px;">
+                <span>🎨</span> Theme Palettes
+              </span>
+              <span id="c2-cur-label" style="font-size: 11px; font-weight: 700; opacity: 0.7;">Light</span>
+            </div>
+
+            <!-- 2-Col Split-Prism Cards -->
+            <div class="c2-grid">
+              <!-- Light -->
+              <button class="c2-card active" onclick="applyTheme('claude', 2)">
+                <div class="c2-prism" style="--c-page:#E8EEF5; --c-card:#FFFFFF; --c-accent:#2D6BE4;">
+                  <div class="c2-prism-facet"></div>
+                  <div class="c2-prism-accent"></div>
+                </div>
+                <div class="c2-info">
+                  <span class="c2-name">Light</span>
+                  <span class="c2-tag">Classic Blue</span>
+                </div>
+              </button>
+
+              <!-- Dark -->
+              <button class="c2-card" onclick="applyTheme('dark', 2)">
+                <div class="c2-prism" style="--c-page:#0F1624; --c-card:#1E293B; --c-accent:#4D94FF;">
+                  <div class="c2-prism-facet"></div>
+                  <div class="c2-prism-accent"></div>
+                </div>
+                <div class="c2-info">
+                  <span class="c2-name">Dark</span>
+                  <span class="c2-tag">Slate Navy</span>
+                </div>
+              </button>
+
+              <!-- Champagne -->
+              <button class="c2-card" onclick="applyTheme('champagne', 2)">
+                <div class="c2-prism" style="--c-page:#FBF4E8; --c-card:#FFFAF2; --c-accent:#B78439;">
+                  <div class="c2-prism-facet"></div>
+                  <div class="c2-prism-accent"></div>
+                </div>
+                <div class="c2-info">
+                  <span class="c2-name">Champagne</span>
+                  <span class="c2-tag">Warm Tone</span>
+                </div>
+              </button>
+
+              <!-- Champ. Dark -->
+              <button class="c2-card" onclick="applyTheme('champagne-dark', 2)">
+                <div class="c2-prism" style="--c-page:#201C16; --c-card:#31291E; --c-accent:#D6AA5A;">
+                  <div class="c2-prism-facet"></div>
+                  <div class="c2-prism-accent"></div>
+                </div>
+                <div class="c2-info">
+                  <span class="c2-name">Ch. Dark</span>
+                  <span class="c2-tag">Amber Gold</span>
+                </div>
+              </button>
+
+              <!-- macOS -->
+              <button class="c2-card" onclick="applyTheme('apple', 2)">
+                <div class="c2-prism" style="--c-page:#F5F5F7; --c-card:#FFFFFF; --c-accent:#007AFF;">
+                  <div class="c2-prism-facet"></div>
+                  <div class="c2-prism-accent"></div>
+                </div>
+                <div class="c2-info">
+                  <span class="c2-name">macOS</span>
+                  <span class="c2-tag">Apple Blue</span>
+                </div>
+              </button>
+
+              <!-- LCD -->
+              <button class="c2-card" onclick="applyTheme('lcd', 2)">
+                <div class="c2-prism" style="--c-page:#728C52; --c-card:#91A96D; --c-accent:#1C2810;">
+                  <div class="c2-prism-facet"></div>
+                  <div class="c2-prism-accent"></div>
+                </div>
+                <div class="c2-info">
+                  <span class="c2-name">LCD</span>
+                  <span class="c2-tag">Retro Matrix</span>
+                </div>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Description -->
+      <div class="explain-panel">
+        <div class="explain-pill">Antigravity Concept 2</div>
+        <h2 class="explain-heading">Split-Prism Cards</h2>
+        <p class="explain-body">
+          Refines the 2-column structure by replacing the 3 vertical stripes with a 120° angled geometric facet and an anchored accent badge. Includes helpful subtitle tags for quick recognition.
+        </p>
+
+        <div class="pros-card-grid">
+          <div class="feature-box">
+            <h4>✓ Highlights</h4>
+            <ul>
+              <li>Maintains 2-column muscle memory.</li>
+              <li>Angle cut prevents the pale stripe from looking like a border gap.</li>
+              <li>Subtitle tags clearly communicate the flavor of each theme.</li>
+            </ul>
+          </div>
+          <div class="feature-box">
+            <h4>💡 Ergonomics</h4>
+            <ul>
+              <li>Direct drop-in replacement in <code>app.html</code>.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- =========================================================================
+         STAGE 3: ATMOSPHERE CAROUSEL
+         ========================================================================= -->
+    <div id="stage-3" class="stage-section">
+      <!-- Drawer Simulator -->
+      <div class="phone-drawer" id="drawer-c3">
+        <div class="drawer-top-bar">
+          <span class="drawer-top-title">DISPLAY & THEME</span>
+          <span style="font-size: 11px; font-weight: 800; opacity: 0.6;">☰ Menu</span>
+        </div>
+        <div class="drawer-content">
+          <div class="dummy-row"><span>📅</span> Week layout: Grouped</div>
+          <div class="dummy-row"><span>📊</span> Show stats: On</div>
+
+          <div style="margin-top: 14px; padding-top: 14px; border-top: 1px solid rgba(0,0,0,0.08);">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 10px;">
+              <span style="font-size: 13px; font-weight: 800; display:flex; align-items:center; gap:6px;">
+                <span>🌌</span> Atmosphere
+              </span>
+              <span id="c3-cur-label" style="font-size: 11px; font-weight: 700; opacity: 0.7;">Light</span>
+            </div>
+
+            <!-- Horizontal Swipeable Card Carousel -->
+            <div class="c3-carousel">
+              <!-- Light -->
+              <button class="c3-item active" onclick="applyTheme('claude', 3)">
+                <div class="c3-mini-window" style="background:#E8EEF5;">
+                  <div class="c3-win-hdr" style="background:#0F1C2E;">
+                    <div class="c3-win-dot"></div><div class="c3-win-dot"></div>
+                  </div>
+                  <div class="c3-win-body">
+                    <div class="c3-win-card" style="background:#FFFFFF;">
+                      <div class="c3-win-btn" style="background:#2D6BE4;"></div>
+                    </div>
+                  </div>
+                </div>
+                <span style="font-size:11px; font-weight:700;">Light</span>
+              </button>
+
+              <!-- Dark -->
+              <button class="c3-item" onclick="applyTheme('dark', 3)">
+                <div class="c3-mini-window" style="background:#0F1624;">
+                  <div class="c3-win-hdr" style="background:#090E1C;">
+                    <div class="c3-win-dot"></div><div class="c3-win-dot"></div>
+                  </div>
+                  <div class="c3-win-body">
+                    <div class="c3-win-card" style="background:#1E293B;">
+                      <div class="c3-win-btn" style="background:#4D94FF;"></div>
+                    </div>
+                  </div>
+                </div>
+                <span style="font-size:11px; font-weight:700;">Dark</span>
+              </button>
+
+              <!-- Champagne -->
+              <button class="c3-item" onclick="applyTheme('champagne', 3)">
+                <div class="c3-mini-window" style="background:#FBF4E8;">
+                  <div class="c3-win-hdr" style="background:#25221C;">
+                    <div class="c3-win-dot"></div><div class="c3-win-dot"></div>
+                  </div>
+                  <div class="c3-win-body">
+                    <div class="c3-win-card" style="background:#FFFAF2;">
+                      <div class="c3-win-btn" style="background:#B78439;"></div>
+                    </div>
+                  </div>
+                </div>
+                <span style="font-size:11px; font-weight:700;">Champagne</span>
+              </button>
+
+              <!-- Champ. Dark -->
+              <button class="c3-item" onclick="applyTheme('champagne-dark', 3)">
+                <div class="c3-mini-window" style="background:#201C16;">
+                  <div class="c3-win-hdr" style="background:#0D0B09;">
+                    <div class="c3-win-dot"></div><div class="c3-win-dot"></div>
+                  </div>
+                  <div class="c3-win-body">
+                    <div class="c3-win-card" style="background:#31291E;">
+                      <div class="c3-win-btn" style="background:#D6AA5A;"></div>
+                    </div>
+                  </div>
+                </div>
+                <span style="font-size:11px; font-weight:700;">Ch. Dark</span>
+              </button>
+
+              <!-- macOS -->
+              <button class="c3-item" onclick="applyTheme('apple', 3)">
+                <div class="c3-mini-window" style="background:#F5F5F7;">
+                  <div class="c3-win-hdr" style="background:#1D1D1F;">
+                    <div class="c3-win-dot"></div><div class="c3-win-dot"></div>
+                  </div>
+                  <div class="c3-win-body">
+                    <div class="c3-win-card" style="background:#FFFFFF;">
+                      <div class="c3-win-btn" style="background:#007AFF;"></div>
+                    </div>
+                  </div>
+                </div>
+                <span style="font-size:11px; font-weight:700;">macOS</span>
+              </button>
+
+              <!-- LCD -->
+              <button class="c3-item" onclick="applyTheme('lcd', 3)">
+                <div class="c3-mini-window" style="background:#728C52;">
+                  <div class="c3-win-hdr" style="background:#1C2810;">
+                    <div class="c3-win-dot"></div><div class="c3-win-dot"></div>
+                  </div>
+                  <div class="c3-win-body">
+                    <div class="c3-win-card" style="background:#91A96D;">
+                      <div class="c3-win-btn" style="background:#1C2810;"></div>
+                    </div>
+                  </div>
+                </div>
+                <span style="font-size:11px; font-weight:700;">LCD</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Description -->
+      <div class="explain-panel">
+        <div class="explain-pill">Antigravity Concept 3</div>
+        <h2 class="explain-heading">Atmosphere Carousel</h2>
+        <p class="explain-body">
+          A horizontally scrollable deck of miniature app previews with snap alignment and active elevation.
+        </p>
+
+        <div class="pros-card-grid">
+          <div class="feature-box">
+            <h4>✓ Highlights</h4>
+            <ul>
+              <li>Saves extensive vertical space in the ☰ menu.</li>
+              <li>Smooth kinetic physics with native swipe.</li>
+            </ul>
+          </div>
+          <div class="feature-box">
+            <h4>💡 Ergonomics</h4>
+            <ul>
+              <li>Miniature window graphics give authentic preview fidelity.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- =========================================================================
+         STAGE 4: TACTILE DECK
+         ========================================================================= -->
+    <div id="stage-4" class="stage-section">
+      <!-- Drawer Simulator -->
+      <div class="phone-drawer" id="drawer-c4">
+        <div class="drawer-top-bar">
+          <span class="drawer-top-title">DISPLAY & THEME</span>
+          <span style="font-size: 11px; font-weight: 800; opacity: 0.6;">☰ Menu</span>
+        </div>
+        <div class="drawer-content">
+          <div class="dummy-row"><span>📅</span> Week layout: Grouped</div>
+          <div class="dummy-row"><span>📊</span> Show stats: On</div>
+
+          <div style="margin-top: 14px; padding-top: 14px; border-top: 1px solid rgba(0,0,0,0.08);">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 12px;">
+              <span style="font-size: 13px; font-weight: 800; display:flex; align-items:center; gap:6px;">
+                <span>🔘</span> Theme Selection
+              </span>
+              <span id="c4-cur-label" style="font-size: 11px; font-weight: 700; opacity: 0.7;">Light</span>
+            </div>
+
+            <!-- 2-Row Wide Deck -->
+            <div class="c4-deck">
+              <button class="c4-pill-btn active" onclick="applyTheme('claude', 4)">
+                <span>Light</span>
+                <span class="c4-pip" style="background:#2D6BE4; --c-glow:rgba(45,107,228,0.5);"></span>
+              </button>
+              <button class="c4-pill-btn" onclick="applyTheme('dark', 4)">
+                <span>Dark</span>
+                <span class="c4-pip" style="background:#4D94FF; --c-glow:rgba(77,148,255,0.6);"></span>
+              </button>
+              <button class="c4-pill-btn" onclick="applyTheme('champagne', 4)">
+                <span>Champagne</span>
+                <span class="c4-pip" style="background:#B78439; --c-glow:rgba(183,132,57,0.5);"></span>
+              </button>
+              <button class="c4-pill-btn" onclick="applyTheme('champagne-dark', 4)">
+                <span>Ch. Dark</span>
+                <span class="c4-pip" style="background:#D6AA5A; --c-glow:rgba(214,170,90,0.6);"></span>
+              </button>
+              <button class="c4-pill-btn" onclick="applyTheme('apple', 4)">
+                <span>macOS</span>
+                <span class="c4-pip" style="background:#007AFF; --c-glow:rgba(0,122,255,0.5);"></span>
+              </button>
+              <button class="c4-pill-btn" onclick="applyTheme('lcd', 4)">
+                <span>LCD</span>
+                <span class="c4-pip" style="background:#1C2810; --c-glow:rgba(28,40,16,0.5);"></span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Description -->
+      <div class="explain-panel">
+        <div class="explain-pill">Antigravity Concept 4</div>
+        <h2 class="explain-heading">Tactile Deck with Glowing Accent Pip</h2>
+        <p class="explain-body">
+          A clean, high-contrast button matrix where each theme name is paired with a glowing neon accent pip.
+        </p>
+
+        <div class="pros-card-grid">
+          <div class="feature-box">
+            <h4>✓ Highlights</h4>
+            <ul>
+              <li>Simple, rugged, and glove-friendly for field technicians.</li>
+              <li>Minimal visual noise, clear readability.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    const THEMES = {
+      claude: { label: 'Light', cssClass: '' },
+      dark: { label: 'Dark', cssClass: 'theme-dark' },
+      champagne: { label: 'Champagne', cssClass: 'theme-champagne' },
+      'champagne-dark': { label: 'Champagne Dark', cssClass: 'theme-champagne-dark' },
+      apple: { label: 'macOS', cssClass: 'theme-apple' },
+      lcd: { label: 'LCD', cssClass: 'theme-lcd' }
+    };
+
+    function showConcept(num) {
+      document.querySelectorAll('.concept-tab-btn').forEach((b, idx) => {
+        b.classList.toggle('active', idx === (num - 1));
+      });
+      document.querySelectorAll('.stage-section').forEach((s, idx) => {
+        s.classList.toggle('active', idx === (num - 1));
+      });
+    }
+
+    function applyTheme(key, conceptNum) {
+      const meta = THEMES[key];
+      const drawer = document.getElementById(`drawer-c${conceptNum}`);
+      if (drawer) {
+        drawer.className = `phone-drawer ${meta.cssClass}`;
+      }
+
+      // Update active button state
+      const stage = document.getElementById(`stage-${conceptNum}`);
+      if (stage) {
+        const buttons = stage.querySelectorAll('button[onclick*="applyTheme"]');
+        buttons.forEach(b => {
+          b.classList.toggle('active', b.getAttribute('onclick').includes(`'${key}'`));
+        });
+      }
+
+      const lbl = document.getElementById(`c${conceptNum}-cur-label`);
+      if (lbl) lbl.textContent = meta.label;
+    }
+
+    function toggleCanvasMode() {
+      const isLight = document.documentElement.getAttribute('data-canvas') === 'light';
+      if (isLight) {
+        document.documentElement.removeAttribute('data-canvas');
+        document.getElementById('canvas-icon').textContent = '☀️';
+        document.getElementById('canvas-label').textContent = 'Light Canvas View';
+      } else {
+        document.documentElement.setAttribute('data-canvas', 'light');
+        document.getElementById('canvas-icon').textContent = '🌙';
+        document.getElementById('canvas-label').textContent = 'Dark Canvas View';
+      }
+    }
+  </script>
+</body>
+</html>
