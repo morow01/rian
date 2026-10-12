@@ -49,7 +49,7 @@ A Progressive Web App for field technicians — timesheets, notes (TipTap rich t
 ## Version
 `const VERSION = 'x.y.z'` in `app.html` (~line 18699). Bump on every change. Only location that needs updating (index.html version references are static).
 **Patch (z) must not exceed 99.** When a bump would take it to 100, bump the minor version instead and reset patch to 0 (e.g. `6.7.99` → `6.8.0`, never `6.7.100`). 6.7.100–6.7.102 already broke this rule and were left as-is rather than rewriting pushed history — the rule applies from 6.8.0 onward.
-Current version: **6.9.12**
+Current version: **6.9.13**
 
 **12 themes active**: `claude` (default light), `dark` (slate-based), `champagne`, `champagne-dark`, `ios`, `apple` (macOS), `gray` (Grayscale), `gameboy` (Game Boy), `win31` (Win 3.1), `lcd` (LCD), `spectrum` (ZX Spectrum), `retro` (Retro). Theme picker lives in ☰ menu → Display. Switcher at `setTheme(key)`, registry at `THEME_META`.
 
@@ -137,6 +137,9 @@ When building HTML strings and embedding a value inside an `onclick="..."` attri
 '\'' + (value || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'") + '\''
 ```
 Or use the existing pattern: `esc(value).replace(/'/g, "\\'")`  and wrap in `\'...\''`.
+
+### Apostrophe in a task name made Delete do nothing (v6.9.13)
+The card Delete button built `onclick="showConfirm('Delete task?','${escAttr(description)}',…)"`. `escAttr()` turns `'` into `&#39;`, which the HTML parser decodes back to `'` **before** the JS parses the attribute, ending the string early → syntax error, silent no-op (task "Beards and Barnets - 3 o'clock"). New helper **`escJsAttr(s)`** (next to `escAttr`): JS-escape first, then HTML-escape — use it for any value placed inside a single-quoted JS string inside a double-quoted `onclick`. Never use `escAttr` there (it is right only for plain attribute values like `data-*`/`title`). All three Delete-task buttons (expanded card, task modal, desktop detail) now use it. Verified with an apostrophe, double quotes, `&`, `<b>` and a backslash.
 
 ## Key Functions
 - `loadWeek(weekStart)` — loads week data from IndexedDB + subscribes to Firestore

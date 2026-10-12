@@ -24100,7 +24100,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '6.9.12';
+    const VERSION = '6.9.13';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -24424,6 +24424,11 @@
     const DB_NAME = 'timesheet-db';
     const DB_VERSION = 3;
     const esc = s => String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    // For a value placed inside a single-quoted JS string INSIDE a double-quoted onclick="…" attribute.
+    // escAttr() is wrong there: it turns ' into &#39;, which the HTML parser decodes back to ' BEFORE the
+    // JS runs, ending the string early (task "Beards and Barnets - 3 o'clock" could not be deleted).
+    // Order matters: JS-escape first, then HTML-escape the result.
+    const escJsAttr = s => esc(String(s || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/\n/g, ' ').replace(/\r/g, '')).replace(/"/g, '&quot;');
     const escAttr = s => esc(s).replace(/'/g, '&#39;').replace(/"/g, '&quot;').replace(/\n/g, ' ').replace(/\r/g, '');
     const stripHtml = s => String(s || '').replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').trim();
 
@@ -31272,7 +31277,7 @@
       }
 
       var escId = act.id.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
-      var escDesc = (act.description || 'Unnamed').replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+      var escDesc = escJsAttr(act.description || 'Unnamed');
 
       var totalActCount = day.activities.filter(function (a) { return a.description || a.codes.length || parseFloat(a.ordinary) > 0 || parseFloat(a.overtime) > 0; }).length;
       var taskCounterSub = totalActCount > 0 ? 'Task ' + (actIndex + 1) + ' of ' + totalActCount : 'Task Details';
@@ -32292,7 +32297,7 @@
              Remedy
            </button>
            <div style="width:1px;background:var(--border);align-self:stretch;margin:0 2px;flex-shrink:0"></div>
-           <button onclick="showConfirm('Delete task?','${escAttr(act.description || 'Unnamed')}',()=>{removeActivity('${escId}',${di});closeTaskModal()})" class="act-action-btn act-action-delete" style="flex:none;padding:0 14px" title="Delete">
+           <button onclick="showConfirm('Delete task?','${escJsAttr(act.description || 'Unnamed')}',()=>{removeActivity('${escId}',${di});closeTaskModal()})" class="act-action-btn act-action-delete" style="flex:none;padding:0 14px" title="Delete">
              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
            </button>`;
 
@@ -32751,7 +32756,7 @@
                   Remedy
                 </button>
                 <div style="width:1px;background:var(--border);align-self:stretch;margin:0 2px;flex-shrink:0"></div>
-                <button onclick="event.stopPropagation();showConfirm('Delete task?','${escAttr(act.description || 'Unnamed')}',()=>removeActivity('${act.id}',${di}))" class="act-action-btn act-action-delete" style="flex:none;padding:0 14px" title="Delete">
+                <button onclick="event.stopPropagation();showConfirm('Delete task?','${escJsAttr(act.description || 'Unnamed')}',()=>removeActivity('${escJsAttr(act.id)}',${di}))" class="act-action-btn act-action-delete" style="flex:none;padding:0 14px" title="Delete">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
                 </button>`}
             </div>
