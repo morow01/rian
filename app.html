@@ -24100,7 +24100,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '6.9.13';
+    const VERSION = '6.9.14';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -26647,12 +26647,58 @@
       maybeTakeAutoSnapshot(weekStart, merged).catch(e => console.warn('[FieldLog]', e));
     }
 
+    // Time we last received a notes snapshot from the cloud. A cloud-only note updated AFTER this
+    // was created/edited on another device since we last looked (so we must not drop it);
+    // one updated BEFORE it is something this device deliberately removed (e.g. emptied the bin).
+    let _notesRemoteSeenAt = 0;
+
+    // v6.9.14 — read-before-write. This used to be a blind ref.set({notes}) of the whole document, so a
+    // device holding a stale copy of ANY note overwrote newer edits made on another device (the other
+    // device then pulled the stale version back down and its typed text vanished). Now: per note, the
+    // newer updatedAt wins, and notes that only exist in the cloud (created elsewhere) are kept.
     async function fsSetNotes(notes) {
       const ref = userDoc('data/notes');
       if (!ref) return;
-      await ref.set({ notes, _updatedAt: Date.now() });
+      let out = notes;
+      try {
+        const snap = await Promise.race([
+          ref.get({ source: 'server' }),
+          new Promise((_, rej) => setTimeout(() => rej(new Error('notes pre-write read timed out')), 5000))
+        ]);
+        const remote = snap && snap.exists ? snap.data().notes : null;
+        if (Array.isArray(remote) && remote.length) {
+          const remoteMap = new Map(remote.map(n => [n.id, n]));
+          const localIds = new Set(notes.map(n => n.id));
+          const pulled = [];
+          out = notes.map(ln => {
+            const rn = remoteMap.get(ln.id);
+            if (rn && (rn.updatedAt || 0) > (ln.updatedAt || 0)) { pulled.push(rn); return deepCopy(rn); }
+            return ln;
+          });
+          for (const rn of remote) {
+            if (!localIds.has(rn.id) && (rn.updatedAt || 0) > _notesRemoteSeenAt) { pulled.push(rn); out.push(deepCopy(rn)); }
+          }
+          if (pulled.length) {
+            console.warn('[FieldLog] Notes write-merge: kept ' + pulled.length + ' newer note(s) from another device instead of overwriting them');
+            // Bring this device's state in line so the next save doesn't push the stale copy again
+            const stMap = new Map((state.notes || []).map((n, i) => [n.id, i]));
+            for (const rn of pulled) {
+              const i = stMap.get(rn.id);
+              if (i === undefined) state.notes.push(deepCopy(rn)); else state.notes[i] = deepCopy(rn);
+              _raiseNoteHWM(rn.id, (rn.noteContent || '').length);
+            }
+            dbPut('notes', { id: 'notes_all', userId: state.currentUser?.uid || null, data: state.notes.filter(n => !n._draft), updatedAt: Date.now() }).catch(() => { });
+            showToast('Kept newer note changes from another device');
+            if (document.getElementById('note-fs-modal')?.classList.contains('hidden') !== false) render();
+          }
+        }
+      } catch (e) {
+        // Offline / slow: fall back to the plain write (Firestore queues it) rather than blocking the save.
+        console.warn('[FieldLog] Notes pre-write merge skipped:', e.message || e);
+      }
+      await ref.set({ notes: out, _updatedAt: Date.now() });
       // Always keep a rolling backup (only if non-empty)
-      fsBackupNotes(notes).catch(() => { });
+      fsBackupNotes(out).catch(() => { });
     }
 
     async function fsSetReminders(reminders) {
@@ -35051,6 +35097,7 @@
       const ref = userDoc('data/notes');
       notesUnsubscribe = ref.onSnapshot({ includeMetadataChanges: true }, snap => {
         if (snap.metadata.hasPendingWrites) return;
+        if (snap.exists && !snap.metadata.fromCache) _notesRemoteSeenAt = Date.now();
 
         // If there's a pending local save, do a protective merge instead of skipping.
         // Updates from OTHER devices to notes we're NOT editing still need to be pulled in;
