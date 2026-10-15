@@ -49,7 +49,7 @@ A Progressive Web App for field technicians — timesheets, notes (TipTap rich t
 ## Version
 `const VERSION = 'x.y.z'` in `app.html` (~line 18699). Bump on every change. Only location that needs updating (index.html version references are static).
 **Patch (z) must not exceed 99.** When a bump would take it to 100, bump the minor version instead and reset patch to 0 (e.g. `6.7.99` → `6.8.0`, never `6.7.100`). 6.7.100–6.7.102 already broke this rule and were left as-is rather than rewriting pushed history — the rule applies from 6.8.0 onward.
-Current version: **6.9.14**
+Current version: **6.9.15**
 
 **12 themes active**: `claude` (default light), `dark` (slate-based), `champagne`, `champagne-dark`, `ios`, `apple` (macOS), `gray` (Grayscale), `gameboy` (Game Boy), `win31` (Win 3.1), `lcd` (LCD), `spectrum` (ZX Spectrum), `retro` (Retro). Theme picker lives in ☰ menu → Display. Switcher at `setTheme(key)`, registry at `THEME_META`.
 
@@ -114,6 +114,8 @@ The app syncs week data, notes, callouts, and reminders with Firestore in real-t
 - Callouts HWM — tracks max callout entry count (`rian_co_hwm`). Threshold is 2 entries.
 
 **Notes write-side merge (v6.9.14):** `fsSetNotes()` used to be a blind `ref.set({notes})` of the WHOLE notes doc, so a device holding a stale copy of any note overwrote newer edits from another device (reported: sentences typed + saved on the Fold 5 vanished after the laptop opened Notes). It now reads the cloud doc first (server source, 5s timeout, falls back to the plain write on failure/offline) and merges per note: newer `updatedAt` wins; cloud-only notes are kept when their `updatedAt` > `_notesRemoteSeenAt` (set on every non-cache notes snapshot) — older ones are treated as deliberately removed here (emptied bin). Pulled notes are written into `state.notes` + IndexedDB, a toast "Kept newer note changes from another device" shows and `[FieldLog] Notes write-merge: kept N…` is logged. Not covered: a stale device that *bumps* `updatedAt` without a real edit would still win — if loss recurs, look for that. Weeks already had this (merge-on-save); journal/callouts/reminders still do plain `set`.
+
+**Callouts + Journal write-side merge (v6.9.15):** same read-before-write idea. **Journal** (`_fsSetJList` behind `fsSetJNotebooks/Sections/Pages`): per-item newer `updatedAt` wins; cloud-only items kept if updated after `_jSeenAt[list]` (set on each non-cache snapshot). **Callouts** have no per-item timestamps, so `fsSetCallouts` does a **3-way merge** (`_coMerge3`) against `_coBase` = last known cloud state (set on every non-cache callouts snapshot and after every successful write): untouched here → take the cloud version; changed here → ours; present only in cloud and not in base → new elsewhere, keep; gone on one side and untouched on the other → deleted there; same for the `onCall` map. No `_coBase` yet (before the first snapshot) → plain write. **Restores must overwrite with OLDER data, so `confirmRestoreSnapshot` and `restoreFromBackup` pass `{ force: true }` to every fsSetNotes/fsSetCallouts/fsSetJ* call — any new "restore/replace" path must do the same or the merge will quietly undo it.** All merges fall back to the plain write if the pre-write read fails or takes >5s (offline). Reminders still do a plain set.
 
 **Notes Merge:** Per-note merge using `updatedAt` timestamps. Local-only notes preserved for 2 minutes (not synced yet). Empty remote never overwrites non-empty local.
 

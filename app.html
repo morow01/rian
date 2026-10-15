@@ -24100,7 +24100,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '6.9.14';
+    const VERSION = '6.9.15';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -26656,11 +26656,11 @@
     // device holding a stale copy of ANY note overwrote newer edits made on another device (the other
     // device then pulled the stale version back down and its typed text vanished). Now: per note, the
     // newer updatedAt wins, and notes that only exist in the cloud (created elsewhere) are kept.
-    async function fsSetNotes(notes) {
+    async function fsSetNotes(notes, opts) {
       const ref = userDoc('data/notes');
       if (!ref) return;
       let out = notes;
-      try {
+      if (!(opts && opts.force)) try {
         const snap = await Promise.race([
           ref.get({ source: 'server' }),
           new Promise((_, rej) => setTimeout(() => rej(new Error('notes pre-write read timed out')), 5000))
@@ -26707,10 +26707,91 @@
       await ref.set({ reminders, _updatedAt: Date.now() });
     }
 
-    async function fsSetCallouts(data) {
+    // ── v6.9.15 — same read-before-write protection as Notes, for Callouts and Journal ──
+    // Restores pass {force:true} so deliberately-restored OLDER data still overwrites the cloud.
+
+    // Callouts have no per-item timestamps, so this is a 3-way merge against _coBase: the last state we
+    // know the cloud had (set on every cloud snapshot and after every successful write). For each
+    // callout / week / on-call entry: unchanged here → take the cloud's version; changed here → keep ours;
+    // present only in the cloud and not in the base → created on another device, keep it; present in the
+    // base but gone on one side and untouched on the other → that side deleted it.
+    let _coBase = null;
+    const _coCore = d => ({ weeks: (d && d.weeks) || {}, onCall: (d && d.onCall) || {} });
+    const _jeq = (a, b) => JSON.stringify(a) === JSON.stringify(b);
+
+    function _coMerge3(base, local, remote) {
+      const pick3 = (b, l, r) => {            // returns {v, present}
+        const lP = l !== undefined, rP = r !== undefined, bP = b !== undefined;
+        if (lP && rP) {
+          if (_jeq(l, b)) return r;           // untouched here → cloud's version
+          return l;                           // changed here (or both) → ours
+        }
+        if (lP && !rP) return (bP && _jeq(l, b)) ? undefined : l;   // cloud deleted it and we never touched it
+        if (!lP && rP) return (bP && _jeq(r, b)) ? undefined : r;   // we deleted it and cloud never touched it
+        return undefined;
+      };
+      const mergeCallouts = (b, l, r) => {
+        const bm = new Map((b || []).map(c => [c.id, c]));
+        const lm = new Map((l || []).map(c => [c.id, c]));
+        const rm = new Map((r || []).map(c => [c.id, c]));
+        const out = [];
+        for (const c of (l || [])) { const v = pick3(bm.get(c.id), c, rm.get(c.id)); if (v !== undefined) out.push(v); }
+        for (const c of (r || [])) { if (!lm.has(c.id)) { const v = pick3(bm.get(c.id), undefined, c); if (v !== undefined) out.push(v); } }
+        return out;
+      };
+      const weeks = {};
+      const wkeys = new Set([...Object.keys(local.weeks), ...Object.keys(remote.weeks)]);
+      for (const wk of wkeys) {
+        const lw = local.weeks[wk], rw = remote.weeks[wk], bw = base.weeks[wk];
+        if (lw && rw) {
+          const meta = pick3(bw ? { ...bw, callouts: undefined } : undefined, { ...lw, callouts: undefined }, { ...rw, callouts: undefined });
+          weeks[wk] = { ...meta, callouts: mergeCallouts(bw && bw.callouts, lw.callouts, rw.callouts) };
+        } else {
+          const v = pick3(bw, lw, rw);
+          if (v !== undefined) weeks[wk] = v;
+        }
+      }
+      const onCall = {};
+      const okeys = new Set([...Object.keys(local.onCall), ...Object.keys(remote.onCall), ...Object.keys(base.onCall)]);
+      for (const k of okeys) { const v = pick3(base.onCall[k], local.onCall[k], remote.onCall[k]); if (v !== undefined) onCall[k] = v; }
+      return { weeks, onCall };
+    }
+
+    async function fsSetCallouts(data, opts) {
       const ref = userDoc('data/callouts');
       if (!ref) return;
-      await ref.set({ ...data, _updatedAt: Date.now() });
+      let out = data;
+      if (!(opts && opts.force) && _coBase) try {
+        const snap = await Promise.race([
+          ref.get({ source: 'server' }),
+          new Promise((_, rej) => setTimeout(() => rej(new Error('callouts pre-write read timed out')), 5000))
+        ]);
+        if (snap && snap.exists) {
+          const merged = _coMerge3(_coCore(_coBase), _coCore(data), _coCore(snap.data()));
+          if (!_jeq(merged, _coCore(data))) {
+            console.warn('[FieldLog] Callouts write-merge: kept changes made on another device');
+            out = { ...data, ...merged };
+            // Bring this device's state in line (keep unsaved drafts)
+            const drafts = {};
+            for (const [wk, wd] of Object.entries((state.callouts && state.callouts.weeks) || {})) {
+              const d = (wd.callouts || []).filter(c => c._draft);
+              if (d.length) drafts[wk] = d;
+            }
+            state.callouts = deepCopy({ ...(state.callouts || {}), ...merged });
+            for (const [wk, d] of Object.entries(drafts)) {
+              if (!state.callouts.weeks[wk]) state.callouts.weeks[wk] = { startDate: wk, callouts: [] };
+              state.callouts.weeks[wk].callouts.push(...d);
+            }
+            dbPut('notes', { id: 'callouts_all', userId: state.currentUser?.uid || null, data: _coCore(out), updatedAt: Date.now() }).catch(() => { });
+            showToast('Kept newer callout changes from another device');
+            if ((state.view === 'callouts' && !state.calloutsExpandedId) || state.view === 'week') render();
+          }
+        }
+      } catch (e) {
+        console.warn('[FieldLog] Callouts pre-write merge skipped:', e.message || e);
+      }
+      await ref.set({ ...out, _updatedAt: Date.now() });
+      _coBase = deepCopy(_coCore(out));
     }
 
     async function fsSetJournal(entries) {
@@ -26719,21 +26800,50 @@
       await ref.set({ entries, _updatedAt: Date.now() });
     }
 
-    async function fsSetJNotebooks(notebooks) {
-      const ref = userDoc('data/jNotebooks');
+    // Journal: each item has an updatedAt, so (like Notes) the newer version of each item wins and
+    // items that only exist in the cloud are kept if they changed after our last snapshot of that list.
+    const _jSeenAt = { notebooks: 0, sections: 0, pages: 0 };
+    const _jStateKey = { notebooks: 'jNotebooks', sections: 'jSections', pages: 'jPages' };
+    async function _fsSetJList(path, field, items, opts) {
+      const ref = userDoc(path);
       if (!ref) return;
-      await ref.set({ notebooks, _updatedAt: Date.now() });
+      let out = items;
+      if (!(opts && opts.force)) try {
+        const snap = await Promise.race([
+          ref.get({ source: 'server' }),
+          new Promise((_, rej) => setTimeout(() => rej(new Error('journal pre-write read timed out')), 5000))
+        ]);
+        const remote = snap && snap.exists ? snap.data()[field] : null;
+        if (Array.isArray(remote) && remote.length) {
+          const remoteMap = new Map(remote.map(n => [n.id, n]));
+          const localIds = new Set(items.map(n => n.id));
+          const pulled = [];
+          out = items.map(li => {
+            const ri = remoteMap.get(li.id);
+            if (ri && (ri.updatedAt || 0) > (li.updatedAt || 0)) { pulled.push(ri); return deepCopy(ri); }
+            return li;
+          });
+          for (const ri of remote) {
+            if (!localIds.has(ri.id) && (ri.updatedAt || 0) > _jSeenAt[field]) { pulled.push(ri); out.push(deepCopy(ri)); }
+          }
+          if (pulled.length) {
+            console.warn('[FieldLog] Journal ' + field + ' write-merge: kept ' + pulled.length + ' newer item(s) from another device');
+            const key = _jStateKey[field];
+            const idx = new Map((state[key] || []).map((n, i) => [n.id, i]));
+            for (const ri of pulled) { const i = idx.get(ri.id); if (i === undefined) state[key].push(deepCopy(ri)); else state[key][i] = deepCopy(ri); }
+            dbPut('notes', { id: 'j_' + field, userId: state.currentUser?.uid || null, data: state[key], updatedAt: Date.now() }).catch(() => { });
+            showToast('Kept newer journal changes from another device');
+            if (state.view === 'journal' && !state.jEditId) render();
+          }
+        }
+      } catch (e) {
+        console.warn('[FieldLog] Journal ' + field + ' pre-write merge skipped:', e.message || e);
+      }
+      await ref.set({ [field]: out, _updatedAt: Date.now() });
     }
-    async function fsSetJSections(sections) {
-      const ref = userDoc('data/jSections');
-      if (!ref) return;
-      await ref.set({ sections, _updatedAt: Date.now() });
-    }
-    async function fsSetJPages(pages) {
-      const ref = userDoc('data/jPages');
-      if (!ref) return;
-      await ref.set({ pages, _updatedAt: Date.now() });
-    }
+    async function fsSetJNotebooks(notebooks, opts) { return _fsSetJList('data/jNotebooks', 'notebooks', notebooks, opts); }
+    async function fsSetJSections(sections, opts) { return _fsSetJList('data/jSections', 'sections', sections, opts); }
+    async function fsSetJPages(pages, opts) { return _fsSetJList('data/jPages', 'pages', pages, opts); }
 
     async function loadCallouts() {
       const uid = state.currentUser?.uid;
@@ -26776,6 +26886,7 @@
         }
 
         const remote = snap.data();
+        if (!snap.metadata.fromCache) _coBase = deepCopy(_coCore(remote));
         // Don't overwrite if user is actively editing a callout
         if (state.calloutsExpandedId && state.calloutsExpandedId !== '__new__') {
           // Merge: update all weeks except the one being edited
@@ -35413,6 +35524,7 @@
       if (!nbRef) { render(); return; }
 
       _jUnsubNb = nbRef.onSnapshot(snap => {
+        if (snap.exists && !snap.metadata.fromCache) _jSeenAt.notebooks = Date.now();
         if (_jDragBusy()) return; // skip merge + render while dragging
         if (!snap.exists) { if (state.jNotebooks.length) fsSetJNotebooks(state.jNotebooks).catch(() => { }); return; }
         const r = snap.data();
@@ -35425,6 +35537,7 @@
       }, () => { state.jSyncStatus = 'error'; updateHeaderStatus(); });
 
       _jUnsubSec = secRef.onSnapshot(snap => {
+        if (snap.exists && !snap.metadata.fromCache) _jSeenAt.sections = Date.now();
         if (_jPointerDrag || _jDragCooldown) return; // skip merge + render while dragging or cooling down
         if (!snap.exists) { if (state.jSections.length) fsSetJSections(state.jSections).catch(() => { }); return; }
         const r = snap.data();
@@ -35436,6 +35549,7 @@
       }, () => { });
 
       _jUnsubPg = pgRef.onSnapshot(snap => {
+        if (snap.exists && !snap.metadata.fromCache) _jSeenAt.pages = Date.now();
         if (_jDragBusy()) return; // skip merge + render while dragging
         if (!snap.exists) { if (state.jPages.length) fsSetJPages(state.jPages).catch(() => { }); return; }
         const r = snap.data();
@@ -46395,7 +46509,7 @@
             if (snapData._notes && Array.isArray(snapData._notes) && snapData._notes.length > 0) {
               state.notes = deepCopy(snapData._notes);
               await dbPut('notes', { id: 'notes_all', userId: uid, data: state.notes, updatedAt: Date.now() });
-              await fsSetNotes(state.notes).catch(e => console.warn('[FieldLog]', e));
+              await fsSetNotes(state.notes, { force: true }).catch(e => console.warn('[FieldLog]', e));
             }
             // Also restore reminders if included
             if (snapData._reminders && Array.isArray(snapData._reminders)) {
@@ -46408,7 +46522,7 @@
               const restoredCo = deepCopy({ weeks: snapData._callouts.weeks || {}, onCall: snapData._callouts.onCall || {} });
               state.callouts = restoredCo;
               await dbPut('notes', { id: 'callouts_all', userId: uid, data: restoredCo, updatedAt: Date.now() });
-              await fsSetCallouts(restoredCo);
+              await fsSetCallouts(restoredCo, { force: true });
               loadCallouts();
             }
             // Also restore journal (notebooks/sections/pages) if included
@@ -46416,18 +46530,18 @@
             if (snapData._jNotebooks && snapData._jNotebooks.length > 0) {
               state.jNotebooks = deepCopy(snapData._jNotebooks);
               await dbPut('notes', { id: 'j_notebooks', userId: uid, data: state.jNotebooks, updatedAt: Date.now() });
-              await fsSetJNotebooks(state.jNotebooks).catch(e => console.warn('[FieldLog]', e));
+              await fsSetJNotebooks(state.jNotebooks, { force: true }).catch(e => console.warn('[FieldLog]', e));
               _journalRestored = true;
             }
             if (snapData._jSections && snapData._jSections.length > 0) {
               state.jSections = deepCopy(snapData._jSections);
               await dbPut('notes', { id: 'j_sections', userId: uid, data: state.jSections, updatedAt: Date.now() });
-              await fsSetJSections(state.jSections).catch(e => console.warn('[FieldLog]', e));
+              await fsSetJSections(state.jSections, { force: true }).catch(e => console.warn('[FieldLog]', e));
             }
             if (snapData._jPages && snapData._jPages.length > 0) {
               state.jPages = deepCopy(snapData._jPages);
               await dbPut('notes', { id: 'j_pages', userId: uid, data: state.jPages, updatedAt: Date.now() });
-              await fsSetJPages(state.jPages).catch(e => console.warn('[FieldLog]', e));
+              await fsSetJPages(state.jPages, { force: true }).catch(e => console.warn('[FieldLog]', e));
             }
             // Restore routines if included
             if (snapData._routines) {
@@ -47082,7 +47196,7 @@
         const restoredNotes = b.notes?.notes ? deepCopy(b.notes.notes) : [];
         state.notes = restoredNotes;
         await dbPut('notes', { id: 'notes_all', userId: uid, data: state.notes, updatedAt: now });
-        await fsSetNotes(state.notes).catch(e => console.warn('[FieldLog]', e));
+        await fsSetNotes(state.notes, { force: true }).catch(e => console.warn('[FieldLog]', e));
 
         // 4. Reminders — same as confirmRestoreSnapshot
         const restoredReminders = b.reminders?.reminders ? deepCopy(b.reminders.reminders) : [];
@@ -47094,7 +47208,7 @@
           : { weeks: {}, onCall: {} };
         state.callouts = restoredCallouts;  // set state FIRST
         await dbPut('notes', { id: 'callouts_all', userId: uid, data: restoredCallouts, updatedAt: now });
-        await fsSetCallouts(restoredCallouts);
+        await fsSetCallouts(restoredCallouts, { force: true });
 
         // 6. Routines
         if (b.routines) {
@@ -47116,17 +47230,17 @@
         if (b.jNotebooks?.notebooks) {
           state.jNotebooks = deepCopy(b.jNotebooks.notebooks);
           await dbPut('notes', { id: 'j_notebooks', userId: uid, data: state.jNotebooks, updatedAt: now });
-          await fsSetJNotebooks(state.jNotebooks).catch(e => console.warn('[FieldLog]', e));
+          await fsSetJNotebooks(state.jNotebooks, { force: true }).catch(e => console.warn('[FieldLog]', e));
         }
         if (b.jSections?.sections) {
           state.jSections = deepCopy(b.jSections.sections);
           await dbPut('notes', { id: 'j_sections', userId: uid, data: state.jSections, updatedAt: now });
-          await fsSetJSections(state.jSections).catch(e => console.warn('[FieldLog]', e));
+          await fsSetJSections(state.jSections, { force: true }).catch(e => console.warn('[FieldLog]', e));
         }
         if (b.jPages?.pages) {
           state.jPages = deepCopy(b.jPages.pages);
           await dbPut('notes', { id: 'j_pages', userId: uid, data: state.jPages, updatedAt: now });
-          await fsSetJPages(state.jPages).catch(e => console.warn('[FieldLog]', e));
+          await fsSetJPages(state.jPages, { force: true }).catch(e => console.warn('[FieldLog]', e));
         }
 
         // 9. Settings
