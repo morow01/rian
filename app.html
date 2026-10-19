@@ -24100,7 +24100,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '6.9.15';
+    const VERSION = '6.9.16';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -55742,6 +55742,29 @@ QUESTION: ${query}`;
     window._ttRunUndo = _ttRunUndo;
     window._ttRunRedo = _ttRunRedo;
 
+    // Ctrl/Cmd+A in a note that STARTS with a table and ENDS with an empty paragraph (the usual shape of a
+    // ticket note: table … table, then the trailing blank line) only selected the first table cell — the
+    // browser/ProseMirror selection round-trip collapses a selection that ends in the empty last paragraph.
+    // Select first text position → end of the last paragraph that has text instead (trailing blank lines
+    // are the only thing left out). Returns true when it handled the key.
+    function _ttSelectAllSafe() {
+      const e = _tiptapEditor;
+      if (!e || !e.isFocused) return false;
+      const doc = e.state.doc;
+      const lastTop = doc.lastChild;
+      if (!lastTop || !lastTop.isTextblock || lastTop.textContent.length > 0) return false; // default handles it
+      let from = -1, to = -1;
+      doc.descendants((node, pos) => {
+        if (!node.isTextblock) return true;
+        if (from < 0) from = pos + 1;
+        if (node.textContent.length > 0) to = pos + node.nodeSize - 1;
+        return false;
+      });
+      if (from < 0 || to < from) return false;
+      e.commands.setTextSelection({ from, to });
+      return true;
+    }
+
     document.addEventListener('keydown', function (ev) {
       const modal = document.getElementById('note-fs-modal');
       if (!modal || modal.classList.contains('hidden') || !_tiptapEditor) return;
@@ -55749,7 +55772,9 @@ QUESTION: ${query}`;
       if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.tagName === 'SELECT')) return;
       if (!(ev.metaKey || ev.ctrlKey) || ev.altKey) return;
       const key = (ev.key || '').toLowerCase();
-      if (key === 'z' && !ev.shiftKey) {
+      if (key === 'a' && !ev.shiftKey) {
+        if (_ttSelectAllSafe()) ev.preventDefault();
+      } else if (key === 'z' && !ev.shiftKey) {
         ev.preventDefault();
         _ttRunUndo();
       } else if (key === 'y' || (key === 'z' && ev.shiftKey)) {

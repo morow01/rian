@@ -49,7 +49,7 @@ A Progressive Web App for field technicians — timesheets, notes (TipTap rich t
 ## Version
 `const VERSION = 'x.y.z'` in `app.html` (~line 18699). Bump on every change. Only location that needs updating (index.html version references are static).
 **Patch (z) must not exceed 99.** When a bump would take it to 100, bump the minor version instead and reset patch to 0 (e.g. `6.7.99` → `6.8.0`, never `6.7.100`). 6.7.100–6.7.102 already broke this rule and were left as-is rather than rewriting pushed history — the rule applies from 6.8.0 onward.
-Current version: **6.9.15**
+Current version: **6.9.16**
 
 **12 themes active**: `claude` (default light), `dark` (slate-based), `champagne`, `champagne-dark`, `ios`, `apple` (macOS), `gray` (Grayscale), `gameboy` (Game Boy), `win31` (Win 3.1), `lcd` (LCD), `spectrum` (ZX Spectrum), `retro` (Retro). Theme picker lives in ☰ menu → Display. Switcher at `setTheme(key)`, registry at `THEME_META`.
 
@@ -540,6 +540,9 @@ Fixed in `onActivityResult`: when `parseResult()` returns null/empty, fall back 
 Verified end-to-end on the real S23: confirmed via logcat that `parseResult()` genuinely returned nothing and the ClipData fallback engaged (`used ClipData fallback, count=1`, `final results=1`); confirmed via the WebView debug socket that the image subsequently uploaded to Firebase Storage and landed in the editor's HTML (`<img src="https://firebasestorage...">`); confirmed visually via a device screenshot that the photo renders. Diagnostic `Log.d` calls removed after confirming the fix; the fallback logic itself stays.
 
 **Lesson for next time:** a DataTransfer-injected File dispatched directly on the `<input>` in a desktop browser test proves the *JS-side* handling is correct, but does not exercise Android's native file-chooser round trip at all — it cannot catch a bug like this one, which lived entirely in `onActivityResult`. Real device testing (or at least driving the actual native picker via adb) is required to verify anything touching `onShowFileChooser`/`onActivityResult`.
+
+### Ctrl+A only selected the first table cell (v6.9.16)
+Reported on the 7 Sept Kilbeggan routines ticket note (7 tables, 4 headings, ends with an empty paragraph). Reproduced on the user's real note in Brave via the Claude-in-Chrome extension and then in a minimal local note: **a document that STARTS with a table and ENDS with an empty paragraph** — `selectAll()` / native Ctrl+A ends up as TextSelection [4,13] (first cell only); ProseMirror's selection ↔ DOM round-trip collapses a selection whose head sits in the empty last paragraph. Table + non-empty last paragraph, or plain text + empty last paragraph, are fine. Fix: `_ttSelectAllSafe()` (before the Ctrl+Z/Y keydown listener) — when the editor is focused and the last top-level block is an empty textblock, Ctrl/Cmd+A selects first textblock start → end of the last textblock that has text (only trailing blank lines are left out). Mobile long-press select-all is native and untouched; the "Select More" bar logic is unrelated.
 
 ### Firestore IndexedDB Cache Corruption
 `?cleanup=1` URL parameter nukes Firestore's local IndexedDB caches (built into app since v5.1.79). Use when sync behaves inconsistently — `get({source:'server'})` can return cached data from corrupted IndexedDB even when claiming server source. Ad blockers (uBlock Origin Lite) can also interfere with Firestore network requests.
