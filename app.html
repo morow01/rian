@@ -24100,7 +24100,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '6.9.17';
+    const VERSION = '6.9.20';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -48646,7 +48646,67 @@
           </div>`;
       }
 
+      // "Add routine task" — empty or manual-visit cells, any month (dated by the
+      // picker). Auto-filled cells already have a real task.
+      if (!isAuto && btnsEl.firstElementChild) {
+        // Add routine task is the primary action here, so Log visit / Update goes grey
+        const _saveBtn = btnsEl.querySelector('.rtn-log-btn.primary[onclick="saveRoutinesVisit()"]');
+        if (_saveBtn) _saveBtn.classList.replace('primary', 'cancel');
+        btnsEl.firstElementChild.insertAdjacentHTML('afterbegin',
+          '<button class="rtn-log-btn primary" onclick="rtnAddRoutineTask()" style="flex:none;width:100%"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add routine task</button>');
+      }
+
       document.getElementById('rtn-log-modal').classList.add('open');
+    }
+
+    // Task from the Routines template on the sheet's date (defaults to today in the
+    // current month), location = tapped site, left as an unsaved draft (Save /
+    // Discard on the card, same as Add Task).
+    async function rtnAddRoutineTask() {
+      if (!_rtnLogCtx) return;
+      const site = _rtnLogCtx.site;
+      const dateEl = document.getElementById('rtn-log-date');
+      const dateStr = dateEl && /^\d{4}-\d{2}-\d{2}$/.test(dateEl.value) ? dateEl.value : dateToStr(new Date());
+      const tpls = state.taskTemplates || [];
+      const t = tpls.find(x => /routine/i.test(x.name || '')) || tpls.find(x => /routine/i.test(x.description || ''));
+      if (!t) { showToast('No Routines template — add one in ☰ → Task Templates'); return; }
+      const town = (TOWNS || []).find(x => x.name === site);
+      const location = town && town.code ? town.name + ' (' + town.code + ')' : site;
+      closeRoutinesLogModal();
+      closeThemeMenu();
+      await setView('week');
+      const weekStart = getNearestFriday(dateStr);
+      if (!state.weekData || state.weekStart !== weekStart) await loadWeek(weekStart);
+      if (!state.weekData) return;
+      const di = state.weekData.days.findIndex(d => d.date === dateStr);
+      if (di < 0) return;
+      const act = createActivity();            // keeps _draft: true — nothing saves until Save is pressed
+      act.description = t.description || t.name || '';
+      act.location = location;
+      act.codes = deepCopy(t.codes || []);
+      act.ordinary = t.ordinary || '';
+      act.overtime = t.overtime || '';
+      if (t.notes) act.notes = t.notes;
+      state.weekData.days[di].activities.push(act);
+      state.expandedDays.clear();
+      state.expandedDays.add(di);
+      if (_isDesktop()) {
+        state.deskSelectedDay = di;
+        state.deskSelectedAct = act.id;
+      }
+      saveUiState();
+      if (getTaskStyle() === 'modal') {
+        render();
+        openTaskModal(act.id, di);
+      } else {
+        state.activitiesExpanded.add(act.id);
+        render();
+        setTimeout(() => {
+          const el = document.querySelector('.activity-card[data-act-id="' + act.id + '"]');
+          if (el) window.scrollTo({ top: Math.max(0, el.getBoundingClientRect().top + window.scrollY - 80), behavior: 'smooth' });
+        }, 120);
+      }
+      showToast('Routine task added — press Save to keep it');
     }
 
     function closeRoutinesLogModal() {

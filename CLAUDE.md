@@ -49,7 +49,7 @@ A Progressive Web App for field technicians — timesheets, notes (TipTap rich t
 ## Version
 `const VERSION = 'x.y.z'` in `app.html` (~line 18699). Bump on every change. Only location that needs updating (index.html version references are static).
 **Patch (z) must not exceed 99.** When a bump would take it to 100, bump the minor version instead and reset patch to 0 (e.g. `6.7.99` → `6.8.0`, never `6.7.100`). 6.7.100–6.7.102 already broke this rule and were left as-is rather than rewriting pushed history — the rule applies from 6.8.0 onward.
-Current version: **6.9.17**
+Current version: **6.9.20**
 
 **12 themes active**: `claude` (default light), `dark` (slate-based), `champagne`, `champagne-dark`, `ios`, `apple` (macOS), `gray` (Grayscale), `gameboy` (Game Boy), `win31` (Win 3.1), `lcd` (LCD), `spectrum` (ZX Spectrum), `retro` (Retro). Theme picker lives in ☰ menu → Display. Switcher at `setTheme(key)`, registry at `THEME_META`.
 
@@ -546,6 +546,9 @@ Reported on the 7 Sept Kilbeggan routines ticket note (7 tables, 4 headings, end
 
 ### Pasting several Markdown tables at once (v6.9.17)
 Reported: copying 3 tables (battery / rectifier / alarm limits) from the ChatGPT Android code-block Copy button into a note only produced the first table, or merged the later two. The paste reaches `handlePaste` as `text/plain` only (no `text/html`), so it goes through our own `_ttParseMdTable()` → `_ttMdTableToHtml()`. Root cause was in the parser, not the clipboard/TipTap: it parsed ONE table — text after the table `break`-ed out of the loop (dropping every later section), and blank lines were skipped so a second table's rows were appended to the first (its `---` separator became a data row = "merged"). Now it scans for every `header + |---|` pair; returns the first table plus `rest` (later tables) and `tail` (trailing text); text between tables becomes the next table's `lead` paragraphs. `_ttMdTableToHtml` = `_ttMdOneTableHtml` per table + tail. "Overall voltage 54.11" now keeps its label (`_ttMdLeadHtml`). Not handled: literal `##` / `**` from the source are still pasted as text.
+
+### Routines → "Add routine task" (v6.9.18)
+The month/site sheet (`openRoutinesLogModal`) gets a full-width **Add routine task** button (mockup option A: `mockups/Routine Add Task Options.html`) above Log visit / Cancel. Shown on empty or manual-visit cells of ANY month (v6.9.20; v6.9.18–19 were current-month only); hidden on auto-filled cells (task already exists). While it's shown, Log visit / Update is grey (v6.9.19) so it's the only blue button. The task is dated by the sheet's date picker (today for the current month, the 1st for other months — user adjusts), so past/future months backfill/plan ahead. `rtnAddRoutineTask()` finds the task template whose name (else description) matches /routine/i, loads that date's week and pushes a task for that day built from it with location = tapped site as `Name (CODE)`. It stays a `_draft` (Save / Discard, nothing persisted until Save), mirroring `addActivity`. Template notes are copied as-is (site name not appended). No "Routine" template → toast pointing at ☰ → Task Templates. Verified in the local test mode (`?auth_bypass=true&user=rianfieldlog@gmail.com` lands in local_technician mode, so an in-memory test template was injected).
 
 ### Firestore IndexedDB Cache Corruption
 `?cleanup=1` URL parameter nukes Firestore's local IndexedDB caches (built into app since v5.1.79). Use when sync behaves inconsistently — `get({source:'server'})` can return cached data from corrupted IndexedDB even when claiming server source. Ad blockers (uBlock Origin Lite) can also interfere with Firestore network requests.
