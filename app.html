@@ -24100,7 +24100,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '6.9.16';
+    const VERSION = '6.9.17';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -57602,31 +57602,47 @@ QUESTION: ${query}`;
     // with a |---|---| separator. TipTap has no Markdown parser, so it lands as
     // plain text. Parse it, and reshape a long 2-column cell/value list into the
     // same 4-column layout the battery presets use.
+    // A paste may hold several tables with text between them (battery / rectifier
+    // / alarm limits). Returns the first table as { header, body, lead } plus
+    // `rest` (the later tables, same shape) and `tail` (text after the last one).
+    // A header row is only a table when the next line is a |---|---| separator,
+    // so a blank line or heading between two tables starts a new one.
     function _ttParseMdTable(text) {
       if (!text || text.indexOf('|') < 0) return null;
-      const lines = String(text).replace(/\r/g, '').split('\n');
-      let lead = [];        // non-table lines above the table (e.g. "Overall 54.11")
-      let rows = [];
-      let sepIndex = -1;
-      for (let i = 0; i < lines.length; i++) {
-        const raw = lines[i].trim();
-        if (!raw) { if (!rows.length) lead.push(''); continue; }
-        const isRow = raw.indexOf('|') >= 0;
-        if (!isRow) {
-          if (rows.length) break;   // text after the table ends parsing
-          lead.push(raw);
-          continue;
+      const lines = String(text).replace(/\r/g, '').split('\n').map(l => l.trim());
+      const splitRow = raw => raw.replace(/^\|/, '').replace(/\|$/, '').split('|').map(c => c.trim());
+      const isSep = raw => raw.indexOf('|') >= 0 && splitRow(raw).every(c => /^:?-{2,}:?$/.test(c));
+      const tables = [];
+      let pending = [];     // text lines since the previous table (e.g. "Overall 54.11")
+      let i = 0;
+      while (i < lines.length) {
+        const raw = lines[i];
+        if (raw && raw.indexOf('|') >= 0 && !isSep(raw) && i + 1 < lines.length && isSep(lines[i + 1])) {
+          const body = [];
+          let j = i + 2;
+          for (;;) {
+            let k = j;
+            while (k < lines.length && !lines[k]) k++;   // blank lines inside a table
+            if (k >= lines.length) break;
+            const nxt = lines[k];
+            // stop at text, or at the header row of the next table
+            if (nxt.indexOf('|') < 0 || isSep(nxt) || (k + 1 < lines.length && isSep(lines[k + 1]))) break;
+            body.push(splitRow(nxt));
+            j = k + 1;
+          }
+          if (body.length) {
+            tables.push({ header: splitRow(raw), body: body, lead: pending.filter(l => l) });
+            pending = [];
+            i = j;
+            continue;
+          }
         }
-        const cells = raw.replace(/^\|/, '').replace(/\|$/, '').split('|').map(c => c.trim());
-        if (cells.every(c => /^:?-{2,}:?$/.test(c))) {
-          if (rows.length === 1) { sepIndex = rows.length; continue; }
-          if (!rows.length) continue;
-        }
-        rows.push(cells);
+        if (raw) pending.push(raw);
+        i++;
       }
-      // Require the separator row — keeps ordinary text containing "|" untouched
-      if (sepIndex < 0 || rows.length < 2) return null;
-      return { header: rows[0], body: rows.slice(1), lead: lead.filter(l => l) };
+      // Require a separator row — keeps ordinary text containing "|" untouched
+      if (!tables.length) return null;
+      return Object.assign({}, tables[0], { rest: tables.slice(1), tail: pending });
     }
 
     // Fallback for cell readings pasted WITHOUT pipes — some apps strip the
@@ -57679,16 +57695,26 @@ QUESTION: ${query}`;
       return { header: rows[0], body: rows.slice(1), lead: [] };
     }
 
-    function _ttMdTableToHtml(parsed) {
-      const cP = '<p style="text-align: center">';
-      const cell = (v, bold) => '<td>' + cP + (bold && v ? '<strong>' + esc(v) + '</strong>' : esc(v || '')) + '</p></td>';
-      const leadHtml = parsed.lead.map(l => {
+    function _ttMdLeadHtml(lines) {
+      return lines.map(l => {
         // "Overall 54.11" / "Overall: 54.11" → bold label like the presets
-        const m = l.match(/^overall\s*:?\s*(.*)$/i);
+        const m = l.match(/^overall(\s+voltage)?\b\s*:?\s*(.*)$/i);
         return m
-          ? '<p style="text-align: left"><strong>Overall:</strong> ' + esc(m[1]) + '</p>'
+          ? '<p style="text-align: left"><strong>Overall' + (m[1] ? ' voltage' : '') + ':</strong> ' + esc(m[2]) + '</p>'
           : '<p style="text-align: left">' + esc(l) + '</p>';
       }).join('');
+    }
+
+    function _ttMdTableToHtml(parsed) {
+      return _ttMdOneTableHtml(parsed)
+        + (parsed.rest || []).map(t => _ttMdOneTableHtml(t)).join('')
+        + _ttMdLeadHtml(parsed.tail || []);
+    }
+
+    function _ttMdOneTableHtml(parsed) {
+      const cP = '<p style="text-align: center">';
+      const cell = (v, bold) => '<td>' + cP + (bold && v ? '<strong>' + esc(v) + '</strong>' : esc(v || '')) + '</p></td>';
+      const leadHtml = _ttMdLeadHtml(parsed.lead);
 
       // Battery shape: 2 columns whose first column is a sequential 1..N run.
       // Long runs (N even, ≥ 8) reshape into side-by-side pairs like the 24-cell
