@@ -24183,7 +24183,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '6.9.27';
+    const VERSION = '6.9.28';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -44384,10 +44384,7 @@
       }
       state.activitiesExpanded.add(actId);
       render();
-      setTimeout(() => {
-        const el = document.querySelector('.activity-card[data-act-id="' + actId + '"]');
-        if (el) window.scrollTo({ top: Math.max(0, el.getBoundingClientRect().top + window.scrollY - 80), behavior: 'smooth' });
-      }, 120);
+      _scrollToActCard(actId, di);
     }
 
     function _renderDraftWarningBanner() {
@@ -49031,10 +49028,7 @@
       } else {
         state.activitiesExpanded.add(act.id);
         render();
-        setTimeout(() => {
-          const el = document.querySelector('.activity-card[data-act-id="' + act.id + '"]');
-          if (el) window.scrollTo({ top: Math.max(0, el.getBoundingClientRect().top + window.scrollY - 80), behavior: 'smooth' });
-        }, 120);
+        _scrollToActCard(act.id, di);
       }
       showToast('Routine task for ' + site + ' on ' + _draftDayLabel(dateStr) + ' added — press Save to keep it', 4000);
     }
@@ -59707,15 +59701,25 @@ The state block is invisible to the user.`;
       saveUiState();
       render();
       // Scroll to the activity card if we have an actId, otherwise scroll to the day
-      setTimeout(() => {
+      _scrollToActCard(actId, di);
+    }
+
+    // The day panel animates open, so the card is still moving at the first
+    // measurement (it scrolled ~8px and stopped short, leaving a task below the
+    // fold). Aim once early, then re-aim after the animation has settled — and
+    // only if the card isn't already comfortably in view.
+    function _scrollToActCard(actId, dayIdx) {
+      const go = () => {
         const target = actId
-          ? document.querySelector(`.activity-card[data-act-id="${actId}"]`)
-          : document.querySelector(`.day-card[data-day-idx="${di}"]`);
-        if (target) {
-          const y = target.getBoundingClientRect().top + window.scrollY - 80;
-          window.scrollTo({ top: Math.max(0, y), behavior: 'smooth' });
-        }
-      }, 120);
+          ? document.querySelector('.activity-card[data-act-id="' + actId + '"]')
+          : document.querySelector('.day-card[data-day-idx="' + dayIdx + '"]');
+        if (!target) return;
+        const top = target.getBoundingClientRect().top;
+        if (top >= 60 && top < window.innerHeight * 0.55) return;
+        window.scrollTo({ top: Math.max(0, top + window.scrollY - 80), behavior: 'smooth' });
+      };
+      setTimeout(go, 150);
+      setTimeout(go, 700);
     }
 
     // Render fault assistant content into the modal body
