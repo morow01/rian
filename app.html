@@ -4951,6 +4951,72 @@
       color: #fff;
     }
 
+    .draft-warning-banner-sub {
+      display: block;
+      margin-top: 6px;
+    }
+
+    /* each unsaved task is a tappable row: DAY  Description · Location  › */
+    .draft-warning-banner-link {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+      margin-top: 5px;
+      padding: 6px 10px;
+      background: rgba(255, 255, 255, 0.16);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: 9px;
+      color: #fff;
+      font: inherit;
+      font-size: 12.5px;
+      text-align: left;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .draft-warning-banner-link:hover,
+    .draft-warning-banner-link:active {
+      background: rgba(255, 255, 255, 0.28);
+    }
+
+    .dwb-day {
+      flex-shrink: 0;
+      font-weight: 800;
+      font-size: 11px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      padding-right: 10px;
+      border-right: 1px solid rgba(255, 255, 255, 0.4);
+    }
+
+    .dwb-main {
+      flex: 1;
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-weight: 700;
+    }
+
+    .dwb-loc {
+      font-weight: 500;
+      opacity: 0.88;
+    }
+
+    .dwb-chev {
+      flex-shrink: 0;
+      opacity: 0.85;
+    }
+
+    .dwb-more {
+      display: block;
+      margin-top: 5px;
+      font-size: 11.5px;
+      font-weight: 600;
+      opacity: 0.9;
+    }
+
     .draft-warning-banner-btn {
       background: rgba(255, 255, 255, 0.18);
       color: #fff;
@@ -24100,7 +24166,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '6.9.20';
+    const VERSION = '6.9.25';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -25164,6 +25230,12 @@
     let codeModalCtx = { dayIndex: null, activityId: null, selected: [] };
     let saveTimer = null;
     let _loadWeekInProgress = false;
+    // Draft tasks (survive reload + sync across devices) — see "Draft tasks" near _draftTaskDetailHtml
+    let _taskDrafts = {};              // actId -> { act, weekStart, date, updatedAt }
+    let _taskDraftsCloudIds = new Set(); // ids known to be in the cloud doc (absent later = saved/discarded elsewhere)
+    let _taskDraftsReady = false;      // local copy loaded — scans may run
+    let _taskDraftsTimer = null;
+    let _taskDraftsUnsub = null;
     let db = null;
     let weekUnsubscribe = null;
     let _lastFirestoreSnapAt = 0; // timestamp of last onSnapshot delivery — used by stale-listener heartbeat
@@ -26236,6 +26308,11 @@
     function resetAppState() {
       state.currentUser = null;
       state.weekData = null;
+      if (_taskDraftsUnsub) { try { _taskDraftsUnsub(); } catch (e) { } _taskDraftsUnsub = null; }
+      clearTimeout(_taskDraftsTimer);
+      _taskDrafts = {};
+      _taskDraftsCloudIds = new Set();
+      _taskDraftsReady = false;
       state.notes = [];
       remindersData = [];
       state.routines = null;
@@ -28374,6 +28451,9 @@
           if (state.currentUser) await fsSetWeek(state.weekStart, flushData).catch(e => console.warn('[FieldLog]', e));
         }
 
+        // Capture unsaved draft tasks of the week we're leaving (still state.weekStart)
+        _draftsScan(true);
+
         // Unsubscribe from previous week listener
         if (weekUnsubscribe) { weekUnsubscribe(); weekUnsubscribe = null; }
 
@@ -28422,6 +28502,7 @@
           () => _ttMigrateWeekColwidths(state.weekData));
         // Seed the HWM from local cache so we have a reference before Firestore arrives
         if (localIsOwn) _raiseHWM(weekStart, _weekTotalHours(state.weekData));
+        _draftsRestoreIntoWeek();   // unsaved drafts for this week come back (reload / other device)
         autoExpandToday();
         render();
 
@@ -28705,6 +28786,7 @@
     }
 
     function scheduleAutoSave() {
+      _draftsSyncSoon();
       clearTimeout(saveTimer);
       state.syncStatus = 'pending';
       state.weekData._updatedAt = Date.now();
@@ -29315,6 +29397,7 @@
     function _renderNow() {
       const app = document.getElementById('app');
       if (!app) return;
+      _draftsSyncSoon();
       // Preserve menu & top header tab bar scroll positions — render() destroys and recreates the DOM
       const _menuEl = document.getElementById('theme-dropdown');
       const _menuWasOpen = !!(_menuEl && _menuEl.classList.contains('open'));
@@ -33004,7 +33087,7 @@
       let val = parseFloat(rawVal) || 0;
       if (val < 0) val = 0;
       act[field] = val;
-      if (!act._draft) scheduleAutoSave();
+      if (!act._draft) scheduleAutoSave(); else _draftsSyncSoon();
       _applyHrsInPlace(act, actId, field, val, di);
     }
 
@@ -33117,8 +33200,9 @@
         if (rowOtPill) { rowOtPill.textContent = ot > 0 ? `+${ot} OT` : ''; rowOtPill.style.display = ot > 0 ? '' : 'none'; }
         updateSummaryDisplay();
       }
-      // Don't sync draft tasks — they only save when user taps Save
-      if (!act._draft) scheduleAutoSave();
+      // Draft tasks don't go into the week — they only save there when user taps
+      // Save; meanwhile they sync through the separate drafts doc.
+      if (!act._draft) scheduleAutoSave(); else _draftsSyncSoon();
       if (_isDesktop()) {
         _deskUpdateDetailValidation(parseInt(di), actId);
       } else {
@@ -44065,8 +44149,232 @@
     }
 
     // Draft warning banner — shown when the user leaves a view with an unsaved draft task or note, or as a hint on the active view
+    // One line per unsaved task in the open week — "Routines · Five Alley · Wed 28 Oct" —
+    // so the banner says WHICH task and WHICH day instead of just "unsaved tasks".
+    function _draftTaskDetailHtml() {
+      // Drafts of the open week (live) + drafts of other weeks (from the drafts store)
+      const items = [];
+      (state.weekData?.days || []).forEach(d => (d.activities || []).forEach(a => {
+        if (a._draft) items.push({ id: a.id, act: a, date: d.date, weekStart: state.weekStart, dayName: d.dayName });
+      }));
+      _draftsOtherWeek().forEach(e => items.push({ id: e.act.id, act: e.act, date: e.date, weekStart: e.weekStart }));
+      items.sort((x, y) => String(x.date || '').localeCompare(String(y.date || '')));
+      const lines = items.map(it => {
+        const name = (it.act.description || '').trim() || 'Untitled task';
+        const loc = (it.act.location || '').trim().replace(/\s*\([^)]+\)$/, '');
+        const day = it.date ? _draftDayLabel(it.date, ' · ') : (it.dayName || '');
+        return '<button type="button" class="draft-warning-banner-link" onclick="openDraftTask(\'' + it.id + '\',\'' + (it.date || '') + '\',\'' + (it.weekStart || '') + '\')">' +
+          '<span class="dwb-day">' + esc(day) + '</span>' +
+          '<span class="dwb-main">' + esc(name) + (loc ? '<span class="dwb-loc"> · ' + esc(loc) + '</span>' : '') + '</span>' +
+          '<svg class="dwb-chev" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>' +
+          '</button>';
+      });
+      if (!lines.length) return '';
+      const more = lines.length > 3 ? '<span class="dwb-more">+' + (lines.length - 3) + ' more</span>' : '';
+      return '<span class="draft-warning-banner-sub">' + lines.slice(0, 3).join('') + more + '</span>';
+    }
+
+    // ── Draft tasks: survive reload + sync across devices ──────────────
+    // A draft is never part of the week document (scheduleAutoSave strips it — it
+    // would count toward hours/exports and revive the old sync-loop bugs). Drafts
+    // live in their own map { actId: { act, weekStart, date, updatedAt } }:
+    //   • IndexedDB  ('notes' store, id 'task_drafts') → survives reload / app close
+    //   • Firestore  users/{uid}/data/taskDrafts       → shows up on other devices
+    // and are re-attached to their week as `_draft` activities when it loads.
+    // RULES: the snapshot handler below never writes; writes come only from
+    // _draftsScan(), which diffs the open week against this map (so a remote update
+    // that already matches is not written back). Save/Discard just remove the draft
+    // from the week and the next scan deletes its entry.
+    function _stableStr(v) {
+      if (v === null || typeof v !== 'object') return JSON.stringify(v);
+      if (Array.isArray(v)) return '[' + v.map(_stableStr).join(',') + ']';
+      return '{' + Object.keys(v).sort().filter(k => v[k] !== undefined).map(k => JSON.stringify(k) + ':' + _stableStr(v[k])).join(',') + '}';
+    }
+
+    function _draftsOtherWeek() {
+      return Object.keys(_taskDrafts).map(id => _taskDrafts[id]).filter(e => e && e.act && e.weekStart && e.weekStart !== state.weekStart);
+    }
+
+    function _draftsSyncSoon() {
+      if (!state.currentUser || !_taskDraftsReady) return;
+      clearTimeout(_taskDraftsTimer);
+      _taskDraftsTimer = setTimeout(() => _draftsScan(false), 1200);
+    }
+
+    // Diff the open week's draft activities against the store; write only changes.
+    function _draftsScan(force) {
+      clearTimeout(_taskDraftsTimer);
+      if (!state.currentUser || !_taskDraftsReady) return;
+      const wd = state.weekData;
+      if (!wd || !wd.days || !state.weekStart) return;
+      // state.weekStart flips before weekData does inside loadWeek — never scan mid-switch
+      if (_loadWeekInProgress && !force) { _draftsSyncSoon(); return; }
+      const ws = state.weekStart;
+      const live = {};
+      wd.days.forEach(d => (d.activities || []).forEach(a => {
+        if (a._draft && _activityHasContent(a)) live[a.id] = { act: a, date: d.date };
+      }));
+      const upserts = {};
+      const removes = [];
+      Object.keys(live).forEach(id => {
+        const clean = deepCopy(live[id].act);
+        delete clean._draft;
+        const prev = _taskDrafts[id];
+        if (!prev || prev.weekStart !== ws || prev.date !== live[id].date || _stableStr(prev.act) !== _stableStr(clean)) {
+          _taskDrafts[id] = { act: clean, weekStart: ws, date: live[id].date, updatedAt: Date.now() };
+          upserts[id] = _taskDrafts[id];
+        }
+      });
+      Object.keys(_taskDrafts).forEach(id => {
+        if (_taskDrafts[id].weekStart === ws && !live[id]) { removes.push(id); delete _taskDrafts[id]; }
+      });
+      if (!Object.keys(upserts).length && !removes.length) return;
+      _draftsPersist(upserts, removes);
+      _syncDraftWarningBanner();
+    }
+
+    function _draftsPersistLocal() {
+      const uid = state.currentUser?.uid || null;
+      dbPut('notes', { id: 'task_drafts', userId: uid, data: _taskDrafts, cloudIds: Array.from(_taskDraftsCloudIds), updatedAt: Date.now() }).catch(() => { });
+    }
+
+    function _draftsPersist(upserts, removes) {
+      const patch = {};
+      Object.keys(upserts).forEach(id => {
+        const entry = JSON.parse(JSON.stringify(upserts[id]));   // Firestore rejects undefined
+        if (JSON.stringify(entry).length < 400000) { patch[id] = entry; _taskDraftsCloudIds.add(id); }
+      });
+      removes.forEach(id => { patch[id] = firebase.firestore.FieldValue.delete(); _taskDraftsCloudIds.delete(id); });
+      _draftsPersistLocal();
+      if (!state.currentUser || state.currentUser.isLocalOnly || !Object.keys(patch).length) return;
+      const ref = userDoc('data/taskDrafts');
+      if (!ref) return;
+      ref.set({ drafts: patch, _updatedAt: Date.now() }, { merge: true })
+        .catch(e => console.warn('[FieldLog] Draft sync failed:', e));
+    }
+
+    // Put this week's stored drafts back into state.weekData (skips ids already there).
+    function _draftsRestoreIntoWeek() {
+      const wd = state.weekData;
+      if (!wd || !wd.days || !state.weekStart) return false;
+      const present = new Set();
+      wd.days.forEach(d => (d.activities || []).forEach(a => present.add(a.id)));
+      let added = false;
+      Object.keys(_taskDrafts).forEach(id => {
+        const e = _taskDrafts[id];
+        if (!e || !e.act || e.weekStart !== state.weekStart || present.has(id)) return;
+        if (_isRecentlyDeleted(id)) return;
+        const di = wd.days.findIndex(d => d.date === e.date);
+        if (di < 0) return;
+        const act = deepCopy(e.act);
+        act._draft = true;
+        wd.days[di].activities.push(act);
+        added = true;
+      });
+      return added;
+    }
+
+    async function loadTaskDrafts() {
+      const uid = state.currentUser?.uid;
+      if (!uid) return;
+      if (_taskDraftsUnsub) { try { _taskDraftsUnsub(); } catch (e) { } _taskDraftsUnsub = null; }
+      try {
+        const stored = await dbGet('notes', 'task_drafts').catch(() => null);
+        if (stored && stored.userId === uid && stored.data) {
+          _taskDrafts = stored.data;
+          _taskDraftsCloudIds = new Set(stored.cloudIds || []);
+        }
+      } catch (e) { console.warn('[FieldLog] loadTaskDrafts:', e); }
+      const cutoff = Date.now() - 30 * 86400000;     // forgotten drafts expire after 30 days
+      Object.keys(_taskDrafts).forEach(id => { if (!_taskDrafts[id] || !_taskDrafts[id].act || (_taskDrafts[id].updatedAt || 0) < cutoff) delete _taskDrafts[id]; });
+      _taskDraftsReady = true;
+      if (_draftsRestoreIntoWeek()) render(); else _syncDraftWarningBanner();
+      if (state.currentUser.isLocalOnly) return;
+      const ref = userDoc('data/taskDrafts');
+      if (!ref || !ref.onSnapshot) return;
+      _taskDraftsUnsub = ref.onSnapshot(snap => {
+        // own pending writes / offline-cache echoes would look like "deleted elsewhere"
+        if (snap.metadata.hasPendingWrites || snap.metadata.fromCache) return;
+        _draftsApplyRemote(snap.exists ? (snap.data().drafts || {}) : {});
+      }, e => console.warn('[FieldLog] Draft listener error:', e));
+    }
+
+    // Merge the cloud map into the local one. NEVER writes from here except pushing
+    // up drafts that only this device has (created offline) — and only once.
+    function _draftsApplyRemote(remote) {
+      const remoteIds = new Set(Object.keys(remote));
+      const active = document.activeElement;
+      const editing = !!(active && (active.tagName === 'TEXTAREA' || active.tagName === 'INPUT' || active.isContentEditable));
+      let weekChanged = false;
+      remoteIds.forEach(id => {
+        const r = remote[id];
+        if (!r || !r.act) return;
+        const l = _taskDrafts[id];
+        _taskDraftsCloudIds.add(id);
+        if (l && (l.updatedAt || 0) >= (r.updatedAt || 0)) return;
+        _taskDrafts[id] = r;
+        if (r.weekStart === state.weekStart && state.weekData) {
+          // newer copy from another device — refresh the open draft unless it's being typed into
+          const cur = state.weekData.days.flatMap(d => d.activities || []).find(a => a.id === id);
+          if (cur && cur._draft && !editing) { Object.assign(cur, deepCopy(r.act), { _draft: true }); weekChanged = true; }
+        }
+      });
+      // In the cloud before, gone now → saved or discarded on another device
+      Array.from(_taskDraftsCloudIds).forEach(id => {
+        if (remoteIds.has(id)) return;
+        _taskDraftsCloudIds.delete(id);
+        const e = _taskDrafts[id];
+        delete _taskDrafts[id];
+        if (e && e.weekStart === state.weekStart && state.weekData) {
+          state.weekData.days.forEach(d => {
+            const n = (d.activities || []).length;
+            d.activities = (d.activities || []).filter(a => !(a.id === id && a._draft));
+            if (d.activities.length !== n) weekChanged = true;
+          });
+        }
+      });
+      // Drafts only this device has (made offline) → push once
+      const up = {};
+      Object.keys(_taskDrafts).forEach(id => { if (!remoteIds.has(id) && !_taskDraftsCloudIds.has(id)) up[id] = _taskDrafts[id]; });
+      if (_draftsRestoreIntoWeek()) weekChanged = true;
+      if (Object.keys(up).length) _draftsPersist(up, []); else _draftsPersistLocal();
+      if (weekChanged) render(); else _syncDraftWarningBanner();
+    }
+
+    // "Wed 28 Oct" — weekday, day, month (sep = what goes between weekday and date)
+    function _draftDayLabel(dateStr, sep) {
+      return strToDate(dateStr).toLocaleDateString('en-IE', { weekday: 'short' }) + (sep || ' ') + formatDate(dateStr);
+    }
+
+    // Banner row tap — jump to a draft task (any week) and expand it, like tapping its card.
+    async function openDraftTask(actId, dateStr, weekStart) {
+      if (state.view !== 'week') await setView('week');
+      if (weekStart && weekStart !== state.weekStart) await loadWeek(weekStart);
+      const di = (state.weekData?.days || []).findIndex(d => d.date === dateStr);
+      if (di < 0) return;
+      state.expandedDays.clear();
+      state.expandedDays.add(di);
+      if (_isDesktop()) {
+        state.deskSelectedDay = di;
+        state.deskSelectedAct = actId;
+      }
+      saveUiState();
+      if (getTaskStyle() === 'modal') {
+        render();
+        openTaskModal(actId, di);
+        return;
+      }
+      state.activitiesExpanded.add(actId);
+      render();
+      setTimeout(() => {
+        const el = document.querySelector('.activity-card[data-act-id="' + actId + '"]');
+        if (el) window.scrollTo({ top: Math.max(0, el.getBoundingClientRect().top + window.scrollY - 80), behavior: 'smooth' });
+      }, 120);
+    }
+
     function _renderDraftWarningBanner() {
-      const anyDraftTask = !!(state.weekData?.days?.some(d => d.activities?.some(a => a._draft)));
+      const otherWeekDrafts = _draftsOtherWeek().length > 0;   // drafts parked in other weeks (reload / other device)
+      const anyDraftTask = otherWeekDrafts || !!(state.weekData?.days?.some(d => d.activities?.some(a => a._draft)));
       const anyDraftNote = !!(state.notes?.some(n => n._draft));
       // Template drafts live outside state.taskTemplates until explicitly
       // saved, so their draft state is tracked by tplDraftId/_tplDraft.
@@ -44088,7 +44396,7 @@
       }
 
       // Check if there are inactive/dormant drafts on the current view
-      const hasDormantDraftTask = !!(state.weekData?.days?.some(d => d.activities?.some(a => {
+      const hasDormantDraftTask = otherWeekDrafts || !!(state.weekData?.days?.some(d => d.activities?.some(a => {
         if (!a._draft) return false;
         if (_isDesktop()) {
           return state.deskSelectedAct !== a.id;
@@ -44108,12 +44416,11 @@
 
       // 1. If on Timesheet view and there are dormant draft tasks
       if (state.view === 'week' && hasDormantDraftTask) {
-        return `<div class="draft-warning-banner">
-          <span style="display:flex;align-items:center;flex-shrink:0;color:#fff">
+        return `<div class="draft-warning-banner" style="align-items:flex-start">
+          <span style="display:flex;align-items:center;flex-shrink:0;color:#fff;margin-top:1px">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
           </span>
-          <span class="draft-warning-banner-text">You have unsaved tasks (drafts)</span>
-          <button class="draft-warning-banner-btn" onclick="saveAllDrafts()">Save Drafts</button>
+          <span class="draft-warning-banner-text">You have unsaved tasks (drafts)${_draftTaskDetailHtml()}</span>
         </div>`;
       }
 
@@ -44143,12 +44450,15 @@
         ? 'You have an unsaved ' + draftNames[0]
         : 'You have unsaved ' + draftNames.slice(0, -1).join(', ') + ' and ' + draftNames[draftNames.length - 1];
       const returnView = hasDraftTemplate ? 'templates' : hasDraftTask ? 'week' : 'notes';
-      return `<div class="draft-warning-banner">
-        <span style="display:flex;align-items:center;flex-shrink:0;color:#fff">
+      // Unsaved tasks are tappable rows that open the task, so Return is only
+      // needed when a note / template draft is involved.
+      const taskOnly = hasDraftTask && !hasDraftNote && !hasDraftTemplate;
+      return `<div class="draft-warning-banner"${hasDraftTask ? ' style="align-items:flex-start"' : ''}>
+        <span style="display:flex;align-items:center;flex-shrink:0;color:#fff${hasDraftTask ? ';margin-top:1px' : ''}">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
         </span>
-        <span class="draft-warning-banner-text">${msg}</span>
-        <button class="draft-warning-banner-btn" onclick="setView('${returnView}')">Return</button>
+        <span class="draft-warning-banner-text">${msg}${hasDraftTask ? _draftTaskDetailHtml() : ''}</span>
+        ${taskOnly ? '' : `<button class="draft-warning-banner-btn" onclick="setView('${returnView}')">Return</button>`}
       </div>`;
     }
 
@@ -48706,7 +49016,7 @@
           if (el) window.scrollTo({ top: Math.max(0, el.getBoundingClientRect().top + window.scrollY - 80), behavior: 'smooth' });
         }, 120);
       }
-      showToast('Routine task added — press Save to keep it');
+      showToast('Routine task for ' + site + ' on ' + _draftDayLabel(dateStr) + ' added — press Save to keep it', 4000);
     }
 
     function closeRoutinesLogModal() {
@@ -53408,6 +53718,8 @@ Rules:
         loadCustomCategories();
         // Load reusable task templates
         loadTaskTemplates();
+        // Unsaved draft tasks (survive reload, sync across devices)
+        loadTaskDrafts();
 
         // Init local reminders
         initReminders();
