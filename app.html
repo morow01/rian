@@ -4951,8 +4951,16 @@
       color: #fff;
     }
 
+    /* task drafts: icon + title on the first line, the task rows underneath at
+       full width so they start under the warning icon */
+    .draft-warning-banner--tasks {
+      flex-wrap: wrap;
+      row-gap: 0;
+    }
+
     .draft-warning-banner-sub {
       display: block;
+      flex: 0 0 100%;
       margin-top: 6px;
     }
 
@@ -4990,18 +4998,27 @@
       border-right: 1px solid rgba(255, 255, 255, 0.4);
     }
 
+    /* long descriptions wrap onto more lines instead of being cut off */
     .dwb-main {
       flex: 1;
       min-width: 0;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
+      white-space: normal;
+      overflow-wrap: anywhere;
+      line-height: 1.3;
       font-weight: 700;
     }
 
+    /* location sits in its own column, divided like the day label */
     .dwb-loc {
+      flex: 0 1 auto;
+      max-width: 38%;
+      min-width: 0;
+      padding-left: 10px;
+      border-left: 1px solid rgba(255, 255, 255, 0.4);
+      overflow-wrap: anywhere;
+      line-height: 1.3;
       font-weight: 500;
-      opacity: 0.88;
+      opacity: 0.92;
     }
 
     .dwb-chev {
@@ -24166,7 +24183,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '6.9.25';
+    const VERSION = '6.9.27';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -44165,7 +44182,8 @@
         const day = it.date ? _draftDayLabel(it.date, ' · ') : (it.dayName || '');
         return '<button type="button" class="draft-warning-banner-link" onclick="openDraftTask(\'' + it.id + '\',\'' + (it.date || '') + '\',\'' + (it.weekStart || '') + '\')">' +
           '<span class="dwb-day">' + esc(day) + '</span>' +
-          '<span class="dwb-main">' + esc(name) + (loc ? '<span class="dwb-loc"> · ' + esc(loc) + '</span>' : '') + '</span>' +
+          '<span class="dwb-main">' + esc(name) + '</span>' +
+          (loc ? '<span class="dwb-loc">' + esc(loc) + '</span>' : '') +
           '<svg class="dwb-chev" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>' +
           '</button>';
       });
@@ -44416,11 +44434,12 @@
 
       // 1. If on Timesheet view and there are dormant draft tasks
       if (state.view === 'week' && hasDormantDraftTask) {
-        return `<div class="draft-warning-banner" style="align-items:flex-start">
-          <span style="display:flex;align-items:center;flex-shrink:0;color:#fff;margin-top:1px">
+        return `<div class="draft-warning-banner draft-warning-banner--tasks">
+          <span style="display:flex;align-items:center;flex-shrink:0;color:#fff">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
           </span>
-          <span class="draft-warning-banner-text">You have unsaved tasks (drafts)${_draftTaskDetailHtml()}</span>
+          <span class="draft-warning-banner-text">You have unsaved tasks (drafts)</span>
+          ${_draftTaskDetailHtml()}
         </div>`;
       }
 
@@ -44453,12 +44472,13 @@
       // Unsaved tasks are tappable rows that open the task, so Return is only
       // needed when a note / template draft is involved.
       const taskOnly = hasDraftTask && !hasDraftNote && !hasDraftTemplate;
-      return `<div class="draft-warning-banner"${hasDraftTask ? ' style="align-items:flex-start"' : ''}>
-        <span style="display:flex;align-items:center;flex-shrink:0;color:#fff${hasDraftTask ? ';margin-top:1px' : ''}">
+      return `<div class="draft-warning-banner${hasDraftTask ? ' draft-warning-banner--tasks' : ''}">
+        <span style="display:flex;align-items:center;flex-shrink:0;color:#fff">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
         </span>
-        <span class="draft-warning-banner-text">${msg}${hasDraftTask ? _draftTaskDetailHtml() : ''}</span>
+        <span class="draft-warning-banner-text">${msg}</span>
         ${taskOnly ? '' : `<button class="draft-warning-banner-btn" onclick="setView('${returnView}')">Return</button>`}
+        ${hasDraftTask ? _draftTaskDetailHtml() : ''}
       </div>`;
     }
 
