@@ -10097,19 +10097,9 @@
       mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48'/%3E%3C/svg%3E") center/contain no-repeat;
     }
 
-    /* v6.9.30 — remove button on attachment chips inside the editor (tap the × to take the attachment out) */
-    :is(#note-fs-editor .ProseMirror, #dj-editor-mount .ProseMirror) .tt-file-chip::after,
-    :is(#note-fs-editor .ProseMirror, #dj-editor-mount .ProseMirror) a[href*="noteFiles"]::after {
-      content: "\00d7";
-      flex-shrink: 0;
-      margin-left: 6px;
-      padding-left: 9px;
-      border-left: 1px solid rgba(var(--accent-rgb), 0.3);
-      font-size: 18px;
-      font-weight: 700;
-      line-height: 1;
-      opacity: 0.8;
-    }
+    /* Link bubble in attachment mode: name is read-only, no "apply URL" tick */
+    #tt-link-bubble.tt-bubble-att #tt-link-bbl-confirm { display: none; }
+    #tt-link-bubble.tt-bubble-att #tt-link-bubble-input { pointer-events: none; }
 
     /* Selected atomic chip (before deleting) */
     :is(#note-fs-editor .ProseMirror, #dj-editor-mount .ProseMirror) .tt-file-chip.ProseMirror-selectednode {
@@ -24197,7 +24187,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '6.9.31';
+    const VERSION = '6.9.32';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -25788,71 +25778,60 @@
 
     // Native app: open attachment chips directly in the associated app (Excel/Word/PDF)
     // instead of letting the WebView hand the download URL to an external browser.
-    // Tapping the × at the right end of an attachment chip (inside the editor) removes the attachment link
-    // from the note (the file itself stays in storage). Undo restores it.
-    function _ttChipRemoveHit(e) {
-      try {
-        const chip = e.target && e.target.closest ? e.target.closest('.tt-file-chip, a[href*="noteFiles"]') : null;
-        if (!chip) return false;
-        const host = chip.closest('.ProseMirror');
-        const ed = window._tiptapEditor || (typeof _tiptapEditor !== 'undefined' ? _tiptapEditor : null);
-        if (!host || !ed || !ed.view || !host.isConnected || host.getAttribute('contenteditable') === 'false') return false;
-        const r = chip.getBoundingClientRect();
-        if (e.clientX < r.right - 34) return false;
-        const view = ed.view;
-        let from, to;
-        if (chip.tagName === 'A') {          // legacy attachment saved as a plain link (text with a link mark)
-          from = view.posAtDOM(chip, 0);
-          to = view.posAtDOM(chip, chip.childNodes.length);
-        } else {                              // atomic fileChip node
-          from = view.posAtDOM(chip, 0);
-          const node = view.state.doc.nodeAt(from);
-          if (!node) return false;
-          to = from + node.nodeSize;
-        }
-        if (!(to > from)) return false;
-        ed.chain().focus().deleteRange({ from, to }).run();
-        showToast('Attachment removed — tap undo to bring it back');
-        return true;
-      } catch (err) { return false; }
-    }
-
-    function _ttChipRemoveHitPreview(e) {
-      try {
-        const chip = e.target && e.target.closest ? e.target.closest('.tt-file-chip, a[href*="noteFiles"]') : null;
-        if (!chip) return false;
-        const host = chip.closest('.ProseMirror');
-        if (!host || host.getAttribute('contenteditable') === 'false') return false;
-        return (e.clientX || (e.touches && e.touches[0] && e.touches[0].clientX) || 0) >= chip.getBoundingClientRect().right - 34;
-      } catch (err) { return false; }
-    }
-
     function _nativeFileOpenAvailable() {
       return !!(IS_NATIVE && window.RianNative && typeof window.RianNative.openFile === 'function');
     }
-    // v6.9.29 — in the APK a tap on an attachment chip must behave like a link: open the file and nothing else.
-    // Inside the (contenteditable) note editor the press used to also drop a text cursor into the chip's name
-    // (and raise the keyboard) before the app picker appeared. Swallow the press events so ProseMirror/the
-    // browser never place a caret; the click handler below still opens the file.
-    ['mousedown', 'pointerdown', 'touchstart'].forEach(function (evtName) {
-      document.addEventListener(evtName, function (e) {
-        try {
-          if (!_nativeFileOpenAvailable()) return;
-          if (_ttChipRemoveHitPreview(e)) { e.stopPropagation(); if (evtName !== 'touchstart' && e.cancelable) e.preventDefault(); return; }
-          const a = e.target && e.target.closest ? e.target.closest('a.tt-file-chip, a[href*="noteFiles"]') : null;
-          if (!a) return;
-          e.stopPropagation();
-          // preventDefault stops the caret/focus. Not on touchstart: that would also cancel the click.
-          if (evtName !== 'touchstart' && e.cancelable) e.preventDefault();
-        } catch (err) { }
-      }, true);
-    });
+    // v6.9.32 — inside the note editor a tap on an attachment chip just selects it and shows the link bubble
+    // (Open / Remove, same as desktop). Only chips in read-only previews open the file straight away in the APK.
+    function _ttOpenAttachment(href, name) {
+      if (_nativeFileOpenAvailable()) window.RianNative.openFile(href, name || 'file');
+      else _openUrl(href);
+    }
+    // Attachment under the editor selection: an atomic fileChip node or a legacy noteFiles link.
+    function _ttAttachmentAtSelection(editor) {
+      try {
+        const sel = editor.state.selection;
+        if (sel.node && sel.node.type.name === 'fileChip') {
+          return { from: sel.from, to: sel.to, href: sel.node.attrs.href || '', name: sel.node.attrs.name || 'file' };
+        }
+        if (editor.isActive('link')) {
+          const href = editor.getAttributes('link').href || '';
+          if (href.indexOf('noteFiles') === -1) return null;
+          const $f = sel.$from;
+          const linkType = editor.schema.marks.link;
+          const parent = $f.parent;
+          let start = $f.start(), from = null, to = null, off = start;
+          parent.forEach(function (child, o) {
+            const a = start + o, b = a + child.nodeSize;
+            if (child.marks.some(function (m) { return m.type === linkType && m.attrs.href === href; }) && sel.from >= a && sel.from <= b) {
+              if (from === null) from = a;
+              to = b;
+            }
+          });
+          if (from === null) return null;
+          return { from: from, to: to, href: href, name: editor.state.doc.textBetween(from, to).replace(/^\s*📎\s*/, '').trim() || 'file' };
+        }
+      } catch (err) { }
+      return null;
+    }
+    async function _ttRemoveAttachment(editor, att) {
+      const ok = await showAppDialog({
+        title: 'Remove attachment?',
+        message: '"' + att.name + '" will be removed from this note. The file stays in storage and you can undo.',
+        confirmText: 'Remove',
+        danger: true
+      });
+      if (!ok) { editor.commands.focus(); return; }
+      editor.chain().focus().deleteRange({ from: att.from, to: att.to }).run();
+      _ttHideLinkBubble();
+      showToast('Attachment removed');
+    }
     document.addEventListener('click', function (e) {
       try {
-        if (_ttChipRemoveHit(e)) { e.preventDefault(); e.stopPropagation(); return; }
         if (!_nativeFileOpenAvailable()) return;
         const a = e.target && e.target.closest ? e.target.closest('a.tt-file-chip, a[href*="noteFiles"]') : null;
         if (!a || !a.href) return;
+        if (a.closest('.ProseMirror[contenteditable="true"]')) return; // editing: the bubble handles it
         e.preventDefault();
         e.stopPropagation();
         const nm = a.getAttribute('data-name') || (a.textContent || '').trim() || 'file';
@@ -56426,10 +56405,14 @@ QUESTION: ${query}`;
         // blurs before the click fires, clearing the selection so getAttributes()
         // returns undefined. The input value is set when the bubble opens and persists.
         const input = document.getElementById('tt-link-bubble-input');
+        const att = window._ttBubbleAtt;
+        if (att && att.href) { _ttOpenAttachment(att.href, att.name); return; }
         const href = (input?.value.trim()) || e.getAttributes('link').href;
         if (href) _openUrl(href);
       });
       on('tt-link-bbl-remove', () => {
+        const att = window._ttBubbleAtt;
+        if (att) { _ttRemoveAttachment(e, att); return; }
         e.chain().focus().unsetLink().run();
         _ttUpdateToolbar(e);
       });
@@ -57539,14 +57522,19 @@ QUESTION: ${query}`;
     function _ttUpdateLinkBubble(editor) {
       const bubble = document.getElementById('tt-link-bubble');
       if (!bubble) return;
-      if (!editor.isActive('link')) {
+      const att = _ttAttachmentAtSelection(editor);
+      window._ttBubbleAtt = att;
+      bubble.classList.toggle('tt-bubble-att', !!att);
+      const _inp0 = document.getElementById('tt-link-bubble-input');
+      if (_inp0) _inp0.readOnly = !!att;
+      if (!att && !editor.isActive('link')) {
         // Only hide if the bubble input itself isn't focused
         const inputEl = document.getElementById('tt-link-bubble-input');
         if (document.activeElement !== inputEl) bubble.style.display = 'none';
         return;
       }
       // Update URL input (don't overwrite while user is typing)
-      const href = editor.getAttributes('link').href || '';
+      const href = att ? att.name : (editor.getAttributes('link').href || '');
       const inputEl = document.getElementById('tt-link-bubble-input');
       if (inputEl && document.activeElement !== inputEl) {
         inputEl.value = href;
