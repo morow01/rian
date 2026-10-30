@@ -10,6 +10,7 @@ const ASSETS = [
   BASE + 'exchanges.json',
   BASE + 'cabinets.json',
   BASE + 'images/fieldlog-glyph.svg?v=logo2',
+  BASE + 'vendor/tiptap-2.4.0-bundle.js',
 ];
 
 // Handle push notifications (raw Web Push, no Firebase SDK needed)

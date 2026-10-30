@@ -24197,7 +24197,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '6.9.30';
+    const VERSION = '6.9.31';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -54752,6 +54752,29 @@ QUESTION: ${query}`;
       throw lastErr;
     }
 
+    // v6.9.31 — TipTap + ProseMirror now ship from our own site as ONE pre-built file (vendor/tiptap-2.4.0-bundle.js,
+    // ~130 KB gzipped, same pinned 2.4.0 versions, same module order as the URL list below). The old way pulled ~160
+    // small files from esm.sh at runtime, so an esm.sh outage/slow patch (30 s+ timeouts, HTTP 500) left the editor a
+    // white page — and every app release threw away the service-worker cache and re-downloaded them all. esm.sh is
+    // kept only as a fallback if the local file cannot be loaded.
+    const _TT_BUNDLE_URL = 'vendor/tiptap-2.4.0-bundle.js';
+    async function _ttLoadModuleSet(cdnUrls, bundleUrl) {
+      const local = new URL(bundleUrl || _TT_BUNDLE_URL, location.href).href;
+      for (let attempt = 1; attempt <= 2; attempt++) {
+        try {
+          const b = await import(/* @vite-ignore */ local);
+          if (Array.isArray(b.modules) && b.modules.length === cdnUrls.length) return b.modules;
+          throw new Error('bundle shape mismatch');
+        } catch (e) {
+          console.warn('[FieldLog] Local TipTap bundle attempt ' + attempt + '/2 failed:', e.message);
+          if (attempt < 2) await new Promise(r => setTimeout(r, 800));
+        }
+      }
+      console.warn('[FieldLog] Falling back to esm.sh for TipTap');
+      return _ttFetchModulesWithRetry(cdnUrls);
+    }
+    window._ttLoadModuleSet = _ttLoadModuleSet;
+
     async function _loadTipTapModules() {
       if (_tiptapModules) return _tiptapModules;
       const [
@@ -54775,7 +54798,7 @@ QUESTION: ${query}`;
         { default: Subscript },
         { default: Superscript },
         { default: Image },
-      ] = await _ttFetchModulesWithRetry([
+      ] = await _ttLoadModuleSet([
         'https://esm.sh/@tiptap/core@2.4.0',
         'https://esm.sh/prosemirror-state@1.4.3',
         'https://esm.sh/prosemirror-history@1.4.1',
