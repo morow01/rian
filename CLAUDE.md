@@ -49,7 +49,7 @@ A Progressive Web App for field technicians — timesheets, notes (TipTap rich t
 ## Version
 `const VERSION = 'x.y.z'` in `app.html` (~line 18699). Bump on every change. Only location that needs updating (index.html version references are static).
 **Patch (z) must not exceed 99.** When a bump would take it to 100, bump the minor version instead and reset patch to 0 (e.g. `6.7.99` → `6.8.0`, never `6.7.100`). 6.7.100–6.7.102 already broke this rule and were left as-is rather than rewriting pushed history — the rule applies from 6.8.0 onward.
-Current version: **6.9.28**
+Current version: **6.9.29**
 
 **12 themes active**: `claude` (default light), `dark` (slate-based), `champagne`, `champagne-dark`, `ios`, `apple` (macOS), `gray` (Grayscale), `gameboy` (Game Boy), `win31` (Win 3.1), `lcd` (LCD), `spectrum` (ZX Spectrum), `retro` (Retro). Theme picker lives in ☰ menu → Display. Switcher at `setTheme(key)`, registry at `THEME_META`.
 
@@ -557,6 +557,9 @@ Draft tasks (`_draft: true`, the unsaved Add Task / Add routine task cards) used
 - `loadTaskDrafts()` (auth-ready flow, next to `loadTaskTemplates`) loads IDB, then `onSnapshot`s the cloud doc. `_draftsApplyRemote()` **never writes back** (snapshot rule) — except pushing up drafts that exist only on this device (made offline: not in `_taskDraftsCloudIds`, which is persisted in the IDB record). Ids that were in the cloud and vanished = saved/discarded on another device → removed here; snapshots with `hasPendingWrites` or `fromCache` are ignored; a newer remote copy refreshes an open draft unless a field is focused.
 - Banner (`_renderDraftWarningBanner` / `_draftTaskDetailHtml`) also lists drafts parked in OTHER weeks; `openDraftTask(actId, dateStr, weekStart)` loads that week first.
 - Verified locally (reload persistence, restore, other-week banner, Save removes the entry) and with a mocked Firestore (write patch, remote add/remove, pending/cache snapshots ignored, no write-back). NOT yet verified against real Firestore on two devices. Note the `?auth_bypass=true` dev flow clears the IDB `notes` store on startup, so reload-persistence can't be tested through that URL.
+
+### Attachment chip taps + link bubble clipped at the bottom (v6.9.29)
+In the APK a tap on a file-attachment chip inside the editable note placed a text cursor in the chip name (and raised the keyboard / the link bubble) before the Android app picker appeared. A capture-phase listener (`mousedown`/`pointerdown`/`touchstart`, only when `_nativeFileOpenAvailable()`) now swallows the press on `a.tt-file-chip, a[href*="noteFiles"]` so no caret is placed (`preventDefault` everywhere except `touchstart`, which would cancel the click); the existing click handler then calls `RianNative.openFile`. Test seam: `_nativeFileOpenAvailable` is a global function, so a browser test can override it and stub `window.RianNative`. The Android "open with" chooser is the system's — pick a PDF viewer and tap Always. Separately, `_ttUpdateLinkBubble()` always placed the bubble at caret-bottom+6, so a link near the bottom of the screen (or above a keyboard / tablet taskbar) left it half hidden; it now measures the bubble, uses `visualViewport.height`, and flips ABOVE the line / clamps to the viewport (falls back to the old placement if the viewport height is unavailable).
 
 ### Firestore IndexedDB Cache Corruption
 `?cleanup=1` URL parameter nukes Firestore's local IndexedDB caches (built into app since v5.1.79). Use when sync behaves inconsistently — `get({source:'server'})` can return cached data from corrupted IndexedDB even when claiming server source. Ad blockers (uBlock Origin Lite) can also interfere with Firestore network requests.

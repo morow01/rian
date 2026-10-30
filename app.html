@@ -24183,7 +24183,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '6.9.28';
+    const VERSION = '6.9.29';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -25774,9 +25774,28 @@
 
     // Native app: open attachment chips directly in the associated app (Excel/Word/PDF)
     // instead of letting the WebView hand the download URL to an external browser.
+    function _nativeFileOpenAvailable() {
+      return !!(IS_NATIVE && window.RianNative && typeof window.RianNative.openFile === 'function');
+    }
+    // v6.9.29 — in the APK a tap on an attachment chip must behave like a link: open the file and nothing else.
+    // Inside the (contenteditable) note editor the press used to also drop a text cursor into the chip's name
+    // (and raise the keyboard) before the app picker appeared. Swallow the press events so ProseMirror/the
+    // browser never place a caret; the click handler below still opens the file.
+    ['mousedown', 'pointerdown', 'touchstart'].forEach(function (evtName) {
+      document.addEventListener(evtName, function (e) {
+        try {
+          if (!_nativeFileOpenAvailable()) return;
+          const a = e.target && e.target.closest ? e.target.closest('a.tt-file-chip, a[href*="noteFiles"]') : null;
+          if (!a) return;
+          e.stopPropagation();
+          // preventDefault stops the caret/focus. Not on touchstart: that would also cancel the click.
+          if (evtName !== 'touchstart' && e.cancelable) e.preventDefault();
+        } catch (err) { }
+      }, true);
+    });
     document.addEventListener('click', function (e) {
       try {
-        if (!IS_NATIVE || !(window.RianNative && typeof window.RianNative.openFile === 'function')) return;
+        if (!_nativeFileOpenAvailable()) return;
         const a = e.target && e.target.closest ? e.target.closest('a.tt-file-chip, a[href*="noteFiles"]') : null;
         if (!a || !a.href) return;
         e.preventDefault();
@@ -57469,9 +57488,21 @@ QUESTION: ${query}`;
       const coords = view.coordsAtPos(from);
       const editorRect = view.dom.getBoundingClientRect();
       bubble.style.position = 'fixed';
-      bubble.style.top = (coords.bottom + 6) + 'px';
       bubble.style.left = Math.max(8, editorRect.left) + 'px';
+      // Measure first (hidden), then keep the whole bubble on screen: when the link is near the bottom of the
+      // visible area (or the keyboard / a bottom taskbar is there) put it ABOVE the line instead of below it.
+      bubble.style.visibility = 'hidden';
       bubble.style.display = 'flex';
+      const bh = bubble.offsetHeight || 56;
+      const vh = (window.visualViewport && window.visualViewport.height) || window.innerHeight;
+      if (!vh || vh < 120) { bubble.style.top = (coords.bottom + 6) + 'px'; bubble.style.visibility = ''; return; } // no usable viewport info — old behaviour
+      const kb = (typeof _ttKbH === 'number' && _ttKbH > 0 && !(window.visualViewport)) ? _ttKbH : 0;
+      const bottomLimit = vh - kb - 12;
+      let top = coords.bottom + 6;
+      if (top + bh > bottomLimit) top = coords.top - bh - 6;
+      top = Math.max(8, Math.min(top, bottomLimit - bh));
+      bubble.style.top = top + 'px';
+      bubble.style.visibility = '';
     }
 
     // ── External URL opener ─────────────────────────────────────────────────
