@@ -10097,6 +10097,20 @@
       mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48'/%3E%3C/svg%3E") center/contain no-repeat;
     }
 
+    /* v6.9.30 — remove button on attachment chips inside the editor (tap the × to take the attachment out) */
+    :is(#note-fs-editor .ProseMirror, #dj-editor-mount .ProseMirror) .tt-file-chip::after,
+    :is(#note-fs-editor .ProseMirror, #dj-editor-mount .ProseMirror) a[href*="noteFiles"]::after {
+      content: "\00d7";
+      flex-shrink: 0;
+      margin-left: 6px;
+      padding-left: 9px;
+      border-left: 1px solid rgba(var(--accent-rgb), 0.3);
+      font-size: 18px;
+      font-weight: 700;
+      line-height: 1;
+      opacity: 0.8;
+    }
+
     /* Selected atomic chip (before deleting) */
     :is(#note-fs-editor .ProseMirror, #dj-editor-mount .ProseMirror) .tt-file-chip.ProseMirror-selectednode {
       outline: 2px solid var(--accent);
@@ -24183,7 +24197,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '6.9.29';
+    const VERSION = '6.9.30';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -25774,6 +25788,45 @@
 
     // Native app: open attachment chips directly in the associated app (Excel/Word/PDF)
     // instead of letting the WebView hand the download URL to an external browser.
+    // Tapping the × at the right end of an attachment chip (inside the editor) removes the attachment link
+    // from the note (the file itself stays in storage). Undo restores it.
+    function _ttChipRemoveHit(e) {
+      try {
+        const chip = e.target && e.target.closest ? e.target.closest('.tt-file-chip, a[href*="noteFiles"]') : null;
+        if (!chip) return false;
+        const host = chip.closest('.ProseMirror');
+        const ed = window._tiptapEditor || (typeof _tiptapEditor !== 'undefined' ? _tiptapEditor : null);
+        if (!host || !ed || !ed.view || !host.isConnected || host.getAttribute('contenteditable') === 'false') return false;
+        const r = chip.getBoundingClientRect();
+        if (e.clientX < r.right - 34) return false;
+        const view = ed.view;
+        let from, to;
+        if (chip.tagName === 'A') {          // legacy attachment saved as a plain link (text with a link mark)
+          from = view.posAtDOM(chip, 0);
+          to = view.posAtDOM(chip, chip.childNodes.length);
+        } else {                              // atomic fileChip node
+          from = view.posAtDOM(chip, 0);
+          const node = view.state.doc.nodeAt(from);
+          if (!node) return false;
+          to = from + node.nodeSize;
+        }
+        if (!(to > from)) return false;
+        ed.chain().focus().deleteRange({ from, to }).run();
+        showToast('Attachment removed — tap undo to bring it back');
+        return true;
+      } catch (err) { return false; }
+    }
+
+    function _ttChipRemoveHitPreview(e) {
+      try {
+        const chip = e.target && e.target.closest ? e.target.closest('.tt-file-chip, a[href*="noteFiles"]') : null;
+        if (!chip) return false;
+        const host = chip.closest('.ProseMirror');
+        if (!host || host.getAttribute('contenteditable') === 'false') return false;
+        return (e.clientX || (e.touches && e.touches[0] && e.touches[0].clientX) || 0) >= chip.getBoundingClientRect().right - 34;
+      } catch (err) { return false; }
+    }
+
     function _nativeFileOpenAvailable() {
       return !!(IS_NATIVE && window.RianNative && typeof window.RianNative.openFile === 'function');
     }
@@ -25785,6 +25838,7 @@
       document.addEventListener(evtName, function (e) {
         try {
           if (!_nativeFileOpenAvailable()) return;
+          if (_ttChipRemoveHitPreview(e)) { e.stopPropagation(); if (evtName !== 'touchstart' && e.cancelable) e.preventDefault(); return; }
           const a = e.target && e.target.closest ? e.target.closest('a.tt-file-chip, a[href*="noteFiles"]') : null;
           if (!a) return;
           e.stopPropagation();
@@ -25795,6 +25849,7 @@
     });
     document.addEventListener('click', function (e) {
       try {
+        if (_ttChipRemoveHit(e)) { e.preventDefault(); e.stopPropagation(); return; }
         if (!_nativeFileOpenAvailable()) return;
         const a = e.target && e.target.closest ? e.target.closest('a.tt-file-chip, a[href*="noteFiles"]') : null;
         if (!a || !a.href) return;

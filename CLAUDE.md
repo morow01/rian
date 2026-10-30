@@ -49,7 +49,7 @@ A Progressive Web App for field technicians — timesheets, notes (TipTap rich t
 ## Version
 `const VERSION = 'x.y.z'` in `app.html` (~line 18699). Bump on every change. Only location that needs updating (index.html version references are static).
 **Patch (z) must not exceed 99.** When a bump would take it to 100, bump the minor version instead and reset patch to 0 (e.g. `6.7.99` → `6.8.0`, never `6.7.100`). 6.7.100–6.7.102 already broke this rule and were left as-is rather than rewriting pushed history — the rule applies from 6.8.0 onward.
-Current version: **6.9.29**
+Current version: **6.9.30**
 
 **12 themes active**: `claude` (default light), `dark` (slate-based), `champagne`, `champagne-dark`, `ios`, `apple` (macOS), `gray` (Grayscale), `gameboy` (Game Boy), `win31` (Win 3.1), `lcd` (LCD), `spectrum` (ZX Spectrum), `retro` (Retro). Theme picker lives in ☰ menu → Display. Switcher at `setTheme(key)`, registry at `THEME_META`.
 
@@ -560,6 +560,8 @@ Draft tasks (`_draft: true`, the unsaved Add Task / Add routine task cards) used
 
 ### Attachment chip taps + link bubble clipped at the bottom (v6.9.29)
 In the APK a tap on a file-attachment chip inside the editable note placed a text cursor in the chip name (and raised the keyboard / the link bubble) before the Android app picker appeared. A capture-phase listener (`mousedown`/`pointerdown`/`touchstart`, only when `_nativeFileOpenAvailable()`) now swallows the press on `a.tt-file-chip, a[href*="noteFiles"]` so no caret is placed (`preventDefault` everywhere except `touchstart`, which would cancel the click); the existing click handler then calls `RianNative.openFile`. Test seam: `_nativeFileOpenAvailable` is a global function, so a browser test can override it and stub `window.RianNative`. The Android "open with" chooser is the system's — pick a PDF viewer and tap Always. Separately, `_ttUpdateLinkBubble()` always placed the bubble at caret-bottom+6, so a link near the bottom of the screen (or above a keyboard / tablet taskbar) left it half hidden; it now measures the bubble, uses `visualViewport.height`, and flips ABOVE the line / clamps to the viewport (falls back to the old placement if the viewport height is unavailable).
+
+**Remove button on attachment chips (v6.9.30).** Once tapping a chip opens the file (v6.9.29) there was no way to delete one on a phone. Chips inside the editor now show a × at the right end (CSS `::after`); `_ttChipRemoveHit(e)` (in the capture click listener, runs before the native-open branch) deletes the chip when a click lands in its right 34px — a legacy link chip (`<a href*=noteFiles>` text) via `posAtDOM` range, an atomic `fileChip` node via `nodeAt`; the file stays in Storage, undo restores the link. `_ttChipRemoveHitPreview` makes the press handler swallow the press on the ×. Both chip kinds currently parse as link text in the editor.
 
 ### Firestore IndexedDB Cache Corruption
 `?cleanup=1` URL parameter nukes Firestore's local IndexedDB caches (built into app since v5.1.79). Use when sync behaves inconsistently — `get({source:'server'})` can return cached data from corrupted IndexedDB even when claiming server source. Ad blockers (uBlock Origin Lite) can also interfere with Firestore network requests.
