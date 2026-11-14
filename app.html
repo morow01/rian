@@ -10661,14 +10661,13 @@
 
     :is(#note-fs-editor .ProseMirror, #dj-editor-mount .ProseMirror, .tt-prose) ul[data-type="taskList"] li {
       display: flex;
-      align-items: flex-start;
+      align-items: baseline;
       gap: 8px;
       margin-bottom: 4px;
     }
 
     :is(#note-fs-editor .ProseMirror, #dj-editor-mount .ProseMirror, .tt-prose) ul[data-type="taskList"] li>label {
       flex-shrink: 0;
-      margin-top: 2px;
     }
 
     :is(#note-fs-editor .ProseMirror, #dj-editor-mount .ProseMirror, .tt-prose) ul[data-type="taskList"] li>label input[type="checkbox"] {
@@ -24192,7 +24191,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '6.9.34';
+    const VERSION = '6.9.35';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -54872,7 +54871,12 @@ QUESTION: ${query}`;
         },
       });
       // Custom TaskItem that injects a drag-handle grip into each task item NodeView
+      // v6.9.35: a task item may start with a heading (H1–H3) as well as a paragraph, so headings can be used
+      // inside a task list instead of turning the whole item/list into a plain heading.
       const TaskItemWithHandle = TaskItem.extend({
+        content() {
+          return this.options.nested ? '(paragraph | heading) block*' : '(paragraph | heading)+';
+        },
         addNodeView() {
           return ({ editor, node, getPos }) => {
             const li = document.createElement('li');
