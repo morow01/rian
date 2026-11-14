@@ -24192,7 +24192,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '6.9.33';
+    const VERSION = '6.9.34';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -38960,7 +38960,7 @@
             mods.TextStyle,
             mods.Color,
             mods.FontSize,
-            mods.Highlight.configure({ multicolor: true }),
+            mods.Highlight.extend({ inclusive: false }).configure({ multicolor: true }),
             mods.Placeholder.configure({ placeholder: 'Start typing your note\u2026' }),
             mods.TextAlign.configure({ types: ['heading', 'paragraph'] }),
             mods.TaskList,
@@ -55789,7 +55789,7 @@ QUESTION: ${query}`;
           TextStyle,
           Color,
           FontSize,
-          Highlight.configure({ multicolor: true }),
+          Highlight.extend({ inclusive: false }).configure({ multicolor: true }),
           Placeholder.configure({ placeholder: 'Start typing your note…' }),
           TextAlign.configure({ types: ['heading', 'paragraph'] }),
           TaskList,
