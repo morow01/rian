@@ -11066,6 +11066,45 @@
       margin-bottom: 0;
     }
 
+    /* v6.9.37 — collapsible blocks in read-only previews (.tt-prose = note previews, history, conflict views).
+       The editor draws them with a NodeView (.tt-coll); the saved HTML is just <div data-type="collapsible"
+       data-summary="…" [data-closed]>, which used to render as a bare div (header missing, closed content shown).
+       Header comes from ::before; a closed block hides its content. Previews are tap-to-edit, so no toggling here. */
+    .tt-prose div[data-type="collapsible"] {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      margin: 6px 0;
+      padding: 0 14px 10px;
+      overflow: hidden;
+    }
+
+    .tt-prose div[data-type="collapsible"]::before {
+      content: "\25BE\00a0\00a0" attr(data-summary);
+      display: block;
+      margin: 0 -14px 10px;
+      padding: 8px 12px;
+      background: var(--bg-input);
+      border-bottom: 1px solid var(--border);
+      font-weight: 600;
+      font-size: 14px;
+      line-height: 1.4;
+      color: var(--text-primary);
+    }
+
+    .tt-prose div[data-type="collapsible"][data-closed] {
+      padding-bottom: 0;
+    }
+
+    .tt-prose div[data-type="collapsible"][data-closed]::before {
+      content: "\25B8\00a0\00a0" attr(data-summary);
+      margin-bottom: 0;
+      border-bottom: none;
+    }
+
+    .tt-prose div[data-type="collapsible"][data-closed]>* {
+      display: none;
+    }
+
     /* Table context bar — overlays the editor instead of sitting in normal
        flow, so it appearing/disappearing as the cursor enters/leaves a table
        never shifts #note-fs-editor's position (v6.7.9x fix: selecting text
@@ -24201,7 +24240,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '6.9.36';
+    const VERSION = '6.9.37';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
