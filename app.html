@@ -10661,13 +10661,23 @@
 
     :is(#note-fs-editor .ProseMirror, #dj-editor-mount .ProseMirror, .tt-prose) ul[data-type="taskList"] li {
       display: flex;
-      align-items: baseline;
+      align-items: flex-start;
       gap: 8px;
       margin-bottom: 4px;
     }
 
+    /* Checkbox + drag handle are centred on the vertical middle of the item's FIRST text line. --tt-fc = that
+       distance from the top of the item; the NodeView measures it (_syncFirstLine). 13px = fallback for
+       static previews / first paint (a normal one-line paragraph). */
+    :is(#note-fs-editor .ProseMirror, #dj-editor-mount .ProseMirror, .tt-prose) ul[data-type="taskList"] li>.tt-drag-handle {
+      margin-top: calc(var(--tt-fc, 13px) - 11px);
+    }
+
     :is(#note-fs-editor .ProseMirror, #dj-editor-mount .ProseMirror, .tt-prose) ul[data-type="taskList"] li>label {
       flex-shrink: 0;
+      display: flex;
+      line-height: 0;
+      margin-top: calc(var(--tt-fc, 13px) - 8px);
     }
 
     :is(#note-fs-editor .ProseMirror, #dj-editor-mount .ProseMirror, .tt-prose) ul[data-type="taskList"] li>label input[type="checkbox"] {
@@ -24191,7 +24201,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '6.9.35';
+    const VERSION = '6.9.36';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -54925,11 +54935,43 @@ QUESTION: ${query}`;
             li.appendChild(label);
             li.appendChild(content);
 
+            // Height of the item's first text line (heading level / custom font size aware) so the grip and
+            // checkbox can be centred on it.
+            let _flTimer = 0;
+            const _syncFirstLine = () => {
+              clearTimeout(_flTimer);
+              _flTimer = setTimeout(() => {
+                const first = content.firstElementChild;
+                if (!first || !li.isConnected) return;
+                const liRect = li.getBoundingClientRect();
+                const scale = (li.offsetHeight && liRect.height) ? liRect.height / li.offsetHeight : 1; // pinch-zoom transform
+                const rg = document.createRange();
+                rg.selectNodeContents(first);
+                let top, bottom;
+                const rects = Array.from(rg.getClientRects()).filter((r) => r.height > 0);
+                if (rects.length) {
+                  top = rects[0].top; bottom = rects[0].bottom;
+                  rects.forEach((r) => { if (r.top < bottom - 1) { top = Math.min(top, r.top); bottom = Math.max(bottom, r.bottom); } }); // first line only
+                } else {
+                  const fr = first.getBoundingClientRect(); top = fr.top; bottom = fr.bottom; // empty paragraph
+                }
+                const fc = ((top + bottom) / 2 - liRect.top) / scale;
+                if (fc > 0 && fc < 200) li.style.setProperty('--tt-fc', fc.toFixed(2) + 'px');
+              }, 0);
+            };
+            _syncFirstLine();
+
             return {
               dom: li,
               contentDOM: content,
+              // Our own style/data-checked changes on the <li> must not make ProseMirror redraw (and wipe) it.
+              ignoreMutation(m) {
+                return m.type === 'attributes' && m.target === li;
+              },
+              destroy() { clearTimeout(_flTimer); },
               update(updatedNode) {
                 if (updatedNode.type !== node.type) return false;
+                _syncFirstLine();
                 checkbox.checked = updatedNode.attrs.checked;
                 li.dataset.checked = String(updatedNode.attrs.checked);
                 node = updatedNode;
