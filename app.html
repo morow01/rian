@@ -10618,6 +10618,11 @@
       color: #7A3D00;
     }
 
+    :is(#note-fs-editor .ProseMirror, #dj-editor-mount .ProseMirror, .tt-prose) mark[data-color="#cbd5e1"] {
+      background-color: #DFE3E9 !important;
+      color: #374151;
+    }
+
     #note-fs-editor .ProseMirror p.is-editor-empty:first-child::before,
     #dj-editor-mount .ProseMirror p.is-editor-empty:first-child::before {
       content: attr(data-placeholder);
@@ -24187,7 +24192,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '6.9.32';
+    const VERSION = '6.9.33';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -56572,6 +56577,7 @@ QUESTION: ${query}`;
       on('tt-hl-blue', () => { e.chain().focus().setHighlight({ color: '#bfdbfe' }).run(); _closePalette(); });
       on('tt-hl-purple', () => { e.chain().focus().setHighlight({ color: '#e9d5ff' }).run(); _closePalette(); });
       on('tt-hl-orange', () => { e.chain().focus().setHighlight({ color: '#fed7aa' }).run(); _closePalette(); });
+      on('tt-hl-gray', () => { e.chain().focus().setHighlight({ color: '#cbd5e1' }).run(); _closePalette(); });
       on('tt-hl-reset', () => { e.chain().focus().unsetHighlight().run(); _closePalette(); });
       // AI accept/discard — _aiPending/_hideAiPreview/_showAiVersions are module-scope below
       on('tt-ai-accept', () => {
@@ -61028,6 +61034,7 @@ The state block is invisible to the user.`;
           <button class="tt-swatch" id="tt-hl-blue" style="background:#bfdbfe" title="Blue"></button>
           <button class="tt-swatch" id="tt-hl-purple" style="background:#e9d5ff" title="Purple"></button>
           <button class="tt-swatch" id="tt-hl-orange" style="background:#fed7aa" title="Orange"></button>
+          <button class="tt-swatch" id="tt-hl-gray" style="background:#cbd5e1" title="Gray"></button>
           <button class="tt-swatch" id="tt-hl-reset" style="background:#f1f5f9;border-color:var(--text-secondary)"
             title="Remove highlight"></button>
         </div>
