@@ -24240,7 +24240,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '6.9.37';
+    const VERSION = '6.9.38';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -58255,12 +58255,24 @@ QUESTION: ${query}`;
     // so ordinary prose can't be mistaken for a table.
     function _ttParseDelimTable(text) {
       if (!text) return null;
-      const lines = String(text).replace(/\r/g, '').replace(/ /g, ' ')
-        .split('\n').map(l => l.trim()).filter(l => l);
+      // Spreadsheet copies keep empty cells as leading/trailing/repeated tabs, so tabs must survive: strip
+      // only spaces and CR here (a plain trim() ate the tabs, which broke every row that starts or ends with
+      // an empty cell — v6.9.38).
+      const lines = String(text).replace(/\r/g, '').replace(/ /g, ' ')
+        .split('\n').map(l => l.replace(/^ +| +$/g, '')).filter(l => l.replace(/\t/g, '') !== '');
       if (lines.length < 2) return null;
       const hasTab = lines.every(l => l.indexOf('\t') >= 0);
-      if (!hasTab && !lines.every(l => /\s{2,}/.test(l))) return null;
-      const rows = lines.map(l => (hasTab ? l.split('\t') : l.split(/\s{2,}/)).map(c => c.trim()));
+      if (!hasTab && !lines.every(l => /\s{2,}/.test(l.trim()))) return null;
+      let rows = lines.map(l => (hasTab ? l.split('\t') : l.trim().split(/\s{2,}/)).map(c => c.trim()));
+      if (hasTab) {
+        // Ragged rows are normal in spreadsheets (empty trailing cells): pad to the widest row, then drop
+        // columns that are empty in every row.
+        const width = Math.max.apply(null, rows.map(r => r.length));
+        rows = rows.map(r => { while (r.length < width) r.push(''); return r; });
+        let keep = [];
+        for (let c = 0; c < width; c++) if (rows.some(r => r[c] !== '')) keep.push(c);
+        rows = rows.map(r => keep.map(c => r[c]));
+      }
       const cols = rows[0].length;
       if (cols < 2) return null;
       if (!rows.every(r => r.length === cols)) return null;
