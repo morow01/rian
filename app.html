@@ -24240,7 +24240,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '6.9.38';
+    const VERSION = '6.9.39';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -60699,12 +60699,12 @@ The state block is invisible to the user.`;
             </div>
           </div>
           <button class="tt-btn" id="tt-collapsible" title="Wrap selection in collapsible (or insert new)">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
               stroke-linejoin="round">
-              <rect x="3" y="3" width="18" height="7" rx="2" />
-              <polyline points="8 6.5 12 10 16 6.5" />
-              <line x1="3" y1="14" x2="21" y2="14" />
-              <line x1="3" y1="18" x2="15" y2="18" />
+              <polygon points="2.5 4 9.5 4 6 9" fill="currentColor" stroke="currentColor" stroke-width="1.2" />
+              <line x1="12.5" y1="6.5" x2="21.5" y2="6.5" />
+              <line x1="9.5" y1="13" x2="21.5" y2="13" />
+              <line x1="9.5" y1="18.5" x2="17" y2="18.5" />
             </svg>
           </button>
           <button class="tt-btn" id="tt-image" title="Insert photo">
