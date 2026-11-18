@@ -24240,7 +24240,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '6.9.41';
+    const VERSION = '6.9.42';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -57463,6 +57463,19 @@ QUESTION: ${query}`;
     document.addEventListener('beforeinput', (ev) => {
       if (ev.target && ev.target.closest && ev.target.closest('.ProseMirror')) _ttCloseToolbarPopups();
     }, true);
+    // Table menu + colour palette: close when clicking anywhere else (the list / heading / font-size menus
+    // below already did; these two never had an outside-click closer, only the typing one above).
+    document.addEventListener('click', (ev) => {
+      const t = ev.target;
+      if (!t || !t.closest) return;
+      const tm = document.getElementById('tt-table-menu');
+      if (tm && tm.classList.contains('tt-open') && !t.closest('#tt-table-menu, #tt-table')) tm.classList.remove('tt-open');
+      const colors = document.getElementById('note-fs-tt-colors');
+      if (colors && colors.classList.contains('tt-colors-open') && !t.closest('#note-fs-tt-colors, #tt-palette')) {
+        colors.classList.remove('tt-colors-open');
+        document.getElementById('tt-palette')?.classList.remove('tt-active');
+      }
+    });
     // Close list-type dropdown when clicking outside it
     document.addEventListener('click', (ev) => {
       const drop = document.getElementById('tt-list-drop');
