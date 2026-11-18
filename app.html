@@ -9753,6 +9753,14 @@
 
     #note-fs-tt-colors.tt-colors-open {
       display: flex;
+      /* v6.9.43: while open the palette takes real space (pushes the note down) instead of floating over the
+         first lines, so the top line can still be selected and recoloured. It is opened on purpose from the
+         toolbar, so unlike the table bar there is no surprise layout jump. */
+      position: relative;
+      top: auto;
+      border-radius: 0;
+      border-width: 1px 0;
+      box-shadow: none;
     }
 
     .tt-toolbar-wrap {
@@ -24240,7 +24248,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '6.9.42';
+    const VERSION = '6.9.43';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
