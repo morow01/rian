@@ -24240,7 +24240,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '6.9.39';
+    const VERSION = '6.9.40';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -56370,11 +56370,15 @@ QUESTION: ${query}`;
         const btn = document.getElementById(btnId);
         const menu = document.getElementById(menuId);
         if (!btn || !menu) return;
+        // Like every other toolbar button: don't steal focus from the editor (typing must keep working)
+        btn.addEventListener('mousedown', ev => ev.preventDefault());
         btn.addEventListener('click', (ev) => {
           ev.stopPropagation();
           const wasOpen = menu.classList.contains('tt-open');
-          // Close all toolbar dropdowns first
+          // Close all toolbar dropdowns first (and the colour palette, which sits in the same spot)
           _closeToolbarDrops();
+          document.getElementById('note-fs-tt-colors')?.classList.remove('tt-colors-open');
+          document.getElementById('tt-palette')?.classList.remove('tt-active');
           if (!wasOpen) {
             const r = btn.getBoundingClientRect();
             menu.style.position = 'fixed';
@@ -57438,6 +57442,27 @@ QUESTION: ${query}`;
     }
     document.addEventListener('touchstart', _ttDismissPopupIfOutside, { passive: true });
     document.addEventListener('click', _ttDismissPopupIfOutside);
+    // v6.9.40 — the toolbar buttons keep the editor focused (mousedown is prevented), so a dropdown opened from
+    // the toolbar was never "clicked away" when the user simply started typing and stayed on screen. Any real
+    // keystroke / text input in the editor now closes the heading, list, table and font-size menus and the
+    // colour palette. Modifier-only keys (Shift, Ctrl…) don't count.
+    function _ttCloseToolbarPopups() {
+      let any = false;
+      ['tt-hdg-menu', 'tt-list-menu', 'tt-table-menu', 'tt-fontsize-menu'].forEach(id => {
+        const m = document.getElementById(id);
+        if (m && m.classList.contains('tt-open')) { m.classList.remove('tt-open'); any = true; }
+      });
+      const colors = document.getElementById('note-fs-tt-colors');
+      if (colors && colors.classList.contains('tt-colors-open')) { colors.classList.remove('tt-colors-open'); any = true; }
+      if (any) document.getElementById('tt-palette')?.classList.remove('tt-active');
+    }
+    document.addEventListener('keydown', (ev) => {
+      if (['Shift', 'Control', 'Alt', 'Meta', 'CapsLock', 'AltGraph'].indexOf(ev.key) !== -1) return;
+      if (ev.target && ev.target.closest && ev.target.closest('.ProseMirror')) _ttCloseToolbarPopups();
+    }, true);
+    document.addEventListener('beforeinput', (ev) => {
+      if (ev.target && ev.target.closest && ev.target.closest('.ProseMirror')) _ttCloseToolbarPopups();
+    }, true);
     // Close list-type dropdown when clicking outside it
     document.addEventListener('click', (ev) => {
       const drop = document.getElementById('tt-list-drop');
