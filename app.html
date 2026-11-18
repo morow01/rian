@@ -10962,7 +10962,7 @@
       transition: border-color 0.28s ease, border-radius 0.28s ease;
     }
 
-    .tt-coll.open .tt-coll-hdr {
+    .tt-coll.open > .tt-coll-hdr {
       border-radius: 10px 10px 0 0;
       border-bottom-color: var(--border);
     }
@@ -10984,7 +10984,7 @@
       background: var(--bg-card-alt);
     }
 
-    .tt-coll.open .tt-coll-btn {
+    .tt-coll.open > .tt-coll-hdr > .tt-coll-btn {
       transform: rotate(90deg);
     }
 
@@ -11043,7 +11043,7 @@
       transition: grid-template-rows 0.28s ease;
     }
 
-    .tt-coll.open .tt-coll-body {
+    .tt-coll.open > .tt-coll-body {
       grid-template-rows: 1fr;
     }
 
@@ -11054,7 +11054,7 @@
       border-radius: 0 0 10px 10px;
     }
 
-    .tt-coll.open .tt-coll-body-inner {
+    .tt-coll.open > .tt-coll-body > .tt-coll-body-inner {
       padding: 10px 14px;
     }
 
@@ -24240,7 +24240,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '6.9.40';
+    const VERSION = '6.9.41';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||

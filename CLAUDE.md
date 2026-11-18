@@ -49,7 +49,7 @@ A Progressive Web App for field technicians — timesheets, notes (TipTap rich t
 ## Version
 `const VERSION = 'x.y.z'` in `app.html` (~line 18699). Bump on every change. Only location that needs updating (index.html version references are static).
 **Patch (z) must not exceed 99.** When a bump would take it to 100, bump the minor version instead and reset patch to 0 (e.g. `6.7.99` → `6.8.0`, never `6.7.100`). 6.7.100–6.7.102 already broke this rule and were left as-is rather than rewriting pushed history — the rule applies from 6.8.0 onward.
-Current version: **6.9.40**
+Current version: **6.9.41**
 
 **12 themes active**: `claude` (default light), `dark` (slate-based), `champagne`, `champagne-dark`, `ios`, `apple` (macOS), `gray` (Grayscale), `gameboy` (Game Boy), `win31` (Win 3.1), `lcd` (LCD), `spectrum` (ZX Spectrum), `retro` (Retro). Theme picker lives in ☰ menu → Display. Switcher at `setTheme(key)`, registry at `THEME_META`.
 
@@ -577,6 +577,9 @@ The editor draws collapsibles with a NodeView (`.tt-coll`), but the saved HTML i
 
 ### Toolbar dropdowns stayed open while typing (v6.9.40)
 The heading / list / table / font-size menus and the colour palette only closed on an outside *click*. Toolbar buttons keep the editor focused (`mousedown` is prevented), so typing never produced a click and the menu hung around over the note. `_ttCloseToolbarPopups()` (next to the other outside-click closers) now runs on `keydown` (not Shift/Ctrl/Alt/Meta/CapsLock) and `beforeinput` inside a `.ProseMirror`. Also: `_openToolbarDrop` buttons now prevent `mousedown` default like the other toolbar buttons (they used to steal focus from the editor), and opening a dropdown closes the colour palette (they stacked in the same spot).
+
+### Nested collapsible didn't collapse (v6.9.41)
+The open-state CSS used descendant selectors (`.tt-coll.open .tt-coll-body` etc.), so an OPEN outer block also matched the body/header/arrow of every block nested inside it and forced them open regardless of their own state (the toggle did change the node, the CSS just ignored it). Now child combinators only: `.tt-coll.open > .tt-coll-hdr`, `… > .tt-coll-hdr > .tt-coll-btn`, `… > .tt-coll-body`, `… > .tt-coll-body > .tt-coll-body-inner`. Any new `.tt-coll` styling keyed on `.open` must use `>`.
 
 ### TipTap is self-hosted (v6.9.31) — esm.sh outage turned the editor into a white page
 On 2026-10-30 esm.sh returned HTTP 500 / 408 (30 s+) for some dependencies (e.g. `prosemirror-schema-list@^1.4.1`), so `_loadTipTapModules()` failed all 4 attempts and every note editor stayed a white page. Worse, each app release changes the service-worker cache name, so every update discarded the cached ~160 esm.sh files and re-downloaded them. TipTap + ProseMirror (pinned `@tiptap/*@2.4.0`, `prosemirror-state@1.4.3`, `prosemirror-history@1.4.1`, one dedup'd ProseMirror) are now bundled with esbuild into **`vendor/tiptap-2.4.0-bundle.js`** (418 KB, ~130 KB gzipped; precached in `sw.js` ASSETS). `_ttLoadModuleSet(cdnUrls, bundleUrl)` imports it (2 attempts) and only then falls back to the old esm.sh list via `_ttFetchModulesWithRetry`. **The bundle's export order must match the destructuring order in `_loadTipTapModules()` (`modules[0..19]`).** To rebuild/upgrade: in a scratch dir `npm i esbuild @tiptap/core@X @tiptap/pm@X @tiptap/starter-kit@X …` (same 20 packages as the URL list), write an entry file that `import * as mN from …` in that order and `export const modules=[m0…m19]`, then `esbuild entry.js --bundle --format=esm --minify --target=es2022 --outfile=vendor/tiptap-X-bundle.js`; change `_TT_BUNDLE_URL` and the sw.js ASSETS entry to the new filename (new filename = new cache key).
