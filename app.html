@@ -9767,6 +9767,28 @@
       position: relative;
     }
 
+    .tt-colors-close {
+      margin-left: auto;
+      flex-shrink: 0;
+      width: 24px;
+      height: 24px;
+      border: none;
+      background: transparent;
+      border-radius: 6px;
+      color: var(--text-muted);
+      font-size: 18px;
+      line-height: 1;
+      cursor: pointer;
+      display: grid;
+      place-items: center;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .tt-colors-close:hover {
+      background: var(--bg-input);
+      color: var(--text-primary);
+    }
+
     .tt-colors-label {
       font-size: 10px;
       font-weight: 700;
@@ -24248,7 +24270,7 @@
   <script>
     // ============================================================
     // CONFIG
-    const VERSION = '6.9.43';
+    const VERSION = '6.9.44';
 
     // Detect Capacitor native shell — true when running as Android app, false in browser/PWA
     const IS_NATIVE = typeof window.Capacitor !== 'undefined' ||
@@ -56383,10 +56405,8 @@ QUESTION: ${query}`;
         btn.addEventListener('click', (ev) => {
           ev.stopPropagation();
           const wasOpen = menu.classList.contains('tt-open');
-          // Close all toolbar dropdowns first (and the colour palette, which sits in the same spot)
+          // Close all toolbar dropdowns first
           _closeToolbarDrops();
-          document.getElementById('note-fs-tt-colors')?.classList.remove('tt-colors-open');
-          document.getElementById('tt-palette')?.classList.remove('tt-active');
           if (!wasOpen) {
             const r = btn.getBoundingClientRect();
             menu.style.position = 'fixed';
@@ -56654,11 +56674,9 @@ QUESTION: ${query}`;
       on('tt-undo', () => _ttRunUndo());
       on('tt-redo', () => _ttRunRedo());
       on('tt-clear', () => { e.chain().focus().unsetAllMarks().clearNodes().run(); _closeToolbarDrops(); _ttUpdateToolbar(e); });
-      // Helper: close colour palette after picking
-      const _closePalette = () => {
-        document.getElementById('note-fs-tt-colors')?.classList.remove('tt-colors-open');
-        document.getElementById('tt-palette')?.classList.remove('tt-active');
-      };
+      // v6.9.44: the colour palette now stays open after picking a swatch — it closes only with its ✕ button or
+      // the palette toolbar icon. (Kept as a no-op hook so the swatch handlers below stay unchanged.)
+      const _closePalette = () => { };
       // Text colours
       on('tt-col-black', () => { e.chain().focus().setColor('#1e293b').run(); _closePalette(); });
       on('tt-col-red', () => { e.chain().focus().setColor('#e53935').run(); _closePalette(); });
@@ -57020,12 +57038,7 @@ QUESTION: ${query}`;
       const tableBar = document.getElementById('note-fs-tt-table-bar');
       if (editor.isActive('table')) {
         if (tableBar) tableBar.style.display = 'flex';
-        // Both the table bar and the colour dropdown are absolutely
-        // positioned overlays anchored to the same spot below the main
-        // toolbar — close the colour dropdown so the two can't stack on
-        // top of each other if it was left open when the cursor entered a table.
-        document.getElementById('note-fs-tt-colors')?.classList.remove('tt-colors-open');
-        document.getElementById('tt-palette')?.classList.remove('tt-active');
+        // (The colour palette is in the layout flow since v6.9.43, so the table bar overlay just sits under it.)
         // Mark TH button active when cursor is in a header row
         const thrBtn = document.getElementById('tcp-thr-btn');
         if (thrBtn) thrBtn.classList.toggle('tt-active', editor.isActive('tableHeader'));
@@ -57455,14 +57468,10 @@ QUESTION: ${query}`;
     // keystroke / text input in the editor now closes the heading, list, table and font-size menus and the
     // colour palette. Modifier-only keys (Shift, Ctrl…) don't count.
     function _ttCloseToolbarPopups() {
-      let any = false;
       ['tt-hdg-menu', 'tt-list-menu', 'tt-table-menu', 'tt-fontsize-menu'].forEach(id => {
         const m = document.getElementById(id);
-        if (m && m.classList.contains('tt-open')) { m.classList.remove('tt-open'); any = true; }
+        if (m && m.classList.contains('tt-open')) m.classList.remove('tt-open');
       });
-      const colors = document.getElementById('note-fs-tt-colors');
-      if (colors && colors.classList.contains('tt-colors-open')) { colors.classList.remove('tt-colors-open'); any = true; }
-      if (any) document.getElementById('tt-palette')?.classList.remove('tt-active');
     }
     document.addEventListener('keydown', (ev) => {
       if (['Shift', 'Control', 'Alt', 'Meta', 'CapsLock', 'AltGraph'].indexOf(ev.key) !== -1) return;
@@ -57471,18 +57480,13 @@ QUESTION: ${query}`;
     document.addEventListener('beforeinput', (ev) => {
       if (ev.target && ev.target.closest && ev.target.closest('.ProseMirror')) _ttCloseToolbarPopups();
     }, true);
-    // Table menu + colour palette: close when clicking anywhere else (the list / heading / font-size menus
-    // below already did; these two never had an outside-click closer, only the typing one above).
+    // Table menu: close when clicking anywhere else (the list / heading / font-size menus below already did).
+    // The colour palette deliberately does NOT close this way — only via its ✕ or the palette icon (v6.9.44).
     document.addEventListener('click', (ev) => {
       const t = ev.target;
       if (!t || !t.closest) return;
       const tm = document.getElementById('tt-table-menu');
       if (tm && tm.classList.contains('tt-open') && !t.closest('#tt-table-menu, #tt-table')) tm.classList.remove('tt-open');
-      const colors = document.getElementById('note-fs-tt-colors');
-      if (colors && colors.classList.contains('tt-colors-open') && !t.closest('#note-fs-tt-colors, #tt-palette')) {
-        colors.classList.remove('tt-colors-open');
-        document.getElementById('tt-palette')?.classList.remove('tt-active');
-      }
     });
     // Close list-type dropdown when clicking outside it
     document.addEventListener('click', (ev) => {
@@ -61180,6 +61184,8 @@ The state block is invisible to the user.`;
           <button class="tt-swatch" id="tt-hl-gray" style="background:#cbd5e1" title="Gray"></button>
           <button class="tt-swatch" id="tt-hl-reset" style="background:#f1f5f9;border-color:var(--text-secondary)"
             title="Remove highlight"></button>
+          <button class="tt-colors-close" id="tt-colors-close" title="Close colours" onmousedown="event.preventDefault()"
+            onclick="document.getElementById('note-fs-tt-colors').classList.remove('tt-colors-open');document.getElementById('tt-palette').classList.remove('tt-active')">&times;</button>
         </div>
       </div><!-- end tt-toolbar-wrap -->
       <!-- TipTap editor area -->
